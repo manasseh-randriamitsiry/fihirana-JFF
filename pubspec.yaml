@@ -36,13 +36,15 @@ dependencies:
   file_picker: ^8.0.6
   cached_network_image: ^3.4.0
   local_auth: ^2.3.0
-  path_provider: any
+  android_intent_plus: ^4.0.3
+  path_provider: ^2.1.2
   turn_page_transition: ^0.3.0
   syncfusion_flutter_sliders: ^27.2.3
   dots_indicator: ^3.0.0
   flutter_svg: ^2.0.10+1
   flutter_colorpicker: ^1.1.0
   url_launcher: ^6.2.5
+  package_info_plus: ^8.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
