@@ -39,3 +39,13 @@ jobs:
           files: |
             build/app/outputs/flutter-apk/app-release.apk
           generate_release_notes: true
+        continue-on-error: true
+
+      - name: Check Release Status
+        if: steps.create_release.outcome == 'failure'
+        run: |
+          echo "::error::Release creation failed. Please check if:"
+          echo "1. The tag exists and follows the format v*"
+          echo "2. The GITHUB_TOKEN has sufficient permissions"
+          echo "3. The APK file was built successfully"
+          exit 1

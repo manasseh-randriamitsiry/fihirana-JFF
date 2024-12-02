@@ -28,14 +28,15 @@ class _SplashScreen1State extends State<SplashScreen1>
   @override
   void initState() {
     super.initState();
+    _checkAgreementStatus();
     _balloonController = AnimationController(
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 8),
       vsync: this,
     )..repeat(reverse: true);
 
     _balloonAnimation = Tween<double>(
-      begin: -50.0,
-      end: 50.0,
+      begin: -60.0,
+      end: 60.0,
     ).animate(CurvedAnimation(
       parent: _balloonController,
       curve: Curves.easeInOut,
@@ -131,6 +132,20 @@ class _SplashScreen1State extends State<SplashScreen1>
     }
   }
 
+  Future<void> _checkAgreementStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasAgreed = prefs.getBool('has_agreed_to_terms') ?? false;
+    if (hasAgreed) {
+      Get.offAll(() => const HomeScreen());
+    }
+  }
+
+  Future<void> _saveAgreementAndProceed() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('has_agreed_to_terms', true);
+    Get.offAll(() => const HomeScreen());
+  }
+
   static const TextStyle greyStyle =
       TextStyle(fontSize: 40.0, color: Colors.grey);
   static const TextStyle whiteStyle =
@@ -152,236 +167,303 @@ class _SplashScreen1State extends State<SplashScreen1>
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     bool _isTablet = isTablet(context);
     final pages = [
-      Container(
-        color: Colors.yellowAccent.shade700,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _buildFloatingBalloon(screenWidth),
-            Container(
-              height: getContainerHeight(context) / 2,
-              padding: EdgeInsets.symmetric(horizontal: 30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const Text(
-                    "Fihirana jesosy famonjena fahamarinantsika",
-                    style: boldStyle,
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Text(
-                    "Miderà an'i Jehovah fa tsara Izy",
-                    style: descriptionGreyStyle,
-                  ),
-                ],
-              ),
-            ),
-            const dotsWidget(
-              active: 0,
-              number: 4,
-            ),
-            const SkipWidget()
-          ],
-        ),
-      ),
-      Container(
-        color: const Color(0xFF55006c),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _buildFloatingBalloon(screenWidth),
-            Container(
-              height: getContainerHeight(context) / 2,
-              padding: EdgeInsets.symmetric(horizontal: 30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    "Ireo zavatra azo atao:",
-                    style: boldStyle,
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Text(
-                    "1. Mijery hira\n"
-                    "2. Mapiditra hira vaovao\n"
-                    "3. Manova hira\n"
-                    "4. Mapiditra hira ho tiana\n"
-                    "5. Mapiditra naoty\n"
-                    "6. Mamafa hira\n"
-                    "7. Mitady hira\n",
-                    style: descriptionWhiteStyle,
-                  ),
-                ],
-              ),
-            ),
-            const dotsWidget(
-              active: 1,
-              number: 4,
-            ),
-            const SkipWidget()
-          ],
-        ),
-      ),
-      Container(
-        color: Colors.purple,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            _buildFloatingBalloon(screenWidth),
-            Container(
-              height: getContainerHeight(context) / 2,
-              padding: EdgeInsets.symmetric(horizontal: 30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    "Fanekena:",
-                    style: boldStyle,
-                  ),
-                  SizedBox(
-                    height: 20.0,
-                  ),
-                  Column(
-                    children: [
-                      const Text(
-                        "Izaho dia manaiky fa:",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+      SizedBox(
+        height: screenHeight,
+        child: Container(
+          color: Colors.yellowAccent.shade700,
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  flex: 2,
+                  child: _buildFloatingBalloon(screenWidth),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Text(
+                          "Fihirana jesosy famonjena fahamarinantsika",
+                          style: boldStyle,
                         ),
-                      ),
-                      const SizedBox(height: 10.0),
-                      const Text(
-                        "1. Tsy hampiasa ny application amin'ny fomba ratsy\n"
-                        "2. Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF  \n",
-                        style: descriptionWhiteStyle,
-                      ),
-                      const SizedBox(height: 20.0),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: _agreementAccepted,
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _agreementAccepted = value ?? false;
-                              });
-                            },
-                            activeColor: Colors.blue,
+                        SizedBox(height: 20.0),
+                        Text(
+                          "Miderà an'i Jehovah fa tsara Izy",
+                          style: descriptionGreyStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: dotsWidget(
+                    active: 0,
+                    number: 4,
+                  ),
+                ),
+                const SkipWidget()
+              ],
+            ),
+          ),
+        ),
+      ),
+      SizedBox(
+        height: screenHeight,
+        child: Container(
+          color: Colors.blue,
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  flex: 2,
+                  child: _buildFloatingBalloon(screenWidth),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Ireo zavatra azo atao:",
+                          style: boldStyle,
+                        ),
+                        SizedBox(height: 20.0),
+                        Text(
+                          "1. Mijery hira\n"
+                          "2. Mapiditra hira vaovao\n"
+                          "3. Manova hira\n"
+                          "4. Mapiditra hira ho tiana\n"
+                          "5. Mapiditra naoty\n"
+                          "6. Mamafa hira\n"
+                          "7. Mitady hira\n",
+                          style: descriptionWhiteStyle,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: dotsWidget(
+                    active: 1,
+                    number: 4,
+                  ),
+                ),
+                const SkipWidget()
+              ],
+            ),
+          ),
+        ),
+      ),
+      SizedBox(
+        height: screenHeight,
+        child: Container(
+          color: Colors.white,
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  flex: 2,
+                  child: _buildFloatingBalloon(screenWidth),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Tongasoa!",
+                          style: boldStyle,
+                        ),
+                        SizedBox(height: 20.0),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                          child: Column(
+                            children: [
+                              const Text(
+                                "Frera/Soeur iza no fiantsoana anao ?",
+                                style: descriptionGreyStyle,
+                              ),
+                              SizedBox(height: 20.0),
+                              TextField(
+                                controller: _usernameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Apidiro ny anaranao',
+                                  border: OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.grey[100],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              const Text('Na',
+                                  style: TextStyle(color: Colors.grey)),
+                              const SizedBox(height: 20),
+                              ElevatedButton.icon(
+                                onPressed:
+                                    _isLoading ? null : _handleGoogleSignIn,
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(double.infinity, 50),
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black,
+                                  side: BorderSide(color: Colors.grey),
+                                ),
+                                icon: Image.asset(
+                                  'assets/images/google.png',
+                                  height: 24,
+                                ),
+                                label: Text('Hiditra @ google'),
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed:
+                                    _isLoading ? null : _handleUsernameSubmit,
+                                style: ElevatedButton.styleFrom(
+                                  minimumSize: Size(double.infinity, 50),
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: Text('Tohizana'),
+                              ),
+                            ],
                           ),
-                          const Expanded(
-                            child: Text(
-                              "Ekeko ireo fepetra ireo",
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: dotsWidget(
+                    active: 2,
+                    number: 4,
+                  ),
+                ),
+                const SkipWidget()
+              ],
+            ),
+          ),
+        ),
+      ),
+      SizedBox(
+        height: screenHeight,
+        child: Container(
+          color: Colors.purple,
+          child: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  flex: 2,
+                  child: _buildFloatingBalloon(screenWidth),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Fanekena:",
+                          style: boldStyle,
+                        ),
+                        SizedBox(height: 20.0),
+                        Column(
+                          children: [
+                            const Text(
+                              "Izaho dia manaiky fa:",
                               style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Colors.black,
-                                fontSize: 16,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20.0),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _agreementAccepted
-                              ? () => Get.offAll(() => const HomeScreen())
-                              : null,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                            const SizedBox(height: 10.0),
+                            const Text(
+                              "1. Tsy hampiasa ny application amin'ny fomba ratsy\n"
+                              "2. Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF  \n",
+                              style: descriptionWhiteStyle,
                             ),
-                            disabledBackgroundColor: Colors.grey,
-                          ),
-                          child: const Text(
-                            "Tohizana",
-                            style: TextStyle(fontSize: 16),
-                          ),
+                            const SizedBox(height: 20.0),
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _agreementAccepted,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      _agreementAccepted = value ?? false;
+                                    });
+                                  },
+                                  activeColor: Colors.blue,
+                                ),
+                                const Expanded(
+                                  child: Text(
+                                    "Ekeko ireo fepetra ireo",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20.0),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _agreementAccepted
+                                    ? _saveAgreementAndProceed
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Tohizana",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const dotsWidget(
-              active: 2,
-              number: 4,
-            ),
-            const SkipWidget()
-          ],
-        ),
-      ),
-      Container(
-        color: Colors.white,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            const Text(
-              "Tongasoa !",
-              style: boldStyle,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-              child: Column(
-                children: [
-                  const Text(
-                    "Frera/Soeur iza no fiantsoana anao ?",
-                    style: descriptionGreyStyle,
-                  ),
-                  SizedBox(
-                    height: getScreenHeight(context) / 50,
-                  ),
-                  TextField(
-                    controller: _usernameController,
-                    decoration: InputDecoration(
-                      labelText: 'Apidiro ny anaranao',
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.grey[100],
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  const Text('Na', style: TextStyle(color: Colors.grey)),
-                  const SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: _isLoading ? null : _handleGoogleSignIn,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 50),
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      side: BorderSide(color: Colors.grey),
-                    ),
-                    icon: Image.asset(
-                      'assets/images/google.png',
-                      height: 24,
-                    ),
-                    label: Text('Hiditra @ google'),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 20.0),
+                  child: dotsWidget(
+                    active: 3,
+                    number: 4,
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _handleUsernameSubmit,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 50),
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                    ),
-                    child: Text('Tohizana'),
-                  ),
-                ],
-              ),
+                ),
+                const SkipWidget()
+              ],
             ),
-            if (_isLoading) CircularProgressIndicator(),
-          ],
+          ),
         ),
       ),
     ];
@@ -390,8 +472,10 @@ class _SplashScreen1State extends State<SplashScreen1>
       body: LiquidSwipe(
         pages: pages,
         enableLoop: false,
-        fullTransitionValue: 300,
+        fullTransitionValue: 500,
         enableSideReveal: true,
+        waveType: WaveType.liquidReveal,
+        positionSlideIcon: 0.8,
       ),
     );
   }
