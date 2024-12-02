@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../controller/theme_controller.dart';
 import '../controller/font_controller.dart';
-import '../controller/color_controller.dart';
 import '../screen/favorite/favorites_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import 'color_picker_widget.dart';
@@ -22,7 +21,6 @@ class DrawerScreen extends StatefulWidget {
 class DrawerScreenState extends State<DrawerScreen> {
   final ThemeController _themeController = Get.put(ThemeController());
   final FontController _fontController = Get.put(FontController());
-  final ColorController _colorController = Get.put(ColorController());
   bool _isAuthenticated = false;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -197,7 +195,7 @@ class DrawerScreenState extends State<DrawerScreen> {
             ListTile(
               leading: Icon(Icons.logout, color: textColor),
               title: Text(
-                'Mivoaka',
+                'Hivoaka',
                 style: TextStyle(
                   color: textColor,
                 ),
