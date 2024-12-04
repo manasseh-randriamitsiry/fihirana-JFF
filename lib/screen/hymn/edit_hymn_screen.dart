@@ -54,26 +54,53 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   }
 
   void _saveChanges() {
+    if (!isUserAuthenticated()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Mila miditra aloha ianao'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final user = FirebaseAuth.instance.currentUser!;
     // Update the hymn object with new values
     Hymn updatedHymn = Hymn(
-        id: widget.hymn.id,
-        hymnNumber: _hymnNumberController.text,
-        title: _titleController.text,
-        verses: _verseControllers.map((controller) => controller.text).toList(),
-        bridge: _bridgeController.text,
-        hymnHint: _hymnHintController.text);
+      id: widget.hymn.id,
+      hymnNumber: _hymnNumberController.text,
+      title: _titleController.text,
+      verses: _verseControllers.map((controller) => controller.text).toList(),
+      bridge: _bridgeController.text,
+      hymnHint: _hymnHintController.text,
+      createdAt: widget.hymn.createdAt,
+      createdBy: widget.hymn.createdBy,
+      createdByEmail: widget.hymn.createdByEmail,
+    );
 
     // Call your Firestore update method from the service
     _hymnService
-        .updateHymn(updatedHymn.id, updatedHymn) // Pass the id and updatedHymn
+        .updateHymn(updatedHymn.id, updatedHymn)
         .then((_) {
-      Navigator.pop(context); // Navigate back after update
-    }).catchError((error) {
-      if (kDebugMode) {
-        print('Error updating hymn: $error');
-      }
-      // Handle error as needed
-    });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Voaova soa aman-tsara'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context); // Navigate back after update
+        })
+        .catchError((error) {
+          if (kDebugMode) {
+            print('Error updating hymn: $error');
+          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Nisy olana: $error'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        });
   }
 
   @override

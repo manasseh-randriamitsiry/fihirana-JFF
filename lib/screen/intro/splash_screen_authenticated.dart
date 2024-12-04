@@ -18,7 +18,7 @@ class SplashScreenAuthenticatedState extends State<SplashScreenAuthenticated> {
     super.initState();
     // Navigate to home screen after 2 seconds
     Timer(const Duration(seconds: 2), () {
-      Get.offAll(() => const HomeScreen());
+      Get.offAll(() => HomeScreen());
     });
   }
 

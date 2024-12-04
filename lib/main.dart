@@ -1,4 +1,3 @@
-import 'package:fihirana/screen/intro/splash_screen1.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,26 +8,13 @@ import 'controller/theme_controller.dart';
 import 'controller/font_controller.dart';
 import 'controller/color_controller.dart';
 import 'screen/accueil/home_screen.dart';
-import 'screen/accueil/accueil_screen.dart';
+import 'screen/intro/splash_screen1.dart';
 import 'services/version_check_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  // Initialize notification action handler
-  await AwesomeNotifications().initialize(
-    null,
-    [
-      NotificationChannel(
-        channelKey: 'basic_channel',
-        channelName: 'Basic notifications',
-        channelDescription: 'Notification channel for basic tests',
-        defaultColor: const Color(0xFF9D50DD),
-        ledColor: Colors.white,
-      ),
-    ],
-    debug: true,
-  );
+
   final prefs = await SharedPreferences.getInstance();
   runApp(MyApp(prefs: prefs));
 }
@@ -43,13 +29,20 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  final FontController fontController = Get.put(FontController());
-  final ColorController colorController = Get.put(ColorController());
+  late final FontController fontController;
+  late final ColorController colorController;
+  late final ThemeController themeController;
 
   @override
   void initState() {
     super.initState();
-    // Initialize notifications and check for updates after app is initialized
+
+    // Initialize controllers
+    colorController = Get.put(ColorController());
+    themeController = Get.put(ThemeController());
+    fontController = Get.put(FontController());
+
+    // Initialize notifications and check for updates
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await VersionCheckService.initializeNotifications();
       await VersionCheckService.checkForUpdate();
@@ -68,28 +61,32 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeController themeController = Get.put(ThemeController());
-    themeController.isDarkMode.value = widget.prefs.getBool('isDarkMode') ?? false;
-    
+    // Initialize theme from preferences
+    themeController.isDarkMode.value =
+        widget.prefs.getBool('isDarkMode') ?? false;
     final bool isFirstTime = widget.prefs.getBool('isFirstTime') ?? true;
-    
+
     return Obx(() {
       final currentFont = fontController.currentFont.value;
-      
-      ThemeData baseTheme = themeController.isDarkMode.value 
+      final isDark = themeController.isDarkMode.value;
+
+      // Get the appropriate base theme
+      ThemeData baseTheme = isDark
           ? colorController.getDarkTheme()
           : colorController.getLightTheme();
-          
+
+      // Apply font to the theme
       final themeWithFont = _getThemeWithFont(baseTheme, currentFont);
 
       return GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
         theme: themeWithFont,
         darkTheme: themeWithFont,
         home: isFirstTime ? SplashScreen1() : const HomeScreen(),
+        initialRoute: isFirstTime ? '/splash' : '/home',
         getPages: [
-          GetPage(name: '/accueil', page: () => const AccueilScreen()),
+          GetPage(name: '/splash', page: () => SplashScreen1()),
           GetPage(name: '/home', page: () => const HomeScreen()),
         ],
       );

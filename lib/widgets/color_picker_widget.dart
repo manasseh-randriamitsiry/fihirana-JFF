@@ -8,92 +8,30 @@ class ColorPickerWidget extends StatelessWidget {
 
   ColorPickerWidget({super.key});
 
-  MaterialColor _getMaterialColor(Color color) {
-    if (color == Colors.purple) return Colors.purple;
-    if (color == Colors.deepOrange) return Colors.deepOrange;
-    if (color == Colors.blue) return Colors.blue;
-    if (color == Colors.amber) return Colors.amber;
-    if (color == Colors.teal) return Colors.teal;
-    if (color == Colors.pink) return Colors.pink;
-    if (color == Colors.indigo) return Colors.indigo;
-    if (color == Colors.orange) return Colors.orange;
-    if (color == Colors.red) return Colors.red;
-    if (color == Colors.green) return Colors.green;
-    if (color == Colors.lime) return Colors.lime;
-    if (color == Colors.yellow) return Colors.yellow;
-    if (color == Colors.cyan) return Colors.cyan;
-    if (color == Colors.brown) return Colors.brown;
-    if (color == Colors.grey) return Colors.grey;
-    return Colors.purple; // Default fallback
-  }
-
-  void _showColorPicker(BuildContext context, String colorType, Color currentColor, Function(Color) onColorChanged) {
+  void _showColorPicker(BuildContext context, String colorType, Color currentColor,
+      Function(Color) onColorChanged) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Misafidy loko $colorType'),
+          backgroundColor: colorController.backgroundColor.value,
+          title: Text(
+            'Misafidy loko $colorType',
+            style: TextStyle(color: colorController.textColor.value),
+          ),
           content: SingleChildScrollView(
-            child: BlockPicker(
+            child: MaterialPicker(
               pickerColor: currentColor,
-              onColorChanged: (color) {
-                if (colorType == 'fototra' || colorType == 'fanampin\'') {
-                  // For primary and accent colors, convert to MaterialColor
-                  final materialColor = _getMaterialColor(color);
-                  onColorChanged(materialColor);
-                } else {
-                  // For other colors, use the color directly
-                  onColorChanged(color);
-                }
-              },
-              availableColors: colorType == 'fototra' || colorType == 'fanampin\''
-                  ? [
-                      // Material colors for primary and accent
-                      Colors.purple,
-                      Colors.deepOrange,
-                      Colors.blue,
-                      Colors.amber,
-                      Colors.teal,
-                      Colors.pink,
-                      Colors.indigo,
-                      Colors.orange,
-                      Colors.red,
-                      Colors.green,
-                      Colors.lime,
-                      Colors.yellow,
-                      Colors.cyan,
-                      Colors.brown,
-                      Colors.grey,
-                    ]
-                  : [
-                      // Colors for text and other UI elements
-                      Colors.black,
-                      Colors.white,
-                      Colors.grey.shade900,
-                      Colors.grey.shade800,
-                      Colors.grey.shade700,
-                      Colors.grey.shade600,
-                      Colors.grey.shade500,
-                      Colors.grey.shade400,
-                      Colors.grey.shade300,
-                      Colors.grey.shade200,
-                      Colors.grey.shade100,
-                      Colors.purple,
-                      Colors.deepOrange,
-                      Colors.blue,
-                      Colors.amber,
-                      Colors.teal,
-                      Colors.pink,
-                      Colors.indigo,
-                      Colors.orange,
-                      Colors.red,
-                      Colors.green,
-                    ],
+              onColorChanged: onColorChanged,
+              enableLabel: true,
             ),
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Ekena'),
+              child: Text(
+                'Ekena',
+                style: TextStyle(color: colorController.primaryColor.value),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -104,169 +42,218 @@ class ColorPickerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildColorSchemePresets() {
-    return SizedBox(
-      height: 60,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: colorController.colorSchemes.length,
-        itemBuilder: (context, index) {
-          final scheme = colorController.colorSchemes[index];
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: InkWell(
-              onTap: () => colorController.applyColorScheme(index),
-              child: Container(
-                width: 50,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      scheme['primary']!,
-                      scheme['accent']!,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey),
+  Widget _buildColorButton(String label, Color color, VoidCallback onTap) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: color),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-          );
-        },
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildPresetSchemes() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            'Loko efa voaomana',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colorController.textColor.value,
+            ),
+          ),
+        ),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: colorController.colorSchemes.asMap().entries.map((entry) {
+            final index = entry.key;
+            final scheme = entry.value;
+            return InkWell(
+              onTap: () => colorController.setColorScheme(index),
+              child: Container(
+                width: 80,
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: (scheme['primary'] as Color).withOpacity(0.1),
+                  border: Border.all(
+                    color: colorController.currentSchemeIndex == index
+                        ? (scheme['accent'] as Color)
+                        : Colors.transparent,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 30,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            scheme['primary'] as Color,
+                            scheme['accent'] as Color,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      scheme['name'] as String,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorController.textColor.value,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Endrika voafidy mialoha',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        _buildColorSchemePresets(),
-        const Divider(),
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Text(
-            'Loko manokana',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-        ),
-        Obx(() => ListTile(
-          title: const Text('Loko fototra'),
-          trailing: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colorController.primaryColor.value,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey),
+    return Obx(() => Card(
+          color: colorController.backgroundColor.value,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Safidio ny loko tianao',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: colorController.textColor.value,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildPresetSchemes(),
+                const Divider(height: 32),
+                Text(
+                  'Loko manokana',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: colorController.textColor.value,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _buildColorButton(
+                  'Loko fototra',
+                  colorController.primaryColor.value,
+                  () => _showColorPicker(
+                    context,
+                    'fototra',
+                    colorController.primaryColor.value,
+                    (color) => colorController.updateColors(primary: color),
+                  ),
+                ),
+                _buildColorButton(
+                  'Loko fanampin\'',
+                  colorController.accentColor.value,
+                  () => _showColorPicker(
+                    context,
+                    'fanampin\'',
+                    colorController.accentColor.value,
+                    (color) => colorController.updateColors(accent: color),
+                  ),
+                ),
+                _buildColorButton(
+                  'Loko soratra',
+                  colorController.textColor.value,
+                  () => _showColorPicker(
+                    context,
+                    'soratra',
+                    colorController.textColor.value,
+                    (color) => colorController.updateColors(text: color),
+                  ),
+                ),
+                _buildColorButton(
+                  'Loko ambadika',
+                  colorController.backgroundColor.value,
+                  () => _showColorPicker(
+                    context,
+                    'ambadika',
+                    colorController.backgroundColor.value,
+                    (color) => colorController.updateColors(background: color),
+                  ),
+                ),
+                _buildColorButton(
+                  'Loko drawer',
+                  colorController.drawerColor.value,
+                  () => _showColorPicker(
+                    context,
+                    'drawer',
+                    colorController.drawerColor.value,
+                    (color) => colorController.updateColors(drawer: color),
+                  ),
+                ),
+                _buildColorButton(
+                  'Loko icon',
+                  colorController.iconColor.value,
+                  () => _showColorPicker(
+                    context,
+                    'icon',
+                    colorController.iconColor.value,
+                    (color) => colorController.updateColors(icon: color),
+                  ),
+                ),
+              ],
             ),
           ),
-          onTap: () => _showColorPicker(
-            context,
-            'fototra',
-            colorController.primaryColor.value,
-            (color) => colorController.updateColors(primary: color),
-          ),
-        )),
-        Obx(() => ListTile(
-          title: const Text('Loko fanampin\''),
-          trailing: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colorController.accentColor.value,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey),
-            ),
-          ),
-          onTap: () => _showColorPicker(
-            context,
-            'fanampin\'',
-            colorController.accentColor.value,
-            (color) => colorController.updateColors(accent: color),
-          ),
-        )),
-        Obx(() => ListTile(
-          title: const Text('Lokon\'ny soratra'),
-          trailing: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colorController.textColor.value,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey),
-            ),
-          ),
-          onTap: () => _showColorPicker(
-            context,
-            'soratra',
-            colorController.textColor.value,
-            (color) => colorController.updateColors(text: color),
-          ),
-        )),
-        Obx(() => ListTile(
-          title: const Text('Lokon\'ny ambadika'),
-          trailing: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colorController.backgroundColor.value,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey),
-            ),
-          ),
-          onTap: () => _showColorPicker(
-            context,
-            'ambadika',
-            colorController.backgroundColor.value,
-            (color) => colorController.updateColors(background: color),
-          ),
-        )),
-        Obx(() => ListTile(
-          title: const Text('Lokon\'ny menu'),
-          trailing: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colorController.drawerColor.value,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey),
-            ),
-          ),
-          onTap: () => _showColorPicker(
-            context,
-            'menu',
-            colorController.drawerColor.value,
-            (color) => colorController.updateColors(drawer: color),
-          ),
-        )),
-        Obx(() => ListTile(
-          title: const Text('Lokon\'ny kisary'),
-          trailing: Container(
-            width: 24,
-            height: 24,
-            decoration: BoxDecoration(
-              color: colorController.iconColor.value,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey),
-            ),
-          ),
-          onTap: () => _showColorPicker(
-            context,
-            'kisary',
-            colorController.iconColor.value,
-            (color) => colorController.updateColors(icon: color),
-          ),
-        )),
-      ],
-    );
+        ));
   }
 }

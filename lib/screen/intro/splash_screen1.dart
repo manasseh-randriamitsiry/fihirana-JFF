@@ -93,7 +93,7 @@ class _SplashScreen1State extends State<SplashScreen1>
       await prefs.setString('username', userCredential.user?.displayName ?? '');
       await prefs.setString('email', userCredential.user?.email ?? '');
 
-      Get.offAll(() => const HomeScreen());
+      Get.offAll(() => HomeScreen());
     } catch (e) {
       print('Error signing in with Google: $e');
       Get.snackbar(
@@ -121,7 +121,7 @@ class _SplashScreen1State extends State<SplashScreen1>
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('username', _usernameController.text.trim());
-      Get.offAll(() => const HomeScreen());
+      Get.offAll(() => HomeScreen());
     } catch (e) {
       print('Error saving username: $e');
       Get.snackbar(
@@ -136,14 +136,14 @@ class _SplashScreen1State extends State<SplashScreen1>
     final prefs = await SharedPreferences.getInstance();
     final hasAgreed = prefs.getBool('has_agreed_to_terms') ?? false;
     if (hasAgreed) {
-      Get.offAll(() => const HomeScreen());
+      Get.offAll(() => HomeScreen());
     }
   }
 
   Future<void> _saveAgreementAndProceed() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('has_agreed_to_terms', true);
-    Get.offAll(() => const HomeScreen());
+    Get.offAll(() => HomeScreen());
   }
 
   static const TextStyle greyStyle =
@@ -517,7 +517,7 @@ class SkipWidget extends StatelessWidget {
         children: [
           TextButton(
             onPressed: () {
-              Get.offAll(() => const HomeScreen());
+              Get.offAll(() => HomeScreen());
             },
             child: Text(
               'dinganina',

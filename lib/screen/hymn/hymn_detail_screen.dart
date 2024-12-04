@@ -4,9 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
+import 'package:intl/intl.dart'; // Import the intl package
 
 import '../../models/hymn.dart';
 import 'edit_hymn_screen.dart';
+import '../../services/hymn_service.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final Hymn hymn;
@@ -40,6 +42,8 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
     Colors.brown,
     Colors.grey,
   ];
+
+  final HymnService _hymnService = HymnService();
 
   @override
   void initState() {
@@ -111,6 +115,55 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
         ),
         centerTitle: true,
         actions: [
+          StreamBuilder<List<String>>(
+            stream: _hymnService.getFavoriteHymnIdsStream(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return IconButton(
+                  icon: Icon(Icons.favorite_border, color: textColor),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Nisy olana: ${snapshot.error}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  },
+                );
+              }
+
+              final isFavorite = snapshot.data?.contains(widget.hymn.id) ?? false;
+              return IconButton(
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : textColor,
+                ),
+                onPressed: () async {
+                  try {
+                    await _hymnService.toggleFavorite(widget.hymn);
+                    
+                    // If user is not logged in, show a snackbar suggesting to login for cloud sync
+                    if (FirebaseAuth.instance.currentUser == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Voatahiry eto amin\'ny finday. Raha te-hitahiry any @ kaonty, dia midira'),
+                          duration: Duration(seconds: 3),
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Tsy nahomby ny fitahirizana'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+              );
+            },
+          ),
           PopupMenuButton<String>(
             color: theme.primaryColor,
             onSelected: (String item) {
@@ -124,6 +177,10 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                       title: widget.hymn.title,
                       verses: widget.hymn.verses,
                       hymnHint: widget.hymn.hymnHint,
+                      bridge: widget.hymn.bridge,
+                      createdAt: widget.hymn.createdAt,
+                      createdBy: widget.hymn.createdBy,
+                      createdByEmail: widget.hymn.createdByEmail,
                     ),
                   );
                   break;
@@ -186,155 +243,178 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
           ),
         ],
       ),
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (_showSlider)
-              Container(
-                child: SfSlider(
-                  min: 10.0,
-                  max: 100.0,
-                  interval: 5,
-                  showTicks: true,
-                  minorTicksPerInterval: 1,
-                  onChanged: (dynamic value) {
-                    _saveFontSize();
-                    setState(() {
-                      _fontSize = value;
-                    });
-                  },
-                  onChangeEnd: (dynamic value) {
-                    setState(() {
-                      _showSlider = false; // Hide the slider on release
-                    });
-                  },
-                  value: _fontSize,
-                ),
-              ),
-            Center(
-              child: Text(
-                widget.hymn.title,
-                maxLines: 3,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: theme.textTheme.bodyLarge?.color,
-                  fontWeight: FontWeight.bold,
-                  fontSize: _fontSize,
-                ),
-              ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            if (_show &&
-                (widget.hymn.hymnHint?.trim().toLowerCase().isNotEmpty ??
-                    false)) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title
+              Center(
                 child: Text(
-                  widget.hymn.hymnHint ?? '', // Provide default value if null
+                  widget.hymn.title,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 2 * _fontSize / 3,
-                    color:
-                        theme.textTheme.bodyLarge?.color, // Null-aware access
-                  ),
-                ),
-              ),
-            ],
-            if (widget.hymn.bridge != null &&
-                widget.hymn.bridge!.trim().toLowerCase().isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.only(top: 10, left: 15),
-                child: Text(
-                  'Isan\'andininy:',
-                  style: TextStyle(
-                    fontSize: _fontSize + 2,
+                    fontSize: _fontSize * 1.2,
                     fontWeight: FontWeight.bold,
-                    color: theme.textTheme.bodyLarge?.color,
+                    color: textColor,
                   ),
                 ),
               ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15),
-                child: Text(
-                  widget.hymn.bridge!,
-                  style: TextStyle(
-                      fontSize: _fontSize,
-                      color: theme.textTheme.bodyLarge?.color),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 60),
-                child: Text(
-                  'Andininy',
-                  style: TextStyle(
-                    fontSize: _fontSize + 2,
-                    fontWeight: FontWeight.bold,
-                    color: theme.textTheme.bodyLarge?.color,
+              const SizedBox(height: 16),
+              // Creation info
+              if (isUserAuthenticated())
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Nampiditra: ${widget.hymn.createdBy}',
+                        style: TextStyle(
+                          fontSize: _fontSize * 0.8,
+                          color: textColor,
+                        ),
+                      ),
+                      if (widget.hymn.createdByEmail != null)
+                        Text(
+                          'Email: ${widget.hymn.createdByEmail}',
+                          style: TextStyle(
+                            fontSize: _fontSize * 0.8,
+                            color: textColor,
+                          ),
+                        ),
+                      Text(
+                        'Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(widget.hymn.createdAt)}',
+                        style: TextStyle(
+                          fontSize: _fontSize * 0.8,
+                          color: textColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ],
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (int i = 0; i < widget.hymn.verses.length; i++) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 30.0),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Positioned.fill(
-                              child: Opacity(
-                                opacity: 0.15,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${i + 1}',
-                                    style: TextStyle(
-                                      fontSize: _countFontSize,
-                                      fontWeight: FontWeight.bold,
-                                      color: theme.primaryColor,
-                                    ),
+              const SizedBox(height: 16),
+              if (_showSlider)
+                Container(
+                  child: SfSlider(
+                    min: 10.0,
+                    max: 100.0,
+                    interval: 5,
+                    showTicks: true,
+                    minorTicksPerInterval: 1,
+                    onChanged: (dynamic value) {
+                      _saveFontSize();
+                      setState(() {
+                        _fontSize = value;
+                      });
+                    },
+                    onChangeEnd: (dynamic value) {
+                      setState(() {
+                        _showSlider = false; // Hide the slider on release
+                      });
+                    },
+                    value: _fontSize,
+                  ),
+                ),
+              if (_show &&
+                  (widget.hymn.hymnHint?.trim().toLowerCase().isNotEmpty ??
+                      false)) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  child: Text(
+                    widget.hymn.hymnHint ?? '', // Provide default value if null
+                    style: TextStyle(
+                      fontSize: 2 * _fontSize / 3,
+                      color:
+                          theme.textTheme.bodyLarge?.color, // Null-aware access
+                    ),
+                  ),
+                ),
+              ],
+              if (widget.hymn.bridge != null &&
+                  widget.hymn.bridge!.trim().toLowerCase().isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.only(top: 10, left: 15),
+                  child: Text(
+                    'Isan\'andininy:',
+                    style: TextStyle(
+                      fontSize: _fontSize + 2,
+                      fontWeight: FontWeight.bold,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15),
+                  child: Text(
+                    widget.hymn.bridge!,
+                    style: TextStyle(
+                        fontSize: _fontSize,
+                        color: theme.textTheme.bodyLarge?.color),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 60),
+                  child: Text(
+                    'Andininy',
+                    style: TextStyle(
+                      fontSize: _fontSize + 2,
+                      fontWeight: FontWeight.bold,
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                ),
+              ],
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  for (int i = 0; i < widget.hymn.verses.length; i++) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 30.0),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned.fill(
+                            child: Opacity(
+                              opacity: 0.15,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  '${i + 1}',
+                                  style: TextStyle(
+                                    fontSize: _countFontSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: theme.primaryColor,
                                   ),
                                 ),
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 30.0),
-                              child: Text(
-                                '${i + 1}. ${widget.hymn.verses[i]}',
-                                style: TextStyle(
-                                  fontSize: _fontSize,
-                                  color: verseColors[i % verseColors.length],
-                                ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 30.0),
+                            child: Text(
+                              '${i + 1}. ${widget.hymn.verses[i]}',
+                              style: TextStyle(
+                                fontSize: _fontSize,
+                                color: verseColors[i % verseColors.length],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 100), // Adjust as needed
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "-- tapitra --",
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: _fontSize,
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
-                ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

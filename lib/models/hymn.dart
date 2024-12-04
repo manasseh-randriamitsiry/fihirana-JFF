@@ -7,8 +7,9 @@ class Hymn {
   List<String> verses;
   String? bridge;
   String? hymnHint;
-  bool isFavorite;
-  DateTime? favoriteAddedDate;
+  DateTime createdAt;
+  String createdBy;
+  String? createdByEmail;
 
   Hymn({
     required this.id,
@@ -17,12 +18,14 @@ class Hymn {
     required this.verses,
     this.bridge,
     this.hymnHint,
-    this.isFavorite = false,
-    this.favoriteAddedDate,
+    required this.createdAt,
+    required this.createdBy,
+    this.createdByEmail,
   });
 
   factory Hymn.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     Map<String, dynamic> data = doc.data()!;
+    final createdAtData = data['createdAt'];
     return Hymn(
       id: doc.id,
       hymnNumber: data['hymnNumber'].toString(),
@@ -30,8 +33,11 @@ class Hymn {
       verses: List<String>.from(data['verses'] as List<dynamic>),
       bridge: data['bridge'] as String?,
       hymnHint: data['hymnHint'] as String?,
-      isFavorite: data['isFavorite'] ?? false,
-      favoriteAddedDate: (data['favoriteAddedDate'] as Timestamp?)?.toDate(),
+      createdAt: createdAtData != null 
+          ? (createdAtData as Timestamp).toDate() 
+          : DateTime(2023), // Default date for legacy data
+      createdBy: data['createdBy'] as String? ?? 'Unknown',
+      createdByEmail: data['createdByEmail'] as String?,
     );
   }
 
@@ -42,8 +48,9 @@ class Hymn {
       'verses': verses,
       'bridge': bridge,
       'hymnHint': hymnHint,
-      'isFavorite': isFavorite,
-      'favoriteAddedDate': favoriteAddedDate,
+      'createdAt': Timestamp.fromDate(createdAt),
+      'createdBy': createdBy,
+      'createdByEmail': createdByEmail,
     };
   }
 }

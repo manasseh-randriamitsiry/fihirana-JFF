@@ -4,33 +4,41 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ColorController extends GetxController {
+  static ColorController get to => Get.find();
+
   // Theme colors
   final Rx<MaterialColor> primaryColor = Colors.purple.obs;
-  final Rx<MaterialColor> accentColor = Colors.deepOrange.obs;
+  final Rx<Color> accentColor = Colors.deepOrange.obs;
   final Rx<Color> textColor = Colors.black.obs;
   final Rx<Color> backgroundColor = Colors.white.obs;
   final Rx<Color> drawerColor = Colors.black.obs;
   final Rx<Color> iconColor = Colors.deepOrange.obs;
 
+  // Current color scheme index
+  final RxInt currentSchemeIndex = 0.obs;
+
   // Predefined color schemes
   final List<Map<String, dynamic>> colorSchemes = [
     {
+      'name': 'Classic Purple',
       'primary': Colors.purple,
       'accent': Colors.deepOrange,
-      'text': Colors.black,
+      'text': Colors.black87,
       'background': Colors.white,
-      'drawer': Colors.black,
+      'drawer': Colors.purple.shade900,
       'icon': Colors.deepOrange,
     },
     {
+      'name': 'Ocean Blue',
       'primary': Colors.blue,
       'accent': Colors.amber,
-      'text': Colors.black,
+      'text': Colors.black87,
       'background': Colors.white,
-      'drawer': Colors.blueGrey,
+      'drawer': Colors.blue.shade900,
       'icon': Colors.amber,
     },
     {
+      'name': 'Forest Green',
       'primary': Colors.teal,
       'accent': Colors.pink,
       'text': Colors.black,
@@ -39,14 +47,46 @@ class ColorController extends GetxController {
       'icon': Colors.pink,
     },
     {
+      'name': 'Royal Purple',
       'primary': Colors.indigo,
       'accent': Colors.orange,
-      'text': Colors.black,
+      'text': Colors.black87,
       'background': Colors.white,
       'drawer': Colors.indigo.shade900,
       'icon': Colors.orange,
     },
+    {
+      'name': 'Dark Theme',
+      'primary': Colors.grey,
+      'accent': Colors.deepPurpleAccent,
+      'text': Colors.white,
+      'background': Colors.black,
+      'drawer': Colors.grey.shade900,
+      'icon': Colors.deepPurpleAccent,
+    },
   ];
+
+  MaterialColor getMaterialColor(Color color) {
+    final int red = color.red;
+    final int green = color.green;
+    final int blue = color.blue;
+    final int primary = color.value;
+
+    final Map<int, Color> shades = {
+      50: Color.fromRGBO(red, green, blue, .1),
+      100: Color.fromRGBO(red, green, blue, .2),
+      200: Color.fromRGBO(red, green, blue, .3),
+      300: Color.fromRGBO(red, green, blue, .4),
+      400: Color.fromRGBO(red, green, blue, .5),
+      500: Color.fromRGBO(red, green, blue, .6),
+      600: Color.fromRGBO(red, green, blue, .7),
+      700: Color.fromRGBO(red, green, blue, .8),
+      800: Color.fromRGBO(red, green, blue, .9),
+      900: Color.fromRGBO(red, green, blue, 1),
+    };
+
+    return MaterialColor(primary, shades);
+  }
 
   @override
   void onInit() {
@@ -55,70 +95,82 @@ class ColorController extends GetxController {
   }
 
   Future<void> loadColors() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Load primary color (must be MaterialColor)
-    final primaryColorValue = prefs.getInt('primaryColor') ?? Colors.purple.value;
-    if (primaryColorValue == Colors.purple.value) {
-      primaryColor.value = Colors.purple;
-    } else if (primaryColorValue == Colors.deepOrange.value) {
-      primaryColor.value = Colors.deepOrange;
-    } else if (primaryColorValue == Colors.blue.value) {
-      primaryColor.value = Colors.blue;
-    } else if (primaryColorValue == Colors.amber.value) {
-      primaryColor.value = Colors.amber;
-    } else if (primaryColorValue == Colors.teal.value) {
-      primaryColor.value = Colors.teal;
-    } else if (primaryColorValue == Colors.pink.value) {
-      primaryColor.value = Colors.pink;
-    } else if (primaryColorValue == Colors.indigo.value) {
-      primaryColor.value = Colors.indigo;
-    } else if (primaryColorValue == Colors.orange.value) {
-      primaryColor.value = Colors.orange;
-    } else {
-      primaryColor.value = Colors.purple; // Default fallback
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedIndex = prefs.getInt('colorSchemeIndex') ?? 0;
+      await setColorScheme(savedIndex);
+    } catch (e) {
+      print('Error loading colors: $e');
+      setColorScheme(0);
     }
-
-    // Load accent color (must be MaterialColor)
-    final accentColorValue = prefs.getInt('accentColor') ?? Colors.deepOrange.value;
-    if (accentColorValue == Colors.purple.value) {
-      accentColor.value = Colors.purple;
-    } else if (accentColorValue == Colors.deepOrange.value) {
-      accentColor.value = Colors.deepOrange;
-    } else if (accentColorValue == Colors.blue.value) {
-      accentColor.value = Colors.blue;
-    } else if (accentColorValue == Colors.amber.value) {
-      accentColor.value = Colors.amber;
-    } else if (accentColorValue == Colors.teal.value) {
-      accentColor.value = Colors.teal;
-    } else if (accentColorValue == Colors.pink.value) {
-      accentColor.value = Colors.pink;
-    } else if (accentColorValue == Colors.indigo.value) {
-      accentColor.value = Colors.indigo;
-    } else if (accentColorValue == Colors.orange.value) {
-      accentColor.value = Colors.orange;
-    } else {
-      accentColor.value = Colors.deepOrange; // Default fallback
-    }
-
-    // Load other colors (regular Colors)
-    textColor.value = Color(prefs.getInt('textColor') ?? Colors.black.value);
-    backgroundColor.value = Color(prefs.getInt('backgroundColor') ?? Colors.white.value);
-    drawerColor.value = Color(prefs.getInt('drawerColor') ?? Colors.black.value);
-    iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.deepOrange.value);
   }
 
-  Future<void> saveColors() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> setColorScheme(int index) async {
+    try {
+      if (index >= 0 && index < colorSchemes.length) {
+        final scheme = colorSchemes[index];
 
-    await prefs.setInt('primaryColor', primaryColor.value.value);
-    await prefs.setInt('accentColor', accentColor.value.value);
-    await prefs.setInt('textColor', textColor.value.value);
-    await prefs.setInt('backgroundColor', backgroundColor.value.value);
-    await prefs.setInt('drawerColor', drawerColor.value.value);
-    await prefs.setInt('iconColor', iconColor.value.value);
+        // Update all colors
+        primaryColor.value = scheme['primary'] as MaterialColor;
+        accentColor.value = scheme['accent'] as Color;
+        textColor.value = scheme['text'] as Color;
+        backgroundColor.value = scheme['background'] as Color;
+        drawerColor.value = scheme['drawer'] as Color;
+        iconColor.value = scheme['icon'] as Color;
+
+        currentSchemeIndex.value = index;
+
+        // Save to preferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('colorSchemeIndex', index);
+
+        // Update system UI overlay style
+        SystemChrome.setSystemUIOverlayStyle(
+          SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness:
+                _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
+            systemNavigationBarColor: backgroundColor.value,
+            systemNavigationBarIconBrightness:
+                _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
+          ),
+        );
+
+        // Force update
+        update();
+        Get.forceAppUpdate();
+      }
+    } catch (e) {
+      print('Error setting color scheme: $e');
+    }
   }
 
+  bool _isDark(Color color) {
+    return ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+  }
+
+  // Get the current color scheme name
+  String get currentSchemeName =>
+      colorSchemes[currentSchemeIndex.value]['name'] as String;
+
+  // Get current theme mode
+  ThemeMode get themeMode =>
+      _isDark(backgroundColor.value) ? ThemeMode.dark : ThemeMode.light;
+
+  // Cycle to the next color scheme
+  Future<void> nextColorScheme() async {
+    int nextIndex = (currentSchemeIndex.value + 1) % colorSchemes.length;
+    await setColorScheme(nextIndex);
+  }
+
+  // Set previous color scheme
+  Future<void> previousColorScheme() async {
+    int prevIndex = currentSchemeIndex.value - 1;
+    if (prevIndex < 0) prevIndex = colorSchemes.length - 1;
+    await setColorScheme(prevIndex);
+  }
+
+  // Update individual colors
   void updateColors({
     Color? primary,
     Color? accent,
@@ -127,109 +179,91 @@ class ColorController extends GetxController {
     Color? drawer,
     Color? icon,
   }) {
-    // Only update if the color is provided
-    if (primary != null && primary is MaterialColor) primaryColor.value = primary;
-    if (accent != null && accent is MaterialColor) accentColor.value = accent;
+    if (primary != null) primaryColor.value = getMaterialColor(primary);
+    if (accent != null) accentColor.value = accent;
     if (text != null) textColor.value = text;
     if (background != null) backgroundColor.value = background;
     if (drawer != null) drawerColor.value = drawer;
     if (icon != null) iconColor.value = icon;
-    saveColors();
+
+    update();
+    Get.forceAppUpdate();
   }
 
-  void applyColorScheme(int index) {
-    if (index >= 0 && index < colorSchemes.length) {
-      final scheme = colorSchemes[index];
-      updateColors(
-        primary: scheme['primary'] as MaterialColor,
-        accent: scheme['accent'] as MaterialColor,
-        text: scheme['text'] as Color,
-        background: scheme['background'] as Color,
-        drawer: scheme['drawer'] as Color,
-        icon: scheme['icon'] as Color,
+  // Get light theme data
+  ThemeData getLightTheme() {
+    final context = Get.context;
+    final materialColor = primaryColor.value;
+    
+    if (context == null) {
+      return ThemeData(
+        brightness: Brightness.light,
+        primaryColor: materialColor.shade500,
+        primarySwatch: materialColor,
+        colorScheme: ColorScheme.light(
+          primary: materialColor.shade500,
+          secondary: accentColor.value,
+          background: backgroundColor.value,
+          surface: backgroundColor.value,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: textColor.value,
+          onBackground: textColor.value,
+        ),
       );
     }
-  }
 
-  ThemeData getLightTheme() {
-    return ThemeData(
+    return Theme.of(context).copyWith(
       brightness: Brightness.light,
-      primarySwatch: primaryColor.value,
-      primaryColor: primaryColor.value,
-      iconTheme: IconThemeData(color: iconColor.value),
-      dividerColor: Colors.white,
-      hintColor: textColor.value,
-      scaffoldBackgroundColor: backgroundColor.value,
+      primaryColor: materialColor.shade500,
       colorScheme: ColorScheme.light(
-        primary: primaryColor.value,
+        primary: materialColor.shade500,
         secondary: accentColor.value,
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: textColor.value),
-        systemOverlayStyle: const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
-        ),
-      ),
-      drawerTheme: DrawerThemeData(
-        backgroundColor: drawerColor.value,
-        elevation: 10,
-        surfaceTintColor: drawerColor.value,
-      ),
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(color: textColor.value),
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: Colors.grey[200]!,
-        labelStyle: TextStyle(color: textColor.value),
-        shape: const StadiumBorder(),
-        side: BorderSide(color: Colors.grey[400]!),
-        disabledColor: Colors.grey[300]!,
-        selectedColor: accentColor.value.withOpacity(0.3),
-        secondarySelectedColor: accentColor.value.withOpacity(0.5),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        pressElevation: 4.0,
+        background: backgroundColor.value,
+        surface: backgroundColor.value,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: textColor.value,
+        onBackground: textColor.value,
       ),
     );
   }
 
+  // Get dark theme data
   ThemeData getDarkTheme() {
-    return ThemeData(
+    final context = Get.context;
+    final materialColor = primaryColor.value;
+    
+    if (context == null) {
+      return ThemeData(
+        brightness: Brightness.dark,
+        primaryColor: materialColor.shade500,
+        primarySwatch: materialColor,
+        colorScheme: ColorScheme.dark(
+          primary: materialColor.shade500,
+          secondary: accentColor.value,
+          background: backgroundColor.value,
+          surface: backgroundColor.value,
+          onPrimary: Colors.white,
+          onSecondary: Colors.white,
+          onSurface: textColor.value,
+          onBackground: textColor.value,
+        ),
+      );
+    }
+
+    return Theme.of(context).copyWith(
       brightness: Brightness.dark,
-      primarySwatch: primaryColor.value,
-      primaryColor: primaryColor.value,
-      iconTheme: IconThemeData(color: iconColor.value),
-      dividerColor: Colors.black,
-      hintColor: Colors.white,
-      scaffoldBackgroundColor: Colors.black,
+      primaryColor: materialColor.shade500,
       colorScheme: ColorScheme.dark(
-        primary: primaryColor.value,
+        primary: materialColor.shade500,
         secondary: accentColor.value,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
-      drawerTheme: DrawerThemeData(
-        backgroundColor: drawerColor.value,
-        elevation: 10,
-        surfaceTintColor: drawerColor.value,
-      ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white),
-      ),
-      chipTheme: ChipThemeData(
-        backgroundColor: Colors.grey[800]!,
-        labelStyle: const TextStyle(color: Colors.white),
-        shape: const StadiumBorder(),
-        side: BorderSide(color: Colors.grey[600]!),
-        disabledColor: Colors.grey[700]!,
-        selectedColor: accentColor.value.withOpacity(0.7),
-        secondarySelectedColor: accentColor.value.withOpacity(0.9),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        pressElevation: 4.0,
+        background: backgroundColor.value,
+        surface: backgroundColor.value,
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: textColor.value,
+        onBackground: textColor.value,
       ),
     );
   }

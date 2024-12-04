@@ -1,27 +1,23 @@
 import 'package:flutter/material.dart';
-
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
-import '../../utility/screen_util.dart';
 import '../hymn/hymn_detail_screen.dart';
 
 class FavoritesPage extends StatelessWidget {
   final HymnService _hymnService = HymnService();
 
-  FavoritesPage({super.key});
+  FavoritesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final appBarColor = theme.dividerColor;
     final textColor = theme.hintColor;
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('Tiana',
-            style:
-                TextStyle(color: textColor)), // Apply textColor to AppBar title
+            style: TextStyle(color: textColor)),
       ),
       body: StreamBuilder<List<Hymn>>(
         stream: _hymnService.getFavoriteHymnsStream(),
@@ -31,13 +27,11 @@ class FavoritesPage extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Center(
                 child: Text('Olana: ${snapshot.error}',
-                    style: TextStyle(
-                        color: textColor))); // Apply textColor to error message
+                    style: TextStyle(color: textColor)));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
                 child: Text('Mbola tsy misy hira tiana',
-                    style: TextStyle(
-                        color: textColor))); // Apply textColor to empty message
+                    style: TextStyle(color: textColor)));
           } else {
             final favoriteHymns = snapshot.data!;
             return ListView.builder(
@@ -48,21 +42,18 @@ class FavoritesPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(
-                          0.1), // You can adjust this color if needed
+                      color: Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(15),
                       border: Border.all(
-                          color: textColor.withOpacity(
-                              0.5)), // Apply textColor to border with opacity
+                          color: textColor.withOpacity(0.5)),
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor:
-                            appBarColor, // Apply appBarColor to CircleAvatar background
+                        backgroundColor: theme.dividerColor,
                         child: Text(
                           hymn.hymnNumber,
                           style: TextStyle(
-                            color: textColor, // Apply textColor to hymn number
+                            color: textColor,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -71,24 +62,21 @@ class FavoritesPage extends StatelessWidget {
                         hymn.title,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: textColor), // Apply textColor to title
+                            color: textColor),
                       ),
-                      subtitle: Text(
-                        'Tiana tamin\'ny: ${hymn.favoriteAddedDate}',
-                        style: TextStyle(
-                            color: textColor), // Apply textColor to subtitle
-                      ),
-                      trailing: IconButton(
-                        icon: Icon(
-                          hymn.isFavorite
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: hymn.isFavorite
-                              ? Colors.red
-                              : textColor, // Apply textColor to favorite icon when not selected
-                        ),
-                        onPressed: () async {
-                          await _hymnService.toggleFavorite(hymn);
+                      trailing: StreamBuilder<List<String>>(
+                        stream: _hymnService.getFavoriteHymnIdsStream(),
+                        builder: (context, favoriteSnapshot) {
+                          final isFavorite = favoriteSnapshot.data?.contains(hymn.id) ?? false;
+                          return IconButton(
+                            icon: Icon(
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: isFavorite ? Colors.red : textColor,
+                            ),
+                            onPressed: () {
+                              _hymnService.toggleFavorite(hymn);
+                            },
+                          );
                         },
                       ),
                       onTap: () {

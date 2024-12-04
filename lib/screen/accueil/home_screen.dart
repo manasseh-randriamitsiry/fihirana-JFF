@@ -1,11 +1,11 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:fihirana/screen/about/about_screen.dart';
-import 'package:fihirana/widgets/drawer_wiidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../controller/color_controller.dart';
+import '../../controller/theme_controller.dart';
+import '../../widgets/drawer_widget.dart';
 import 'accueil_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,12 +16,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final List<Widget> _screens = [
-    const AccueilScreen(),
-    const AboutScreen(),
-  ];
-
-  final int _selectedIndex = 0;
+  final ColorController _colorController = Get.find();
+  final ThemeController _themeController = Get.find();
+  final zoomDrawerController = ZoomDrawerController();
 
   @override
   void initState() {
@@ -30,39 +27,55 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initializeApp() async {
-    // Set user as not new
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isFirstTime', false);
+    if (!prefs.containsKey('notificationsInitialized')) {
+      await AwesomeNotifications().initialize(
+        null,
+        [
+          NotificationChannel(
+            channelKey: 'basic_channel',
+            channelName: 'Basic Notifications',
+            channelDescription: 'Basic notifications channel',
+            defaultColor: _colorController.primaryColor.value,
+            importance: NotificationImportance.High,
+            channelShowBadge: true,
+          ),
+        ],
+        debug: true,
+      );
+      await prefs.setBool('notificationsInitialized', true);
+    }
+  }
 
-    // Request notification permissions
-    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      }
-    });
+  void _handleDrawerToggle() {
+    zoomDrawerController.toggle?.call();
   }
 
   @override
   Widget build(BuildContext context) {
-    Theme.of(context);
-    return ZoomDrawer(
-      style: DrawerStyle.style4,
-      mainScreenTapClose: true,
-      menuScreenWidth: MediaQuery.of(context).size.width * 0.64,
-      moveMenuScreen: true,
-      menuScreen: const DrawerScreen(),
-      menuScreenOverlayColor: Colors.black,
-      mainScreen: Scaffold(
-        body: _screens[_selectedIndex],
-      ),
-      borderRadius: 24.0,
-      showShadow: true,
-      angle: 0.0,
-      slideWidth: MediaQuery.of(context).size.width * 0.65,
-    );
+    return Obx(() => ZoomDrawer(
+          controller: zoomDrawerController,
+          style: DrawerStyle.defaultStyle,
+          menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
+          mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
+          borderRadius: 24.0,
+          showShadow: true,
+          angle: -12.0,
+          menuBackgroundColor: _colorController.drawerColor.value,
+          slideWidth: MediaQuery.of(context).size.width * 0.85,
+          mainScreenTapClose: true,
+          openCurve: Curves.fastOutSlowIn,
+          closeCurve: Curves.bounceIn,
+        ));
   }
 }
 
 class HomeController extends GetxController {
   var selectedIndex = 0.obs;
+  final zoomDrawerController = ZoomDrawerController();
+
+  void toggleDrawer() {
+    zoomDrawerController.toggle?.call();
+    update();
+  }
 }
