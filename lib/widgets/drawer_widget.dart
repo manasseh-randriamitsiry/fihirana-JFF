@@ -141,7 +141,8 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   if (_currentUser != null)
                     UserAccountsDrawerHeader(
                       decoration: BoxDecoration(
-                        color: _colorController.primaryColor.value,
+                        color:
+                            _colorController.primaryColor.value.withOpacity(0),
                       ),
                       accountName: Text(
                         _currentUser!.displayName ?? '',

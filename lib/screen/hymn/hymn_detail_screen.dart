@@ -25,30 +25,17 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
   double _fontSize = 16.0;
   double _countFontSize = 50.0;
   double _scale = 1.0;
-
-  List<Color> verseColors = [
-    Colors.blue,
-    Colors.green,
-    Colors.red,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
-    Colors.amber,
-    Colors.indigo,
-    Colors.deepOrange,
-    Colors.deepPurple,
-    Colors.lime,
-    Colors.cyan,
-    Colors.brown,
-    Colors.grey,
-  ];
-
+  bool _isFavorite = false;
+  String _favoriteStatus = '';
   final HymnService _hymnService = HymnService();
 
   @override
   void initState() {
     super.initState();
     _loadFontSize();
+    _loadFavoriteStatus();
+    // Ensure favorites are synced when screen opens
+    _hymnService.checkPendingSyncs();
   }
 
   Future<void> _loadFontSize() async {
@@ -58,6 +45,16 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
       _countFontSize = _fontSize * (_baseCountFontSize / _baseFontSize);
       _scale = _fontSize / _baseFontSize;
     });
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    final status = await _hymnService.getFavoriteStatusStream().first;
+    if (mounted) {
+      setState(() {
+        _isFavorite = status.containsKey(widget.hymn.id);
+        _favoriteStatus = status[widget.hymn.id] ?? '';
+      });
+    }
   }
 
   bool _showSlider = false; // Initially hidden
@@ -79,6 +76,53 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
     await prefs.setDouble('fontSize', _fontSize);
   }
 
+  Future<void> _toggleFavorite() async {
+    try {
+      // Update local state immediately for better UX
+      setState(() {
+        if (_isFavorite) {
+          _isFavorite = false;
+          _favoriteStatus = '';
+        } else {
+          _isFavorite = true;
+          _favoriteStatus = FirebaseAuth.instance.currentUser != null ? 'cloud' : 'local';
+        }
+      });
+
+      // Perform the actual toggle
+      await _hymnService.toggleFavorite(widget.hymn);
+      
+      // If user is not logged in, show a snackbar suggesting to login for cloud sync
+      if (FirebaseAuth.instance.currentUser == null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Voatahiry eto amin\'ny finday. Raha te-hitahiry any @ kaonty, dia midira'),
+            duration: Duration(seconds: 3),
+            backgroundColor: Colors.blue,
+          ),
+        );
+      }
+
+      // Refresh the actual status
+      _loadFavoriteStatus();
+    } catch (e) {
+      // Revert the state if there was an error
+      setState(() {
+        _isFavorite = !_isFavorite;
+        _favoriteStatus = '';
+      });
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tsy nahomby ny fitahirizana'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   bool isUserAuthenticated() {
     return FirebaseAuth.instance.currentUser != null;
   }
@@ -96,6 +140,23 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
       ),
     );
   }
+
+  List<Color> verseColors = [
+    Colors.blue,
+    Colors.green,
+    Colors.red,
+    Colors.orange,
+    Colors.purple,
+    Colors.teal,
+    Colors.amber,
+    Colors.indigo,
+    Colors.deepOrange,
+    Colors.deepPurple,
+    Colors.lime,
+    Colors.cyan,
+    Colors.brown,
+    Colors.grey,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -115,54 +176,14 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
         ),
         centerTitle: true,
         actions: [
-          StreamBuilder<List<String>>(
-            stream: _hymnService.getFavoriteHymnIdsStream(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return IconButton(
-                  icon: Icon(Icons.favorite_border, color: textColor),
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Nisy olana: ${snapshot.error}'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  },
-                );
-              }
-
-              final isFavorite = snapshot.data?.contains(widget.hymn.id) ?? false;
-              return IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : textColor,
-                ),
-                onPressed: () async {
-                  try {
-                    await _hymnService.toggleFavorite(widget.hymn);
-                    
-                    // If user is not logged in, show a snackbar suggesting to login for cloud sync
-                    if (FirebaseAuth.instance.currentUser == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Voatahiry eto amin\'ny finday. Raha te-hitahiry any @ kaonty, dia midira'),
-                          duration: Duration(seconds: 3),
-                          backgroundColor: Colors.blue,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Tsy nahomby ny fitahirizana'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
-                },
-              );
-            },
+          IconButton(
+            icon: Icon(
+              _isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: _isFavorite 
+                  ? (_favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
+                  : textColor,
+            ),
+            onPressed: _toggleFavorite,
           ),
           PopupMenuButton<String>(
             color: theme.primaryColor,

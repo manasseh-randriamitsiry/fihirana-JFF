@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -13,7 +15,6 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../utility/screen_util.dart';
-import '../../widgets/drawer_widget.dart';
 import '../favorite/favorites_screen.dart';
 import '../hymn/edit_hymn_screen.dart';
 import '../hymn/hymn_detail_screen.dart';
@@ -33,6 +34,7 @@ class AccueilScreen extends StatefulWidget {
 class AccueilScreenState extends State<AccueilScreen> {
   final HymnService _hymnService = HymnService();
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   final ThemeController _themeController = Get.find<ThemeController>();
   final ColorController _colorController = Get.find<ColorController>();
   final LocalAuthentication _auth = LocalAuthentication();
@@ -40,14 +42,17 @@ class AccueilScreenState extends State<AccueilScreen> {
   String _username = '';
   List<Hymn> _hymns = [];
   List<Hymn> _filteredHymns = [];
+  Map<String, String> _favoriteStatuses = {};
+  int _profileTapCount = 0;
+  DateTime? _lastTapTime;
+
+  bool get _isAdmin {
+    final user = FirebaseAuth.instance.currentUser;
+    return user?.email == 'manassehrandriamitsir@gmail.com';
+  }
 
   bool isUserAuthenticated() {
     return FirebaseAuth.instance.currentUser != null;
-  }
-
-  bool isAdminUser() {
-    final user = FirebaseAuth.instance.currentUser;
-    return user?.email == 'manassehwork@gmail.com';
   }
 
   Future<String> getUsername() async {
@@ -72,6 +77,8 @@ class AccueilScreenState extends State<AccueilScreen> {
   @override
   void initState() {
     super.initState();
+    _loadFavoriteStatuses();
+    _hymnService.checkPendingSyncs();
     _fetchHymns();
     _loadUsername();
   }
@@ -183,17 +190,64 @@ class AccueilScreenState extends State<AccueilScreen> {
 
   Future<void> _toggleFavorite(Hymn hymn) async {
     try {
-      await _hymnService.toggleFavorite(hymn);
+      // Update local state immediately
+      final oldStatus = Map<String, String>.from(_favoriteStatuses);
+
       setState(() {
-        _filteredHymns = List.from(_filteredHymns);
+        if (_favoriteStatuses.containsKey(hymn.id)) {
+          _favoriteStatuses.remove(hymn.id);
+        } else {
+          _favoriteStatuses[hymn.id] =
+              FirebaseAuth.instance.currentUser != null ? 'cloud' : 'local';
+        }
       });
+
+      // Schedule the actual toggle
+      final completer = Completer<void>();
+
+      SchedulerBinding.instance.scheduleTask(() async {
+        try {
+          await _hymnService.toggleFavorite(hymn);
+
+          // If user is not logged in, show login suggestion
+          if (FirebaseAuth.instance.currentUser == null && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Voatahiry eto amin\'ny finday. Raha te-hitahiry any @ kaonty, dia midira'),
+                duration: Duration(seconds: 3),
+                backgroundColor: Colors.blue,
+              ),
+            );
+          }
+
+          // Refresh actual status
+          await _loadFavoriteStatuses();
+          completer.complete();
+        } catch (e) {
+          // Revert state on error
+          if (mounted) {
+            setState(() {
+              _favoriteStatuses = oldStatus;
+            });
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Tsy nahomby ny fitahirizana'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+          completer.completeError(e);
+        }
+      }, Priority.animation);
+
+      return completer.future;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tsy afaka novaina ny fanirian\'ny hira'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (kDebugMode) {
+        print('Error in toggle favorite: $e');
+      }
+      rethrow;
     }
   }
 
@@ -218,27 +272,37 @@ class AccueilScreenState extends State<AccueilScreen> {
     return hymns;
   }
 
+  Future<void> _loadFavoriteStatuses() async {
+    try {
+      final completer = Completer<void>();
+
+      SchedulerBinding.instance.scheduleTask(() async {
+        final statuses = await _hymnService.getFavoriteStatusStream().first;
+        if (mounted) {
+          setState(() {
+            _favoriteStatuses = statuses;
+          });
+        }
+        completer.complete();
+      }, Priority.animation);
+
+      return completer.future;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading favorite statuses: $e');
+      }
+    }
+  }
+
   Widget _buildHymnListItem(Hymn hymn, BuildContext context) {
     final theme = Theme.of(context);
     final textColor = theme.hintColor;
-    final isAdmin = isAdminUser();
 
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      color: theme.primaryColor,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _themeController.isDarkMode.value
-              ? _colorController.drawerColor.value
-              : _colorController.backgroundColor.value,
-          child: Text(
-            hymn.hymnNumber,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
         title: Text(
           hymn.title,
           style: TextStyle(
@@ -246,7 +310,7 @@ class AccueilScreenState extends State<AccueilScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: isAdmin
+        subtitle: _isAdmin
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -288,30 +352,40 @@ class AccueilScreenState extends State<AccueilScreen> {
                   ),
                 ],
               ),
+        leading: CircleAvatar(
+          backgroundColor: _colorController.iconColor.value,
+          child: Text(
+            hymn.hymnNumber,
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            StreamBuilder<List<String>>(
-              stream: _hymnService.getFavoriteHymnIdsStream(),
-              builder: (context, snapshot) {
-                final isFavorite = snapshot.data?.contains(hymn.id) ?? false;
-                return IconButton(
-                  icon: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: isFavorite ? Colors.red : textColor,
-                  ),
-                  onPressed: () => _toggleFavorite(hymn),
-                );
-              },
-            ),
-            if (isAdmin)
-              IconButton(
-                icon: Icon(Icons.edit, color: textColor),
-                onPressed: () => _navigateToEditScreen(context, hymn),
+            Obx(() => IconButton(
+              icon: Icon(
+                _favoriteStatuses.containsKey(hymn.id)
+                    ? Icons.favorite
+                    : Icons.favorite_border,
+                color: _favoriteStatuses.containsKey(hymn.id)
+                    ? (_favoriteStatuses[hymn.id] == 'cloud'
+                        ? Colors.red
+                        : _colorController.iconColor.value)
+                    : _colorController.iconColor.value,
               ),
-            if (isAdmin)
+              onPressed: () => _toggleFavorite(hymn),
+            )),
+            if (_isAdmin)
+              Obx(() => IconButton(
+                icon: Icon(Icons.edit, color: _colorController.iconColor.value),
+                onPressed: () => _showEditDialog(context),
+              )),
+            if (_isAdmin)
               IconButton(
-                icon: Icon(Icons.delete, color: textColor),
+                icon: Icon(Icons.delete, color: Colors.red),
                 onPressed: () => _deleteHymn(hymn),
               ),
           ],
@@ -324,6 +398,130 @@ class AccueilScreenState extends State<AccueilScreen> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildDrawerHeader(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.hintColor;
+
+    return DrawerHeader(
+      decoration: BoxDecoration(
+        color: theme.primaryColor,
+      ),
+      child: GestureDetector(
+        onTap: () {
+          final now = DateTime.now();
+          // Reset counter if last tap was more than 2 seconds ago
+          if (_lastTapTime != null &&
+              now.difference(_lastTapTime!) > const Duration(seconds: 2)) {
+            _profileTapCount = 0;
+          }
+          _lastTapTime = now;
+
+          setState(() {
+            _profileTapCount++;
+            if (_profileTapCount == 5) {
+              // Show admin panel
+              _profileTapCount = 0; // Reset counter
+              _showAdminPanel();
+            }
+          });
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            CircleAvatar(
+              radius: 40,
+              backgroundColor: _colorController.iconColor.value,
+              child: Icon(
+                Icons.person,
+                size: 40,
+                color: textColor,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              _username.isEmpty ? 'Tsy mbola tafiditra' : _username,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showUploadDialog(BuildContext context) async {
+    // TODO: Implement upload functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Hampiditra hira vaovao...'),
+        backgroundColor: Colors.blue,
+      ),
+    );
+  }
+
+  Future<void> _showEditDialog(BuildContext context) async {
+    // TODO: Implement edit functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Hanova hira...'),
+        backgroundColor: Colors.blue,
+      ),
+    );
+  }
+
+  void _showAdminPanel() {
+    if (!_isAdmin) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Tsy manana alalana ianao'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).primaryColor,
+        title: Text(
+          'Admin Panel',
+          style: TextStyle(color: Theme.of(context).hintColor),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.upload_file),
+              title: Text(
+                'Hampiditra hira',
+                style: TextStyle(color: Theme.of(context).hintColor),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showUploadDialog(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: Text(
+                'Hanova hira',
+                style: TextStyle(color: Theme.of(context).hintColor),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                _showEditDialog(context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -470,6 +668,25 @@ class AccueilScreenState extends State<AccueilScreen> {
             ),
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            _buildDrawerHeader(context),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Tafiditra'),
+              onTap: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => AccueilScreen(openDrawer: () {})),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
