@@ -25,7 +25,7 @@ class ColorController extends GetxController {
       'accent': Colors.blueAccent,
       'text': Colors.black87,
       'background': Colors.white,
-      'drawer': Colors.blue.shade900,
+      'drawer': Colors.purple.shade900,
       'icon': Colors.deepOrange,
     },
     {
@@ -100,12 +100,12 @@ class ColorController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       
       // Load colors with fallback to defaults
-      primaryColor.value = getMaterialColor(Color(prefs.getInt('primaryColor') ?? Colors.purple.value));
+      primaryColor.value = getMaterialColor(Color(prefs.getInt('primaryColor') ?? Colors.blue.value));
       accentColor.value = Color(prefs.getInt('accentColor') ?? Colors.deepOrange.value);
       textColor.value = Color(prefs.getInt('textColor') ?? Colors.black.value);
       backgroundColor.value = Color(prefs.getInt('backgroundColor') ?? Colors.white.value);
       drawerColor.value = Color(prefs.getInt('drawerColor') ?? Colors.purple.value);
-      iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.black.value);
+      iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.green.value);
       
       print('Colors loaded successfully');
       print('Drawer color: ${drawerColor.value}');
