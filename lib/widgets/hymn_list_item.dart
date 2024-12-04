@@ -1,35 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/hymn.dart';
+import '../utility/navigation_utility.dart';
+import '../services/hymn_service.dart'; // Import HymnService
 
 class HymnListItem extends StatelessWidget {
   final Hymn hymn;
-  final TextStyle defaultTextStyle;
-  final Color iconColor;
   final Color textColor;
-  final Color accentColor;
-  final bool isAdmin;
-  final Map<String, String> favoriteStatuses;
-  final Function(Hymn) onToggleFavorite;
-  final VoidCallback onEdit;
-  final Function(Hymn) onDelete;
-  final Function(Hymn) onTap;
-  final String Function(Hymn) getPreviewText;
+  final Color backgroundColor;
+  final VoidCallback onFavoritePressed;
+  final HymnService _hymnService = HymnService();
 
-  const HymnListItem({
+  HymnListItem({
     Key? key,
     required this.hymn,
-    required this.defaultTextStyle,
-    required this.iconColor,
     required this.textColor,
-    required this.accentColor,
-    required this.isAdmin,
-    required this.favoriteStatuses,
-    required this.onToggleFavorite,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onTap,
-    required this.getPreviewText,
+    required this.backgroundColor,
+    required this.onFavoritePressed,
   }) : super(key: key);
 
   @override
@@ -37,101 +23,54 @@ class HymnListItem extends StatelessWidget {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      color: Theme.of(context).primaryColor,
+      color: backgroundColor,
       child: ListTile(
         title: Text(
           hymn.title,
-          style: defaultTextStyle.copyWith(
+          style: TextStyle(
+            color: textColor,
             fontWeight: FontWeight.bold,
           ),
         ),
-        subtitle: _buildSubtitle(),
+        subtitle: hymn.verses.isNotEmpty
+            ? Text(
+                hymn.verses[0],
+                style: TextStyle(
+                  color: textColor.withOpacity(0.7),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              )
+            : null,
         leading: CircleAvatar(
-          backgroundColor: accentColor,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           child: Text(
             hymn.hymnNumber,
-            style: defaultTextStyle.copyWith(
+            style: TextStyle(
+              color: backgroundColor,
               fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
+        trailing: StreamBuilder<Map<String, String>>(
+          stream: _hymnService.getFavoriteStatusStream(),
+          builder: (context, snapshot) {
+            final favoriteStatus = snapshot.data?[hymn.id] ?? '';
+            final isFavorite = favoriteStatus.isNotEmpty;
+            
+            return IconButton(
               icon: Icon(
-                favoriteStatuses.containsKey(hymn.id)
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color: favoriteStatuses.containsKey(hymn.id)
-                    ? (favoriteStatuses[hymn.id] == 'cloud'
-                        ? Colors.red
-                        : iconColor)
-                    : iconColor,
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: isFavorite
+                    ? (favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
+                    : textColor,
               ),
-              onPressed: () => onToggleFavorite(hymn),
-            ),
-            if (isAdmin) ...[
-              IconButton(
-                icon: Icon(Icons.edit, color: iconColor),
-                onPressed: onEdit,
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () => onDelete(hymn),
-              ),
-            ],
-          ],
+              onPressed: onFavoritePressed,
+            );
+          },
         ),
-        onTap: () => onTap(hymn),
+        onTap: () => NavigationUtility.navigateToDetailScreen(context, hymn),
       ),
-    );
-  }
-
-  Widget _buildSubtitle() {
-    if (isAdmin) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Nampiditra: ${hymn.createdBy}',
-            style: defaultTextStyle.copyWith(
-              color: textColor.withOpacity(0.7),
-            ),
-          ),
-          if (hymn.createdAt != null)
-            Text(
-              'Daty: ${DateFormat('dd/MM/yyyy').format(hymn.createdAt)}',
-              style: defaultTextStyle.copyWith(
-                color: textColor.withOpacity(0.7),
-              ),
-            ),
-        ],
-      );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (hymn.hymnHint != null && hymn.hymnHint!.isNotEmpty)
-          Text(
-            hymn.hymnHint!,
-            style: defaultTextStyle.copyWith(
-              color: textColor.withOpacity(0.7),
-              fontStyle: FontStyle.italic,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        Text(
-          getPreviewText(hymn),
-          style: defaultTextStyle.copyWith(
-            color: textColor.withOpacity(0.7),
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
     );
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -5,35 +7,36 @@ import '../models/hymn.dart';
 import '../services/hymn_service.dart';
 
 class HymnController extends GetxController {
-  final HymnService _hymnService = HymnService();
   final searchController = TextEditingController();
-  final favoriteStatuses = RxMap<String, String>({});
+  final _hymnService = HymnService();
+  final favoriteStatuses = <String, String>{}.obs;
+  StreamSubscription? _favoriteStatusSubscription;
+
+  void _initFavoriteStatusStream() {
+    _favoriteStatusSubscription?.cancel();
+    _favoriteStatusSubscription = _hymnService.getFavoriteStatusStream().listen(
+      (statuses) {
+        favoriteStatuses.value = Map<String, String>.from(statuses);
+      },
+      onError: (e) {
+        debugPrint('Error in favorite status stream: $e');
+      },
+    );
+  }
 
   @override
   void onInit() {
     super.onInit();
-    loadFavoriteStatuses();
+    _initFavoriteStatusStream();
     _hymnService.checkPendingSyncs();
   }
 
-  @override
-  void onClose() {
-    searchController.dispose();
-    super.onClose();
-  }
-
-  Future<void> loadFavoriteStatuses() async {
-    try {
-      final statuses = await _hymnService.getFavoriteStatusStream().first;
-      favoriteStatuses.value = statuses;
-    } catch (e) {
-      debugPrint('Error loading favorite statuses: $e');
-    }
+  Stream<Map<String, String>> getFavoriteStatusStream() {
+    return _hymnService.getFavoriteStatusStream();
   }
 
   Future<void> toggleFavorite(Hymn hymn) async {
     await _hymnService.toggleFavorite(hymn);
-    await loadFavoriteStatuses();
   }
 
   Future<void> deleteHymn(Hymn hymn) async {
@@ -70,5 +73,12 @@ class HymnController extends GetxController {
       return '${firstVerse.substring(0, 50)}...';
     }
     return firstVerse;
+  }
+
+  @override
+  void onClose() {
+    searchController.dispose();
+    _favoriteStatusSubscription?.cancel();
+    super.onClose();
   }
 }

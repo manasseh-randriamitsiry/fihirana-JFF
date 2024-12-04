@@ -245,16 +245,6 @@ class ColorPickerWidget extends StatelessWidget {
                       ),
                     ),
                     _buildColorButton(
-                      'Loko fanampiny',
-                      colorController.accentColor.value,
-                      () => _showColorPicker(
-                        context,
-                        'fanampiny',
-                        colorController.accentColor.value,
-                        (color) => colorController.updateColors(accent: color),
-                      ),
-                    ),
-                    _buildColorButton(
                       'Loko soratra',
                       colorController.textColor.value,
                       () => _showColorPicker(

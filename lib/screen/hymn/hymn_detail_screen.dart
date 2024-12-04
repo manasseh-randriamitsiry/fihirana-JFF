@@ -37,8 +37,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   double _countFontSize = 50.0;
   bool _show = false;
   bool _showSlider = false;
-  bool _isFavorite = false;
-  String _favoriteStatus = '';
   final HymnService _hymnService = HymnService();
   final ColorController colorController = Get.find<ColorController>();
   late final HistoryController historyController;
@@ -130,8 +128,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             print('Error: Hymn object is null after loading data');
           }
         }
-
-        _checkFavoriteStatus();
       } else {
         if (kDebugMode) {
           print('Error: Document does not exist for hymn ID: ${widget.hymnId}');
@@ -143,103 +139,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     }
   }
 
-  Future<void> _checkFavoriteStatus() async {
-    final status = await _hymnService.getFavoriteStatusStream().first;
-    if (mounted) {
-      setState(() {
-        _isFavorite = status.containsKey(widget.hymnId);
-        _favoriteStatus = status[widget.hymnId] ?? '';
-      });
-    }
-  }
-
-  Future<void> toggleFavorite() async {
-    if (_hymn == null) return;
-
-    // Optimistically update the UI
-    final wasIsFavorite = _isFavorite;
-    final wasFavoriteStatus = _favoriteStatus;
-
-    setState(() {
-      _isFavorite = !_isFavorite;
-      if (_isFavorite) {
-        _favoriteStatus =
-            FirebaseAuth.instance.currentUser == null ? 'local' : 'cloud';
-      } else {
-        _favoriteStatus = '';
-      }
-    });
-
-    try {
-      // Perform the actual toggle
-      await _hymnService.toggleFavorite(_hymn!);
-
-      // If user is not logged in, show a snackbar suggesting to login for cloud sync
-      if (FirebaseAuth.instance.currentUser == null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Midira mba hahafahana mitahiry ny hira tianao any @ cloud'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-
-      // Refresh the actual status
-      _checkFavoriteStatus();
-    } catch (e) {
-      // Revert the state if there was an error
-      setState(() {
-        _isFavorite = wasIsFavorite;
-        _favoriteStatus = wasFavoriteStatus;
-      });
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Nisy olana ny fanovana ny fanitiavana ny hira'),
-            duration: Duration(seconds: 3),
-          ),
-        );
-      }
-    }
-  }
-
-  bool isUserAuthenticated() {
-    return FirebaseAuth.instance.currentUser != null;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  void _navigateToEditScreen(BuildContext context) {
-    if (_hymn == null) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EditHymnScreen(hymn: _hymn!),
-      ),
-    );
-  }
-
-  List<Color> verseColors = [
-    Colors.blue,
-    Colors.green,
-    Colors.red,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
-    Colors.amber,
-    Colors.indigo,
-    Colors.deepOrange,
-    Colors.deepPurple,
-    Colors.lime,
-    Colors.cyan,
-    Colors.brown,
-    Colors.grey,
-  ];
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ColorController>(
@@ -248,7 +147,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         appBar: AppBar(
           leading: IconButton(
               onPressed: () {
-                Get.to(HomeScreen());
+                Get.back();
               },
               icon: Icon(
                 Icons.arrow_back_ios_outlined,
@@ -290,14 +189,26 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             },
           ),
           actions: [
-            IconButton(
-              icon: Icon(
-                _isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: _isFavorite
-                    ? (_favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
-                    : colorController.iconColor.value,
-              ),
-              onPressed: toggleFavorite,
+            StreamBuilder<Map<String, String>>(
+              stream: _hymnService.getFavoriteStatusStream(),
+              builder: (context, snapshot) {
+                final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
+                final isFavorite = favoriteStatus.isNotEmpty;
+                
+                return IconButton(
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite
+                        ? (favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
+                        : colorController.iconColor.value,
+                  ),
+                  onPressed: () {
+                    if (_hymn != null) {
+                      _hymnService.toggleFavorite(_hymn!);
+                    }
+                  },
+                );
+              },
             ),
             PopupMenuButton<String>(
               color: colorController.primaryColor.value,
@@ -535,7 +446,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                               '${i + 1}. ${_hymn?.verses?[i] ?? ''}',
                               style: TextStyle(
                                 fontSize: _fontSize,
-                                color: verseColors[i % verseColors.length],
+                                color: colorController.textColor.value,
                               ),
                             ),
                           ),
@@ -551,6 +462,42 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
       ),
     );
   }
+
+  bool isUserAuthenticated() {
+    return FirebaseAuth.instance.currentUser != null;
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void _navigateToEditScreen(BuildContext context) {
+    if (_hymn == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditHymnScreen(hymn: _hymn!),
+      ),
+    );
+  }
+
+  List<Color> verseColors = [
+    Colors.blue,
+    Colors.green,
+    Colors.red,
+    Colors.orange,
+    Colors.purple,
+    Colors.teal,
+    Colors.amber,
+    Colors.indigo,
+    Colors.deepOrange,
+    Colors.deepPurple,
+    Colors.lime,
+    Colors.cyan,
+    Colors.brown,
+    Colors.grey,
+  ];
 }
 
 class HymnSearchPopup extends StatefulWidget {

@@ -1,4 +1,3 @@
-import 'package:fihirana/screen/hymn/create_hymn_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -104,25 +103,16 @@ class AccueilScreenState extends State<AccueilScreen> {
                       itemCount: hymns.length,
                       itemBuilder: (context, index) {
                         final hymn = hymns[index];
-                        return HymnListItem(
-                          hymn: hymn,
-                          defaultTextStyle: defaultTextStyle,
-                          iconColor: iconColor,
-                          textColor: textColor,
-                          accentColor: ColorController.to.accentColor.value,
-                          isAdmin: _authController.isAdmin,
-                          favoriteStatuses: _hymnController.favoriteStatuses,
-                          onToggleFavorite: _hymnController.toggleFavorite,
-                          onEdit: () => NavigationUtility.navigateToEditScreen(
-                              context, hymn),
-                          onDelete: (h) async {
-                            await _hymnController.deleteHymn(h);
-                            SnackbarService.showSuccess('Voafafa soamantsara');
+                        return StreamBuilder<Map<String, String>>(
+                          stream: _hymnController.getFavoriteStatusStream(),
+                          builder: (context, snapshot) {
+                            return HymnListItem(
+                              hymn: hymn,
+                              textColor: textColor,
+                              backgroundColor: backgroundColor,
+                              onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
+                            );
                           },
-                          onTap: (h) =>
-                              NavigationUtility.navigateToDetailScreen(
-                                  context, h),
-                          getPreviewText: _hymnController.getPreviewText,
                         );
                       },
                     );

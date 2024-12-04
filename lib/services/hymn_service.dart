@@ -21,7 +21,8 @@ class HymnService {
 
   // Get stream of hymns sorted by hymn number
   Stream<QuerySnapshot> getHymnsStream() {
-    return _firestore.collection(collectionName)
+    return _firestore
+        .collection(collectionName)
         .orderBy('hymnNumber', descending: false)
         .snapshots();
   }
@@ -121,11 +122,12 @@ class HymnService {
   Future<Set<String>> getLocalFavorites() async {
     try {
       final completer = Completer<Set<String>>();
-      
+
       // Schedule the SharedPreferences operation
       SchedulerBinding.instance.scheduleTask(() async {
         final prefs = await SharedPreferences.getInstance();
-        final favorites = Set<String>.from(prefs.getStringList('local_favorites') ?? []);
+        final favorites =
+            Set<String>.from(prefs.getStringList('local_favorites') ?? []);
         completer.complete(favorites);
       }, Priority.animation);
 
@@ -141,7 +143,7 @@ class HymnService {
   Future<void> saveLocalFavorites(Set<String> favorites) async {
     try {
       final completer = Completer<void>();
-      
+
       // Schedule the SharedPreferences operation
       SchedulerBinding.instance.scheduleTask(() async {
         final prefs = await SharedPreferences.getInstance();
@@ -166,13 +168,11 @@ class HymnService {
       if (localFavorites.isEmpty) return;
 
       // Get existing cloud favorites
-      final querySnapshot = await favoritesCollection
-          .where('userId', isEqualTo: user.uid)
-          .get();
-      
-      final existingFavorites = querySnapshot.docs
-          .map((doc) => doc.get('hymnId') as String)
-          .toSet();
+      final querySnapshot =
+          await favoritesCollection.where('userId', isEqualTo: user.uid).get();
+
+      final existingFavorites =
+          querySnapshot.docs.map((doc) => doc.get('hymnId') as String).toSet();
 
       // Find favorites that need to be synced
       final favoritesToSync = localFavorites.difference(existingFavorites);
@@ -180,21 +180,23 @@ class HymnService {
       if (favoritesToSync.isNotEmpty) {
         // Ask user if they want to sync
         final shouldSync = await Get.dialog<bool>(
-          AlertDialog(
-            title: const Text('Hampiditra ny hira tiana'),
-            content: const Text('Tianao hampidirina any amin\'ny kaontinao ve ireo hira tiana?'),
-            actions: [
-              TextButton(
-                child: const Text('Tsia'),
-                onPressed: () => Get.back(result: false),
+              AlertDialog(
+                title: const Text('Hampiditra ny hira tiana'),
+                content: const Text(
+                    'Tianao hampidirina any amin\'ny kaontinao ve ireo hira tiana?'),
+                actions: [
+                  TextButton(
+                    child: const Text('Tsia'),
+                    onPressed: () => Get.back(result: false),
+                  ),
+                  TextButton(
+                    child: const Text('Eny'),
+                    onPressed: () => Get.back(result: true),
+                  ),
+                ],
               ),
-              TextButton(
-                child: const Text('Eny'),
-                onPressed: () => Get.back(result: true),
-              ),
-            ],
-          ),
-        ) ?? false;
+            ) ??
+            false;
 
         if (shouldSync) {
           // Add new favorites to Firebase
@@ -228,42 +230,59 @@ class HymnService {
     }
   }
 
-  Stream<Map<String, String>> getFavoriteStatusStream() async* {
+  // Single shared stream controller for favorite status
+  static final _favoritesController = StreamController<Map<String, String>>.broadcast();
+
+  HymnService() {
+    _initFavoriteStream();
+  }
+
+  void _initFavoriteStream() {
     final user = FirebaseAuth.instance.currentUser;
-    
     if (user != null) {
-      // If user is logged in, stream Firebase favorites
-      yield* favoritesCollection
+      // Listen to Firestore changes in real-time
+      favoritesCollection
           .where('userId', isEqualTo: user.uid)
           .snapshots()
-          .asyncMap((snapshot) async {
-            // Get local favorites with proper scheduling
-            final localFavorites = await getLocalFavorites();
-            
-            final cloudFavorites = snapshot.docs
-                .map((doc) => doc.get('hymnId') as String)
-                .toSet();
-            
-            // Create map entries for cloud and local favorites
-            final cloudEntries = cloudFavorites
-                .map((id) => MapEntry(id, 'cloud'));
-            final localEntries = localFavorites
-                .difference(cloudFavorites)
-                .map((id) => MapEntry(id, 'local'));
-            
-            // Combine both entries into a single map
-            return Map.fromEntries([
-              ...cloudEntries,
-              ...localEntries,
-            ]);
-          });
-    } else {
-      // If no user, stream local favorites with proper scheduling
-      final localFavorites = await getLocalFavorites();
-      yield Map.fromEntries(
-        localFavorites.map((id) => MapEntry(id, 'local'))
-      );
+          .listen((snapshot) {
+        _updateFavoriteStatus();
+      });
     }
+    // Initial load
+    _updateFavoriteStatus();
+  }
+
+  Future<void> _updateFavoriteStatus() async {
+    try {
+      final Map<String, String> statuses = {};
+      final user = FirebaseAuth.instance.currentUser;
+      final localFavorites = await getLocalFavorites();
+
+      if (user != null) {
+        final snapshot = await favoritesCollection
+            .where('userId', isEqualTo: user.uid)
+            .get();
+        
+        for (var doc in snapshot.docs) {
+          statuses[doc.get('hymnId')] = 'cloud';
+        }
+      }
+
+      // Add local favorites
+      for (var hymnId in localFavorites) {
+        if (!statuses.containsKey(hymnId)) {
+          statuses[hymnId] = 'local';
+        }
+      }
+
+      _favoritesController.add(statuses);
+    } catch (e) {
+      print('Error updating favorite status: $e');
+    }
+  }
+
+  Stream<Map<String, String>> getFavoriteStatusStream() {
+    return _favoritesController.stream;
   }
 
   Stream<List<String>> getFavoriteHymnIdsStream() {
@@ -279,9 +298,70 @@ class HymnService {
           .get();
 
       return hymnDocs.docs
-          .map((doc) => Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>))
+          .map((doc) =>
+              Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>))
           .toList();
     });
+  }
+
+  Future<void> toggleFavorite(Hymn hymn) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final localFavorites = await getLocalFavorites();
+
+      if (user != null) {
+        final querySnapshot = await favoritesCollection
+            .where('userId', isEqualTo: user.uid)
+            .where('hymnId', isEqualTo: hymn.id)
+            .get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          // Remove from cloud
+          for (var doc in querySnapshot.docs) {
+            await doc.reference.delete();
+          }
+          // Remove from local if exists
+          if (localFavorites.contains(hymn.id)) {
+            localFavorites.remove(hymn.id);
+            await saveLocalFavorites(localFavorites);
+          }
+        } else {
+          // Add to cloud
+          final favorite = Favorite(
+            id: '',
+            hymnId: hymn.id,
+            userId: user.uid,
+            userEmail: user.email ?? '',
+            addedDate: DateTime.now(),
+          );
+          await favoritesCollection.add(favorite.toFirestore());
+          
+          // Add to local
+          if (!localFavorites.contains(hymn.id)) {
+            localFavorites.add(hymn.id);
+            await saveLocalFavorites(localFavorites);
+          }
+        }
+      } else {
+        // Toggle local only
+        if (localFavorites.contains(hymn.id)) {
+          localFavorites.remove(hymn.id);
+        } else {
+          localFavorites.add(hymn.id);
+        }
+        await saveLocalFavorites(localFavorites);
+      }
+
+      // Update status after changes
+      await _updateFavoriteStatus();
+    } catch (e) {
+      print('Error toggling favorite: $e');
+      rethrow;
+    }
+  }
+
+  void dispose() {
+    _favoritesController.close();
   }
 
   Future<bool> isHymnFavorite(String hymnId) async {
@@ -294,70 +374,6 @@ class HymnService {
         .get();
 
     return querySnapshot.docs.isNotEmpty;
-  }
-
-  Future<void> toggleFavorite(Hymn hymn) async {
-    final user = FirebaseAuth.instance.currentUser;
-    final localFavorites = await getLocalFavorites();
-    
-    if (user != null) {
-      // Handle Firebase favorites
-      try {
-        final isFavorite = await isHymnFavorite(hymn.id);
-        
-        if (isFavorite) {
-          // Remove from Firebase favorites
-          final querySnapshot = await favoritesCollection
-              .where('userId', isEqualTo: user.uid)
-              .where('hymnId', isEqualTo: hymn.id)
-              .get();
-              
-          for (var doc in querySnapshot.docs) {
-            await doc.reference.delete();
-          }
-          // Also remove from local favorites if exists
-          if (localFavorites.contains(hymn.id)) {
-            localFavorites.remove(hymn.id);
-            await saveLocalFavorites(localFavorites);
-          }
-        } else {
-          // Add to Firebase favorites
-          final favorite = Favorite(
-            id: '',
-            hymnId: hymn.id,
-            userId: user.uid,
-            userEmail: user.email ?? '',
-            addedDate: DateTime.now(),
-          );
-          await favoritesCollection.add(favorite.toFirestore());
-          // Also add to local favorites for immediate feedback
-          if (!localFavorites.contains(hymn.id)) {
-            localFavorites.add(hymn.id);
-            await saveLocalFavorites(localFavorites);
-          }
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error toggling Firebase favorite: $e');
-        }
-        rethrow;
-      }
-    } else {
-      // Handle local favorites
-      try {
-        if (localFavorites.contains(hymn.id)) {
-          localFavorites.remove(hymn.id);
-        } else {
-          localFavorites.add(hymn.id);
-        }
-        await saveLocalFavorites(localFavorites);
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error toggling local favorite: $e');
-        }
-        rethrow;
-      }
-    }
   }
 
   Future<bool> _isHymnNumberUnique(String hymnNumber, String hymnId) async {
