@@ -79,8 +79,11 @@ class AccueilScreenState extends State<AccueilScreen> {
     super.initState();
     _loadFavoriteStatuses();
     _hymnService.checkPendingSyncs();
-    _fetchHymns();
     _loadUsername();
+    _fetchHymns();
+    // Initialize controllers
+    Get.put(ThemeController());
+    Get.put(ColorController());
   }
 
   @override
@@ -294,9 +297,34 @@ class AccueilScreenState extends State<AccueilScreen> {
     }
   }
 
-  Widget _buildHymnListItem(Hymn hymn, BuildContext context) {
+  List<Hymn> _filterHymnList(List<DocumentSnapshot> docs) {
+    List<Hymn> hymns = docs
+        .map((doc) =>
+            Hymn.fromFirestore(
+                doc as DocumentSnapshot<Map<String, dynamic>>))
+        .toList();
+
+    hymns = _sortHymns(hymns);
+
+    final searchQuery = _searchController.text.toLowerCase();
+    if (searchQuery.isEmpty) {
+      return hymns;
+    }
+
+    return hymns
+        .where((hymn) =>
+            hymn.hymnNumber.toLowerCase().contains(searchQuery) ||
+            hymn.title.toLowerCase().contains(searchQuery) ||
+            hymn.verses
+                .any((verse) => verse.toLowerCase().contains(searchQuery)))
+        .toList();
+  }
+
+  Widget _buildHymnListItem(
+      Hymn hymn, BuildContext context, TextStyle defaultTextStyle, Color iconColor) {
     final theme = Theme.of(context);
-    final textColor = theme.hintColor;
+    final textColor = _colorController.textColor.value;
+    final accentColor = _colorController.accentColor.value;
 
     return Card(
       elevation: 2,
@@ -305,8 +333,7 @@ class AccueilScreenState extends State<AccueilScreen> {
       child: ListTile(
         title: Text(
           hymn.title,
-          style: TextStyle(
-            color: textColor,
+          style: defaultTextStyle.copyWith(
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -316,14 +343,14 @@ class AccueilScreenState extends State<AccueilScreen> {
                 children: [
                   Text(
                     'Nampiditra: ${hymn.createdBy}',
-                    style: TextStyle(
+                    style: defaultTextStyle.copyWith(
                       color: textColor.withOpacity(0.7),
                     ),
                   ),
                   if (hymn.createdAt != null)
                     Text(
                       'Daty: ${DateFormat('dd/MM/yyyy').format(hymn.createdAt)}',
-                      style: TextStyle(
+                      style: defaultTextStyle.copyWith(
                         color: textColor.withOpacity(0.7),
                       ),
                     ),
@@ -335,7 +362,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                   if (hymn.hymnHint != null && hymn.hymnHint!.isNotEmpty)
                     Text(
                       hymn.hymnHint!,
-                      style: TextStyle(
+                      style: defaultTextStyle.copyWith(
                         color: textColor.withOpacity(0.7),
                         fontStyle: FontStyle.italic,
                       ),
@@ -344,7 +371,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                     ),
                   Text(
                     _getPreviewText(hymn),
-                    style: TextStyle(
+                    style: defaultTextStyle.copyWith(
                       color: textColor.withOpacity(0.7),
                     ),
                     maxLines: 2,
@@ -353,11 +380,10 @@ class AccueilScreenState extends State<AccueilScreen> {
                 ],
               ),
         leading: CircleAvatar(
-          backgroundColor: _colorController.iconColor.value,
+          backgroundColor: accentColor,
           child: Text(
             hymn.hymnNumber,
-            style: TextStyle(
-              color: textColor,
+            style: defaultTextStyle.copyWith(
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -365,7 +391,7 @@ class AccueilScreenState extends State<AccueilScreen> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Obx(() => IconButton(
+            IconButton(
               icon: Icon(
                 _favoriteStatuses.containsKey(hymn.id)
                     ? Icons.favorite
@@ -373,16 +399,16 @@ class AccueilScreenState extends State<AccueilScreen> {
                 color: _favoriteStatuses.containsKey(hymn.id)
                     ? (_favoriteStatuses[hymn.id] == 'cloud'
                         ? Colors.red
-                        : _colorController.iconColor.value)
-                    : _colorController.iconColor.value,
+                        : iconColor)
+                    : iconColor,
               ),
               onPressed: () => _toggleFavorite(hymn),
-            )),
+            ),
             if (_isAdmin)
-              Obx(() => IconButton(
-                icon: Icon(Icons.edit, color: _colorController.iconColor.value),
+              IconButton(
+                icon: Icon(Icons.edit, color: iconColor),
                 onPressed: () => _showEditDialog(context),
-              )),
+              ),
             if (_isAdmin)
               IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
@@ -403,57 +429,58 @@ class AccueilScreenState extends State<AccueilScreen> {
   }
 
   Widget _buildDrawerHeader(BuildContext context) {
-    final theme = Theme.of(context);
-    final textColor = theme.hintColor;
+    return Obx(() {
+      final theme = Theme.of(context);
+      final textColor = _colorController.textColor.value;
+      final accentColor = _colorController.accentColor.value;
 
-    return DrawerHeader(
-      decoration: BoxDecoration(
-        color: theme.primaryColor,
-      ),
-      child: GestureDetector(
-        onTap: () {
-          final now = DateTime.now();
-          // Reset counter if last tap was more than 2 seconds ago
-          if (_lastTapTime != null &&
-              now.difference(_lastTapTime!) > const Duration(seconds: 2)) {
-            _profileTapCount = 0;
-          }
-          _lastTapTime = now;
-
-          setState(() {
-            _profileTapCount++;
-            if (_profileTapCount == 5) {
-              // Show admin panel
-              _profileTapCount = 0; // Reset counter
-              _showAdminPanel();
-            }
-          });
-        },
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: _colorController.iconColor.value,
-              child: Icon(
-                Icons.person,
-                size: 40,
-                color: textColor,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              _username.isEmpty ? 'Tsy mbola tafiditra' : _username,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
+      return DrawerHeader(
+        decoration: BoxDecoration(
+          color: theme.primaryColor,
         ),
-      ),
-    );
+        child: GestureDetector(
+          onTap: () {
+            final now = DateTime.now();
+            if (_lastTapTime != null &&
+                now.difference(_lastTapTime!) > const Duration(seconds: 2)) {
+              _profileTapCount = 0;
+            }
+            _lastTapTime = now;
+
+            setState(() {
+              _profileTapCount++;
+              if (_profileTapCount == 5) {
+                _profileTapCount = 0;
+                _showAdminPanel();
+              }
+            });
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 40,
+                backgroundColor: accentColor,
+                child: Icon(
+                  Icons.person,
+                  size: 40,
+                  color: textColor,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                _username.isEmpty ? 'Tsy mbola tafiditra' : _username,
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Future<void> _showUploadDialog(BuildContext context) async {
@@ -528,166 +555,144 @@ class AccueilScreenState extends State<AccueilScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: _themeController.isDarkMode.value
-            ? _colorController.drawerColor.value
-            : _colorController.backgroundColor.value,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: Icon(
-            Icons.menu,
-            color: _colorController.iconColor.value,
-          ),
-          onPressed: widget.openDrawer,
-        ),
-        title: Text(
-          'JFF',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 26,
-            color: _colorController.textColor.value,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.favorite,
-              color: _colorController.iconColor.value,
-            ),
-            onPressed: () => Get.to(() => FavoritesPage()),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _searchController,
-              style: TextStyle(
-                color: _colorController.textColor.value,
+    return GetBuilder<ColorController>(
+      builder: (colorController) => Obx(() {
+        final theme = Theme.of(context);
+        final textColor = colorController.textColor.value;
+        final accentColor = colorController.accentColor.value;
+        final backgroundColor = colorController.backgroundColor.value;
+        final iconColor = colorController.iconColor.value;
+        final defaultTextStyle = TextStyle(
+          color: textColor,
+          inherit: true,
+        );
+
+        return Scaffold(
+          backgroundColor: backgroundColor,
+          appBar: AppBar(
+            backgroundColor: backgroundColor,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: Icon(
+                Icons.menu,
+                color: iconColor,
               ),
-              decoration: InputDecoration(
-                labelText: 'Hitady hira',
-                labelStyle: TextStyle(
-                  color: _colorController.textColor.value.withOpacity(0.7),
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: _colorController.iconColor.value,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: _colorController.textColor.value.withOpacity(0.7),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: _colorController.textColor.value.withOpacity(0.7),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                  borderSide: BorderSide(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-              ),
-              onChanged: (value) {
-                _filterHymns();
-              },
+              onPressed: widget.openDrawer,
             ),
+            title: Text(
+              'JFF',
+              style: defaultTextStyle.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 26,
+              ),
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  Icons.favorite,
+                  color: iconColor,
+                ),
+                onPressed: () => Get.to(() => FavoritesPage()),
+              ),
+            ],
           ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: _hymnService.getHymnsStream(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text(
-                      'Nisy olana: ${snapshot.error}',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
+          body: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _searchController,
+                  style: defaultTextStyle,
+                  decoration: InputDecoration(
+                    labelText: 'Hitady hira',
+                    labelStyle: defaultTextStyle.copyWith(
+                      color: textColor.withOpacity(0.7),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: iconColor,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide(
+                        color: textColor.withOpacity(0.7),
                       ),
                     ),
-                  );
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                List<Hymn> hymns = snapshot.data?.docs
-                        .map((doc) => Hymn.fromFirestore(
-                            doc as DocumentSnapshot<Map<String, dynamic>>))
-                        .toList() ??
-                    [];
-
-                hymns = _sortHymns(hymns);
-
-                if (hymns.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Tsy misy hira',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide(
+                        color: textColor.withOpacity(0.7),
                       ),
                     ),
-                  );
-                }
-
-                final searchQuery = _searchController.text.toLowerCase();
-                var filteredHymns = searchQuery.isEmpty
-                    ? _sortHymns(List<Hymn>.from(hymns))
-                    : _sortHymns(
-                        hymns
-                            .where((hymn) =>
-                                hymn.hymnNumber
-                                    .toLowerCase()
-                                    .contains(searchQuery) ||
-                                hymn.title
-                                    .toLowerCase()
-                                    .contains(searchQuery) ||
-                                hymn.verses.any((verse) =>
-                                    verse.toLowerCase().contains(searchQuery)))
-                            .toList(),
-                      );
-
-                return ListView.builder(
-                  itemCount: filteredHymns.length,
-                  itemBuilder: (context, index) {
-                    final hymn = filteredHymns[index];
-                    return _buildHymnListItem(hymn, context);
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      borderSide: BorderSide(
+                        color: textColor,
+                      ),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    _filterHymns();
                   },
-                );
-              },
-            ),
+                ),
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: _hymnService.getHymnsStream(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text(
+                          'Nisy olana: ${snapshot.error}',
+                          style: defaultTextStyle,
+                        ),
+                      );
+                    }
+
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+
+                    final hymns = _filterHymnList(snapshot.data?.docs ?? []);
+
+                    if (hymns.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'Tsy misy hira',
+                          style: defaultTextStyle,
+                        ),
+                      );
+                    }
+
+                    return ListView.builder(
+                      itemCount: hymns.length,
+                      itemBuilder: (context, index) {
+                        final hymn = hymns[index];
+                        return _buildHymnListItem(
+                          hymn,
+                          context,
+                          defaultTextStyle,
+                          iconColor,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            _buildDrawerHeader(context),
-            ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Tafiditra'),
-              onTap: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AccueilScreen(openDrawer: () {})),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+          floatingActionButton: _isAdmin
+              ? FloatingActionButton(
+                  backgroundColor: accentColor,
+                  child: Icon(Icons.add, color: textColor),
+                  onPressed: () => _showUploadDialog(context),
+                )
+              : null,
+        );
+      }),
     );
   }
 
