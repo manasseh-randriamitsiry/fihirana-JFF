@@ -20,12 +20,12 @@ class ColorController extends GetxController {
   // Predefined color schemes
   final List<Map<String, dynamic>> colorSchemes = [
     {
-      'name': 'Classic Purple',
-      'primary': Colors.purple,
-      'accent': Colors.deepOrange,
+      'name': 'Default',
+      'primary': Colors.blue,
+      'accent': Colors.blueAccent,
       'text': Colors.black87,
       'background': Colors.white,
-      'drawer': Colors.purple.shade900,
+      'drawer': Colors.blue.shade900,
       'icon': Colors.deepOrange,
     },
     {
