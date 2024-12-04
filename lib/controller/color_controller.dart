@@ -55,15 +55,6 @@ class ColorController extends GetxController {
       'drawer': Colors.indigo.shade900,
       'icon': Colors.orange,
     },
-    {
-      'name': 'Dark Theme',
-      'primary': Colors.grey,
-      'accent': Colors.deepPurpleAccent,
-      'text': Colors.white,
-      'background': Colors.black,
-      'drawer': Colors.grey.shade900,
-      'icon': Colors.deepPurpleAccent,
-    },
   ];
 
   MaterialColor getMaterialColor(Color color) {
@@ -92,16 +83,36 @@ class ColorController extends GetxController {
   void onInit() {
     super.onInit();
     loadColors();
+    print('ColorController initialized');
   }
 
   Future<void> loadColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final savedIndex = prefs.getInt('colorSchemeIndex') ?? 0;
-      await setColorScheme(savedIndex);
+      primaryColor.value = getMaterialColor(Color(prefs.getInt('primaryColor') ?? Colors.purple.value));
+      accentColor.value = Color(prefs.getInt('accentColor') ?? Colors.deepOrange.value);
+      textColor.value = Color(prefs.getInt('textColor') ?? Colors.black.value);
+      backgroundColor.value = Color(prefs.getInt('backgroundColor') ?? Colors.white.value);
+      drawerColor.value = Color(prefs.getInt('drawerColor') ?? Colors.black.value);
+      iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.deepOrange.value);
+      print('Loaded icon color: ${iconColor.value}');
     } catch (e) {
       print('Error loading colors: $e');
-      setColorScheme(0);
+    }
+  }
+
+  Future<void> _saveColors() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('primaryColor', primaryColor.value.value);
+      await prefs.setInt('accentColor', accentColor.value.value);
+      await prefs.setInt('textColor', textColor.value.value);
+      await prefs.setInt('backgroundColor', backgroundColor.value.value);
+      await prefs.setInt('drawerColor', drawerColor.value.value);
+      await prefs.setInt('iconColor', iconColor.value.value);
+      print('Saved icon color: ${iconColor.value}');
+    } catch (e) {
+      print('Error saving colors: $e');
     }
   }
 
@@ -128,11 +139,13 @@ class ColorController extends GetxController {
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
-            statusBarIconBrightness:
-                _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
+            statusBarIconBrightness: _isDark(backgroundColor.value)
+                ? Brightness.light
+                : Brightness.dark,
             systemNavigationBarColor: backgroundColor.value,
-            systemNavigationBarIconBrightness:
-                _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
+            systemNavigationBarIconBrightness: _isDark(backgroundColor.value)
+                ? Brightness.light
+                : Brightness.dark,
           ),
         );
 
@@ -170,6 +183,22 @@ class ColorController extends GetxController {
     await setColorScheme(prevIndex);
   }
 
+  // Update icon color specifically
+  void updateIconColor(Color newColor) {
+    try {
+      print('Updating icon color to: $newColor');
+      iconColor.value = newColor;
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setInt('iconColor', newColor.value);
+        print('Saved new icon color: ${newColor.value}');
+      });
+      update(['iconColor']); // Update with specific ID
+      print('Icon color update complete');
+    } catch (e) {
+      print('Error updating icon color: $e');
+    }
+  }
+
   // Update individual colors
   void updateColors({
     Color? primary,
@@ -184,17 +213,28 @@ class ColorController extends GetxController {
     if (text != null) textColor.value = text;
     if (background != null) backgroundColor.value = background;
     if (drawer != null) drawerColor.value = drawer;
-    if (icon != null) iconColor.value = icon;
+    if (icon != null) updateIconColor(icon);
 
     update();
     Get.forceAppUpdate();
+  }
+
+  // Save colors to SharedPreferences
+  Future<void> saveColors() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('iconColor', iconColor.value.value);
+      print('Saved icon color: ${iconColor.value.toString()}');
+    } catch (e) {
+      print('Error saving colors: $e');
+    }
   }
 
   // Get light theme data
   ThemeData getLightTheme() {
     final context = Get.context;
     final materialColor = primaryColor.value;
-    
+
     if (context == null) {
       return ThemeData(
         brightness: Brightness.light,
@@ -203,12 +243,10 @@ class ColorController extends GetxController {
         colorScheme: ColorScheme.light(
           primary: materialColor.shade500,
           secondary: accentColor.value,
-          background: backgroundColor.value,
           surface: backgroundColor.value,
           onPrimary: Colors.white,
           onSecondary: Colors.white,
           onSurface: textColor.value,
-          onBackground: textColor.value,
         ),
       );
     }
@@ -233,7 +271,7 @@ class ColorController extends GetxController {
   ThemeData getDarkTheme() {
     final context = Get.context;
     final materialColor = primaryColor.value;
-    
+
     if (context == null) {
       return ThemeData(
         brightness: Brightness.dark,
