@@ -171,19 +171,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         ),
                       ),
                     ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.brightness_6,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Maizina/Mazava',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: _themeController.toggleTheme,
-                  ),
                   if (!_isAuthenticated)
                     ListTile(
                       leading: Icon(
