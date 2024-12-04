@@ -1,9 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
+import '../../controller/color_controller.dart';
 
 class EditHymnScreen extends StatefulWidget {
   final Hymn hymn;
@@ -20,7 +21,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   final TextEditingController _bridgeController = TextEditingController();
   final TextEditingController _hymnHintController = TextEditingController();
   List<TextEditingController> _verseControllers = [];
-
+  final ColorController colorController = Get.find<ColorController>();
   final HymnService _hymnService = HymnService();
 
   @override
@@ -56,9 +57,9 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   void _saveChanges() {
     if (!isUserAuthenticated()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Mila miditra aloha ianao'),
-          backgroundColor: Colors.red,
+          backgroundColor: colorController.backgroundColor.value,
         ),
       );
       return;
@@ -83,9 +84,9 @@ class EditHymnScreenState extends State<EditHymnScreen> {
         .updateHymn(updatedHymn.id, updatedHymn)
         .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text('Voaova soa aman-tsara'),
-              backgroundColor: Colors.green,
+              backgroundColor: colorController.backgroundColor.value,
             ),
           );
           Navigator.pop(context); // Navigate back after update
@@ -97,7 +98,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Nisy olana: $error'),
-              backgroundColor: Colors.red,
+              backgroundColor: colorController.backgroundColor.value,
             ),
           );
         });
@@ -105,224 +106,190 @@ class EditHymnScreenState extends State<EditHymnScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textColor = theme.hintColor;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Hanova ny hira faha: ${widget.hymn.hymnNumber}',
-          style: TextStyle(fontWeight: FontWeight.bold, color: textColor),
-        ),
-        actions: [
-          if (isUserAuthenticated())
-            IconButton(
-              icon: Icon(Icons.save, color: textColor),
-              onPressed: () {
-                _saveChanges();
-              },
+    return GetBuilder<ColorController>(
+      builder: (colorController) => Scaffold(
+        backgroundColor: colorController.backgroundColor.value,
+        appBar: AppBar(
+          backgroundColor: colorController.backgroundColor.value,
+          title: Text(
+            'Hanova ny hira faha: ${widget.hymn.hymnNumber}',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: colorController.textColor.value,
             ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: _hymnNumberController,
-                style: TextStyle(color: textColor),
-                decoration: InputDecoration(
-                  labelText: 'Laharan\'ny hira',
-                  labelStyle: TextStyle(color: textColor),
-                  prefixIcon:
-                      Icon(Icons.onetwothree_outlined, color: textColor),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
+          ),
+          actions: [
+            if (isUserAuthenticated())
+              IconButton(
+                icon: Icon(Icons.save, color: colorController.iconColor.value),
+                onPressed: _saveChanges,
+              ),
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTextField(
+                  controller: _hymnNumberController,
+                  label: 'Laharan\'ny hira',
+                  icon: Icons.onetwothree_outlined,
+                ),
+                const SizedBox(height: 16.0),
+                _buildTextField(
+                  controller: _titleController,
+                  label: 'Lohateny',
+                  icon: Icons.title,
+                ),
+                const SizedBox(height: 16.0),
+                Text(
+                  'Andininy',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: colorController.textColor.value,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16.0),
-              TextField(
-                controller: _titleController,
-                style: TextStyle(color: textColor),
-                decoration: InputDecoration(
-                  labelText: 'Lohateny',
-                  labelStyle: TextStyle(color: textColor),
-                  prefixIcon: Icon(Icons.title, color: textColor),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
+                const SizedBox(height: 10),
+                _buildVersesList(),
+                const SizedBox(height: 16.0),
+                _buildTextField(
+                  controller: _bridgeController,
+                  label: 'Fiverenany',
+                  icon: Icons.repeat,
+                  maxLines: 3,
                 ),
-              ),
-              const SizedBox(height: 16.0),
-              Text(
-                'Andininy',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
+                const SizedBox(height: 16.0),
+                _buildTextField(
+                  controller: _hymnHintController,
+                  label: 'Fanamarihana',
+                  icon: Icons.info_outline,
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              // Use ReorderableListView for verses
-              ReorderableListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    if (newIndex > oldIndex) {
-                      newIndex -= 1;
-                    }
-                    final item = _verseControllers.removeAt(oldIndex);
-                    _verseControllers.insert(newIndex, item);
-                  });
-                },
-                children: List.generate(_verseControllers.length, (index) {
-                  return Padding(
-                    key: Key('$index'),
-                    padding: const EdgeInsets.only(bottom: 5.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: _verseControllers[index],
-                            maxLines: null,
-                            style: TextStyle(color: textColor),
-                            decoration: InputDecoration(
-                              labelText: 'Andininy: ${index + 1}',
-                              labelStyle: TextStyle(color: textColor),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: textColor),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: textColor),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                borderSide: BorderSide(color: textColor),
-                              ),
-                            ),
-                          ),
+                const SizedBox(height: 16.0),
+                if (isUserAuthenticated())
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _saveChanges,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: colorController.textColor.value,
+                        backgroundColor: colorController.backgroundColor.value,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            left: 40.0, right: 40, top: 20, bottom: 20),
+                        child: Text(
+                          "Apidiro",
+                          style: TextStyle(fontSize: 20),
                         ),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        if (_verseControllers.length > 1)
-                          CircleAvatar(
-                            child: IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: () {
-                                setState(() {
-                                  _verseControllers.removeAt(index);
-                                });
-                              },
-                            ),
-                          ),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: () {
-                            setState(() {
-                              _verseControllers.add(TextEditingController());
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 16.0),
-              TextField(
-                controller: _bridgeController,
-                maxLines: null,
-                style: TextStyle(color: textColor),
-                decoration: InputDecoration(
-                  labelText: 'Fiverenana (Tsy voatery)',
-                  labelStyle: TextStyle(color: textColor),
-                  prefixIcon: Icon(Icons.refresh, color: textColor),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              TextField(
-                controller: _hymnHintController,
-                maxLines: null,
-                style: TextStyle(color: textColor),
-                decoration: InputDecoration(
-                  labelText: 'Naoty',
-                  labelStyle: TextStyle(color: textColor),
-                  prefixIcon: Icon(Icons.note_alt_outlined, color: textColor),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: textColor),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16.0),
-              if (isUserAuthenticated())
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _saveChanges();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: textColor,
-                      backgroundColor: theme.primaryColor.withOpacity(0.2),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.only(
-                          left: 40.0, right: 40, top: 20, bottom: 20),
-                      child: Text(
-                        "Apidiro",
-                        style: TextStyle(fontSize: 20),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    int maxLines = 1,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      style: TextStyle(color: colorController.textColor.value),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: colorController.textColor.value),
+        prefixIcon: Icon(icon, color: colorController.iconColor.value),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: colorController.textColor.value),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: colorController.textColor.value),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: colorController.primaryColor.value),
+        ),
+        fillColor: colorController.backgroundColor.value.withOpacity(0.1),
+        filled: true,
+      ),
+    );
+  }
+
+  Widget _buildVersesList() {
+    return ReorderableListView(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      onReorder: (oldIndex, newIndex) {
+        setState(() {
+          if (newIndex > oldIndex) {
+            newIndex -= 1;
+          }
+          final item = _verseControllers.removeAt(oldIndex);
+          _verseControllers.insert(newIndex, item);
+        });
+      },
+      children: List.generate(_verseControllers.length, (index) {
+        return _buildVerseField(index);
+      }),
+    );
+  }
+
+  Widget _buildVerseField(int index) {
+    return Card(
+      key: ValueKey(index),
+      color: colorController.backgroundColor.value,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _verseControllers[index],
+                maxLines: null,
+                style: TextStyle(color: colorController.textColor.value),
+                decoration: InputDecoration(
+                  labelText: 'Andininy ${index + 1}',
+                  labelStyle: TextStyle(color: colorController.textColor.value),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: colorController.textColor.value),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: colorController.textColor.value),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: colorController.primaryColor.value),
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.delete, color: colorController.iconColor.value),
+              onPressed: () {
+                setState(() {
+                  _verseControllers[index].dispose();
+                  _verseControllers.removeAt(index);
+                });
+              },
+            ),
+            ReorderableDragStartListener(
+              index: index,
+              child: Icon(Icons.drag_handle, color: colorController.iconColor.value),
+            ),
+          ],
         ),
       ),
     );

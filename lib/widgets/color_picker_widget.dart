@@ -66,6 +66,29 @@ class ColorPickerWidget extends StatelessWidget {
     );
   }
 
+  void _pickDrawerColor(BuildContext context, ColorController controller) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Safidio ny lokon\'ny drawer'),
+        content: SingleChildScrollView(
+          child: BlockPicker(
+            pickerColor: controller.drawerColor.value,
+            onColorChanged: (color) {
+              controller.updateDrawerColor(color);
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildColorButton(
     String label,
     Color color,
@@ -246,15 +269,18 @@ class ColorPickerWidget extends StatelessWidget {
                         (color) => colorController.updateColors(background: color),
                       ),
                     ),
-                    _buildColorButton(
-                      'Loko drawer',
-                      colorController.drawerColor.value,
-                      () => _showColorPicker(
-                        context,
-                        'drawer',
-                        colorController.drawerColor.value,
-                        (color) => colorController.updateColors(drawer: color),
+                    ListTile(
+                      title: const Text('Loko drawer'),
+                      trailing: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: colorController.drawerColor.value,
+                          border: Border.all(),
+                          shape: BoxShape.circle,
+                        ),
                       ),
+                      onTap: () => _pickDrawerColor(context, colorController),
                     ),
                     GetBuilder<ColorController>(
                       id: 'iconColor',

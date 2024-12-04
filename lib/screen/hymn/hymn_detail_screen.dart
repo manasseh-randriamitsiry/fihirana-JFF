@@ -1,14 +1,20 @@
 import 'dart:async';
 
+import 'package:fihirana/screen/accueil/home_screen.dart';
+import 'package:fihirana/utility/screen_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:intl/intl.dart';
+import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../models/hymn.dart';
+import '../../utility/navigation_utility.dart';
 import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
+import '../../controller/color_controller.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final Hymn hymn;
@@ -28,6 +34,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
   bool _isFavorite = false;
   String _favoriteStatus = '';
   final HymnService _hymnService = HymnService();
+  final ColorController colorController = Get.find<ColorController>();
 
   @override
   void initState() {
@@ -85,18 +92,20 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
           _favoriteStatus = '';
         } else {
           _isFavorite = true;
-          _favoriteStatus = FirebaseAuth.instance.currentUser != null ? 'cloud' : 'local';
+          _favoriteStatus =
+              FirebaseAuth.instance.currentUser != null ? 'cloud' : 'local';
         }
       });
 
       // Perform the actual toggle
       await _hymnService.toggleFavorite(widget.hymn);
-      
+
       // If user is not logged in, show a snackbar suggesting to login for cloud sync
       if (FirebaseAuth.instance.currentUser == null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Voatahiry eto amin\'ny finday. Raha te-hitahiry any @ kaonty, dia midira'),
+            content: Text(
+                'Voatahiry eto amin\'ny finday. Raha te-hitahiry any @ kaonty, dia midira'),
             duration: Duration(seconds: 3),
             backgroundColor: Colors.blue,
           ),
@@ -111,7 +120,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
         _isFavorite = !_isFavorite;
         _favoriteStatus = '';
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -160,112 +169,142 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textColor = theme.hintColor;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          widget.hymn.hymnNumber,
-          maxLines: null,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-            fontSize: _fontSize,
-          ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(
-              _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorite 
-                  ? (_favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
-                  : textColor,
+    return GetBuilder<ColorController>(
+      builder: (colorController) => Scaffold(
+        backgroundColor: colorController.backgroundColor.value,
+        appBar: AppBar(
+          leading: IconButton(
+              onPressed: () {
+                Get.to(HomeScreen());
+              },
+              icon: Icon(Icons.arrow_back_ios_outlined)),
+          backgroundColor: colorController.backgroundColor.value,
+          centerTitle: true,
+          title: GestureDetector(
+            child: SizedBox(
+              width: getScreenWidth(context) / 4,
+              child: Text(
+                widget.hymn.hymnNumber,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontWeight: FontWeight.bold,
+                  fontSize: _fontSize,
+                ),
+              ),
             ),
-            onPressed: _toggleFavorite,
-          ),
-          PopupMenuButton<String>(
-            color: theme.primaryColor,
-            onSelected: (String item) {
-              switch (item) {
-                case 'edit':
-                  _navigateToEditScreen(
-                    context,
-                    Hymn(
-                      id: widget.hymn.id,
-                      hymnNumber: widget.hymn.hymnNumber,
-                      title: widget.hymn.title,
-                      verses: widget.hymn.verses,
-                      hymnHint: widget.hymn.hymnHint,
-                      bridge: widget.hymn.bridge,
-                      createdAt: widget.hymn.createdAt,
-                      createdBy: widget.hymn.createdBy,
-                      createdByEmail: widget.hymn.createdByEmail,
-                    ),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return HymnSearchPopup(
+                    colorController: colorController,
+                    onHymnSelected: (selectedHymn) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              HymnDetailScreen(hymn: selectedHymn),
+                        ),
+                      );
+                    },
                   );
-                  break;
-                case 'switch_value':
-                  _switchValue(context);
-                  break;
-                case 'font_size':
-                  _showFontSizeDialog(context);
-                  break;
-              }
+                },
+              );
             },
-            itemBuilder: (BuildContext context) {
-              return [
-                if (isUserAuthenticated())
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                _isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: _isFavorite
+                    ? (_favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
+                    : colorController.textColor.value,
+              ),
+              onPressed: _toggleFavorite,
+            ),
+            PopupMenuButton<String>(
+              color: colorController.backgroundColor.value,
+              onSelected: (String item) {
+                switch (item) {
+                  case 'edit':
+                    _navigateToEditScreen(
+                      context,
+                      Hymn(
+                        id: widget.hymn.id,
+                        hymnNumber: widget.hymn.hymnNumber,
+                        title: widget.hymn.title,
+                        verses: widget.hymn.verses,
+                        hymnHint: widget.hymn.hymnHint,
+                        bridge: widget.hymn.bridge,
+                        createdAt: widget.hymn.createdAt,
+                        createdBy: widget.hymn.createdBy,
+                        createdByEmail: widget.hymn.createdByEmail,
+                      ),
+                    );
+                    break;
+                  case 'switch_value':
+                    _switchValue(context);
+                    break;
+                  case 'font_size':
+                    _showFontSizeDialog(context);
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return [
+                  if (isUserAuthenticated())
+                    PopupMenuItem<String>(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.edit,
+                            color: colorController.iconColor.value,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Hanova',
+                          ),
+                        ],
+                      ),
+                    ),
                   PopupMenuItem<String>(
-                    value: 'edit',
+                    value: 'switch_value',
                     child: Row(
                       children: [
                         Icon(
-                          Icons.edit,
-                          color: theme.dividerColor,
+                          Icons.remove_red_eye,
+                          color: colorController.iconColor.value,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Hanova',
+                          'Naoty',
                         ),
                       ],
                     ),
                   ),
-                PopupMenuItem<String>(
-                  value: 'switch_value',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.remove_red_eye,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Naoty',
-                      ),
-                    ],
+                  PopupMenuItem<String>(
+                    value: 'font_size',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.text_fields,
+                          color: colorController.iconColor.value,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Haben'ny soratra",
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                PopupMenuItem<String>(
-                  value: 'font_size',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.text_fields,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Haben'ny soratra",
-                      ),
-                    ],
-                  ),
-                ),
-              ];
-            },
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
+                ];
+              },
+            ),
+          ],
+        ),
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,47 +317,10 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                   style: TextStyle(
                     fontSize: _fontSize * 1.2,
                     fontWeight: FontWeight.bold,
-                    color: textColor,
+                    color: colorController.textColor.value,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              // Creation info
-              if (isUserAuthenticated())
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: theme.primaryColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Nampiditra: ${widget.hymn.createdBy}',
-                        style: TextStyle(
-                          fontSize: _fontSize * 0.8,
-                          color: textColor,
-                        ),
-                      ),
-                      if (widget.hymn.createdByEmail != null)
-                        Text(
-                          'Email: ${widget.hymn.createdByEmail}',
-                          style: TextStyle(
-                            fontSize: _fontSize * 0.8,
-                            color: textColor,
-                          ),
-                        ),
-                      Text(
-                        'Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(widget.hymn.createdAt)}',
-                        style: TextStyle(
-                          fontSize: _fontSize * 0.8,
-                          color: textColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               const SizedBox(height: 16),
               if (_showSlider)
                 Container(
@@ -345,14 +347,49 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
               if (_show &&
                   (widget.hymn.hymnHint?.trim().toLowerCase().isNotEmpty ??
                       false)) ...[
+                if (isUserAuthenticated())
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color:
+                          colorController.primaryColor.value.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Nampiditra: ${widget.hymn.createdBy}',
+                          style: TextStyle(
+                            fontSize: _fontSize * 0.8,
+                            color: colorController.textColor.value,
+                          ),
+                        ),
+                        if (widget.hymn.createdByEmail != null)
+                          Text(
+                            'Email: ${widget.hymn.createdByEmail}',
+                            style: TextStyle(
+                              fontSize: _fontSize * 0.8,
+                              color: colorController.textColor.value,
+                            ),
+                          ),
+                        Text(
+                          'Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(widget.hymn.createdAt)}',
+                          style: TextStyle(
+                            fontSize: _fontSize * 0.8,
+                            color: colorController.textColor.value,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Text(
                     widget.hymn.hymnHint ?? '', // Provide default value if null
                     style: TextStyle(
                       fontSize: 2 * _fontSize / 3,
-                      color:
-                          theme.textTheme.bodyLarge?.color, // Null-aware access
+                      color: colorController.textColor.value,
                     ),
                   ),
                 ),
@@ -366,7 +403,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                     style: TextStyle(
                       fontSize: _fontSize + 2,
                       fontWeight: FontWeight.bold,
-                      color: theme.textTheme.bodyLarge?.color,
+                      color: colorController.textColor.value,
                     ),
                   ),
                 ),
@@ -377,7 +414,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                     widget.hymn.bridge!,
                     style: TextStyle(
                         fontSize: _fontSize,
-                        color: theme.textTheme.bodyLarge?.color),
+                        color: colorController.textColor.value),
                   ),
                 ),
                 Padding(
@@ -387,7 +424,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                     style: TextStyle(
                       fontSize: _fontSize + 2,
                       fontWeight: FontWeight.bold,
-                      color: theme.textTheme.bodyLarge?.color,
+                      color: colorController.textColor.value,
                     ),
                   ),
                 ),
@@ -412,7 +449,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                                   style: TextStyle(
                                     fontSize: _countFontSize,
                                     fontWeight: FontWeight.bold,
-                                    color: theme.primaryColor,
+                                    color: colorController.primaryColor.value,
                                   ),
                                 ),
                               ),
@@ -439,5 +476,227 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
         ),
       ),
     );
+  }
+}
+
+class HymnSearchPopup extends StatefulWidget {
+  final ColorController colorController;
+  final Function(Hymn) onHymnSelected;
+
+  const HymnSearchPopup({
+    Key? key,
+    required this.colorController,
+    required this.onHymnSelected,
+  }) : super(key: key);
+
+  @override
+  State<HymnSearchPopup> createState() => _HymnSearchPopupState();
+}
+
+class _HymnSearchPopupState extends State<HymnSearchPopup> {
+  final TextEditingController _searchController = TextEditingController();
+  final HymnService _hymnService = HymnService();
+  String _searchQuery = '';
+  List<Hymn> _cachedHymns = [];
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          color: widget.colorController.backgroundColor.value,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.8,
+          maxWidth: MediaQuery.of(context).size.width * 0.9,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      style: TextStyle(
+                        color: widget.colorController.textColor.value,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Hikaroka...',
+                        hintStyle: TextStyle(
+                          color: widget.colorController.textColor.value
+                              .withOpacity(0.5),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: widget.colorController.iconColor.value,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: widget.colorController.textColor.value,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: widget.colorController.textColor.value,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: widget.colorController.primaryColor.value,
+                          ),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      color: widget.colorController.iconColor.value,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: _hymnService.getHymnsStream(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      _cachedHymns.isEmpty) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: widget.colorController.primaryColor.value,
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text(
+                        'Misy olana: ${snapshot.error}',
+                        style: TextStyle(
+                          color: widget.colorController.textColor.value,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Tsy misy hira hita',
+                        style: TextStyle(
+                          color: widget.colorController.textColor.value,
+                        ),
+                      ),
+                    );
+                  }
+
+                  final hymns = snapshot.data!.docs.map((doc) {
+                    final data = doc.data() as Map<String, dynamic>;
+                    return Hymn(
+                      id: doc.id,
+                      hymnNumber: data['hymnNumber'].toString(),
+                      title: data['title'] as String,
+                      verses:
+                          List<String>.from(data['verses'] as List<dynamic>),
+                      bridge: data['bridge'] as String?,
+                      hymnHint: data['hymnHint'] as String?,
+                      createdAt: data['createdAt'] != null
+                          ? (data['createdAt'] as Timestamp).toDate()
+                          : DateTime(2023),
+                      createdBy: data['createdBy'] as String? ?? 'Unknown',
+                      createdByEmail: data['createdByEmail'] as String?,
+                    );
+                  }).toList();
+
+                  _cachedHymns = hymns;
+                  final filteredHymns = _filterHymns(hymns);
+
+                  if (filteredHymns.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Tsy misy hira mifanaraka amin\'ny fikarohana',
+                        style: TextStyle(
+                          color: widget.colorController.textColor.value,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: filteredHymns.length,
+                    itemBuilder: (context, index) {
+                      final hymn = filteredHymns[index];
+                      return ListTile(
+                        title: Text(
+                          '${hymn.hymnNumber} - ${hymn.title}',
+                          style: TextStyle(
+                            color: widget.colorController.textColor.value,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        subtitle: Text(
+                          hymn.verses.first.substring(
+                                0,
+                                hymn.verses.first.length > 50
+                                    ? 50
+                                    : hymn.verses.first.length,
+                              ) +
+                              '...',
+                          style: TextStyle(
+                            color: widget.colorController.textColor.value
+                                .withOpacity(0.7),
+                          ),
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                          NavigationUtility.navigateToDetailScreen(
+                              context, hymn);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Hymn> _filterHymns(List<Hymn> hymns) {
+    if (_searchQuery.isEmpty) return hymns;
+
+    final lowercaseQuery = _searchQuery.toLowerCase();
+    return hymns.where((hymn) {
+      return hymn.hymnNumber.toLowerCase().contains(lowercaseQuery) ||
+          hymn.title.toLowerCase().contains(lowercaseQuery) ||
+          hymn.verses
+              .any((verse) => verse.toLowerCase().contains(lowercaseQuery));
+    }).toList();
   }
 }

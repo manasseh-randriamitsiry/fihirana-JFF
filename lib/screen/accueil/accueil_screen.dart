@@ -131,12 +131,6 @@ class AccueilScreenState extends State<AccueilScreen> {
               ),
             ],
           ),
-          floatingActionButton: _authController.isAdmin
-              ? FloatingActionButton(
-                  backgroundColor: accentColor,
-                  child: Icon(Icons.add, color: textColor),
-                  onPressed: () => Get.to(const CreateHymnPage()))
-              : null,
         );
       }),
     );

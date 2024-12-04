@@ -11,8 +11,8 @@ class ColorController extends GetxController {
   final Rx<Color> accentColor = Colors.deepOrange.obs;
   final Rx<Color> textColor = Colors.black.obs;
   final Rx<Color> backgroundColor = Colors.white.obs;
-  final Rx<Color> drawerColor = Colors.black.obs;
-  final Rx<Color> iconColor = Colors.deepOrange.obs;
+  final Rx<Color> drawerColor = Colors.purple.obs;
+  final Rx<Color> iconColor = Colors.black.obs;
 
   // Current color scheme index
   final RxInt currentSchemeIndex = 0.obs;
@@ -82,6 +82,15 @@ class ColorController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    // Set default colors first
+    primaryColor.value = Colors.purple;
+    accentColor.value = Colors.deepOrange;
+    textColor.value = Colors.black;
+    backgroundColor.value = Colors.white;
+    drawerColor.value = Colors.purple; // Set default drawer color
+    iconColor.value = Colors.black;
+    
+    // Then load saved colors
     loadColors();
     print('ColorController initialized');
   }
@@ -89,13 +98,18 @@ class ColorController extends GetxController {
   Future<void> loadColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      
+      // Load colors with fallback to defaults
       primaryColor.value = getMaterialColor(Color(prefs.getInt('primaryColor') ?? Colors.purple.value));
       accentColor.value = Color(prefs.getInt('accentColor') ?? Colors.deepOrange.value);
       textColor.value = Color(prefs.getInt('textColor') ?? Colors.black.value);
       backgroundColor.value = Color(prefs.getInt('backgroundColor') ?? Colors.white.value);
-      drawerColor.value = Color(prefs.getInt('drawerColor') ?? Colors.black.value);
-      iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.deepOrange.value);
-      print('Loaded icon color: ${iconColor.value}');
+      drawerColor.value = Color(prefs.getInt('drawerColor') ?? Colors.purple.value);
+      iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.black.value);
+      
+      print('Colors loaded successfully');
+      print('Drawer color: ${drawerColor.value}');
+      update(); // Update all listeners
     } catch (e) {
       print('Error loading colors: $e');
     }
@@ -199,6 +213,21 @@ class ColorController extends GetxController {
     }
   }
 
+  // Update drawer color specifically
+  void updateDrawerColor(Color newColor) {
+    try {
+      print('Updating drawer color to: $newColor');
+      drawerColor.value = newColor;
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setInt('drawerColor', newColor.value);
+        print('Saved new drawer color: ${newColor.value}');
+      });
+      update();
+    } catch (e) {
+      print('Error updating drawer color: $e');
+    }
+  }
+
   // Update individual colors
   void updateColors({
     Color? primary,
@@ -212,7 +241,7 @@ class ColorController extends GetxController {
     if (accent != null) accentColor.value = accent;
     if (text != null) textColor.value = text;
     if (background != null) backgroundColor.value = background;
-    if (drawer != null) drawerColor.value = drawer;
+    if (drawer != null) updateDrawerColor(drawer);
     if (icon != null) updateIconColor(icon);
 
     update();

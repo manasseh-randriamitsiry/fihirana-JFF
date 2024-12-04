@@ -1,5 +1,7 @@
 import 'package:fihirana/controller/hymnController.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../../controller/color_controller.dart';
 
 class CreateHymnPage extends StatefulWidget {
   const CreateHymnPage({super.key});
@@ -15,9 +17,102 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   final TextEditingController _bridgeController = TextEditingController();
   final TextEditingController _hymnNumberController = TextEditingController();
   final TextEditingController _hymnHintController = TextEditingController();
+  final ColorController colorController = Get.find<ColorController>();
 
   List<TextEditingController> _verseControllers = [];
   final HymnController _hymnController = HymnController();
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    String? Function(String?)? validator,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+    IconData? icon,
+  }) {
+    return TextFormField(
+      controller: controller,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+      style: TextStyle(color: colorController.textColor.value),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: colorController.textColor.value),
+        prefixIcon: icon != null ? Icon(icon, color: colorController.iconColor.value) : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: colorController.textColor.value),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: colorController.textColor.value),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(color: colorController.primaryColor.value),
+        ),
+        fillColor: colorController.backgroundColor.value.withOpacity(0.1),
+        filled: true,
+      ),
+      validator: validator,
+    );
+  }
+
+  Widget _buildVerseField(int index) {
+    return Card(
+      key: ValueKey(index),
+      color: colorController.backgroundColor.value,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _verseControllers[index],
+                maxLines: null,
+                style: TextStyle(color: colorController.textColor.value),
+                decoration: InputDecoration(
+                  labelText: 'Andininy ${index + 1}',
+                  labelStyle: TextStyle(color: colorController.textColor.value),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: colorController.textColor.value),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: colorController.textColor.value),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide(color: colorController.primaryColor.value),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Soraty ny andininy';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            IconButton(
+              icon: Icon(Icons.delete, color: colorController.iconColor.value),
+              onPressed: () {
+                setState(() {
+                  _verseControllers[index].dispose();
+                  _verseControllers.removeAt(index);
+                });
+              },
+            ),
+            ReorderableDragStartListener(
+              index: index,
+              child: Icon(Icons.drag_handle, color: colorController.iconColor.value),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -40,234 +135,152 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textColor = theme.hintColor;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Mampiditra hira', style: TextStyle(color: textColor)),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextFormField(
-                  controller: _hymnNumberController,
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    labelText: 'Laharana',
-                    labelStyle: TextStyle(color: textColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
+    return GetBuilder<ColorController>(
+      builder: (colorController) => Scaffold(
+        backgroundColor: colorController.backgroundColor.value,
+        appBar: AppBar(
+          backgroundColor: colorController.backgroundColor.value,
+          title: Text(
+            'Mampiditra hira',
+            style: TextStyle(
+              color: colorController.textColor.value,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _buildTextField(
+                    controller: _hymnNumberController,
+                    label: 'Laharana',
+                    keyboardType: TextInputType.number,
+                    icon: Icons.onetwothree_outlined,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Apidiro ny laharan'ny hira";
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  _buildTextField(
+                    controller: _titleController,
+                    label: 'Lohateny',
+                    icon: Icons.title,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Soraty ny lohateny';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: colorController.textColor.value.withOpacity(0.2),
+                        ),
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
+                    child: Text(
+                      'Andininy',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Apidiro ny laharan'ny hira";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _titleController,
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    labelText: 'Lohateny',
-                    labelStyle: TextStyle(color: textColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
+                  const SizedBox(height: 10),
+                  ReorderableListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) {
+                          newIndex -= 1;
+                        }
+                        final item = _verseControllers.removeAt(oldIndex);
+                        _verseControllers.insert(newIndex, item);
+                      });
+                    },
+                    children: List.generate(_verseControllers.length, (index) {
+                      return _buildVerseField(index);
+                    }),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: IconButton(
+                      icon: Icon(Icons.add_circle, 
+                        color: colorController.iconColor.value,
+                        size: 32,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _verseControllers.add(TextEditingController());
+                        });
+                      },
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Soraty ny lohateny';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16.0),
-                Text(
-                  'Andininy',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
+                  const SizedBox(height: 16.0),
+                  _buildTextField(
+                    controller: _bridgeController,
+                    label: 'Fiverenany (Raha misy)',
+                    maxLines: 3,
+                    icon: Icons.repeat,
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                // Make verses draggable with ReorderableListView
-                ReorderableListView(
-                  shrinkWrap: true,
-                  onReorder: _onReorder,
-                  children: _buildVerseInputs(),
-                ),
-
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    setState(() {
-                      _verseControllers.add(TextEditingController());
-                    });
-                  },
-                ),
-
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _bridgeController,
-                  maxLines: null, // Allow multiple lines for bridge
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    labelText: 'Isan\'andininy (Raha misy)',
-                    labelStyle: TextStyle(color: textColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
+                  const SizedBox(height: 16.0),
+                  _buildTextField(
+                    controller: _hymnHintController,
+                    label: 'Naoty',
+                    icon: Icons.info_outline,
+                  ),
+                  const SizedBox(height: 24.0),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: colorController.textColor.value),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _createHymn();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: colorController.textColor.value,
+                        backgroundColor: colorController.backgroundColor.value,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(
+                        'Apidiro',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: colorController.textColor.value,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _hymnHintController,
-                  maxLines: null, // Allow multiple lines for bridge
-                  style: TextStyle(color: textColor),
-                  decoration: InputDecoration(
-                    labelText: "Naoty",
-                    labelStyle: TextStyle(color: textColor),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                      borderSide: BorderSide(color: textColor),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _createHymn();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: textColor,
-                    backgroundColor: theme.primaryColor.withOpacity(0.1),
-                  ),
-                  child: const Text('Apidiro'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
-  }
-
-  List<Widget> _buildVerseInputs() {
-    final theme = Theme.of(context);
-    final textColor = theme.hintColor;
-    List<Widget> verseInputs = [];
-    for (int i = 0; i < _verseControllers.length; i++) {
-      verseInputs.add(
-        ListTile(
-          key: ValueKey(i), // Unique key for reordering
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.drag_handle),
-          title: Padding(
-            padding: const EdgeInsets.only(bottom: 5.0),
-            child: TextFormField(
-              controller: _verseControllers[i],
-              maxLines: null, // Allow multiple lines for verses
-              style: TextStyle(color: textColor),
-              decoration: InputDecoration(
-                labelText: 'Andininy: ${i + 1}',
-                labelStyle: TextStyle(color: textColor),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: textColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: textColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                  borderSide: BorderSide(color: textColor),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Soraty eto ny andininy ${i + 1}';
-                }
-                return null;
-              },
-            ),
-          ),
-          trailing: _verseControllers.length > 1
-              ? CircleAvatar(
-                  child: IconButton(
-                    icon: const Icon(Icons.remove),
-                    onPressed: () {
-                      setState(() {
-                        _verseControllers.removeAt(i);
-                      });
-                    },
-                  ),
-                )
-              : null,
-        ),
-      );
-    }
-    return verseInputs;
-  }
-
-  void _onReorder(int oldIndex, int newIndex) {
-    setState(() {
-      if (oldIndex < newIndex) {
-        newIndex -= 1;
-      }
-      final controller = _verseControllers.removeAt(oldIndex);
-      _verseControllers.insert(newIndex, controller);
-    });
   }
 
   Future<void> _createHymn() async {
@@ -281,11 +294,22 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           ? _bridgeController.text.trim()
           : null;
       final hymnHint = _hymnHintController.text.isNotEmpty
-          ? _bridgeController.text.trim()
+          ? _hymnHintController.text.trim()
           : null;
 
       if (await _hymnController.createHymn(
           hymnNumber, title, verses, bridge, hymnHint)) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Voasoratra soa aman-tsara ny hira',
+              style: TextStyle(color: colorController.textColor.value),
+            ),
+            backgroundColor: colorController.backgroundColor.value,
+          ),
+        );
+
         // Clear controllers and reset state after successful creation
         _hymnNumberController.clear();
         _titleController.clear();
@@ -293,18 +317,25 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           controller.clear();
         }
         _bridgeController.clear();
-        _hymnHintController.clear(); // Clear hymn hint controller
+        _hymnHintController.clear();
 
         setState(() {
           _verseControllers = [TextEditingController()];
         });
+
+        // Navigate back
+        Navigator.pop(context);
       }
     } catch (error) {
-      // Handle errors gracefully
+      // Handle errors with themed colors
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Nisy olana fa ialana tsiny: $error'),
-          backgroundColor: Colors.red,
+          content: Text(
+            'Nisy olana fa ialana tsiny: $error',
+            style: TextStyle(color: colorController.textColor.value),
+          ),
+          backgroundColor: colorController.backgroundColor.value,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
