@@ -208,19 +208,21 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                       onTap: () => Get.to(() => const CreateHymnPage()),
                     ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.admin_panel_settings,
-                        color: _colorController.iconColor.value,
-                      ),
-                      title: Text(
-                        'Admin Panel',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
+                    if (_currentUser?.email ==
+                        'manassehrandriamitsiry@gmail.com')
+                      ListTile(
+                        leading: Icon(
+                          Icons.admin_panel_settings,
+                          color: _colorController.iconColor.value,
                         ),
+                        title: Text(
+                          'Admin Panel',
+                          style: TextStyle(
+                            color: _colorController.textColor.value,
+                          ),
+                        ),
+                        onTap: () => Get.to(() => const AdminPanelScreen()),
                       ),
-                      onTap: () => Get.to(() => const AdminPanelScreen()),
-                    ),
                   ],
                   ListTile(
                     leading: Icon(
@@ -299,6 +301,24 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     ),
                     onTap: () => Get.to(() => const AboutScreen()),
                   ),
+                  if (_isAuthenticated)
+                    ListTile(
+                      leading: Icon(Icons.logout,
+                          color: _colorController.iconColor.value),
+                      title: Text(
+                        'Hivoaka',
+                        style: TextStyle(
+                          color: _colorController.textColor.value,
+                        ),
+                      ),
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        setState(() {
+                          _isAuthenticated = false;
+                          _currentUser = null;
+                        });
+                      },
+                    ),
                 ],
               ),
             ),

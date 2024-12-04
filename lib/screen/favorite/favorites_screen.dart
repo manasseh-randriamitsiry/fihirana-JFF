@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../hymn/hymn_detail_screen.dart';
 
 class FavoritesPage extends StatelessWidget {
   final HymnService _hymnService = HymnService();
-
+  final ColorController colorController = Get.find<ColorController>();
   FavoritesPage({Key? key}) : super(key: key);
 
   @override
@@ -16,8 +19,7 @@ class FavoritesPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text('Tiana',
-            style: TextStyle(color: textColor)),
+        title: Text('Tiana', style: TextStyle(color: textColor)),
       ),
       body: StreamBuilder<List<Hymn>>(
         stream: _hymnService.getFavoriteHymnsStream(),
@@ -42,14 +44,12 @@ class FavoritesPage extends StatelessWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
+                      color: colorController.primaryColor.value,
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(
-                          color: textColor.withOpacity(0.5)),
                     ),
                     child: ListTile(
                       leading: CircleAvatar(
-                        backgroundColor: theme.dividerColor,
+                        backgroundColor: colorController.iconColor.value,
                         child: Text(
                           hymn.hymnNumber,
                           style: TextStyle(
@@ -62,15 +62,18 @@ class FavoritesPage extends StatelessWidget {
                         hymn.title,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: textColor),
+                            color: colorController.textColor.value),
                       ),
                       trailing: StreamBuilder<List<String>>(
                         stream: _hymnService.getFavoriteHymnIdsStream(),
                         builder: (context, favoriteSnapshot) {
-                          final isFavorite = favoriteSnapshot.data?.contains(hymn.id) ?? false;
+                          final isFavorite =
+                              favoriteSnapshot.data?.contains(hymn.id) ?? false;
                           return IconButton(
                             icon: Icon(
-                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               color: isFavorite ? Colors.red : textColor,
                             ),
                             onPressed: () {
@@ -83,7 +86,8 @@ class FavoritesPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => HymnDetailScreen(hymnId: hymn.id),
+                            builder: (context) =>
+                                HymnDetailScreen(hymnId: hymn.id),
                           ),
                         );
                       },
