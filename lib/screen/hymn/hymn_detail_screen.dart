@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:fihirana/screen/accueil/home_screen.dart';
 import 'package:fihirana/utility/screen_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -112,21 +113,29 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
 
         // Add to history after loading hymn data
         if (_hymn != null) {
-          print(
-              'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
+          if (kDebugMode) {
+            print(
+                'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
+          }
           await historyController.addToHistory(
             widget.hymnId,
             _hymn!.title,
             _hymn!.hymnNumber,
           );
-          print('Successfully added to history');
+          if (kDebugMode) {
+            print('Successfully added to history');
+          }
         } else {
-          print('Error: Hymn object is null after loading data');
+          if (kDebugMode) {
+            print('Error: Hymn object is null after loading data');
+          }
         }
 
         _checkFavoriteStatus();
       } else {
-        print('Error: Document does not exist for hymn ID: ${widget.hymnId}');
+        if (kDebugMode) {
+          print('Error: Document does not exist for hymn ID: ${widget.hymnId}');
+        }
       }
     } catch (e, stackTrace) {
       print('Error loading hymn data: $e');
@@ -144,7 +153,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     }
   }
 
-  Future<void> _toggleFavorite() async {
+  Future<void> toggleFavorite() async {
     if (_hymn == null) return;
 
     // Optimistically update the UI
@@ -288,7 +297,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                     ? (_favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
                     : colorController.iconColor.value,
               ),
-              onPressed: _toggleFavorite,
+              onPressed: toggleFavorite,
             ),
             PopupMenuButton<String>(
               color: colorController.primaryColor.value,

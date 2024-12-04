@@ -24,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _initializeApp();
+    _notFirstTime();
   }
 
   Future<void> _initializeApp() async {
@@ -45,6 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
       );
       await prefs.setBool('notificationsInitialized', true);
     }
+  }
+
+  Future<void> _notFirstTime() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isFirstTime', false);
   }
 
   void _handleDrawerToggle() {
