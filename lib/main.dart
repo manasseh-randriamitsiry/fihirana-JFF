@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'controller/history_controller.dart';
 import 'controller/theme_controller.dart';
 import 'controller/font_controller.dart';
 import 'controller/color_controller.dart';
@@ -15,6 +16,16 @@ void main() async {
   await Firebase.initializeApp();
 
   final prefs = await SharedPreferences.getInstance();
+
+  // Initialize controllers once
+  final themeController = Get.put(ThemeController());
+  Get.put(HistoryController());
+  Get.put(ColorController());
+  Get.put(FontController());
+
+  // Initialize theme from preferences
+  themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
+
   runApp(MyApp(prefs: prefs));
 }
 
@@ -36,10 +47,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
 
-    // Initialize controllers
-    colorController = Get.put(ColorController());
-    themeController = Get.put(ThemeController());
-    fontController = Get.put(FontController());
+    // Get existing controller instances
+    colorController = Get.find<ColorController>();
+    themeController = Get.find<ThemeController>();
+    fontController = Get.find<FontController>();
 
     // Initialize notifications and check for updates
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -48,18 +59,98 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  ThemeData _getThemeWithFont(ThemeData baseTheme, String fontFamily) {
+    // Create a complete text theme with all necessary styles
+    final TextTheme textTheme = TextTheme(
+      displayLarge: GoogleFonts.getFont(
+        fontFamily,
+        textStyle: baseTheme.textTheme.displayLarge?.copyWith(
+          fontSize: 57.0,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.25,
+          height: 1.12,
+        ),
+      ),
+      displayMedium: GoogleFonts.getFont(
+        fontFamily,
+        textStyle: baseTheme.textTheme.displayMedium?.copyWith(
+          fontSize: 45.0,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.25,
+          height: 1.16,
+        ),
+      ),
+      displaySmall: GoogleFonts.getFont(
+        fontFamily,
+        textStyle: baseTheme.textTheme.displaySmall?.copyWith(
+          fontSize: 36.0,
+          fontWeight: FontWeight.w400,
+          letterSpacing: -0.25,
+          height: 1.22,
+        ),
+      ),
+      bodyLarge: GoogleFonts.getFont(
+        fontFamily,
+        textStyle: baseTheme.textTheme.bodyLarge?.copyWith(
+          fontSize: 16.0,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.5,
+          height: 1.5,
+        ),
+      ),
+      bodyMedium: GoogleFonts.getFont(
+        fontFamily,
+        textStyle: baseTheme.textTheme.bodyMedium?.copyWith(
+          fontSize: 14.0,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0.25,
+          height: 1.43,
+        ),
+      ),
+      titleLarge: GoogleFonts.getFont(
+        fontFamily,
+        textStyle: baseTheme.textTheme.titleLarge?.copyWith(
+          fontSize: 22.0,
+          fontWeight: FontWeight.w400,
+          letterSpacing: 0,
+          height: 1.27,
+        ),
+      ),
+    );
+
+    return baseTheme.copyWith(
+      textTheme: textTheme,
+      primaryTextTheme: textTheme,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: colorController.getLightTheme(),
-      darkTheme: colorController.getDarkTheme(),
-      themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
-      home: const HomeScreen(),
-      initialRoute: '/home',
-      getPages: [
-        GetPage(name: '/home', page: () => const HomeScreen()),
-      ],
-    );
+    final bool isFirstTime = widget.prefs.getBool('isFirstTime') ?? true;
+
+    return Obx(() {
+      final currentFont = fontController.currentFont.value;
+      final isDark = themeController.isDarkMode.value;
+
+      // Get the appropriate base theme
+      ThemeData baseTheme = isDark
+          ? colorController.getDarkTheme()
+          : colorController.getLightTheme();
+
+      // Apply font to the theme
+      final themeWithFont = _getThemeWithFont(baseTheme, currentFont);
+
+      return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+        theme: themeWithFont,
+        darkTheme: themeWithFont,
+        initialRoute: isFirstTime ? '/splash' : '/home',
+        getPages: [
+          GetPage(name: '/splash', page: () => SplashScreen1()),
+          GetPage(name: '/home', page: () => const HomeScreen()),
+        ],
+      );
+    });
   }
 }

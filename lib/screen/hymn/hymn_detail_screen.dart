@@ -15,117 +15,180 @@ import '../../utility/navigation_utility.dart';
 import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/history_controller.dart';
 
 class HymnDetailScreen extends StatefulWidget {
-  final Hymn hymn;
+  final String hymnId;
 
-  const HymnDetailScreen({super.key, required this.hymn});
+  const HymnDetailScreen({
+    Key? key,
+    required this.hymnId,
+  }) : super(key: key);
 
   @override
-  HymnDetailScreenState createState() => HymnDetailScreenState();
+  State<HymnDetailScreen> createState() => _HymnDetailScreenState();
 }
 
-class HymnDetailScreenState extends State<HymnDetailScreen> {
+class _HymnDetailScreenState extends State<HymnDetailScreen> {
   final double _baseFontSize = 16.0;
   final double _baseCountFontSize = 50.0;
   double _fontSize = 16.0;
   double _countFontSize = 50.0;
-  double _scale = 1.0;
+  bool _show = false;
+  bool _showSlider = false;
   bool _isFavorite = false;
   String _favoriteStatus = '';
   final HymnService _hymnService = HymnService();
   final ColorController colorController = Get.find<ColorController>();
+  late final HistoryController historyController;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Map<String, dynamic>? _hymnData;
+  Hymn? _hymn;
 
   @override
   void initState() {
     super.initState();
+    // Initialize history controller if not already initialized
+    if (!Get.isRegistered<HistoryController>()) {
+      Get.put(HistoryController());
+    }
+    historyController = Get.find<HistoryController>();
     _loadFontSize();
-    _loadFavoriteStatus();
+    _loadHymnData();
     // Ensure favorites are synced when screen opens
     _hymnService.checkPendingSyncs();
   }
 
-  Future<void> _loadFontSize() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  void _loadFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
     setState(() {
       _fontSize = prefs.getDouble('fontSize') ?? _baseFontSize;
-      _countFontSize = _fontSize * (_baseCountFontSize / _baseFontSize);
-      _scale = _fontSize / _baseFontSize;
+      _countFontSize = prefs.getDouble('countFontSize') ?? _baseCountFontSize;
     });
   }
 
-  Future<void> _loadFavoriteStatus() async {
+  Future<void> _loadHymnData() async {
+    try {
+      final doc = await _firestore.collection('hymns').doc(widget.hymnId).get();
+      if (doc.exists) {
+        final data = doc.data() as Map<String, dynamic>;
+        print('Loaded hymn data: $data'); // Debug log
+
+        // Safely extract verses list
+        List<String> verses = [];
+        if (data['verses'] != null) {
+          try {
+            verses = List<String>.from(data['verses']);
+          } catch (e) {
+            print('Error parsing verses: $e');
+          }
+        }
+
+        // Safely get timestamp
+        DateTime createdAt = DateTime.now();
+        if (data['createdAt'] != null) {
+          if (data['createdAt'] is Timestamp) {
+            createdAt = (data['createdAt'] as Timestamp).toDate();
+          } else if (data['createdAt'] is DateTime) {
+            createdAt = data['createdAt'] as DateTime;
+          }
+        }
+
+        setState(() {
+          _hymnData = data;
+          _hymn = Hymn(
+            id: widget.hymnId,
+            hymnNumber: data['hymnNumber']?.toString() ?? '',
+            title: data['title']?.toString() ?? '',
+            verses: verses,
+            hymnHint: data['hint']?.toString(),
+            bridge: data['bridge']?.toString(),
+            createdAt: createdAt,
+            createdBy: data['createdBy']?.toString() ?? '',
+            createdByEmail: data['createdByEmail']?.toString(),
+          );
+          print('Hymn number loaded: ${_hymn?.hymnNumber}'); // Debug log
+        });
+
+        // Add to history after loading hymn data
+        if (_hymn != null) {
+          print(
+              'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
+          await historyController.addToHistory(
+            widget.hymnId,
+            _hymn!.title,
+            _hymn!.hymnNumber,
+          );
+          print('Successfully added to history');
+        } else {
+          print('Error: Hymn object is null after loading data');
+        }
+
+        _checkFavoriteStatus();
+      } else {
+        print('Error: Document does not exist for hymn ID: ${widget.hymnId}');
+      }
+    } catch (e, stackTrace) {
+      print('Error loading hymn data: $e');
+      print('Stack trace: $stackTrace');
+    }
+  }
+
+  Future<void> _checkFavoriteStatus() async {
     final status = await _hymnService.getFavoriteStatusStream().first;
     if (mounted) {
       setState(() {
-        _isFavorite = status.containsKey(widget.hymn.id);
-        _favoriteStatus = status[widget.hymn.id] ?? '';
+        _isFavorite = status.containsKey(widget.hymnId);
+        _favoriteStatus = status[widget.hymnId] ?? '';
       });
     }
   }
 
-  bool _showSlider = false; // Initially hidden
-  bool _show = false;
-  void _showFontSizeDialog(BuildContext context) {
-    setState(() {
-      _showSlider = !_showSlider;
-    });
-  }
-
-  void _switchValue(BuildContext context) {
-    setState(() {
-      _show = !_show;
-    });
-  }
-
-  Future<void> _saveFontSize() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('fontSize', _fontSize);
-  }
-
   Future<void> _toggleFavorite() async {
-    try {
-      // Update local state immediately for better UX
-      setState(() {
-        if (_isFavorite) {
-          _isFavorite = false;
-          _favoriteStatus = '';
-        } else {
-          _isFavorite = true;
-          _favoriteStatus =
-              FirebaseAuth.instance.currentUser != null ? 'cloud' : 'local';
-        }
-      });
+    if (_hymn == null) return;
 
+    // Optimistically update the UI
+    final wasIsFavorite = _isFavorite;
+    final wasFavoriteStatus = _favoriteStatus;
+
+    setState(() {
+      _isFavorite = !_isFavorite;
+      if (_isFavorite) {
+        _favoriteStatus =
+            FirebaseAuth.instance.currentUser == null ? 'local' : 'cloud';
+      } else {
+        _favoriteStatus = '';
+      }
+    });
+
+    try {
       // Perform the actual toggle
-      await _hymnService.toggleFavorite(widget.hymn);
+      await _hymnService.toggleFavorite(_hymn!);
 
       // If user is not logged in, show a snackbar suggesting to login for cloud sync
       if (FirebaseAuth.instance.currentUser == null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
-                'Voatahiry eto amin\'ny finday. Raha te-hitahiry any @ kaonty, dia midira'),
+                'Midira mba hahafahana mitahiry ny hira tianao any @ cloud'),
             duration: Duration(seconds: 3),
-            backgroundColor: Colors.blue,
           ),
         );
       }
 
       // Refresh the actual status
-      _loadFavoriteStatus();
+      _checkFavoriteStatus();
     } catch (e) {
       // Revert the state if there was an error
       setState(() {
-        _isFavorite = !_isFavorite;
-        _favoriteStatus = '';
+        _isFavorite = wasIsFavorite;
+        _favoriteStatus = wasFavoriteStatus;
       });
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Tsy nahomby ny fitahirizana'),
-            backgroundColor: Colors.red,
+            content: Text('Nisy olana ny fanovana ny fanitiavana ny hira'),
+            duration: Duration(seconds: 3),
           ),
         );
       }
@@ -141,11 +204,12 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
     super.dispose();
   }
 
-  void _navigateToEditScreen(BuildContext context, Hymn hymn) {
+  void _navigateToEditScreen(BuildContext context) {
+    if (_hymn == null) return;
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EditHymnScreen(hymn: hymn),
+        builder: (context) => EditHymnScreen(hymn: _hymn!),
       ),
     );
   }
@@ -187,10 +251,10 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
             child: SizedBox(
               width: getScreenWidth(context) / 4,
               child: Text(
-                widget.hymn.hymnNumber,
+                _hymn?.hymnNumber ?? '',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: colorController.textColor.value,
+                  color: colorController.iconColor.value,
                   fontWeight: FontWeight.bold,
                   fontSize: _fontSize,
                 ),
@@ -207,7 +271,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) =>
-                              HymnDetailScreen(hymn: selectedHymn),
+                              HymnDetailScreen(hymnId: selectedHymn.id),
                         ),
                       );
                     },
@@ -237,24 +301,17 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                   case 'edit':
                     _navigateToEditScreen(
                       context,
-                      Hymn(
-                        id: widget.hymn.id,
-                        hymnNumber: widget.hymn.hymnNumber,
-                        title: widget.hymn.title,
-                        verses: widget.hymn.verses,
-                        hymnHint: widget.hymn.hymnHint,
-                        bridge: widget.hymn.bridge,
-                        createdAt: widget.hymn.createdAt,
-                        createdBy: widget.hymn.createdBy,
-                        createdByEmail: widget.hymn.createdByEmail,
-                      ),
                     );
                     break;
                   case 'switch_value':
-                    _switchValue(context);
+                    setState(() {
+                      _show = !_show;
+                    });
                     break;
                   case 'font_size':
-                    _showFontSizeDialog(context);
+                    setState(() {
+                      _showSlider = !_showSlider;
+                    });
                     break;
                 }
               },
@@ -319,7 +376,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
               // Title
               Center(
                 child: Text(
-                  widget.hymn.title,
+                  _hymn?.title ?? '',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: _fontSize * 1.2,
@@ -330,29 +387,29 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
               ),
               const SizedBox(height: 16),
               if (_showSlider)
-                Container(
-                  child: SfSlider(
-                    min: 10.0,
-                    max: 100.0,
-                    interval: 5,
-                    showTicks: true,
-                    minorTicksPerInterval: 1,
-                    onChanged: (dynamic value) {
-                      _saveFontSize();
-                      setState(() {
-                        _fontSize = value;
-                      });
-                    },
-                    onChangeEnd: (dynamic value) {
-                      setState(() {
-                        _showSlider = false; // Hide the slider on release
-                      });
-                    },
-                    value: _fontSize,
-                  ),
+                Slider(
+                  value: _fontSize,
+                  min: 12,
+                  max: 40,
+                  divisions: 28,
+                  label: _fontSize.round().toString(),
+                  onChanged: (double value) {
+                    setState(() {
+                      _fontSize = value;
+                      _countFontSize =
+                          value * (_baseCountFontSize / _baseFontSize);
+                    });
+                  },
+                  onChangeEnd: (double value) async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setDouble('fontSize', value);
+                    setState(() {
+                      _showSlider = false; // Hide the slider on release
+                    });
+                  },
                 ),
               if (_show &&
-                  (widget.hymn.hymnHint?.trim().toLowerCase().isNotEmpty ??
+                  (_hymn?.hymnHint?.trim().toLowerCase().isNotEmpty ??
                       false)) ...[
                 if (isUserAuthenticated())
                   Container(
@@ -366,22 +423,22 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Nampiditra: ${widget.hymn.createdBy}',
+                          'Nampiditra: ${_hymn?.createdBy}',
                           style: TextStyle(
                             fontSize: _fontSize * 0.8,
                             color: colorController.textColor.value,
                           ),
                         ),
-                        if (widget.hymn.createdByEmail != null)
+                        if (_hymn?.createdByEmail != null)
                           Text(
-                            'Email: ${widget.hymn.createdByEmail}',
+                            'Email: ${_hymn?.createdByEmail}',
                             style: TextStyle(
                               fontSize: _fontSize * 0.8,
                               color: colorController.textColor.value,
                             ),
                           ),
                         Text(
-                          'Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(widget.hymn.createdAt)}',
+                          'Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(_hymn?.createdAt ?? DateTime(2023))}',
                           style: TextStyle(
                             fontSize: _fontSize * 0.8,
                             color: colorController.textColor.value,
@@ -393,7 +450,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Text(
-                    widget.hymn.hymnHint ?? '', // Provide default value if null
+                    _hymn?.hymnHint ?? '', // Provide default value if null
                     style: TextStyle(
                       fontSize: 2 * _fontSize / 3,
                       color: colorController.textColor.value,
@@ -401,8 +458,9 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                   ),
                 ),
               ],
-              if (widget.hymn.bridge != null &&
-                  widget.hymn.bridge!.trim().toLowerCase().isNotEmpty) ...[
+              if (_hymn?.bridge != null &&
+                  (_hymn?.bridge?.trim().toLowerCase().isNotEmpty ??
+                      false)) ...[
                 Padding(
                   padding: const EdgeInsets.only(top: 10, left: 15),
                   child: Text(
@@ -418,7 +476,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                   padding:
                       const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15),
                   child: Text(
-                    widget.hymn.bridge!,
+                    _hymn?.bridge ?? '',
                     style: TextStyle(
                         fontSize: _fontSize,
                         color: colorController.textColor.value),
@@ -439,7 +497,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  for (int i = 0; i < widget.hymn.verses.length; i++) ...[
+                  for (int i = 0; i < (_hymn?.verses?.length ?? 0); i++) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 30.0),
@@ -465,7 +523,7 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                           Padding(
                             padding: const EdgeInsets.only(left: 30.0),
                             child: Text(
-                              '${i + 1}. ${widget.hymn.verses[i]}',
+                              '${i + 1}. ${_hymn?.verses?[i] ?? ''}',
                               style: TextStyle(
                                 fontSize: _fontSize,
                                 color: verseColors[i % verseColors.length],

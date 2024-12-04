@@ -19,7 +19,7 @@ class NavigationUtility {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => HymnDetailScreen(hymn: hymn),
+        builder: (context) => HymnDetailScreen(hymnId: hymn.id),
       ),
     );
   }

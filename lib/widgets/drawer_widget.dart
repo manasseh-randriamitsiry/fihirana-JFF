@@ -11,6 +11,7 @@ import '../screen/favorite/favorites_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
+import '../screen/history/history_screen.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
 
@@ -233,6 +234,19 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                     ),
                     onTap: () => Get.to(() => FavoritesPage()),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.history,
+                      color: _colorController.iconColor.value,
+                    ),
+                    title: Text(
+                      'Tantara',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                      ),
+                    ),
+                    onTap: () => Get.to(() => HistoryScreen()),
                   ),
                   ListTile(
                     leading: Icon(

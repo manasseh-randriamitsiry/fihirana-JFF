@@ -199,8 +199,11 @@ class ColorPickerWidget extends StatelessWidget {
     return GetBuilder<ColorController>(
       builder: (colorController) => Container(
         decoration: BoxDecoration(
-            color: colorController.primaryColor.value,
-            borderRadius: const BorderRadius.all(Radius.circular(10))),
+          color: colorController.primaryColor.value,
+          borderRadius: const BorderRadius.all(
+            Radius.circular(10),
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
