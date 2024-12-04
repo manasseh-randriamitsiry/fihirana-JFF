@@ -95,7 +95,7 @@ class ColorPickerWidget extends StatelessWidget {
     VoidCallback onTap,
   ) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -106,12 +106,12 @@ class ColorPickerWidget extends StatelessWidget {
           InkWell(
             onTap: onTap,
             child: Container(
-              width: 40,
-              height: 40,
+              width: 30,
+              height: 30,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.grey),
+                border: Border.all(color: colorController.accentColor.value),
               ),
             ),
           ),
@@ -197,8 +197,10 @@ class ColorPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ColorController>(
-      builder: (colorController) => Card(
-        color: colorController.backgroundColor.value,
+      builder: (colorController) => Container(
+        decoration: BoxDecoration(
+            color: colorController.primaryColor.value,
+            borderRadius: const BorderRadius.all(Radius.circular(10))),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -266,13 +268,14 @@ class ColorPickerWidget extends StatelessWidget {
                         context,
                         'ambadika',
                         colorController.backgroundColor.value,
-                        (color) => colorController.updateColors(background: color),
+                        (color) =>
+                            colorController.updateColors(background: color),
                       ),
                     ),
                     ListTile(
                       title: const Text('Loko drawer'),
                       trailing: Container(
-                        width: 40,
+                        width: 30,
                         height: 40,
                         decoration: BoxDecoration(
                           color: colorController.drawerColor.value,
@@ -287,7 +290,7 @@ class ColorPickerWidget extends StatelessWidget {
                       builder: (controller) => ListTile(
                         title: const Text('Loko icon'),
                         trailing: Container(
-                          width: 40,
+                          width: 30,
                           height: 40,
                           decoration: BoxDecoration(
                             color: controller.iconColor.value,

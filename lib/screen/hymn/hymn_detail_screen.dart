@@ -177,7 +177,10 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
               onPressed: () {
                 Get.to(HomeScreen());
               },
-              icon: Icon(Icons.arrow_back_ios_outlined)),
+              icon: Icon(
+                Icons.arrow_back_ios_outlined,
+                color: colorController.iconColor.value,
+              )),
           backgroundColor: colorController.backgroundColor.value,
           centerTitle: true,
           title: GestureDetector(
@@ -219,12 +222,16 @@ class HymnDetailScreenState extends State<HymnDetailScreen> {
                 _isFavorite ? Icons.favorite : Icons.favorite_border,
                 color: _isFavorite
                     ? (_favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
-                    : colorController.textColor.value,
+                    : colorController.iconColor.value,
               ),
               onPressed: _toggleFavorite,
             ),
             PopupMenuButton<String>(
-              color: colorController.backgroundColor.value,
+              color: colorController.primaryColor.value,
+              icon: Icon(
+                Icons.menu_sharp,
+                color: colorController.iconColor.value,
+              ),
               onSelected: (String item) {
                 switch (item) {
                   case 'edit':

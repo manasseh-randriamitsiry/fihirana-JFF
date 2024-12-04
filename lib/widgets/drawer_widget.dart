@@ -138,37 +138,45 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 padding: EdgeInsets.zero,
                 children: [
                   if (_currentUser == null) const SizedBox(height: 50),
-                  if (_currentUser != null)
+                  if (_isAuthenticated && _currentUser != null)
                     UserAccountsDrawerHeader(
                       decoration: BoxDecoration(
-                        color:
-                            _colorController.primaryColor.value.withOpacity(0),
+                        color: _colorController.drawerColor.value,
                       ),
                       accountName: Text(
-                        _currentUser!.displayName ?? '',
+                        _currentUser?.displayName ?? 'User',
                         style: TextStyle(
                           color: _colorController.textColor.value,
                         ),
                       ),
                       accountEmail: Text(
-                        _currentUser!.email,
+                        _currentUser?.email ?? '',
                         style: TextStyle(
                           color: _colorController.textColor.value,
                         ),
                       ),
-                      currentAccountPicture: CachedNetworkImage(
-                        imageUrl: _currentUser!.photoUrl ?? '',
-                        imageBuilder: (context, imageProvider) => CircleAvatar(
-                          backgroundImage: imageProvider,
-                        ),
-                        placeholder: (context, url) =>
-                            CircularProgressIndicator(
-                          color: _colorController.primaryColor.value,
-                        ),
-                        errorWidget: (context, url, error) => Icon(
-                          Icons.error,
-                          color: _colorController.iconColor.value,
-                        ),
+                      currentAccountPicture: CircleAvatar(
+                        backgroundColor: _colorController.primaryColor.value,
+                        child: _currentUser?.photoUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: _currentUser!.photoUrl!,
+                                imageBuilder: (context, imageProvider) =>
+                                    CircleAvatar(
+                                  backgroundImage: imageProvider,
+                                ),
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(
+                                  color: _colorController.primaryColor.value,
+                                ),
+                                errorWidget: (context, url, error) => Icon(
+                                  Icons.person,
+                                  color: _colorController.iconColor.value,
+                                ),
+                              )
+                            : Icon(
+                                Icons.person,
+                                color: _colorController.iconColor.value,
+                              ),
                       ),
                     ),
                   if (!_isAuthenticated)

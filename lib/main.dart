@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'controller/theme_controller.dart';
 import 'controller/font_controller.dart';
 import 'controller/color_controller.dart';
@@ -49,47 +48,18 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  ThemeData _getThemeWithFont(ThemeData baseTheme, String fontFamily) {
-    final TextTheme textTheme = GoogleFonts.getTextTheme(fontFamily);
-    return baseTheme.copyWith(
-      textTheme: textTheme.apply(
-        bodyColor: baseTheme.textTheme.bodyLarge?.color,
-        displayColor: baseTheme.textTheme.displayLarge?.color,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Initialize theme from preferences
-    themeController.isDarkMode.value =
-        widget.prefs.getBool('isDarkMode') ?? false;
-    final bool isFirstTime = widget.prefs.getBool('isFirstTime') ?? true;
-
-    return Obx(() {
-      final currentFont = fontController.currentFont.value;
-      final isDark = themeController.isDarkMode.value;
-
-      // Get the appropriate base theme
-      ThemeData baseTheme = isDark
-          ? colorController.getDarkTheme()
-          : colorController.getLightTheme();
-
-      // Apply font to the theme
-      final themeWithFont = _getThemeWithFont(baseTheme, currentFont);
-
-      return GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-        theme: themeWithFont,
-        darkTheme: themeWithFont,
-        home: isFirstTime ? SplashScreen1() : const HomeScreen(),
-        initialRoute: isFirstTime ? '/splash' : '/home',
-        getPages: [
-          GetPage(name: '/splash', page: () => SplashScreen1()),
-          GetPage(name: '/home', page: () => const HomeScreen()),
-        ],
-      );
-    });
+    return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: colorController.getLightTheme(),
+      darkTheme: colorController.getDarkTheme(),
+      themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+      home: const HomeScreen(),
+      initialRoute: '/home',
+      getPages: [
+        GetPage(name: '/home', page: () => const HomeScreen()),
+      ],
+    );
   }
 }
