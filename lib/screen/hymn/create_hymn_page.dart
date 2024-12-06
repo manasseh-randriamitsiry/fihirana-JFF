@@ -1,6 +1,8 @@
 import 'package:fihirana/controller/hymnController.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../controller/auth_controller.dart';
 import '../../controller/color_controller.dart';
 
 class CreateHymnPage extends StatefulWidget {
@@ -38,7 +40,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: colorController.textColor.value),
-        prefixIcon: icon != null ? Icon(icon, color: colorController.iconColor.value) : null,
+        prefixIcon: icon != null
+            ? Icon(icon, color: colorController.iconColor.value)
+            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
           borderSide: BorderSide(color: colorController.textColor.value),
@@ -76,15 +80,18 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   labelStyle: TextStyle(color: colorController.textColor.value),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: colorController.textColor.value),
+                    borderSide:
+                        BorderSide(color: colorController.textColor.value),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: colorController.textColor.value),
+                    borderSide:
+                        BorderSide(color: colorController.textColor.value),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: colorController.primaryColor.value),
+                    borderSide:
+                        BorderSide(color: colorController.primaryColor.value),
                   ),
                 ),
                 validator: (value) {
@@ -106,7 +113,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
             ),
             ReorderableDragStartListener(
               index: index,
-              child: Icon(Icons.drag_handle, color: colorController.iconColor.value),
+              child: Icon(Icons.drag_handle,
+                  color: colorController.iconColor.value),
             ),
           ],
         ),
@@ -135,6 +143,34 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authController = Get.find<AuthController>();
+    final user = FirebaseAuth.instance.currentUser;
+    if (!authController.isAdmin && !authController.canAddSongs) {
+      return Scaffold(
+        backgroundColor: colorController.backgroundColor.value,
+        appBar: AppBar(
+          backgroundColor: colorController.primaryColor.value,
+          title: Text(
+            'Hamorona hira',
+            style: TextStyle(color: colorController.textColor.value),
+          ),
+          leading: IconButton(
+            icon:
+                Icon(Icons.arrow_back, color: colorController.iconColor.value),
+            onPressed: () => Get.back(),
+          ),
+        ),
+        body: Center(
+          child: Text(
+            'Salama ${user?.email},\nNoho ny antony manokana dia tsy mbolola mahazo alalana hamorona hira ianao.'
+            '\nMahandrasa kely azafady.'
+            '\nNa Antsoy ny admin (manassé) hanome alalana.',
+            style: TextStyle(color: colorController.textColor.value),
+          ),
+        ),
+      );
+    }
+
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
@@ -186,7 +222,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: colorController.textColor.value.withOpacity(0.2),
+                          color:
+                              colorController.textColor.value.withOpacity(0.2),
                         ),
                       ),
                     ),
@@ -219,7 +256,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: IconButton(
-                      icon: Icon(Icons.add_circle, 
+                      icon: Icon(
+                        Icons.add_circle,
                         color: colorController.iconColor.value,
                         size: 32,
                       ),
@@ -247,7 +285,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: colorController.textColor.value),
+                      border:
+                          Border.all(color: colorController.textColor.value),
                     ),
                     child: ElevatedButton(
                       onPressed: () {

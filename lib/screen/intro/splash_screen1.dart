@@ -75,6 +75,12 @@ class _SplashScreen1State extends State<SplashScreen1>
         _isLoading = true;
       });
 
+      // Clear any existing auth state
+      await _googleSignIn.signOut();
+      await _auth.signOut();
+      await _auth.setPersistence(Persistence.NONE);
+
+      // Start fresh sign in
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
 

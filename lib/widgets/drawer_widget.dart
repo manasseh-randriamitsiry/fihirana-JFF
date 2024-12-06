@@ -89,6 +89,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   Future<void> _signInWithGoogle() async {
     try {
+      // Clear any existing auth state
+      await _googleSignIn.signOut();
+      await _firebaseAuth.signOut();
+      await _firebaseAuth.setPersistence(Persistence.NONE);
+
+      // Start fresh sign in
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
 

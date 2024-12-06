@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
+import './user_management_screen.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({Key? key}) : super(key: key);
@@ -68,6 +70,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       appBar: AppBar(
         title: const Text('Admin Panel'),
         actions: [
+          IconButton(
+            icon: Icon(Icons.people, color: Colors.white),
+            onPressed: () => Get.to(() => UserManagementScreen()),
+          ),
           if (selectedHymns.isNotEmpty)
             IconButton(
               icon: const Icon(Icons.delete),
