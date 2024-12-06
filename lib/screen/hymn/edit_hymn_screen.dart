@@ -66,10 +66,14 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     }
 
     final user = FirebaseAuth.instance.currentUser!;
+    
+    // Convert hymn number to remove leading zeros
+    final hymnNumber = int.parse(_hymnNumberController.text.trim()).toString();
+    
     // Update the hymn object with new values
     Hymn updatedHymn = Hymn(
       id: widget.hymn.id,
-      hymnNumber: _hymnNumberController.text,
+      hymnNumber: hymnNumber,
       title: _titleController.text,
       verses: _verseControllers.map((controller) => controller.text).toList(),
       bridge: _bridgeController.text,
@@ -136,6 +140,21 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                   controller: _hymnNumberController,
                   label: 'Laharan\'ny hira',
                   icon: Icons.onetwothree_outlined,
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Apidiro ny laharan'ny hira";
+                    }
+                    try {
+                      int? number = int.tryParse(value);
+                      if (number == null || number <= 0) {
+                        return "Laharana tsy mety";
+                      }
+                    } catch (e) {
+                      return "Laharana tsy mety";
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 16.0),
                 _buildTextField(
@@ -199,11 +218,15 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     required String label,
     required IconData icon,
     int maxLines = 1,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
   }) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       maxLines: maxLines,
+      keyboardType: keyboardType,
       style: TextStyle(color: colorController.textColor.value),
+      validator: validator,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: TextStyle(color: colorController.textColor.value),

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/theme_controller.dart';
 import '../controller/font_controller.dart';
 import '../controller/color_controller.dart';
@@ -32,6 +33,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
   final FontController _fontController = Get.find<FontController>();
   final ColorController _colorController = Get.find<ColorController>();
   bool _isAuthenticated = false;
+  String? _username;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
@@ -45,6 +47,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
   void initState() {
     super.initState();
     _checkAuthStatus();
+    _loadUsername();
     _themeController.isDarkMode.listen((isDarkMode) {
       _setSystemUiOverlayStyle(isDarkMode);
     });
@@ -92,7 +95,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
       // Clear any existing auth state
       await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
-      await _firebaseAuth.setPersistence(Persistence.NONE);
 
       // Start fresh sign in
       final GoogleSignInAccount? googleSignInAccount =
@@ -108,6 +110,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
         );
 
         await _firebaseAuth.signInWithCredential(credential);
+        
+        // Save user info to SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('username', googleSignInAccount.displayName ?? '');
+        await prefs.setString('email', googleSignInAccount.email);
+        
         _updateCurrentUser();
         Get.snackbar(
           'Tongasoa',
@@ -117,16 +125,25 @@ class DrawerWidgetState extends State<DrawerWidget> {
           icon: Icon(Icons.check, color: _colorController.iconColor.value),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Error signing in with Google: $e');
+      print('Stack trace: $stackTrace');
       Get.snackbar(
         'Nisy olana',
-        'Avereno atao.',
+        'Avereno atao: ${e.toString()}',
         backgroundColor: Colors.red.withOpacity(0.2),
         colorText: _colorController.textColor.value,
-        icon:
-            Icon(Icons.warning_amber, color: _colorController.iconColor.value),
+        icon: Icon(Icons.warning_amber, color: _colorController.iconColor.value),
+        duration: Duration(seconds: 5),
       );
     }
+  }
+
+  void _loadUsername() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _username = prefs.getString('username');
+    });
   }
 
   @override
@@ -144,7 +161,29 @@ class DrawerWidgetState extends State<DrawerWidget> {
               child: ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  if (_currentUser == null) const SizedBox(height: 50),
+                  if (_currentUser == null && _username != null)
+                    UserAccountsDrawerHeader(
+                      decoration: BoxDecoration(
+                        color: _colorController.drawerColor.value,
+                      ),
+                      accountName: Text(
+                        _username!,
+                        style: TextStyle(
+                          color: _colorController.textColor.value,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      accountEmail: null,
+                      currentAccountPicture: CircleAvatar(
+                        backgroundColor: _colorController.primaryColor.value,
+                        child: Icon(
+                          Icons.person,
+                          color: _colorController.iconColor.value,
+                          size: 40,
+                        ),
+                      ),
+                    ),
                   if (_isAuthenticated && _currentUser != null)
                     UserAccountsDrawerHeader(
                       decoration: BoxDecoration(

@@ -201,6 +201,14 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       if (value == null || value.isEmpty) {
                         return "Apidiro ny laharan'ny hira";
                       }
+                      try {
+                        int? number = int.tryParse(value);
+                        if (number == null || number <= 0) {
+                          return "Laharana tsy mety";
+                        }
+                      } catch (e) {
+                        return "Laharana tsy mety";
+                      }
                       return null;
                     },
                   ),
@@ -324,7 +332,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   Future<void> _createHymn() async {
     try {
-      final hymnNumber = _hymnNumberController.text.trim();
+      final hymnNumber = int.parse(_hymnNumberController.text.trim()).toString();
       final title = _titleController.text.trim();
       final verses = _verseControllers
           .map((controller) => controller.text.trim())

@@ -6,7 +6,6 @@ import '../hymn/hymn_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatelessWidget {
-  // Use find instead of put to get the existing instance
   final HistoryController historyController = Get.find<HistoryController>();
   final ColorController colorController = Get.find<ColorController>();
 
@@ -14,120 +13,193 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
-      appBar: AppBar(
-        backgroundColor: colorController.primaryColor.value,
-        title: Text(
-          'Tantara',
-          style: TextStyle(color: Colors.white),
-        ),
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_outlined,
-            color: colorController.iconColor.value,
-          ),
-          onPressed: () => Get.back(),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.delete_outline,
-              color: colorController.iconColor.value,
+    return Obx(() => Scaffold(
+          backgroundColor: colorController.backgroundColor.value,
+          appBar: AppBar(
+            backgroundColor: colorController.primaryColor.value,
+            title: Text(
+              historyController.isSelectionMode.value
+                  ? '${historyController.selectedItems.length} voafidy'
+                  : 'Tantara',
+              style: TextStyle(color: Colors.white),
             ),
-            onPressed: () => _showClearHistoryDialog(context),
-          ),
-        ],
-      ),
-      body: Obx(
-        () => historyController.isLoading.value
-            ? Center(
-                child: CircularProgressIndicator(
-                  color: colorController.primaryColor.value,
-                ),
-              )
-            : historyController.userHistory.isEmpty
-                ? Center(
-                    child: Text(
-                      'Tsy misy tantara',
-                      style: TextStyle(
-                        color: colorController.textColor.value,
-                        fontSize: 16,
-                      ),
+            leading: historyController.isSelectionMode.value
+                ? IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      color: colorController.iconColor.value,
                     ),
+                    onPressed: historyController.toggleSelectionMode,
                   )
-                : ListView.builder(
-                    itemCount: historyController.userHistory.length,
-                    itemBuilder: (context, index) {
-                      final history = historyController.userHistory[index];
-                      return Card(
-                        color: colorController.drawerColor.value,
-                        margin: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        child: ListTile(
+                : IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_outlined,
+                      color: colorController.iconColor.value,
+                    ),
+                    onPressed: () => Get.back(),
+                  ),
+            actions: [
+              if (historyController.isSelectionMode.value) ...[
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: colorController.iconColor.value,
+                  ),
+                  onPressed: () => _showDeleteSelectedDialog(context),
+                ),
+              ] else ...[
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: colorController.iconColor.value,
+                  ),
+                  onPressed: () => _showClearHistoryDialog(context),
+                ),
+              ],
+            ],
+          ),
+          body: historyController.isLoading.value
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: colorController.primaryColor.value,
+                  ),
+                )
+              : historyController.userHistory.isEmpty
+                  ? Center(
+                      child: Text(
+                        'Tsy misy tantara',
+                        style: TextStyle(
+                          color: colorController.textColor.value,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: historyController.userHistory.length,
+                      itemBuilder: (context, index) {
+                        final history = historyController.userHistory[index];
+                        final DateTime timestamp = history['timestamp'];
+                        final String formattedDate =
+                            DateFormat('dd/MM/yyyy HH:mm').format(timestamp);
+
+                        return ListTile(
+                          leading: historyController.isSelectionMode.value
+                              ? Checkbox(
+                                  value: historyController.selectedItems
+                                      .contains(history['id']),
+                                  onChanged: (_) => historyController
+                                      .toggleItemSelection(history['id']),
+                                  activeColor:
+                                      colorController.primaryColor.value,
+                                )
+                              : Icon(
+                                  Icons.history,
+                                  color: colorController.iconColor.value,
+                                ),
                           title: Text(
-                            '${history['number']} - ${history['title']}',
+                            '${history['number']}',
                             style: TextStyle(
                               color: colorController.textColor.value,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           subtitle: Text(
-                            DateFormat('dd/MM/yyyy HH:mm')
-                                .format(history['timestamp']),
+                            formattedDate,
                             style: TextStyle(
-                              color: colorController.textColor.value.withOpacity(0.7),
+                              color: colorController.textColor.value
+                                  .withOpacity(0.7),
                             ),
                           ),
-                          trailing: Icon(
-                            Icons.arrow_forward_ios,
-                            color: colorController.iconColor.value,
-                          ),
-                          onTap: () => Get.to(
-                            () => HymnDetailScreen(hymnId: history['hymnId']),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                          onTap: () {
+                            if (historyController.isSelectionMode.value) {
+                              historyController
+                                  .toggleItemSelection(history['id']);
+                            } else {
+                              Get.to(() => HymnDetailScreen(
+                                    hymnId: history['hymnId'],
+                                  ));
+                            }
+                          },
+                          onLongPress: () {
+                            if (!historyController.isSelectionMode.value) {
+                              historyController.toggleSelectionMode();
+                              historyController
+                                  .toggleItemSelection(history['id']);
+                            }
+                          },
+                        );
+                      },
+                    ),
+        ));
+  }
+
+  void _showClearHistoryDialog(BuildContext context) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: colorController.backgroundColor.value,
+        title: Text(
+          'Hamafa ny tantara rehetra?',
+          style: TextStyle(color: colorController.textColor.value),
+        ),
+        content: Text(
+          'Tsy azo averina intsony ny tantara rehefa voafafa.',
+          style: TextStyle(color: colorController.textColor.value),
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              'Tsia',
+              style: TextStyle(color: colorController.primaryColor.value),
+            ),
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: Text(
+              'Eny',
+              style: TextStyle(color: Colors.red),
+            ),
+            onPressed: () {
+              historyController.clearHistory();
+              Get.back();
+            },
+          ),
+        ],
       ),
     );
   }
 
-  void _showClearHistoryDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: colorController.backgroundColor.value,
-          title: Text(
-            'Hamafa ny tantara?',
-            style: TextStyle(color: colorController.textColor.value),
-          ),
-          content: Text(
-            'Tena te hamafa ny tantaran\'ny hira rehetra ve ianao?',
-            style: TextStyle(color: colorController.textColor.value),
-          ),
-          actions: [
-            TextButton(
-              child: Text(
-                'Tsia',
-                style: TextStyle(color: colorController.textColor.value),
-              ),
-              onPressed: () => Navigator.of(context).pop(),
+  void _showDeleteSelectedDialog(BuildContext context) {
+    Get.dialog(
+      AlertDialog(
+        backgroundColor: colorController.backgroundColor.value,
+        title: Text(
+          'Hamafa ny tantara voafidy?',
+          style: TextStyle(color: colorController.textColor.value),
+        ),
+        content: Text(
+          'Tsy azo averina intsony ny tantara rehefa voafafa.',
+          style: TextStyle(color: colorController.textColor.value),
+        ),
+        actions: [
+          TextButton(
+            child: Text(
+              'Tsia',
+              style: TextStyle(color: colorController.primaryColor.value),
             ),
-            TextButton(
-              child: Text(
-                'Eny',
-                style: TextStyle(color: Colors.red),
-              ),
-              onPressed: () {
-                historyController.clearHistory();
-                Navigator.of(context).pop();
-              },
+            onPressed: () => Get.back(),
+          ),
+          TextButton(
+            child: Text(
+              'Eny',
+              style: TextStyle(color: Colors.red),
             ),
-          ],
-        );
-      },
+            onPressed: () {
+              historyController.deleteSelectedItems();
+              Get.back();
+            },
+          ),
+        ],
+      ),
     );
   }
 }

@@ -11,6 +11,8 @@ class HistoryController extends GetxController {
   // Observable list of user's hymn history
   final RxList<Map<String, dynamic>> userHistory = <Map<String, dynamic>>[].obs;
   final RxBool isLoading = false.obs;
+  final RxBool isSelectionMode = false.obs;
+  final RxList<String> selectedItems = <String>[].obs;
 
   static const String _localHistoryKey = 'local_hymn_history';
 
@@ -22,6 +24,78 @@ class HistoryController extends GetxController {
     _auth.authStateChanges().listen((User? user) {
       loadUserHistory(); // Reload history when auth state changes
     });
+  }
+
+  void toggleSelectionMode() {
+    isSelectionMode.value = !isSelectionMode.value;
+    if (!isSelectionMode.value) {
+      selectedItems.clear();
+    }
+  }
+
+  void toggleItemSelection(String id) {
+    if (selectedItems.contains(id)) {
+      selectedItems.remove(id);
+    } else {
+      selectedItems.add(id);
+    }
+    if (selectedItems.isEmpty && isSelectionMode.value) {
+      toggleSelectionMode();
+    }
+  }
+
+  Future<void> deleteSelectedItems() async {
+    try {
+      isLoading.value = true;
+      final user = _auth.currentUser;
+
+      if (user != null) {
+        // Delete from Firestore
+        final batch = _firestore.batch();
+        for (String id in selectedItems) {
+          final docRef = _firestore
+              .collection('user_history')
+              .doc(user.uid)
+              .collection('hymns')
+              .doc(id);
+          batch.delete(docRef);
+        }
+        await batch.commit();
+      } else {
+        // Delete from local storage
+        final prefs = await SharedPreferences.getInstance();
+        List<Map<String, dynamic>> localHistory = [];
+        String? historyJson = prefs.getString(_localHistoryKey);
+        if (historyJson != null) {
+          localHistory = List<Map<String, dynamic>>.from(
+              jsonDecode(historyJson).map((x) => Map<String, dynamic>.from(x)));
+          localHistory.removeWhere((item) => selectedItems.contains(item['id']));
+          await prefs.setString(_localHistoryKey, jsonEncode(localHistory));
+        }
+      }
+
+      // Update the UI
+      userHistory.removeWhere((item) => selectedItems.contains(item['id']));
+      selectedItems.clear();
+      isSelectionMode.value = false;
+
+      Get.snackbar(
+        'Vita!',
+        'Voafafa ny tantara voafidy',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
+    } catch (e) {
+      print('Error deleting selected items: $e');
+      Get.snackbar(
+        'Nisy olana',
+        'Tsy afaka mamafa ny tantara: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 3),
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   Future<void> loadUserHistory() async {
@@ -57,6 +131,7 @@ class HistoryController extends GetxController {
           final List<dynamic> decoded = json.decode(localHistory);
           userHistory.value = decoded.map((item) => Map<String, dynamic>.from({
             ...Map<String, dynamic>.from(item),
+            'id': item['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(), // Ensure ID exists
             'timestamp': DateTime.parse(item['timestamp'].toString()),
           })).toList();
         }
@@ -75,6 +150,7 @@ class HistoryController extends GetxController {
       print('Adding to history: $hymnId - $title ($number)');
       final user = _auth.currentUser;
       final historyEntry = {
+        'id': DateTime.now().millisecondsSinceEpoch.toString(), // Add unique ID for local storage
         'hymnId': hymnId,
         'title': title,
         'number': number,

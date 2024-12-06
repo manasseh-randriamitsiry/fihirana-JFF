@@ -38,13 +38,25 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
 
     switch (_sortBy) {
       case 'recent':
-        return query.orderBy('createdAt', descending: true).snapshots();
+        return query
+            .orderBy('createdAt', descending: true)
+            .orderBy(FieldPath.documentId, descending: true)
+            .snapshots();
       case 'old':
-        return query.orderBy('createdAt', descending: false).snapshots();
+        return query
+            .orderBy('createdAt', descending: false)
+            .orderBy(FieldPath.documentId, descending: false)
+            .snapshots();
       case 'number':
-        return query.orderBy('hymnNumber', descending: false).snapshots();
+        return query
+            .orderBy('hymnNumber', descending: false)
+            .orderBy(FieldPath.documentId, descending: false)
+            .snapshots();
       default:
-        return query.orderBy('createdAt', descending: true).snapshots();
+        return query
+            .orderBy('createdAt', descending: true)
+            .orderBy(FieldPath.documentId, descending: true)
+            .snapshots();
     }
   }
 
