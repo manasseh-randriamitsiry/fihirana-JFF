@@ -35,7 +35,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   final double _baseCountFontSize = 50.0;
   double _fontSize = 16.0;
   double _countFontSize = 50.0;
-  bool _show = false;
+  bool _show = true;
   bool _showSlider = false;
   final HymnService _hymnService = HymnService();
   final ColorController colorController = Get.find<ColorController>();
@@ -194,7 +194,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
               builder: (context, snapshot) {
                 final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
                 final isFavorite = favoriteStatus.isNotEmpty;
-                
+
                 return IconButton(
                   icon: Icon(
                     isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -288,176 +288,217 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Title
-              Center(
-                child: Text(
-                  _hymn?.title ?? '',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: _fontSize * 1.2,
-                    fontWeight: FontWeight.bold,
-                    color: colorController.textColor.value,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              if (_showSlider)
-                Slider(
-                  value: _fontSize,
-                  min: 12,
-                  max: 40,
-                  divisions: 28,
-                  label: _fontSize.round().toString(),
-                  onChanged: (double value) {
-                    setState(() {
-                      _fontSize = value;
-                      _countFontSize =
-                          value * (_baseCountFontSize / _baseFontSize);
-                    });
-                  },
-                  onChangeEnd: (double value) async {
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setDouble('fontSize', value);
-                    setState(() {
-                      _showSlider = false; // Hide the slider on release
-                    });
-                  },
-                ),
-              if (_show &&
-                  (_hymn?.hymnHint?.trim().toLowerCase().isNotEmpty ??
-                      false)) ...[
-                if (isUserAuthenticated())
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color:
-                          colorController.primaryColor.value.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Nampiditra: ${_hymn?.createdBy}',
-                          style: TextStyle(
-                            fontSize: _fontSize * 0.8,
-                            color: colorController.textColor.value,
-                          ),
-                        ),
-                        if (_hymn?.createdByEmail != null)
-                          Text(
-                            'Email: ${_hymn?.createdByEmail}',
-                            style: TextStyle(
-                              fontSize: _fontSize * 0.8,
-                              color: colorController.textColor.value,
-                            ),
-                          ),
-                        Text(
-                          'Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(_hymn?.createdAt ?? DateTime(2023))}',
-                          style: TextStyle(
-                            fontSize: _fontSize * 0.8,
-                            color: colorController.textColor.value,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Text(
-                    _hymn?.hymnHint ?? '', // Provide default value if null
-                    style: TextStyle(
-                      fontSize: 2 * _fontSize / 3,
-                      color: colorController.textColor.value,
-                    ),
-                  ),
-                ),
-              ],
-              if (_hymn?.bridge != null &&
-                  (_hymn?.bridge?.trim().toLowerCase().isNotEmpty ??
-                      false)) ...[
-                Padding(
-                  padding: const EdgeInsets.only(top: 10, left: 15),
-                  child: Text(
-                    'Isan\'andininy:',
-                    style: TextStyle(
-                      fontSize: _fontSize + 2,
-                      fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15),
-                  child: Text(
-                    _hymn?.bridge ?? '',
-                    style: TextStyle(
-                        fontSize: _fontSize,
-                        color: colorController.textColor.value),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 60),
-                  child: Text(
-                    'Andininy',
-                    style: TextStyle(
-                      fontSize: _fontSize + 2,
-                      fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
-                    ),
-                  ),
-                ),
-              ],
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        body: Column(
+          children: [
+            // Fixed top section with title and bridge
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 children: [
-                  for (int i = 0; i < (_hymn?.verses?.length ?? 0); i++) ...[
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 30.0),
-                      child: Stack(
-                        alignment: Alignment.center,
+                  // Title
+                  Center(
+                    child: Text(
+                      _hymn?.title ?? '',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: _fontSize * 1.2,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Animated container for bridge
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    child: Card(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Positioned.fill(
-                            child: Opacity(
-                              opacity: 0.15,
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(
-                                  '${i + 1}',
+                          if (_hymn?.bridge != null &&
+                              (_hymn?.bridge?.trim().toLowerCase().isNotEmpty ??
+                                  false))
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  _show = !_show;
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Isan\'andininy:',
+                                          style: TextStyle(
+                                            fontSize: _fontSize + 2,
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                colorController.textColor.value,
+                                          ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        Icon(
+                                          _show
+                                              ? Icons.expand_less
+                                              : Icons.expand_more,
+                                          color:
+                                              colorController.iconColor.value,
+                                        ),
+                                      ],
+                                    ),
+                                    if (_show)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(top: 8.0),
+                                        child: Text(
+                                          _hymn?.bridge ?? '',
+                                          style: TextStyle(
+                                            fontSize: _fontSize,
+                                            color:
+                                                colorController.textColor.value,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_showSlider)
+                    Slider(
+                      value: _fontSize,
+                      min: 12,
+                      max: 40,
+                      divisions: 28,
+                      label: _fontSize.round().toString(),
+                      onChanged: (double value) {
+                        setState(() {
+                          _fontSize = value;
+                          _countFontSize =
+                              value * (_baseCountFontSize / _baseFontSize);
+                        });
+                      },
+                      onChangeEnd: (double value) async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setDouble('fontSize', value);
+                        setState(() {
+                          _showSlider = false;
+                        });
+                      },
+                    ),
+                ],
+              ),
+            ),
+            // Scrollable verses section
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_show &&
+                        (_hymn?.hymnHint?.trim().toLowerCase().isNotEmpty ??
+                            false)) ...[
+                      if (isUserAuthenticated())
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colorController.primaryColor.value
+                                .withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Nampiditra: ${_hymn?.createdBy}',
+                                style: TextStyle(
+                                  fontSize: _fontSize * 0.8,
+                                  color: colorController.textColor.value,
+                                ),
+                              ),
+                              if (_hymn?.createdByEmail != null)
+                                Text(
+                                  'Email: ${_hymn?.createdByEmail}',
                                   style: TextStyle(
-                                    fontSize: _countFontSize,
-                                    fontWeight: FontWeight.bold,
-                                    color: colorController.primaryColor.value,
+                                    fontSize: _fontSize * 0.8,
+                                    color: colorController.textColor.value,
+                                  ),
+                                ),
+                              Text(
+                                'Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(_hymn?.createdAt ?? DateTime(2023))}',
+                                style: TextStyle(
+                                  fontSize: _fontSize * 0.8,
+                                  color: colorController.textColor.value,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
+                        child: Text(
+                          _hymn?.hymnHint ?? '',
+                          style: TextStyle(
+                            fontSize: 2 * _fontSize / 3,
+                            color: colorController.textColor.value,
+                          ),
+                        ),
+                      ),
+                    ],
+                    for (int i = 0; i < (_hymn?.verses?.length ?? 0); i++) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10.0, horizontal: 30.0),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Positioned.fill(
+                              child: Opacity(
+                                opacity: 0.25,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '${i + 1}',
+                                    style: TextStyle(
+                                      fontSize: _countFontSize,
+                                      fontWeight: FontWeight.bold,
+                                      color: colorController.primaryColor.value,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 30.0),
-                            child: Text(
-                              '${i + 1}. ${_hymn?.verses?[i] ?? ''}',
-                              style: TextStyle(
-                                fontSize: _fontSize,
-                                color: colorController.textColor.value,
+                            Padding(
+                              padding: const EdgeInsets.only(left: 30.0),
+                              child: Text(
+                                '${i + 1}. ${_hymn?.verses?[i] ?? ''}',
+                                style: TextStyle(
+                                  fontSize: _fontSize,
+                                  color: colorController.textColor.value,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                    ],
+                    SizedBox(
+                      height: getScreenHeight(context) / 3,
                     ),
                   ],
-                ],
+                ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
