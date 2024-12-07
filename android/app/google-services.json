@@ -1,8 +1,9 @@
 {
   "project_info": {
     "project_number": "293518669331",
+    "firebase_url": "https://fihirana-jff-default-rtdb.firebaseio.com",
     "project_id": "fihirana-jff",
-    "storage_bucket": "fihirana-jff.appspot.com"
+    "storage_bucket": "fihirana-jff.firebasestorage.app"
   },
   "client": [
     {
@@ -12,7 +13,20 @@
           "package_name": "com.manasseh.fihirana_jff"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "293518669331-vje4vbgtf8c9q2jok2u5hgjsptu8pkvf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manasseh.fihirana_jff",
+            "certificate_hash": "b401c76eaa44e6d251f0881f2025ecdecbe0123e"
+          }
+        },
+        {
+          "client_id": "293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBzdxjTqXpD-Ig9-7Z3fBbd1sXX5vQltz4"
@@ -20,7 +34,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -34,6 +34,17 @@ jobs:
       - name: Disable Flutter Analytics
         run: flutter config --no-analytics
 
+      - name: Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=fihirana.jks" >> android/key.properties
+
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/fihirana.jks
+
       - name: Get dependencies
         run: |
           flutter doctor -v

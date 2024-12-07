@@ -26,6 +26,12 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 def flutterVersionCode = localProperties.getProperty("flutter.versionCode")
 if (flutterVersionCode == null) {
     flutterVersionCode = "1"
@@ -41,6 +47,14 @@ android {
     namespace = "com.manasseh.fihirana_jff"
     compileSdk = 34
     ndkVersion = flutter.ndkVersion
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     splits {
         abi {
             enable true
@@ -59,6 +73,7 @@ android {
             // the Android Gradle plugin. To learn more, go to the section about
             // R8 in the Android Gradle plugin user guide.
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     kotlinOptions {
@@ -77,11 +92,6 @@ android {
         versionName = flutterVersionName
     }
 
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.debug
-        }
-    }
 }
 
 flutter {
