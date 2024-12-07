@@ -37,6 +37,10 @@ jobs:
       - name: Disable Flutter Analytics
         run: flutter config --no-analytics
   
+      - name: Setup Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/fihirana.jks
+  
       - name: Generate changelog
         id: changelog
         run: |
