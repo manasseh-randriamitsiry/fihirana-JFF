@@ -40,6 +40,19 @@ if (flutterVersionName == null) {
 }
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'fihirana'
+            keyPassword 'fihirana2024'
+            storeFile file("fihirana.jks")
+            storePassword 'fihirana2024'
+        }
+    }
+    buildTypes {
+        release {
+            signingConfig signingConfigs.release
+        }
+    }
     ndkVersion "25.1.8937393"
     namespace "com.manasseh.fihirana_jff"
     compileSdk = 34
@@ -60,7 +73,10 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig = signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            debuggable true
         }
     }
 }
