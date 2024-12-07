@@ -13,12 +13,8 @@ dependencies {
     implementation 'androidx.biometric:biometric:1.1.0'
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.google.android.gms:play-services-auth:20.7.0'
-    implementation 'com.google.android.gms:play-services-measurement:21.2.0' // Replace with the latest version
-    implementation 'com.google.android.gms:play-services-measurement-api:21.2.0' // Or required API libraries
-    configurations {
-        all*.exclude group: 'com.google.android.gms', module: 'play-services-measurement-impl'
-        all*.exclude group: 'com.google.android.gms', module: 'play-services-measurement-api'
-    }
+    implementation 'com.google.android.gms:play-services-measurement:21.2.0'
+    implementation 'com.google.android.gms:play-services-measurement-api:21.2.0'
 }
 
 def localProperties = new Properties()
@@ -40,6 +36,18 @@ if (flutterVersionName == null) {
 }
 
 android {
+    compileSdk = 34
+    ndkVersion "25.1.8937393" // Ensure this version is installed in your system
+
+    defaultConfig {
+        applicationId = "com.manasseh.fihirana_jff"
+        minSdk = 23
+        targetSdk = 34
+        versionCode = flutterVersionCode.toInteger()
+        versionName = flutterVersionName
+        multiDexEnabled true // Ensure MultiDex is enabled
+    }
+
     signingConfigs {
         release {
             keyAlias 'fihirana'
@@ -48,37 +56,26 @@ android {
             storePassword 'fihirana2024'
         }
     }
+
     buildTypes {
         release {
             signingConfig signingConfigs.release
-        }
-    }
-    ndkVersion "25.1.8937393"
-    namespace "com.manasseh.fihirana_jff"
-    compileSdk = 34
-    ndkVersion = flutter.ndkVersion
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-    
-    defaultConfig {
-        applicationId = "com.manasseh.fihirana_jff"  // Update this line
-        minSdk = 23
-        targetSdk = 34
-        versionCode = flutterVersionCode.toInteger()
-        versionName = flutterVersionName
-    }
-
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.release
             minifyEnabled false
             shrinkResources false
-            debuggable true
+            debuggable false // Set to false for release builds
         }
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    namespace "com.manasseh.fihirana_jff"
 }
 
 flutter {
