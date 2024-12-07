@@ -2,10 +2,12 @@ name: Create Release
 
 on:
   push:
-    branches:
-      - master  # or your default branch name
     tags:
       - 'v*'  # Push events to matching v*, i.e. v1.0, v20.15.10
+
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   build:
@@ -13,39 +15,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.x'
+          flutter-version: '3.16.0'
           channel: 'stable'
+          cache: true
 
       - name: Get dependencies
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release
+          echo "APK built at: build/app/outputs/flutter-apk/app-release.apk"
+          ls -l build/app/outputs/flutter-apk/
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            git log --pretty=format:"* %s" > CHANGELOG.md
+          else
+            git log --pretty=format:"* %s" $PREVIOUS_TAG..HEAD > CHANGELOG.md
+          fi
+          echo "CHANGELOG created:"
+          cat CHANGELOG.md
 
       - name: Create Release
-        id: create_release
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: Release ${{ github.ref_name }}
+          body_path: CHANGELOG.md
           draft: false
           prerelease: false
-          files: |
-            build/app/outputs/flutter-apk/app-release.apk
-          generate_release_notes: true
-        continue-on-error: true
-
-      - name: Check Release Status
-        if: steps.create_release.outcome == 'failure'
-        run: |
-          echo "::error::Release creation failed. Please check if:"
-          echo "1. The tag exists and follows the format v*"
-          echo "2. The GITHUB_TOKEN has sufficient permissions"
-          echo "3. The APK file was built successfully"
-          exit 1
+          files: build/app/outputs/flutter-apk/app-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
