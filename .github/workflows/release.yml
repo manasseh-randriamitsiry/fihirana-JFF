@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*'  # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'v*.*.*'  # Push events to matching v*, i.e. v1.0.0, v20.15.10
 
 permissions:
   contents: write
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -31,34 +31,24 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Create key.properties
-        run: |
-          echo "storePassword=${{ secrets.KEY_STORE_PASSWORD }}" >> android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=fihirana.jks" >> android/key.properties
-
-      - name: Decode Keystore
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/fihirana.jks
-
-      - name: Install dependencies
+      - name: Get dependencies
         run: flutter pub get
 
       - name: Disable Flutter Analytics
         run: flutter config --no-analytics
 
-      - name: Get dependencies
+      - name: Decode Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
-          flutter doctor -v
-          flutter pub get
+          echo $KEYSTORE_BASE64 | base64 -d > android/app/fihirana.jks
 
       - name: Build APK
-        run: |
-          flutter build apk --release
-          echo "Built APK:"
-          echo "APK built at: build/app/outputs/flutter-apk/app-release.apk"
-          ls -l build/app/outputs/flutter-apk/
+        env:
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        run: flutter build apk --release
 
       - name: Generate changelog
         id: changelog
