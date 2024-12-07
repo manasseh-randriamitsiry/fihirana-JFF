@@ -3,12 +3,14 @@ name: Create Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # Push events to matching v*, i.e. v1.0, v20.15.10
 
-permissions: write-all
+permissions:
+  contents: write
+  packages: write
 
 jobs:
-  release:
+  build:
     name: Create Release
     runs-on: ubuntu-latest
     steps:
@@ -26,24 +28,43 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.4.3'
           channel: 'stable'
+          cache: true
 
-      - name: Install dependencies
-        run: flutter pub get
+      - name: Disable Flutter Analytics
+        run: flutter config --no-analytics
+
+      - name: Get dependencies
+        run: |
+          flutter doctor -v
+          flutter pub get
 
       - name: Build APK
         run: |
           flutter build apk --release
-          echo "Built APK:"
+          echo "APK built at: build/app/outputs/flutter-apk/app-release.apk"
           ls -l build/app/outputs/flutter-apk/
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            git log --pretty=format:"* %s" > CHANGELOG.md
+          else
+            git log --pretty=format:"* %s" $PREVIOUS_TAG..HEAD > CHANGELOG.md
+          fi
+          echo "CHANGELOG created:"
+          cat CHANGELOG.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: build/app/outputs/flutter-apk/app-release.apk
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Release ${{ github.ref_name }}
+          body_path: CHANGELOG.md
           draft: false
           prerelease: false
-          generate_release_notes: true
+          files: build/app/outputs/flutter-apk/app-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
