@@ -131,7 +131,8 @@ class VersionCheckService {
         id: UPDATE_NOTIFICATION_ID,
         channelKey: 'basic_channel',
         title: 'Misy rindrambaiko vaovao',
-        body: 'Version $_cachedVersion dia efa azo ampiasaina!\n\nVaovao:\n$_cachedReleaseNotes',
+        body:
+            'Version $_cachedVersion dia efa azo ampiasaina!\n\nVaovao:\n$_cachedReleaseNotes',
         payload: {'url': _cachedDownloadUrl},
         notificationLayout: NotificationLayout.BigText,
         color: const Color(0xFF9D50DD),
@@ -139,11 +140,11 @@ class VersionCheckService {
       actionButtons: [
         NotificationActionButton(
           key: 'UPDATE',
-          label: 'Alaina',
+          label: 'Haka',
         ),
         NotificationActionButton(
           key: 'DISMISS',
-          label: 'Amin\'ny manaraka',
+          label: 'Mbola tsy izao aloha',
           actionType: ActionType.Default,
         ),
       ],
@@ -197,7 +198,8 @@ class VersionCheckService {
           id: UPDATE_NOTIFICATION_ID + 1,
           channelKey: 'basic_channel',
           title: 'Tsy afaka nalaina',
-          body: 'Tsy afaka nalaina ny rindrambaiko vaovao. Avereno afaka kelikely azafady.',
+          body:
+              'Tsy afaka nalaina ny rindrambaiko vaovao. Avereno afaka kelikely azafady.',
           color: const Color(0xFF9D50DD),
         ),
       );
