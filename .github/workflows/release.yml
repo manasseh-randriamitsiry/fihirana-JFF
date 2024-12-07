@@ -39,7 +39,12 @@ jobs:
   
       - name: Setup Keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/fihirana.jks
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/fihirana.jks
+          if [ ! -f "android/app/fihirana.jks" ]; then
+            echo "Keystore file was not created"
+            exit 1
+          fi
+          ls -l android/app/fihirana.jks
   
       - name: Generate changelog
         id: changelog
