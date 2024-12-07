@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -11,7 +12,7 @@ class AuthController extends GetxController {
   final Rx<bool> _canAddSongs = false.obs;
 
   bool get canAddSongs => _canAddSongs.value;
-  
+
   bool get isAdmin {
     final user = FirebaseAuth.instance.currentUser;
     return user?.email == 'manassehrandriamitsiry@gmail.com';
@@ -60,6 +61,11 @@ class AuthController extends GetxController {
       _canAddSongs.value = false;
     } catch (e) {
       print('Error signing out: $e');
+      Get.snackbar('Error signing out', e.toString(),
+          backgroundColor: Colors.red.withOpacity(0.2),
+          colorText: Colors.black,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: const Icon(Icons.warning_amber, color: Colors.black));
     }
   }
 
@@ -89,6 +95,11 @@ class AuthController extends GetxController {
       }
     } catch (e) {
       print('Error creating/updating user document: $e');
+      Get.snackbar('Error updating user document', e.toString(),
+          backgroundColor: Colors.red.withOpacity(0.2),
+          colorText: Colors.black,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: const Icon(Icons.warning_amber, color: Colors.black));
     }
   }
 
@@ -99,6 +110,11 @@ class AuthController extends GetxController {
       });
     } catch (e) {
       print('Error updating user permission: $e');
+      Get.snackbar('Error updating user permission', e.toString(),
+          backgroundColor: Colors.red.withOpacity(0.2),
+          colorText: Colors.black,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: const Icon(Icons.warning_amber, color: Colors.black));
       rethrow;
     }
   }
@@ -108,5 +124,29 @@ class AuthController extends GetxController {
         .collection('users')
         .orderBy('lastLogin', descending: true)
         .snapshots();
+  }
+
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) return null;
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final OAuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      return await _auth.signInWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      print('Error signing in with Google: $e');
+      Get.snackbar('Error signing in with Google', e.toString(),
+          backgroundColor: Colors.red.withOpacity(0.2),
+          colorText: Colors.black,
+          snackPosition: SnackPosition.BOTTOM,
+          icon: const Icon(Icons.warning_amber, color: Colors.black));
+      return null;
+    }
   }
 }
