@@ -6,6 +6,7 @@ import '../../controller/color_controller.dart';
 import '../../controller/auth_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
+import '../../utility/snackbar_utility.dart';
 import '../hymn/edit_hymn_screen.dart';
 
 class UserHymnsScreen extends StatefulWidget {
@@ -63,18 +64,14 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
   Future<void> _deleteHymn(String hymnId) async {
     try {
       await _hymnService.deleteHymn(hymnId);
-      Get.snackbar(
-        'Fahombiazana',
-        'Voafafa ny hira',
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
+      SnackbarUtility.showSuccess(
+        title: 'Fahombiazana',
+        message: 'Voafafa ny hira',
       );
     } catch (e) {
-      Get.snackbar(
-        'Hadisoana',
-        'Tsy nahomby ny famafana: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
+      SnackbarUtility.showError(
+        title: 'Hadisoana',
+        message: 'Tsy nahomby ny famafana: $e',
       );
     }
   }
@@ -213,7 +210,8 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
           return ListView.builder(
             itemCount: hymns.length,
             itemBuilder: (context, index) {
-              final hymn = Hymn.fromFirestore(hymns[index] as DocumentSnapshot<Map<String, dynamic>>);
+              final hymn = Hymn.fromFirestore(
+                  hymns[index] as DocumentSnapshot<Map<String, dynamic>>);
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -251,7 +249,8 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
                           Icons.edit,
                           color: colorController.iconColor.value,
                         ),
-                        onPressed: () => Get.to(() => EditHymnScreen(hymn: hymn)),
+                        onPressed: () =>
+                            Get.to(() => EditHymnScreen(hymn: hymn)),
                       ),
                       IconButton(
                         icon: const Icon(

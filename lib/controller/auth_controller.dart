@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../utility/snackbar_utility.dart';
+
 class AuthController extends GetxController {
   static AuthController get instance => Get.find();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -62,11 +64,10 @@ class AuthController extends GetxController {
       _canAddSongs.value = false;
     } catch (e) {
       print('Error signing out: $e');
-      Get.snackbar('Error signing out', e.toString(),
-          backgroundColor: Colors.red.withOpacity(0.2),
-          colorText: Colors.black,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: const Icon(Icons.warning_amber, color: Colors.black));
+      SnackbarUtility.showError(
+        title: 'Error signing out',
+        message: e.toString(),
+      );
     }
   }
 
@@ -96,11 +97,10 @@ class AuthController extends GetxController {
       }
     } catch (e) {
       print('Error creating/updating user document: $e');
-      Get.snackbar('Error updating user document', e.toString(),
-          backgroundColor: Colors.red.withOpacity(0.2),
-          colorText: Colors.black,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: const Icon(Icons.warning_amber, color: Colors.black));
+      SnackbarUtility.showError(
+        title: 'Error updating user document',
+        message: e.toString(),
+      );
     }
   }
 
@@ -111,11 +111,10 @@ class AuthController extends GetxController {
       });
     } catch (e) {
       print('Error updating user permission: $e');
-      Get.snackbar('Error updating user permission', e.toString(),
-          backgroundColor: Colors.red.withOpacity(0.2),
-          colorText: Colors.black,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: const Icon(Icons.warning_amber, color: Colors.black));
+      SnackbarUtility.showError(
+        title: 'Error updating user permission',
+        message: e.toString(),
+      );
       rethrow;
     }
   }
@@ -157,13 +156,9 @@ class AuthController extends GetxController {
       print('Error signing in with Google: $e');
       // Don't show error to user in release mode
       if (kDebugMode) {
-        Get.snackbar(
-          'Error signing in',
-          e.toString(),
-          backgroundColor: Colors.red.withOpacity(0.2),
-          colorText: Colors.black,
-          snackPosition: SnackPosition.BOTTOM,
-          icon: const Icon(Icons.warning_amber, color: Colors.black),
+        SnackbarUtility.showError(
+          title: 'Error signing in',
+          message: e.toString(),
         );
       }
       return null;
