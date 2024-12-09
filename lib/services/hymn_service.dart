@@ -6,9 +6,9 @@ import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/hymn.dart';
 import '../models/favorite.dart';
+import '../utility/snackbar_utility.dart';
 
 class HymnService {
   final CollectionReference hymnsCollection =
@@ -31,7 +31,7 @@ class HymnService {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        _showErrorSnackbar(
+        SnackbarUtility.showError(
           title: 'Nisy olana',
           message: 'Mila miditra aloha ianao',
         );
@@ -45,7 +45,7 @@ class HymnService {
           .get();
 
       if (!userDoc.exists || !(userDoc.data()?['canAddHymns'] ?? false)) {
-        _showErrorSnackbar(
+        SnackbarUtility.showError(
           title: 'Nisy olana',
           message: 'Tsy manana alalana hanampy hira ianao',
         );
@@ -54,7 +54,7 @@ class HymnService {
 
       bool isUnique = await _isHymnNumberUnique(hymn.hymnNumber, '');
       if (!isUnique) {
-        _showErrorSnackbar(
+        SnackbarUtility.showError(
           title: 'Nisy olana',
           message: 'Antony : efa misy hira faha: ${hymn.hymnNumber} ',
         );
@@ -77,13 +77,13 @@ class HymnService {
       };
 
       await hymnsCollection.add(docData);
-      _showSuccessSnackbar(
+      SnackbarUtility.showSuccess(
         title: 'Tafiditra soamantsara',
         message: 'Deraina ny Tompo',
       );
       return true;
     } catch (e) {
-      _showErrorSnackbar(
+      SnackbarUtility.showError(
         title: 'Nisy olana',
         message: 'Antony : efa misy hira faha: ${hymn.hymnNumber} ',
       );
@@ -100,7 +100,7 @@ class HymnService {
       bool isUnique = await _isHymnNumberUnique(hymn.hymnNumber, hymnId);
 
       if (!isUnique) {
-        _showErrorSnackbar(
+        SnackbarUtility.showError(
           title: 'Nisy olana',
           message: 'Antony: Efa misy hira faha: ${hymn.hymnNumber}',
         );
@@ -122,12 +122,12 @@ class HymnService {
       // Perform the update
       await hymnsCollection.doc(hymnId).update(docData);
 
-      _showSuccessSnackbar(
+      SnackbarUtility.showSuccess(
         title: 'Vita fanavaozana',
         message: 'Deraina ny Tompo',
       );
     } catch (e) {
-      _showErrorSnackbar(
+      SnackbarUtility.showError(
         title: 'Nisy olana',
         message: 'Antony: Tsy nahomby ny fanavaozana hira ${hymn.hymnNumber}',
       );
@@ -427,25 +427,5 @@ class HymnService {
       }
       return false; // Assume not unique if an error occurs
     }
-  }
-
-  void _showErrorSnackbar({required String title, required String message}) {
-    Get.snackbar(
-      title,
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
-  }
-
-  void _showSuccessSnackbar({required String title, required String message}) {
-    Get.snackbar(
-      title,
-      message,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-    );
   }
 }

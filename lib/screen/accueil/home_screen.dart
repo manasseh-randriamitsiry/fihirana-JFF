@@ -41,6 +41,15 @@ class _HomeScreenState extends State<HomeScreen> {
             importance: NotificationImportance.High,
             channelShowBadge: true,
           ),
+          NotificationChannel(
+            channelKey: 'announcement_channel',
+            channelName: 'Filazana',
+            channelDescription: 'Filazana rehetra',
+            defaultColor: _colorController.primaryColor.value,
+            importance: NotificationImportance.High,
+            enableVibration: true,
+            enableLights: true,
+          ),
         ],
         debug: true,
       );

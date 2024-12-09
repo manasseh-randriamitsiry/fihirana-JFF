@@ -12,8 +12,11 @@ import 'screen/intro/splash_screen1.dart';
 import 'screen/loading/loading_screen.dart';
 import 'services/version_check_service.dart';
 import 'firebase_options.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'screen/announcement/announcement_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Firebase with correct options
@@ -32,7 +35,39 @@ void main() async {
   // Initialize theme from preferences
   themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
 
-  runApp(MyApp(prefs: prefs));
+  await AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'announcement_channel',
+        channelName: 'Filazana',
+        channelDescription: 'Notifications for announcements',
+        defaultColor: const Color(0xFF9D50DD),
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+    ],
+    debug: true,
+  );
+
+  // Initialize notification action listener
+  AwesomeNotifications().setListeners(
+    onActionReceivedMethod: (ReceivedAction receivedAction) async {
+      if (receivedAction.channelKey == 'announcement_channel' && 
+          receivedAction.buttonKeyPressed == 'OPEN') {
+        String? announcementId = receivedAction.payload?['announcementId'];
+        if (announcementId != null) {
+          Get.to(() => const AnnouncementScreen());
+        }
+      }
+    },
+  );
+
+  runApp(
+    Phoenix(
+      child: MyApp(prefs: prefs),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
