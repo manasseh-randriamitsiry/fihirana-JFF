@@ -1,18 +1,13 @@
 import 'dart:async';
-
-import 'package:fihirana/screen/accueil/home_screen.dart';
 import 'package:fihirana/utility/screen_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../../models/hymn.dart';
-import '../../utility/navigation_utility.dart';
 import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../controller/color_controller.dart';
@@ -572,7 +567,8 @@ class HymnSearchPopup extends StatelessWidget {
             }
 
             final hymns = snapshot.data!.docs.map((doc) {
-              return Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>);
+              return Hymn.fromFirestore(
+                  doc as DocumentSnapshot<Map<String, dynamic>>);
             }).toList();
 
             return ListView.builder(

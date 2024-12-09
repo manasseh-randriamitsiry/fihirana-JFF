@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -13,6 +14,7 @@ import '../screen/hymn/create_hymn_page.dart';
 import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
 import '../screen/history/history_screen.dart';
+import '../screen/announcement/announcement_screen.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
 
@@ -123,12 +125,13 @@ class DrawerWidgetState extends State<DrawerWidget> {
           'Tafiditra ianao.',
           backgroundColor: Colors.green.withOpacity(0.2),
           colorText: _colorController.textColor.value,
-          icon: Icon(Icons.check, color: _colorController.iconColor.value),
         );
+
+        // Restart the app
+        Phoenix.rebirth(context);
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       print('Error signing in with Google: $e');
-      print('Stack trace: $stackTrace');
     }
   }
 
@@ -313,7 +316,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       color: _colorController.iconColor.value,
                     ),
                     title: Text(
-                      'Endrika soratra',
+                      "Endrikan'ny soratra",
                       style: TextStyle(
                         color: _colorController.textColor.value,
                       ),
@@ -328,16 +331,16 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ),
                   ListTile(
                     leading: Icon(
-                      Icons.info,
+                      Icons.notifications,
                       color: _colorController.iconColor.value,
                     ),
                     title: Text(
-                      'Mombamomba',
+                      'Filazana',
                       style: TextStyle(
                         color: _colorController.textColor.value,
                       ),
                     ),
-                    onTap: () => Get.to(() => const AboutScreen()),
+                    onTap: () => Get.to(() => const AnnouncementScreen()),
                   ),
                   if (_isAuthenticated)
                     ListTile(
@@ -357,6 +360,19 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         });
                       },
                     ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.info,
+                      color: _colorController.iconColor.value,
+                    ),
+                    title: Text(
+                      'Mombamomba',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                      ),
+                    ),
+                    onTap: () => Get.to(() => const AboutScreen()),
+                  ),
                 ],
               ),
             ),

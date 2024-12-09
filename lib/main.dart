@@ -12,6 +12,8 @@ import 'screen/intro/splash_screen1.dart';
 import 'screen/loading/loading_screen.dart';
 import 'services/version_check_service.dart';
 import 'firebase_options.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +33,21 @@ void main() async {
 
   // Initialize theme from preferences
   themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
+
+  await AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'announcement_channel',
+        channelName: 'Filazana',
+        channelDescription: 'Notifications for announcements',
+        defaultColor: const Color(0xFF9D50DD),
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+    ],
+    debug: true,
+  );
 
   runApp(MyApp(prefs: prefs));
 }
