@@ -28,24 +28,38 @@ class AnnouncementService {
         createdByEmail: user?.email ?? '',
       );
 
-      await _firestore.collection('announcements').add(announcement.toFirestore());
-      
+      // Add to Firestore first
+      final docRef = await _firestore.collection('announcements').add(announcement.toFirestore());
+
       // Send push notification to all users
-      await AwesomeNotifications().createNotification(
+      bool notificationResult = await AwesomeNotifications().createNotification(
         content: NotificationContent(
           id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
           channelKey: 'announcement_channel',
-          title: title,
+          title: 'Filazana vaovao: $title',
           body: message,
           notificationLayout: NotificationLayout.BigText,
+          payload: {'announcementId': docRef.id},
         ),
+        actionButtons: [
+          NotificationActionButton(
+            key: 'OPEN',
+            label: 'Hijery',
+            actionType: ActionType.Default,
+          ),
+        ],
       );
+
+      if (!notificationResult) {
+        print('Failed to send notification');
+      }
 
       SnackbarUtility.showSuccess(
         title: 'Fahombiazana',
         message: 'Voaforona ny filazana',
       );
     } catch (e) {
+      print('Error creating announcement: $e');
       SnackbarUtility.showError(
         title: 'Nisy olana',
         message: 'Tsy afaka mamorona filazana: $e',

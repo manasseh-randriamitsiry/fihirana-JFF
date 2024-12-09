@@ -14,8 +14,9 @@ import 'services/version_check_service.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
+import 'screen/announcement/announcement_screen.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Firebase with correct options
@@ -49,7 +50,24 @@ void main() async {
     debug: true,
   );
 
-  runApp(MyApp(prefs: prefs));
+  // Initialize notification action listener
+  AwesomeNotifications().setListeners(
+    onActionReceivedMethod: (ReceivedAction receivedAction) async {
+      if (receivedAction.channelKey == 'announcement_channel' && 
+          receivedAction.buttonKeyPressed == 'OPEN') {
+        String? announcementId = receivedAction.payload?['announcementId'];
+        if (announcementId != null) {
+          Get.to(() => const AnnouncementScreen());
+        }
+      }
+    },
+  );
+
+  runApp(
+    Phoenix(
+      child: MyApp(prefs: prefs),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
