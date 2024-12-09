@@ -67,8 +67,8 @@ class EditHymnScreenState extends State<EditHymnScreen> {
 
     final user = FirebaseAuth.instance.currentUser!;
     
-    // Convert hymn number to remove leading zeros
-    final hymnNumber = int.parse(_hymnNumberController.text.trim()).toString();
+    // Keep the hymn number as is, without parsing to int
+    final hymnNumber = _hymnNumberController.text.trim();
     
     // Update the hymn object with new values
     Hymn updatedHymn = Hymn(

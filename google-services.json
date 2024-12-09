@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "293518669331",
+    "firebase_url": "https://fihirana-jff-default-rtdb.firebaseio.com",
+    "project_id": "fihirana-jff",
+    "storage_bucket": "fihirana-jff.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:293518669331:android:31feb1ef6e183b6c8b31e6",
+        "android_client_info": {
+          "package_name": "com.manasseh.fihirana_jff"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "293518669331-keta2b8qk13187v8m3flk9a6c7r8ds4i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manasseh.fihirana_jff",
+            "certificate_hash": "e1c9818e84ce7ae2d7849d24aacea549a014b85f"
+          }
+        },
+        {
+          "client_id": "293518669331-vje4vbgtf8c9q2jok2u5hgjsptu8pkvf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.manasseh.fihirana_jff",
+            "certificate_hash": "b401c76eaa44e6d251f0881f2025ecdecbe0123e"
+          }
+        },
+        {
+          "client_id": "293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzdxjTqXpD-Ig9-7Z3fBbd1sXX5vQltz4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

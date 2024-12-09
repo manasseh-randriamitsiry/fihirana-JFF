@@ -76,38 +76,37 @@ class _SplashScreen1State extends State<SplashScreen1>
         _isLoading = true;
       });
 
-      print('Starting Google Sign In process...');
-
       // Clear any existing auth state
-      print('Clearing existing auth state...');
       await _googleSignIn.signOut();
       await _auth.signOut();
 
       // Start fresh sign in
-      print('Attempting to sign in with Google...');
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signInSilently() ?? await _googleSignIn.signIn();
+      
       if (googleUser == null) {
         print('Google Sign In was cancelled by user');
         return;
       }
 
-      print('Getting Google auth details...');
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
+      final OAuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      print('Signing in to Firebase...');
+      // Sign in to Firebase
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
 
-      print('Saving user info...');
+      if (user == null) {
+        throw Exception('Failed to sign in with Google');
+      }
+
       // Save user info
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', userCredential.user?.displayName ?? '');
-      await prefs.setString('email', userCredential.user?.email ?? '');
+      await prefs.setString('username', user.displayName ?? '');
+      await prefs.setString('email', user.email ?? '');
 
-      print('Navigation to HomeScreen...');
       Get.offAll(() => HomeScreen());
     } catch (e, stackTrace) {
       print('Error signing in with Google: $e');

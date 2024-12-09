@@ -9,11 +9,17 @@ import 'controller/font_controller.dart';
 import 'controller/color_controller.dart';
 import 'screen/accueil/home_screen.dart';
 import 'screen/intro/splash_screen1.dart';
+import 'screen/loading/loading_screen.dart';
 import 'services/version_check_service.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  
+  // Initialize Firebase with correct options
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   final prefs = await SharedPreferences.getInstance();
 
@@ -145,9 +151,10 @@ class _MyAppState extends State<MyApp> {
         themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
         theme: themeWithFont,
         darkTheme: themeWithFont,
-        initialRoute: isFirstTime ? '/splash' : '/home',
+        initialRoute: isFirstTime ? '/splash' : '/loading',
         getPages: [
           GetPage(name: '/splash', page: () => SplashScreen1()),
+          GetPage(name: '/loading', page: () => const LoadingScreen()),
           GetPage(name: '/home', page: () => const HomeScreen()),
         ],
       );

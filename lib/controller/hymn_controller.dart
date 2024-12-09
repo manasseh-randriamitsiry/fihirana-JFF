@@ -51,8 +51,19 @@ class HymnController extends GetxController {
             Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>))
         .toList();
 
-    hymns.sort(
-        (a, b) => int.parse(a.hymnNumber).compareTo(int.parse(b.hymnNumber)));
+    hymns.sort((a, b) {
+      // Extract numeric parts from hymn numbers
+      String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+      String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+      
+      // If both are numeric, compare as numbers
+      if (numA.isNotEmpty && numB.isNotEmpty) {
+        return int.parse(numA).compareTo(int.parse(numB));
+      }
+      
+      // If one or both are non-numeric, compare as strings
+      return a.hymnNumber.compareTo(b.hymnNumber);
+    });
 
     final searchQuery = searchController.text.toLowerCase();
     if (searchQuery.isEmpty) return hymns;

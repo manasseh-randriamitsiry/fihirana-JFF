@@ -100,7 +100,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             hymnNumber: data['hymnNumber']?.toString() ?? '',
             title: data['title']?.toString() ?? '',
             verses: verses,
-            hymnHint: data['hint']?.toString(),
+            hymnHint: data['hymnHint']?.toString(),
             bridge: data['bridge']?.toString(),
             createdAt: createdAt,
             createdBy: data['createdBy']?.toString() ?? '',
@@ -541,7 +541,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   ];
 }
 
-class HymnSearchPopup extends StatefulWidget {
+class HymnSearchPopup extends StatelessWidget {
   final ColorController colorController;
   final Function(Hymn) onHymnSelected;
 
@@ -552,213 +552,49 @@ class HymnSearchPopup extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<HymnSearchPopup> createState() => _HymnSearchPopupState();
-}
-
-class _HymnSearchPopupState extends State<HymnSearchPopup> {
-  final TextEditingController _searchController = TextEditingController();
-  final HymnService _hymnService = HymnService();
-  String _searchQuery = '';
-  List<Hymn> _cachedHymns = [];
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        decoration: BoxDecoration(
-          color: widget.colorController.backgroundColor.value,
-          borderRadius: BorderRadius.circular(16),
-        ),
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
-          maxWidth: MediaQuery.of(context).size.width * 0.9,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      style: TextStyle(
-                        color: widget.colorController.textColor.value,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Hikaroka...',
-                        hintStyle: TextStyle(
-                          color: widget.colorController.textColor.value
-                              .withOpacity(0.5),
-                        ),
-                        prefixIcon: Icon(
-                          Icons.search,
-                          color: widget.colorController.iconColor.value,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: widget.colorController.textColor.value,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: widget.colorController.textColor.value,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(
-                            color: widget.colorController.primaryColor.value,
-                          ),
-                        ),
-                      ),
-                      onChanged: (value) {
-                        setState(() {
-                          _searchQuery = value;
-                        });
-                      },
+    return AlertDialog(
+      backgroundColor: colorController.backgroundColor.value,
+      content: SizedBox(
+        width: double.maxFinite,
+        child: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('hymns')
+              .orderBy('hymnNumber')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+
+            if (!snapshot.hasData) {
+              return const CircularProgressIndicator();
+            }
+
+            final hymns = snapshot.data!.docs.map((doc) {
+              return Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>);
+            }).toList();
+
+            return ListView.builder(
+              itemCount: hymns.length,
+              itemBuilder: (context, index) {
+                final hymn = hymns[index];
+                return ListTile(
+                  title: Text(
+                    '${hymn.hymnNumber} - ${hymn.title}',
+                    style: TextStyle(
+                      color: colorController.textColor.value,
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      color: widget.colorController.iconColor.value,
-                    ),
-                    onPressed: () => Navigator.pop(context),
-                  ),
-                ],
-              ),
-            ),
-            Flexible(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _hymnService.getHymnsStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting &&
-                      _cachedHymns.isEmpty) {
-                    return Center(
-                      child: CircularProgressIndicator(
-                        color: widget.colorController.primaryColor.value,
-                      ),
-                    );
-                  }
-
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text(
-                        'Misy olana: ${snapshot.error}',
-                        style: TextStyle(
-                          color: widget.colorController.textColor.value,
-                        ),
-                      ),
-                    );
-                  }
-
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Tsy misy hira hita',
-                        style: TextStyle(
-                          color: widget.colorController.textColor.value,
-                        ),
-                      ),
-                    );
-                  }
-
-                  final hymns = snapshot.data!.docs.map((doc) {
-                    final data = doc.data() as Map<String, dynamic>;
-                    return Hymn(
-                      id: doc.id,
-                      hymnNumber: data['hymnNumber'].toString(),
-                      title: data['title'] as String,
-                      verses:
-                          List<String>.from(data['verses'] as List<dynamic>),
-                      bridge: data['bridge'] as String?,
-                      hymnHint: data['hymnHint'] as String?,
-                      createdAt: data['createdAt'] != null
-                          ? (data['createdAt'] as Timestamp).toDate()
-                          : DateTime(2023),
-                      createdBy: data['createdBy'] as String? ?? 'Unknown',
-                      createdByEmail: data['createdByEmail'] as String?,
-                    );
-                  }).toList();
-
-                  _cachedHymns = hymns;
-                  final filteredHymns = _filterHymns(hymns);
-
-                  if (filteredHymns.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'Tsy misy hira mifanaraka amin\'ny fikarohana',
-                        style: TextStyle(
-                          color: widget.colorController.textColor.value,
-                        ),
-                      ),
-                    );
-                  }
-
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: filteredHymns.length,
-                    itemBuilder: (context, index) {
-                      final hymn = filteredHymns[index];
-                      return ListTile(
-                        title: Text(
-                          '${hymn.hymnNumber} - ${hymn.title}',
-                          style: TextStyle(
-                            color: widget.colorController.textColor.value,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Text(
-                          hymn.verses.first.substring(
-                                0,
-                                hymn.verses.first.length > 50
-                                    ? 50
-                                    : hymn.verses.first.length,
-                              ) +
-                              '...',
-                          style: TextStyle(
-                            color: widget.colorController.textColor.value
-                                .withOpacity(0.7),
-                          ),
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          NavigationUtility.navigateToDetailScreen(
-                              context, hymn);
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+                  onTap: () {
+                    onHymnSelected(hymn);
+                  },
+                );
+              },
+            );
+          },
         ),
       ),
     );
-  }
-
-  List<Hymn> _filterHymns(List<Hymn> hymns) {
-    if (_searchQuery.isEmpty) return hymns;
-
-    final lowercaseQuery = _searchQuery.toLowerCase();
-    return hymns.where((hymn) {
-      return hymn.hymnNumber.toLowerCase().contains(lowercaseQuery) ||
-          hymn.title.toLowerCase().contains(lowercaseQuery) ||
-          hymn.verses
-              .any((verse) => verse.toLowerCase().contains(lowercaseQuery));
-    }).toList();
   }
 }
