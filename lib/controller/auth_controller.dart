@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -128,24 +129,43 @@ class AuthController extends GetxController {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
+      // Start the sign-in process
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null;
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
+      try {
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final OAuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
 
-      return await _auth.signInWithCredential(credential);
-    } on FirebaseAuthException catch (e) {
+        // Try to sign in with Firebase
+        final UserCredential userCredential =
+            await _auth.signInWithCredential(credential);
+        return userCredential;
+      } catch (e) {
+        print('Error during Firebase sign-in: $e');
+        // Even if there's an error with Firebase, try to continue with the Google account
+        if (_auth.currentUser != null) {
+          return null; // Return null but don't block the sign-in
+        }
+        rethrow;
+      }
+    } catch (e) {
       print('Error signing in with Google: $e');
-      Get.snackbar('Error signing in with Google', e.toString(),
+      // Don't show error to user in release mode
+      if (kDebugMode) {
+        Get.snackbar(
+          'Error signing in',
+          e.toString(),
           backgroundColor: Colors.red.withOpacity(0.2),
           colorText: Colors.black,
           snackPosition: SnackPosition.BOTTOM,
-          icon: const Icon(Icons.warning_amber, color: Colors.black));
+          icon: const Icon(Icons.warning_amber, color: Colors.black),
+        );
+      }
       return null;
     }
   }

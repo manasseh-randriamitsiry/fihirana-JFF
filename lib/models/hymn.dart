@@ -48,6 +48,19 @@ class Hymn {
       'verses': verses,
       'bridge': bridge,
       'hymnHint': hymnHint,
+      'createdAt': createdAt.toIso8601String(),
+      'createdBy': createdBy,
+      'createdByEmail': createdByEmail,
+    };
+  }
+
+  Map<String, dynamic> toFirestoreDocument() {
+    return {
+      'hymnNumber': hymnNumber,
+      'title': title,
+      'verses': verses,
+      'bridge': bridge,
+      'hymnHint': hymnHint,
       'createdAt': Timestamp.fromDate(createdAt),
       'createdBy': createdBy,
       'createdByEmail': createdByEmail,

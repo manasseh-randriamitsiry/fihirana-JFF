@@ -162,10 +162,11 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         ),
         body: Center(
           child: Text(
-            'Salama ${user?.email},\nNoho ny antony manokana dia tsy mbolola mahazo alalana hamorona hira ianao.'
+            'Salama ${user?.email},\nNoho ny antony manokana dia tsy mbolo mahazo alalana hamorona hira ianao.'
             '\nMahandrasa kely azafady.'
             '\nNa Antsoy ny admin (manassé) hanome alalana.',
             style: TextStyle(color: colorController.textColor.value),
+            textAlign: TextAlign.center,
           ),
         ),
       );
@@ -332,7 +333,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   Future<void> _createHymn() async {
     try {
-      final hymnNumber = int.parse(_hymnNumberController.text.trim()).toString();
+      final hymnNumber =
+          int.parse(_hymnNumberController.text.trim()).toString();
       final title = _titleController.text.trim();
       final verses = _verseControllers
           .map((controller) => controller.text.trim())

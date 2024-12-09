@@ -29,6 +29,29 @@ class HymnService {
 
   Future<bool> addHymn(Hymn hymn) async {
     try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showErrorSnackbar(
+          title: 'Nisy olana',
+          message: 'Mila miditra aloha ianao',
+        );
+        return false;
+      }
+
+      // Check if user has permission to add hymns
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists || !(userDoc.data()?['canAddHymns'] ?? false)) {
+        _showErrorSnackbar(
+          title: 'Nisy olana',
+          message: 'Tsy manana alalana hanampy hira ianao',
+        );
+        return false;
+      }
+
       bool isUnique = await _isHymnNumberUnique(hymn.hymnNumber, '');
       if (!isUnique) {
         _showErrorSnackbar(
@@ -38,20 +61,22 @@ class HymnService {
         return false;
       }
 
-      // Format hymn number to ensure consistent sorting
-      String numStr = hymn.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-      int hymnNum = int.tryParse(numStr) ?? 0;
-      // Pad with zeros to ensure proper sorting (e.g., "001", "002", etc.)
-      hymn.hymnNumber = hymnNum.toString().padLeft(3, '0');
-
-      // Get current user
-      final user = FirebaseAuth.instance.currentUser;
-      hymn.createdBy = user?.displayName ?? 'Unknown User';
-      hymn.createdByEmail = user?.email;
+      hymn.createdBy = user.displayName ?? 'Unknown User';
+      hymn.createdByEmail = user.email;
       hymn.createdAt = DateTime.now();
 
-      // Perform addition
-      await hymnsCollection.add(hymn.toFirestore());
+      final docData = {
+        'hymnNumber': hymn.hymnNumber,
+        'title': hymn.title,
+        'verses': hymn.verses,
+        'bridge': hymn.bridge,
+        'hymnHint': hymn.hymnHint,
+        'createdAt': Timestamp.fromDate(hymn.createdAt),
+        'createdBy': hymn.createdBy,
+        'createdByEmail': hymn.createdByEmail,
+      };
+
+      await hymnsCollection.add(docData);
       _showSuccessSnackbar(
         title: 'Tafiditra soamantsara',
         message: 'Deraina ny Tompo',
@@ -71,7 +96,7 @@ class HymnService {
 
   Future<void> updateHymn(String hymnId, Hymn hymn) async {
     try {
-      // Check if hymnNumber is unique (excluding the current hymn being updated)
+      // Check uniqueness, excluding the current hymn being updated
       bool isUnique = await _isHymnNumberUnique(hymn.hymnNumber, hymnId);
 
       if (!isUnique) {
@@ -82,21 +107,26 @@ class HymnService {
         return;
       }
 
-      // Format hymn number consistently
-      String numStr = hymn.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-      int hymnNum = int.tryParse(numStr) ?? 0;
-      hymn.hymnNumber = hymnNum.toString().padLeft(3, '0');
+      // Create the document data with Timestamp
+      final docData = {
+        'hymnNumber': hymn.hymnNumber,
+        'title': hymn.title,
+        'verses': hymn.verses,
+        'bridge': hymn.bridge,
+        'hymnHint': hymn.hymnHint,
+        'createdAt': Timestamp.fromDate(hymn.createdAt),
+        'createdBy': hymn.createdBy,
+        'createdByEmail': hymn.createdByEmail,
+      };
 
-      // Perform the update operation
-      await hymnsCollection.doc(hymnId).update(hymn.toFirestore());
+      // Perform the update
+      await hymnsCollection.doc(hymnId).update(docData);
 
-      // Show success message
       _showSuccessSnackbar(
         title: 'Vita fanavaozana',
         message: 'Deraina ny Tompo',
       );
     } catch (e) {
-      // Handle errors
       _showErrorSnackbar(
         title: 'Nisy olana',
         message: 'Antony: Tsy nahomby ny fanavaozana hira ${hymn.hymnNumber}',
@@ -231,7 +261,8 @@ class HymnService {
   }
 
   // Single shared stream controller for favorite status
-  static final _favoritesController = StreamController<Map<String, String>>.broadcast();
+  static final _favoritesController =
+      StreamController<Map<String, String>>.broadcast();
 
   HymnService() {
     _initFavoriteStream();
@@ -262,7 +293,7 @@ class HymnService {
         final snapshot = await favoritesCollection
             .where('userId', isEqualTo: user.uid)
             .get();
-        
+
         for (var doc in snapshot.docs) {
           statuses[doc.get('hymnId')] = 'cloud';
         }
@@ -286,7 +317,8 @@ class HymnService {
   }
 
   Stream<List<String>> getFavoriteHymnIdsStream() {
-    return getFavoriteStatusStream().map((statusMap) => statusMap.keys.toList());
+    return getFavoriteStatusStream()
+        .map((statusMap) => statusMap.keys.toList());
   }
 
   Stream<List<Hymn>> getFavoriteHymnsStream() {
@@ -335,7 +367,7 @@ class HymnService {
             addedDate: DateTime.now(),
           );
           await favoritesCollection.add(favorite.toFirestore());
-          
+
           // Add to local
           if (!localFavorites.contains(hymn.id)) {
             localFavorites.add(hymn.id);

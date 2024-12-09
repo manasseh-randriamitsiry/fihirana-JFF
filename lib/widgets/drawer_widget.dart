@@ -110,12 +110,13 @@ class DrawerWidgetState extends State<DrawerWidget> {
         );
 
         await _firebaseAuth.signInWithCredential(credential);
-        
+
         // Save user info to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('username', googleSignInAccount.displayName ?? '');
+        await prefs.setString(
+            'username', googleSignInAccount.displayName ?? '');
         await prefs.setString('email', googleSignInAccount.email);
-        
+
         _updateCurrentUser();
         Get.snackbar(
           'Tongasoa',
@@ -128,14 +129,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
     } catch (e, stackTrace) {
       print('Error signing in with Google: $e');
       print('Stack trace: $stackTrace');
-      Get.snackbar(
-        'Nisy olana',
-        'Avereno atao: ${e.toString()}',
-        backgroundColor: Colors.red.withOpacity(0.2),
-        colorText: _colorController.textColor.value,
-        icon: Icon(Icons.warning_amber, color: _colorController.iconColor.value),
-        duration: Duration(seconds: 5),
-      );
     }
   }
 
