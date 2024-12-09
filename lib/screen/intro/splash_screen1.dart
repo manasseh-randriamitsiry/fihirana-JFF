@@ -70,73 +70,22 @@ class _SplashScreen1State extends State<SplashScreen1>
     );
   }
 
-  Future<void> _handleGoogleSignIn() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-
-      // Clear any existing auth state
-      await _googleSignIn.signOut();
-      await _auth.signOut();
-
-      // Start fresh sign in
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signInSilently() ?? await _googleSignIn.signIn();
-      
-      if (googleUser == null) {
-        print('Google Sign In was cancelled by user');
-        return;
-      }
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final OAuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      // Sign in to Firebase
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
-      if (user == null) {
-        throw Exception('Failed to sign in with Google');
-      }
-
-      // Save user info
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', user.displayName ?? '');
-      await prefs.setString('email', user.email ?? '');
-
-      Get.offAll(() => HomeScreen());
-    } catch (e, stackTrace) {
-      print('Error signing in with Google: $e');
-      print('Stack trace: $stackTrace');
-      Get.snackbar(
-        'Olana',
-        'Tsy nety ny fidirana @Google: ${e.toString()}',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 5),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
   Future<void> _handleUsernameSubmit() async {
-    if (_usernameController.text.trim().isEmpty) {
+    // Trim whitespace from the username
+    final username = _usernameController.text.trim();
+
+    if (username.isEmpty) {
       Get.snackbar(
         'Olana',
         'Mampidira anarana azafady',
         snackPosition: SnackPosition.BOTTOM,
       );
-      return;
+      return; // Stop execution if username is empty
     }
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('username', _usernameController.text.trim());
+      await prefs.setString('username', username);
       Get.offAll(() => HomeScreen());
     } catch (e) {
       print('Error saving username: $e');
@@ -151,15 +100,11 @@ class _SplashScreen1State extends State<SplashScreen1>
   Future<void> _checkAgreementStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final hasAgreed = prefs.getBool('has_agreed_to_terms') ?? false;
-    if (hasAgreed) {
+
+    // Check if the user has agreed AND the username is not empty
+    if (hasAgreed && _usernameController.text.trim().isNotEmpty) {
       Get.offAll(() => HomeScreen());
     }
-  }
-
-  Future<void> _saveAgreementAndProceed() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('has_agreed_to_terms', true);
-    Get.offAll(() => HomeScreen());
   }
 
   static const TextStyle greyStyle =
@@ -224,7 +169,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                 padding: EdgeInsets.only(bottom: 20.0),
                 child: dotsWidget(
                   active: 0,
-                  number: 4,
+                  number: 3,
                 ),
               ),
               const SkipWidget()
@@ -252,21 +197,13 @@ class _SplashScreen1State extends State<SplashScreen1>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        "Ireo zavatra azo atao:",
+                        "Miarahaba anao:",
                         style: boldStyle,
                       ),
                       SizedBox(height: 20.0),
                       Text(
-                        "1. Mijery hira\n"
-                        "2. Mam piditra hira vaovao\n"
-                        "3. Manova hira\n"
-                        "4. Mampiditra hira ho tiana\n"
-                        "5. Mampiditra naoty: naoty natao hanamorana ny fihirana, ohatra clé, tempo\n"
-                        "6. Mamafa hira: ny hira nampidirinao ihany no afaka fafainao\n"
-                        "7. Mitady hira\n"
-                        "8. Manova loko\n"
-                        "9. Manova endrikan'ny soratra \n"
-                        "10. Mijery tantaran'ny hira mifanaraka @ daty sy ora nihirana azy\n",
+                        "Ity fihirana ity dia fihirana natao hoan'ny fiangonana Jesosy Famonjena fahamarinantsika\n. "
+                        "Natao izao mba hanamora kokoa ny fiderana an'Andriamanitra\n. Raha te-hampiditra na hanova hira ianao dia mila compte Google, ny hira nampidirinao ihany no azonao fafana\n",
                         style: descriptionWhiteStyle,
                       ),
                     ],
@@ -277,7 +214,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                 padding: EdgeInsets.only(bottom: 20.0),
                 child: dotsWidget(
                   active: 1,
-                  number: 4,
+                  number: 3,
                 ),
               ),
               const SkipWidget()
@@ -304,93 +241,89 @@ class _SplashScreen1State extends State<SplashScreen1>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(
-                        "Tongasoa!",
-                        style: boldStyle,
-                      ),
-                      SizedBox(height: 20.0),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 30.0),
                         child: Column(
                           children: [
-                            const Text(
-                              "Frera/Soeur iza no fiantsoana anao ?",
-                              style: descriptionGreyStyle,
+                            Text(
+                              "Fanekena:",
+                              style: boldStyle,
+                            ),
+                            SizedBox(height: 20.0),
+                            Column(
+                              children: [
+                                const Text(
+                                  "Izaho dia manaiky fa:",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                const SizedBox(height: 10.0),
+                                const Text(
+                                  "1. Tsy hampiasa ny application amin'ny fomba ratsy\n"
+                                  "2. Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF  \n",
+                                ),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      value: _agreementAccepted,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          _agreementAccepted = value ?? false;
+                                        });
+                                      },
+                                      activeColor: Colors.blue,
+                                    ),
+                                    const Expanded(
+                                      child: Text(
+                                        "Ekeko ireo fepetra ireo",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                             SizedBox(height: 20.0),
                             TextField(
                               controller: _usernameController,
                               decoration: InputDecoration(
-                                labelText: 'Apidiro ny anaranao',
-                                border: OutlineInputBorder(),
+                                labelText: 'Ampidiro ny anaranao',
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      25.0), // Adjust the radiusas needed
+                                ),
                                 filled: true,
                                 fillColor: Colors.grey[100],
                               ),
                             ),
                             const SizedBox(height: 20),
-                            const Text('Na',
-                                style: TextStyle(color: Colors.grey)),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed:
-                                  _isLoading ? null : _handleGoogleSignIn,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.blue,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 30, vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _agreementAccepted
+                                    ? _handleUsernameSubmit
+                                    : null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 15),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  elevation: 5,
+                                  shadowColor: Colors.black.withOpacity(0.5),
                                 ),
-                                elevation: 5,
-                                shadowColor: Colors.black.withOpacity(0.5),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Image.asset(
-                                    'assets/images/google.png',
-                                    height: 24.0,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  const Text(
-                                    'Hiditra amin\'ny Google',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              onPressed:
-                                  _isLoading ? null : _handleUsernameSubmit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 30, vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                                child: const Text(
+                                  "Tohizana",
+                                  style: TextStyle(fontSize: 16),
                                 ),
-                                elevation: 5,
-                                shadowColor: Colors.black.withOpacity(0.5),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.person_add, size: 24),
-                                  const SizedBox(width: 12),
-                                  const Text(
-                                    'Hiditra',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
                               ),
                             ),
                           ],
@@ -404,112 +337,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                 padding: EdgeInsets.only(bottom: 20.0),
                 child: dotsWidget(
                   active: 2,
-                  number: 4,
-                ),
-              ),
-              const SkipWidget()
-            ],
-          ),
-        ),
-      ),
-      SizedBox(
-        height: screenHeight,
-        child: Container(
-          color: Colors.purple,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: _buildFloatingBalloon(screenWidth),
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        "Fanekena:",
-                        style: boldStyle,
-                      ),
-                      SizedBox(height: 20.0),
-                      Column(
-                        children: [
-                          const Text(
-                            "Izaho dia manaiky fa:",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 10.0),
-                          const Text(
-                            "1. Tsy hampiasa ny application amin'ny fomba ratsy\n"
-                            "2. Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF  \n",
-                            style: descriptionWhiteStyle,
-                          ),
-                          const SizedBox(height: 20.0),
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: _agreementAccepted,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    _agreementAccepted = value ?? false;
-                                  });
-                                },
-                                activeColor: Colors.blue,
-                              ),
-                              const Expanded(
-                                child: Text(
-                                  "Ekeko ireo fepetra ireo",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 20.0),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _agreementAccepted
-                                  ? _saveAgreementAndProceed
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 15),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                elevation: 5,
-                                shadowColor: Colors.black.withOpacity(0.5),
-                              ),
-                              child: const Text(
-                                "Tohizana",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20.0),
-                child: dotsWidget(
-                  active: 3,
-                  number: 4,
+                  number: 3,
                 ),
               ),
               const SkipWidget()
@@ -524,7 +352,7 @@ class _SplashScreen1State extends State<SplashScreen1>
         pages: pages,
         enableLoop: false,
         fullTransitionValue: 500,
-        enableSideReveal: true,
+        enableSideReveal: false,
         waveType: WaveType.liquidReveal,
         positionSlideIcon: 0.8,
       ),
@@ -566,42 +394,42 @@ class SkipWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () {
-                Get.offAll(() => HomeScreen());
-              },
-              borderRadius: BorderRadius.circular(30),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey.withOpacity(0.5)),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Dinganina',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      Icons.skip_next_rounded,
-                      color: Colors.grey[600],
-                      size: 20,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          // Material(
+          //   color: Colors.transparent,
+          //   child: InkWell(
+          //     onTap: () {
+          //       Get.offAll(() => HomeScreen());
+          //     },
+          //     borderRadius: BorderRadius.circular(30),
+          //     child: Container(
+          //       padding:
+          //           const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          //       decoration: BoxDecoration(
+          //         border: Border.all(color: Colors.grey.withOpacity(0.5)),
+          //         borderRadius: BorderRadius.circular(30),
+          //       ),
+          //       child: Row(
+          //         mainAxisSize: MainAxisSize.min,
+          //         children: [
+          //           Text(
+          //             'Dinganina',
+          //             style: TextStyle(
+          //               color: Colors.grey[600],
+          //               fontSize: 16,
+          //               fontWeight: FontWeight.w500,
+          //             ),
+          //           ),
+          //           const SizedBox(width: 8),
+          //           Icon(
+          //             Icons.skip_next_rounded,
+          //             color: Colors.grey[600],
+          //             size: 20,
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

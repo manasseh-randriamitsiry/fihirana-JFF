@@ -29,6 +29,29 @@ class HymnService {
 
   Future<bool> addHymn(Hymn hymn) async {
     try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        _showErrorSnackbar(
+          title: 'Nisy olana',
+          message: 'Mila miditra aloha ianao',
+        );
+        return false;
+      }
+
+      // Check if user has permission to add hymns
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists || !(userDoc.data()?['canAddHymns'] ?? false)) {
+        _showErrorSnackbar(
+          title: 'Nisy olana',
+          message: 'Tsy manana alalana hanampy hira ianao',
+        );
+        return false;
+      }
+
       bool isUnique = await _isHymnNumberUnique(hymn.hymnNumber, '');
       if (!isUnique) {
         _showErrorSnackbar(
@@ -38,13 +61,10 @@ class HymnService {
         return false;
       }
 
-      // Get current user
-      final user = FirebaseAuth.instance.currentUser;
-      hymn.createdBy = user?.displayName ?? 'Unknown User';
-      hymn.createdByEmail = user?.email;
+      hymn.createdBy = user.displayName ?? 'Unknown User';
+      hymn.createdByEmail = user.email;
       hymn.createdAt = DateTime.now();
 
-      // Create the document data with Timestamp
       final docData = {
         'hymnNumber': hymn.hymnNumber,
         'title': hymn.title,
@@ -56,7 +76,6 @@ class HymnService {
         'createdByEmail': hymn.createdByEmail,
       };
 
-      // Perform addition
       await hymnsCollection.add(docData);
       _showSuccessSnackbar(
         title: 'Tafiditra soamantsara',

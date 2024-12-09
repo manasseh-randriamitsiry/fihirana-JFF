@@ -19,10 +19,7 @@ class FirebaseAuthService {
             colorText: Colors.black,
             icon: const Icon(Icons.warning_amber, color: Colors.black));
       } else {
-        Get.snackbar('An error occurred: ${e.code}', 'Try again.',
-            backgroundColor: Colors.red.withOpacity(0.2),
-            colorText: Colors.black,
-            icon: const Icon(Icons.warning_amber, color: Colors.black));
+        print(e);
       }
     }
     return null;
@@ -42,10 +39,7 @@ class FirebaseAuthService {
             colorText: Colors.black,
             icon: const Icon(Icons.warning_amber, color: Colors.black));
       } else {
-        Get.snackbar('An error occurred: ${e.code}', 'Try again.',
-            backgroundColor: Colors.red.withOpacity(0.2),
-            colorText: Colors.black,
-            icon: const Icon(Icons.warning_amber, color: Colors.black));
+        print(e);
       }
     }
     return null;

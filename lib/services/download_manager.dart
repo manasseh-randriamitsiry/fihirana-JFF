@@ -22,7 +22,7 @@ class DownloadManager {
       [
         NotificationChannel(
           channelKey: 'hymn_download_channel',
-          channelName: 'Hymn Downloads',
+          channelName: 'Maka Hira',
           channelDescription: 'Notifications for hymn downloads and updates',
           defaultColor: const Color(0xFF9D50DD),
           importance: NotificationImportance.High,
@@ -39,7 +39,8 @@ class DownloadManager {
   }) async {
     try {
       // Get total number of hymns
-      final QuerySnapshot querySnapshot = await _firestore.collection('hymns').get();
+      final QuerySnapshot querySnapshot =
+          await _firestore.collection('hymns').get();
       final int total = querySnapshot.docs.length;
       int downloaded = 0;
 
@@ -51,13 +52,14 @@ class DownloadManager {
       }
 
       final List<Hymn> hymns = [];
-      
+
       // Process each document
       for (var doc in querySnapshot.docs) {
         try {
-          final hymn = Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>);
+          final hymn =
+              Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>);
           hymns.add(hymn);
-          
+
           downloaded++;
           if (onProgress != null) {
             onProgress(downloaded / total);
@@ -72,7 +74,7 @@ class DownloadManager {
       // Save hymns locally only if we have successfully processed some
       if (hymns.isNotEmpty) {
         await _storageService.saveHymns(hymns);
-        
+
         // Update last update timestamp
         await _storageService.setLastUpdate(DateTime.now());
 
@@ -83,7 +85,6 @@ class DownloadManager {
       } else {
         throw Exception('No hymns were successfully processed');
       }
-
     } catch (e) {
       print('Download error: $e');
       if (onError != null) {

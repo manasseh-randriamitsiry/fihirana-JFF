@@ -46,7 +46,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
               _error = error;
               // Show error snackbar
               Get.snackbar(
-                'Error',
+                'Nisy olana',
                 error,
                 snackPosition: SnackPosition.BOTTOM,
                 backgroundColor: Colors.red,
@@ -113,7 +113,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
                           });
                           _initializeApp();
                         },
-                        child: const Text('Retry'),
+                        child: const Text('Averina atao'),
                       ),
                   ],
                 ),
@@ -122,7 +122,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
               Column(
                 children: [
                   Text(
-                    'Downloading hymns...',
+                    'Mijery hira vaovao...',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 20),
