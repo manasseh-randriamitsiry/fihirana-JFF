@@ -222,52 +222,50 @@ class _SplashScreen1State extends State<SplashScreen1>
           ),
         ),
       ),
-      SizedBox(
-        height: screenHeight,
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: _buildFloatingBalloon(screenWidth),
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Fanekena:",
-                              style: boldStyle,
-                            ),
-                            SizedBox(height: 20.0),
-                            Column(
-                              children: [
-                                const Text(
-                                  "Izaho dia manaiky fa:",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
+      SingleChildScrollView(
+        child: SizedBox(
+          height: screenHeight,
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: screenHeight * 0.2,
+                  child: _buildFloatingBalloon(screenWidth),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Fanekena:",
+                            style: boldStyle.copyWith(fontSize: 30.0),
+                          ),
+                          const SizedBox(height: 10.0),
+                          Column(
+                            children: [
+                              const Text(
+                                "Izaho dia manaiky fa:",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
                                 ),
-                                const SizedBox(height: 10.0),
-                                const Text(
-                                  "1. Tsy hampiasa ny application amin'ny fomba ratsy\n"
-                                  "2. Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF  \n",
-                                ),
-                                Row(
-                                  children: [
-                                    Checkbox(
+                              ),
+                              const SizedBox(height: 5.0),
+                              const Text(
+                                "1. Tsy hampiasa ny application amin'ny fomba ratsy\n"
+                                "2. Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF  \n",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              Row(
+                                children: [
+                                  Transform.scale(
+                                    scale: 0.9,
+                                    child: Checkbox(
                                       value: _agreementAccepted,
                                       onChanged: (bool? value) {
                                         setState(() {
@@ -276,72 +274,78 @@ class _SplashScreen1State extends State<SplashScreen1>
                                       },
                                       activeColor: Colors.blue,
                                     ),
-                                    const Expanded(
-                                      child: Text(
-                                        "Ekeko ireo fepetra ireo",
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                        ),
+                                  ),
+                                  const Expanded(
+                                    child: Text(
+                                      "Ekeko ireo fepetra ireo",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 14,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 20.0),
-                            TextField(
-                              controller: _usernameController,
-                              decoration: InputDecoration(
-                                labelText: 'Ampidiro ny anaranao',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      25.0), // Adjust the radiusas needed
-                                ),
-                                filled: true,
-                                fillColor: Colors.grey[100],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _agreementAccepted
-                                    ? _handleUsernameSubmit
-                                    : null,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 30, vertical: 15),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                  elevation: 5,
-                                  shadowColor: Colors.black.withOpacity(0.5),
-                                ),
-                                child: const Text(
-                                  "Tohizana",
-                                  style: TextStyle(fontSize: 16),
-                                ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10.0),
+                          TextField(
+                            controller: _usernameController,
+                            decoration: InputDecoration(
+                              labelText: 'Ampidiro ny anaranao',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 10,
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: _agreementAccepted
+                                  ? _handleUsernameSubmit
+                                  : null,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                elevation: 5,
+                                shadowColor: Colors.black.withOpacity(0.5),
+                              ),
+                              child: const Text(
+                                "Tohizana",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20.0),
-                child: dotsWidget(
-                  active: 2,
-                  number: 3,
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 10.0),
+                  child: dotsWidget(
+                    active: 2,
+                    number: 3,
+                  ),
                 ),
-              ),
-              const SkipWidget()
-            ],
+                const SkipWidget()
+              ],
+            ),
           ),
         ),
       ),

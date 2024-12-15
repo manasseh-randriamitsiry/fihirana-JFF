@@ -38,13 +38,28 @@ class HymnService {
         return false;
       }
 
+      // Check if user is admin
+      if (user.email == 'manassehrandriamitsiry@gmail.com') {
+        // Admin can always add hymns
+        hymn.createdBy = user.displayName ?? 'Unknown User';
+        hymn.createdByEmail = user.email;
+        hymn.createdAt = DateTime.now();
+
+        await hymnsCollection.add(hymn.toFirestoreDocument());
+        SnackbarUtility.showSuccess(
+          title: 'Tafiditra soamantsara',
+          message: 'Deraina ny Tompo',
+        );
+        return true;
+      }
+
       // Check if user has permission to add hymns
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
 
-      if (!userDoc.exists || !(userDoc.data()?['canAddHymns'] ?? false)) {
+      if (!userDoc.exists || !(userDoc.data()?['canAddSongs'] ?? false)) {
         SnackbarUtility.showError(
           title: 'Nisy olana',
           message: 'Tsy manana alalana hanampy hira ianao',
@@ -65,18 +80,7 @@ class HymnService {
       hymn.createdByEmail = user.email;
       hymn.createdAt = DateTime.now();
 
-      final docData = {
-        'hymnNumber': hymn.hymnNumber,
-        'title': hymn.title,
-        'verses': hymn.verses,
-        'bridge': hymn.bridge,
-        'hymnHint': hymn.hymnHint,
-        'createdAt': Timestamp.fromDate(hymn.createdAt),
-        'createdBy': hymn.createdBy,
-        'createdByEmail': hymn.createdByEmail,
-      };
-
-      await hymnsCollection.add(docData);
+      await hymnsCollection.add(hymn.toFirestoreDocument());
       SnackbarUtility.showSuccess(
         title: 'Tafiditra soamantsara',
         message: 'Deraina ny Tompo',
