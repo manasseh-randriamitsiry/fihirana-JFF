@@ -17,7 +17,7 @@
         android:name="${applicationName}"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="Fihirana"
+        android:label="Fihirana JFF"
         android:hardwareAccelerated="true"
         android:largeHeap="false"
         android:usesCleartextTraffic="false"
@@ -42,6 +42,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
     </application>
 
     <queries>

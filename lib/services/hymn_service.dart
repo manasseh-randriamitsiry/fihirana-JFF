@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/hymn.dart';
 import '../models/favorite.dart';
 import '../utility/snackbar_utility.dart';
+import '../controller/auth_controller.dart';
 
 class HymnService {
   final CollectionReference hymnsCollection =
@@ -38,28 +39,10 @@ class HymnService {
         return false;
       }
 
-      // Check if user is admin
-      if (user.email == 'manassehrandriamitsiry@gmail.com') {
-        // Admin can always add hymns
-        hymn.createdBy = user.displayName ?? 'Unknown User';
-        hymn.createdByEmail = user.email;
-        hymn.createdAt = DateTime.now();
-
-        await hymnsCollection.add(hymn.toFirestoreDocument());
-        SnackbarUtility.showSuccess(
-          title: 'Tafiditra soamantsara',
-          message: 'Deraina ny Tompo',
-        );
-        return true;
-      }
-
-      // Check if user has permission to add hymns
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      if (!userDoc.exists || !(userDoc.data()?['canAddSongs'] ?? false)) {
+      final authController = Get.find<AuthController>();
+      
+      // Check if user has permission through AuthController
+      if (!authController.canAddSongs && !authController.isAdmin) {
         SnackbarUtility.showError(
           title: 'Nisy olana',
           message: 'Tsy manana alalana hanampy hira ianao',

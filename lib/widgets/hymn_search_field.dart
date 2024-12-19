@@ -24,7 +24,7 @@ class HymnSearchField extends StatelessWidget {
         controller: controller,
         style: defaultTextStyle,
         decoration: InputDecoration(
-          labelText: 'Hitady hira',
+          labelText: 'Hikaroka hira',
           labelStyle: defaultTextStyle.copyWith(
             color: textColor.withOpacity(0.7),
           ),
