@@ -149,6 +149,16 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _resetSeenAnnouncements() async {
+    await _announcementService.clearSeenAnnouncements();
+    await _announcementService.checkNewAnnouncements();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
@@ -169,16 +179,32 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           onPressed: () => Get.back(),
         ),
       ),
-      floatingActionButton: isAdmin()
-          ? FloatingActionButton(
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (isAdmin())
+            FloatingActionButton(
+              heroTag: 'add_announcement',
               backgroundColor: colorController.primaryColor.value,
               onPressed: _showCreateAnnouncementDialog,
               child: Icon(
                 Icons.add,
                 color: colorController.iconColor.value,
               ),
-            )
-          : null,
+            ),
+          const SizedBox(height: 10),
+          if (isAdmin())
+            FloatingActionButton(
+              heroTag: 'refresh_announcements',
+              backgroundColor: colorController.primaryColor.value,
+              onPressed: _resetSeenAnnouncements,
+              child: Icon(
+                Icons.refresh,
+                color: colorController.iconColor.value,
+              ),
+            ),
+        ],
+      ),
       body: StreamBuilder<QuerySnapshot>(
         stream: _announcementService.getAnnouncementsStream(),
         builder: (context, snapshot) {

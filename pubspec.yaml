@@ -33,7 +33,6 @@ dependencies:
   firebase_auth: ^4.16.0
   flutter_launcher_icons: ^0.13.1
   firebase_storage: ^11.5.6
-  file_picker: ^6.1.1
   cached_network_image: ^3.3.0
   local_auth: ^2.1.7
   android_intent_plus: ^4.0.3

@@ -1,3 +1,4 @@
+import 'package:fihirana/services/hymn_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,28 +16,12 @@ import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'screen/announcement/announcement_screen.dart';
+import 'services/background_service.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase with correct options
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
 
-  final prefs = await SharedPreferences.getInstance();
-
-  // Initialize controllers once
-  final themeController = Get.put(ThemeController());
-  Get.put(HistoryController());
-  Get.put(ColorController());
-  Get.put(FontController());
-
-  // Initialize theme from preferences
-  themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
-
+Future<void> initializeNotifications() async {
   await AwesomeNotifications().initialize(
-    null,
+    'resource://mipmap/ic_launcher',
     [
       NotificationChannel(
         channelKey: 'announcement_channel',
@@ -45,10 +30,65 @@ Future<void> main() async {
         defaultColor: const Color(0xFF9D50DD),
         importance: NotificationImportance.High,
         channelShowBadge: true,
+        enableVibration: true,
+        enableLights: true,
+        defaultPrivacy: NotificationPrivacy.Public,
+        playSound: true,
+        icon: 'resource://mipmap/ic_launcher',
+      ),
+      NotificationChannel(
+        channelKey: 'hymn_download_channel',
+        channelName: 'Maka Hira',
+        channelDescription: 'Notifications for hymn downloads and updates',
+        defaultColor: const Color(0xFF9D50DD),
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+        icon: 'resource://mipmap/ic_launcher',
+      ),
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'Basic Notifications',
+        channelDescription: 'Basic notifications channel',
+        defaultColor: const Color(0xFF9D50DD),
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+        icon: 'resource://mipmap/ic_launcher',
       ),
     ],
     debug: true,
   );
+
+  // Request notification permissions
+  await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    if (!isAllowed) {
+      AwesomeNotifications().requestPermissionToSendNotifications();
+    }
+  });
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Initialize notifications
+  await initializeNotifications();
+
+  final prefs = await SharedPreferences.getInstance();
+
+  // Initialize controllers and services
+  final themeController = Get.put(ThemeController());
+  Get.put(HistoryController());
+  Get.put(ColorController());
+  Get.put(FontController());
+  Get.lazyPut(() => HymnService());
+  Get.put(BackgroundService());
+
+  // Initialize theme from preferences
+  themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
 
   // Initialize notification action listener
   AwesomeNotifications().setListeners(
