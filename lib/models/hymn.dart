@@ -41,6 +41,41 @@ class Hymn {
     );
   }
 
+  // New factory method to create Hymn from JSON data
+  factory Hymn.fromJson(Map<String, dynamic> json, String id) {
+    final List<String> verses = [];
+    
+    // Handle verses from JSON structure
+    if (json['verses'] is Map<String, dynamic>) {
+      final versesMap = json['verses'] as Map<String, dynamic>;
+      // Sort verse keys numerically
+      final sortedKeys = versesMap.keys.toList()
+        ..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
+      
+      for (final key in sortedKeys) {
+        verses.add(versesMap[key].toString());
+      }
+    } else if (json['verses'] is List) {
+      verses.addAll(List<String>.from(json['verses']));
+    }
+
+    // Extract chorus if it exists and add it as the last verse
+    if (json['chorus'] != null) {
+      verses.add(json['chorus'].toString());
+    }
+
+    return Hymn(
+      id: id,
+      hymnNumber: json['number'].toString(),
+      title: json['title'].toString(),
+      verses: verses,
+      bridge: json['bridge']?.toString(),
+      hymnHint: json['hint']?.toString(),
+      createdAt: DateTime.now(),
+      createdBy: 'Local File',
+    );
+  }
+
   Map<String, dynamic> toFirestore() {
     return {
       'hymnNumber': hymnNumber,

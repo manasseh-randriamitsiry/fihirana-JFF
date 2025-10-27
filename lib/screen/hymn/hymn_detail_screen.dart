@@ -35,8 +35,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   final HymnService _hymnService = HymnService();
   final ColorController colorController = Get.find<ColorController>();
   late final HistoryController historyController;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  Map<String, dynamic>? _hymnData;
   Hymn? _hymn;
 
   @override
@@ -63,65 +61,25 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
 
   Future<void> _loadHymnData() async {
     try {
-      final doc = await _firestore.collection('hymns').doc(widget.hymnId).get();
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>;
-        print('Loaded hymn data: $data'); // Debug log
-
-        // Safely extract verses list
-        List<String> verses = [];
-        if (data['verses'] != null) {
-          try {
-            verses = List<String>.from(data['verses']);
-          } catch (e) {
-            print('Error parsing verses: $e');
-          }
-        }
-
-        // Safely get timestamp
-        DateTime createdAt = DateTime.now();
-        if (data['createdAt'] != null) {
-          if (data['createdAt'] is Timestamp) {
-            createdAt = (data['createdAt'] as Timestamp).toDate();
-          } else if (data['createdAt'] is DateTime) {
-            createdAt = data['createdAt'] as DateTime;
-          }
-        }
-
+      final hymn = await _hymnService.getHymnById(widget.hymnId);
+      if (hymn != null) {
         setState(() {
-          _hymnData = data;
-          _hymn = Hymn(
-            id: widget.hymnId,
-            hymnNumber: data['hymnNumber']?.toString() ?? '',
-            title: data['title']?.toString() ?? '',
-            verses: verses,
-            hymnHint: data['hymnHint']?.toString(),
-            bridge: data['bridge']?.toString(),
-            createdAt: createdAt,
-            createdBy: data['createdBy']?.toString() ?? '',
-            createdByEmail: data['createdByEmail']?.toString(),
-          );
+          _hymn = hymn;
           print('Hymn number loaded: ${_hymn?.hymnNumber}'); // Debug log
         });
 
         // Add to history after loading hymn data
-        if (_hymn != null) {
-          if (kDebugMode) {
-            print(
-                'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
-          }
-          await historyController.addToHistory(
-            widget.hymnId,
-            _hymn!.title,
-            _hymn!.hymnNumber,
-          );
-          if (kDebugMode) {
-            print('Successfully added to history');
-          }
-        } else {
-          if (kDebugMode) {
-            print('Error: Hymn object is null after loading data');
-          }
+        if (kDebugMode) {
+          print(
+              'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
+        }
+        await historyController.addToHistory(
+          widget.hymnId,
+          _hymn!.title,
+          _hymn!.hymnNumber,
+        );
+        if (kDebugMode) {
+          print('Successfully added to history');
         }
       } else {
         if (kDebugMode) {
@@ -536,7 +494,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   ];
 }
 
-class HymnSearchPopup extends StatelessWidget {
+class HymnSearchPopup extends StatefulWidget {
   final ColorController colorController;
   final Function(Hymn) onHymnSelected;
 
@@ -547,48 +505,115 @@ class HymnSearchPopup extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<HymnSearchPopup> createState() => _HymnSearchPopupState();
+}
+
+class _HymnSearchPopupState extends State<HymnSearchPopup> {
+  final HymnService _hymnService = HymnService();
+  List<Hymn> _hymns = [];
+  bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHymns();
+  }
+
+  Future<void> _loadHymns() async {
+    try {
+      final hymns = await _hymnService.searchHymns('');
+      setState(() {
+        _hymns = hymns;
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error loading hymns: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _searchHymns(String query) {
+    setState(() {
+      _isLoading = true;
+    });
+    
+    Future.delayed(const Duration(milliseconds: 300), () async {
+      try {
+        final hymns = await _hymnService.searchHymns(query);
+        setState(() {
+          _hymns = hymns;
+          _isLoading = false;
+        });
+      } catch (e) {
+        print('Error searching hymns: $e');
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: colorController.backgroundColor.value,
+      backgroundColor: widget.colorController.backgroundColor.value,
       content: SizedBox(
         width: double.maxFinite,
-        child: StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('hymns')
-              .orderBy('hymnNumber')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-
-            if (!snapshot.hasData) {
-              return const CircularProgressIndicator();
-            }
-
-            final hymns = snapshot.data!.docs.map((doc) {
-              return Hymn.fromFirestore(
-                  doc as DocumentSnapshot<Map<String, dynamic>>);
-            }).toList();
-
-            return ListView.builder(
-              itemCount: hymns.length,
-              itemBuilder: (context, index) {
-                final hymn = hymns[index];
-                return ListTile(
-                  title: Text(
-                    '${hymn.hymnNumber} - ${hymn.title}',
-                    style: TextStyle(
-                      color: colorController.textColor.value,
-                    ),
-                  ),
-                  onTap: () {
-                    onHymnSelected(hymn);
-                  },
-                );
-              },
-            );
-          },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Karoka hira...',
+                hintStyle: TextStyle(
+                  color: widget.colorController.textColor.value.withOpacity(0.7),
+                ),
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: widget.colorController.textColor.value,
+                ),
+              ),
+              style: TextStyle(
+                color: widget.colorController.textColor.value,
+              ),
+              onChanged: _searchHymns,
+            ),
+            const SizedBox(height: 10),
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _hymns.isEmpty
+                      ? Center(
+                          child: Text(
+                            'Tsy misy hira',
+                            style: TextStyle(
+                              color: widget.colorController.textColor.value,
+                            ),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: _hymns.length,
+                          itemBuilder: (context, index) {
+                            final hymn = _hymns[index];
+                            return ListTile(
+                              title: Text(
+                                '${hymn.hymnNumber} - ${hymn.title}',
+                                style: TextStyle(
+                                  color: widget.colorController.textColor.value,
+                                ),
+                              ),
+                              onTap: () {
+                                widget.onHymnSelected(hymn);
+                              },
+                            );
+                          },
+                        ),
+            ),
+          ],
         ),
       ),
     );

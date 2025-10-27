@@ -9,6 +9,7 @@ import '../../widgets/hymn_list_item.dart';
 import '../../widgets/hymn_search_field.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/snackbar_service.dart';
+import '../../models/hymn.dart';
 
 class AccueilScreen extends StatefulWidget {
   final Function() openDrawer;
@@ -72,7 +73,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                 onChanged: () => setState(() {}),
               ),
               Expanded(
-                child: StreamBuilder<QuerySnapshot>(
+                child: StreamBuilder<List<Hymn>>(
                   stream: _hymnController.hymnsStream,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
@@ -89,7 +90,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                     }
 
                     final hymns = _hymnController
-                        .filterHymnList(snapshot.data?.docs ?? []);
+                        .filterHymnList(snapshot.data ?? []);
                     if (hymns.isEmpty) {
                       return Center(
                         child: Text(

@@ -81,7 +81,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
             ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: StreamBuilder<List<Hymn>>(
         stream: _hymnService.getHymnsStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -92,12 +92,12 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final hymns = snapshot.data?.docs
-              .map((doc) => Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>))
-              .toList()
-            ?..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+          final hymns = snapshot.data ?? [];
+          
+          // Sort by creation date (newest first)
+          hymns.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
-          if (hymns == null || hymns.isEmpty) {
+          if (hymns.isEmpty) {
             return const Center(child: Text('Tsy misy hira'));
           }
 

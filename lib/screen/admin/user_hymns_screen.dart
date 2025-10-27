@@ -32,33 +32,31 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
 
   String _sortBy = 'recent'; // 'recent', 'old', 'number'
 
-  Stream<QuerySnapshot> _getHymnsStream() {
-    Query query = _firestore
-        .collection('hymns')
-        .where('createdByEmail', isEqualTo: widget.userEmail);
-
+  Stream<List<Hymn>> _getHymnsStream() async* {
+    // Since we're using local files, we'll load all hymns and filter them
+    final allHymns = await _hymnService.searchHymns('');
+    final userHymns = allHymns.where((hymn) => 
+      hymn.createdByEmail == widget.userEmail
+    ).toList();
+    
+    // Sort based on the current sort preference
     switch (_sortBy) {
       case 'recent':
-        return query
-            .orderBy('createdAt', descending: true)
-            .orderBy(FieldPath.documentId, descending: true)
-            .snapshots();
+        userHymns.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
       case 'old':
-        return query
-            .orderBy('createdAt', descending: false)
-            .orderBy(FieldPath.documentId, descending: false)
-            .snapshots();
+        userHymns.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+        break;
       case 'number':
-        return query
-            .orderBy('hymnNumber', descending: false)
-            .orderBy(FieldPath.documentId, descending: false)
-            .snapshots();
-      default:
-        return query
-            .orderBy('createdAt', descending: true)
-            .orderBy(FieldPath.documentId, descending: true)
-            .snapshots();
+        userHymns.sort((a, b) {
+          final numA = int.tryParse(a.hymnNumber) ?? 0;
+          final numB = int.tryParse(b.hymnNumber) ?? 0;
+          return numA.compareTo(numB);
+        });
+        break;
     }
+    
+    yield userHymns;
   }
 
   Future<void> _deleteHymn(String hymnId) async {
@@ -180,7 +178,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
+      body: StreamBuilder<List<Hymn>>(
         stream: _getHymnsStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -196,7 +194,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final hymns = snapshot.data?.docs ?? [];
+          final hymns = snapshot.data ?? [];
 
           if (hymns.isEmpty) {
             return Center(
@@ -210,8 +208,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
           return ListView.builder(
             itemCount: hymns.length,
             itemBuilder: (context, index) {
-              final hymn = Hymn.fromFirestore(
-                  hymns[index] as DocumentSnapshot<Map<String, dynamic>>);
+              final hymn = hymns[index];
 
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
