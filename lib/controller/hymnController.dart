@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/hymn.dart';
 import '../services/hymn_service.dart';
+import 'package:flutter/material.dart';
 
 class HymnController extends GetxController {
   var isDarkMode = false.obs;
@@ -15,22 +16,15 @@ class HymnController extends GetxController {
 
   Future<bool> createHymn(String hymnNumber, String title, List<String> verses,
       String? bridge, String? hymnHint) async {
-    final user = FirebaseAuth.instance.currentUser;
-    final now = DateTime.now();
-
-    Hymn newHymn = Hymn(
-      id: '',
-      title: title,
-      verses: verses,
-      bridge: bridge,
-      hymnNumber: hymnNumber,
-      hymnHint: hymnHint,
-      createdAt: now,
-      createdBy: user?.displayName ?? 'Unknown User',
-      createdByEmail: user?.email,
+    // Since we've disabled Firestore, we can no longer add hymns
+    // This functionality is not available with local files only
+    Get.snackbar(
+      'Tsy misy alalana',
+      'Tsy afaka manampy hira amin\'izao fotoana izao',
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
     );
-
-    bool result = await _hymnService.addHymn(newHymn);
-    return result;
+    return false;
   }
 }

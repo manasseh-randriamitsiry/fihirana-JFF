@@ -13,7 +13,7 @@ class LocalStorageService {
 
   Future<void> saveHymns(List<Hymn> hymns) async {
     final batch = Map.fromEntries(
-      hymns.map((hymn) => MapEntry(hymn.id, hymn.toFirestore())),
+      hymns.map((hymn) => MapEntry(hymn.id, hymn.toMap())),
     );
     await hymnBox.putAll(batch);
     await hymnBox.put(lastUpdateKey, {'timestamp': DateTime.now().toIso8601String()});

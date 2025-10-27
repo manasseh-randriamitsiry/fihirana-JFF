@@ -153,6 +153,12 @@ class AuthController extends GetxController {
         // Try to sign in with Firebase
         final UserCredential userCredential =
             await _auth.signInWithCredential(credential);
+            
+        // Create or update user document in Firestore
+        if (userCredential.user != null) {
+          await _createOrUpdateUserDocument(userCredential.user!);
+        }
+        
         return userCredential;
       } catch (e) {
         print('Error during Firebase sign-in: $e');
