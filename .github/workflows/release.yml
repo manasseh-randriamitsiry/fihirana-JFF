@@ -57,11 +57,9 @@ jobs:
       - name: Setup Google Services JSON
         run: |
           python -c "import base64; open('android/app/google-services.json','wb').write(base64.b64decode('${{ secrets.GOOGLE_JSON_BASE64 }}'))"
-          if [ ! -f "android/app/google-services.json" ]; then
-            echo "google-services.json was not created"
-            exit 1
-          fi
-          ls -l android/app/google-services.json
+          mkdir -p android/app/src/release
+          cp android/app/google-services.json android/app/src/release/google-services.json
+      
 
       # ----------------------
       # Generate Changelog
