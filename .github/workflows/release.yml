@@ -2,8 +2,6 @@ name: Create Release
 
 on:
   push:
-    branches:
-      - '**'  # Runs on any branch push
     tags:
       - 'v*.*.*'  # Runs on tag pushes like v1.0.0, v2.5.3
 
