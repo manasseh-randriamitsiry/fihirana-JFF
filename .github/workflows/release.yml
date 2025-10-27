@@ -38,16 +38,25 @@ jobs:
 
       - name: Disable Flutter Analytics
         run: flutter config --no-analytics
-  
+
       - name: Setup Keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/fihirana.jks
+          python -c "import base64; open('android/app/fihirana.jks','wb').write(base64.b64decode('${{ secrets.KEYSTORE_BASE64 }}'))"
           if [ ! -f "android/app/fihirana.jks" ]; then
             echo "Keystore file was not created"
             exit 1
           fi
           ls -l android/app/fihirana.jks
-  
+
+      - name: Setup Google Services JSON
+        run: |
+          python -c "import base64; open('android/app/google-services.json','wb').write(base64.b64decode('${{ secrets.GOOGLE_JSON_BASE64 }}'))"
+          if [ ! -f "android/app/google-services.json" ]; then
+            echo "google-services.json was not created"
+            exit 1
+          fi
+          ls -l android/app/google-services.json
+
       - name: Generate changelog
         id: changelog
         run: |
@@ -59,8 +68,11 @@ jobs:
           fi
           echo "CHANGELOG created:"
           cat CHANGELOG.md
+
       - run: flutter pub get
+
       - run: flutter build apk --release --split-per-abi
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
