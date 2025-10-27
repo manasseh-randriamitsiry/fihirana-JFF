@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:fihirana/controller/hymnController.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/auth_controller.dart';
 import '../../controller/color_controller.dart';
+import '../../models/hymn.dart';
+import '../../services/hymn_service.dart';
 
 class CreateHymnPage extends StatefulWidget {
   const CreateHymnPage({super.key});
@@ -14,15 +19,111 @@ class CreateHymnPage extends StatefulWidget {
 
 class CreateHymnPageState extends State<CreateHymnPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _versesController = TextEditingController();
-  final TextEditingController _bridgeController = TextEditingController();
-  final TextEditingController _hymnNumberController = TextEditingController();
-  final TextEditingController _hymnHintController = TextEditingController();
-  final ColorController colorController = Get.find<ColorController>();
+  final _hymnNumberController = TextEditingController();
+  final _titleController = TextEditingController();
+  final _bridgeController = TextEditingController();
+  final _hymnHintController = TextEditingController();
+  final List<TextEditingController> _verseControllers = [TextEditingController()];
+  final _debouncer = Debouncer(milliseconds: 500);
 
-  List<TextEditingController> _verseControllers = [];
-  final HymnController _hymnController = HymnController();
+  @override
+  void dispose() {
+    // Dispose all controllers
+    _hymnNumberController.dispose();
+    _titleController.dispose();
+    _bridgeController.dispose();
+    _hymnHintController.dispose();
+    for (var controller in _verseControllers) {
+      controller.dispose();
+    }
+    _debouncer.dispose();
+    super.dispose();
+  }
+
+  void _clearForm() {
+    // Clear without using disposed controllers
+    if (!mounted) return;
+    
+    setState(() {
+      _hymnNumberController.text = '';
+      _titleController.text = '';
+      for (var controller in _verseControllers) {
+        controller.text = '';
+      }
+      // Keep only one verse field
+      while (_verseControllers.length > 1) {
+        _verseControllers.removeLast();
+      }
+      _bridgeController.text = '';
+      _hymnHintController.text = '';
+    });
+  }
+
+  Future<void> _createHymn() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      // Show loading indicator
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Create Hymn object
+      final hymn = Hymn(
+        id: '',  // This will be set by Firestore
+        hymnNumber: _hymnNumberController.text.trim(),
+        title: _titleController.text.trim(),
+        verses: _verseControllers
+            .map((controller) => controller.text.trim())
+            .where((text) => text.isNotEmpty)
+            .toList(),
+        bridge: _bridgeController.text.trim(),
+        hymnHint: _hymnHintController.text.trim(),
+        createdAt: DateTime.now(),
+        createdBy: '',  // This will be set by the service
+        createdByEmail: '',  // This will be set by the service
+      );
+
+      // Use HymnService directly
+      final success = await Get.find<HymnService>().addHymn(hymn);
+
+      // Hide loading indicator
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      if (success) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Voasoratra soa aman-tsara ny hira',
+              style: TextStyle(color: Get.find<ColorController>().textColor.value),
+            ),
+            backgroundColor: Get.find<ColorController>().backgroundColor.value,
+          ),
+        );
+        _clearForm();
+        Navigator.of(context).pop();
+      }
+    } catch (error) {
+      // Hide loading indicator if still showing
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Nisy olana fa ialana tsiny: $error',
+            style: TextStyle(color: Get.find<ColorController>().textColor.value),
+          ),
+          backgroundColor: Get.find<ColorController>().backgroundColor.value,
+        ),
+      );
+    }
+  }
 
   Widget _buildTextField({
     required TextEditingController controller,
@@ -36,26 +137,26 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
-      style: TextStyle(color: colorController.textColor.value),
+      style: TextStyle(color: Get.find<ColorController>().textColor.value),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: colorController.textColor.value),
+        labelStyle: TextStyle(color: Get.find<ColorController>().textColor.value),
         prefixIcon: icon != null
-            ? Icon(icon, color: colorController.iconColor.value)
+            ? Icon(icon, color: Get.find<ColorController>().iconColor.value)
             : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: colorController.textColor.value),
+          borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: colorController.textColor.value),
+          borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: colorController.primaryColor.value),
+          borderSide: BorderSide(color: Get.find<ColorController>().primaryColor.value),
         ),
-        fillColor: colorController.backgroundColor.value.withOpacity(0.1),
+        fillColor: Get.find<ColorController>().backgroundColor.value.withOpacity(0.1),
         filled: true,
       ),
       validator: validator,
@@ -65,7 +166,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   Widget _buildVerseField(int index) {
     return Card(
       key: ValueKey(index),
-      color: colorController.backgroundColor.value,
+      color: Get.find<ColorController>().backgroundColor.value,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Row(
@@ -74,26 +175,29 @@ class CreateHymnPageState extends State<CreateHymnPage> {
               child: TextFormField(
                 controller: _verseControllers[index],
                 maxLines: null,
-                style: TextStyle(color: colorController.textColor.value),
+                style: TextStyle(color: Get.find<ColorController>().textColor.value),
                 decoration: InputDecoration(
                   labelText: 'Andininy ${index + 1}',
-                  labelStyle: TextStyle(color: colorController.textColor.value),
+                  labelStyle: TextStyle(color: Get.find<ColorController>().textColor.value),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide:
-                        BorderSide(color: colorController.textColor.value),
+                    borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide:
-                        BorderSide(color: colorController.textColor.value),
+                    borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide:
-                        BorderSide(color: colorController.primaryColor.value),
+                    borderSide: BorderSide(color: Get.find<ColorController>().primaryColor.value),
                   ),
                 ),
+                onChanged: (value) {
+                  // Debounce text changes to reduce rebuilds
+                  _debouncer.run(() {
+                    setState(() {});
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Soraty ny andininy';
@@ -102,8 +206,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 },
               ),
             ),
+            const SizedBox(width: 8),
             IconButton(
-              icon: Icon(Icons.delete, color: colorController.iconColor.value),
+              icon: Icon(Icons.delete, color: Get.find<ColorController>().iconColor.value),
               onPressed: () {
                 setState(() {
                   _verseControllers[index].dispose();
@@ -113,8 +218,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
             ),
             ReorderableDragStartListener(
               index: index,
-              child: Icon(Icons.drag_handle,
-                  color: colorController.iconColor.value),
+              child: Icon(Icons.drag_handle, color: Get.find<ColorController>().iconColor.value),
             ),
           ],
         ),
@@ -123,40 +227,21 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    _verseControllers.add(TextEditingController());
-  }
-
-  @override
-  void dispose() {
-    _hymnNumberController.dispose();
-    _titleController.dispose();
-    _versesController.dispose();
-    _bridgeController.dispose();
-    _hymnHintController.dispose();
-    for (var controller in _verseControllers) {
-      controller.dispose();
-    }
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
     final user = FirebaseAuth.instance.currentUser;
     if (!authController.isAdmin && !authController.canAddSongs) {
       return Scaffold(
-        backgroundColor: colorController.backgroundColor.value,
+        backgroundColor: Get.find<ColorController>().backgroundColor.value,
         appBar: AppBar(
-          backgroundColor: colorController.primaryColor.value,
+          backgroundColor: Get.find<ColorController>().primaryColor.value,
           title: Text(
             'Hamorona hira',
-            style: TextStyle(color: colorController.textColor.value),
+            style: TextStyle(color: Get.find<ColorController>().textColor.value),
           ),
           leading: IconButton(
             icon:
-                Icon(Icons.arrow_back, color: colorController.iconColor.value),
+                Icon(Icons.arrow_back, color: Get.find<ColorController>().iconColor.value),
             onPressed: () => Get.back(),
           ),
         ),
@@ -165,7 +250,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
             'Salama ${user?.email},\nNoho ny antony manokana dia tsy mbolo mahazo alalana hamorona hira ianao.'
             '\nMahandrasa kely azafady.'
             '\nNa Antsoy ny admin (manassé) hanome alalana.',
-            style: TextStyle(color: colorController.textColor.value),
+            style: TextStyle(color: Get.find<ColorController>().textColor.value),
             textAlign: TextAlign.center,
           ),
         ),
@@ -330,63 +415,26 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       ),
     );
   }
+}
 
-  Future<void> _createHymn() async {
-    try {
-      final hymnNumber =
-          int.parse(_hymnNumberController.text.trim()).toString();
-      final title = _titleController.text.trim();
-      final verses = _verseControllers
-          .map((controller) => controller.text.trim())
-          .toList();
-      final bridge = _bridgeController.text.isNotEmpty
-          ? _bridgeController.text.trim()
-          : null;
-      final hymnHint = _hymnHintController.text.isNotEmpty
-          ? _hymnHintController.text.trim()
-          : null;
+// Add back the Timer-based Debouncer with proper dispose
+class Debouncer {
+  final int milliseconds;
+  Timer? _timer;
+  bool _isDisposed = false;
 
-      if (await _hymnController.createHymn(
-          hymnNumber, title, verses, bridge, hymnHint)) {
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Voasoratra soa aman-tsara ny hira',
-              style: TextStyle(color: colorController.textColor.value),
-            ),
-            backgroundColor: colorController.backgroundColor.value,
-          ),
-        );
+  Debouncer({required this.milliseconds});
 
-        // Clear controllers and reset state after successful creation
-        _hymnNumberController.clear();
-        _titleController.clear();
-        for (var controller in _verseControllers) {
-          controller.clear();
-        }
-        _bridgeController.clear();
-        _hymnHintController.clear();
+  void run(VoidCallback action) {
+    if (_isDisposed) return;
+    
+    _timer?.cancel();
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
 
-        setState(() {
-          _verseControllers = [TextEditingController()];
-        });
-
-        // Navigate back
-        Navigator.pop(context);
-      }
-    } catch (error) {
-      // Handle errors with themed colors
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Nisy olana fa ialana tsiny: $error',
-            style: TextStyle(color: colorController.textColor.value),
-          ),
-          backgroundColor: colorController.backgroundColor.value,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+  void dispose() {
+    _isDisposed = true;
+    _timer?.cancel();
+    _timer = null;
   }
 }

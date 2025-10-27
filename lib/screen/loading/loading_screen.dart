@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../../controller/color_controller.dart';
 import '../../services/download_manager.dart';
 import '../../services/local_storage_service.dart';
 import '../accueil/home_screen.dart';
@@ -89,7 +90,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
           children: [
             // Loading animation
             LoadingAnimationWidget.staggeredDotsWave(
-              color: Theme.of(context).colorScheme.primary,
+              color: Get.find<ColorController>().primaryColor.value,
               size: 60,
             ),
             const SizedBox(height: 30),
@@ -122,7 +123,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
               Column(
                 children: [
                   Text(
-                    'Mijery hira vaovao...',
+                    'Jesosy famonjena Fahamarinantsika',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 20),

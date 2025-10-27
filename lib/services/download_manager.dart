@@ -79,8 +79,8 @@ class DownloadManager {
         await _storageService.setLastUpdate(DateTime.now());
 
         await _showNotification(
-          'Download Complete',
-          '${hymns.length} hymns have been downloaded successfully',
+          'Hira tafiditra',
+          '${hymns.length}',
         );
       } else {
         throw Exception('No hymns were successfully processed');
@@ -91,8 +91,8 @@ class DownloadManager {
         onError(e.toString());
       }
       await _showNotification(
-        'Download Failed',
-        'Failed to download hymns: ${e.toString()}',
+        'Nisy olana',
+        'Asio connection internet ny finday',
       );
       rethrow; // Rethrow to handle in UI
     }

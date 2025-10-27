@@ -271,7 +271,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       color: _colorController.iconColor.value,
                     ),
                     title: Text(
-                      'Hira tiako',
+                      'Hira tiana',
                       style: TextStyle(
                         color: _colorController.textColor.value,
                       ),
@@ -284,7 +284,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       color: _colorController.iconColor.value,
                     ),
                     title: Text(
-                      'Tantara',
+                      'Tantaran-kira',
                       style: TextStyle(
                         color: _colorController.textColor.value,
                       ),
@@ -297,7 +297,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       color: _colorController.iconColor.value,
                     ),
                     title: Text(
-                      'Loko',
+                      'Hanova loko',
                       style: TextStyle(
                         color: _colorController.textColor.value,
                       ),
@@ -316,7 +316,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       color: _colorController.iconColor.value,
                     ),
                     title: Text(
-                      "Endrikan'ny soratra",
+                      "Endrikin'ny soratra",
                       style: TextStyle(
                         color: _colorController.textColor.value,
                       ),

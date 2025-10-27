@@ -13,42 +13,52 @@ class AuthController extends GetxController {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final Rx<bool> _canAddSongs = false.obs;
+  final Rx<bool> _isAdmin = false.obs;
 
   bool get canAddSongs => _canAddSongs.value;
-
-  bool get isAdmin {
-    final user = FirebaseAuth.instance.currentUser;
-    return user?.email == 'manassehrandriamitsiry@gmail.com';
-  }
+  bool get isAdmin => _isAdmin.value;
 
   @override
   void onInit() {
     super.onInit();
-    _initAuthListener();
-    _initUserPermissions();
-  }
-
-  void _initAuthListener() {
-    _auth.authStateChanges().listen((User? user) {
+    // Listen to auth state changes
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
-        _createOrUpdateUserDocument(user);
+        _updateUserPermissions(user);
+      } else {
+        _canAddSongs.value = false;
+        _isAdmin.value = false;
       }
     });
   }
 
-  void _initUserPermissions() {
-    final user = _auth.currentUser;
-    if (user != null) {
-      // Listen to user permission changes
-      _firestore
+  Future<void> _updateUserPermissions(User user) async {
+    // Check if user is admin
+    if (user.email == 'manassehrandriamitsiry@gmail.com') {
+      _isAdmin.value = true;
+      _canAddSongs.value = true;
+      return;
+    }
+
+    // Check user permissions in Firestore
+    try {
+      final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .snapshots()
-          .listen((snapshot) {
-        if (snapshot.exists) {
-          _canAddSongs.value = snapshot.data()?['canAddSongs'] ?? false;
-        }
-      });
+          .get();
+      
+      _canAddSongs.value = userDoc.exists && (userDoc.data()?['canAddSongs'] ?? false);
+    } catch (e) {
+      print('Error updating permissions: $e');
+      _canAddSongs.value = false;
+    }
+  }
+
+  // Call this method after login or when permissions might have changed
+  Future<void> refreshPermissions() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      await _updateUserPermissions(user);
     }
   }
 
