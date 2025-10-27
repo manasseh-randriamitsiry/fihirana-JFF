@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../models/hymn.dart';
 import '../services/hymn_service.dart';
@@ -28,7 +27,6 @@ class HymnController extends GetxController {
   void onInit() {
     super.onInit();
     _initFavoriteStatusStream();
-    _hymnService.checkPendingSyncs();
   }
 
   Stream<Map<String, String>> getFavoriteStatusStream() {
@@ -43,14 +41,15 @@ class HymnController extends GetxController {
     await _hymnService.deleteHymn(hymn.id);
   }
 
-  Stream<QuerySnapshot> get hymnsStream => _hymnService.getHymnsStream();
+  // Get stream of all hymns
+  Stream<List<Hymn>> get hymnsStream => _hymnService.getHymnsStream();
 
-  List<Hymn> filterHymnList(List<DocumentSnapshot> docs) {
-    List<Hymn> hymns = docs
-        .map((doc) =>
-            Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>))
-        .toList();
+  // Search hymns
+  Future<List<Hymn>> searchHymns(String query) async {
+    return await _hymnService.searchHymns(query);
+  }
 
+  List<Hymn> filterHymnList(List<Hymn> hymns) {
     hymns.sort((a, b) {
       // Extract numeric parts from hymn numbers
       String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');

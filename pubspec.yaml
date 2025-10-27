@@ -45,9 +45,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   loading_animation_widget: ^1.2.0+4
+  intl: ^0.20.2
   flutter_phoenix: ^1.1.1
   awesome_notifications: ^0.10.1
-  intl: ^0.20.2
   syncfusion_flutter_sliders: ^31.2.3
 
 dev_dependencies:
@@ -63,6 +63,7 @@ flutter:
     # Add assets from the images directory to the application.
     - assets/images/
     - assets/fonts/
+    - assets/json/
 
 flutter_launcher_icons:
   image_path_android: "assets/images/icon.png"
