@@ -4,13 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/hymn.dart';
 import '../models/favorite.dart';
 import '../utility/snackbar_utility.dart';
+import '../services/firebase_sync_service.dart'; // Add Firebase sync service
 import 'local_hymn_service.dart';
 
 class HymnService {
   final LocalHymnService _localHymnService = LocalHymnService();
+  final FirebaseSyncService _firebaseSyncService = FirebaseSyncService(); // Add Firebase sync service
+  final FirebaseAuth _auth = FirebaseAuth.instance; // Add FirebaseAuth
 
   // Get stream of hymns sorted by hymn number (using local service)
   Stream<List<Hymn>> getHymnsStream() async* {
@@ -92,13 +96,12 @@ class HymnService {
   }
 
   Future<void> syncLocalFavoritesToFirebase() async {
-    // This functionality is not needed with local files
-    // But we keep it for compatibility
+    await _firebaseSyncService.syncFavoritesToFirebase();
   }
 
   Future<void> checkPendingSyncs() async {
-    // This functionality is not needed with local files
-    // But we keep it for compatibility
+    await _firebaseSyncService.syncFavoritesToFirebase();
+    await _firebaseSyncService.syncHistoryToFirebase();
   }
 
   // Single shared stream controller for favorite status
@@ -107,6 +110,20 @@ class HymnService {
 
   HymnService() {
     _initFavoriteStream();
+    // Listen to auth state changes to sync data when user logs in
+    _auth.authStateChanges().listen((User? user) {
+      if (user != null) {
+        // User logged in, sync data
+        checkPendingSyncs();
+        // Refresh favorite status
+        _updateFavoriteStatus();
+      } else {
+        // User logged out, reset sync status
+        _firebaseSyncService.resetSyncStatus();
+        // Refresh favorite status
+        _updateFavoriteStatus();
+      }
+    });
   }
 
   void _initFavoriteStream() {
@@ -122,6 +139,15 @@ class HymnService {
       // Add local favorites
       for (var hymnId in localFavorites) {
         statuses[hymnId] = 'local';
+      }
+
+      // If user is authenticated, also load Firebase favorites
+      final user = _auth.currentUser;
+      if (user != null) {
+        final firebaseFavorites = await _firebaseSyncService.loadFavoritesFromFirebase();
+        for (var hymnId in firebaseFavorites) {
+          statuses[hymnId] = 'firebase';
+        }
       }
 
       _favoritesController.add(statuses);
@@ -158,15 +184,29 @@ class HymnService {
   Future<void> toggleFavorite(Hymn hymn) async {
     try {
       final localFavorites = await getLocalFavorites();
+      final user = _auth.currentUser;
+      bool isCurrentlyFavorite = localFavorites.contains(hymn.id);
 
-      // Toggle local only
-      if (localFavorites.contains(hymn.id)) {
+      if (isCurrentlyFavorite) {
+        // Remove from favorites
         localFavorites.remove(hymn.id);
+        await saveLocalFavorites(localFavorites);
+        
+        // Remove from Firebase if user is authenticated
+        if (user != null) {
+          await _firebaseSyncService.removeFavoriteFromFirebase(hymn.id);
+        }
       } else {
+        // Add to favorites
         localFavorites.add(hymn.id);
+        await saveLocalFavorites(localFavorites);
+        
+        // Add to Firebase if user is authenticated
+        if (user != null) {
+          await _firebaseSyncService.addFavoriteToFirebase(hymn.id);
+        }
       }
-      await saveLocalFavorites(localFavorites);
-
+      
       // Update status after changes
       await _updateFavoriteStatus();
     } catch (e) {
@@ -181,6 +221,19 @@ class HymnService {
 
   Future<bool> isHymnFavorite(String hymnId) async {
     final localFavorites = await getLocalFavorites();
-    return localFavorites.contains(hymnId);
+    final user = _auth.currentUser;
+    
+    // Check local favorites first
+    if (localFavorites.contains(hymnId)) {
+      return true;
+    }
+    
+    // If user is authenticated, also check Firebase
+    if (user != null) {
+      final firebaseFavorites = await _firebaseSyncService.loadFavoritesFromFirebase();
+      return firebaseFavorites.contains(hymnId);
+    }
+    
+    return false;
   }
 }

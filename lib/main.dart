@@ -19,6 +19,7 @@ import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
 import 'package:in_app_update/in_app_update.dart'; // Added import for in_app_update
 import 'widgets/update_dialog.dart'; // Import the update dialog
+import 'services/firebase_sync_service.dart'; // Add Firebase sync service
 
 Future<void> initializeNotifications() async {
   await AwesomeNotifications().initialize(
@@ -87,6 +88,7 @@ Future<void> main() async {
   Get.put(FontController());
   Get.lazyPut(() => HymnService());
   Get.put(BackgroundService());
+  Get.put(FirebaseSyncService()); // Initialize Firebase sync service
 
   // Initialize theme from preferences
   themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;

@@ -3,10 +3,12 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../services/firebase_sync_service.dart'; // Add Firebase sync service
 
 class HistoryController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseSyncService _firebaseSyncService = FirebaseSyncService(); // Add Firebase sync service
   
   // Observable list of user's hymn history
   final RxList<Map<String, dynamic>> userHistory = <Map<String, dynamic>>[].obs;
@@ -54,9 +56,9 @@ class HistoryController extends GetxController {
         final batch = _firestore.batch();
         for (String id in selectedItems) {
           final docRef = _firestore
-              .collection('user_history')
+              .collection('users') // Changed from 'user_history' to 'users'
               .doc(user.uid)
-              .collection('hymns')
+              .collection('history')
               .doc(id);
           batch.delete(docRef);
         }
@@ -107,21 +109,10 @@ class HistoryController extends GetxController {
       
       if (user != null) {
         print('Loading from Firestore...');
-        final snapshot = await _firestore
-            .collection('user_history')
-            .doc(user.uid)
-            .collection('hymns')
-            .orderBy('timestamp', descending: true)
-            .get();
-
-        print('Firestore documents count: ${snapshot.docs.length}');
-        userHistory.value = snapshot.docs
-            .map((doc) => {
-                  ...doc.data(),
-                  'id': doc.id,
-                  'timestamp': (doc.data()['timestamp'] as Timestamp).toDate(),
-                })
-            .toList();
+        // Load from Firebase
+        final firebaseHistory = await _firebaseSyncService.loadHistoryFromFirebase();
+        userHistory.value = firebaseHistory;
+        print('Firestore documents count: ${firebaseHistory.length}');
       } else {
         print('Loading from local storage...');
         final prefs = await SharedPreferences.getInstance();
@@ -159,14 +150,10 @@ class HistoryController extends GetxController {
 
       if (user != null) {
         print('Saving to Firestore...');
-        await _firestore
-            .collection('user_history')
-            .doc(user.uid)
-            .collection('hymns')
-            .add({
-          ...historyEntry,
-          'timestamp': FieldValue.serverTimestamp(),
-        });
+        // Save to Firebase
+        await _firebaseSyncService.addHistoryToFirebase(hymnId, title, number);
+        // Reload history to reflect changes
+        await loadUserHistory();
         print('Saved to Firestore');
       } else {
         print('Saving to local storage...');
@@ -204,15 +191,7 @@ class HistoryController extends GetxController {
       final user = _auth.currentUser;
       if (user != null) {
         // Clear Firestore history for authenticated users
-        final snapshot = await _firestore
-            .collection('user_history')
-            .doc(user.uid)
-            .collection('hymns')
-            .get();
-
-        for (var doc in snapshot.docs) {
-          await doc.reference.delete();
-        }
+        await _firebaseSyncService.clearHistoryFromFirebase();
       } else {
         // Clear local storage history for unauthenticated users
         final prefs = await SharedPreferences.getInstance();
@@ -220,8 +199,21 @@ class HistoryController extends GetxController {
       }
       
       userHistory.clear();
+      
+      Get.snackbar(
+        'Vita!',
+        'Voafafa ny tantara',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 2),
+      );
     } catch (e) {
       print('Error clearing history: $e');
+      Get.snackbar(
+        'Nisy olana',
+        'Tsy afaka mamafa ny tantara: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: Duration(seconds: 3),
+      );
     }
   }
 }

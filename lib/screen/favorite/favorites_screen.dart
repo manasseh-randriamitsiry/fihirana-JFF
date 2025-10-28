@@ -18,6 +18,7 @@ class FavoritesPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         centerTitle: true,
         title: Text('Tiana', style: TextStyle(color: textColor)),
       ),

@@ -166,7 +166,8 @@ class _AboutScreenState extends State<AboutScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('?'),
+        backgroundColor: Colors.transparent,
+        title: Text('?', style: TextStyle(color: textColor)),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -270,10 +271,10 @@ class _AboutScreenState extends State<AboutScreen> {
                     : const Icon(Icons.system_update),
                   label: Text(_checkingForUpdates 
                     ? 'Mijery rindrambaiko...' 
-                    : 'Jereo rindrambaiko'),
+                    : 'Jereo rindrambaiko',),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(250, 45),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.yellow,
                   ),
                 ),
                 
