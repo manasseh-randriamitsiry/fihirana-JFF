@@ -50,7 +50,7 @@ class Hymn {
 
     return Hymn(
       id: id,
-      hymnNumber: json['hymnNumber'].toString(),
+      hymnNumber: (json['hymnNumber'] ?? json['number']).toString(),
       title: json['title'].toString(),
       verses: verses,
       bridge: json['bridge']?.toString(),
