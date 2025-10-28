@@ -1,16 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/hymn.dart';
-
-extension FirstWhereOrNullExtension<E> on Iterable<E> {
-  E? firstWhereOrNull(bool Function(E) test) {
-    for (E element in this) {
-      if (test(element)) return element;
-    }
-    return null;
-  }
-}
-
+import 'package:collection/collection.dart';
 class LocalHymnService {
   static final LocalHymnService _instance = LocalHymnService._internal();
   factory LocalHymnService() => _instance;
