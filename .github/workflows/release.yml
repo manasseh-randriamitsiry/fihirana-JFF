@@ -13,24 +13,53 @@ jobs:
   build:
     name: Create Release
     runs-on: ubuntu-latest
+
     steps:
+      # ----------------------
+      # Checkout code
+      # ----------------------
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      # ----------------------
+      # Set up Java (for Android build)
+      # ----------------------
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '17'
 
+      # ----------------------
+      # Cache Gradle dependencies
+      # ----------------------
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      # ----------------------
+      # Set up Flutter
+      # ----------------------
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
 
+      # ----------------------
+      # Check Flutter version
+      # ----------------------
+      - name: Flutter version
+        run: flutter --version
+
+      # ----------------------
+      # Install dependencies
+      # ----------------------
       - name: Get dependencies
         run: flutter pub get
 
@@ -48,22 +77,51 @@ jobs:
       # ----------------------
       - name: Setup Keystore
         run: |
+          echo "Setting up Keystore..."
           python -c "import base64; open('android/app/fihirana.jks','wb').write(base64.b64decode('${{ secrets.KEYSTORE_BASE64 }}'))"
           if [ ! -f "android/app/fihirana.jks" ]; then
-            echo "Keystore file was not created"
+            echo '❌ Keystore file was not created'
             exit 1
           fi
+          echo "✅ Keystore created successfully"
           ls -l android/app/fihirana.jks
 
       # ----------------------
-      # Setup Google Services JSON
+      # Setup Google Services JSON (Firebase)
       # ----------------------
       - name: Setup Google Services JSON
+        shell: bash
         run: |
-          python -c "import base64; open('android/app/google-services.json','wb').write(base64.b64decode('${{ secrets.GOOGLE_JSON_BASE64 }}'))"
-          mkdir -p android/app/src/release
+          echo "Decoding google-services.json..."
+          mkdir -p android/app android/app/src/release
+
+          # Decode the base64 secret safely into both paths
+          echo "${{ secrets.GOOGLE_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
           cp android/app/google-services.json android/app/src/release/google-services.json
-      
+
+          echo "✅ google-services.json created:"
+          ls -l android/app/google-services.json
+          ls -l android/app/src/release/google-services.json
+
+          echo "Contents (truncated):"
+          head -n 5 android/app/google-services.json
+
+      # ----------------------
+      # Verify google-services.json presence
+      # ----------------------
+      - name: Verify google-services.json before build
+        run: |
+          echo "Verifying google-services.json before build..."
+          find android/app -name "google-services.json" -print
+          if [ ! -f "android/app/google-services.json" ]; then
+            echo "❌ google-services.json not found in android/app"
+            exit 1
+          fi
+          if [ ! -f "android/app/src/release/google-services.json" ]; then
+            echo "❌ google-services.json not found in android/app/src/release"
+            exit 1
+          fi
+          echo "✅ google-services.json verified"
 
       # ----------------------
       # Generate Changelog
@@ -81,9 +139,10 @@ jobs:
           cat CHANGELOG.md
 
       # ----------------------
-      # Build Flutter APK
+      # Build Flutter APKs
       # ----------------------
       - name: Build APKs
+        working-directory: .
         run: flutter build apk --release --split-per-abi
 
       # ----------------------
@@ -94,11 +153,11 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: build/app/outputs/flutter-apk/*.apk
-          token: ${{ secrets.GITHUB_TOKEN  }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           name: Release ${{ github.ref_name }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
           generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
