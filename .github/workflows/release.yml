@@ -38,6 +38,12 @@ jobs:
         run: flutter config --no-analytics
 
       # ----------------------
+      # Generate App Icons
+      # ----------------------
+      - name: Generate App Icons
+        run: flutter pub run flutter_launcher_icons:main
+
+      # ----------------------
       # Setup Keystore
       # ----------------------
       - name: Setup Keystore

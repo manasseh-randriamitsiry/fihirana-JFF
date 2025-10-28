@@ -1,8 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:fihirana/services/version_check_service.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
+
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
+  String _appVersion = '1.0.0';
+  bool _checkingForUpdates = false;
+  bool _updateAvailable = false;
+  bool _flexibleUpdateDownloaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _getAppVersion();
+    
+    // Set callbacks for update availability and flexible update completion
+    VersionCheckService.setOnUpdateAvailableCallback(() {
+      if (mounted) {
+        setState(() {
+          _updateAvailable = true;
+        });
+      }
+    });
+    
+    VersionCheckService.setOnFlexibleUpdateDownloadedCallback(() {
+      if (mounted) {
+        setState(() {
+          _flexibleUpdateDownloaded = true;
+        });
+      }
+    });
+  }
+
+  Future<void> _getAppVersion() async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      _appVersion = packageInfo.version;
+    });
+  }
 
   Future<void> _launchURL(String url) async {
     final Uri uri = Uri.parse(url);
@@ -26,6 +68,95 @@ class AboutScreen extends StatelessWidget {
       query: 'subject=Contact from Hymns App&body=Hello,',
     );
     await launchUrl(launchUri);
+  }
+
+  Future<void> _checkForUpdates() async {
+    setState(() {
+      _checkingForUpdates = true;
+    });
+
+    try {
+      // Check for updates using the VersionCheckService
+      final updateAvailable = await VersionCheckService.checkForUpdateManually();
+      
+      if (mounted) {
+        setState(() {
+          _updateAvailable = updateAvailable;
+          _checkingForUpdates = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _checkingForUpdates = false;
+        });
+        
+        // Show error message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tsy afaka mijery rindrambaiko'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _downloadAndInstallUpdate() async {
+    try {
+      // Check if flexible update is already downloaded
+      if (VersionCheckService.isFlexibleUpdateAvailable()) {
+        // Complete the flexible update
+        await VersionCheckService.completeFlexibleUpdate();
+      } else {
+        // Start a flexible update
+        setState(() {
+          _checkingForUpdates = true;
+        });
+        
+        await VersionCheckService.triggerFlexibleUpdate();
+        
+        if (mounted) {
+          setState(() {
+            _checkingForUpdates = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _checkingForUpdates = false;
+        });
+        
+        // Show error message
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tsy afaka mandefa ny fakàna'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _performImmediateUpdate() async {
+    try {
+      await VersionCheckService.triggerImmediateUpdate();
+    } catch (e) {
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Tsy afaka mandefa ny fanavaozana'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -121,6 +252,68 @@ class AboutScreen extends StatelessWidget {
                     backgroundColor: Colors.green,
                   ),
                 ),
+                
+                const SizedBox(height: 20),
+                
+                // Update Check Button
+                ElevatedButton.icon(
+                  onPressed: _checkingForUpdates ? null : _checkForUpdates,
+                  icon: _checkingForUpdates 
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : const Icon(Icons.system_update),
+                  label: Text(_checkingForUpdates 
+                    ? 'Mijery rindrambaiko...' 
+                    : 'Jereo rindrambaiko'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(250, 45),
+                    backgroundColor: Colors.blue,
+                  ),
+                ),
+                
+                const SizedBox(height: 10),
+                
+                // Download and Install Update Button (only shown when update is available)
+                if (_updateAvailable) ...[
+                  ElevatedButton.icon(
+                    onPressed: _checkingForUpdates ? null : _downloadAndInstallUpdate,
+                    icon: _checkingForUpdates 
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      : const Icon(Icons.download),
+                    label: Text(_flexibleUpdateDownloaded 
+                      ? 'Apetraho ny vaovao' 
+                      : (_checkingForUpdates ? 'Mandefa fakàna...' : 'Fakàna & Apetraho')),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(250, 45),
+                      backgroundColor: Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  
+                  // Immediate Update Button
+                  ElevatedButton.icon(
+                    onPressed: _checkingForUpdates ? null : _performImmediateUpdate,
+                    icon: const Icon(Icons.update),
+                    label: const Text('Vaovao haingana'),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(250, 45),
+                      backgroundColor: Colors.red,
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: 20),
                 Text(
@@ -130,7 +323,7 @@ class AboutScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'App version : 1.0.0',
+                  'App version : $_appVersion',
                   style: TextStyle(color: textColor),
                 ),
               ],

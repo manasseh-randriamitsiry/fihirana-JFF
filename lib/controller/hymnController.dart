@@ -19,7 +19,7 @@ class HymnController extends GetxController {
     // Since we've disabled Firestore, we can no longer add hymns
     // This functionality is not available with local files only
     Get.snackbar(
-      'Tsy misy alalana',
+      'Tsy mananana alalana',
       'Tsy afaka manampy hira amin\'izao fotoana izao',
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.red,

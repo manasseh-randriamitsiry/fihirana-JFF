@@ -17,7 +17,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
-
+import 'package:in_app_update/in_app_update.dart'; // Added import for in_app_update
+import 'widgets/update_dialog.dart'; // Import the update dialog
 
 Future<void> initializeNotifications() async {
   await AwesomeNotifications().initialize(
@@ -119,7 +120,7 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late final FontController fontController;
   late final ColorController colorController;
   late final ThemeController themeController;
@@ -127,6 +128,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     // Get existing controller instances
     colorController = Get.find<ColorController>();
@@ -138,6 +140,21 @@ class _MyAppState extends State<MyApp> {
       await VersionCheckService.initializeNotifications();
       await VersionCheckService.checkForUpdate();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Check if flexible update is available when app resumes
+    if (state == AppLifecycleState.resumed) {
+      // The app has resumed, check if we need to complete a flexible update
+      // This would be handled by the VersionCheckService
+    }
   }
 
   ThemeData _getThemeWithFont(ThemeData baseTheme, String fontFamily) {

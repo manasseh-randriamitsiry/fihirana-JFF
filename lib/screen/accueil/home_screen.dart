@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/theme_controller.dart';
 import '../../widgets/drawer_widget.dart';
+import '../../widgets/update_checker_widget.dart'; // Import update checker widget
 import 'accueil_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -68,20 +69,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => ZoomDrawer(
-          controller: zoomDrawerController,
-          style: DrawerStyle.defaultStyle,
-          menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
-          mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
-          borderRadius: 24.0,
-          showShadow: true,
-          angle: -12.0,
-          menuBackgroundColor: _colorController.drawerColor.value,
-          slideWidth: MediaQuery.of(context).size.width * 0.85,
-          mainScreenTapClose: true,
-          openCurve: Curves.fastOutSlowIn,
-          closeCurve: Curves.bounceIn,
-        ));
+    return UpdateCheckerWidget(
+      child: Obx(() => ZoomDrawer(
+            controller: zoomDrawerController,
+            style: DrawerStyle.defaultStyle,
+            menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
+            mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
+            borderRadius: 24.0,
+            showShadow: true,
+            angle: -12.0,
+            menuBackgroundColor: _colorController.drawerColor.value,
+            slideWidth: MediaQuery.of(context).size.width * 0.85,
+            mainScreenTapClose: true,
+            openCurve: Curves.fastOutSlowIn,
+            closeCurve: Curves.bounceIn,
+          )),
+    );
   }
 }
 

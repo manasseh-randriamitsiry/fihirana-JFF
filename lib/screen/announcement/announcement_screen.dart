@@ -20,6 +20,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
+  DateTime? _selectedExpirationDate; // New field for expiration date
 
   bool isAdmin() {
     final user = FirebaseAuth.instance.currentUser;
@@ -27,6 +28,10 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   }
 
   void _showCreateAnnouncementDialog() {
+    _titleController.clear();
+    _messageController.clear();
+    _selectedExpirationDate = null; // Reset expiration date
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -55,6 +60,25 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
               style: TextStyle(color: colorController.textColor.value),
               maxLines: 3,
             ),
+            const SizedBox(height: 10),
+            // Expiration date picker
+            ListTile(
+              title: Text(
+                'Daty farany isehoany',
+                style: TextStyle(color: colorController.textColor.value),
+              ),
+              subtitle: Text(
+                _selectedExpirationDate != null
+                    ? DateFormat('dd/MM/yyyy').format(_selectedExpirationDate!)
+                    : 'Tsy misy daty',
+                style: TextStyle(color: colorController.textColor.value.withOpacity(0.7)),
+              ),
+              trailing: Icon(
+                Icons.calendar_today,
+                color: colorController.iconColor.value,
+              ),
+              onTap: () => _selectExpirationDate(context),
+            ),
           ],
         ),
         actions: [
@@ -70,9 +94,11 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
               _announcementService.createAnnouncement(
                 _titleController.text,
                 _messageController.text,
+                expiresAt: _selectedExpirationDate,
               );
               _titleController.clear();
               _messageController.clear();
+              _selectedExpirationDate = null;
               Navigator.pop(context);
             },
             child: Text(
@@ -88,6 +114,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   void _showEditAnnouncementDialog(Announcement announcement) {
     _titleController.text = announcement.title;
     _messageController.text = announcement.message;
+    _selectedExpirationDate = announcement.expiresAt; // Set existing expiration date
 
     showDialog(
       context: context,
@@ -117,6 +144,25 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
               style: TextStyle(color: colorController.textColor.value),
               maxLines: 3,
             ),
+            const SizedBox(height: 10),
+            // Expiration date picker
+            ListTile(
+              title: Text(
+                'Daty faran\'izay',
+                style: TextStyle(color: colorController.textColor.value),
+              ),
+              subtitle: Text(
+                _selectedExpirationDate != null
+                    ? DateFormat('dd/MM/yyyy').format(_selectedExpirationDate!)
+                    : 'Tsy misy daty faran\'izay',
+                style: TextStyle(color: colorController.textColor.value.withOpacity(0.7)),
+              ),
+              trailing: Icon(
+                Icons.calendar_today,
+                color: colorController.iconColor.value,
+              ),
+              onTap: () => _selectExpirationDate(context),
+            ),
           ],
         ),
         actions: [
@@ -133,9 +179,11 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                 announcement.id,
                 _titleController.text,
                 _messageController.text,
+                expiresAt: _selectedExpirationDate,
               );
               _titleController.clear();
               _messageController.clear();
+              _selectedExpirationDate = null;
               Navigator.pop(context);
             },
             child: Text(
@@ -146,6 +194,39 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
         ],
       ),
     );
+  }
+
+  // Method to select expiration date
+  Future<void> _selectExpirationDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedExpirationDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: colorController.primaryColor.value,
+              onPrimary: colorController.textColor.value,
+              onSurface: colorController.textColor.value,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: colorController.textColor.value,
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    
+    if (picked != null && mounted) {
+      setState(() {
+        _selectedExpirationDate = picked;
+      });
+    }
   }
 
   @override
@@ -221,7 +302,11 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final announcements = snapshot.data?.docs ?? [];
+          // Filter out expired announcements
+          final announcements = snapshot.data?.docs
+              .map((doc) => Announcement.fromFirestore(doc))
+              .where((announcement) => announcement.isActive())
+              .toList() ?? [];
 
           if (announcements.isEmpty) {
             return Center(
@@ -235,8 +320,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           return ListView.builder(
             itemCount: announcements.length,
             itemBuilder: (context, index) {
-              final announcement =
-                  Announcement.fromFirestore(announcements[index]);
+              final announcement = announcements[index];
               return Card(
                 color: colorController.primaryColor.value.withOpacity(0.5),
                 margin: const EdgeInsets.all(8),
@@ -256,6 +340,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                         style:
                             TextStyle(color: colorController.textColor.value),
                       ),
+                      const SizedBox(height: 4),
                       Text(
                         DateFormat('dd/MM/yyyy HH:mm')
                             .format(announcement.createdAt),
@@ -265,6 +350,19 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                           fontSize: 12,
                         ),
                       ),
+                      // Show expiration date if set
+                      if (announcement.expiresAt != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          'Mifarana ny: ${DateFormat('dd/MM/yyyy').format(announcement.expiresAt!)}',
+                          style: TextStyle(
+                            color: announcement.isExpired() 
+                                ? Colors.red 
+                                : colorController.textColor.value.withOpacity(0.7),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   trailing: isAdmin()

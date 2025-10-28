@@ -48,6 +48,7 @@ dependencies:
   flutter_phoenix: ^1.1.1
   awesome_notifications: ^0.10.1
   syncfusion_flutter_sliders: ^31.2.3
+  in_app_update: ^4.2.5
 
 dev_dependencies:
   flutter_test:

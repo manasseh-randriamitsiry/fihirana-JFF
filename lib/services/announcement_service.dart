@@ -52,6 +52,18 @@ class AnnouncementService {
           print('New announcement found: $id');
           final data = doc.data();
           
+          // Check if announcement has expired
+          final expiresAt = data['expiresAt'] as Timestamp?;
+          if (expiresAt != null) {
+            final expirationDate = expiresAt.toDate();
+            if (DateTime.now().isAfter(expirationDate)) {
+              print('Skipping expired announcement: $id');
+              // Mark expired announcements as seen so they don't show up again
+              await _markAnnouncementAsSeen(id);
+              continue;
+            }
+          }
+          
           final notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
           
           final created = await AwesomeNotifications().createNotification(
@@ -84,7 +96,7 @@ class AnnouncementService {
     }
   }
 
-  Future<void> createAnnouncement(String title, String message) async {
+  Future<void> createAnnouncement(String title, String message, {DateTime? expiresAt}) async {
     try {
       final user = _auth.currentUser;
       if (user?.email != 'manassehrandriamitsiry@gmail.com') {
@@ -100,6 +112,7 @@ class AnnouncementService {
         title: title,
         message: message,
         createdAt: DateTime.now(),
+        expiresAt: expiresAt, // Add expiration date
         createdBy: user?.displayName ?? 'Admin',
         createdByEmail: user?.email ?? '',
       );
@@ -134,7 +147,7 @@ class AnnouncementService {
     }
   }
 
-  Future<void> updateAnnouncement(String id, String title, String message) async {
+  Future<void> updateAnnouncement(String id, String title, String message, {DateTime? expiresAt}) async {
     try {
       final user = _auth.currentUser;
       if (user?.email != 'manassehrandriamitsiry@gmail.com') {
@@ -148,6 +161,7 @@ class AnnouncementService {
       await _firestore.collection('announcements').doc(id).update({
         'title': title,
         'message': message,
+        'expiresAt': expiresAt != null ? Timestamp.fromDate(expiresAt) : null,
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
@@ -175,4 +189,4 @@ class AnnouncementService {
     await prefs.remove(_lastSeenKey);
     print('Cleared seen announcements');
   }
-} 
+}

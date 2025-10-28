@@ -8,6 +8,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:in_app_update/in_app_update.dart'; // Added import for in_app_update
 import 'dart:io';
 
 class VersionCheckService {
@@ -20,6 +21,20 @@ class VersionCheckService {
   static String? _cachedDownloadUrl;
   static String? _cachedVersion;
   static String? _cachedReleaseNotes;
+  static AppUpdateInfo? _updateInfo; // Added to store update info
+  static bool _flexibleUpdateAvailable = false; // Track flexible update state
+  static VoidCallback? _onUpdateAvailable; // Callback for UI updates
+  static VoidCallback? _onFlexibleUpdateDownloaded; // Callback for flexible update completion
+
+  // Method to set update available callback
+  static void setOnUpdateAvailableCallback(VoidCallback callback) {
+    _onUpdateAvailable = callback;
+  }
+
+  // Method to set flexible update downloaded callback
+  static void setOnFlexibleUpdateDownloadedCallback(VoidCallback callback) {
+    _onFlexibleUpdateDownloaded = callback;
+  }
 
   static Future<void> initializeNotifications() async {
     await AwesomeNotifications().initialize(
@@ -52,7 +67,7 @@ class VersionCheckService {
   static void startPeriodicCheck() {
     _notificationTimer?.cancel();
     _notificationTimer = Timer.periodic(CHECK_INTERVAL, (timer) {
-      checkForUpdate();
+      checkForUpdate(); // This will now use in_app_update
     });
   }
 
@@ -61,9 +76,237 @@ class VersionCheckService {
     _notificationTimer = null;
   }
 
+  // Modified to use in_app_update package
   static Future<void> checkForUpdate() async {
     try {
-      print('🔍 Starting version check...');
+      print('🔍 Starting in-app update check...');
+      
+      // Check for update using in_app_update package
+      final updateInfo = await InAppUpdate.checkForUpdate();
+      _updateInfo = updateInfo;
+      
+      print('📱 Update availability: ${updateInfo.updateAvailability}');
+      print('📦 Available version code: ${updateInfo.availableVersionCode}');
+      print('🔄 Update priority: ${updateInfo.updatePriority}');
+      // Removed incorrect property access
+      
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        print('✨ Update available!');
+        
+        // Get current app version for logging
+        final packageInfo = await PackageInfo.fromPlatform();
+        final currentVersion = packageInfo.version;
+        print('📱 Current version: $currentVersion');
+        print('🔢 Current version code: ${packageInfo.buildNumber}');
+        print('🔢 Available version code: ${updateInfo.availableVersionCode}');
+        
+        // Notify UI if callback is set
+        _onUpdateAvailable?.call();
+        
+        // Decide update type based on priority
+        if (updateInfo.updatePriority >= 4) {
+          // High priority update - immediate update
+          print('🚨 High priority update - performing immediate update');
+          await _performImmediateUpdate();
+        } else {
+          // Regular update - show notification
+          print('🔔 Regular update - showing notification');
+          await _showInAppUpdateNotification();
+        }
+      } else {
+        print('✅ App is up to date');
+        stopPeriodicCheck();
+      }
+    } catch (e, stackTrace) {
+      print('❌ Error checking for in-app updates: $e');
+      print('Stack trace: $stackTrace');
+      
+      // Fallback to GitHub-based check for development/testing
+      await _checkForUpdateFromGitHub();
+    }
+  }
+
+  // New method to show in-app update notification
+  static Future<void> _showInAppUpdateNotification() async {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: UPDATE_NOTIFICATION_ID,
+        channelKey: 'basic_channel',
+        title: 'Misy rindrambaiko vaovao',
+        body: 'Version vaovao dia efa azo ampiasaina! Tsindrio haka azy.',
+        payload: {'type': 'in_app_update'},
+        color: const Color(0xFF9D50DD),
+      ),
+      actionButtons: [
+        NotificationActionButton(
+          key: 'UPDATE',
+          label: 'Haka',
+        ),
+        NotificationActionButton(
+          key: 'DISMISS',
+          label: 'Mbola tsy izao aloha',
+          actionType: ActionType.Default,
+        ),
+      ],
+    );
+  }
+
+  // Modified action handler to use in_app_update
+  @pragma('vm:entry-point')
+  static Future<void> onActionReceivedMethod(
+      ReceivedAction receivedAction) async {
+    if (receivedAction.buttonKeyPressed == 'UPDATE') {
+      final type = receivedAction.payload?['type'];
+      if (type == 'in_app_update' && _updateInfo != null) {
+        // Check if it's a flexible update or immediate update
+        if (_flexibleUpdateAvailable) {
+          // Complete flexible update
+          await _completeFlexibleUpdate();
+        } else {
+          // Perform immediate update
+          await _performImmediateUpdate();
+        }
+        stopPeriodicCheck();
+      } else if (_cachedDownloadUrl != null) {
+        // Fallback to GitHub-based update
+        await _downloadAndInstallUpdate(_cachedDownloadUrl!);
+        stopPeriodicCheck();
+      }
+    } else if (receivedAction.buttonKeyPressed == 'DISMISS') {
+      stopPeriodicCheck();
+    }
+  }
+
+  // New method to perform immediate update
+  static Future<void> _performImmediateUpdate() async {
+    try {
+      if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
+        print('🚀 Performing immediate update...');
+        final result = await InAppUpdate.performImmediateUpdate();
+        print('📊 Update result: $result');
+        
+        // Handle different results with correct enum values
+        if (result == AppUpdateResult.userDeniedUpdate) {
+          print('❌ User denied the update');
+        } else if (result == AppUpdateResult.inAppUpdateFailed) {
+          print('❌ In-app update failed');
+          // Fallback to GitHub-based update
+          if (_cachedDownloadUrl != null) {
+            await _downloadAndInstallUpdate(_cachedDownloadUrl!);
+          }
+        } else if (result == AppUpdateResult.success) {
+          print('✅ Update successful');
+        }
+      }
+    } catch (e) {
+      print('❌ Error performing in-app update: $e');
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: UPDATE_NOTIFICATION_ID + 1,
+          channelKey: 'basic_channel',
+          title: 'Tsy afaka nalaina',
+          body:
+              'Tsy afaka nalaina ny rindrambaiko vaovao. Avereno afaka kelikely azafady.',
+          color: const Color(0xFF9D50DD),
+        ),
+      );
+    }
+  }
+
+  // New method to start flexible update
+  static Future<void> startFlexibleUpdate() async {
+    try {
+      if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
+        print('📥 Starting flexible update...');
+        await InAppUpdate.startFlexibleUpdate();
+        _flexibleUpdateAvailable = true;
+        print('✅ Flexible update started');
+        
+        // Show notification that download is in progress
+        await AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: UPDATE_NOTIFICATION_ID + 2,
+            channelKey: 'basic_channel',
+            title: 'Fakàna rindrambaiko',
+            body: 'Ny rindrambaiko vaovao dia amim-pakàna. Hahazo fampahalalam-baovao ianao rehefa vita ny fakàna.',
+            payload: {'type': 'flexible_update_complete'},
+            color: const Color(0xFF9D50DD),
+          ),
+        );
+      }
+    } catch (e) {
+      print('❌ Error starting flexible update: $e');
+    }
+  }
+
+  // New method to complete flexible update
+  static Future<void> _completeFlexibleUpdate() async {
+    try {
+      if (_flexibleUpdateAvailable) {
+        print('✅ Completing flexible update...');
+        await InAppUpdate.completeFlexibleUpdate();
+        _flexibleUpdateAvailable = false;
+        print('✅ Flexible update completed');
+      }
+    } catch (e) {
+      print('❌ Error completing flexible update: $e');
+    }
+  }
+
+  // Method to manually trigger update check from UI
+  static Future<bool> checkForUpdateManually() async {
+    try {
+      print('🔍 Manually checking for updates...');
+      final updateInfo = await InAppUpdate.checkForUpdate();
+      _updateInfo = updateInfo;
+      
+      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        print('✨ Update available!');
+        // Notify UI if callback is set
+        _onUpdateAvailable?.call();
+        return true;
+      } else {
+        print('✅ App is up to date');
+        return false;
+      }
+    } catch (e) {
+      print('❌ Error manually checking for updates: $e');
+      return false;
+    }
+  }
+
+  // Method to trigger immediate update from UI
+  static Future<void> triggerImmediateUpdate() async {
+    if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
+      await _performImmediateUpdate();
+    }
+  }
+
+  // Method to trigger flexible update from UI
+  static Future<void> triggerFlexibleUpdate() async {
+    if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
+      await startFlexibleUpdate();
+    }
+  }
+
+  // Method to complete flexible update from UI
+  static Future<void> completeFlexibleUpdate() async {
+    if (_flexibleUpdateAvailable) {
+      await _completeFlexibleUpdate();
+      // Notify UI that flexible update is completed
+      _onFlexibleUpdateDownloaded?.call();
+    }
+  }
+
+  // Method to check if flexible update is available
+  static bool isFlexibleUpdateAvailable() {
+    return _flexibleUpdateAvailable;
+  }
+
+  // Original GitHub-based check as fallback
+  static Future<void> _checkForUpdateFromGitHub() async {
+    try {
+      print('🔍 Starting GitHub version check (fallback)...');
 
       // Get current app version
       final packageInfo = await PackageInfo.fromPlatform();
@@ -155,20 +398,6 @@ class VersionCheckService {
     AwesomeNotifications().setListeners(
       onActionReceivedMethod: onActionReceivedMethod,
     );
-  }
-
-  @pragma('vm:entry-point')
-  static Future<void> onActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    if (receivedAction.buttonKeyPressed == 'UPDATE') {
-      final url = receivedAction.payload?['url'];
-      if (url != null) {
-        await _downloadAndInstallUpdate(url);
-        stopPeriodicCheck();
-      }
-    } else if (receivedAction.buttonKeyPressed == 'DISMISS') {
-      stopPeriodicCheck();
-    }
   }
 
   static Future<void> _downloadAndInstallUpdate(String url) async {
