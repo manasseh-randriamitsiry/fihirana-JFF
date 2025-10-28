@@ -112,9 +112,9 @@ class _SplashScreen1State extends State<SplashScreen1>
     color: Colors.white,
     fontSize: 14.0,
   );
-  late bool isTablet = isTablet;
   @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
