@@ -310,8 +310,6 @@ class HymnService {
 
       return completer.future;
     } catch (e) {
-      if (kDebugMode) {
-      }
     }
   }
 }
