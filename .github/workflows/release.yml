@@ -109,7 +109,7 @@ jobs:
       # ----------------------
       # Verify google-services.json presence
       # ----------------------
-     - name: Verify google-services.json before build
+      - name: Verify google-services.json before build
         run: |
           echo "Verifying google-services.json before build..."
           find android/app -name "google-services.json" -print
@@ -141,7 +141,7 @@ jobs:
       # ----------------------
       # Build Flutter APKs
       # ----------------------
-       - name: Build APKs
+      - name: Build APKs
         working-directory: .
         run: flutter build apk --release --split-per-abi
 
