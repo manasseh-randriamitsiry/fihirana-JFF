@@ -16,6 +16,7 @@ import '../screen/announcement/announcement_screen.dart';
 import '../screen/settings/settings_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/hymn/firebase_hymns_screen.dart';
+import '../screen/bible/bible_reader_screen.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
 
@@ -367,6 +368,19 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                     ),
                     onTap: () => Get.to(() => const AnnouncementScreen()),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.menu_book,
+                      color: _colorController.iconColor.value,
+                    ),
+                    title: Text(
+                      'Baiboly',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                      ),
+                    ),
+                    onTap: () => Get.to(() => const BibleReaderScreen()),
                   ),
                   if (_isAuthenticated)
                     ListTile(
