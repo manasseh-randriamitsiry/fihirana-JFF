@@ -90,34 +90,38 @@ jobs:
       # Setup Google Services JSON (Firebase)
       # ----------------------
       - name: Setup Google Services JSON
-        env:
-          GOOGLE_JSON_BASE64: ${{ secrets.GOOGLE_JSON_BASE64 }}
+        shell: bash
         run: |
           echo "Decoding google-services.json..."
-          # Try base64 --decode, fallback to base64 -d if the first form isn't available
-          if ! echo "$GOOGLE_JSON_BASE64" | base64 --decode > android/app/google-services.json 2>/dev/null; then
-            echo "base64 --decode failed, trying base64 -d..."
-            echo "$GOOGLE_JSON_BASE64" | base64 -d > android/app/google-services.json
-          fi
+          mkdir -p android/app android/app/src/release
 
-          # Ensure the release dir exists and copy the file there
-          mkdir -p android/app/src/release
+          # Decode the base64 secret safely into both paths
+          echo "${{ secrets.GOOGLE_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
           cp android/app/google-services.json android/app/src/release/google-services.json
 
-          # Verify files
-          echo "Created files:"
-          ls -l android/app/google-services.json || true
-          ls -l android/app/src/release/google-services.json || true
+          echo "✅ google-services.json created:"
+          ls -l android/app/google-services.json
+          ls -l android/app/src/release/google-services.json
+
+          echo "Contents (truncated):"
+          head -n 5 android/app/google-services.json
 
       # ----------------------
       # Verify google-services.json presence
       # ----------------------
-      - name: Verify google-services.json
+     - name: Verify google-services.json before build
         run: |
-          echo "Checking for google-services.json..."
+          echo "Verifying google-services.json before build..."
           find android/app -name "google-services.json" -print
-          ls -l android/app/google-services.json || echo "⚠️ Not found in android/app"
-          ls -l android/app/src/release/google-services.json || echo "⚠️ Not found in release folder"
+          if [ ! -f "android/app/google-services.json" ]; then
+            echo "❌ google-services.json not found in android/app"
+            exit 1
+          fi
+          if [ ! -f "android/app/src/release/google-services.json" ]; then
+            echo "❌ google-services.json not found in android/app/src/release"
+            exit 1
+          fi
+          echo "✅ google-services.json verified"
 
       # ----------------------
       # Generate Changelog
@@ -137,7 +141,8 @@ jobs:
       # ----------------------
       # Build Flutter APKs
       # ----------------------
-      - name: Build APKs
+       - name: Build APKs
+        working-directory: .
         run: flutter build apk --release --split-per-abi
 
       # ----------------------
