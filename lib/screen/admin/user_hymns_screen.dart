@@ -30,8 +30,8 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
   String _sortBy = 'recent'; // 'recent', 'old', 'number'
 
   Stream<List<Hymn>> _getHymnsStream() async* {
-    // Since we're using local files, we'll load all hymns and filter them
-    final allHymns = await _hymnService.searchHymns('');
+    // Get Firebase hymns only
+    final allHymns = await _hymnService.getFirebaseHymnsStream().first;
     final userHymns = allHymns.where((hymn) => 
       hymn.createdByEmail == widget.userEmail
     ).toList();

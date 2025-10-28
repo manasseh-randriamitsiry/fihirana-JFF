@@ -13,7 +13,9 @@ import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
 import '../screen/history/history_screen.dart';
 import '../screen/announcement/announcement_screen.dart';
-import '../screen/settings/settings_screen.dart'; // Add settings screen import
+import '../screen/settings/settings_screen.dart';
+import '../screen/hymn/create_hymn_page.dart';
+import '../screen/hymn/firebase_hymns_screen.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
 
@@ -232,36 +234,66 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                       onTap: _signInWithGoogle,
                     ),
-                  if (_isAuthenticated) ...[
-                    // ListTile(
-                    //   leading: Icon(
-                    //     Icons.add,
-                    //     color: _colorController.iconColor.value,
-                    //   ),
-                    //   title: Text(
-                    //     'Hamorona hira',
-                    //     style: TextStyle(
-                    //       color: _colorController.textColor.value,
-                    //     ),
-                    //   ),
-                    //   onTap: () => Get.to(() => const CreateHymnPage()),
-                    // ),
-                    if (_currentUser?.email ==
-                        'manassehrandriamitsiry@gmail.com')
-                      ListTile(
-                        leading: Icon(
-                          Icons.admin_panel_settings,
-                          color: _colorController.iconColor.value,
-                        ),
-                        title: Text(
-                          'Admin Panel',
-                          style: TextStyle(
-                            color: _colorController.textColor.value,
-                          ),
-                        ),
-                        onTap: () => Get.to(() => const AdminPanelScreen()),
+                  ListTile(
+                    leading: Icon(
+                      Icons.music_note,
+                      color: _colorController.iconColor.value,
+                    ),
+                    title: Text(
+                      'Fihirana',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
                       ),
-                  ],
+                    ),
+                    onTap: () {
+                      // Navigate to main hymn list
+                      Get.back();
+                    },
+                  ),
+                  if (_isAuthenticated)
+                    ListTile(
+                      leading: Icon(
+                        Icons.add,
+                        color: _colorController.iconColor.value,
+                      ),
+                      title: Text(
+                        'Hamorona hira',
+                        style: TextStyle(
+                          color: _colorController.textColor.value,
+                        ),
+                      ),
+                      onTap: () => Get.to(() => const CreateHymnPage()),
+                    ),
+                    ListTile(
+                      leading: Icon(
+                        Icons.library_add,
+                        color: _colorController.iconColor.value,
+                      ),
+                      title: Text(
+                        'Fihirana Fanampiny',
+                        style: TextStyle(
+                          color: _colorController.textColor.value,
+                        ),
+                      ),
+                      onTap: () {
+                        Get.to(() => const FirebaseHymnsScreen());
+                      },
+                    ),
+                  if (_currentUser?.email ==
+                      'manassehrandriamitsiry@gmail.com')
+                    ListTile(
+                      leading: Icon(
+                        Icons.admin_panel_settings,
+                        color: _colorController.iconColor.value,
+                      ),
+                      title: Text(
+                        'Admin Panel',
+                        style: TextStyle(
+                          color: _colorController.textColor.value,
+                        ),
+                      ),
+                      onTap: () => Get.to(() => const AdminPanelScreen()),
+                    ),
                   ListTile(
                     leading: Icon(
                       Icons.favorite,
@@ -338,19 +370,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                     ),
                     onTap: () => Get.to(() => const AnnouncementScreen()),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.settings,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Fandrindrana',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.to(() => const SettingsScreen()), // Add settings screen
                   ),
                   if (_isAuthenticated)
                     ListTile(

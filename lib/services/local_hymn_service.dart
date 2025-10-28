@@ -2,6 +2,16 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/hymn.dart';
 
+// Extension to add firstWhereOrNull method to Iterable
+extension FirstWhereOrNullExtension<E> on Iterable<E> {
+  E? firstWhereOrNull(bool Function(E) test) {
+    for (E element in this) {
+      if (test(element)) return element;
+    }
+    return null;
+  }
+}
+
 class LocalHymnService {
   static final LocalHymnService _instance = LocalHymnService._internal();
   factory LocalHymnService() => _instance;
@@ -11,7 +21,7 @@ class LocalHymnService {
   final Map<String, Hymn> _hymnCache = {};
   List<Hymn>? _allHymns;
 
-  /// Load all hymns from local JSON files
+  /// Load all hymns from local JSON files only
   Future<List<Hymn>> getAllHymns() async {
     if (_allHymns != null) {
       return _allHymns!;

@@ -44,20 +44,29 @@ class Hymn {
       verses.add(json['chorus'].toString());
     }
 
+    DateTime createdAt;
+    try {
+      createdAt = DateTime.parse(json['createdAt'].toString());
+    } catch (e) {
+      createdAt = DateTime.now();
+    }
+
     return Hymn(
       id: id,
-      hymnNumber: json['number'].toString(),
+      hymnNumber: json['hymnNumber'].toString(),
       title: json['title'].toString(),
       verses: verses,
       bridge: json['bridge']?.toString(),
-      hymnHint: json['hint']?.toString(),
-      createdAt: DateTime.now(),
-      createdBy: 'Local File',
+      hymnHint: json['hymnHint']?.toString(),
+      createdAt: createdAt,
+      createdBy: json['createdBy'].toString(),
+      createdByEmail: json['createdByEmail']?.toString(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'hymnNumber': hymnNumber,
       'title': title,
       'verses': verses,
@@ -68,4 +77,14 @@ class Hymn {
       'createdByEmail': createdByEmail,
     };
   }
+
+  // Add equality operator for deduplication
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Hymn && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

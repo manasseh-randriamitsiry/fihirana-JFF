@@ -8,6 +8,7 @@ import 'controller/history_controller.dart';
 import 'controller/theme_controller.dart';
 import 'controller/font_controller.dart';
 import 'controller/color_controller.dart';
+import 'controller/auth_controller.dart'; // Add this import
 import 'screen/accueil/home_screen.dart';
 import 'screen/intro/splash_screen1.dart';
 import 'screen/loading/loading_screen.dart';
@@ -86,7 +87,8 @@ Future<void> main() async {
   Get.put(HistoryController());
   Get.put(ColorController());
   Get.put(FontController());
-  Get.lazyPut(() => HymnService());
+  Get.put(AuthController()); // Add this line
+  Get.put(HymnService()); // Change from lazyPut to put
   Get.put(BackgroundService());
   Get.put(FirebaseSyncService()); // Initialize Firebase sync service
 

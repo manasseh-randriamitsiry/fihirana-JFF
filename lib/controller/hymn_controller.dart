@@ -41,8 +41,8 @@ class HymnController extends GetxController {
     await _hymnService.deleteHymn(hymn.id);
   }
 
-  // Get stream of all hymns
-  Stream<List<Hymn>> get hymnsStream => _hymnService.getHymnsStream();
+  // Get stream of local hymns only
+  Stream<List<Hymn>> get hymnsStream => _hymnService.getLocalHymnsStream();
 
   // Search hymns
   Future<List<Hymn>> searchHymns(String query) async {

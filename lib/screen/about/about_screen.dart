@@ -95,7 +95,7 @@ class _AboutScreenState extends State<AboutScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Tsy afaka mijery rindrambaiko'),
+              content: Text('Tsy afaka vaovao'),
               backgroundColor: Colors.red,
             ),
           );
@@ -134,7 +134,7 @@ class _AboutScreenState extends State<AboutScreen> {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Tsy afaka mandefa ny fakàna'),
+              content: Text('Nisy olana'),
               backgroundColor: Colors.red,
             ),
           );
@@ -151,7 +151,7 @@ class _AboutScreenState extends State<AboutScreen> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Tsy afaka mandefa ny fanavaozana'),
+            content: Text('Nisy olana fa avereno rehefa afaka kelikely'),
             backgroundColor: Colors.red,
           ),
         );
@@ -198,7 +198,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  'Mpamorona rindrambaiko',
+                  'Mpamorona',
                   style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -237,7 +237,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   onPressed: () =>
                       _launchURL('https://github.com/manasseh-randriamitsiry'),
                   icon: const Icon(Icons.code),
-                  label: const Text('Visit GitHub'),
+                  label: const Text('GitHub'),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(250, 45),
                   ),
@@ -270,8 +270,8 @@ class _AboutScreenState extends State<AboutScreen> {
                       )
                     : const Icon(Icons.system_update),
                   label: Text(_checkingForUpdates 
-                    ? 'Mijery rindrambaiko...' 
-                    : 'Jereo rindrambaiko',),
+                    ? 'Mijery vaovao...' 
+                    : 'Jereo vaovao',),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(250, 45),
                     backgroundColor: Colors.yellow,
@@ -295,8 +295,8 @@ class _AboutScreenState extends State<AboutScreen> {
                         )
                       : const Icon(Icons.download),
                     label: Text(_flexibleUpdateDownloaded 
-                      ? 'Apetraho ny vaovao' 
-                      : (_checkingForUpdates ? 'Mandefa fakàna...' : 'Fakàna & Apetraho')),
+                      ? 'Download & Install' 
+                      : (_checkingForUpdates ? 'Download...' : 'Download')),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(250, 45),
                       backgroundColor: Colors.orange,
@@ -308,7 +308,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   ElevatedButton.icon(
                     onPressed: _checkingForUpdates ? null : _performImmediateUpdate,
                     icon: const Icon(Icons.update),
-                    label: const Text('Vaovao haingana'),
+                    label: const Text('Vaovao'),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(250, 45),
                       backgroundColor: Colors.red,

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controller/color_controller.dart';
+import '../../models/hymn.dart';
 import '../../services/local_storage_service.dart';
 import '../accueil/home_screen.dart';
 
@@ -15,6 +18,7 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   final LocalStorageService _storageService = LocalStorageService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -26,10 +30,36 @@ class _LoadingScreenState extends State<LoadingScreen> {
     try {
       await _storageService.init();
       
-      // Skip Firebase download entirely and go directly to home screen
-      // All hymns are now loaded from local JSON files
+      // Download hymns from Firebase if user is authenticated
+      await _downloadFirebaseHymns();
+      
       Get.off(() => const HomeScreen());
     } catch (e) {
+      // Even if there's an error, continue to the home screen
+      Get.off(() => const HomeScreen());
+    }
+  }
+
+  Future<void> _downloadFirebaseHymns() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      // Get hymns from Firebase
+      final snapshot = await _firestore.collection('hymns').get();
+      
+      // Convert to Hymn objects
+      final firebaseHymns = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Hymn.fromJson(data, doc.id);
+      }).toList();
+      
+      // Save to local storage
+      if (firebaseHymns.isNotEmpty) {
+        await _storageService.saveHymns(firebaseHymns);
+      }
+    } catch (e) {
+      // Silently ignore errors in downloading hymns
     }
   }
 

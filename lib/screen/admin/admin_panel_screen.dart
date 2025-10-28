@@ -81,7 +81,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         ],
       ),
       body: StreamBuilder<List<Hymn>>(
-        stream: _hymnService.getHymnsStream(),
+        stream: _hymnService.getFirebaseHymnsStream(), // Changed from getHymnsStream to getFirebaseHymnsStream
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
