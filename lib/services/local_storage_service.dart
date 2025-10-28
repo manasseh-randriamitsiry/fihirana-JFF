@@ -61,7 +61,7 @@ class LocalStorageService {
   Future<bool> hasLocalHymns() async {
 
     final hymnCount = hymnBox.values
-        .where((value) => value['hymnNumber'] != null)
+        .where((value) => value is Map && value['hymnNumber'] != null)
         .length;
     return hymnCount > 0;
   }
