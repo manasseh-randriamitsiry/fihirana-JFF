@@ -32,7 +32,6 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     _hymnHintController.text = widget.hymn.hymnHint ?? "";
     _bridgeController.text = widget.hymn.bridge ?? "";
 
-    // Initialize verse controllers and populate them with existing verses
     _verseControllers = widget.hymn.verses
         .map((verse) => TextEditingController(text: verse))
         .toList();
@@ -58,19 +57,15 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     if (!isUserAuthenticated()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Mila miditra aloha ianao'),
+          content: const Text('Mila miditra aloha ianao'),
           backgroundColor: colorController.backgroundColor.value,
         ),
       );
       return;
     }
 
-    final user = FirebaseAuth.instance.currentUser!;
-    
-    // Keep the hymn number as is, without parsing to int
     final hymnNumber = _hymnNumberController.text.trim();
-    
-    // Update the hymn object with new values
+
     Hymn updatedHymn = Hymn(
       id: widget.hymn.id,
       hymnNumber: hymnNumber,
@@ -83,21 +78,19 @@ class EditHymnScreenState extends State<EditHymnScreen> {
       createdByEmail: widget.hymn.createdByEmail,
     );
 
-    // Call your Firestore update method from the service
     _hymnService
         .updateHymn(updatedHymn.id, updatedHymn)
         .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Voaova soa aman-tsara'),
+              content: const Text('Voaova soa aman-tsara'),
               backgroundColor: colorController.backgroundColor.value,
             ),
           );
-          Navigator.pop(context); // Navigate back after update
+          Navigator.pop(context);
         })
         .catchError((error) {
           if (kDebugMode) {
-            print('Error updating hymn: $error');
           }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -195,8 +188,8 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                         foregroundColor: colorController.textColor.value,
                         backgroundColor: colorController.backgroundColor.value,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
+                      child: const Padding(
+                        padding: EdgeInsets.only(
                             left: 40.0, right: 40, top: 20, bottom: 20),
                         child: Text(
                           "Apidiro",

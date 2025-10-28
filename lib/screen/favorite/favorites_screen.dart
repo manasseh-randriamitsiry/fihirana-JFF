@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
@@ -9,7 +8,7 @@ import '../hymn/hymn_detail_screen.dart';
 class FavoritesPage extends StatelessWidget {
   final HymnService _hymnService = HymnService();
   final ColorController colorController = Get.find<ColorController>();
-  FavoritesPage({Key? key}) : super(key: key);
+  FavoritesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +17,7 @@ class FavoritesPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         centerTitle: true,
         title: Text('Tiana', style: TextStyle(color: textColor)),
       ),

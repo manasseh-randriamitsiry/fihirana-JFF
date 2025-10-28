@@ -34,4 +34,14 @@ class Favorite {
       'addedDate': Timestamp.fromDate(addedDate),
     };
   }
+
+  factory Favorite.create(String hymnId, String userId, String userEmail) {
+    return Favorite(
+      id: '',
+      hymnId: hymnId,
+      userId: userId,
+      userEmail: userEmail,
+      addedDate: DateTime.now(),
+    );
+  }
 }

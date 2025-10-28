@@ -1,20 +1,15 @@
 import 'dart:ui';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import '../models/hymn.dart';
 import 'local_storage_service.dart';
 
 class DownloadManager {
   final LocalStorageService _storageService;
-  final FirebaseFirestore _firestore;
 
   DownloadManager({
     required LocalStorageService storageService,
-    FirebaseFirestore? firestore,
-  })  : _storageService = storageService,
-        _firestore = firestore ?? FirebaseFirestore.instance;
+  }) : _storageService = storageService;
 
   Future<void> initNotifications() async {
     await AwesomeNotifications().initialize(
@@ -37,87 +32,15 @@ class DownloadManager {
     Function(double)? onProgress,
     Function(String)? onError,
   }) async {
-    try {
-      // Get total number of hymns
-      final QuerySnapshot querySnapshot =
-          await _firestore.collection('hymns').get();
-      final int total = querySnapshot.docs.length;
-      int downloaded = 0;
 
-      if (total == 0) {
-        if (onError != null) {
-          onError('No hymns found in the database');
-        }
-        return;
-      }
-
-      final List<Hymn> hymns = [];
-
-      // Process each document
-      for (var doc in querySnapshot.docs) {
-        try {
-          final hymn =
-              Hymn.fromFirestore(doc as DocumentSnapshot<Map<String, dynamic>>);
-          hymns.add(hymn);
-
-          downloaded++;
-          if (onProgress != null) {
-            onProgress(downloaded / total);
-          }
-        } catch (e) {
-          print('Error processing hymn document: $e');
-          // Continue with next document instead of failing completely
-          continue;
-        }
-      }
-
-      // Save hymns locally only if we have successfully processed some
-      if (hymns.isNotEmpty) {
-        await _storageService.saveHymns(hymns);
-
-        // Update last update timestamp
-        await _storageService.setLastUpdate(DateTime.now());
-
-        await _showNotification(
-          'Hira tafiditra',
-          '${hymns.length}',
-        );
-      } else {
-        throw Exception('No hymns were successfully processed');
-      }
-    } catch (e) {
-      print('Download error: $e');
-      if (onError != null) {
-        onError(e.toString());
-      }
-      await _showNotification(
-        'Nisy olana',
-        'Asio connection internet ny finday',
-      );
-      rethrow; // Rethrow to handle in UI
+    if (onProgress != null) {
+      onProgress(1.0);
     }
   }
 
   Future<bool> checkForUpdates() async {
-    try {
-      final lastUpdate = _storageService.getLastUpdate();
-      if (lastUpdate == null) return true;
 
-      final latestHymn = await _firestore
-          .collection('hymns')
-          .orderBy('createdAt', descending: true)
-          .limit(1)
-          .get();
-
-      if (latestHymn.docs.isEmpty) return false;
-
-      final latestTimestamp =
-          (latestHymn.docs.first.data()['createdAt'] as Timestamp).toDate();
-      return latestTimestamp.isAfter(lastUpdate);
-    } catch (e) {
-      print('Error checking for updates: $e');
-      return false;
-    }
+    return false;
   }
 
   Future<void> _showNotification(String title, String body) async {

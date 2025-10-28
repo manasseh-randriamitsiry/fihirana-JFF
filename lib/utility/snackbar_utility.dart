@@ -49,4 +49,4 @@ class SnackbarUtility {
       icon: const Icon(Icons.info, color: Colors.black),
     );
   }
-} 
+}

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controller/color_controller.dart';
-import '../../controller/auth_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../utility/snackbar_utility.dart';
@@ -15,11 +13,11 @@ class UserHymnsScreen extends StatefulWidget {
   final String displayName;
 
   const UserHymnsScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.userEmail,
     required this.displayName,
-  }) : super(key: key);
+  });
 
   @override
   State<UserHymnsScreen> createState() => _UserHymnsScreenState();
@@ -28,18 +26,16 @@ class UserHymnsScreen extends StatefulWidget {
 class _UserHymnsScreenState extends State<UserHymnsScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final HymnService _hymnService = HymnService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String _sortBy = 'recent'; // 'recent', 'old', 'number'
+  String _sortBy = 'recent';
 
   Stream<List<Hymn>> _getHymnsStream() async* {
-    // Since we're using local files, we'll load all hymns and filter them
-    final allHymns = await _hymnService.searchHymns('');
-    final userHymns = allHymns.where((hymn) => 
+
+    final allHymns = await _hymnService.getFirebaseHymnsStream().first;
+    final userHymns = allHymns.where((hymn) =>
       hymn.createdByEmail == widget.userEmail
     ).toList();
-    
-    // Sort based on the current sort preference
+
     switch (_sortBy) {
       case 'recent':
         userHymns.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -55,7 +51,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
         });
         break;
     }
-    
+
     yield userHymns;
   }
 

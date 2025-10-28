@@ -7,6 +7,8 @@ import '../../controller/auth_controller.dart';
 import './user_hymns_screen.dart';
 
 class UserManagementScreen extends StatefulWidget {
+  const UserManagementScreen({super.key});
+
   @override
   State<UserManagementScreen> createState() => _UserManagementScreenState();
 }
@@ -15,15 +17,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final AuthController _authController = Get.find<AuthController>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String _sortBy = 'recent'; // 'recent', 'old', 'songs'
+  String _sortBy = 'recent';
 
   Stream<List<Map<String, dynamic>>> _getUsersWithHymnCount() {
     return _firestore.collection('users').snapshots().asyncMap((userSnapshot) async {
       List<Map<String, dynamic>> usersWithCount = [];
-      
+
       for (var doc in userSnapshot.docs) {
         final userData = doc.data();
-        // Get hymn count for each user
+
         final hymnCount = await _firestore
             .collection('hymns')
             .where('createdByEmail', isEqualTo: userData['email'])
@@ -37,7 +39,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         });
       }
 
-      // Sort the users based on selected criteria
       switch (_sortBy) {
         case 'recent':
           usersWithCount.sort((a, b) => (b['lastLogin'] as Timestamp)
@@ -182,11 +183,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   backgroundColor: Colors.transparent,
                                 )
                               : CircleAvatar(
+                                  backgroundColor: colorController.primaryColor.value,
                                   child: Text(
                                     displayName[0].toUpperCase(),
                                     style: TextStyle(color: colorController.textColor.value),
                                   ),
-                                  backgroundColor: colorController.primaryColor.value,
                                 ),
                           title: Row(
                             children: [
@@ -249,7 +250,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           trailing: Switch(
                             value: canAddSongs,
                             onChanged: (value) => _authController.updateUserPermission(userId, value),
-                            activeColor: Colors.green,
+                            activeThumbColor: Colors.green,
                           ),
                         ),
                       ],

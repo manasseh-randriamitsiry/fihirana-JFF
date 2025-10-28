@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:fihirana/controller/hymnController.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/auth_controller.dart';
@@ -28,7 +26,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   @override
   void dispose() {
-    // Dispose all controllers
+
     _hymnNumberController.dispose();
     _titleController.dispose();
     _bridgeController.dispose();
@@ -41,16 +39,16 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   void _clearForm() {
-    // Clear without using disposed controllers
+
     if (!mounted) return;
-    
+
     setState(() {
       _hymnNumberController.text = '';
       _titleController.text = '';
       for (var controller in _verseControllers) {
         controller.text = '';
       }
-      // Keep only one verse field
+
       while (_verseControllers.length > 1) {
         _verseControllers.removeLast();
       }
@@ -63,7 +61,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      // Show loading indicator
+
       if (!mounted) return;
       showDialog(
         context: context,
@@ -71,9 +69,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
 
-      // Create Hymn object
       final hymn = Hymn(
-        id: '',  // This will be set by Firestore
+        id: '',
         hymnNumber: _hymnNumberController.text.trim(),
         title: _titleController.text.trim(),
         verses: _verseControllers
@@ -83,14 +80,12 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         bridge: _bridgeController.text.trim(),
         hymnHint: _hymnHintController.text.trim(),
         createdAt: DateTime.now(),
-        createdBy: '',  // This will be set by the service
-        createdByEmail: '',  // This will be set by the service
+        createdBy: '',
+        createdByEmail: '',
       );
 
-      // Use HymnService directly
       final success = await Get.find<HymnService>().addHymn(hymn);
 
-      // Hide loading indicator
       if (!mounted) return;
       Navigator.of(context).pop();
 
@@ -109,10 +104,10 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         Navigator.of(context).pop();
       }
     } catch (error) {
-      // Hide loading indicator if still showing
+
       if (!mounted) return;
       Navigator.of(context).pop();
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -193,7 +188,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ),
                 ),
                 onChanged: (value) {
-                  // Debounce text changes to reduce rebuilds
+
                   _debouncer.run(() {
                     setState(() {});
                   });
@@ -417,7 +412,6 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 }
 
-// Add back the Timer-based Debouncer with proper dispose
 class Debouncer {
   final int milliseconds;
   Timer? _timer;
@@ -427,7 +421,7 @@ class Debouncer {
 
   void run(VoidCallback action) {
     if (_isDisposed) return;
-    
+
     _timer?.cancel();
     _timer = Timer(Duration(milliseconds: milliseconds), action);
   }

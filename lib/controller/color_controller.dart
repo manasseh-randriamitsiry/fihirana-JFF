@@ -6,7 +6,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ColorController extends GetxController {
   static ColorController get to => Get.find();
 
-  // Theme colors
   final Rx<MaterialColor> primaryColor = Colors.purple.obs;
   final Rx<Color> accentColor = Colors.deepOrange.obs;
   final Rx<Color> textColor = Colors.black.obs;
@@ -14,10 +13,8 @@ class ColorController extends GetxController {
   final Rx<Color> drawerColor = Colors.purple.obs;
   final Rx<Color> iconColor = Colors.black.obs;
 
-  // Current color scheme index
   final RxInt currentSchemeIndex = 0.obs;
 
-  // Predefined color schemes
   final List<Map<String, dynamic>> colorSchemes = [
     {
       'name': 'Default',
@@ -82,24 +79,21 @@ class ColorController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Set default colors first
+
     primaryColor.value = Colors.blue;
     accentColor.value = Colors.deepOrange;
     textColor.value = Colors.black;
     backgroundColor.value = Colors.white;
-    drawerColor.value = Colors.purple; // Set default drawer color
+    drawerColor.value = Colors.purple;
     iconColor.value = Colors.green;
 
-    // Then load saved colors
     loadColors();
-    print('ColorController initialized');
   }
 
   Future<void> loadColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
-      // Load colors with fallback to defaults
       primaryColor.value = getMaterialColor(
           Color(prefs.getInt('primaryColor') ?? Colors.blue.value));
       accentColor.value =
@@ -111,11 +105,8 @@ class ColorController extends GetxController {
           Color(prefs.getInt('drawerColor') ?? Colors.purple.value);
       iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.green.value);
 
-      print('Colors loaded successfully');
-      print('Drawer color: ${drawerColor.value}');
-      update(); // Update all listeners
+      update();
     } catch (e) {
-      print('Error loading colors: $e');
     }
   }
 
@@ -125,17 +116,15 @@ class ColorController extends GetxController {
         final scheme = colorSchemes[index];
         currentSchemeIndex.value = index;
 
-        // Update all colors with proper type handling
         final primary = scheme['primary'];
         primaryColor.value = primary is MaterialColor ? primary : getMaterialColor(primary as Color);
-        
+
         accentColor.value = scheme['accent'] as Color;
         textColor.value = scheme['text'] as Color;
         backgroundColor.value = scheme['background'] as Color;
         drawerColor.value = scheme['drawer'] as Color;
         iconColor.value = scheme['icon'] as Color;
 
-        // Save the updated colors
         final prefs = await SharedPreferences.getInstance();
         await prefs.setInt('primaryColor', primaryColor.value.value);
         await prefs.setInt('accentColor', accentColor.value.value);
@@ -145,7 +134,6 @@ class ColorController extends GetxController {
         await prefs.setInt('iconColor', iconColor.value.value);
         await prefs.setInt('currentSchemeIndex', currentSchemeIndex.value);
 
-        // Update system UI overlay style
         SystemChrome.setSystemUIOverlayStyle(
           SystemUiOverlayStyle(
             statusBarColor: Colors.transparent,
@@ -159,12 +147,10 @@ class ColorController extends GetxController {
           ),
         );
 
-        // Force update
         update();
         Get.forceAppUpdate();
       }
     } catch (e) {
-      print('Error setting color scheme: $e');
     }
   }
 
@@ -172,59 +158,45 @@ class ColorController extends GetxController {
     return ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
   }
 
-  // Get the current color scheme name
   String get currentSchemeName =>
       colorSchemes[currentSchemeIndex.value]['name'] as String;
 
-  // Get current theme mode
   ThemeMode get themeMode =>
       _isDark(backgroundColor.value) ? ThemeMode.dark : ThemeMode.light;
 
-  // Cycle to the next color scheme
   Future<void> nextColorScheme() async {
     int nextIndex = (currentSchemeIndex.value + 1) % colorSchemes.length;
     await setColorScheme(nextIndex);
   }
 
-  // Set previous color scheme
   Future<void> previousColorScheme() async {
     int prevIndex = currentSchemeIndex.value - 1;
     if (prevIndex < 0) prevIndex = colorSchemes.length - 1;
     await setColorScheme(prevIndex);
   }
 
-  // Update icon color specifically
   void updateIconColor(Color newColor) {
     try {
-      print('Updating icon color to: $newColor');
       iconColor.value = newColor;
       SharedPreferences.getInstance().then((prefs) {
         prefs.setInt('iconColor', newColor.value);
-        print('Saved new icon color: ${newColor.value}');
       });
-      update(['iconColor']); // Update with specific ID
-      print('Icon color update complete');
+      update(['iconColor']);
     } catch (e) {
-      print('Error updating icon color: $e');
     }
   }
 
-  // Update drawer color specifically
   void updateDrawerColor(Color newColor) {
     try {
-      print('Updating drawer color to: $newColor');
       drawerColor.value = newColor;
       SharedPreferences.getInstance().then((prefs) {
         prefs.setInt('drawerColor', newColor.value);
-        print('Saved new drawer color: ${newColor.value}');
       });
       update();
     } catch (e) {
-      print('Error updating drawer color: $e');
     }
   }
 
-  // Update individual colors
   void updateColors({
     Color? primary,
     Color? accent,
@@ -244,18 +216,14 @@ class ColorController extends GetxController {
     Get.forceAppUpdate();
   }
 
-  // Save colors to SharedPreferences
   Future<void> saveColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('iconColor', iconColor.value.value);
-      print('Saved icon color: ${iconColor.value.toString()}');
     } catch (e) {
-      print('Error saving colors: $e');
     }
   }
 
-  // Get light theme data
   ThemeData getLightTheme() {
     return ThemeData(
       useMaterial3: true,
@@ -265,11 +233,9 @@ class ColorController extends GetxController {
         primary: primaryColor.value,
         secondary: accentColor.value,
         surface: backgroundColor.value,
-        background: backgroundColor.value,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textColor.value,
-        onBackground: textColor.value,
       ),
       scaffoldBackgroundColor: backgroundColor.value,
       appBarTheme: AppBarTheme(
@@ -290,7 +256,6 @@ class ColorController extends GetxController {
     );
   }
 
-  // Get dark theme data
   ThemeData getDarkTheme() {
     return ThemeData(
       useMaterial3: true,
@@ -300,11 +265,9 @@ class ColorController extends GetxController {
         primary: primaryColor.value,
         secondary: accentColor.value,
         surface: Colors.grey[900]!,
-        background: Colors.grey[900]!,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: Colors.white,
-        onBackground: Colors.white,
       ),
       scaffoldBackgroundColor: Colors.grey[900],
       appBarTheme: AppBarTheme(

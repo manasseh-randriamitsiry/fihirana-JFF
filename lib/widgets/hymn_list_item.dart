@@ -1,79 +1,124 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/hymn.dart';
 import '../utility/navigation_utility.dart';
 import '../services/hymn_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:local_auth/local_auth.dart';
-import 'package:local_auth/error_codes.dart' as auth_error;
+import '../screen/hymn/edit_hymn_screen.dart';
 
 class HymnListItem extends StatelessWidget {
   final Hymn hymn;
   final Color textColor;
   final Color backgroundColor;
   final VoidCallback onFavoritePressed;
+  final bool isFirebaseHymn;
   final HymnService _hymnService = HymnService();
-  final LocalAuthentication _localAuth = LocalAuthentication();
 
   HymnListItem({
-    Key? key,
+    super.key,
     required this.hymn,
     required this.textColor,
     required this.backgroundColor,
     required this.onFavoritePressed,
-  }) : super(key: key);
+    this.isFirebaseHymn = false,
+  });
 
-  Future<bool> _authenticateUser(BuildContext context) async {
-    try {
-      final canCheck = await _localAuth.canCheckBiometrics;
-      final isDeviceSupported = await _localAuth.isDeviceSupported();
+  Future<bool> _confirmDeletion(BuildContext context) async {
+    final confirmationController = TextEditingController();
+    bool isConfirmed = false;
 
-      if (!canCheck || !isDeviceSupported) {
-        // Device doesn't support biometric authentication
-        // Fallback to device password/PIN
-        return await _localAuth.authenticate(
-          localizedReason: 'Ampidiro ny tenimiafina na ny PIN',
-          options: const AuthenticationOptions(
-            biometricOnly: false,
-            stickyAuth: true,
-          ),
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: backgroundColor,
+              title: Text(
+                'Hamafa hira?',
+                style: TextStyle(color: textColor),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Raha te hamafa ny hira "${hymn.title}" dia soraty hoe "eny" eo ambany',
+                    style: TextStyle(color: textColor),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: confirmationController,
+                    style: TextStyle(color: textColor),
+                    decoration: InputDecoration(
+                      hintText: 'eny',
+                      hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: textColor),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: textColor),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                      ),
+                    ),
+                    onSubmitted: (value) {
+
+                      if (value.toLowerCase() == 'eny') {
+                        isConfirmed = true;
+                        Navigator.of(context).pop();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Soraty hoe "eny" mba hamafana',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Ajanona', style: TextStyle(color: textColor)),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                TextButton(
+                  child: Text('Fafao', style: TextStyle(color: Colors.red)),
+                  onPressed: () {
+
+                    if (confirmationController.text.toLowerCase() == 'eny') {
+                      isConfirmed = true;
+                      Navigator.of(context).pop();
+                    } else {
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Soraty hoe "eny" mba hamafana',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ],
+            );
+          },
         );
-      }
+      },
+    );
 
-      // Check available biometrics
-      final availableBiometrics = await _localAuth.getAvailableBiometrics();
-
-      if (availableBiometrics.isEmpty) {
-        // No biometrics enrolled, fallback to device password/PIN
-        return await _localAuth.authenticate(
-          localizedReason: 'Ampidiro ny tenimiafina na ny PIN',
-          options: const AuthenticationOptions(
-            biometricOnly: false,
-            stickyAuth: true,
-          ),
-        );
-      }
-
-      // Authenticate with biometrics
-      return await _localAuth.authenticate(
-        localizedReason: 'Ampidiro ny fanamarinanao hamafa ny hira',
-        options: const AuthenticationOptions(
-          stickyAuth: true,
-          biometricOnly: true,
-        ),
-      );
-    } catch (e) {
-      if (e.toString().contains(auth_error.notAvailable)) {
-        // Biometric auth not available, fallback to device password/PIN
-        return await _localAuth.authenticate(
-          localizedReason: 'Ampidiro ny tenimiafina na ny PIN',
-          options: const AuthenticationOptions(
-            biometricOnly: false,
-            stickyAuth: true,
-          ),
-        );
-      }
-      return false;
-    }
+    return isConfirmed;
   }
 
   Future<void> _showDeleteConfirmation(BuildContext context) async {
@@ -93,17 +138,16 @@ class HymnListItem extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text('Eny', style: TextStyle(color: Colors.red)),
+              child: const Text('Eny', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(context).pop();
 
-                // Request biometric authentication
-                final authenticated = await _authenticateUser(context);
+                final confirmed = await _confirmDeletion(context);
 
-                if (!authenticated) {
+                if (!confirmed) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Tsy nahomby ny fanamarinana'),
+                    const SnackBar(
+                      content: Text('Tsy nahomby ny famafana.'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -113,11 +157,12 @@ class HymnListItem extends StatelessWidget {
                 try {
                   await _hymnService.deleteHymn(hymn.id);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Voafafa ny hira'),
                       backgroundColor: Colors.green,
                     ),
                   );
+
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -164,7 +209,7 @@ class HymnListItem extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            if (isAdmin && hymn.createdBy != null)
+            if (isAdmin && isFirebaseHymn)
               Text(
                 'Nampiditra: ${hymn.createdBy}${hymn.createdByEmail != null ? ' (${hymn.createdByEmail})' : ''}',
                 style: TextStyle(
@@ -205,10 +250,15 @@ class HymnListItem extends StatelessWidget {
                 );
               },
             ),
-            if (isLoggedIn && hymn.createdByEmail == user.email ||
-                user?.email == 'manassehrandriamitsiry@gmail.com')
+
+            if (isFirebaseHymn && isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
               IconButton(
-                icon: Icon(Icons.delete_outline, color: Colors.red),
+                icon: Icon(Icons.edit, color: textColor),
+                onPressed: () => NavigationUtility.navigateToEditScreen(context, hymn),
+              ),
+            if (isFirebaseHymn && isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
                 onPressed: () => _showDeleteConfirmation(context),
               ),
           ],

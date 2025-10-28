@@ -19,7 +19,6 @@ class FirebaseAuthService {
             colorText: Colors.black,
             icon: const Icon(Icons.warning_amber, color: Colors.black));
       } else {
-        print(e);
       }
     }
     return null;
@@ -39,7 +38,6 @@ class FirebaseAuthService {
             colorText: Colors.black,
             icon: const Icon(Icons.warning_amber, color: Colors.black));
       } else {
-        print(e);
       }
     }
     return null;

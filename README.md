@@ -9,3 +9,8 @@
 - do the same thing for jks file , use KEYSTORE_BASE64
     - it can be found by # Debug keystore (default)
 keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+    - 
+## release point
+# every tag push
+git tag v1.0.3 
+git push origin v1.0.3

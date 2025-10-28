@@ -9,14 +9,14 @@ class BackgroundService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    // Check immediately when app starts
+
     _checkAnnouncements();
-    // Then set up periodic checks
+
     _startAnnouncementChecks();
   }
 
   void _startAnnouncementChecks() {
-    // Check every 5 minutes
+
     _announcementTimer = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _checkAnnouncements(),
@@ -32,4 +32,4 @@ class BackgroundService extends GetxService {
     _announcementTimer?.cancel();
     super.onClose();
   }
-} 
+}

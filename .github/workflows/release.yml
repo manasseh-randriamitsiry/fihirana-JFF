@@ -2,8 +2,6 @@ name: Create Release
 
 on:
   push:
-    branches:
-      - '**'  # Runs on any branch push
     tags:
       - 'v*.*.*'  # Runs on tag pushes like v1.0.0, v2.5.3
 
@@ -40,6 +38,12 @@ jobs:
         run: flutter config --no-analytics
 
       # ----------------------
+      # Generate App Icons
+      # ----------------------
+      - name: Generate App Icons
+        run: flutter pub run flutter_launcher_icons:main
+
+      # ----------------------
       # Setup Keystore
       # ----------------------
       - name: Setup Keystore
@@ -57,11 +61,9 @@ jobs:
       - name: Setup Google Services JSON
         run: |
           python -c "import base64; open('android/app/google-services.json','wb').write(base64.b64decode('${{ secrets.GOOGLE_JSON_BASE64 }}'))"
-          if [ ! -f "android/app/google-services.json" ]; then
-            echo "google-services.json was not created"
-            exit 1
-          fi
-          ls -l android/app/google-services.json
+          mkdir -p android/app/src/release
+          cp android/app/google-services.json android/app/src/release/google-services.json
+      
 
       # ----------------------
       # Generate Changelog
@@ -92,11 +94,11 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: build/app/outputs/flutter-apk/*.apk
-          token: ${{ secrets.TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN  }}
           name: Release ${{ github.ref_name }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
           generate_release_notes: true
         env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}

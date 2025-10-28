@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class Hymn {
   String id;
   String hymnNumber;
@@ -23,35 +21,15 @@ class Hymn {
     this.createdByEmail,
   });
 
-  factory Hymn.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    Map<String, dynamic> data = doc.data()!;
-    final createdAtData = data['createdAt'];
-    return Hymn(
-      id: doc.id,
-      hymnNumber: data['hymnNumber'].toString(),
-      title: data['title'] as String,
-      verses: List<String>.from(data['verses'] as List<dynamic>),
-      bridge: data['bridge'] as String?,
-      hymnHint: data['hymnHint'] as String?,
-      createdAt: createdAtData != null 
-          ? (createdAtData as Timestamp).toDate() 
-          : DateTime(2023), // Default date for legacy data
-      createdBy: data['createdBy'] as String? ?? 'Unknown',
-      createdByEmail: data['createdByEmail'] as String?,
-    );
-  }
-
-  // New factory method to create Hymn from JSON data
   factory Hymn.fromJson(Map<String, dynamic> json, String id) {
     final List<String> verses = [];
-    
-    // Handle verses from JSON structure
+
     if (json['verses'] is Map<String, dynamic>) {
       final versesMap = json['verses'] as Map<String, dynamic>;
-      // Sort verse keys numerically
+
       final sortedKeys = versesMap.keys.toList()
         ..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
-      
+
       for (final key in sortedKeys) {
         verses.add(versesMap[key].toString());
       }
@@ -59,25 +37,33 @@ class Hymn {
       verses.addAll(List<String>.from(json['verses']));
     }
 
-    // Extract chorus if it exists and add it as the last verse
     if (json['chorus'] != null) {
       verses.add(json['chorus'].toString());
     }
 
+    DateTime createdAt;
+    try {
+      createdAt = DateTime.parse(json['createdAt'].toString());
+    } catch (e) {
+      createdAt = DateTime.now();
+    }
+
     return Hymn(
       id: id,
-      hymnNumber: json['number'].toString(),
+      hymnNumber: (json['hymnNumber'] ?? json['number']).toString(),
       title: json['title'].toString(),
       verses: verses,
       bridge: json['bridge']?.toString(),
-      hymnHint: json['hint']?.toString(),
-      createdAt: DateTime.now(),
-      createdBy: 'Local File',
+      hymnHint: json['hymnHint']?.toString(),
+      createdAt: createdAt,
+      createdBy: json['createdBy'].toString(),
+      createdByEmail: json['createdByEmail']?.toString(),
     );
   }
 
-  Map<String, dynamic> toFirestore() {
+  Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'hymnNumber': hymnNumber,
       'title': title,
       'verses': verses,
@@ -89,16 +75,12 @@ class Hymn {
     };
   }
 
-  Map<String, dynamic> toFirestoreDocument() {
-    return {
-      'hymnNumber': hymnNumber,
-      'title': title,
-      'verses': verses,
-      'bridge': bridge,
-      'hymnHint': hymnHint,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'createdBy': createdBy,
-      'createdByEmail': createdByEmail,
-    };
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Hymn && other.id == id;
   }
+
+  @override
+  int get hashCode => id.hashCode;
 }

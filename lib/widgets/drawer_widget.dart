@@ -7,14 +7,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/theme_controller.dart';
-import '../controller/font_controller.dart';
 import '../controller/color_controller.dart';
 import '../screen/favorite/favorites_screen.dart';
-import '../screen/hymn/create_hymn_page.dart';
 import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
 import '../screen/history/history_screen.dart';
 import '../screen/announcement/announcement_screen.dart';
+import '../screen/settings/settings_screen.dart';
+import '../screen/hymn/create_hymn_page.dart';
+import '../screen/hymn/firebase_hymns_screen.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
 
@@ -22,9 +23,9 @@ class DrawerWidget extends StatefulWidget {
   final Function() openDrawer;
 
   const DrawerWidget({
-    Key? key,
+    super.key,
     required this.openDrawer,
-  }) : super(key: key);
+  });
 
   @override
   DrawerWidgetState createState() => DrawerWidgetState();
@@ -32,7 +33,6 @@ class DrawerWidget extends StatefulWidget {
 
 class DrawerWidgetState extends State<DrawerWidget> {
   final ThemeController _themeController = Get.find<ThemeController>();
-  final FontController _fontController = Get.find<FontController>();
   final ColorController _colorController = Get.find<ColorController>();
   bool _isAuthenticated = false;
   String? _username;
@@ -94,11 +94,10 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      // Clear any existing auth state
+
       await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
 
-      // Start fresh sign in
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
 
@@ -113,7 +112,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
         await _firebaseAuth.signInWithCredential(credential);
 
-        // Save user info to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'username', googleSignInAccount.displayName ?? '');
@@ -127,11 +125,9 @@ class DrawerWidgetState extends State<DrawerWidget> {
           colorText: _colorController.textColor.value,
         );
 
-        // Restart the app
         Phoenix.rebirth(context);
       }
     } catch (e) {
-      print('Error signing in with Google: $e');
     }
   }
 
@@ -235,7 +231,23 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                       onTap: _signInWithGoogle,
                     ),
-                  if (_isAuthenticated) ...[
+                  ListTile(
+                    leading: Icon(
+                      Icons.music_note,
+                      color: _colorController.iconColor.value,
+                    ),
+                    title: Text(
+                      'Fihirana',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                      ),
+                    ),
+                    onTap: () {
+
+                      Get.back();
+                    },
+                  ),
+                  if (_isAuthenticated)
                     ListTile(
                       leading: Icon(
                         Icons.add,
@@ -249,22 +261,36 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                       onTap: () => Get.to(() => const CreateHymnPage()),
                     ),
-                    if (_currentUser?.email ==
-                        'manassehrandriamitsiry@gmail.com')
-                      ListTile(
-                        leading: Icon(
-                          Icons.admin_panel_settings,
-                          color: _colorController.iconColor.value,
-                        ),
-                        title: Text(
-                          'Admin Panel',
-                          style: TextStyle(
-                            color: _colorController.textColor.value,
-                          ),
-                        ),
-                        onTap: () => Get.to(() => const AdminPanelScreen()),
+                    ListTile(
+                      leading: Icon(
+                        Icons.library_add,
+                        color: _colorController.iconColor.value,
                       ),
-                  ],
+                      title: Text(
+                        'Fihirana Fanampiny',
+                        style: TextStyle(
+                          color: _colorController.textColor.value,
+                        ),
+                      ),
+                      onTap: () {
+                        Get.to(() => const FirebaseHymnsScreen());
+                      },
+                    ),
+                  if (_currentUser?.email ==
+                      'manassehrandriamitsiry@gmail.com')
+                    ListTile(
+                      leading: Icon(
+                        Icons.admin_panel_settings,
+                        color: _colorController.iconColor.value,
+                      ),
+                      title: Text(
+                        'Admin Panel',
+                        style: TextStyle(
+                          color: _colorController.textColor.value,
+                        ),
+                      ),
+                      onTap: () => Get.to(() => const AdminPanelScreen()),
+                    ),
                   ListTile(
                     leading: Icon(
                       Icons.favorite,

@@ -39,7 +39,6 @@ class FontSelectionPageState extends State<FontSelectionPage> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error fetching fonts: $e');
       }
     }
   }
@@ -58,7 +57,7 @@ class FontSelectionPageState extends State<FontSelectionPage> {
             title: Text(font),
             onTap: () {
               downloadAndCacheFonts(font);
-              Navigator.pop(context, font); // Pass selected font back
+              Navigator.pop(context, font);
             },
           );
         },
@@ -75,16 +74,14 @@ class FontSelectionPageState extends State<FontSelectionPage> {
         final files = data['items'][0]['files'] as Map<String, dynamic>;
         await downloadAndSaveFont(files['regular'], '$fontName-Regular.ttf');
         await downloadAndSaveFont(files['italic'], '$fontName-Italic.ttf');
-        // Add more variants as needed
+
         if (kDebugMode) {
-          print('Fonts downloaded and cached for $fontName');
         }
       } else {
         throw Exception('Failed to fetch font details for $fontName');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error downloading fonts: $e');
       }
     }
   }
@@ -95,6 +92,6 @@ class FontSelectionPageState extends State<FontSelectionPage> {
     final dir = await getApplicationDocumentsDirectory();
     final fontFile = File('${dir.path}/$filename');
     await fontFile.writeAsBytes(bytes);
-    // Optionally, you can store the file path in SharedPreferences or similar
+
   }
 }

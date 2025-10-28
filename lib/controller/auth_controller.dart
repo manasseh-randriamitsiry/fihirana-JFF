@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -21,7 +20,7 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Listen to auth state changes
+
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
         _updateUserPermissions(user);
@@ -33,28 +32,25 @@ class AuthController extends GetxController {
   }
 
   Future<void> _updateUserPermissions(User user) async {
-    // Check if user is admin
+
     if (user.email == 'manassehrandriamitsiry@gmail.com') {
       _isAdmin.value = true;
       _canAddSongs.value = true;
       return;
     }
 
-    // Check user permissions in Firestore
     try {
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
-      
+
       _canAddSongs.value = userDoc.exists && (userDoc.data()?['canAddSongs'] ?? false);
     } catch (e) {
-      print('Error updating permissions: $e');
       _canAddSongs.value = false;
     }
   }
 
-  // Call this method after login or when permissions might have changed
   Future<void> refreshPermissions() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
@@ -64,16 +60,15 @@ class AuthController extends GetxController {
 
   Future<void> signOut() async {
     try {
-      // Sign out from Google
+
       await _googleSignIn.signOut();
-      // Sign out from Firebase
+
       await _auth.signOut();
-      // Clear any persisted auth state
+
       await _auth.setPersistence(Persistence.NONE);
-      // Reset local state
+
       _canAddSongs.value = false;
     } catch (e) {
-      print('Error signing out: $e');
       SnackbarUtility.showError(
         title: 'Error signing out',
         message: e.toString(),
@@ -87,7 +82,7 @@ class AuthController extends GetxController {
       final docSnapshot = await userDoc.get();
 
       if (!docSnapshot.exists) {
-        // Create new user document
+
         await userDoc.set({
           'email': user.email,
           'displayName': user.displayName,
@@ -97,7 +92,7 @@ class AuthController extends GetxController {
           'lastLogin': FieldValue.serverTimestamp(),
         });
       } else {
-        // Update existing user document
+
         await userDoc.update({
           'email': user.email,
           'displayName': user.displayName,
@@ -106,7 +101,6 @@ class AuthController extends GetxController {
         });
       }
     } catch (e) {
-      print('Error creating/updating user document: $e');
       SnackbarUtility.showError(
         title: 'Error updating user document',
         message: e.toString(),
@@ -120,7 +114,6 @@ class AuthController extends GetxController {
         'canAddSongs': canAddSongs,
       });
     } catch (e) {
-      print('Error updating user permission: $e');
       SnackbarUtility.showError(
         title: 'Error updating user permission',
         message: e.toString(),
@@ -138,7 +131,7 @@ class AuthController extends GetxController {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Start the sign-in process
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null;
 
@@ -150,21 +143,23 @@ class AuthController extends GetxController {
           idToken: googleAuth.idToken,
         );
 
-        // Try to sign in with Firebase
         final UserCredential userCredential =
             await _auth.signInWithCredential(credential);
+
+        if (userCredential.user != null) {
+          await _createOrUpdateUserDocument(userCredential.user!);
+        }
+
         return userCredential;
       } catch (e) {
-        print('Error during Firebase sign-in: $e');
-        // Even if there's an error with Firebase, try to continue with the Google account
+
         if (_auth.currentUser != null) {
-          return null; // Return null but don't block the sign-in
+          return null;
         }
         rethrow;
       }
     } catch (e) {
-      print('Error signing in with Google: $e');
-      // Don't show error to user in release mode
+
       if (kDebugMode) {
         SnackbarUtility.showError(
           title: 'Error signing in',

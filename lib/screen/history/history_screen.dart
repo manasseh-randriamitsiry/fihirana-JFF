@@ -9,7 +9,7 @@ class HistoryScreen extends StatelessWidget {
   final HistoryController historyController = Get.find<HistoryController>();
   final ColorController colorController = Get.find<ColorController>();
 
-  HistoryScreen({Key? key}) : super(key: key);
+  HistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class HistoryScreen extends StatelessWidget {
               historyController.isSelectionMode.value
                   ? '${historyController.selectedItems.length} voafidy'
                   : 'Tantara',
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
             leading: historyController.isSelectionMode.value
                 ? IconButton(
@@ -154,7 +154,7 @@ class HistoryScreen extends StatelessWidget {
             onPressed: () => Get.back(),
           ),
           TextButton(
-            child: Text(
+            child: const Text(
               'Eny',
               style: TextStyle(color: Colors.red),
             ),
@@ -189,7 +189,7 @@ class HistoryScreen extends StatelessWidget {
             onPressed: () => Get.back(),
           ),
           TextButton(
-            child: Text(
+            child: const Text(
               'Eny',
               style: TextStyle(color: Colors.red),
             ),
