@@ -4,7 +4,7 @@ description: "A new Flutter project."
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
 
-version: 1.0.4
+version: 1.0.5
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -64,6 +64,8 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/json/
+    - assets/baiboly/Testameta taloha/
+    - assets/baiboly/Testameta vaovao/
 
 flutter_launcher_icons:
   image_path_android: "assets/images/icon.png"
