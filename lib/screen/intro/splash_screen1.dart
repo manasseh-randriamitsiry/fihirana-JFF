@@ -65,7 +65,7 @@ class _SplashScreen1State extends State<SplashScreen1>
   }
 
   Future<void> _handleUsernameSubmit() async {
-    // Trim whitespace from the username
+
     final username = _usernameController.text.trim();
 
     if (username.isEmpty) {
@@ -74,7 +74,7 @@ class _SplashScreen1State extends State<SplashScreen1>
         'Mampidira anarana azafady',
         snackPosition: SnackPosition.BOTTOM,
       );
-      return; // Stop execution if username is empty
+      return;
     }
 
     try {
@@ -94,7 +94,6 @@ class _SplashScreen1State extends State<SplashScreen1>
     final prefs = await SharedPreferences.getInstance();
     final hasAgreed = prefs.getBool('has_agreed_to_terms') ?? false;
 
-    // Check if the user has agreed AND the username is not empty
     if (hasAgreed && _usernameController.text.trim().isNotEmpty) {
       Get.offAll(() => const HomeScreen());
     }
@@ -354,7 +353,7 @@ class _SplashScreen1State extends State<SplashScreen1>
 class dotsWidget extends StatelessWidget {
   final int active;
   final int number;
-  const dotsWidget({super.key, 
+  const dotsWidget({super.key,
     required this.active,
     required this.number,
   });
@@ -385,42 +384,7 @@ class SkipWidget extends StatelessWidget {
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // Material(
-          //   color: Colors.transparent,
-          //   child: InkWell(
-          //     onTap: () {
-          //       Get.offAll(() => HomeScreen());
-          //     },
-          //     borderRadius: BorderRadius.circular(30),
-          //     child: Container(
-          //       padding:
-          //           const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //       decoration: BoxDecoration(
-          //         border: Border.all(color: Colors.grey.withOpacity(0.5)),
-          //         borderRadius: BorderRadius.circular(30),
-          //       ),
-          //       child: Row(
-          //         mainAxisSize: MainAxisSize.min,
-          //         children: [
-          //           Text(
-          //             'Dinganina',
-          //             style: TextStyle(
-          //               color: Colors.grey[600],
-          //               fontSize: 16,
-          //               fontWeight: FontWeight.w500,
-          //             ),
-          //           ),
-          //           const SizedBox(width: 8),
-          //           Icon(
-          //             Icons.skip_next_rounded,
-          //             color: Colors.grey[600],
-          //             size: 20,
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
+
         ],
       ),
     );

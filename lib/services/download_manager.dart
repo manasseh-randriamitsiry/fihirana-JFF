@@ -32,15 +32,14 @@ class DownloadManager {
     Function(double)? onProgress,
     Function(String)? onError,
   }) async {
-    // Disable Firebase download - all hymns are now loaded from local JSON files
-    // Just simulate completion
+
     if (onProgress != null) {
       onProgress(1.0);
     }
   }
 
   Future<bool> checkForUpdates() async {
-    // Disable Firebase update check - all hymns are now loaded from local JSON files
+
     return false;
   }
 

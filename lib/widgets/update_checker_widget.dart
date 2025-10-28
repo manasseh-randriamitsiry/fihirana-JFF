@@ -3,7 +3,7 @@ import 'package:fihirana/services/version_check_service.dart';
 
 class UpdateCheckerWidget extends StatefulWidget {
   final Widget child;
-  
+
   const UpdateCheckerWidget({super.key, required this.child});
 
   @override
@@ -18,7 +18,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
   @override
   void initState() {
     super.initState();
-    // Set callback to be notified when update is available
+
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
         setState(() {
@@ -26,8 +26,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
         });
       }
     });
-    
-    // Set callback for flexible update completion
+
     VersionCheckService.setOnFlexibleUpdateDownloadedCallback(() {
       if (mounted) {
         setState(() {
@@ -56,7 +55,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
           _checkingForUpdates = false;
         });
       }
-      // Show error message
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

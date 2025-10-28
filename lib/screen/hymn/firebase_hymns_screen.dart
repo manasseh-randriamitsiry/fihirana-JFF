@@ -35,7 +35,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
           ),
         ),
         body: StreamBuilder<List<Hymn>>(
-          stream: _hymnService.getFirebaseHymnsStream(), // Use the reactive stream
+          stream: _hymnService.getFirebaseHymnsStream(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return Center(
@@ -72,7 +72,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                       textColor: colorController.textColor.value,
                       backgroundColor: colorController.backgroundColor.value,
                       onFavoritePressed: () => _hymnService.toggleFavorite(hymn),
-                      isFirebaseHymn: true, // Set to true for Firebase hymns
+                      isFirebaseHymn: true,
                     );
                   },
                 );

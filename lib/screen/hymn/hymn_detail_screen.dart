@@ -39,14 +39,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize history controller if not already initialized
+
     if (!Get.isRegistered<HistoryController>()) {
       Get.put(HistoryController());
     }
     historyController = Get.find<HistoryController>();
     _loadFontSize();
     _loadHymnData();
-    // Ensure favorites are synced when screen opens
+
     _hymnService.checkPendingSyncs();
   }
 
@@ -66,7 +66,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           _hymn = hymn;
         });
 
-        // Add to history after loading hymn data
         if (kDebugMode) {
           print(
               'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
@@ -184,7 +183,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
               },
               itemBuilder: (BuildContext context) {
                 return [
-                  if (isUserAuthenticated())
+                  if (canEditHymn())
                     PopupMenuItem<String>(
                       value: 'edit',
                       child: Row(
@@ -237,12 +236,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         ),
         body: Column(
           children: [
-            // Fixed top section with title and bridge
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // Title
+
                   Center(
                     child: Text(
                       _hymn?.title ?? '',
@@ -255,7 +254,47 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Animated container for bridge
+
+                  if (isFirebaseHymn() && _hymn != null)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: colorController.primaryColor.value.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        'Hira avy amin\'ny fihirana fanampiny',
+                        style: TextStyle(
+                          fontSize: _fontSize * 0.8,
+                          color: colorController.textColor.value,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 8),
+
+                  if (isFirebaseHymn() && _hymn != null)
+                    StreamBuilder(
+                      stream: FirebaseAuth.instance.authStateChanges(),
+                      builder: (context, snapshot) {
+                        final user = FirebaseAuth.instance.currentUser;
+                        final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
+
+                        if (isAdmin) {
+                          return Text(
+                            'Nampiditra: ${_hymn!.createdBy}${_hymn!.createdByEmail != null ? ' (${_hymn!.createdByEmail})' : ''}',
+                            style: TextStyle(
+                              fontSize: _fontSize * 0.8,
+                              color: colorController.textColor.value.withOpacity(0.7),
+                              fontStyle: FontStyle.italic,
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  const SizedBox(height: 8),
+
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     child: Card(
@@ -344,7 +383,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                 ],
               ),
             ),
-            // Scrollable verses section
+
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -455,6 +494,22 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     return FirebaseAuth.instance.currentUser != null;
   }
 
+  bool isFirebaseHymn() {
+    if (_hymn == null) return false;
+
+    return _hymn!.createdByEmail != null && _hymn!.createdBy != 'Local File';
+  }
+
+  bool canEditHymn() {
+    if (!isUserAuthenticated() || !isFirebaseHymn() || _hymn == null) return false;
+
+    final user = FirebaseAuth.instance.currentUser;
+    final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
+    final isCreator = _hymn!.createdByEmail == user?.email;
+
+    return isAdmin || isCreator;
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -532,7 +587,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
     setState(() {
       _isLoading = true;
     });
-    
+
     Future.delayed(const Duration(milliseconds: 300), () async {
       try {
         final hymns = await _hymnService.searchHymns(query);

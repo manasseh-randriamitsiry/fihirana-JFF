@@ -3,14 +3,13 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../services/firebase_sync_service.dart'; // Add Firebase sync service
+import '../services/firebase_sync_service.dart';
 
 class HistoryController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseSyncService _firebaseSyncService = FirebaseSyncService(); // Add Firebase sync service
-  
-  // Observable list of user's hymn history
+  final FirebaseSyncService _firebaseSyncService = FirebaseSyncService();
+
   final RxList<Map<String, dynamic>> userHistory = <Map<String, dynamic>>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isSelectionMode = false.obs;
@@ -22,9 +21,9 @@ class HistoryController extends GetxController {
   void onInit() {
     super.onInit();
     loadUserHistory();
-    // Listen to auth state changes
+
     _auth.authStateChanges().listen((User? user) {
-      loadUserHistory(); // Reload history when auth state changes
+      loadUserHistory();
     });
   }
 
@@ -52,11 +51,11 @@ class HistoryController extends GetxController {
       final user = _auth.currentUser;
 
       if (user != null) {
-        // Delete from Firestore
+
         final batch = _firestore.batch();
         for (String id in selectedItems) {
           final docRef = _firestore
-              .collection('users') // Changed from 'user_history' to 'users'
+              .collection('users')
               .doc(user.uid)
               .collection('history')
               .doc(id);
@@ -64,7 +63,7 @@ class HistoryController extends GetxController {
         }
         await batch.commit();
       } else {
-        // Delete from local storage
+
         final prefs = await SharedPreferences.getInstance();
         List<Map<String, dynamic>> localHistory = [];
         String? historyJson = prefs.getString(_localHistoryKey);
@@ -76,7 +75,6 @@ class HistoryController extends GetxController {
         }
       }
 
-      // Update the UI
       userHistory.removeWhere((item) => selectedItems.contains(item['id']));
       selectedItems.clear();
       isSelectionMode.value = false;
@@ -103,9 +101,9 @@ class HistoryController extends GetxController {
     try {
       isLoading.value = true;
       final user = _auth.currentUser;
-      
+
       if (user != null) {
-        // Load from Firebase
+
         final firebaseHistory = await _firebaseSyncService.loadHistoryFromFirebase();
         userHistory.value = firebaseHistory;
       } else {
@@ -115,7 +113,7 @@ class HistoryController extends GetxController {
           final List<dynamic> decoded = json.decode(localHistory);
           userHistory.value = decoded.map((item) => Map<String, dynamic>.from({
             ...Map<String, dynamic>.from(item),
-            'id': item['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(), // Ensure ID exists
+            'id': item['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
             'timestamp': DateTime.parse(item['timestamp'].toString()),
           })).toList();
         }
@@ -129,7 +127,7 @@ class HistoryController extends GetxController {
     try {
       final user = _auth.currentUser;
       final historyEntry = {
-        'id': DateTime.now().millisecondsSinceEpoch.toString(), // Add unique ID for local storage
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
         'hymnId': hymnId,
         'title': title,
         'number': number,
@@ -137,32 +135,30 @@ class HistoryController extends GetxController {
       };
 
       if (user != null) {
-        // Save to Firebase
+
         await _firebaseSyncService.addHistoryToFirebase(hymnId, title, number);
-        // Reload history to reflect changes
+
         await loadUserHistory();
       } else {
         final prefs = await SharedPreferences.getInstance();
         List<Map<String, dynamic>> localHistory = [];
-        
+
         final existingHistory = prefs.getString(_localHistoryKey);
         if (existingHistory != null) {
           final List<dynamic> decoded = json.decode(existingHistory);
           localHistory = decoded.cast<Map<String, dynamic>>().toList();
         }
 
-        // Add new entry at the beginning
         localHistory.insert(0, historyEntry);
-        
-        // Keep only last 100 entries to prevent excessive storage use
+
         if (localHistory.length > 100) {
           localHistory = localHistory.sublist(0, 100);
         }
 
         await prefs.setString(_localHistoryKey, json.encode(localHistory));
       }
-      
-      await loadUserHistory(); // Reload history after adding new entry
+
+      await loadUserHistory();
     } catch (e) {
     }
   }
@@ -171,16 +167,16 @@ class HistoryController extends GetxController {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        // Clear Firestore history for authenticated users
+
         await _firebaseSyncService.clearHistoryFromFirebase();
       } else {
-        // Clear local storage history for unauthenticated users
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove(_localHistoryKey);
       }
-      
+
       userHistory.clear();
-      
+
       Get.snackbar(
         'Vita!',
         'Voafafa ny tantara',

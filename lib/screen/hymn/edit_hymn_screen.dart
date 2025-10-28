@@ -32,7 +32,6 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     _hymnHintController.text = widget.hymn.hymnHint ?? "";
     _bridgeController.text = widget.hymn.bridge ?? "";
 
-    // Initialize verse controllers and populate them with existing verses
     _verseControllers = widget.hymn.verses
         .map((verse) => TextEditingController(text: verse))
         .toList();
@@ -64,11 +63,9 @@ class EditHymnScreenState extends State<EditHymnScreen> {
       );
       return;
     }
-    
-    // Keep the hymn number as is, without parsing to int
+
     final hymnNumber = _hymnNumberController.text.trim();
-    
-    // Update the hymn object with new values
+
     Hymn updatedHymn = Hymn(
       id: widget.hymn.id,
       hymnNumber: hymnNumber,
@@ -81,7 +78,6 @@ class EditHymnScreenState extends State<EditHymnScreen> {
       createdByEmail: widget.hymn.createdByEmail,
     );
 
-    // Call your Firestore update method from the service
     _hymnService
         .updateHymn(updatedHymn.id, updatedHymn)
         .then((_) {
@@ -91,7 +87,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
               backgroundColor: colorController.backgroundColor.value,
             ),
           );
-          Navigator.pop(context); // Navigate back after update
+          Navigator.pop(context);
         })
         .catchError((error) {
           if (kDebugMode) {

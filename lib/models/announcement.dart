@@ -5,7 +5,7 @@ class Announcement {
   final String title;
   final String message;
   final DateTime createdAt;
-  final DateTime? expiresAt; // New field for expiration date
+  final DateTime? expiresAt;
   final String createdBy;
   final String createdByEmail;
 
@@ -14,7 +14,7 @@ class Announcement {
     required this.title,
     required this.message,
     required this.createdAt,
-    this.expiresAt, // Optional expiration date
+    this.expiresAt,
     required this.createdBy,
     required this.createdByEmail,
   });
@@ -33,7 +33,7 @@ class Announcement {
   factory Announcement.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     Timestamp? expiresAtTimestamp = data['expiresAt'];
-    
+
     return Announcement(
       id: doc.id,
       title: data['title'] ?? '',
@@ -44,14 +44,12 @@ class Announcement {
       createdByEmail: data['createdByEmail'] ?? '',
     );
   }
-  
-  // Method to check if announcement is expired
+
   bool isExpired() {
     if (expiresAt == null) return false;
     return DateTime.now().isAfter(expiresAt!);
   }
-  
-  // Method to check if announcement is active
+
   bool isActive() {
     return !isExpired();
   }

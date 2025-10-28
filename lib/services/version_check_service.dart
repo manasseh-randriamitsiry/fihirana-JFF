@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:in_app_update/in_app_update.dart'; // Added import for in_app_update
+import 'package:in_app_update/in_app_update.dart';
 
 class VersionCheckService {
   static const String GITHUB_API_URL =
@@ -19,17 +19,15 @@ class VersionCheckService {
   static String? _cachedDownloadUrl;
   static String? _cachedVersion;
   static String? _cachedReleaseNotes;
-  static AppUpdateInfo? _updateInfo; // Added to store update info
-  static bool _flexibleUpdateAvailable = false; // Track flexible update state
-  static VoidCallback? _onUpdateAvailable; // Callback for UI updates
-  static VoidCallback? _onFlexibleUpdateDownloaded; // Callback for flexible update completion
+  static AppUpdateInfo? _updateInfo;
+  static bool _flexibleUpdateAvailable = false;
+  static VoidCallback? _onUpdateAvailable;
+  static VoidCallback? _onFlexibleUpdateDownloaded;
 
-  // Method to set update available callback
   static void setOnUpdateAvailableCallback(VoidCallback callback) {
     _onUpdateAvailable = callback;
   }
 
-  // Method to set flexible update downloaded callback
   static void setOnFlexibleUpdateDownloadedCallback(VoidCallback callback) {
     _onFlexibleUpdateDownloaded = callback;
   }
@@ -49,23 +47,20 @@ class VersionCheckService {
       debug: true,
     );
 
-    // Request notification permission
     final isAllowed = await AwesomeNotifications().isNotificationAllowed();
     if (!isAllowed) {
       await AwesomeNotifications().requestPermissionToSendNotifications();
     }
 
-    // Initialize action listeners
     initializeActionListeners();
 
-    // Start periodic check
     startPeriodicCheck();
   }
 
   static void startPeriodicCheck() {
     _notificationTimer?.cancel();
     _notificationTimer = Timer.periodic(CHECK_INTERVAL, (timer) {
-      checkForUpdate(); // This will now use in_app_update
+      checkForUpdate();
     });
   }
 
@@ -74,38 +69,31 @@ class VersionCheckService {
     _notificationTimer = null;
   }
 
-  // Modified to use in_app_update package
   static Future<void> checkForUpdate() async {
     try {
-      
-      // Check for update using in_app_update package
+
       final updateInfo = await InAppUpdate.checkForUpdate();
       _updateInfo = updateInfo;
-      // Removed incorrect property access
-      
+
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-        // Get current app version for logging
-        
-        // Notify UI if callback is set
+
         _onUpdateAvailable?.call();
-        
-        // Decide update type based on priority
+
         if (updateInfo.updatePriority >= 4) {
           await _performImmediateUpdate();
         } else {
-          // Regular update - show notification
+
           await _showInAppUpdateNotification();
         }
       } else {
         stopPeriodicCheck();
       }
     } catch (e) {
-      // Fallback to GitHub-based check for development/testing
+
       await _checkForUpdateFromGitHub();
     }
   }
 
-  // New method to show in-app update notification
   static Future<void> _showInAppUpdateNotification() async {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -130,24 +118,23 @@ class VersionCheckService {
     );
   }
 
-  // Modified action handler to use in_app_update
   @pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
     if (receivedAction.buttonKeyPressed == 'UPDATE') {
       final type = receivedAction.payload?['type'];
       if (type == 'in_app_update' && _updateInfo != null) {
-        // Check if it's a flexible update or immediate update
+
         if (_flexibleUpdateAvailable) {
-          // Complete flexible update
+
           await _completeFlexibleUpdate();
         } else {
-          // Perform immediate update
+
           await _performImmediateUpdate();
         }
         stopPeriodicCheck();
       } else if (_cachedDownloadUrl != null) {
-        // Fallback to GitHub-based update
+
         await _downloadAndInstallUpdate(_cachedDownloadUrl!);
         stopPeriodicCheck();
       }
@@ -156,15 +143,14 @@ class VersionCheckService {
     }
   }
 
-  // New method to perform immediate update
   static Future<void> _performImmediateUpdate() async {
     try {
       if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
         final result = await InAppUpdate.performImmediateUpdate();
-        // Handle different results with correct enum values
+
         if (result == AppUpdateResult.userDeniedUpdate) {
         } else if (result == AppUpdateResult.inAppUpdateFailed) {
-          // Fallback to GitHub-based update
+
           if (_cachedDownloadUrl != null) {
             await _downloadAndInstallUpdate(_cachedDownloadUrl!);
           }
@@ -185,14 +171,12 @@ class VersionCheckService {
     }
   }
 
-  // New method to start flexible update
   static Future<void> startFlexibleUpdate() async {
     try {
       if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
         await InAppUpdate.startFlexibleUpdate();
         _flexibleUpdateAvailable = true;
-        
-        // Show notification that download is in progress
+
         await AwesomeNotifications().createNotification(
           content: NotificationContent(
             id: UPDATE_NOTIFICATION_ID + 2,
@@ -208,7 +192,6 @@ class VersionCheckService {
     }
   }
 
-  // New method to complete flexible update
   static Future<void> _completeFlexibleUpdate() async {
     try {
       if (_flexibleUpdateAvailable) {
@@ -219,14 +202,13 @@ class VersionCheckService {
     }
   }
 
-  // Method to manually trigger update check from UI
   static Future<bool> checkForUpdateManually() async {
     try {
       final updateInfo = await InAppUpdate.checkForUpdate();
       _updateInfo = updateInfo;
-      
+
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-        // Notify UI if callback is set
+
         _onUpdateAvailable?.call();
         return true;
       } else {
@@ -237,43 +219,36 @@ class VersionCheckService {
     }
   }
 
-  // Method to trigger immediate update from UI
   static Future<void> triggerImmediateUpdate() async {
     if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
       await _performImmediateUpdate();
     }
   }
 
-  // Method to trigger flexible update from UI
   static Future<void> triggerFlexibleUpdate() async {
     if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
       await startFlexibleUpdate();
     }
   }
 
-  // Method to complete flexible update from UI
   static Future<void> completeFlexibleUpdate() async {
     if (_flexibleUpdateAvailable) {
       await _completeFlexibleUpdate();
-      // Notify UI that flexible update is completed
+
       _onFlexibleUpdateDownloaded?.call();
     }
   }
 
-  // Method to check if flexible update is available
   static bool isFlexibleUpdateAvailable() {
     return _flexibleUpdateAvailable;
   }
 
-  // Original GitHub-based check as fallback
   static Future<void> _checkForUpdateFromGitHub() async {
     try {
 
-      // Get current app version
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version.replaceAll('v', '');
 
-      // Get latest release from GitHub
       final response = await http.get(
         Uri.parse(GITHUB_API_URL),
         headers: {
@@ -281,7 +256,6 @@ class VersionCheckService {
           'User-Agent': 'Fihirana-App',
         },
       );
-
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -294,8 +268,6 @@ class VersionCheckService {
         );
         final downloadUrl = apkAsset?['browser_download_url'] ?? releaseUrl;
 
-
-        // Compare versions
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         if (kDebugMode) {
           print(
@@ -388,7 +360,6 @@ class VersionCheckService {
       List<int> current = currentVersion.split('.').map(int.parse).toList();
       List<int> latest = latestVersion.split('.').map(int.parse).toList();
 
-      // Pad versions to same length if necessary
       while (current.length < latest.length) {
         current.add(0);
       }
@@ -396,12 +367,11 @@ class VersionCheckService {
         latest.add(0);
       }
 
-      // Compare version numbers
       for (int i = 0; i < current.length; i++) {
         if (latest[i] > current[i]) return true;
         if (latest[i] < current[i]) return false;
       }
-      return false; // Versions are equal
+      return false;
     } catch (e) {
       return false;
     }

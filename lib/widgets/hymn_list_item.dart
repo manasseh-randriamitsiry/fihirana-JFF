@@ -10,7 +10,7 @@ class HymnListItem extends StatelessWidget {
   final Color textColor;
   final Color backgroundColor;
   final VoidCallback onFavoritePressed;
-  final bool isFirebaseHymn; // Add this parameter
+  final bool isFirebaseHymn;
   final HymnService _hymnService = HymnService();
 
   HymnListItem({
@@ -19,7 +19,7 @@ class HymnListItem extends StatelessWidget {
     required this.textColor,
     required this.backgroundColor,
     required this.onFavoritePressed,
-    this.isFirebaseHymn = false, // Default to false for local hymns
+    this.isFirebaseHymn = false,
   });
 
   Future<bool> _confirmDeletion(BuildContext context) async {
@@ -66,7 +66,7 @@ class HymnListItem extends StatelessWidget {
                       ),
                     ),
                     onSubmitted: (value) {
-                      // Check confirmation when user presses enter
+
                       if (value.toLowerCase() == 'eny') {
                         isConfirmed = true;
                         Navigator.of(context).pop();
@@ -93,12 +93,12 @@ class HymnListItem extends StatelessWidget {
                 TextButton(
                   child: Text('Fafao', style: TextStyle(color: Colors.red)),
                   onPressed: () {
-                    // Check if user entered "eny" or "ENY"
+
                     if (confirmationController.text.toLowerCase() == 'eny') {
                       isConfirmed = true;
                       Navigator.of(context).pop();
                     } else {
-                      // Show error for incorrect confirmation
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
@@ -142,7 +142,6 @@ class HymnListItem extends StatelessWidget {
               onPressed: () async {
                 Navigator.of(context).pop();
 
-                // Request simple confirmation
                 final confirmed = await _confirmDeletion(context);
 
                 if (!confirmed) {
@@ -163,7 +162,7 @@ class HymnListItem extends StatelessWidget {
                       backgroundColor: Colors.green,
                     ),
                   );
-                  // No need for callback now, stream will update automatically
+
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -210,7 +209,7 @@ class HymnListItem extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            if (isAdmin && isFirebaseHymn) // Only show creator info for Firebase hymns
+            if (isAdmin && isFirebaseHymn)
               Text(
                 'Nampiditra: ${hymn.createdBy}${hymn.createdByEmail != null ? ' (${hymn.createdByEmail})' : ''}',
                 style: TextStyle(
@@ -251,7 +250,7 @@ class HymnListItem extends StatelessWidget {
                 );
               },
             ),
-            // Only show edit/delete options for Firebase hymns
+
             if (isFirebaseHymn && isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
               IconButton(
                 icon: Icon(Icons.edit, color: textColor),

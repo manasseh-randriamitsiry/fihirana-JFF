@@ -81,7 +81,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         ],
       ),
       body: StreamBuilder<List<Hymn>>(
-        stream: _hymnService.getFirebaseHymnsStream(), // Changed from getHymnsStream to getFirebaseHymnsStream
+        stream: _hymnService.getFirebaseHymnsStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
@@ -92,8 +92,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           }
 
           final hymns = snapshot.data ?? [];
-          
-          // Sort by creation date (newest first)
+
           hymns.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
           if (hymns.isEmpty) {

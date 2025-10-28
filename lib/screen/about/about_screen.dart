@@ -20,8 +20,7 @@ class _AboutScreenState extends State<AboutScreen> {
   void initState() {
     super.initState();
     _getAppVersion();
-    
-    // Set callbacks for update availability and flexible update completion
+
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
         setState(() {
@@ -29,7 +28,7 @@ class _AboutScreenState extends State<AboutScreen> {
         });
       }
     });
-    
+
     VersionCheckService.setOnFlexibleUpdateDownloadedCallback(() {
       if (mounted) {
         setState(() {
@@ -76,9 +75,9 @@ class _AboutScreenState extends State<AboutScreen> {
     });
 
     try {
-      // Check for updates using the VersionCheckService
+
       final updateAvailable = await VersionCheckService.checkForUpdateManually();
-      
+
       if (mounted) {
         setState(() {
           _updateAvailable = updateAvailable;
@@ -90,8 +89,7 @@ class _AboutScreenState extends State<AboutScreen> {
         setState(() {
           _checkingForUpdates = false;
         });
-        
-        // Show error message
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -106,18 +104,18 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Future<void> _downloadAndInstallUpdate() async {
     try {
-      // Check if flexible update is already downloaded
+
       if (VersionCheckService.isFlexibleUpdateAvailable()) {
-        // Complete the flexible update
+
         await VersionCheckService.completeFlexibleUpdate();
       } else {
-        // Start a flexible update
+
         setState(() {
           _checkingForUpdates = true;
         });
-        
+
         await VersionCheckService.triggerFlexibleUpdate();
-        
+
         if (mounted) {
           setState(() {
             _checkingForUpdates = false;
@@ -129,8 +127,7 @@ class _AboutScreenState extends State<AboutScreen> {
         setState(() {
           _checkingForUpdates = false;
         });
-        
-        // Show error message
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -147,7 +144,7 @@ class _AboutScreenState extends State<AboutScreen> {
     try {
       await VersionCheckService.triggerImmediateUpdate();
     } catch (e) {
-      // Show error message
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -211,7 +208,6 @@ class _AboutScreenState extends State<AboutScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Contact Buttons Section
                 ElevatedButton.icon(
                   onPressed: () => _makePhoneCall('+261342943971'),
                   icon: const Icon(Icons.phone),
@@ -253,13 +249,12 @@ class _AboutScreenState extends State<AboutScreen> {
                     backgroundColor: Colors.green,
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
-                // Update Check Button
+
                 ElevatedButton.icon(
                   onPressed: _checkingForUpdates ? null : _checkForUpdates,
-                  icon: _checkingForUpdates 
+                  icon: _checkingForUpdates
                     ? const SizedBox(
                         width: 20,
                         height: 20,
@@ -269,22 +264,21 @@ class _AboutScreenState extends State<AboutScreen> {
                         ),
                       )
                     : const Icon(Icons.system_update),
-                  label: Text(_checkingForUpdates 
-                    ? 'Mijery vaovao...' 
+                  label: Text(_checkingForUpdates
+                    ? 'Mijery vaovao...'
                     : 'Jereo vaovao',),
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(250, 45),
                     backgroundColor: Colors.yellow,
                   ),
                 ),
-                
+
                 const SizedBox(height: 10),
-                
-                // Download and Install Update Button (only shown when update is available)
+
                 if (_updateAvailable) ...[
                   ElevatedButton.icon(
                     onPressed: _checkingForUpdates ? null : _downloadAndInstallUpdate,
-                    icon: _checkingForUpdates 
+                    icon: _checkingForUpdates
                       ? const SizedBox(
                           width: 20,
                           height: 20,
@@ -294,8 +288,8 @@ class _AboutScreenState extends State<AboutScreen> {
                           ),
                         )
                       : const Icon(Icons.download),
-                    label: Text(_flexibleUpdateDownloaded 
-                      ? 'Download & Install' 
+                    label: Text(_flexibleUpdateDownloaded
+                      ? 'Download & Install'
                       : (_checkingForUpdates ? 'Download...' : 'Download')),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(250, 45),
@@ -303,8 +297,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  
-                  // Immediate Update Button
+
                   ElevatedButton.icon(
                     onPressed: _checkingForUpdates ? null : _performImmediateUpdate,
                     icon: const Icon(Icons.update),

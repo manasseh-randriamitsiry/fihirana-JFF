@@ -27,7 +27,7 @@ class AccueilScreenState extends State<AccueilScreen> {
   @override
   void initState() {
     super.initState();
-    // Set callback to be notified when update is available
+
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
         setState(() {
@@ -46,7 +46,7 @@ class AccueilScreenState extends State<AccueilScreen> {
         });
       }
     } catch (e) {
-      // Show error message
+
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -146,7 +146,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                               textColor: textColor,
                               backgroundColor: backgroundColor,
                               onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
-                              // isFirebaseHymn defaults to false for local hymns
+
                             );
                           },
                         );

@@ -23,7 +23,7 @@ class LocalStorageService {
     final hymns = hymnBox.values
         .where((value) => value['hymnNumber'] != null)
         .toList();
-    
+
     return hymns.map((data) {
       DateTime createdAt;
       try {
@@ -59,7 +59,7 @@ class LocalStorageService {
   }
 
   Future<bool> hasLocalHymns() async {
-    // Check if there are any hymns in the box (excluding the lastUpdateKey entry)
+
     final hymnCount = hymnBox.values
         .where((value) => value['hymnNumber'] != null)
         .length;

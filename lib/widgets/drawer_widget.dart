@@ -94,11 +94,10 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   Future<void> _signInWithGoogle() async {
     try {
-      // Clear any existing auth state
+
       await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
 
-      // Start fresh sign in
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
 
@@ -113,7 +112,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
         await _firebaseAuth.signInWithCredential(credential);
 
-        // Save user info to SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
             'username', googleSignInAccount.displayName ?? '');
@@ -127,7 +125,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
           colorText: _colorController.textColor.value,
         );
 
-        // Restart the app
         Phoenix.rebirth(context);
       }
     } catch (e) {
@@ -246,7 +243,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                     ),
                     onTap: () {
-                      // Navigate to main hymn list
+
                       Get.back();
                     },
                   ),

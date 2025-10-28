@@ -8,7 +8,7 @@ import 'controller/history_controller.dart';
 import 'controller/theme_controller.dart';
 import 'controller/font_controller.dart';
 import 'controller/color_controller.dart';
-import 'controller/auth_controller.dart'; // Add this import
+import 'controller/auth_controller.dart';
 import 'screen/accueil/home_screen.dart';
 import 'screen/intro/splash_screen1.dart';
 import 'screen/loading/loading_screen.dart';
@@ -18,9 +18,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
-// Added import for in_app_update
-// Import the update dialog
-import 'services/firebase_sync_service.dart'; // Add Firebase sync service
+
+import 'services/firebase_sync_service.dart';
 
 Future<void> initializeNotifications() async {
   await AwesomeNotifications().initialize(
@@ -61,7 +60,6 @@ Future<void> initializeNotifications() async {
     debug: true,
   );
 
-  // Request notification permissions
   await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
     if (!isAllowed) {
       AwesomeNotifications().requestPermissionToSendNotifications();
@@ -71,34 +69,29 @@ Future<void> initializeNotifications() async {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Initialize notifications
   await initializeNotifications();
 
   final prefs = await SharedPreferences.getInstance();
 
-  // Initialize controllers and services
   final themeController = Get.put(ThemeController());
   Get.put(HistoryController());
   Get.put(ColorController());
   Get.put(FontController());
-  Get.put(AuthController()); // Add this line
-  Get.put(HymnService()); // Change from lazyPut to put
+  Get.put(AuthController());
+  Get.put(HymnService());
   Get.put(BackgroundService());
-  Get.put(FirebaseSyncService()); // Initialize Firebase sync service
+  Get.put(FirebaseSyncService());
 
-  // Initialize theme from preferences
   themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
 
-  // Initialize notification action listener
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: (ReceivedAction receivedAction) async {
-      if (receivedAction.channelKey == 'announcement_channel' && 
+      if (receivedAction.channelKey == 'announcement_channel' &&
           receivedAction.buttonKeyPressed == 'OPEN') {
         String? announcementId = receivedAction.payload?['announcementId'];
         if (announcementId != null) {
@@ -134,12 +127,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    // Get existing controller instances
     colorController = Get.find<ColorController>();
     themeController = Get.find<ThemeController>();
     fontController = Get.find<FontController>();
 
-    // Initialize notifications and check for updates
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await VersionCheckService.initializeNotifications();
       await VersionCheckService.checkForUpdate();
@@ -154,15 +145,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Check if flexible update is available when app resumes
+
     if (state == AppLifecycleState.resumed) {
-      // The app has resumed, check if we need to complete a flexible update
-      // This would be handled by the VersionCheckService
+
     }
   }
 
   ThemeData _getThemeWithFont(ThemeData baseTheme, String fontFamily) {
-    // Create a complete text theme with all necessary styles
+
     final TextTheme textTheme = TextTheme(
       displayLarge: GoogleFonts.getFont(
         fontFamily,
@@ -234,12 +224,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
 
-      // Get the appropriate base theme
       ThemeData baseTheme = isDark
           ? colorController.getDarkTheme()
           : colorController.getLightTheme();
 
-      // Apply font to the theme
       final themeWithFont = _getThemeWithFont(baseTheme, currentFont);
 
       return GetMaterialApp(

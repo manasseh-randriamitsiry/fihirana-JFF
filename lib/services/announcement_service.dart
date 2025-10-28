@@ -24,43 +24,41 @@ class AnnouncementService {
 
   Future<void> checkNewAnnouncements() async {
     try {
-      
+
       final prefs = await SharedPreferences.getInstance();
       final lastCheck = prefs.getInt('last_announcement_check') ?? 0;
       final now = DateTime.now().millisecondsSinceEpoch;
-      
+
       if (now - lastCheck < 60000) {
         return;
       }
-      
+
       await prefs.setInt('last_announcement_check', now);
-      
+
       final seenAnnouncements = await _getSeenAnnouncements();
-      
+
       final querySnapshot = await _firestore
           .collection('announcements')
           .orderBy('createdAt', descending: true)
           .get();
 
-
       for (var doc in querySnapshot.docs) {
         final id = doc.id;
         if (!seenAnnouncements.contains(id)) {
           final data = doc.data();
-          
-          // Check if announcement has expired
+
           final expiresAt = data['expiresAt'] as Timestamp?;
           if (expiresAt != null) {
             final expirationDate = expiresAt.toDate();
             if (DateTime.now().isAfter(expirationDate)) {
-              // Mark expired announcements as seen so they don't show up again
+
               await _markAnnouncementAsSeen(id);
               continue;
             }
           }
-          
+
           final notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
-          
+
           final created = await AwesomeNotifications().createNotification(
             content: NotificationContent(
               id: notificationId,
@@ -105,13 +103,13 @@ class AnnouncementService {
         title: title,
         message: message,
         createdAt: DateTime.now(),
-        expiresAt: expiresAt, // Add expiration date
+        expiresAt: expiresAt,
         createdBy: user?.displayName ?? 'Admin',
         createdByEmail: user?.email ?? '',
       );
 
       await _firestore.collection('announcements').add(announcement.toFirestore());
-      
+
       SnackbarUtility.showSuccess(
         title: 'Fahombiazana',
         message: 'Voaforona ny filazana',

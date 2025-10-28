@@ -3,7 +3,7 @@ import 'package:fihirana/services/version_check_service.dart';
 
 class UpdateDialog extends StatefulWidget {
   final bool updateAvailable;
-  
+
   const UpdateDialog({super.key, required this.updateAvailable});
 
   @override
@@ -21,9 +21,9 @@ class _UpdateDialogState extends State<UpdateDialog> {
     });
 
     try {
-      // Start flexible update
+
       await VersionCheckService.triggerFlexibleUpdate();
-      
+
       if (mounted) {
         setState(() {
           _isDownloading = false;
@@ -35,7 +35,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
         setState(() {
           _isDownloading = false;
         });
-        
+
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(

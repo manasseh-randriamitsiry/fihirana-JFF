@@ -29,13 +29,12 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Future<void> _initializeApp() async {
     try {
       await _storageService.init();
-      
-      // Download hymns from Firebase if user is authenticated
+
       await _downloadFirebaseHymns();
-      
+
       Get.off(() => const HomeScreen());
     } catch (e) {
-      // Even if there's an error, continue to the home screen
+
       Get.off(() => const HomeScreen());
     }
   }
@@ -45,21 +44,18 @@ class _LoadingScreenState extends State<LoadingScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // Get hymns from Firebase
       final snapshot = await _firestore.collection('hymns').get();
-      
-      // Convert to Hymn objects
+
       final firebaseHymns = snapshot.docs.map((doc) {
         final data = doc.data();
         return Hymn.fromJson(data, doc.id);
       }).toList();
-      
-      // Save to local storage
+
       if (firebaseHymns.isNotEmpty) {
         await _storageService.saveHymns(firebaseHymns);
       }
     } catch (e) {
-      // Silently ignore errors in downloading hymns
+
     }
   }
 
@@ -71,7 +67,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Loading animation
+
             LoadingAnimationWidget.staggeredDotsWave(
               color: Get.find<ColorController>().primaryColor.value,
               size: 60,

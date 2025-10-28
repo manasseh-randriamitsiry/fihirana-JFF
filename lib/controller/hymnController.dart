@@ -5,13 +5,11 @@ import 'package:flutter/material.dart';
 class HymnController extends GetxController {
   var isDarkMode = false.obs;
 
-
   final HymnService _hymnService = HymnService();
 
   Future<bool> createHymn(String hymnNumber, String title, List<String> verses,
       String? bridge, String? hymnHint) async {
-    // Since we've disabled Firestore, we can no longer add hymns
-    // This functionality is not available with local files only
+
     Get.snackbar(
       'Tsy mananana alalana',
       'Tsy afaka manampy hira amin\'izao fotoana izao',

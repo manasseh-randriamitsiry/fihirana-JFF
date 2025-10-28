@@ -74,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         children: [
-          // User Info Section
+
           Obx(() {
             final user = FirebaseAuth.instance.currentUser;
             if (user != null) {
@@ -144,8 +144,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             }
           }),
-          
-          // History Settings
+
           Card(
             color: colorController.primaryColor.value.withOpacity(0.5),
             margin: const EdgeInsets.all(16),
@@ -185,8 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          
-          // Sync Information
+
           Obx(() {
             final user = FirebaseAuth.instance.currentUser;
             if (user != null) {

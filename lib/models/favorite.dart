@@ -34,11 +34,10 @@ class Favorite {
       'addedDate': Timestamp.fromDate(addedDate),
     };
   }
-  
-  // Factory method to create a Favorite from basic data
+
   factory Favorite.create(String hymnId, String userId, String userEmail) {
     return Favorite(
-      id: '', // Will be set by Firebase when saved
+      id: '',
       hymnId: hymnId,
       userId: userId,
       userEmail: userEmail,

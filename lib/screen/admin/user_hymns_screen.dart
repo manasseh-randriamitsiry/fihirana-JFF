@@ -27,16 +27,15 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final HymnService _hymnService = HymnService();
 
-  String _sortBy = 'recent'; // 'recent', 'old', 'number'
+  String _sortBy = 'recent';
 
   Stream<List<Hymn>> _getHymnsStream() async* {
-    // Get Firebase hymns only
+
     final allHymns = await _hymnService.getFirebaseHymnsStream().first;
-    final userHymns = allHymns.where((hymn) => 
+    final userHymns = allHymns.where((hymn) =>
       hymn.createdByEmail == widget.userEmail
     ).toList();
-    
-    // Sort based on the current sort preference
+
     switch (_sortBy) {
       case 'recent':
         userHymns.sort((a, b) => b.createdAt.compareTo(a.createdAt));
@@ -52,7 +51,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
         });
         break;
     }
-    
+
     yield userHymns;
   }
 

@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 class FontController extends GetxController {
   final RxString currentFont = 'Lato'.obs;
 
-  // List of available fonts with their display names
   final Map<String, String> fontMap = {
     'Lato': 'Lato',
     'Poppins': 'Poppins',

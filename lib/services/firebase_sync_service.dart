@@ -7,13 +7,12 @@ import '../models/favorite.dart';
 class FirebaseSyncService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   static const String _localFavoritesKey = 'local_favorites';
   static const String _localHistoryKey = 'local_hymn_history';
   static const String _favoritesSyncedKey = 'favorites_synced';
   static const String _historySyncedKey = 'history_synced';
 
-  /// Sync local favorites to Firebase for authenticated users
   Future<void> syncFavoritesToFirebase() async {
     try {
       final user = _auth.currentUser;
@@ -21,12 +20,11 @@ class FirebaseSyncService {
 
       final prefs = await SharedPreferences.getInstance();
       final isSynced = prefs.getBool(_favoritesSyncedKey) ?? false;
-      
+
       if (isSynced) {
         return;
       }
 
-      // Get local favorites
       final localFavoritesJson = prefs.getString(_localFavoritesKey);
       if (localFavoritesJson == null) {
         await prefs.setBool(_favoritesSyncedKey, true);
@@ -39,8 +37,6 @@ class FirebaseSyncService {
         return;
       }
 
-
-      // Get existing Firebase favorites to avoid duplicates
       final firebaseFavoritesSnapshot = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -51,7 +47,6 @@ class FirebaseSyncService {
           .map((doc) => doc.data()['hymnId'] as String)
           .toSet();
 
-      // Add new favorites to Firebase
       final batch = _firestore.batch();
       int addedCount = 0;
 
@@ -80,13 +75,11 @@ class FirebaseSyncService {
         await batch.commit();
       }
 
-      // Mark as synced
       await prefs.setBool(_favoritesSyncedKey, true);
     } catch (e) {
     }
   }
 
-  /// Sync local history to Firebase for authenticated users
   Future<void> syncHistoryToFirebase() async {
     try {
       final user = _auth.currentUser;
@@ -94,12 +87,11 @@ class FirebaseSyncService {
 
       final prefs = await SharedPreferences.getInstance();
       final isSynced = prefs.getBool(_historySyncedKey) ?? false;
-      
+
       if (isSynced) {
         return;
       }
 
-      // Get local history
       final localHistoryJson = prefs.getString(_localHistoryKey);
       if (localHistoryJson == null) {
         await prefs.setBool(_historySyncedKey, true);
@@ -112,27 +104,23 @@ class FirebaseSyncService {
         return;
       }
 
-
-      // Get existing Firebase history to avoid duplicates
       final firebaseHistorySnapshot = await _firestore
           .collection('users')
           .doc(user.uid)
           .collection('history')
           .orderBy('timestamp', descending: true)
-          .limit(50) // Limit to avoid too many documents
+          .limit(50)
           .get();
 
       final existingHymnIds = firebaseHistorySnapshot.docs
           .map((doc) => doc.data()['hymnId'] as String)
           .toSet();
 
-      // Add new history items to Firebase (limit to recent items)
       final batch = _firestore.batch();
       int addedCount = 0;
-      int maxItemsToSync = 50; // Limit the number of items to sync
+      int maxItemsToSync = 50;
       int itemsSynced = 0;
 
-      // Process in reverse order to get most recent items first
       for (var i = localHistory.length - 1; i >= 0 && itemsSynced < maxItemsToSync; i--) {
         final item = localHistory[i];
         if (item is Map<String, dynamic>) {
@@ -161,13 +149,11 @@ class FirebaseSyncService {
         await batch.commit();
       }
 
-      // Mark as synced
       await prefs.setBool(_historySyncedKey, true);
     } catch (e) {
     }
   }
 
-  /// Load favorites from Firebase for authenticated users
   Future<Set<String>> loadFavoritesFromFirebase() async {
     try {
       final user = _auth.currentUser;
@@ -194,7 +180,6 @@ class FirebaseSyncService {
     }
   }
 
-  /// Load history from Firebase for authenticated users
   Future<List<Map<String, dynamic>>> loadHistoryFromFirebase() async {
     try {
       final user = _auth.currentUser;
@@ -205,7 +190,7 @@ class FirebaseSyncService {
           .doc(user.uid)
           .collection('history')
           .orderBy('timestamp', descending: true)
-          .limit(100) // Limit to 100 most recent items
+          .limit(100)
           .get();
 
       final history = <Map<String, dynamic>>[];
@@ -226,13 +211,11 @@ class FirebaseSyncService {
     }
   }
 
-  /// Add a favorite to Firebase
   Future<void> addFavoriteToFirebase(String hymnId) async {
     try {
       final user = _auth.currentUser;
       if (user == null) return;
 
-      // Check if favorite already exists
       final existingSnapshot = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -264,7 +247,6 @@ class FirebaseSyncService {
     }
   }
 
-  /// Remove a favorite from Firebase
   Future<void> removeFavoriteFromFirebase(String hymnId) async {
     try {
       final user = _auth.currentUser;
@@ -285,7 +267,6 @@ class FirebaseSyncService {
     }
   }
 
-  /// Add a history item to Firebase
   Future<void> addHistoryToFirebase(String hymnId, String title, String number) async {
     try {
       final user = _auth.currentUser;
@@ -308,7 +289,6 @@ class FirebaseSyncService {
     }
   }
 
-  /// Clear history from Firebase
   Future<void> clearHistoryFromFirebase() async {
     try {
       final user = _auth.currentUser;
@@ -330,7 +310,6 @@ class FirebaseSyncService {
     }
   }
 
-  /// Reset sync status (useful when user logs out)
   Future<void> resetSyncStatus() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_favoritesSyncedKey);
