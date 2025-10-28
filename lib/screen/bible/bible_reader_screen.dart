@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
@@ -19,6 +20,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   final ColorController colorController = Get.find<ColorController>();
   
   final TextEditingController _searchController = TextEditingController();
+  
+  // Font size variables
+  final double _baseFontSize = 18.0;
+  final double _baseCountFontSize = 50.0;
+  double _fontSize = 18.0;
+  double _countFontSize = 50.0;
+  bool _showSlider = false;
 
   @override
   void initState() {
@@ -26,6 +34,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     // Enable GPU rasterization for better performance
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // This helps with rendering performance
+    });
+    _loadFontSize();
+  }
+  
+  void _loadFontSize() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _fontSize = prefs.getDouble('fontSize') ?? _baseFontSize;
+      _countFontSize = prefs.getDouble('countFontSize') ?? _baseCountFontSize;
     });
   }
 
@@ -48,6 +65,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 style: TextStyle(
                   color: colorController.textColor.value,
                   fontWeight: FontWeight.bold,
+                  fontSize: _fontSize, // Use user-defined font size
                 ),
               );
             } 
@@ -58,11 +76,21 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 style: TextStyle(
                   color: colorController.textColor.value,
                   fontWeight: FontWeight.bold,
+                  fontSize: _fontSize, // Use user-defined font size
                 ),
               );
             }
           }),
           actions: [
+            // Font size adjustment button
+            IconButton(
+              icon: Icon(Icons.text_fields, color: colorController.iconColor.value),
+              onPressed: () {
+                setState(() {
+                  _showSlider = !_showSlider;
+                });
+              },
+            ),
             // Add save highlight button when verses are selected
             Obx(() {
               if (bibleController.startVerse.value > 0) {
@@ -97,6 +125,60 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     if (bibleController.selectedBook.isEmpty) {
       return Column(
         children: [
+          // Search bar only for book selection
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Karoka boky...',
+                labelStyle: TextStyle(color: colorController.textColor.value),
+                prefixIcon: Icon(Icons.search, color: colorController.iconColor.value),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: colorController.textColor.value.withOpacity(0.3),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: colorController.textColor.value.withOpacity(0.3),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: colorController.primaryColor.value,
+                  ),
+                ),
+              ),
+              style: TextStyle(color: colorController.textColor.value),
+              onChanged: bibleController.searchBooks,
+            ),
+          ),
+          // Font size slider
+          if (_showSlider)
+            Slider(
+              value: _fontSize,
+              min: 12,
+              max: 40,
+              divisions: 28,
+              label: _fontSize.round().toString(),
+              onChanged: (double value) {
+                setState(() {
+                  _fontSize = value;
+                  _countFontSize = value * (_baseCountFontSize / _baseFontSize);
+                });
+              },
+              onChangeEnd: (double value) async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setDouble('fontSize', value);
+                setState(() {
+                  _showSlider = false;
+                });
+              },
+            ),
           // Book list
           Expanded(
             child: bibleController.isLoading.value
@@ -154,7 +236,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     bibleController.selectedBook.value,
                     style: TextStyle(
                       color: colorController.textColor.value,
-                      fontSize: 20,
+                      fontSize: _fontSize * 1.2, // Larger font for book title
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -162,6 +244,28 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               ],
             ),
           ),
+          // Font size slider
+          if (_showSlider)
+            Slider(
+              value: _fontSize,
+              min: 12,
+              max: 40,
+              divisions: 28,
+              label: _fontSize.round().toString(),
+              onChanged: (double value) {
+                setState(() {
+                  _fontSize = value;
+                  _countFontSize = value * (_baseCountFontSize / _baseFontSize);
+                });
+              },
+              onChangeEnd: (double value) async {
+                final prefs = await SharedPreferences.getInstance();
+                await prefs.setDouble('fontSize', value);
+                setState(() {
+                  _showSlider = false;
+                });
+              },
+            ),
           // Chapter grid (full screen)
           Expanded(
             child: bibleController.chapterList.isEmpty
@@ -189,7 +293,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               style: TextStyle(
                                 color: colorController.backgroundColor.value,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 20,
+                                fontSize: _fontSize * 1.2, // Larger font for chapter numbers
                               ),
                             ),
                           ),
@@ -205,6 +309,30 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     // Passage display view (full screen)
     return Column(
       children: [
+        
+        // Font size slider
+        if (_showSlider)
+          Slider(
+            value: _fontSize,
+            min: 12,
+            max: 40,
+            divisions: 28,
+            label: _fontSize.round().toString(),
+            onChanged: (double value) {
+              setState(() {
+                _fontSize = value;
+                _countFontSize = value * (_baseCountFontSize / _baseFontSize);
+              });
+            },
+            onChangeEnd: (double value) async {
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setDouble('fontSize', value);
+              setState(() {
+                _showSlider = false;
+              });
+            },
+          ),
+        
         // Verse selection controls (only visible when selecting)
         Obx(() {
           if (bibleController.isSelecting.value && bibleController.startVerse.value > 0) {
@@ -227,6 +355,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     style: TextStyle(
                       color: colorController.textColor.value,
                       fontWeight: FontWeight.bold,
+                      fontSize: _fontSize, // Use user-defined font size
                     ),
                   ),
                   Row(
@@ -338,33 +467,59 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                       width: isHighlighted || isSelected || isInRange ? 2 : 0,
                     ),
                   ),
-                  child: RichText(
-                    text: TextSpan(
-                      style: TextStyle(
-                        color: colorController.textColor.value,
-                        fontSize: 18,
-                        height: 1.6,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Verse number background
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: 0.1,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              '$verseNum',
+                              style: TextStyle(
+                                fontSize: _countFontSize * 0.8, // Smaller background number
+                                fontWeight: FontWeight.bold,
+                                color: colorController.primaryColor.value,
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                      children: [
-                        TextSpan(
-                          text: '$verseNum. ',
-                          style: TextStyle(
-                            fontWeight: isSelected || isHighlighted || isInRange ? FontWeight.bold : FontWeight.normal,
-                            color: isSelected || isHighlighted || isInRange
-                                ? colorController.primaryColor.value 
-                                : colorController.textColor.value,
+                      // Verse content
+                      Padding(
+                        padding: const EdgeInsets.only(left: 30.0),
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(
+                              color: colorController.textColor.value,
+                              fontSize: _fontSize, // Use user-defined font size
+                              height: 1.6,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: '$verseNum. ',
+                                style: TextStyle(
+                                  fontWeight: isSelected || isHighlighted || isInRange ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected || isHighlighted || isInRange
+                                      ? colorController.primaryColor.value 
+                                      : colorController.textColor.value,
+                                ),
+                              ),
+                              TextSpan(
+                                text: verseText,
+                                style: TextStyle(
+                                  color: isSelected || isHighlighted || isInRange
+                                      ? colorController.primaryColor.value 
+                                      : colorController.textColor.value,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        TextSpan(
-                          text: verseText,
-                          style: TextStyle(
-                            color: isSelected || isHighlighted || isInRange
-                                ? colorController.primaryColor.value 
-                                : colorController.textColor.value,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -440,7 +595,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             Text(
               message,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: _fontSize, // Use user-defined font size
                 color: colorController.textColor.value,
                 fontWeight: FontWeight.w500,
               ),
@@ -450,7 +605,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             Text(
               'Mahandrasa kely azafady...',
               style: TextStyle(
-                fontSize: 14,
+                fontSize: _fontSize * 0.8, // Smaller font for additional info
                 color: colorController.textColor.value.withOpacity(0.7),
               ),
             ),
