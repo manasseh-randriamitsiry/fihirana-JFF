@@ -12,7 +12,7 @@ keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -sto
     - 
 ## release point
 # every tag push
-git tag v1.0.3 
-git push origin v1.0.3
+git tag v1.0.5 
+git push origin v1.0.5
 
 # the CI/CD is success in release mode only because of json file configuration
