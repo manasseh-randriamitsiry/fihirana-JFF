@@ -60,10 +60,11 @@ class BibleController extends GetxController {
       final lastBook = prefs.getString('last_bible_book');
       final lastChapter = prefs.getInt('last_bible_chapter');
       
-      if (lastBook != null && lastChapter != null) {
-        selectedBook.value = lastBook;
-        selectedChapter.value = lastChapter;
-        loadPassage();
+      // Only load last viewed passage if both book and chapter exist
+      if (lastBook != null && lastChapter != null && lastBook.isNotEmpty) {
+        // Don't auto-select the book and chapter, let user choose
+        // Just populate the book list
+        return;
       }
     } catch (e) {
       print('Error loading last viewed passage: $e');

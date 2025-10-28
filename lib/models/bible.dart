@@ -14,35 +14,47 @@ class BibleBook {
   factory BibleBook.fromJson(Map<String, dynamic> json, String bookName) {
     final Map<int, BibleChapter> chapters = {};
     
-    // Pre-allocate map with estimated size for better performance
+    // Pre-size map for better performance
     chapters.reserve(_estimateChapterCount(json));
     
-    // Filter out non-numeric keys and process only chapter data
+    // Process chapters more efficiently
     json.forEach((key, value) {
-      // Check if the key is a valid chapter number
-      if (key != null && key is String) {
-        try {
-          final chapterNum = int.parse(key);
-          if (value is Map<String, dynamic>) {
-            chapters[chapterNum] = BibleChapter.fromJson(value, chapterNum);
-          }
-        } catch (e) {
-          // Skip non-numeric keys like "meta" or other metadata
+      if (key is String && value is Map<String, dynamic>) {
+        // Fast integer parsing
+        final chapterNum = _fastParseInt(key);
+        if (chapterNum != null) {
+          chapters[chapterNum] = BibleChapter.fromJson(value, chapterNum);
         }
       }
     });
 
     return BibleBook(
       name: bookName,
-      abbreviation: bookName.substring(0, 3).toUpperCase(),
+      abbreviation: bookName.length >= 3 ? bookName.substring(0, 3).toUpperCase() : bookName.toUpperCase(),
       chapters: chapters.length,
       chapterData: chapters,
     );
   }
   
   static int _estimateChapterCount(Map<String, dynamic> json) {
-    // Estimate based on typical Bible book structure
-    return json.length > 100 ? 150 : json.length + 10;
+    // More accurate estimation
+    return json.length > 150 ? 170 : (json.length + 20);
+  }
+  
+  static int? _fastParseInt(String str) {
+    // Fast integer parsing without exception handling overhead
+    if (str.isEmpty) return null;
+    
+    int result = 0;
+    for (int i = 0; i < str.length; i++) {
+      final char = str.codeUnitAt(i);
+      if (char >= 48 && char <= 57) { // '0' to '9'
+        result = result * 10 + (char - 48);
+      } else {
+        return null; // Not a valid integer
+      }
+    }
+    return result;
   }
 
   BibleChapter? getChapter(int chapter) {
@@ -62,20 +74,16 @@ class BibleChapter {
   factory BibleChapter.fromJson(Map<String, dynamic> json, int chapterNumber) {
     final Map<int, String> verses = {};
     
-    // Pre-allocate map with estimated size for better performance
+    // Pre-size map for better performance
     verses.reserve(_estimateVerseCount(json));
     
-    // Filter out non-numeric keys and process only verse data
+    // Process verses more efficiently
     json.forEach((key, value) {
-      // Check if the key is a valid verse number
-      if (key != null && key is String) {
-        try {
-          final verseNum = int.parse(key);
-          if (value is String) {
-            verses[verseNum] = value;
-          }
-        } catch (e) {
-          // Skip non-numeric keys
+      if (key is String && value is String) {
+        // Fast integer parsing
+        final verseNum = BibleBook._fastParseInt(key);
+        if (verseNum != null) {
+          verses[verseNum] = value;
         }
       }
     });
@@ -87,8 +95,8 @@ class BibleChapter {
   }
   
   static int _estimateVerseCount(Map<String, dynamic> json) {
-    // Estimate based on typical Bible chapter structure
-    return json.length > 200 ? 250 : json.length + 20;
+    // More accurate estimation
+    return json.length > 200 ? 250 : (json.length + 30);
   }
 
   String? getVerse(int verse) {
@@ -97,17 +105,15 @@ class BibleChapter {
 
   List<String> getVersesInRange(int start, int end) {
     final List<String> result = [];
-    // Pre-allocate list for better performance
-    result.length = (end - start + 1).clamp(0, 1000);
     
+    // More efficient range processing
     for (int i = start; i <= end; i++) {
-      if (verses.containsKey(i)) {
-        result.add(verses[i]!);
+      final verse = verses[i];
+      if (verse != null) {
+        result.add(verse);
       }
     }
     
-    // Remove null entries
-    result.removeWhere((element) => element == null);
     return result;
   }
 }
@@ -116,14 +122,5 @@ class BibleChapter {
 extension MapReserve<K, V> on Map<K, V> {
   void reserve(int capacity) {
     // This is a no-op in Dart, but included for semantic clarity
-    // In other languages, this would pre-allocate memory
-  }
-}
-
-// Extension to add reserve method to List
-extension ListReserve<T> on List<T> {
-  void reserve(int capacity) {
-    // This is a no-op in Dart, but included for semantic clarity
-    // In other languages, this would pre-allocate memory
   }
 }

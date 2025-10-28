@@ -40,13 +40,28 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             icon: Icon(Icons.arrow_back, color: colorController.iconColor.value),
             onPressed: () => Navigator.pop(context),
           ),
-          title: Text(
-            'Famakiana Baiboly',
-            style: TextStyle(
-              color: colorController.textColor.value,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+          title: Obx(() {
+            // Show book name and chapter when viewing a passage
+            if (bibleController.selectedBook.isNotEmpty && bibleController.selectedChapter.value > 0) {
+              return Text(
+                '${bibleController.selectedBook.value} ${bibleController.selectedChapter.value}',
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            } 
+            // Show "Famakiana Baiboly" when selecting books or chapters
+            else {
+              return Text(
+                'Famakiana Baiboly',
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }
+          }),
           actions: [
             // Add save highlight button when verses are selected
             Obx(() {
@@ -82,38 +97,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     if (bibleController.selectedBook.isEmpty) {
       return Column(
         children: [
-          // Search bar only for book selection
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                labelText: 'Karoka boky...',
-                labelStyle: TextStyle(color: colorController.textColor.value),
-                prefixIcon: Icon(Icons.search, color: colorController.iconColor.value),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: colorController.textColor.value.withOpacity(0.3),
-                  ),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: colorController.textColor.value.withOpacity(0.3),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                    color: colorController.primaryColor.value,
-                  ),
-                ),
-              ),
-              style: TextStyle(color: colorController.textColor.value),
-              onChanged: bibleController.searchBooks,
-            ),
-          ),
           // Book list
           Expanded(
             child: bibleController.isLoading.value
@@ -222,55 +205,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     // Passage display view (full screen)
     return Column(
       children: [
-        // Header with book and chapter info
-        Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: colorController.primaryColor.value.withOpacity(0.1),
-            border: Border(
-              bottom: BorderSide(
-                color: colorController.textColor.value.withOpacity(0.1),
-                width: 1,
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.arrow_back, color: colorController.iconColor.value),
-                onPressed: () {
-                  bibleController.selectedChapter.value = 0;
-                  bibleController.passageText.value = '';
-                },
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  '${bibleController.selectedBook.value} ${bibleController.selectedChapter.value}',
-                  style: TextStyle(
-                    color: colorController.textColor.value,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              // Previous chapter
-              if (bibleController.selectedChapter.value > 1)
-                IconButton(
-                  icon: Icon(Icons.skip_previous, color: colorController.iconColor.value),
-                  onPressed: () => bibleController.selectChapter(bibleController.selectedChapter.value - 1),
-                ),
-              // Next chapter
-              if (bibleController.chapterList.isNotEmpty && 
-                  bibleController.selectedChapter.value < bibleController.chapterList.last)
-                IconButton(
-                  icon: Icon(Icons.skip_next, color: colorController.iconColor.value),
-                  onPressed: () => bibleController.selectChapter(bibleController.selectedChapter.value + 1),
-                ),
-            ],
-          ),
-        ),
-        
         // Verse selection controls (only visible when selecting)
         Obx(() {
           if (bibleController.isSelecting.value && bibleController.startVerse.value > 0) {

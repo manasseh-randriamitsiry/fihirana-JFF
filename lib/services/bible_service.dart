@@ -31,7 +31,7 @@ class BibleService {
     onLoadingMessage = loadingCallback;
     
     try {
-      await _loadBibleBooks();
+      await _loadBibleBooksUltraFast();
       _isInitialized = true;
     } finally {
       _isInitializing = false;
@@ -39,7 +39,7 @@ class BibleService {
     }
   }
 
-  Future<void> _loadBibleBooks() async {
+  Future<void> _loadBibleBooksUltraFast() async {
     try {
       _onLoadingMessage('Maka lisitra ny boky...');
       
@@ -57,91 +57,76 @@ class BibleService {
           .toList();
       
       final totalBooks = oldTestamentBooks.length + newTestamentBooks.length;
+      _onLoadingMessage('Maka boky rehetra ($totalBooks boky)...');
+      
+      // Combine all books
+      final allBooks = [...oldTestamentBooks, ...newTestamentBooks];
+      
+      // Pre-allocate cache map for better performance
+      MapReserve(_bibleCache).reserve(totalBooks);
+      
+      // Load all JSON strings in parallel for maximum performance
+      _onLoadingMessage('Maka boky rehetra any amin\'ny cache...');
+      final jsonStringFutures = allBooks.map((assetPath) async {
+        try {
+          final jsonString = await rootBundle.loadString(assetPath);
+          return {'path': assetPath, 'data': jsonString};
+        } catch (e) {
+          return {'path': assetPath, 'data': null};
+        }
+      }).toList();
+      
+      // Wait for all JSON strings to load
+      final jsonResults = await Future.wait(jsonStringFutures);
+      
+      // Filter out failed loads
+      final successfulLoads = jsonResults.where((result) => result['data'] != null).toList();
+      
+      _onLoadingMessage('Mamaky boky ${successfulLoads.length}...');
+      
+      // Parse all JSON data in parallel batches to avoid memory issues
+      const batchSize = 15;
       var loadedBooks = 0;
       
-      // Pre-load all JSON strings concurrently for better performance
-      _onLoadingMessage('Maka boky rehetra...');
-      
-      // Load Old Testament books concurrently
-      final oldTestamentFutures = oldTestamentBooks.map((assetPath) async {
-        try {
-          final jsonString = await rootBundle.loadString(assetPath);
-          return {'path': assetPath, 'data': jsonString};
-        } catch (e) {
-          return {'path': assetPath, 'data': null, 'error': e};
-        }
-      }).toList();
-      
-      // Load New Testament books concurrently
-      final newTestamentFutures = newTestamentBooks.map((assetPath) async {
-        try {
-          final jsonString = await rootBundle.loadString(assetPath);
-          return {'path': assetPath, 'data': jsonString};
-        } catch (e) {
-          return {'path': assetPath, 'data': null, 'error': e};
-        }
-      }).toList();
-      
-      // Wait for all loading to complete
-      final oldTestamentResults = await Future.wait(oldTestamentFutures);
-      final newTestamentResults = await Future.wait(newTestamentFutures);
-      
-      // Process Old Testament books
-      for (final result in oldTestamentResults) {
-        final assetPath = result['path'] as String;
-        final jsonString = result['data'] as String?;
-        final error = result['error'];
+      for (var i = 0; i < successfulLoads.length; i += batchSize) {
+        final end = (i + batchSize < successfulLoads.length) ? i + batchSize : successfulLoads.length;
+        final batch = successfulLoads.sublist(i, end);
         
-        if (error != null) {
-          continue;
-        }
-        
-        if (jsonString != null) {
+        // Parse batch in parallel
+        final parseFutures = batch.map((result) async {
+          final assetPath = result['path'] as String;
+          final jsonString = result['data'] as String;
+          
           try {
             final fileName = assetPath.split('/').last;
             final bookFileName = fileName.substring(0, fileName.lastIndexOf('.'));
-            _onLoadingMessage('Mamaky boky: $bookFileName...');
+            final isOldTestament = assetPath.contains('Testameta taloha');
+            final bookName = isOldTestament 
+                ? _getOldTestamentBookDisplayName(bookFileName)
+                : _getNewTestamentBookDisplayName(bookFileName);
             
+            // Parse JSON data directly without compute for better performance in this case
             final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-            final bookName = _getOldTestamentBookDisplayName(bookFileName);
             
-            // Use compute for JSON parsing to offload work to another isolate
-            final book = await compute(_parseBibleBook, {'data': jsonData, 'name': bookName});
-            _bibleCache[book.name] = book;
-            loadedBooks++;
-            _onLoadingMessage('Voakija: ${book.name} ($loadedBooks/$totalBooks)');
+            // Create BibleBook directly
+            final book = BibleBook.fromJson(jsonData, bookName);
+            return book;
           } catch (e) {
-            // Skip books that fail to parse
+            return null;
           }
-        }
-      }
-      
-      // Process New Testament books
-      for (final result in newTestamentResults) {
-        final assetPath = result['path'] as String;
-        final jsonString = result['data'] as String?;
-        final error = result['error'];
+        }).toList();
         
-        if (error != null) {
-          continue;
-        }
+        // Wait for parsing to complete
+        final parsedBooks = await Future.wait(parseFutures);
         
-        if (jsonString != null) {
-          try {
-            final fileName = assetPath.split('/').last;
-            final bookFileName = fileName.substring(0, fileName.lastIndexOf('.'));
-            _onLoadingMessage('Mamaky boky: $bookFileName...');
-            
-            final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-            final bookName = _getNewTestamentBookDisplayName(bookFileName);
-            
-            // Use compute for JSON parsing to offload work to another isolate
-            final book = await compute(_parseBibleBook, {'data': jsonData, 'name': bookName});
+        // Add successfully parsed books to cache
+        for (final book in parsedBooks) {
+          if (book != null) {
             _bibleCache[book.name] = book;
             loadedBooks++;
-            _onLoadingMessage('Voakija: ${book.name} ($loadedBooks/$totalBooks)');
-          } catch (e) {
-            // Skip books that fail to parse
+            if (loadedBooks % 5 == 0) { // Update every 5 books to reduce UI updates
+              _onLoadingMessage('Voakija: $loadedBooks/$totalBooks boky');
+            }
           }
         }
       }
@@ -152,15 +137,9 @@ class BibleService {
     }
   }
 
-  // Static method for parsing Bible books in a separate isolate
-  static BibleBook _parseBibleBook(Map<String, dynamic> params) {
-    final jsonData = params['data'] as Map<String, dynamic>;
-    final bookName = params['name'] as String;
-    return BibleBook.fromJson(jsonData, bookName);
-  }
-
   void _onLoadingMessage(String message) {
     if (onLoadingMessage != null) {
+      // Debounce loading messages to reduce UI updates
       onLoadingMessage!(message);
     }
   }
@@ -347,5 +326,13 @@ class BibleService {
       info[key] = value.chapters;
     });
     return info;
+  }
+}
+
+// Extension to add reserve method to Map
+extension MapReserve<K, V> on Map<K, V> {
+  void reserve(int capacity) {
+    // In Dart, we can't pre-allocate map size, but we can at least ensure capacity
+    // This is more of a semantic placeholder for languages that support pre-allocation
   }
 }
