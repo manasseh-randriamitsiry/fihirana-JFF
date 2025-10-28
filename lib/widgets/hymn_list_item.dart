@@ -10,6 +10,7 @@ class HymnListItem extends StatelessWidget {
   final Color textColor;
   final Color backgroundColor;
   final VoidCallback onFavoritePressed;
+  final bool isFirebaseHymn; // Add this parameter
   final HymnService _hymnService = HymnService();
 
   HymnListItem({
@@ -18,6 +19,7 @@ class HymnListItem extends StatelessWidget {
     required this.textColor,
     required this.backgroundColor,
     required this.onFavoritePressed,
+    this.isFirebaseHymn = false, // Default to false for local hymns
   });
 
   Future<bool> _confirmDeletion(BuildContext context) async {
@@ -208,7 +210,7 @@ class HymnListItem extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            if (isAdmin)
+            if (isAdmin && isFirebaseHymn) // Only show creator info for Firebase hymns
               Text(
                 'Nampiditra: ${hymn.createdBy}${hymn.createdByEmail != null ? ' (${hymn.createdByEmail})' : ''}',
                 style: TextStyle(
@@ -249,12 +251,13 @@ class HymnListItem extends StatelessWidget {
                 );
               },
             ),
-            if (isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
+            // Only show edit/delete options for Firebase hymns
+            if (isFirebaseHymn && isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
               IconButton(
                 icon: Icon(Icons.edit, color: textColor),
                 onPressed: () => NavigationUtility.navigateToEditScreen(context, hymn),
               ),
-            if (isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
+            if (isFirebaseHymn && isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                 onPressed: () => _showDeleteConfirmation(context),

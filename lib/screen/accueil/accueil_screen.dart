@@ -146,6 +146,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                               textColor: textColor,
                               backgroundColor: backgroundColor,
                               onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
+                              // isFirebaseHymn defaults to false for local hymns
                             );
                           },
                         );

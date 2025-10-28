@@ -72,6 +72,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                       textColor: colorController.textColor.value,
                       backgroundColor: colorController.backgroundColor.value,
                       onFavoritePressed: () => _hymnService.toggleFavorite(hymn),
+                      isFirebaseHymn: true, // Set to true for Firebase hymns
                     );
                   },
                 );
