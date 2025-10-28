@@ -7,10 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import '../../models/hymn.dart';
+import '../../models/note.dart';
+import '../../services/note_service.dart';
 import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/history_controller.dart';
+import '../../controller/auth_controller.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -31,10 +34,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   double _countFontSize = 50.0;
   bool _show = true;
   bool _showSlider = false;
+  bool _showNote = true; // Add this line to control note visibility
   final HymnService _hymnService = HymnService();
+  final NoteService _noteService = NoteService();
+  final AuthController _authController = Get.find<AuthController>();
   final ColorController colorController = Get.find<ColorController>();
   late final HistoryController historyController;
   Hymn? _hymn;
+  Note? _userNote;
+  bool _isLoadingNote = true;
 
   @override
   void initState() {
@@ -46,6 +54,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     historyController = Get.find<HistoryController>();
     _loadFontSize();
     _loadHymnData();
+    _loadUserNote();
 
     _hymnService.checkPendingSyncs();
   }
@@ -82,6 +91,30 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         }
       }
     } catch (e) {
+    }
+  }
+
+  Future<void> _loadUserNote() async {
+    if (!isUserAuthenticated()) {
+      setState(() {
+        _isLoadingNote = false;
+      });
+      return;
+    }
+
+    try {
+      final note = await _noteService.getNote(widget.hymnId);
+      setState(() {
+        _userNote = note;
+        _isLoadingNote = false;
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading user note: $e');
+      }
+      setState(() {
+        _isLoadingNote = false;
+      });
     }
   }
 
@@ -179,6 +212,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       _showSlider = !_showSlider;
                     });
                     break;
+                  case 'add_note':
+                    _showNoteEditor();
+                    break;
+                  case 'toggle_note':
+                    setState(() {
+                      _showNote = !_showNote;
+                    });
+                    break;
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -199,21 +240,22 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         ],
                       ),
                     ),
-                  PopupMenuItem<String>(
-                    value: 'switch_value',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.remove_red_eye,
-                          color: colorController.iconColor.value,
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Naoty',
-                        ),
-                      ],
+                  if (isUserAuthenticated())
+                    PopupMenuItem<String>(
+                      value: 'add_note',
+                      child: Row(
+                        children: [
+                          Icon(
+                            _userNote != null ? Icons.edit_note : Icons.note_add,
+                            color: colorController.iconColor.value,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _userNote != null ? 'Hanova ny naoty' : 'Hanampy naoty',
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                   PopupMenuItem<String>(
                     value: 'font_size',
                     child: Row(
@@ -236,12 +278,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         ),
         body: Column(
           children: [
-
+            // Fixed top section with title and bridge
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-
+                  // Title
                   Center(
                     child: Text(
                       _hymn?.title ?? '',
@@ -253,33 +295,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-
-                  if (isFirebaseHymn() && _hymn != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: colorController.primaryColor.value.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        'Hira avy amin\'ny fihirana fanampiny',
-                        style: TextStyle(
-                          fontSize: _fontSize * 0.8,
-                          color: colorController.textColor.value,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 8),
-
+                  // Creator info for Firebase hymns (admins only)
                   if (isFirebaseHymn() && _hymn != null)
                     StreamBuilder(
                       stream: FirebaseAuth.instance.authStateChanges(),
                       builder: (context, snapshot) {
                         final user = FirebaseAuth.instance.currentUser;
                         final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
-
+                        
                         if (isAdmin) {
                           return Text(
                             'Nampiditra: ${_hymn!.createdBy}${_hymn!.createdByEmail != null ? ' (${_hymn!.createdByEmail})' : ''}',
@@ -294,7 +317,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       },
                     ),
                   const SizedBox(height: 8),
-
+                  // Animated container for bridge
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     child: Card(
@@ -383,7 +406,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                 ],
               ),
             ),
-
+            // Scrollable verses section
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -440,6 +463,86 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         ),
                       ),
                     ],
+                    // Public notes section (fixed at top)
+                    if (isUserAuthenticated() && _hymn != null)
+                      StreamBuilder<List<Note>>(
+                        stream: _noteService.getPublicNotesStream(_hymn!.id),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasError) {
+                            return const Center(child: Text('Error loading notes'));
+                          }
+
+                          if (!snapshot.hasData) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+
+                          final notes = snapshot.data!;
+                          
+                          if (notes.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: notes.length,
+                                itemBuilder: (context, index) {
+                                  final note = notes[index];
+                                  return FutureBuilder<bool>(
+                                    future: _noteService.canEditNote(note),
+                                    builder: (context, snapshot) {
+                                      final canEdit = snapshot.data ?? false;
+
+                                      return Container(
+                                        margin: const EdgeInsets.only(top: 8),
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: colorController.backgroundColor.value.withOpacity(0.3),
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(
+                                                  note.content,
+                                                  style: TextStyle(
+                                                    fontSize: _fontSize * 0.9,
+                                                    color: colorController.textColor.value,
+                                                  ),
+                                                ),
+                                                if (canEdit)
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.edit,
+                                                      size: _fontSize,
+                                                      color: colorController.iconColor.value,
+                                                    ),
+                                                    onPressed: () => _showNoteEditor(note: note),
+                                                  ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+
                     for (int i = 0; i < (_hymn?.verses.length ?? 0); i++) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -515,6 +618,219 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     super.dispose();
   }
 
+  void _showNoteEditor({Note? note}) { // Add optional note parameter
+    if (!isUserAuthenticated()) return;
+
+    final noteController = TextEditingController(text: note?.content ?? _userNote?.content ?? '');
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Container(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        note != null ? 'Hanova naoty' : 'Ny naoty manokana', // Different title for editing existing note
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: colorController.textColor.value,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: colorController.iconColor.value,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Ampidiro eto ny naoty momba ny hira, toy ny akordy, fampahalalam-bavaka na fampahalalana hafa.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: colorController.textColor.value.withOpacity(0.8),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: noteController,
+                    maxLines: 8,
+                    decoration: InputDecoration(
+                      hintText: 'Soraty eto ny naotinao...',
+                      hintStyle: TextStyle(
+                        color: colorController.textColor.value.withOpacity(0.5),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorController.textColor.value.withOpacity(0.3),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorController.textColor.value.withOpacity(0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: colorController.primaryColor.value,
+                        ),
+                      ),
+                    ),
+                    style: TextStyle(
+                      color: colorController.textColor.value,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (note != null || _userNote != null) // Show delete button for existing notes
+                        TextButton(
+                          onPressed: () async {
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: colorController.backgroundColor.value,
+                                title: Text(
+                                  'Hamafa ny naoty?',
+                                  style: TextStyle(color: colorController.textColor.value),
+                                ),
+                                content: Text(
+                                  'Tena te hamafa ny naoty ve ianao?',
+                                  style: TextStyle(color: colorController.textColor.value),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: Text(
+                                      'Tsia',
+                                      style: TextStyle(color: colorController.textColor.value),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text(
+                                      'Eny',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirmed == true) {
+                              // Delete the note
+                              if (note != null) {
+                                // Deleting a public note
+                                await _noteService.deleteNote(note.id);
+                              } else {
+                                // Deleting user's personal note
+                                await _noteService.deleteNote(_userNote!.id);
+                                setState(() {
+                                  _userNote = null;
+                                });
+                              }
+                              
+                              if (context.mounted) {
+                                Navigator.pop(context);
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Voafafa ny naoty'),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text(
+                            'Hamafa',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(
+                          'Aoka ihany',
+                          style: TextStyle(color: colorController.textColor.value),
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final content = noteController.text.trim();
+                          if (content.isEmpty) {
+                            // If content is empty and note exists, delete it
+                            if (note != null) {
+                              await _noteService.deleteNote(note.id);
+                            } else if (_userNote != null) {
+                              await _noteService.deleteNote(_userNote!.id);
+                              setState(() {
+                                _userNote = null;
+                              });
+                            }
+                          } else {
+                            // Save the note
+                            final success = await _noteService.saveNote(widget.hymnId, content);
+                            if (success) {
+                              // Reload the note to update the UI
+                              if (note == null) {
+                                // Only reload user note if editing personal note
+                                await _loadUserNote();
+                              }
+                            }
+                          }
+                          
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  content.isEmpty 
+                                    ? 'Voafafa ny naoty' 
+                                    : 'Voatahiry ny naoty',
+                                ),
+                                backgroundColor: content.isEmpty ? Colors.red : Colors.green,
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorController.primaryColor.value,
+                          foregroundColor: colorController.backgroundColor.value,
+                        ),
+                        child: const Text('Tehirizo'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _navigateToEditScreen(BuildContext context) {
     if (_hymn == null) return;
     Navigator.push(
@@ -524,23 +840,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
       ),
     );
   }
-
-  List<Color> verseColors = [
-    Colors.blue,
-    Colors.green,
-    Colors.red,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
-    Colors.amber,
-    Colors.indigo,
-    Colors.deepOrange,
-    Colors.deepPurple,
-    Colors.lime,
-    Colors.cyan,
-    Colors.brown,
-    Colors.grey,
-  ];
 }
 
 class HymnSearchPopup extends StatefulWidget {
