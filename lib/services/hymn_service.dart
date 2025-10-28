@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/hymn.dart';
-import '../models/favorite.dart';
 import '../utility/snackbar_utility.dart';
 import '../services/firebase_sync_service.dart'; // Add Firebase sync service
 import 'local_hymn_service.dart';
@@ -70,7 +67,6 @@ class HymnService {
       return completer.future;
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting local favorites: $e');
       }
       return <String>{};
     }
@@ -90,7 +86,6 @@ class HymnService {
       return completer.future;
     } catch (e) {
       if (kDebugMode) {
-        print('Error saving local favorites: $e');
       }
     }
   }
@@ -152,7 +147,6 @@ class HymnService {
 
       _favoritesController.add(statuses);
     } catch (e) {
-      print('Error updating favorite status: $e');
     }
   }
 
@@ -210,7 +204,6 @@ class HymnService {
       // Update status after changes
       await _updateFavoriteStatus();
     } catch (e) {
-      print('Error toggling favorite: $e');
       rethrow;
     }
   }

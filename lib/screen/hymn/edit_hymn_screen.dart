@@ -58,14 +58,12 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     if (!isUserAuthenticated()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Mila miditra aloha ianao'),
+          content: const Text('Mila miditra aloha ianao'),
           backgroundColor: colorController.backgroundColor.value,
         ),
       );
       return;
     }
-
-    final user = FirebaseAuth.instance.currentUser!;
     
     // Keep the hymn number as is, without parsing to int
     final hymnNumber = _hymnNumberController.text.trim();
@@ -89,7 +87,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
         .then((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Voaova soa aman-tsara'),
+              content: const Text('Voaova soa aman-tsara'),
               backgroundColor: colorController.backgroundColor.value,
             ),
           );
@@ -97,7 +95,6 @@ class EditHymnScreenState extends State<EditHymnScreen> {
         })
         .catchError((error) {
           if (kDebugMode) {
-            print('Error updating hymn: $error');
           }
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -195,8 +192,8 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                         foregroundColor: colorController.textColor.value,
                         backgroundColor: colorController.backgroundColor.value,
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
+                      child: const Padding(
+                        padding: EdgeInsets.only(
                             left: 40.0, right: 40, top: 20, bottom: 20),
                         child: Text(
                           "Apidiro",

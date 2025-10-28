@@ -7,6 +7,8 @@ import '../../controller/auth_controller.dart';
 import './user_hymns_screen.dart';
 
 class UserManagementScreen extends StatefulWidget {
+  const UserManagementScreen({super.key});
+
   @override
   State<UserManagementScreen> createState() => _UserManagementScreenState();
 }
@@ -182,11 +184,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   backgroundColor: Colors.transparent,
                                 )
                               : CircleAvatar(
+                                  backgroundColor: colorController.primaryColor.value,
                                   child: Text(
                                     displayName[0].toUpperCase(),
                                     style: TextStyle(color: colorController.textColor.value),
                                   ),
-                                  backgroundColor: colorController.primaryColor.value,
                                 ),
                           title: Row(
                             children: [
@@ -249,7 +251,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           trailing: Switch(
                             value: canAddSongs,
                             onChanged: (value) => _authController.updateUserPermission(userId, value),
-                            activeColor: Colors.green,
+                            activeThumbColor: Colors.green,
                           ),
                         ),
                       ],

@@ -6,10 +6,9 @@ import 'package:intl/intl.dart';
 import '../../models/announcement.dart';
 import '../../services/announcement_service.dart';
 import '../../controller/color_controller.dart';
-import '../../controller/color_controller.dart';
 
 class AnnouncementScreen extends StatefulWidget {
-  const AnnouncementScreen({Key? key}) : super(key: key);
+  const AnnouncementScreen({super.key});
 
   @override
   State<AnnouncementScreen> createState() => _AnnouncementScreenState();

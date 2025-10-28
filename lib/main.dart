@@ -17,8 +17,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
-import 'package:in_app_update/in_app_update.dart'; // Added import for in_app_update
-import 'widgets/update_dialog.dart'; // Import the update dialog
+// Added import for in_app_update
+// Import the update dialog
 import 'services/firebase_sync_service.dart'; // Add Firebase sync service
 
 Future<void> initializeNotifications() async {
@@ -247,7 +247,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         darkTheme: themeWithFont,
         initialRoute: isFirstTime ? '/splash' : '/loading',
         getPages: [
-          GetPage(name: '/splash', page: () => SplashScreen1()),
+          GetPage(name: '/splash', page: () => const SplashScreen1()),
           GetPage(name: '/loading', page: () => const LoadingScreen()),
           GetPage(name: '/home', page: () => const HomeScreen()),
         ],

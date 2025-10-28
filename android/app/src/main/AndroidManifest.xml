@@ -2,7 +2,7 @@
     package="com.manasseh.fihirana_jff">
 
     <application
-        android:label="hymn"
+        android:label="Fihirana JFF"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

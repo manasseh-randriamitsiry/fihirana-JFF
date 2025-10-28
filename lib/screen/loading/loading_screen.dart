@@ -7,7 +7,7 @@ import '../../services/local_storage_service.dart';
 import '../accueil/home_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
-  const LoadingScreen({Key? key}) : super(key: key);
+  const LoadingScreen({super.key});
 
   @override
   State<LoadingScreen> createState() => _LoadingScreenState();
@@ -15,7 +15,6 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   final LocalStorageService _storageService = LocalStorageService();
-  double _progress = 0;
 
   @override
   void initState() {
@@ -31,14 +30,13 @@ class _LoadingScreenState extends State<LoadingScreen> {
       // All hymns are now loaded from local JSON files
       Get.off(() => const HomeScreen());
     } catch (e) {
-      print('Initialization error: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

@@ -85,15 +85,14 @@ class HistoryController extends GetxController {
         'Vita!',
         'Voafafa ny tantara voafidy',
         snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       );
     } catch (e) {
-      print('Error deleting selected items: $e');
       Get.snackbar(
         'Nisy olana',
         'Tsy afaka mamafa ny tantara: $e',
         snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       );
     } finally {
       isLoading.value = false;
@@ -102,22 +101,16 @@ class HistoryController extends GetxController {
 
   Future<void> loadUserHistory() async {
     try {
-      print('Loading user history...');
       isLoading.value = true;
       final user = _auth.currentUser;
-      print('Current user: ${user?.uid}');
       
       if (user != null) {
-        print('Loading from Firestore...');
         // Load from Firebase
         final firebaseHistory = await _firebaseSyncService.loadHistoryFromFirebase();
         userHistory.value = firebaseHistory;
-        print('Firestore documents count: ${firebaseHistory.length}');
       } else {
-        print('Loading from local storage...');
         final prefs = await SharedPreferences.getInstance();
         final localHistory = prefs.getString(_localHistoryKey);
-        print('Local history exists: ${localHistory != null}');
         if (localHistory != null) {
           final List<dynamic> decoded = json.decode(localHistory);
           userHistory.value = decoded.map((item) => Map<String, dynamic>.from({
@@ -127,10 +120,6 @@ class HistoryController extends GetxController {
           })).toList();
         }
       }
-      print('History loaded. Count: ${userHistory.length}');
-    } catch (e, stack) {
-      print('Error loading user history: $e');
-      print('Stack trace: $stack');
     } finally {
       isLoading.value = false;
     }
@@ -138,7 +127,6 @@ class HistoryController extends GetxController {
 
   Future<void> addToHistory(String hymnId, String title, String number) async {
     try {
-      print('Adding to history: $hymnId - $title ($number)');
       final user = _auth.currentUser;
       final historyEntry = {
         'id': DateTime.now().millisecondsSinceEpoch.toString(), // Add unique ID for local storage
@@ -149,14 +137,11 @@ class HistoryController extends GetxController {
       };
 
       if (user != null) {
-        print('Saving to Firestore...');
         // Save to Firebase
         await _firebaseSyncService.addHistoryToFirebase(hymnId, title, number);
         // Reload history to reflect changes
         await loadUserHistory();
-        print('Saved to Firestore');
       } else {
-        print('Saving to local storage...');
         final prefs = await SharedPreferences.getInstance();
         List<Map<String, dynamic>> localHistory = [];
         
@@ -175,14 +160,10 @@ class HistoryController extends GetxController {
         }
 
         await prefs.setString(_localHistoryKey, json.encode(localHistory));
-        print('Saved to local storage. Total entries: ${localHistory.length}');
       }
       
       await loadUserHistory(); // Reload history after adding new entry
-      print('History reloaded after adding entry');
-    } catch (e, stack) {
-      print('Error adding to history: $e');
-      print('Stack trace: $stack');
+    } catch (e) {
     }
   }
 
@@ -204,15 +185,14 @@ class HistoryController extends GetxController {
         'Vita!',
         'Voafafa ny tantara',
         snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       );
     } catch (e) {
-      print('Error clearing history: $e');
       Get.snackbar(
         'Nisy olana',
         'Tsy afaka mamafa ny tantara: $e',
         snackPosition: SnackPosition.BOTTOM,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       );
     }
   }

@@ -7,10 +7,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/theme_controller.dart';
-import '../controller/font_controller.dart';
 import '../controller/color_controller.dart';
 import '../screen/favorite/favorites_screen.dart';
-import '../screen/hymn/create_hymn_page.dart';
 import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
 import '../screen/history/history_screen.dart';
@@ -23,9 +21,9 @@ class DrawerWidget extends StatefulWidget {
   final Function() openDrawer;
 
   const DrawerWidget({
-    Key? key,
+    super.key,
     required this.openDrawer,
-  }) : super(key: key);
+  });
 
   @override
   DrawerWidgetState createState() => DrawerWidgetState();
@@ -33,7 +31,6 @@ class DrawerWidget extends StatefulWidget {
 
 class DrawerWidgetState extends State<DrawerWidget> {
   final ThemeController _themeController = Get.find<ThemeController>();
-  final FontController _fontController = Get.find<FontController>();
   final ColorController _colorController = Get.find<ColorController>();
   bool _isAuthenticated = false;
   String? _username;
@@ -132,7 +129,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
         Phoenix.rebirth(context);
       }
     } catch (e) {
-      print('Error signing in with Google: $e');
     }
   }
 

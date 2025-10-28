@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controller/color_controller.dart';
-import '../../controller/auth_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../utility/snackbar_utility.dart';
@@ -15,11 +13,11 @@ class UserHymnsScreen extends StatefulWidget {
   final String displayName;
 
   const UserHymnsScreen({
-    Key? key,
+    super.key,
     required this.userId,
     required this.userEmail,
     required this.displayName,
-  }) : super(key: key);
+  });
 
   @override
   State<UserHymnsScreen> createState() => _UserHymnsScreenState();
@@ -28,7 +26,6 @@ class UserHymnsScreen extends StatefulWidget {
 class _UserHymnsScreenState extends State<UserHymnsScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final HymnService _hymnService = HymnService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String _sortBy = 'recent'; // 'recent', 'old', 'number'
 

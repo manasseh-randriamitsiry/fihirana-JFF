@@ -1,8 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
 import '../models/hymn.dart';
 
 class LocalHymnService {
@@ -42,7 +39,6 @@ class LocalHymnService {
           hymns.add(hymn);
           _hymnCache[hymn.id] = hymn;
         } catch (e) {
-          print('Error loading hymn from $assetPath: $e');
         }
       }
 
@@ -56,7 +52,6 @@ class LocalHymnService {
       _allHymns = hymns;
       return hymns;
     } catch (e) {
-      print('Error loading all hymns: $e');
       return [];
     }
   }
@@ -78,7 +73,6 @@ class LocalHymnService {
       _hymnCache[id] = hymn;
       return hymn;
     } catch (e) {
-      print('Error loading hymn $id: $e');
       return null;
     }
   }

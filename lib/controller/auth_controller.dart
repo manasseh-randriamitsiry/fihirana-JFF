@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -49,7 +48,6 @@ class AuthController extends GetxController {
       
       _canAddSongs.value = userDoc.exists && (userDoc.data()?['canAddSongs'] ?? false);
     } catch (e) {
-      print('Error updating permissions: $e');
       _canAddSongs.value = false;
     }
   }
@@ -73,7 +71,6 @@ class AuthController extends GetxController {
       // Reset local state
       _canAddSongs.value = false;
     } catch (e) {
-      print('Error signing out: $e');
       SnackbarUtility.showError(
         title: 'Error signing out',
         message: e.toString(),
@@ -106,7 +103,6 @@ class AuthController extends GetxController {
         });
       }
     } catch (e) {
-      print('Error creating/updating user document: $e');
       SnackbarUtility.showError(
         title: 'Error updating user document',
         message: e.toString(),
@@ -120,7 +116,6 @@ class AuthController extends GetxController {
         'canAddSongs': canAddSongs,
       });
     } catch (e) {
-      print('Error updating user permission: $e');
       SnackbarUtility.showError(
         title: 'Error updating user permission',
         message: e.toString(),
@@ -161,7 +156,6 @@ class AuthController extends GetxController {
         
         return userCredential;
       } catch (e) {
-        print('Error during Firebase sign-in: $e');
         // Even if there's an error with Firebase, try to continue with the Google account
         if (_auth.currentUser != null) {
           return null; // Return null but don't block the sign-in
@@ -169,7 +163,6 @@ class AuthController extends GetxController {
         rethrow;
       }
     } catch (e) {
-      print('Error signing in with Google: $e');
       // Don't show error to user in release mode
       if (kDebugMode) {
         SnackbarUtility.showError(

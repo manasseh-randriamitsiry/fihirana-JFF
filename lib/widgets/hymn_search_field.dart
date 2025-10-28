@@ -8,13 +8,13 @@ class HymnSearchField extends StatelessWidget {
   final VoidCallback onChanged;
 
   const HymnSearchField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.defaultTextStyle,
     required this.textColor,
     required this.iconColor,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

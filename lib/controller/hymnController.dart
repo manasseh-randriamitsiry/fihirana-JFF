@@ -1,16 +1,10 @@
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../../models/hymn.dart';
 import '../services/hymn_service.dart';
 import 'package:flutter/material.dart';
 
 class HymnController extends GetxController {
   var isDarkMode = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   final HymnService _hymnService = HymnService();
 

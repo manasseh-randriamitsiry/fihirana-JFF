@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:fihirana/controller/hymnController.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/auth_controller.dart';

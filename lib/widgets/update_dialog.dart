@@ -13,7 +13,7 @@ class UpdateDialog extends StatefulWidget {
 class _UpdateDialogState extends State<UpdateDialog> {
   bool _isDownloading = false;
   bool _downloadCompleted = false;
-  double _downloadProgress = 0.0;
+  final double _downloadProgress = 0.0;
 
   Future<void> _startFlexibleUpdate() async {
     setState(() {

@@ -24,14 +24,12 @@ class AnnouncementService {
 
   Future<void> checkNewAnnouncements() async {
     try {
-      print('Checking for new announcements...');
       
       final prefs = await SharedPreferences.getInstance();
       final lastCheck = prefs.getInt('last_announcement_check') ?? 0;
       final now = DateTime.now().millisecondsSinceEpoch;
       
       if (now - lastCheck < 60000) {
-        print('Skipping check - too soon since last check');
         return;
       }
       
@@ -44,12 +42,10 @@ class AnnouncementService {
           .orderBy('createdAt', descending: true)
           .get();
 
-      print('Found ${querySnapshot.docs.length} announcements');
 
       for (var doc in querySnapshot.docs) {
         final id = doc.id;
         if (!seenAnnouncements.contains(id)) {
-          print('New announcement found: $id');
           final data = doc.data();
           
           // Check if announcement has expired
@@ -57,7 +53,6 @@ class AnnouncementService {
           if (expiresAt != null) {
             final expirationDate = expiresAt.toDate();
             if (DateTime.now().isAfter(expirationDate)) {
-              print('Skipping expired announcement: $id');
               // Mark expired announcements as seen so they don't show up again
               await _markAnnouncementAsSeen(id);
               continue;
@@ -91,8 +86,6 @@ class AnnouncementService {
         }
       }
     } catch (e) {
-      print('Error checking announcements: $e');
-      print('Stack trace: ${StackTrace.current}');
     }
   }
 
@@ -124,7 +117,6 @@ class AnnouncementService {
         message: 'Voaforona ny filazana',
       );
     } catch (e) {
-      print('Error creating announcement: $e');
       SnackbarUtility.showError(
         title: 'Nisy olana',
         message: 'Tsy afaka mamorona filazana: $e',
@@ -187,6 +179,5 @@ class AnnouncementService {
   Future<void> clearSeenAnnouncements() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lastSeenKey);
-    print('Cleared seen announcements');
   }
 }

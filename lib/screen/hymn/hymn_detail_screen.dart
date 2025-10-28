@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/hymn.dart';
 import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
@@ -17,9 +16,9 @@ class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
 
   const HymnDetailScreen({
-    Key? key,
+    super.key,
     required this.hymnId,
-  }) : super(key: key);
+  });
 
   @override
   State<HymnDetailScreen> createState() => _HymnDetailScreenState();
@@ -65,7 +64,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
       if (hymn != null) {
         setState(() {
           _hymn = hymn;
-          print('Hymn number loaded: ${_hymn?.hymnNumber}'); // Debug log
         });
 
         // Add to history after loading hymn data
@@ -79,16 +77,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           _hymn!.hymnNumber,
         );
         if (kDebugMode) {
-          print('Successfully added to history');
         }
       } else {
         if (kDebugMode) {
-          print('Error: Document does not exist for hymn ID: ${widget.hymnId}');
         }
       }
-    } catch (e, stackTrace) {
-      print('Error loading hymn data: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
     }
   }
 
@@ -200,7 +194,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                             color: colorController.iconColor.value,
                           ),
                           const SizedBox(width: 8),
-                          Text(
+                          const Text(
                             'Hanova',
                           ),
                         ],
@@ -215,7 +209,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           color: colorController.iconColor.value,
                         ),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           'Naoty',
                         ),
                       ],
@@ -230,7 +224,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           color: colorController.iconColor.value,
                         ),
                         const SizedBox(width: 8),
-                        Text(
+                        const Text(
                           "Haben'ny soratra",
                         ),
                       ],
@@ -263,7 +257,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                   const SizedBox(height: 16),
                   // Animated container for bridge
                   AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
+                    duration: const Duration(milliseconds: 300),
                     child: Card(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,7 +287,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                                                 colorController.textColor.value,
                                           ),
                                         ),
-                                        SizedBox(width: 8),
+                                        const SizedBox(width: 8),
                                         Icon(
                                           _show
                                               ? Icons.expand_less
@@ -407,7 +401,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         ),
                       ),
                     ],
-                    for (int i = 0; i < (_hymn?.verses?.length ?? 0); i++) ...[
+                    for (int i = 0; i < (_hymn?.verses.length ?? 0); i++) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 10.0, horizontal: 30.0),
@@ -433,7 +427,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                             Padding(
                               padding: const EdgeInsets.only(left: 30.0),
                               child: Text(
-                                '${i + 1}. ${_hymn?.verses?[i] ?? ''}',
+                                '${i + 1}. ${_hymn?.verses[i] ?? ''}',
                                 style: TextStyle(
                                   fontSize: _fontSize,
                                   color: colorController.textColor.value,
@@ -499,10 +493,10 @@ class HymnSearchPopup extends StatefulWidget {
   final Function(Hymn) onHymnSelected;
 
   const HymnSearchPopup({
-    Key? key,
+    super.key,
     required this.colorController,
     required this.onHymnSelected,
-  }) : super(key: key);
+  });
 
   @override
   State<HymnSearchPopup> createState() => _HymnSearchPopupState();
@@ -528,7 +522,6 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading hymns: $e');
       setState(() {
         _isLoading = false;
       });
@@ -548,7 +541,6 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
           _isLoading = false;
         });
       } catch (e) {
-        print('Error searching hymns: $e');
         setState(() {
           _isLoading = false;
         });

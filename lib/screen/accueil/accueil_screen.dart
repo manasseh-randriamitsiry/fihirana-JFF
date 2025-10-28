@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../controller/color_controller.dart';
-import '../../controller/theme_controller.dart';
 import '../../controller/hymn_controller.dart';
-import '../../controller/auth_controller.dart';
 import '../../widgets/hymn_list_item.dart';
 import '../../widgets/hymn_search_field.dart';
 import '../../utility/navigation_utility.dart';
-import '../../services/snackbar_service.dart';
-import '../../services/version_check_service.dart'; // Import version check service
+import '../../services/version_check_service.dart';
 import '../../models/hymn.dart';
 
 class AccueilScreen extends StatefulWidget {
   final Function() openDrawer;
 
   const AccueilScreen({
-    Key? key,
+    super.key,
     required this.openDrawer,
-  }) : super(key: key);
+  });
 
   @override
   AccueilScreenState createState() => AccueilScreenState();
@@ -26,9 +22,6 @@ class AccueilScreen extends StatefulWidget {
 
 class AccueilScreenState extends State<AccueilScreen> {
   final HymnController _hymnController = Get.put(HymnController());
-  final ThemeController _themeController = Get.find<ThemeController>();
-  final ColorController _colorController = Get.find<ColorController>();
-  final AuthController _authController = Get.put(AuthController());
   bool _updateAvailable = false;
 
   @override

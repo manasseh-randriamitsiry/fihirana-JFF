@@ -39,7 +39,7 @@ class Announcement {
       title: data['title'] ?? '',
       message: data['message'] ?? '',
       createdAt: (data['createdAt'] as Timestamp).toDate(),
-      expiresAt: expiresAtTimestamp != null ? expiresAtTimestamp.toDate() : null,
+      expiresAt: expiresAtTimestamp?.toDate(),
       createdBy: data['createdBy'] ?? '',
       createdByEmail: data['createdByEmail'] ?? '',
     );

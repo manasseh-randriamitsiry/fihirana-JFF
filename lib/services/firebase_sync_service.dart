@@ -23,7 +23,6 @@ class FirebaseSyncService {
       final isSynced = prefs.getBool(_favoritesSyncedKey) ?? false;
       
       if (isSynced) {
-        print('Favorites already synced');
         return;
       }
 
@@ -40,7 +39,6 @@ class FirebaseSyncService {
         return;
       }
 
-      print('Syncing ${localFavorites.length} favorites to Firebase');
 
       // Get existing Firebase favorites to avoid duplicates
       final firebaseFavoritesSnapshot = await _firestore
@@ -80,14 +78,11 @@ class FirebaseSyncService {
 
       if (addedCount > 0) {
         await batch.commit();
-        print('Synced $addedCount new favorites to Firebase');
       }
 
       // Mark as synced
       await prefs.setBool(_favoritesSyncedKey, true);
-      print('Favorites sync completed');
     } catch (e) {
-      print('Error syncing favorites to Firebase: $e');
     }
   }
 
@@ -101,7 +96,6 @@ class FirebaseSyncService {
       final isSynced = prefs.getBool(_historySyncedKey) ?? false;
       
       if (isSynced) {
-        print('History already synced');
         return;
       }
 
@@ -118,7 +112,6 @@ class FirebaseSyncService {
         return;
       }
 
-      print('Syncing ${localHistory.length} history items to Firebase');
 
       // Get existing Firebase history to avoid duplicates
       final firebaseHistorySnapshot = await _firestore
@@ -166,14 +159,11 @@ class FirebaseSyncService {
 
       if (addedCount > 0) {
         await batch.commit();
-        print('Synced $addedCount new history items to Firebase');
       }
 
       // Mark as synced
       await prefs.setBool(_historySyncedKey, true);
-      print('History sync completed');
     } catch (e) {
-      print('Error syncing history to Firebase: $e');
     }
   }
 
@@ -200,7 +190,6 @@ class FirebaseSyncService {
 
       return favorites;
     } catch (e) {
-      print('Error loading favorites from Firebase: $e');
       return <String>{};
     }
   }
@@ -233,7 +222,6 @@ class FirebaseSyncService {
 
       return history;
     } catch (e) {
-      print('Error loading history from Firebase: $e');
       return [];
     }
   }
@@ -254,7 +242,6 @@ class FirebaseSyncService {
           .get();
 
       if (existingSnapshot.docs.isNotEmpty) {
-        print('Favorite already exists in Firebase');
         return;
       }
 
@@ -273,9 +260,7 @@ class FirebaseSyncService {
       );
 
       await favoriteRef.set(favorite.toFirestore());
-      print('Added favorite to Firebase: $hymnId');
     } catch (e) {
-      print('Error adding favorite to Firebase: $e');
     }
   }
 
@@ -295,10 +280,8 @@ class FirebaseSyncService {
 
       if (snapshot.docs.isNotEmpty) {
         await snapshot.docs.first.reference.delete();
-        print('Removed favorite from Firebase: $hymnId');
       }
     } catch (e) {
-      print('Error removing favorite from Firebase: $e');
     }
   }
 
@@ -321,9 +304,7 @@ class FirebaseSyncService {
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      print('Added history item to Firebase: $hymnId');
     } catch (e) {
-      print('Error adding history to Firebase: $e');
     }
   }
 
@@ -345,9 +326,7 @@ class FirebaseSyncService {
       }
 
       await batch.commit();
-      print('Cleared history from Firebase');
     } catch (e) {
-      print('Error clearing history from Firebase: $e');
     }
   }
 
@@ -356,6 +335,5 @@ class FirebaseSyncService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_favoritesSyncedKey);
     await prefs.remove(_historySyncedKey);
-    print('Reset sync status');
   }
 }

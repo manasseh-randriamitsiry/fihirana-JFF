@@ -92,7 +92,6 @@ class ColorController extends GetxController {
 
     // Then load saved colors
     loadColors();
-    print('ColorController initialized');
   }
 
   Future<void> loadColors() async {
@@ -111,11 +110,8 @@ class ColorController extends GetxController {
           Color(prefs.getInt('drawerColor') ?? Colors.purple.value);
       iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.green.value);
 
-      print('Colors loaded successfully');
-      print('Drawer color: ${drawerColor.value}');
       update(); // Update all listeners
     } catch (e) {
-      print('Error loading colors: $e');
     }
   }
 
@@ -164,7 +160,6 @@ class ColorController extends GetxController {
         Get.forceAppUpdate();
       }
     } catch (e) {
-      print('Error setting color scheme: $e');
     }
   }
 
@@ -196,31 +191,24 @@ class ColorController extends GetxController {
   // Update icon color specifically
   void updateIconColor(Color newColor) {
     try {
-      print('Updating icon color to: $newColor');
       iconColor.value = newColor;
       SharedPreferences.getInstance().then((prefs) {
         prefs.setInt('iconColor', newColor.value);
-        print('Saved new icon color: ${newColor.value}');
       });
       update(['iconColor']); // Update with specific ID
-      print('Icon color update complete');
     } catch (e) {
-      print('Error updating icon color: $e');
     }
   }
 
   // Update drawer color specifically
   void updateDrawerColor(Color newColor) {
     try {
-      print('Updating drawer color to: $newColor');
       drawerColor.value = newColor;
       SharedPreferences.getInstance().then((prefs) {
         prefs.setInt('drawerColor', newColor.value);
-        print('Saved new drawer color: ${newColor.value}');
       });
       update();
     } catch (e) {
-      print('Error updating drawer color: $e');
     }
   }
 
@@ -249,9 +237,7 @@ class ColorController extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('iconColor', iconColor.value.value);
-      print('Saved icon color: ${iconColor.value.toString()}');
     } catch (e) {
-      print('Error saving colors: $e');
     }
   }
 
@@ -265,11 +251,9 @@ class ColorController extends GetxController {
         primary: primaryColor.value,
         secondary: accentColor.value,
         surface: backgroundColor.value,
-        background: backgroundColor.value,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: textColor.value,
-        onBackground: textColor.value,
       ),
       scaffoldBackgroundColor: backgroundColor.value,
       appBarTheme: AppBarTheme(
@@ -300,11 +284,9 @@ class ColorController extends GetxController {
         primary: primaryColor.value,
         secondary: accentColor.value,
         surface: Colors.grey[900]!,
-        background: Colors.grey[900]!,
         onPrimary: Colors.white,
         onSecondary: Colors.white,
         onSurface: Colors.white,
-        onBackground: Colors.white,
       ),
       scaffoldBackgroundColor: Colors.grey[900],
       appBarTheme: AppBarTheme(

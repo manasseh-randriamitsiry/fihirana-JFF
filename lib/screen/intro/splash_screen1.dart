@@ -5,13 +5,10 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../controller/color_controller.dart';
-import '../../utility/screen_util.dart';
 
 class SplashScreen1 extends StatefulWidget {
+  const SplashScreen1({super.key});
+
   @override
   _SplashScreen1State createState() => _SplashScreen1State();
 }
@@ -19,9 +16,6 @@ class SplashScreen1 extends StatefulWidget {
 class _SplashScreen1State extends State<SplashScreen1>
     with SingleTickerProviderStateMixin {
   final TextEditingController _usernameController = TextEditingController();
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  bool _isLoading = false;
   bool _agreementAccepted = false;
   late AnimationController _balloonController;
   late Animation<double> _balloonAnimation;
@@ -86,9 +80,8 @@ class _SplashScreen1State extends State<SplashScreen1>
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('username', username);
-      Get.offAll(() => HomeScreen());
+      Get.offAll(() => const HomeScreen());
     } catch (e) {
-      print('Error saving username: $e');
       Get.snackbar(
         'Olana',
         'Tsy tafiditra ny anarana',
@@ -103,14 +96,10 @@ class _SplashScreen1State extends State<SplashScreen1>
 
     // Check if the user has agreed AND the username is not empty
     if (hasAgreed && _usernameController.text.trim().isNotEmpty) {
-      Get.offAll(() => HomeScreen());
+      Get.offAll(() => const HomeScreen());
     }
   }
 
-  static const TextStyle greyStyle =
-      TextStyle(fontSize: 40.0, color: Colors.grey);
-  static const TextStyle whiteStyle =
-      TextStyle(fontSize: 40.0, color: Colors.white);
   static const TextStyle boldStyle = TextStyle(
     fontSize: 40.0,
     color: Colors.black,
@@ -124,14 +113,12 @@ class _SplashScreen1State extends State<SplashScreen1>
     color: Colors.white,
     fontSize: 14.0,
   );
-  final ColorController _colorController = Get.find<ColorController>();
-
+  late bool isTablet = isTablet;
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final backgroundColor = _colorController.backgroundColor.value;
-    bool _isTablet = isTablet(context);
+
     final pages = [
       SizedBox(
         height: screenHeight,
@@ -147,12 +134,12 @@ class _SplashScreen1State extends State<SplashScreen1>
               Expanded(
                 flex: 3,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Column(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const Text(
+                      Text(
                         "Fihirana jesosy famonjena fahamarinantsika",
                         style: boldStyle,
                       ),
@@ -191,7 +178,7 @@ class _SplashScreen1State extends State<SplashScreen1>
               Expanded(
                 flex: 3,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 30.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -367,7 +354,7 @@ class _SplashScreen1State extends State<SplashScreen1>
 class dotsWidget extends StatelessWidget {
   final int active;
   final int number;
-  const dotsWidget({
+  const dotsWidget({super.key, 
     required this.active,
     required this.number,
   });
@@ -389,13 +376,13 @@ class dotsWidget extends StatelessWidget {
 }
 
 class SkipWidget extends StatelessWidget {
-  const SkipWidget({Key? key}) : super(key: key);
+  const SkipWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           // Material(

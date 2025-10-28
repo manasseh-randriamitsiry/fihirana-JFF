@@ -15,12 +15,12 @@ class HymnListItem extends StatelessWidget {
   final LocalAuthentication _localAuth = LocalAuthentication();
 
   HymnListItem({
-    Key? key,
+    super.key,
     required this.hymn,
     required this.textColor,
     required this.backgroundColor,
     required this.onFavoritePressed,
-  }) : super(key: key);
+  });
 
   Future<bool> _authenticateUser(BuildContext context) async {
     try {
@@ -93,7 +93,7 @@ class HymnListItem extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: Text('Eny', style: TextStyle(color: Colors.red)),
+              child: const Text('Eny', style: TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(context).pop();
 
@@ -102,7 +102,7 @@ class HymnListItem extends StatelessWidget {
 
                 if (!authenticated) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Tsy nahomby ny fanamarinana'),
                       backgroundColor: Colors.red,
                     ),
@@ -113,7 +113,7 @@ class HymnListItem extends StatelessWidget {
                 try {
                   await _hymnService.deleteHymn(hymn.id);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Voafafa ny hira'),
                       backgroundColor: Colors.green,
                     ),
@@ -164,7 +164,7 @@ class HymnListItem extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-            if (isAdmin && hymn.createdBy != null)
+            if (isAdmin)
               Text(
                 'Nampiditra: ${hymn.createdBy}${hymn.createdByEmail != null ? ' (${hymn.createdByEmail})' : ''}',
                 style: TextStyle(
@@ -208,7 +208,7 @@ class HymnListItem extends StatelessWidget {
             if (isLoggedIn && hymn.createdByEmail == user.email ||
                 user?.email == 'manassehrandriamitsiry@gmail.com')
               IconButton(
-                icon: Icon(Icons.delete_outline, color: Colors.red),
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
                 onPressed: () => _showDeleteConfirmation(context),
               ),
           ],

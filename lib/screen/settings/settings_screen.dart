@@ -5,7 +5,7 @@ import '../../controller/color_controller.dart';
 import '../../controller/history_controller.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({Key? key}) : super(key: key);
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -41,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               historyController.clearHistory();
               Navigator.pop(context);
             },
-            child: Text(
+            child: const Text(
               'Hamafa',
               style: TextStyle(color: Colors.red),
             ),

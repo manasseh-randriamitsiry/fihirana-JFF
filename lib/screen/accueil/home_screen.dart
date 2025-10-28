@@ -4,9 +4,8 @@ import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
-import '../../controller/theme_controller.dart';
 import '../../widgets/drawer_widget.dart';
-import '../../widgets/update_checker_widget.dart'; // Import update checker widget
+import '../../widgets/update_checker_widget.dart';
 import 'accueil_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ColorController _colorController = Get.find();
-  final ThemeController _themeController = Get.find();
   final zoomDrawerController = ZoomDrawerController();
 
   @override
