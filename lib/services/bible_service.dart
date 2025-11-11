@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:flutter/foundation.dart';
 import '../models/bible.dart';
 
 class BibleService {

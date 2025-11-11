@@ -1,6 +1,6 @@
 import 'package:fihirana/services/hymn_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -145,14 +145,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-
-    if (state == AppLifecycleState.resumed) {
-
-    }
+    if (state == AppLifecycleState.resumed) {}
   }
 
   ThemeData _getThemeWithFont(ThemeData baseTheme, String fontFamily) {
-
     final TextTheme textTheme = TextTheme(
       displayLarge: GoogleFonts.getFont(
         fontFamily,

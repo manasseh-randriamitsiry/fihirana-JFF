@@ -49,6 +49,7 @@ dependencies:
   awesome_notifications: ^0.10.1
   syncfusion_flutter_sliders: ^31.2.3
   in_app_update: ^4.2.5
+  flutter_neumorphic_plus: ^3.3.0
 
 dev_dependencies:
   flutter_test:

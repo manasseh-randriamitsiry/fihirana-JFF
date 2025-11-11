@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/hymn.dart';
-import 'package:collection/collection.dart';
 class LocalHymnService {
   static final LocalHymnService _instance = LocalHymnService._internal();
   factory LocalHymnService() => _instance;

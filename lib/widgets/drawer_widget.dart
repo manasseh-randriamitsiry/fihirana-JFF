@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
@@ -13,7 +13,6 @@ import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
 import '../screen/history/history_screen.dart';
 import '../screen/announcement/announcement_screen.dart';
-import '../screen/settings/settings_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/hymn/firebase_hymns_screen.dart';
 import '../screen/bible/bible_reader_screen.dart';
@@ -95,7 +94,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   Future<void> _signInWithGoogle() async {
     try {
-
       await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
 
@@ -128,8 +126,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
         Phoenix.rebirth(context);
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   void _loadUsername() async {
@@ -243,10 +240,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         color: _colorController.textColor.value,
                       ),
                     ),
-                    onTap: () {
-
-                      Get.back();
-                    },
+                    onTap: () => Get.back(),
                   ),
                   if (_isAuthenticated)
                     ListTile(
@@ -262,23 +256,20 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ),
                       onTap: () => Get.to(() => const CreateHymnPage()),
                     ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.library_add,
-                        color: _colorController.iconColor.value,
-                      ),
-                      title: Text(
-                        'Fihirana Fanampiny',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                        ),
-                      ),
-                      onTap: () {
-                        Get.to(() => const FirebaseHymnsScreen());
-                      },
+                  ListTile(
+                    leading: Icon(
+                      Icons.library_add,
+                      color: _colorController.iconColor.value,
                     ),
-                  if (_currentUser?.email ==
-                      'manassehrandriamitsiry@gmail.com')
+                    title: Text(
+                      'Fihirana Fanampiny',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                      ),
+                    ),
+                    onTap: () => Get.to(() => const FirebaseHymnsScreen()),
+                  ),
+                  if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
                     ListTile(
                       leading: Icon(
                         Icons.admin_panel_settings,
@@ -384,8 +375,10 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ),
                   if (_isAuthenticated)
                     ListTile(
-                      leading: Icon(Icons.logout,
-                          color: _colorController.iconColor.value),
+                      leading: Icon(
+                        Icons.logout,
+                        color: _colorController.iconColor.value,
+                      ),
                       title: Text(
                         'Hivoaka',
                         style: TextStyle(

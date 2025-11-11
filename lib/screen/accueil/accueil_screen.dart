@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/hymn_controller.dart';
@@ -39,14 +39,14 @@ class AccueilScreenState extends State<AccueilScreen> {
 
   Future<void> _checkForUpdates() async {
     try {
-      final updateAvailable = await VersionCheckService.checkForUpdateManually();
+      final updateAvailable =
+          await VersionCheckService.checkForUpdateManually();
       if (mounted) {
         setState(() {
           _updateAvailable = updateAvailable;
         });
       }
     } catch (e) {
-
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -104,6 +104,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                 defaultTextStyle: defaultTextStyle,
                 textColor: textColor,
                 iconColor: iconColor,
+                backgroundColor: backgroundColor,
                 onChanged: () => setState(() {}),
               ),
               Expanded(
@@ -123,8 +124,8 @@ class AccueilScreenState extends State<AccueilScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
 
-                    final hymns = _hymnController
-                        .filterHymnList(snapshot.data ?? []);
+                    final hymns =
+                        _hymnController.filterHymnList(snapshot.data ?? []);
                     if (hymns.isEmpty) {
                       return Center(
                         child: Text(
@@ -145,12 +146,11 @@ class AccueilScreenState extends State<AccueilScreen> {
                               hymn: hymn,
                               textColor: textColor,
                               backgroundColor: backgroundColor,
-                              onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
-
+                              onFavoritePressed: () =>
+                                  _hymnController.toggleFavorite(hymn),
                             );
                           },
                         );
-
                       },
                     );
                   },

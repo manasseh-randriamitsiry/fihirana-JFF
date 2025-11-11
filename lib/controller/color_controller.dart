@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,8 +106,7 @@ class ColorController extends GetxController {
       iconColor.value = Color(prefs.getInt('iconColor') ?? Colors.green.value);
 
       update();
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<void> setColorScheme(int index) async {
@@ -117,7 +116,9 @@ class ColorController extends GetxController {
         currentSchemeIndex.value = index;
 
         final primary = scheme['primary'];
-        primaryColor.value = primary is MaterialColor ? primary : getMaterialColor(primary as Color);
+        primaryColor.value = primary is MaterialColor
+            ? primary
+            : getMaterialColor(primary as Color);
 
         accentColor.value = scheme['accent'] as Color;
         textColor.value = scheme['text'] as Color;
@@ -150,8 +151,7 @@ class ColorController extends GetxController {
         update();
         Get.forceAppUpdate();
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   bool _isDark(Color color) {
@@ -182,8 +182,7 @@ class ColorController extends GetxController {
         prefs.setInt('iconColor', newColor.value);
       });
       update(['iconColor']);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   void updateDrawerColor(Color newColor) {
@@ -193,8 +192,7 @@ class ColorController extends GetxController {
         prefs.setInt('drawerColor', newColor.value);
       });
       update();
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   void updateColors({
@@ -220,8 +218,7 @@ class ColorController extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('iconColor', iconColor.value.value);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   ThemeData getLightTheme() {
@@ -284,6 +281,36 @@ class ColorController extends GetxController {
       ).apply(
         bodyColor: Colors.white,
         displayColor: Colors.white,
+      ),
+    );
+  }
+
+  NeumorphicThemeData getNeumorphicLightTheme() {
+    return NeumorphicThemeData(
+      baseColor: backgroundColor.value,
+      accentColor: accentColor.value,
+      lightSource: LightSource.topLeft,
+      depth: 8,
+      intensity: 0.65,
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(color: textColor.value),
+        bodyMedium: TextStyle(color: textColor.value),
+        titleLarge: TextStyle(color: textColor.value),
+      ),
+    );
+  }
+
+  NeumorphicThemeData getNeumorphicDarkTheme() {
+    return NeumorphicThemeData(
+      baseColor: const Color(0xFF2E2E2E),
+      accentColor: accentColor.value,
+      lightSource: LightSource.topLeft,
+      depth: 8,
+      intensity: 0.65,
+      textTheme: const TextTheme(
+        bodyLarge: TextStyle(color: Colors.white),
+        bodyMedium: TextStyle(color: Colors.white),
+        titleLarge: TextStyle(color: Colors.white),
       ),
     );
   }

@@ -1,6 +1,5 @@
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:fihirana/screen/accueil/home_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
@@ -14,33 +13,50 @@ class SplashScreen1 extends StatefulWidget {
 }
 
 class _SplashScreen1State extends State<SplashScreen1>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final TextEditingController _usernameController = TextEditingController();
   bool _agreementAccepted = false;
   late AnimationController _balloonController;
+  late AnimationController _fadeController;
   late Animation<double> _balloonAnimation;
+  late Animation<double> _fadeAnimation;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
     _checkAgreementStatus();
+
     _balloonController = AnimationController(
-      duration: const Duration(seconds: 8),
+      duration: const Duration(seconds: 6),
       vsync: this,
     )..repeat(reverse: true);
 
     _balloonAnimation = Tween<double>(
-      begin: -60.0,
-      end: 60.0,
+      begin: -40.0,
+      end: 40.0,
     ).animate(CurvedAnimation(
       parent: _balloonController,
       curve: Curves.easeInOut,
     ));
+
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
+    );
+
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
     _balloonController.dispose();
+    _fadeController.dispose();
+    _usernameController.dispose();
     super.dispose();
   }
 
@@ -50,13 +66,22 @@ class _SplashScreen1State extends State<SplashScreen1>
       builder: (context, child) {
         return Transform.translate(
           offset: Offset(0, _balloonAnimation.value),
-          child: SizedBox(
-            width: screenWidth * 0.5,
-            height: screenWidth * 0.5,
-            child: SvgPicture.asset(
-              "assets/images/balloon.svg",
-              alignment: Alignment.center,
-              fit: BoxFit.contain,
+          child: Neumorphic(
+            style: NeumorphicStyle(
+              depth: 15,
+              intensity: 0.8,
+              boxShape: const NeumorphicBoxShape.circle(),
+              lightSource: LightSource.topLeft,
+            ),
+            child: Container(
+              width: screenWidth * 0.4,
+              height: screenWidth * 0.4,
+              padding: const EdgeInsets.all(20),
+              child: SvgPicture.asset(
+                "assets/images/balloon.svg",
+                alignment: Alignment.center,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
         );
@@ -64,28 +89,59 @@ class _SplashScreen1State extends State<SplashScreen1>
     );
   }
 
+  Widget _buildNeumorphicCard({
+    required Widget child,
+    EdgeInsets? padding,
+    Color? color,
+  }) {
+    return Neumorphic(
+      style: NeumorphicStyle(
+        depth: 10,
+        intensity: 0.7,
+        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(25)),
+        color: color,
+      ),
+      padding: padding ?? const EdgeInsets.all(24),
+      child: child,
+    );
+  }
+
   Future<void> _handleUsernameSubmit() async {
+    print('Button pressed! Agreement: $_agreementAccepted');
 
     final username = _usernameController.text.trim();
+    print('Username entered: "$username"');
 
     if (username.isEmpty) {
+      print('Username is empty, showing error');
       Get.snackbar(
         'Olana',
         'Mampidira anarana azafady',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
       );
       return;
     }
 
     try {
+      print('Saving preferences...');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('username', username);
+      await prefs.setBool('has_agreed_to_terms', true);
+      await prefs.setBool('isFirstTime', false);
+      print('Preferences saved, navigating to HomeScreen...');
       Get.offAll(() => const HomeScreen());
+      print('Navigation called');
     } catch (e) {
+      print('Error saving preferences: $e');
       Get.snackbar(
         'Olana',
         'Tsy tafiditra ny anarana',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
       );
     }
   }
@@ -100,17 +156,29 @@ class _SplashScreen1State extends State<SplashScreen1>
   }
 
   static const TextStyle boldStyle = TextStyle(
-    fontSize: 40.0,
-    color: Colors.black,
-    fontWeight: FontWeight.bold,
+    fontSize: 32.0,
+    color: Colors.black87,
+    fontWeight: FontWeight.w800,
+    letterSpacing: -0.5,
   );
+
+  static const TextStyle titleStyle = TextStyle(
+    fontSize: 28.0,
+    color: Colors.white,
+    fontWeight: FontWeight.w700,
+    letterSpacing: 0.5,
+  );
+
   static const TextStyle descriptionGreyStyle = TextStyle(
-    color: Colors.grey,
-    fontSize: 14.0,
+    color: Colors.black54,
+    fontSize: 16.0,
+    height: 1.5,
   );
+
   static const TextStyle descriptionWhiteStyle = TextStyle(
     color: Colors.white,
-    fontSize: 14.0,
+    fontSize: 15.0,
+    height: 1.6,
   );
   @override
   Widget build(BuildContext context) {
@@ -119,218 +187,383 @@ class _SplashScreen1State extends State<SplashScreen1>
     final screenHeight = MediaQuery.of(context).size.height;
 
     final pages = [
-      SizedBox(
-        height: screenHeight,
+      // Page 1: Welcome
+      NeumorphicBackground(
         child: Container(
-          color: Colors.yellowAccent.shade700,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: _buildFloatingBalloon(screenWidth),
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        "Fihirana jesosy famonjena fahamarinantsika",
-                        style: boldStyle,
-                      ),
-                      SizedBox(height: 20.0),
-                      Text(
-                        "Miderà an'i Jehovah fa tsara Izy",
-                        style: descriptionGreyStyle,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20.0),
-                child: dotsWidget(
-                  active: 0,
-                  number: 3,
-                ),
-              ),
-              const SkipWidget()
-            ],
-          ),
-        ),
-      ),
-      SizedBox(
-        height: screenHeight,
-        child: Container(
-          color: Colors.blue,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: _buildFloatingBalloon(screenWidth),
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        "Miarahaba anao:",
-                        style: boldStyle,
-                      ),
-                      SizedBox(height: 20.0),
-                      Text(
-                        "Ity fihirana ity dia fihirana natao hoan'ny fiangonana Jesosy Famonjena fahamarinantsika\n. "
-                        "Natao izao mba hanamora kokoa ny fiderana an'Andriamanitra\n. Raha te-hampiditra na hanova hira ianao dia mila compte Google, ny hira nampidirinao ihany no azonao fafana\n",
-                        style: descriptionWhiteStyle,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.only(bottom: 20.0),
-                child: dotsWidget(
-                  active: 1,
-                  number: 3,
-                ),
-              ),
-              const SkipWidget()
-            ],
-          ),
-        ),
-      ),
-      SingleChildScrollView(
-        child: SizedBox(
           height: screenHeight,
-          child: Container(
-            color: Colors.white,
-            child: Column(
-              children: <Widget>[
-                SizedBox(
-                  height: screenHeight * 0.2,
-                  child: _buildFloatingBalloon(screenWidth),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30.0),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.purple.shade100,
+                Colors.blue.shade100,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  _buildFloatingBalloon(screenWidth),
+                  _buildNeumorphicCard(
+                    color: Colors.white.withOpacity(0.9),
+                    child: Column(
+                      children: [
+                        Text(
+                          "Fihirana jesosy famonjena fahamarinantsika",
+                          style: boldStyle.copyWith(fontSize: 26),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16.0),
+                        const Text(
+                          "Miderà an'i Jehovah fa tsara Izy",
+                          style: descriptionGreyStyle,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 20),
+                        Neumorphic(
+                          style: NeumorphicStyle(
+                            depth: 5,
+                            intensity: 0.6,
+                            boxShape: NeumorphicBoxShape.roundRect(
+                              BorderRadius.circular(15),
+                            ),
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(16),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.music_note, color: Colors.purple),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Hymnal App',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.purple,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const ModernDotsIndicator(active: 0, number: 3),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      // Page 2: About
+      NeumorphicBackground(
+        child: Container(
+          height: screenHeight,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.indigo.shade300,
+                Colors.blue.shade400,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  Column(
+                    children: [
+                      Neumorphic(
+                        style: NeumorphicStyle(
+                          depth: 12,
+                          intensity: 0.8,
+                          boxShape: NeumorphicBoxShape.roundRect(
+                            BorderRadius.circular(30),
+                          ),
+                          color: Colors.white.withOpacity(0.2),
+                        ),
+                        padding: const EdgeInsets.all(20),
+                        child: const Icon(
+                          Icons.celebration,
+                          size: 80,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      const Text(
+                        "Miarahaba anao!",
+                        style: titleStyle,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                  _buildNeumorphicCard(
+                    color: Colors.white.withOpacity(0.15),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _FeatureItem(
+                          icon: Icons.church,
+                          text: "Fihirana natao hoan'ny fiangonana JFF",
+                        ),
+                        SizedBox(height: 16),
+                        _FeatureItem(
+                          icon: Icons.book_outlined,
+                          text: "Hanamora kokoa ny fiderana an'Andriamanitra",
+                        ),
+                        SizedBox(height: 16),
+                        _FeatureItem(
+                          icon: Icons.cloud_upload,
+                          text: "Afaka hampiditra hira vaovao ianao",
+                        ),
+                        SizedBox(height: 16),
+                        _FeatureItem(
+                          icon: Icons.account_circle,
+                          text: "Mila compte Google ho an'ny fanampiana",
+                        ),
+                      ],
+                    ),
+                  ),
+                  const ModernDotsIndicator(active: 1, number: 3),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      // Page 3: Get Started
+      NeumorphicBackground(
+        child: Container(
+          height: screenHeight,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.teal.shade100,
+                Colors.green.shade100,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    const SizedBox(height: 20),
+                    Text(
+                      "Fanekena",
+                      style: boldStyle.copyWith(
+                        fontSize: 32,
+                        color: Colors.teal.shade900,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 30),
+                    _buildNeumorphicCard(
+                      color: Colors.white.withOpacity(0.9),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            "Fanekena:",
-                            style: boldStyle.copyWith(fontSize: 30.0),
-                          ),
-                          const SizedBox(height: 10.0),
-                          Column(
+                        children: [
+                          Row(
                             children: [
-                              const Text(
-                                "Izaho dia manaiky fa:",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
+                              Neumorphic(
+                                style: NeumorphicStyle(
+                                  depth: 5,
+                                  boxShape: const NeumorphicBoxShape.circle(),
+                                  color: Colors.teal.shade50,
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                child: Icon(
+                                  Icons.verified_user,
+                                  color: Colors.teal.shade700,
+                                  size: 28,
                                 ),
                               ),
-                              const SizedBox(height: 5.0),
-                              const Text(
-                                "1. Tsy hampiasa ny application amin'ny fomba ratsy\n"
-                                "2. Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF  \n",
-                                style: TextStyle(fontSize: 14),
-                              ),
-                              Row(
-                                children: [
-                                  Transform.scale(
-                                    scale: 0.9,
-                                    child: Checkbox(
-                                      value: _agreementAccepted,
-                                      onChanged: (bool? value) {
-                                        setState(() {
-                                          _agreementAccepted = value ?? false;
-                                        });
-                                      },
-                                      activeColor: Colors.blue,
-                                    ),
+                              const SizedBox(width: 12),
+                              const Expanded(
+                                child: Text(
+                                  "Izaho dia manaiky fa:",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
                                   ),
-                                  const Expanded(
-                                    child: Text(
-                                      "Ekeko ireo fepetra ireo",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10.0),
-                          TextField(
-                            controller: _usernameController,
-                            decoration: InputDecoration(
-                              labelText: 'Ampidiro ny anaranao',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(25.0),
-                              ),
-                              filled: true,
-                              fillColor: Colors.grey[100],
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
+                          const SizedBox(height: 16),
+                          _buildAgreementItem(
+                            "Tsy hampiasa ny application amin'ny fomba ratsy",
+                          ),
+                          const SizedBox(height: 12),
+                          _buildAgreementItem(
+                            "Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF",
+                          ),
+                          const SizedBox(height: 20),
+                          NeumorphicButton(
+                            onPressed: () {
+                              setState(() {
+                                _agreementAccepted = !_agreementAccepted;
+                              });
+                            },
+                            style: NeumorphicStyle(
+                              depth: _agreementAccepted ? -5 : 5,
+                              intensity: 0.7,
+                              boxShape: NeumorphicBoxShape.roundRect(
+                                BorderRadius.circular(15),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _agreementAccepted
-                                  ? _handleUsernameSubmit
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 18,
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Neumorphic(
+                                  style: NeumorphicStyle(
+                                    depth: _agreementAccepted ? -3 : 3,
+                                    boxShape: NeumorphicBoxShape.roundRect(
+                                      BorderRadius.circular(6),
+                                    ),
+                                    color: _agreementAccepted
+                                        ? Colors.teal
+                                        : Colors.grey.shade200,
+                                  ),
+                                  child: Container(
+                                    width: 24,
+                                    height: 24,
+                                    alignment: Alignment.center,
+                                    child: _agreementAccepted
+                                        ? const Icon(
+                                            Icons.check,
+                                            color: Colors.white,
+                                            size: 18,
+                                          )
+                                        : null,
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
+                                const SizedBox(width: 12),
+                                const Expanded(
+                                  child: Text(
+                                    "Ekeko ireo fepetra ireo",
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
                                 ),
-                                elevation: 5,
-                                shadowColor: Colors.black.withOpacity(0.5),
-                              ),
-                              child: const Text(
-                                "Tohizana",
-                                style: TextStyle(fontSize: 14),
-                              ),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    Neumorphic(
+                      style: NeumorphicStyle(
+                        depth: -8,
+                        intensity: 0.7,
+                        boxShape: NeumorphicBoxShape.roundRect(
+                          BorderRadius.circular(25),
+                        ),
+                        color: Colors.white,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 8,
+                      ),
+                      child: TextField(
+                        controller: _usernameController,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Ampidiro ny anaranao',
+                          labelStyle: TextStyle(
+                            color: Colors.teal.shade700,
+                            fontSize: 15,
+                          ),
+                          prefixIcon: Icon(
+                            Icons.person_outline,
+                            color: Colors.teal.shade600,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: NeumorphicButton(
+                        onPressed: _agreementAccepted
+                            ? () async {
+                                await _handleUsernameSubmit();
+                              }
+                            : null,
+                        style: NeumorphicStyle(
+                          shape: NeumorphicShape.flat,
+                          boxShape: NeumorphicBoxShape.roundRect(
+                            BorderRadius.circular(25),
+                          ),
+                          depth: _agreementAccepted ? 8 : 3,
+                          intensity: 0.7,
+                          color: _agreementAccepted
+                              ? Colors.teal.shade600
+                              : Colors.grey.shade300,
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Tohizana",
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: _agreementAccepted
+                                    ? Colors.white
+                                    : Colors.grey.shade600,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              color: _agreementAccepted
+                                  ? Colors.white
+                                  : Colors.grey.shade600,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    const ModernDotsIndicator(active: 2, number: 3),
+                    const SizedBox(height: 20),
+                  ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 10.0),
-                  child: dotsWidget(
-                    active: 2,
-                    number: 3,
-                  ),
-                ),
-                const SkipWidget()
-              ],
+              ),
             ),
           ),
         ),
@@ -338,55 +571,139 @@ class _SplashScreen1State extends State<SplashScreen1>
     ];
 
     return Scaffold(
-      body: LiquidSwipe(
-        pages: pages,
-        enableLoop: false,
-        fullTransitionValue: 500,
-        enableSideReveal: false,
-        waveType: WaveType.liquidReveal,
-        positionSlideIcon: 0.8,
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: LiquidSwipe(
+          pages: pages,
+          enableLoop: false,
+          fullTransitionValue: 400,
+          enableSideReveal: true,
+          waveType: WaveType.liquidReveal,
+          positionSlideIcon: 0.75,
+          onPageChangeCallback: (page) {
+            setState(() {
+              _currentPage = page;
+            });
+          },
+        ),
       ),
+    );
+  }
+
+  Widget _buildAgreementItem(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Neumorphic(
+          style: NeumorphicStyle(
+            depth: 3,
+            boxShape: const NeumorphicBoxShape.circle(),
+            color: Colors.teal.shade100,
+          ),
+          padding: const EdgeInsets.all(6),
+          child: Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: Colors.teal.shade600,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black87,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
 
-class dotsWidget extends StatelessWidget {
+class ModernDotsIndicator extends StatelessWidget {
   final int active;
   final int number;
-  const dotsWidget({super.key,
+
+  const ModernDotsIndicator({
+    super.key,
     required this.active,
     required this.number,
   });
 
   @override
   Widget build(BuildContext context) {
-    return DotsIndicator(
-      dotsCount: number,
-      position: active,
-      decorator: DotsDecorator(
-        size: const Size.square(9.0),
-        activeSize: const Size(18.0, 9.0),
-        activeShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(number, (index) {
+        final isActive = index == active;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          child: Neumorphic(
+            style: NeumorphicStyle(
+              depth: isActive ? -4 : 4,
+              intensity: 0.7,
+              boxShape: NeumorphicBoxShape.roundRect(
+                BorderRadius.circular(isActive ? 12 : 6),
+              ),
+              color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
+            ),
+            child: Container(
+              width: isActive ? 32 : 12,
+              height: 12,
+            ),
+          ),
+        );
+      }),
     );
   }
 }
 
-class SkipWidget extends StatelessWidget {
-  const SkipWidget({super.key});
+class _FeatureItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _FeatureItem({
+    required this.icon,
+    required this.text,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      child: const Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-
-        ],
-      ),
+    return Row(
+      children: [
+        Neumorphic(
+          style: NeumorphicStyle(
+            depth: 6,
+            boxShape: const NeumorphicBoxShape.circle(),
+            color: Colors.white.withOpacity(0.3),
+          ),
+          padding: const EdgeInsets.all(10),
+          child: Icon(
+            icon,
+            color: Colors.white,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              height: 1.6,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

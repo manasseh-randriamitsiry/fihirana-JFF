@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/hymn.dart';
 import '../utility/navigation_utility.dart';
 import '../services/hymn_service.dart';
-import '../screen/hymn/edit_hymn_screen.dart';
 
 class HymnListItem extends StatelessWidget {
   final Hymn hymn;
@@ -62,17 +61,17 @@ class HymnListItem extends StatelessWidget {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary),
                       ),
                     ),
                     onSubmitted: (value) {
-
                       if (value.toLowerCase() == 'eny') {
                         isConfirmed = true;
                         Navigator.of(context).pop();
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text(
                               'Soraty hoe "eny" mba hamafana',
                               style: TextStyle(color: Colors.white),
@@ -91,16 +90,15 @@ class HymnListItem extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
-                  child: Text('Fafao', style: TextStyle(color: Colors.red)),
+                  child:
+                      const Text('Fafao', style: TextStyle(color: Colors.red)),
                   onPressed: () {
-
                     if (confirmationController.text.toLowerCase() == 'eny') {
                       isConfirmed = true;
                       Navigator.of(context).pop();
                     } else {
-
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text(
                             'Soraty hoe "eny" mba hamafana',
                             style: TextStyle(color: Colors.white),
@@ -162,7 +160,6 @@ class HymnListItem extends StatelessWidget {
                       backgroundColor: Colors.green,
                     ),
                   );
-
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -185,85 +182,137 @@ class HymnListItem extends StatelessWidget {
     final isLoggedIn = user != null;
     final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
 
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      color: backgroundColor,
-      child: ListTile(
-        title: Text(
-          hymn.title,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.bold,
-          ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+      child: Neumorphic(
+        style: NeumorphicStyle(
+          depth: 8,
+          intensity: 0.65,
+          surfaceIntensity: 0.25,
+          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(20)),
+          color: backgroundColor,
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (hymn.verses.isNotEmpty)
-              Text(
-                hymn.verses[0],
-                style: TextStyle(
-                  color: textColor.withOpacity(0.7),
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            if (isAdmin && isFirebaseHymn)
-              Text(
-                'Nampiditra: ${hymn.createdBy}${hymn.createdByEmail != null ? ' (${hymn.createdByEmail})' : ''}',
-                style: TextStyle(
-                  color: textColor.withOpacity(0.5),
-                  fontSize: 12,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-          ],
-        ),
-        leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: Text(
-            hymn.hymnNumber,
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          title: Text(
+            hymn.title,
             style: TextStyle(
-              color: backgroundColor,
+              color: textColor,
               fontWeight: FontWeight.bold,
             ),
           ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            StreamBuilder<Map<String, String>>(
-              stream: _hymnService.getFavoriteStatusStream(),
-              builder: (context, snapshot) {
-                final favoriteStatus = snapshot.data?[hymn.id] ?? '';
-                final isFavorite = favoriteStatus.isNotEmpty;
-
-                return IconButton(
-                  icon: Icon(
-                    isFavorite ? Icons.favorite : Icons.favorite_border,
-                    color: isFavorite
-                        ? (favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
-                        : textColor,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hymn.verses.isNotEmpty)
+                Text(
+                  hymn.verses[0],
+                  style: TextStyle(
+                    color: textColor.withOpacity(0.7),
                   ),
-                  onPressed: onFavoritePressed,
-                );
-              },
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              if (isAdmin && isFirebaseHymn)
+                Text(
+                  'Nampiditra: ${hymn.createdBy}${hymn.createdByEmail != null ? ' (${hymn.createdByEmail})' : ''}',
+                  style: TextStyle(
+                    color: textColor.withOpacity(0.5),
+                    fontSize: 12,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+            ],
+          ),
+          leading: Neumorphic(
+            style: NeumorphicStyle(
+              depth: 4,
+              intensity: 0.65,
+              boxShape: const NeumorphicBoxShape.circle(),
+              color: Theme.of(context).colorScheme.primary,
             ),
+            child: SizedBox(
+              width: 50,
+              height: 50,
+              child: Center(
+                child: Text(
+                  hymn.hymnNumber,
+                  style: TextStyle(
+                    color: backgroundColor,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              StreamBuilder<Map<String, String>>(
+                stream: _hymnService.getFavoriteStatusStream(),
+                builder: (context, snapshot) {
+                  final favoriteStatus = snapshot.data?[hymn.id] ?? '';
+                  final isFavorite = favoriteStatus.isNotEmpty;
 
-            if (isFirebaseHymn && isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
-              IconButton(
-                icon: Icon(Icons.edit, color: textColor),
-                onPressed: () => NavigationUtility.navigateToEditScreen(context, hymn),
+                  return NeumorphicButton(
+                    onPressed: onFavoritePressed,
+                    style: NeumorphicStyle(
+                      shape: NeumorphicShape.concave,
+                      boxShape: const NeumorphicBoxShape.circle(),
+                      depth: isFavorite ? -4 : 4,
+                      intensity: 0.65,
+                      color: backgroundColor,
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite
+                          ? (favoriteStatus == 'cloud'
+                              ? Colors.red
+                              : Colors.blue)
+                          : textColor,
+                      size: 20,
+                    ),
+                  );
+                },
               ),
-            if (isFirebaseHymn && isLoggedIn && (hymn.createdByEmail == user.email || isAdmin))
-              IconButton(
-                icon: const Icon(Icons.delete_outline, color: Colors.red),
-                onPressed: () => _showDeleteConfirmation(context),
-              ),
-          ],
+              if (isFirebaseHymn &&
+                  isLoggedIn &&
+                  (hymn.createdByEmail == user.email || isAdmin))
+                NeumorphicButton(
+                  onPressed: () =>
+                      NavigationUtility.navigateToEditScreen(context, hymn),
+                  style: NeumorphicStyle(
+                    shape: NeumorphicShape.concave,
+                    boxShape: const NeumorphicBoxShape.circle(),
+                    depth: 4,
+                    intensity: 0.65,
+                    color: backgroundColor,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: Icon(Icons.edit, color: textColor, size: 20),
+                ),
+              if (isFirebaseHymn &&
+                  isLoggedIn &&
+                  (hymn.createdByEmail == user.email || isAdmin))
+                NeumorphicButton(
+                  onPressed: () => _showDeleteConfirmation(context),
+                  style: NeumorphicStyle(
+                    shape: NeumorphicShape.concave,
+                    boxShape: const NeumorphicBoxShape.circle(),
+                    depth: 4,
+                    intensity: 0.65,
+                    color: backgroundColor,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  child: const Icon(Icons.delete_outline,
+                      color: Colors.red, size: 20),
+                ),
+            ],
+          ),
+          onTap: () => NavigationUtility.navigateToDetailScreen(context, hymn),
         ),
-        onTap: () => NavigationUtility.navigateToDetailScreen(context, hymn),
       ),
     );
   }
