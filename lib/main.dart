@@ -18,7 +18,6 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
-
 import 'services/firebase_sync_service.dart';
 
 Future<void> initializeNotifications() async {
@@ -80,14 +79,15 @@ Future<void> main() async {
 
   final themeController = Get.put(ThemeController());
   Get.put(HistoryController());
-  Get.put(ColorController());
+  final colorController = Get.put(ColorController());
   Get.put(FontController());
   Get.put(AuthController());
   Get.put(HymnService());
   Get.put(BackgroundService());
   Get.put(FirebaseSyncService());
 
-  themeController.isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
+  await colorController.loadColors();
+  await themeController.loadThemeFromPrefs();
 
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: (ReceivedAction receivedAction) async {

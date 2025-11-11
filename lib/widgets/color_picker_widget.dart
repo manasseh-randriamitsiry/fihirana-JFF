@@ -50,9 +50,8 @@ class ColorPickerWidget extends StatelessWidget {
         content: SingleChildScrollView(
           child: BlockPicker(
             pickerColor: controller.iconColor.value,
-            onColorChanged: (color) {
-              controller.iconColor.value = color;
-              controller.update(['iconColor']);
+            onColorChanged: (color) async {
+              await controller.updateIconColor(color);
             },
           ),
         ),
@@ -142,7 +141,7 @@ class ColorPickerWidget extends StatelessWidget {
             final index = entry.key;
             final scheme = entry.value;
             return InkWell(
-              onTap: () => colorController.setColorScheme(index),
+              onTap: () async => await colorController.setColorScheme(index),
               child: Container(
                 width: 80,
                 padding: const EdgeInsets.all(4),
@@ -241,7 +240,7 @@ class ColorPickerWidget extends StatelessWidget {
                         context,
                         'fototra',
                         colorController.primaryColor.value,
-                        (color) => colorController.updateColors(primary: color),
+                         (color) async => await colorController.updateColors(primary: color),
                       ),
                     ),
                     _buildColorButton(
@@ -251,7 +250,7 @@ class ColorPickerWidget extends StatelessWidget {
                         context,
                         'soratra',
                         colorController.textColor.value,
-                        (color) => colorController.updateColors(text: color),
+                         (color) async => await colorController.updateColors(text: color),
                       ),
                     ),
                     _buildColorButton(
@@ -261,8 +260,8 @@ class ColorPickerWidget extends StatelessWidget {
                         context,
                         'ambadika',
                         colorController.backgroundColor.value,
-                        (color) =>
-                            colorController.updateColors(background: color),
+                         (color) async =>
+                             await colorController.updateColors(background: color),
                       ),
                     ),
                     ListTile(
