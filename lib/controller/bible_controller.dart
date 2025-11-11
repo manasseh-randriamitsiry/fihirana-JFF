@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bible_highlight.dart';
+import '../models/bible_search.dart';
 import '../services/bible_service.dart';
 import '../services/bible_highlight_service.dart';
 
@@ -28,6 +29,13 @@ class BibleController extends GetxController {
 
   // Filtered books for search
   var filteredBooks = <String>[].obs;
+  
+  // Search functionality
+  var searchQuery = ''.obs;
+  var searchResults = <BibleSearchResult>[].obs;
+  var isSearching = false.obs;
+  var searchContext = BibleSearchContext.books.obs; // Default to book search
+  var searchHistory = <String>[].obs;
 
   // Caching for recently accessed passages
   final Map<String, String> _passageCache = {};
@@ -356,6 +364,189 @@ class BibleController extends GetxController {
     }
     
     return [];
+  }
+
+  // Enhanced search methods
+  void setSearchContext(BibleSearchContext context) {
+    searchContext.value = context;
+    searchResults.clear();
+    searchQuery.value = '';
+  }
+
+  Future<void> performSearch(String query) async {
+    if (query.trim().isEmpty) {
+      searchResults.clear();
+      searchQuery.value = '';
+      return;
+    }
+
+    isSearching.value = true;
+    searchQuery.value = query;
+    
+    try {
+      switch (searchContext.value) {
+        case BibleSearchContext.books:
+          await _searchBooks(query);
+          break;
+        case BibleSearchContext.currentChapter:
+          await _searchCurrentChapter(query);
+          break;
+        case BibleSearchContext.allBible:
+          await _searchAllBible(query);
+          break;
+      }
+      
+      // Add to search history
+      _addToSearchHistory(query);
+    } catch (e) {
+      print('Error performing search: $e');
+    } finally {
+      isSearching.value = false;
+    }
+  }
+
+  Future<void> _searchBooks(String query) async {
+    final results = _bibleService.getAllBookNames()
+        .where((book) => book.toLowerCase().contains(query.toLowerCase()))
+        .map((book) => BibleSearchResult(
+          type: BibleSearchResultType.book,
+          bookName: book,
+          chapter: 0,
+          verse: 0,
+          text: book,
+          relevance: _calculateRelevance(book, query),
+        ))
+        .toList();
+    
+    searchResults.assignAll(results);
+  }
+
+  Future<void> _searchCurrentChapter(String query) async {
+    if (selectedBook.isEmpty || selectedChapter.value == 0) return;
+    
+    final book = _bibleService.getBookSync(selectedBook.value);
+    if (book == null) return;
+    
+    final chapter = book.getChapter(selectedChapter.value);
+    if (chapter == null) return;
+    
+    final results = <BibleSearchResult>[];
+    final lowerQuery = query.toLowerCase();
+    
+    chapter.verses.forEach((verseNum, verseText) {
+      if (verseText.toLowerCase().contains(lowerQuery)) {
+        results.add(BibleSearchResult(
+          type: BibleSearchResultType.verse,
+          bookName: selectedBook.value,
+          chapter: selectedChapter.value,
+          verse: verseNum,
+          text: verseText,
+          relevance: _calculateRelevance(verseText, query),
+        ));
+      }
+    });
+    
+    // Sort by relevance
+    results.sort((a, b) => b.relevance.compareTo(a.relevance));
+    searchResults.assignAll(results);
+  }
+
+  Future<void> _searchAllBible(String query) async {
+    final results = <BibleSearchResult>[];
+    final lowerQuery = query.toLowerCase();
+    
+    // Search through all books
+    for (final bookName in _bibleService.getAllBookNames()) {
+      final book = _bibleService.getBookSync(bookName);
+      if (book == null) continue;
+      
+      // Search through all chapters
+      for (final chapterNum in book.chapterData.keys) {
+        final chapter = book.getChapter(chapterNum);
+        if (chapter == null) continue;
+        
+        // Search through all verses
+        chapter.verses.forEach((verseNum, verseText) {
+          if (verseText.toLowerCase().contains(lowerQuery)) {
+            results.add(BibleSearchResult(
+              type: BibleSearchResultType.verse,
+              bookName: bookName,
+              chapter: chapterNum,
+              verse: verseNum,
+              text: verseText,
+              relevance: _calculateRelevance(verseText, query),
+            ));
+          }
+        });
+      }
+    }
+    
+    // Sort by relevance and limit results
+    results.sort((a, b) => b.relevance.compareTo(a.relevance));
+    searchResults.assignAll(results.take(100).toList()); // Limit to 100 results
+  }
+
+  double _calculateRelevance(String text, String query) {
+    final lowerText = text.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+    
+    double relevance = 0.0;
+    
+    // Exact match gets highest relevance
+    if (lowerText == lowerQuery) {
+      relevance += 100.0;
+    }
+    
+    // Starts with query gets high relevance
+    if (lowerText.startsWith(lowerQuery)) {
+      relevance += 50.0;
+    }
+    
+    // Count occurrences of query in text
+    int occurrences = 0;
+    int index = lowerText.indexOf(lowerQuery);
+    while (index != -1) {
+      occurrences++;
+      index = lowerText.indexOf(lowerQuery, index + 1);
+    }
+    relevance += occurrences * 10.0;
+    
+    // Shorter text gets slightly higher relevance (more likely to be specific)
+    relevance += (100 - text.length) * 0.1;
+    
+    return relevance;
+  }
+
+  void _addToSearchHistory(String query) {
+    if (query.trim().isEmpty) return;
+    
+    // Remove if already exists
+    searchHistory.remove(query);
+    
+    // Add to beginning
+    searchHistory.insert(0, query);
+    
+    // Keep only last 10 searches
+    if (searchHistory.length > 10) {
+      searchHistory.removeLast();
+    }
+  }
+
+  void clearSearchHistory() {
+    searchHistory.clear();
+  }
+
+  void navigateToSearchResult(BibleSearchResult result) {
+    switch (result.type) {
+      case BibleSearchResultType.book:
+        selectBook(result.bookName);
+        break;
+      case BibleSearchResultType.verse:
+        selectBook(result.bookName);
+        selectChapter(result.chapter);
+        // Scroll to specific verse (implementation needed)
+        break;
+    }
   }
 
   BibleHighlight? getHighlightForVerse(int verse) {
