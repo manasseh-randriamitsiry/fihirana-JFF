@@ -1,5 +1,5 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,19 +68,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return UpdateCheckerWidget(
-      child: Obx(() => ZoomDrawer(
-            controller: zoomDrawerController,
-            style: DrawerStyle.defaultStyle,
-            menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
-            mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
-            borderRadius: 24.0,
-            showShadow: true,
-            angle: -12.0,
-            menuBackgroundColor: _colorController.drawerColor.value,
-            slideWidth: MediaQuery.of(context).size.width * 0.85,
-            mainScreenTapClose: true,
-            openCurve: Curves.fastOutSlowIn,
-            closeCurve: Curves.bounceIn,
+      child: Obx(() => NeumorphicBackground(
+            child: ZoomDrawer(
+              controller: zoomDrawerController,
+              style: DrawerStyle.defaultStyle,
+              menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
+              mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
+              borderRadius: 24.0,
+              showShadow: true,
+              angle: -12.0,
+              menuBackgroundColor: _colorController.drawerColor.value,
+              slideWidth: MediaQuery.of(context).size.width * 0.85,
+              mainScreenTapClose: true,
+              openCurve: Curves.fastOutSlowIn,
+              closeCurve: Curves.bounceIn,
+            ),
           )),
     );
   }

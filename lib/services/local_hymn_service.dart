@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/hymn.dart';
-import 'package:collection/collection.dart';
 class LocalHymnService {
   static final LocalHymnService _instance = LocalHymnService._internal();
   factory LocalHymnService() => _instance;
@@ -87,8 +86,12 @@ class LocalHymnService {
       verses.addAll(List<String>.from(jsonData['verses']));
     }
 
-    if (jsonData['chorus'] != null) {
-      verses.add(jsonData['chorus'].toString());
+
+
+    // Extract bridge/chorus
+    String? bridge = jsonData['bridge']?.toString();
+    if (bridge == null && jsonData['chorus'] != null) {
+      bridge = jsonData['chorus'].toString();
     }
 
     return Hymn(
@@ -96,7 +99,7 @@ class LocalHymnService {
       hymnNumber: jsonData['number'].toString(),
       title: jsonData['title'].toString(),
       verses: verses,
-      bridge: jsonData['bridge']?.toString(),
+      bridge: bridge,
       hymnHint: jsonData['hint']?.toString(),
       createdAt: DateTime.now(),
       createdBy: 'Local File',

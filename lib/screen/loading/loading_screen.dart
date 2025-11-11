@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -28,13 +29,30 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   Future<void> _initializeApp() async {
     try {
-      await _storageService.init();
+      print('Initializing storage service...');
+      await _storageService.init().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('Storage initialization timeout');
+        },
+      );
+      print('Storage initialized');
 
-      await _downloadFirebaseHymns();
+      print('Downloading Firebase hymns...');
+      await _downloadFirebaseHymns().timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          print('Firebase download timeout');
+        },
+      );
+      print('Firebase hymns downloaded');
 
+      print('Navigating to HomeScreen...');
+      await Future.delayed(const Duration(milliseconds: 500));
       Get.off(() => const HomeScreen());
     } catch (e) {
-
+      print('Error during initialization: $e');
+      await Future.delayed(const Duration(milliseconds: 500));
       Get.off(() => const HomeScreen());
     }
   }
@@ -42,9 +60,19 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Future<void> _downloadFirebaseHymns() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        print('No user logged in, skipping Firebase hymns download');
+        return;
+      }
 
-      final snapshot = await _firestore.collection('hymns').get();
+      print('Fetching hymns from Firebase...');
+      final snapshot = await _firestore.collection('hymns').get().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('Firebase fetch timeout');
+          throw TimeoutException('Firebase fetch timed out');
+        },
+      );
 
       final firebaseHymns = snapshot.docs.map((doc) {
         final data = doc.data();
@@ -52,10 +80,12 @@ class _LoadingScreenState extends State<LoadingScreen> {
       }).toList();
 
       if (firebaseHymns.isNotEmpty) {
+        print('Saving ${firebaseHymns.length} hymns...');
         await _storageService.saveHymns(firebaseHymns);
+        print('Hymns saved successfully');
       }
     } catch (e) {
-
+      print('Error downloading Firebase hymns: $e');
     }
   }
 
@@ -67,7 +97,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             LoadingAnimationWidget.staggeredDotsWave(
               color: Get.find<ColorController>().primaryColor.value,
               size: 60,

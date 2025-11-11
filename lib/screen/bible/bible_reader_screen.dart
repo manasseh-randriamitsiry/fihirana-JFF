@@ -18,9 +18,9 @@ class BibleReaderScreen extends StatefulWidget {
 class _BibleReaderScreenState extends State<BibleReaderScreen> {
   final BibleController bibleController = Get.put(BibleController());
   final ColorController colorController = Get.find<ColorController>();
-  
+
   final TextEditingController _searchController = TextEditingController();
-  
+
   // Font size variables
   final double _baseFontSize = 18.0;
   final double _baseCountFontSize = 50.0;
@@ -37,7 +37,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     });
     _loadFontSize();
   }
-  
+
   void _loadFontSize() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -54,12 +54,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: colorController.iconColor.value),
+            icon:
+                Icon(Icons.arrow_back, color: colorController.iconColor.value),
             onPressed: () => Navigator.pop(context),
           ),
           title: Obx(() {
             // Show book name and chapter when viewing a passage
-            if (bibleController.selectedBook.isNotEmpty && bibleController.selectedChapter.value > 0) {
+            if (bibleController.selectedBook.isNotEmpty &&
+                bibleController.selectedChapter.value > 0) {
               return Text(
                 '${bibleController.selectedBook.value} ${bibleController.selectedChapter.value}',
                 style: TextStyle(
@@ -68,7 +70,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   fontSize: _fontSize, // Use user-defined font size
                 ),
               );
-            } 
+            }
             // Show "Famakiana Baiboly" when selecting books or chapters
             else {
               return Text(
@@ -84,7 +86,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           actions: [
             // Font size adjustment button
             IconButton(
-              icon: Icon(Icons.text_fields, color: colorController.iconColor.value),
+              icon: Icon(Icons.text_fields,
+                  color: colorController.iconColor.value),
               onPressed: () {
                 setState(() {
                   _showSlider = !_showSlider;
@@ -95,7 +98,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             Obx(() {
               if (bibleController.startVerse.value > 0) {
                 return IconButton(
-                  icon: Icon(Icons.bookmark_add, color: colorController.iconColor.value),
+                  icon: Icon(Icons.bookmark_add,
+                      color: colorController.iconColor.value),
                   onPressed: _saveHighlight,
                 );
               }
@@ -105,7 +109,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             Obx(() {
               if (bibleController.startVerse.value > 0) {
                 return IconButton(
-                  icon: Icon(Icons.share, color: colorController.iconColor.value),
+                  icon:
+                      Icon(Icons.share, color: colorController.iconColor.value),
                   onPressed: _shareSelectedVerses,
                 );
               }
@@ -119,7 +124,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       ),
     );
   }
-  
+
   Widget _buildContentArea(ColorController colorController) {
     // Book list view
     if (bibleController.selectedBook.isEmpty) {
@@ -133,7 +138,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               decoration: InputDecoration(
                 labelText: 'Karoka boky...',
                 labelStyle: TextStyle(color: colorController.textColor.value),
-                prefixIcon: Icon(Icons.search, color: colorController.iconColor.value),
+                prefixIcon:
+                    Icon(Icons.search, color: colorController.iconColor.value),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(
@@ -182,7 +188,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           // Book list
           Expanded(
             child: bibleController.isLoading.value
-                ? _buildLoadingIndicator(bibleController.loadingMessage.value, colorController)
+                ? _buildLoadingIndicator(
+                    bibleController.loadingMessage.value, colorController)
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
                     itemCount: bibleController.bookList.length,
@@ -190,7 +197,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     cacheExtent: 1000, // Cache more items
                     itemBuilder: (context, index) {
                       final bookName = bibleController.bookList[index];
-                      final chapterCount = bibleController.getChapterCountForBook(bookName);
+                      final chapterCount =
+                          bibleController.getChapterCountForBook(bookName);
                       return BibleBookListItem(
                         bookName: bookName,
                         chapterCount: chapterCount,
@@ -204,7 +212,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ],
       );
     }
-    
+
     // Chapter selection view (full screen)
     if (bibleController.selectedChapter.value == 0) {
       return Column(
@@ -224,7 +232,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             child: Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.arrow_back, color: colorController.iconColor.value),
+                  icon: Icon(Icons.arrow_back,
+                      color: colorController.iconColor.value),
                   onPressed: () {
                     bibleController.selectedBook.value = '';
                     bibleController.chapterList.clear();
@@ -272,7 +281,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 ? const Center(child: Text('Tsy misy toko'))
                 : GridView.builder(
                     padding: const EdgeInsets.all(16.0),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 5,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
@@ -293,7 +303,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               style: TextStyle(
                                 color: colorController.backgroundColor.value,
                                 fontWeight: FontWeight.bold,
-                                fontSize: _fontSize * 1.2, // Larger font for chapter numbers
+                                fontSize: _fontSize *
+                                    1.2, // Larger font for chapter numbers
                               ),
                             ),
                           ),
@@ -305,11 +316,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ],
       );
     }
-    
+
     // Passage display view (full screen)
     return Column(
       children: [
-        
         // Font size slider
         if (_showSlider)
           Slider(
@@ -332,12 +342,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               });
             },
           ),
-        
+
         // Verse selection controls (only visible when selecting)
         Obx(() {
-          if (bibleController.isSelecting.value && bibleController.startVerse.value > 0) {
+          if (bibleController.isSelecting.value &&
+              bibleController.startVerse.value > 0) {
             return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               decoration: BoxDecoration(
                 color: colorController.backgroundColor.value,
                 border: Border(
@@ -361,7 +373,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.close, color: colorController.iconColor.value),
+                        icon: Icon(Icons.close,
+                            color: colorController.iconColor.value),
                         onPressed: () {
                           bibleController.startVerse.value = 0;
                           bibleController.endVerse.value = 0;
@@ -369,7 +382,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         },
                       ),
                       IconButton(
-                        icon: Icon(Icons.check, color: Colors.green),
+                        icon: const Icon(Icons.check, color: Colors.green),
                         onPressed: () {
                           bibleController.endVerseSelection();
                         },
@@ -382,13 +395,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           }
           return const SizedBox.shrink();
         }),
-        
+
         // Passage content (full screen)
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(16.0),
             child: bibleController.isLoading.value
-                ? _buildLoadingIndicator(bibleController.loadingMessage.value, colorController)
+                ? _buildLoadingIndicator(
+                    bibleController.loadingMessage.value, colorController)
                 : bibleController.passageText.isEmpty
                     ? const Center(child: Text('Tsy misy andininy'))
                     : _buildPassageContent(colorController),
@@ -397,28 +411,28 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       ],
     );
   }
-  
+
   Widget _buildPassageContent(ColorController colorController) {
     // Parse the passage text and create selectable verses
     final verses = <Map<String, dynamic>>[];
     final lines = bibleController.passageText.value.split('\n\n');
-    
+
     for (final line in lines) {
       if (line.trim().isEmpty) continue;
-      
+
       // Extract verse number and text
       final match = RegExp(r'^(\d+)\.\s(.*)$').firstMatch(line);
       if (match != null) {
         final verseNum = int.tryParse(match.group(1) ?? '0') ?? 0;
         final verseText = match.group(2) ?? '';
-        
+
         verses.add({
           'number': verseNum,
           'text': verseText,
         });
       }
     }
-    
+
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,14 +440,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           ...verses.map((verse) {
             final verseNum = verse['number'] as int;
             final verseText = verse['text'] as String;
-            
+
             return Obx(() {
               final isSelected = bibleController.isVerseSelected(verseNum);
-              final isHighlighted = bibleController.isVerseHighlighted(verseNum);
-              final isInRange = bibleController.isSelecting.value && 
-                               verseNum >= bibleController.startVerse.value && 
-                               verseNum <= bibleController.endVerse.value;
-              
+              final isHighlighted =
+                  bibleController.isVerseHighlighted(verseNum);
+              final isInRange = bibleController.isSelecting.value &&
+                  verseNum >= bibleController.startVerse.value &&
+                  verseNum <= bibleController.endVerse.value;
+
               return GestureDetector(
                 onTap: () {
                   if (!bibleController.isSelecting.value) {
@@ -449,18 +464,19 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 },
                 child: Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                   margin: const EdgeInsets.symmetric(vertical: 2),
                   decoration: BoxDecoration(
                     color: isSelected || isInRange
-                        ? colorController.primaryColor.value.withOpacity(0.3) 
+                        ? colorController.primaryColor.value.withOpacity(0.3)
                         : isHighlighted
                             ? Colors.yellow.withOpacity(0.3)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: isHighlighted 
-                          ? Colors.yellow 
+                      color: isHighlighted
+                          ? Colors.yellow
                           : isSelected || isInRange
                               ? colorController.primaryColor.value
                               : Colors.transparent,
@@ -479,7 +495,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                             child: Text(
                               '$verseNum',
                               style: TextStyle(
-                                fontSize: _countFontSize * 0.8, // Smaller background number
+                                fontSize: _countFontSize *
+                                    0.8, // Smaller background number
                                 fontWeight: FontWeight.bold,
                                 color: colorController.primaryColor.value,
                               ),
@@ -501,18 +518,23 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               TextSpan(
                                 text: '$verseNum. ',
                                 style: TextStyle(
-                                  fontWeight: isSelected || isHighlighted || isInRange ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected || isHighlighted || isInRange
-                                      ? colorController.primaryColor.value 
-                                      : colorController.textColor.value,
+                                  fontWeight:
+                                      isSelected || isHighlighted || isInRange
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                  color:
+                                      isSelected || isHighlighted || isInRange
+                                          ? colorController.primaryColor.value
+                                          : colorController.textColor.value,
                                 ),
                               ),
                               TextSpan(
                                 text: verseText,
                                 style: TextStyle(
-                                  color: isSelected || isHighlighted || isInRange
-                                      ? colorController.primaryColor.value 
-                                      : colorController.textColor.value,
+                                  color:
+                                      isSelected || isHighlighted || isInRange
+                                          ? colorController.primaryColor.value
+                                          : colorController.textColor.value,
                                 ),
                               ),
                             ],
@@ -524,22 +546,24 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 ),
               );
             });
-          }).toList(),
+          }),
         ],
       ),
     );
   }
-  
+
   void _saveHighlight() {
     // Check if user is authenticated
     if (FirebaseAuth.instance.currentUser == null) {
-      Get.snackbar('Fahazoandàlana', 'Il faut se connecter pour enregistrer les marques.', backgroundColor: Colors.red);
+      Get.snackbar('Fahazoandàlana',
+          'Il faut se connecter pour enregistrer les marques.',
+          backgroundColor: Colors.red);
       return;
     }
-    
+
     bibleController.saveHighlight();
   }
-  
+
   void _shareSelectedVerses() {
     final selectedRange = bibleController.getSelectedVerseRange();
     if (selectedRange.isNotEmpty) {
@@ -552,8 +576,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       );
     }
   }
-  
-  Widget _buildLoadingIndicator(String message, ColorController colorController) {
+
+  Widget _buildLoadingIndicator(
+      String message, ColorController colorController) {
     return Center(
       child: Container(
         padding: const EdgeInsets.all(20),

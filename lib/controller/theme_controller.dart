@@ -8,12 +8,12 @@ class ThemeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _loadThemeFromPrefs();
+    loadThemeFromPrefs();
   }
 
-  void _loadThemeFromPrefs() async {
+  Future<void> loadThemeFromPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    isDarkMode.value = prefs.getBool('isDarkMode') ?? false;
+    isDarkMode.value = prefs.getBool('isDarkMode') ?? true;
     Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 

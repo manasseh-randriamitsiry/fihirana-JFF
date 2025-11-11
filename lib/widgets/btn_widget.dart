@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 
 import '../../utility/screen_util.dart';
 
@@ -21,31 +21,33 @@ class BtnWidget extends StatelessWidget {
     final theme = Theme.of(context);
     final inputBorderColor = theme.hintColor;
     final textColor = theme.dividerColor;
+    final backgroundColor = theme.scaffoldBackgroundColor;
 
     return Column(
       children: [
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-            side: BorderSide(color: inputBorderColor, width: 0),
+        NeumorphicButton(
+          onPressed: () {
+            getHaptics();
+            onTap();
+          },
+          style: NeumorphicStyle(
+            shape: NeumorphicShape.flat,
+            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+            depth: 8,
+            intensity: 0.65,
+            color: backgroundColor,
           ),
-          color: inputBorderColor,
+          padding: EdgeInsets.zero,
           child: SizedBox(
             width: inputWidth,
             height: inputHeight,
-            child: InkWell(
-              onTap: () {
-                getHaptics();
-                onTap();
-              },
-              borderRadius: BorderRadius.circular(15),
-              splashColor: Colors.orange,
-              hoverColor: Colors.green,
-              child: Center(
-                child: Text(
-                  text,
-                  style: TextStyle(color: textColor, fontSize: 20),
-                ),
+            child: Center(
+              child: Text(
+                text,
+                style: TextStyle(
+                    color: textColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold),
               ),
             ),
           ),

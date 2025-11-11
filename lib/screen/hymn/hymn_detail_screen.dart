@@ -34,7 +34,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   double _countFontSize = 50.0;
   bool _show = true;
   bool _showSlider = false;
-  bool _showNote = true; // Add this line to control note visibility
+  bool _showNote = true;
   final HymnService _hymnService = HymnService();
   final NoteService _noteService = NoteService();
   final AuthController _authController = Get.find<AuthController>();
@@ -84,14 +84,11 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           _hymn!.title,
           _hymn!.hymnNumber,
         );
-        if (kDebugMode) {
-        }
+        if (kDebugMode) {}
       } else {
-        if (kDebugMode) {
-        }
+        if (kDebugMode) {}
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<void> _loadUserNote() async {
@@ -246,12 +243,16 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       child: Row(
                         children: [
                           Icon(
-                            _userNote != null ? Icons.edit_note : Icons.note_add,
+                            _userNote != null
+                                ? Icons.edit_note
+                                : Icons.note_add,
                             color: colorController.iconColor.value,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            _userNote != null ? 'Hanova ny naoty' : 'Hanampy naoty',
+                            _userNote != null
+                                ? 'Hanova ny naoty'
+                                : 'Hanampy naoty',
                           ),
                         ],
                       ),
@@ -278,12 +279,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         ),
         body: Column(
           children: [
-            // Fixed top section with title and bridge
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // Title
                   Center(
                     child: Text(
                       _hymn?.title ?? '',
@@ -295,20 +294,21 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       ),
                     ),
                   ),
-                  // Creator info for Firebase hymns (admins only)
                   if (isFirebaseHymn() && _hymn != null)
                     StreamBuilder(
                       stream: FirebaseAuth.instance.authStateChanges(),
                       builder: (context, snapshot) {
                         final user = FirebaseAuth.instance.currentUser;
-                        final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
-                        
+                        final isAdmin =
+                            user?.email == 'manassehrandriamitsiry@gmail.com';
+
                         if (isAdmin) {
                           return Text(
                             'Nampiditra: ${_hymn!.createdBy}${_hymn!.createdByEmail != null ? ' (${_hymn!.createdByEmail})' : ''}',
                             style: TextStyle(
                               fontSize: _fontSize * 0.8,
-                              color: colorController.textColor.value.withOpacity(0.7),
+                              color: colorController.textColor.value
+                                  .withOpacity(0.7),
                               fontStyle: FontStyle.italic,
                             ),
                           );
@@ -317,7 +317,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       },
                     ),
                   const SizedBox(height: 8),
-                  // Animated container for bridge
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     child: Card(
@@ -406,7 +405,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                 ],
               ),
             ),
-            // Scrollable verses section
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -463,13 +461,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         ),
                       ),
                     ],
-                    // Public notes section (fixed at top)
                     if (isUserAuthenticated() && _hymn != null)
                       StreamBuilder<List<Note>>(
                         stream: _noteService.getPublicNotesStream(_hymn!.id),
                         builder: (context, snapshot) {
                           if (snapshot.hasError) {
-                            return const Center(child: Text('Error loading notes'));
+                            return const Center(
+                                child: Text('Error loading notes'));
                           }
 
                           if (!snapshot.hasData) {
@@ -480,7 +478,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           }
 
                           final notes = snapshot.data!;
-                          
+
                           if (notes.isEmpty) {
                             return const SizedBox.shrink();
                           }
@@ -503,20 +501,27 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                                         margin: const EdgeInsets.only(top: 8),
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: colorController.backgroundColor.value.withOpacity(0.3),
-                                          borderRadius: BorderRadius.circular(4),
+                                          color: colorController
+                                              .backgroundColor.value
+                                              .withOpacity(0.3),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
                                         ),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
                                               children: [
                                                 Text(
                                                   note.content,
                                                   style: TextStyle(
                                                     fontSize: _fontSize * 0.9,
-                                                    color: colorController.textColor.value,
+                                                    color: colorController
+                                                        .textColor.value,
                                                   ),
                                                 ),
                                                 if (canEdit)
@@ -524,9 +529,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                                                     icon: Icon(
                                                       Icons.edit,
                                                       size: _fontSize,
-                                                      color: colorController.iconColor.value,
+                                                      color: colorController
+                                                          .iconColor.value,
                                                     ),
-                                                    onPressed: () => _showNoteEditor(note: note),
+                                                    onPressed: () =>
+                                                        _showNoteEditor(
+                                                            note: note),
                                                   ),
                                               ],
                                             ),
@@ -604,7 +612,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   }
 
   bool canEditHymn() {
-    if (!isUserAuthenticated() || !isFirebaseHymn() || _hymn == null) return false;
+    if (!isUserAuthenticated() || !isFirebaseHymn() || _hymn == null)
+      return false;
 
     final user = FirebaseAuth.instance.currentUser;
     final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
@@ -618,11 +627,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     super.dispose();
   }
 
-  void _showNoteEditor({Note? note}) { // Add optional note parameter
+  void _showNoteEditor({Note? note}) {
     if (!isUserAuthenticated()) return;
 
-    final noteController = TextEditingController(text: note?.content ?? _userNote?.content ?? '');
-    
+    final noteController =
+        TextEditingController(text: note?.content ?? _userNote?.content ?? '');
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -644,7 +654,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        note != null ? 'Hanova naoty' : 'Ny naoty manokana', // Different title for editing existing note
+                        note != null
+                            ? 'Hanova naoty'
+                            : 'Ny naoty manokana',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -680,13 +692,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
-                          color: colorController.textColor.value.withOpacity(0.3),
+                          color:
+                              colorController.textColor.value.withOpacity(0.3),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
-                          color: colorController.textColor.value.withOpacity(0.3),
+                          color:
+                              colorController.textColor.value.withOpacity(0.3),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -704,31 +718,40 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (note != null || _userNote != null) // Show delete button for existing notes
+                      if (note != null ||
+                          _userNote !=
+                              null)
                         TextButton(
                           onPressed: () async {
                             final confirmed = await showDialog<bool>(
                               context: context,
                               builder: (context) => AlertDialog(
-                                backgroundColor: colorController.backgroundColor.value,
+                                backgroundColor:
+                                    colorController.backgroundColor.value,
                                 title: Text(
                                   'Hamafa ny naoty?',
-                                  style: TextStyle(color: colorController.textColor.value),
+                                  style: TextStyle(
+                                      color: colorController.textColor.value),
                                 ),
                                 content: Text(
                                   'Tena te hamafa ny naoty ve ianao?',
-                                  style: TextStyle(color: colorController.textColor.value),
+                                  style: TextStyle(
+                                      color: colorController.textColor.value),
                                 ),
                                 actions: [
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context, false),
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
                                     child: Text(
                                       'Tsia',
-                                      style: TextStyle(color: colorController.textColor.value),
+                                      style: TextStyle(
+                                          color:
+                                              colorController.textColor.value),
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context, true),
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
                                     child: const Text(
                                       'Eny',
                                       style: TextStyle(color: Colors.red),
@@ -739,18 +762,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                             );
 
                             if (confirmed == true) {
-                              // Delete the note
                               if (note != null) {
-                                // Deleting a public note
                                 await _noteService.deleteNote(note.id);
                               } else {
-                                // Deleting user's personal note
                                 await _noteService.deleteNote(_userNote!.id);
                                 setState(() {
                                   _userNote = null;
                                 });
                               }
-                              
+
                               if (context.mounted) {
                                 Navigator.pop(context);
                               }
@@ -771,14 +791,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         onPressed: () => Navigator.pop(context),
                         child: Text(
                           'Aoka ihany',
-                          style: TextStyle(color: colorController.textColor.value),
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                       ),
                       ElevatedButton(
                         onPressed: () async {
                           final content = noteController.text.trim();
                           if (content.isEmpty) {
-                            // If content is empty and note exists, delete it
                             if (note != null) {
                               await _noteService.deleteNote(note.id);
                             } else if (_userNote != null) {
@@ -788,35 +808,35 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                               });
                             }
                           } else {
-                            // Save the note
-                            final success = await _noteService.saveNote(widget.hymnId, content);
+                            final success = await _noteService.saveNote(
+                                widget.hymnId, content);
                             if (success) {
-                              // Reload the note to update the UI
                               if (note == null) {
-                                // Only reload user note if editing personal note
                                 await _loadUserNote();
                               }
                             }
                           }
-                          
+
                           if (context.mounted) {
                             Navigator.pop(context);
-                            
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  content.isEmpty 
-                                    ? 'Voafafa ny naoty' 
-                                    : 'Voatahiry ny naoty',
+                                  content.isEmpty
+                                      ? 'Voafafa ny naoty'
+                                      : 'Voatahiry ny naoty',
                                 ),
-                                backgroundColor: content.isEmpty ? Colors.red : Colors.green,
+                                backgroundColor:
+                                    content.isEmpty ? Colors.red : Colors.green,
                               ),
                             );
                           }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: colorController.primaryColor.value,
-                          foregroundColor: colorController.backgroundColor.value,
+                          foregroundColor:
+                              colorController.backgroundColor.value,
                         ),
                         child: const Text('Tehirizo'),
                       ),
@@ -916,7 +936,8 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
               decoration: InputDecoration(
                 hintText: 'Karoka hira...',
                 hintStyle: TextStyle(
-                  color: widget.colorController.textColor.value.withOpacity(0.7),
+                  color:
+                      widget.colorController.textColor.value.withOpacity(0.7),
                 ),
                 prefixIcon: Icon(
                   Icons.search,
