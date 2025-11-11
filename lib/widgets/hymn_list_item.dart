@@ -184,11 +184,8 @@ class HymnListItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-      child: Neumorphic(
+child: Neumorphic(
         style: NeumorphicStyle(
-          depth: 8,
-          intensity: 0.65,
-          surfaceIntensity: 0.25,
           boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(20)),
           color: backgroundColor,
         ),
@@ -226,9 +223,7 @@ class HymnListItem extends StatelessWidget {
             ],
           ),
           leading: Neumorphic(
-            style: NeumorphicStyle(
-              depth: 4,
-              intensity: 0.65,
+style: NeumorphicStyle(
               boxShape: const NeumorphicBoxShape.circle(),
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -257,11 +252,10 @@ class HymnListItem extends StatelessWidget {
 
                   return NeumorphicButton(
                     onPressed: onFavoritePressed,
-                    style: NeumorphicStyle(
+style: NeumorphicStyle(
                       shape: NeumorphicShape.concave,
                       boxShape: const NeumorphicBoxShape.circle(),
-                      depth: isFavorite ? -4 : 4,
-                      intensity: 0.65,
+                      depth: isFavorite ? -2 : 2,
                       color: backgroundColor,
                     ),
                     padding: const EdgeInsets.all(12),
@@ -280,14 +274,13 @@ class HymnListItem extends StatelessWidget {
               if (isFirebaseHymn &&
                   isLoggedIn &&
                   (hymn.createdByEmail == user.email || isAdmin))
-                NeumorphicButton(
+NeumorphicButton(
                   onPressed: () =>
                       NavigationUtility.navigateToEditScreen(context, hymn),
                   style: NeumorphicStyle(
                     shape: NeumorphicShape.concave,
                     boxShape: const NeumorphicBoxShape.circle(),
-                    depth: 4,
-                    intensity: 0.65,
+                    depth: 2,
                     color: backgroundColor,
                   ),
                   padding: const EdgeInsets.all(12),
@@ -296,13 +289,12 @@ class HymnListItem extends StatelessWidget {
               if (isFirebaseHymn &&
                   isLoggedIn &&
                   (hymn.createdByEmail == user.email || isAdmin))
-                NeumorphicButton(
+NeumorphicButton(
                   onPressed: () => _showDeleteConfirmation(context),
                   style: NeumorphicStyle(
                     shape: NeumorphicShape.concave,
                     boxShape: const NeumorphicBoxShape.circle(),
-                    depth: 4,
-                    intensity: 0.65,
+                    depth: 2,
                     color: backgroundColor,
                   ),
                   padding: const EdgeInsets.all(12),

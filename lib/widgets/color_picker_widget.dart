@@ -60,7 +60,7 @@ class ColorPickerWidget extends StatelessWidget {
                         ),
                         child: Text(
                           'Ekena',
-                          style: TextStyle(color: colorController.primaryColor.value),
+                          style: TextStyle(color: colorController.textColor.value),
                         ),
                       ),
                     ],
@@ -333,7 +333,7 @@ class ColorPickerWidget extends StatelessWidget {
             children: [
               Neumorphic(
                 style: NeumorphicStyle(
-                  color: colorController.primaryColor.value,
+                  color: colorController.accentColor.value,
                   boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
                   depth: 2,
                   intensity: 0.8,

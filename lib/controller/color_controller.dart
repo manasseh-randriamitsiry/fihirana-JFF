@@ -393,32 +393,32 @@ class ColorController extends GetxController {
     );
   }
 
-  NeumorphicThemeData getNeumorphicLightTheme() {
+NeumorphicThemeData getNeumorphicLightTheme() {
+    return _getNeumorphicTheme();
+  }
+
+  NeumorphicThemeData getNeumorphicDarkTheme() {
+    return _getNeumorphicTheme();
+  }
+
+  NeumorphicThemeData _getNeumorphicTheme() {
+    final isDarkBg = _isDark(backgroundColor.value);
     return NeumorphicThemeData(
       baseColor: backgroundColor.value,
       accentColor: accentColor.value,
       lightSource: LightSource.topLeft,
-      depth: 8,
-      intensity: 0.65,
+      depth: 4,
+      intensity: 1.0,
+      shadowLightColor: isDarkBg 
+          ? Colors.white.withOpacity(0.25)
+          : Colors.white.withOpacity(1.0),
+      shadowDarkColor: isDarkBg
+          ? Colors.black.withOpacity(0.8)
+          : Colors.black.withOpacity(0.3),
       textTheme: TextTheme(
         bodyLarge: TextStyle(color: textColor.value),
         bodyMedium: TextStyle(color: textColor.value),
         titleLarge: TextStyle(color: textColor.value),
-      ),
-    );
-  }
-
-  NeumorphicThemeData getNeumorphicDarkTheme() {
-    return NeumorphicThemeData(
-      baseColor: Colors.black,
-      accentColor: accentColor.value,
-      lightSource: LightSource.topLeft,
-      depth: 8,
-      intensity: 0.65,
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white),
-        bodyMedium: TextStyle(color: Colors.white),
-        titleLarge: TextStyle(color: Colors.white),
       ),
     );
   }

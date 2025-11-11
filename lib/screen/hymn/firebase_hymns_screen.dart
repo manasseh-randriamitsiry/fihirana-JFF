@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
@@ -17,10 +18,14 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(
-      builder: (colorController) => Scaffold(
-        backgroundColor: colorController.backgroundColor.value,
-        appBar: AppBar(
+return GetBuilder<ColorController>(
+      builder: (colorController) => NeumorphicTheme(
+        themeMode: colorController.themeMode,
+        theme: colorController.getNeumorphicLightTheme(),
+        darkTheme: colorController.getNeumorphicDarkTheme(),
+        child: Scaffold(
+          backgroundColor: colorController.backgroundColor.value,
+          appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
           title: Text(
             'Fihirana Fanampiny',
@@ -79,6 +84,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
               },
             );
           },
+          ),
         ),
       ),
     );

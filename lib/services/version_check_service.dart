@@ -8,11 +8,14 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:in_app_update/in_app_update.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VersionCheckService {
   static const String GITHUB_API_URL =
       'https://api.github.com/repos/manasseh-randriamitsiry/hymns_jff/releases/latest';
   static const String LAST_CHECK_KEY = 'last_version_check';
+  static const String DISMISSED_VERSION_KEY = 'dismissed_update_version';
+  static const String INSTALLED_VERSION_KEY = 'installed_update_version';
   static const Duration CHECK_INTERVAL = Duration(hours: 1);
   static const int UPDATE_NOTIFICATION_ID = 1;
   static Timer? _notificationTimer;
@@ -69,27 +72,36 @@ class VersionCheckService {
     _notificationTimer = null;
   }
 
-  static Future<void> checkForUpdate() async {
+static Future<void> checkForUpdate() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
+      final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
 
       final updateInfo = await InAppUpdate.checkForUpdate();
       _updateInfo = updateInfo;
 
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        final packageInfo = await PackageInfo.fromPlatform();
+        final currentVersion = packageInfo.version.replaceAll('v', '');
+        
+        // Don't show notification if user already dismissed this version
+        if (dismissedVersion == currentVersion) {
+          stopPeriodicCheck();
+          return;
+        }
 
         _onUpdateAvailable?.call();
 
         if (updateInfo.updatePriority >= 4) {
           await _performImmediateUpdate();
         } else {
-
           await _showInAppUpdateNotification();
         }
       } else {
         stopPeriodicCheck();
       }
     } catch (e) {
-
       await _checkForUpdateFromGitHub();
     }
   }
@@ -118,7 +130,7 @@ class VersionCheckService {
     );
   }
 
-  @pragma('vm:entry-point')
+@pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
     if (receivedAction.buttonKeyPressed == 'UPDATE') {
@@ -139,6 +151,12 @@ class VersionCheckService {
         stopPeriodicCheck();
       }
     } else if (receivedAction.buttonKeyPressed == 'DISMISS') {
+      // Save the current version as dismissed to prevent future notifications
+      final prefs = await SharedPreferences.getInstance();
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version.replaceAll('v', '');
+      await prefs.setString(DISMISSED_VERSION_KEY, currentVersion);
+      
       stopPeriodicCheck();
     }
   }
@@ -202,12 +220,22 @@ class VersionCheckService {
     }
   }
 
-  static Future<bool> checkForUpdateManually() async {
+static Future<bool> checkForUpdateManually() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
+      
       final updateInfo = await InAppUpdate.checkForUpdate();
       _updateInfo = updateInfo;
 
       if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+        final packageInfo = await PackageInfo.fromPlatform();
+        final currentVersion = packageInfo.version.replaceAll('v', '');
+        
+        // Don't show update if user already dismissed this version
+        if (dismissedVersion == currentVersion) {
+          return false;
+        }
 
         _onUpdateAvailable?.call();
         return true;
@@ -243,8 +271,11 @@ class VersionCheckService {
     return _flexibleUpdateAvailable;
   }
 
-  static Future<void> _checkForUpdateFromGitHub() async {
+static Future<void> _checkForUpdateFromGitHub() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
+      final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
 
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version.replaceAll('v', '');
@@ -274,7 +305,13 @@ class VersionCheckService {
             '🔄 Version comparison: $currentVersion -> $latestVersion = ${isNewer ? "update available" : "up to date"}');
         }
 
-        if (isNewer) {
+        // Don't show notification if user already dismissed this version
+        if (isNewer && dismissedVersion != currentVersion) {
+          // Clear dismissed version if this is a newer version than what was dismissed
+          if (dismissedVersion != null && _isNewerVersion(dismissedVersion, latestVersion)) {
+            await clearDismissedVersion();
+          }
+          
           _cachedDownloadUrl = downloadUrl;
           _cachedVersion = latestVersion;
           _cachedReleaseNotes = releaseNotes;
@@ -355,7 +392,7 @@ class VersionCheckService {
     }
   }
 
-  static bool _isNewerVersion(String currentVersion, String latestVersion) {
+static bool _isNewerVersion(String currentVersion, String latestVersion) {
     try {
       List<int> current = currentVersion.split('.').map(int.parse).toList();
       List<int> latest = latestVersion.split('.').map(int.parse).toList();
@@ -375,5 +412,10 @@ class VersionCheckService {
     } catch (e) {
       return false;
     }
+  }
+
+  static Future<void> clearDismissedVersion() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(DISMISSED_VERSION_KEY);
   }
 }
