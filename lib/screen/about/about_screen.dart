@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import 'package:get/get.dart';
+import '../../controller/color_controller.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -15,6 +18,7 @@ class _AboutScreenState extends State<AboutScreen> {
   bool _checkingForUpdates = false;
   bool _updateAvailable = false;
   bool _flexibleUpdateDownloaded = false;
+  final ColorController colorController = Get.find<ColorController>();
 
   @override
   void initState() {
@@ -158,13 +162,26 @@ class _AboutScreenState extends State<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textColor = theme.hintColor;
     return Scaffold(
+      backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
+        backgroundColor: colorController.backgroundColor.value,
+        elevation: 0,
         centerTitle: true,
-        backgroundColor: Colors.transparent,
-        title: Text('?', style: TextStyle(color: textColor)),
+        title: Text(
+          '?',
+          style: TextStyle(
+            color: colorController.textColor.value,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          onPressed: () => Get.back(),
+          icon: Icon(
+            Icons.arrow_back_ios_outlined,
+            color: colorController.iconColor.value,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -175,150 +192,245 @@ class _AboutScreenState extends State<AboutScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const SizedBox(height: 20),
-                Text(
-                  'Fiangonana',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
+                Neumorphic(
+                  style: NeumorphicStyle(
+                    color: colorController.backgroundColor.value,
+                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+                    depth: 4,
+                    intensity: 0.8,
                   ),
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Jesosy Famonjena Fahamarinantsika',
-                  style: TextStyle(fontSize: 18, color: textColor),
+                  'Fihirana JFF',
+                  style: TextStyle(fontSize: 18, color: colorController.textColor.value),
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Antsororokavo Fianarantsoa 301',
-                  style: TextStyle(fontSize: 18, color: textColor),
+                  'Foibe: Antsororokavo Fianarantsoa 301',
+                  style: TextStyle(fontSize: 18, color: colorController.textColor.value),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  'Mpamorona',
-                  style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: textColor),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Randriamitsiry Valimbavaka Nandrasana Manassé',
-                  style: TextStyle(color: textColor),
-                ),
-                const SizedBox(height: 20),
-
-                ElevatedButton.icon(
+                NeumorphicButton(
                   onPressed: () => _makePhoneCall('+261342943971'),
-                  icon: const Icon(Icons.phone),
-                  label: const Text('Call +261 34 29 439 71'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(250, 45),
+                  style: NeumorphicStyle(
+                    color: colorController.backgroundColor.value,
+                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    depth: 4,
+                    intensity: 0.8,
+                  ),
+                  child: Container(
+                    width: 250,
+                    height: 45,
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.phone, color: colorController.iconColor.value),
+                        const SizedBox(width: 8),
+                        Text(
+                          '+261 34 29 439 71',
+                          style: TextStyle(color: colorController.textColor.value),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
 
-                ElevatedButton.icon(
-                  onPressed: () =>
-                      _sendEmail('manassehrandriamitsiry@gmail.com'),
-                  icon: const Icon(Icons.email),
-                  label: const Text('Send Email'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(250, 45),
+                NeumorphicButton(
+                  onPressed: () => _sendEmail('manassehrandriamitsiry@gmail.com'),
+                  style: NeumorphicStyle(
+                    color: colorController.backgroundColor.value,
+                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    depth: 4,
+                    intensity: 0.8,
+                  ),
+                  child: Container(
+                    width: 250,
+                    height: 45,
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.email, color: colorController.iconColor.value),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Email',
+                          style: TextStyle(color: colorController.textColor.value),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
 
-                ElevatedButton.icon(
-                  onPressed: () =>
-                      _launchURL('https://github.com/manasseh-randriamitsiry'),
-                  icon: const Icon(Icons.code),
-                  label: const Text('GitHub'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(250, 45),
+                NeumorphicButton(
+                  onPressed: () => _launchURL('https://github.com/manasseh-randriamitsiry'),
+                  style: NeumorphicStyle(
+                    color: colorController.backgroundColor.value,
+                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    depth: 4,
+                    intensity: 0.8,
+                  ),
+                  child: Container(
+                    width: 250,
+                    height: 45,
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.code, color: colorController.iconColor.value),
+                        const SizedBox(width: 8),
+                        Text(
+                          'GitHub',
+                          style: TextStyle(color: colorController.textColor.value),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10),
 
-                ElevatedButton.icon(
+                NeumorphicButton(
                   onPressed: () => _makePhoneCall('*111*1*2*0342943971#'),
-                  icon: const Icon(Icons.monetization_on),
-                  label: const Text('Hanome fanohanana'),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(250, 45),
-                    backgroundColor: Colors.green,
+                  style: NeumorphicStyle(
+                    color: Colors.green.withOpacity(0.1),
+                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    depth: 4,
+                    intensity: 0.8,
+                  ),
+                  child: Container(
+                    width: 250,
+                    height: 45,
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.monetization_on, color: Colors.green),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'fanohanana',
+                          style: TextStyle(color: Colors.green),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 20),
 
-                ElevatedButton.icon(
+                NeumorphicButton(
                   onPressed: _checkingForUpdates ? null : _checkForUpdates,
-                  icon: _checkingForUpdates
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  style: NeumorphicStyle(
+                    color: colorController.backgroundColor.value,
+                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    depth: 4,
+                    intensity: 0.8,
+                  ),
+                  child: Container(
+                    width: 250,
+                    height: 45,
+                    alignment: Alignment.center,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _checkingForUpdates
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(colorController.primaryColor.value),
+                              ),
+                            )
+                          : Icon(Icons.system_update, color: colorController.iconColor.value),
+                        const SizedBox(width: 8),
+                        Text(
+                          _checkingForUpdates ? 'vaovao...' : 'vaovao',
+                          style: TextStyle(color: colorController.textColor.value),
                         ),
-                      )
-                    : const Icon(Icons.system_update),
-                  label: Text(_checkingForUpdates
-                    ? 'Mijery vaovao...'
-                    : 'Jereo vaovao',),
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(250, 45),
-                    backgroundColor: Colors.yellow,
+                      ],
+                    ),
                   ),
                 ),
 
                 const SizedBox(height: 10),
 
                 if (_updateAvailable) ...[
-                  ElevatedButton.icon(
+                  NeumorphicButton(
                     onPressed: _checkingForUpdates ? null : _downloadAndInstallUpdate,
-                    icon: _checkingForUpdates
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    style: NeumorphicStyle(
+                      color: Colors.orange.withOpacity(0.1),
+                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                      depth: 4,
+                      intensity: 0.8,
+                    ),
+                    child: Container(
+                      width: 250,
+                      height: 45,
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _checkingForUpdates
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                                ),
+                              )
+                            : const Icon(Icons.download, color: Colors.orange),
+                          const SizedBox(width: 8),
+                          Text(
+                            _flexibleUpdateDownloaded
+                              ? 'Download & Install'
+                              : (_checkingForUpdates ? 'Download...' : 'Download'),
+                            style: const TextStyle(color: Colors.orange),
                           ),
-                        )
-                      : const Icon(Icons.download),
-                    label: Text(_flexibleUpdateDownloaded
-                      ? 'Download & Install'
-                      : (_checkingForUpdates ? 'Download...' : 'Download')),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(250, 45),
-                      backgroundColor: Colors.orange,
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
 
-                  ElevatedButton.icon(
+                  NeumorphicButton(
                     onPressed: _checkingForUpdates ? null : _performImmediateUpdate,
-                    icon: const Icon(Icons.update),
-                    label: const Text('Vaovao'),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(250, 45),
-                      backgroundColor: Colors.red,
+                    style: NeumorphicStyle(
+                      color: Colors.red.withOpacity(0.1),
+                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                      depth: 4,
+                      intensity: 0.8,
+                    ),
+                    child: Container(
+                      width: 250,
+                      height: 45,
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.update, color: Colors.red),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Vaovao',
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
-
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+                Text(
+                  'By Randriamitsiry Valimbavaka Nandrasana Manassé',
+                  style: TextStyle(color: colorController.textColor.value),
+                ),
                 Text(
                   'Adiresy: Ambalavao tsienimparihy',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: textColor),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'App version : $_appVersion',
-                  style: TextStyle(color: textColor),
+                  style: TextStyle(color: colorController.textColor.value),
                 ),
               ],
             ),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -58,7 +59,9 @@ class BibleController extends GetxController {
       // Get all book names
       bookList.value = _bibleService.getAllBookNames();
     } catch (e) {
-      print('Error initializing Bible service: $e');
+      if (kDebugMode) {
+        print('Error initializing Bible service: $e');
+      }
     } finally {
       isLoading.value = false;
     }
@@ -77,7 +80,9 @@ class BibleController extends GetxController {
         return;
       }
     } catch (e) {
-      print('Error loading last viewed passage: $e');
+      if (kDebugMode) {
+        print('Error loading last viewed passage: $e');
+      }
     }
   }
 
@@ -119,11 +124,15 @@ class BibleController extends GetxController {
         _loadHighlights();
         _saveLastViewedPassage();
       } else {
-        print(
+        if (kDebugMode) {
+          print(
             'Chapter not found: ${selectedChapter.value} in book: ${selectedBook.value}');
+        }
       }
     } catch (e) {
-      print('Error loading passage: $e');
+      if (kDebugMode) {
+        print('Error loading passage: $e');
+      }
     } finally {
       isLoading.value = false;
     }
@@ -162,12 +171,16 @@ class BibleController extends GetxController {
       await prefs.setString('last_bible_book', selectedBook.value);
       await prefs.setInt('last_bible_chapter', selectedChapter.value);
     } catch (e) {
-      print('Error saving last viewed passage: $e');
+      if (kDebugMode) {
+        print('Error saving last viewed passage: $e');
+      }
     }
   }
 
   void selectBook(String bookName) {
-    print('Selecting book: $bookName');
+    if (kDebugMode) {
+      print('Selecting book: $bookName');
+    }
     selectedBook.value = bookName;
     selectedChapter.value = 0;
     passageText.value = '';
@@ -179,11 +192,15 @@ class BibleController extends GetxController {
 
     // Get chapters for the selected book
     chapterList.value = _bibleService.getChaptersForBook(bookName);
-    print('Chapter list for $bookName: ${chapterList.value}');
+    if (kDebugMode) {
+      print('Chapter list for $bookName: ${chapterList.value}');
+    }
   }
 
   void selectChapter(int chapter) {
-    print('Selecting chapter: $chapter');
+    if (kDebugMode) {
+      print('Selecting chapter: $chapter');
+    }
     selectedChapter.value = chapter;
 
     // Reset verse selection
@@ -360,7 +377,9 @@ class BibleController extends GetxController {
         }
       }
     } catch (e) {
-      print('Error getting current chapter verses: $e');
+      if (kDebugMode) {
+        print('Error getting current chapter verses: $e');
+    }
     }
     
     return [];
@@ -399,7 +418,9 @@ class BibleController extends GetxController {
       // Add to search history
       _addToSearchHistory(query);
     } catch (e) {
-      print('Error performing search: $e');
+      if (kDebugMode) {
+        print('Error performing search: $e');
+      }
     } finally {
       isSearching.value = false;
     }

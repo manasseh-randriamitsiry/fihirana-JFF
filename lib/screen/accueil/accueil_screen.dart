@@ -68,9 +68,13 @@ class AccueilScreenState extends State<AccueilScreen> {
         final iconColor = colorController.iconColor.value;
         final defaultTextStyle = TextStyle(color: textColor, inherit: true);
 
-        return Scaffold(
-          backgroundColor: backgroundColor,
-          appBar: AppBar(
+return NeumorphicTheme(
+          themeMode: colorController.themeMode,
+          theme: colorController.getNeumorphicLightTheme(),
+          darkTheme: colorController.getNeumorphicDarkTheme(),
+          child: Scaffold(
+            backgroundColor: backgroundColor,
+            appBar: AppBar(
             backgroundColor: backgroundColor,
             elevation: 0,
             scrolledUnderElevation: 0,
@@ -156,7 +160,8 @@ class AccueilScreenState extends State<AccueilScreen> {
                   },
                 ),
               ),
-            ],
+],
+          ),
           ),
         );
       }),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
 import '../controller/color_controller.dart';
@@ -13,30 +14,61 @@ class ColorPickerWidget extends StatelessWidget {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: colorController.backgroundColor.value,
-          title: Text(
-            'Misafidy loko $colorType',
-            style: TextStyle(color: colorController.textColor.value),
-          ),
-          content: SingleChildScrollView(
-            child: MaterialPicker(
-              pickerColor: currentColor,
-              onColorChanged: onColorChanged,
-              enableLabel: true,
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Neumorphic(
+            style: NeumorphicStyle(
+              color: colorController.backgroundColor.value,
+              boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+              depth: 6,
+              intensity: 0.8,
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(
-                'Ekena',
-                style: TextStyle(color: colorController.primaryColor.value),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Misafidy loko $colorType',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: colorController.textColor.value,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SingleChildScrollView(
+                    child: MaterialPicker(
+                      pickerColor: currentColor,
+                      onColorChanged: onColorChanged,
+                      enableLabel: true,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      NeumorphicButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        style: NeumorphicStyle(
+                          color: colorController.backgroundColor.value,
+                          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                          depth: 2,
+                        ),
+                        child: Text(
+                          'Ekena',
+                          style: TextStyle(color: colorController.textColor.value),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
-          ],
+          ),
         );
       },
     );
@@ -45,22 +77,60 @@ class ColorPickerWidget extends StatelessWidget {
   void _pickIconColor(BuildContext context, ColorController controller) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Safidio ny loko'),
-        content: SingleChildScrollView(
-          child: BlockPicker(
-            pickerColor: controller.iconColor.value,
-            onColorChanged: (color) async {
-              await controller.updateIconColor(color);
-            },
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Neumorphic(
+          style: NeumorphicStyle(
+            color: controller.backgroundColor.value,
+            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+            depth: 6,
+            intensity: 0.8,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Safidio ny loko',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: controller.textColor.value,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SingleChildScrollView(
+                  child: BlockPicker(
+                    pickerColor: controller.iconColor.value,
+                    onColorChanged: (color) async {
+                      await controller.updateIconColor(color);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    NeumorphicButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: NeumorphicStyle(
+                        color: controller.backgroundColor.value,
+                        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                        depth: 2,
+                      ),
+                      child: Text(
+                        'OK',
+                        style: TextStyle(color: controller.textColor.value),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }
@@ -68,22 +138,60 @@ class ColorPickerWidget extends StatelessWidget {
   void _pickDrawerColor(BuildContext context, ColorController controller) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Safidio ny lokon\'ny drawer'),
-        content: SingleChildScrollView(
-          child: BlockPicker(
-            pickerColor: controller.drawerColor.value,
-            onColorChanged: (color) {
-              controller.updateDrawerColor(color);
-            },
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Neumorphic(
+          style: NeumorphicStyle(
+            color: controller.backgroundColor.value,
+            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+            depth: 6,
+            intensity: 0.8,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Safidio ny lokon\'ny drawer',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: controller.textColor.value,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SingleChildScrollView(
+                  child: BlockPicker(
+                    pickerColor: controller.drawerColor.value,
+                    onColorChanged: (color) {
+                      controller.updateDrawerColor(color);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    NeumorphicButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      style: NeumorphicStyle(
+                        color: controller.backgroundColor.value,
+                        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                        depth: 2,
+                      ),
+                      child: Text(
+                        'OK',
+                        style: TextStyle(color: controller.textColor.value),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
       ),
     );
   }
@@ -100,10 +208,19 @@ class ColorPickerWidget extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 16),
+            style: TextStyle(
+              fontSize: 16,
+              color: colorController.textColor.value,
+            ),
           ),
-          InkWell(
-            onTap: onTap,
+          NeumorphicButton(
+            onPressed: onTap,
+            style: NeumorphicStyle(
+              color: color,
+              boxShape: NeumorphicBoxShape.circle(),
+              depth: 2,
+              intensity: 0.8,
+            ),
             child: Container(
               width: 30,
               height: 30,
@@ -140,19 +257,24 @@ class ColorPickerWidget extends StatelessWidget {
           children: colorController.colorSchemes.asMap().entries.map((entry) {
             final index = entry.key;
             final scheme = entry.value;
-            return InkWell(
-              onTap: () async => await colorController.setColorScheme(index),
+            return NeumorphicButton(
+              onPressed: () async => await colorController.setColorScheme(index),
+              style: NeumorphicStyle(
+                color: (scheme['primary'] as Color).withOpacity(0.1),
+                boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                depth: colorController.currentSchemeIndex == index ? 4 : 2,
+                intensity: 0.8,
+              ),
               child: Container(
                 width: 80,
                 padding: const EdgeInsets.all(4),
                 decoration: BoxDecoration(
-                  color: (scheme['primary'] as Color).withOpacity(0.1),
-                  border: Border.all(
-                    color: colorController.currentSchemeIndex == index
-                        ? (scheme['accent'] as Color)
-                        : Colors.transparent,
-                    width: 2,
-                  ),
+                  border: colorController.currentSchemeIndex == index
+                      ? Border.all(
+                          color: scheme['accent'] as Color,
+                          width: 2,
+                        )
+                      : null,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -196,12 +318,12 @@ class ColorPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ColorController>(
-      builder: (colorController) => Container(
-        decoration: BoxDecoration(
-          color: colorController.primaryColor.value,
-          borderRadius: const BorderRadius.all(
-            Radius.circular(10),
-          ),
+      builder: (colorController) => Neumorphic(
+        style: NeumorphicStyle(
+          color: colorController.backgroundColor.value,
+          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+          depth: 4,
+          intensity: 0.8,
         ),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -209,17 +331,36 @@ class ColorPickerWidget extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                'Safidio ny loko tianao',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorController.textColor.value,
+              Neumorphic(
+                style: NeumorphicStyle(
+                  color: colorController.accentColor.value,
+                  boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                  depth: 2,
+                  intensity: 0.8,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'Safidio ny loko tianao',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: colorController.textColor.value,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               _buildPresetSchemes(),
-              const Divider(height: 32),
+              Neumorphic(
+                style: NeumorphicStyle(
+                  color: colorController.backgroundColor.value,
+                  boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(2)),
+                  depth: 1,
+                  intensity: 0.5,
+                ),
+                child: const SizedBox(height: 32),
+              ),
               Text(
                 'Loko manokana',
                 style: TextStyle(
@@ -264,33 +405,71 @@ class ColorPickerWidget extends StatelessWidget {
                              await colorController.updateColors(background: color),
                       ),
                     ),
-                    ListTile(
-                      title: const Text('Loko drawer'),
-                      trailing: Container(
-                        width: 30,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: colorController.drawerColor.value,
-                          border: Border.all(),
-                          shape: BoxShape.circle,
+                    NeumorphicButton(
+                      onPressed: () => _pickDrawerColor(context, colorController),
+                      style: NeumorphicStyle(
+                        color: colorController.backgroundColor.value,
+                        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                        depth: 2,
+                        intensity: 0.8,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Loko drawer',
+                              style: TextStyle(color: colorController.textColor.value),
+                            ),
+                            Neumorphic(
+                              style: NeumorphicStyle(
+                                color: colorController.drawerColor.value,
+                                boxShape: NeumorphicBoxShape.circle(),
+                                depth: 2,
+                              ),
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      onTap: () => _pickDrawerColor(context, colorController),
                     ),
                     GetBuilder<ColorController>(
                       id: 'iconColor',
-                      builder: (controller) => ListTile(
-                        title: const Text('Loko icon'),
-                        trailing: Container(
-                          width: 30,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: controller.iconColor.value,
-                            border: Border.all(),
-                            shape: BoxShape.circle,
+                      builder: (controller) => NeumorphicButton(
+                        onPressed: () => _pickIconColor(context, controller),
+                        style: NeumorphicStyle(
+                          color: colorController.backgroundColor.value,
+                          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                          depth: 2,
+                          intensity: 0.8,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Loko icon',
+                                style: TextStyle(color: colorController.textColor.value),
+                              ),
+                              Neumorphic(
+                                style: NeumorphicStyle(
+                                  color: controller.iconColor.value,
+                                  boxShape: NeumorphicBoxShape.circle(),
+                                  depth: 2,
+                                ),
+                                child: Container(
+                                  width: 30,
+                                  height: 30,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        onTap: () => _pickIconColor(context, controller),
                       ),
                     ),
                   ],
