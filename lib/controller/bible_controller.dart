@@ -26,6 +26,9 @@ class BibleController extends GetxController {
   var highlights = <BibleHighlight>[].obs;
   var publicHighlights = <BibleHighlight>[].obs;
 
+  // Filtered books for search
+  var filteredBooks = <String>[].obs;
+
   // Caching for recently accessed passages
   final Map<String, String> _passageCache = {};
   static const int _maxCacheSize = 50;
@@ -187,6 +190,16 @@ class BibleController extends GetxController {
     bookList.value = _bibleService.searchBooks(query);
   }
 
+  void filterBooks(String query) {
+    if (query.isEmpty) {
+      filteredBooks.clear();
+    } else {
+      filteredBooks.value = bookList
+          .where((book) => book.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    }
+  }
+
   List<String> getAllBooks() {
     return _bibleService.getAllBookNames();
   }
@@ -283,6 +296,66 @@ class BibleController extends GetxController {
       }
     }
     return false;
+  }
+
+  // New methods for enhanced screen
+  void toggleVerseSelection(int verse) {
+    if (startVerse.value == 0) {
+      // Start new selection
+      startVerse.value = verse;
+      endVerse.value = verse;
+      isSelecting.value = true;
+    } else if (verse == startVerse.value && verse == endVerse.value) {
+      // Deselect if clicking the same verse
+      startVerse.value = 0;
+      endVerse.value = 0;
+      isSelecting.value = false;
+    } else if (verse >= startVerse.value && verse <= endVerse.value) {
+      // Extend or shrink selection
+      if (verse == startVerse.value) {
+        startVerse.value = verse + 1;
+      } else if (verse == endVerse.value) {
+        endVerse.value = verse - 1;
+      } else {
+        // Select within range - shrink to this verse
+        startVerse.value = verse;
+        endVerse.value = verse;
+      }
+      
+      // Reset if selection becomes invalid
+      if (startVerse.value > endVerse.value) {
+        startVerse.value = 0;
+        endVerse.value = 0;
+        isSelecting.value = false;
+      }
+    } else {
+      // Extend selection
+      if (verse < startVerse.value) {
+        startVerse.value = verse;
+      } else {
+        endVerse.value = verse;
+      }
+    }
+  }
+
+  List<String> getCurrentChapterVerses() {
+    if (selectedBook.isEmpty || selectedChapter.value == 0) {
+      return [];
+    }
+    
+    try {
+      final book = _bibleService.getBookSync(selectedBook.value);
+      if (book != null) {
+        final chapter = book.getChapter(selectedChapter.value);
+        if (chapter != null) {
+          return chapter.verses.values.toList();
+        }
+      }
+    } catch (e) {
+      print('Error getting current chapter verses: $e');
+    }
+    
+    return [];
   }
 
   BibleHighlight? getHighlightForVerse(int verse) {

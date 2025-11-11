@@ -231,6 +231,10 @@ class BibleService {
       await _initializationCompleter?.future;
     }
 
+    return getBookSync(bookName);
+  }
+
+  BibleBook? getBookSync(String bookName) {
     // Try direct match first
     if (_bibleCache.containsKey(bookName)) {
       return _bibleCache[bookName];
