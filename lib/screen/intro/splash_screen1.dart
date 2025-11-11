@@ -241,7 +241,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                                 Icon(Icons.music_note, color: Colors.purple),
                                 SizedBox(width: 8),
                                 Text(
-                                  'Hymnal App',
+                                  'Fihirana',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,

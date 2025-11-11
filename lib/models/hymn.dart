@@ -27,18 +27,34 @@ class Hymn {
     if (json['verses'] is Map<String, dynamic>) {
       final versesMap = json['verses'] as Map<String, dynamic>;
 
-      final sortedKeys = versesMap.keys.toList()
+      // Filter only numeric keys and sort them
+      final numericKeys = versesMap.keys
+          .where((key) => int.tryParse(key) != null)
+          .toList()
         ..sort((a, b) => int.parse(a).compareTo(int.parse(b)));
 
-      for (final key in sortedKeys) {
+      for (final key in numericKeys) {
         verses.add(versesMap[key].toString());
       }
     } else if (json['verses'] is List) {
       verses.addAll(List<String>.from(json['verses']));
     }
 
-    if (json['chorus'] != null) {
-      verses.add(json['chorus'].toString());
+    // Extract chorus/bridge from JSON
+    String? bridge = json['bridge']?.toString();
+    if (bridge == null && json['chorus'] != null) {
+      // If no bridge but chorus exists, use chorus as bridge
+      bridge = json['chorus'].toString();
+    }
+    
+    // Also check if chorus is in the verses map (for malformed data)
+    if (bridge == null && json['verses'] is Map<String, dynamic>) {
+      final versesMap = json['verses'] as Map<String, dynamic>;
+      if (versesMap.containsKey('chorus')) {
+        bridge = versesMap['chorus'].toString();
+      } else if (versesMap.containsKey('refrain')) {
+        bridge = versesMap['refrain'].toString();
+      }
     }
 
     DateTime createdAt;
@@ -53,7 +69,7 @@ class Hymn {
       hymnNumber: (json['hymnNumber'] ?? json['number']).toString(),
       title: json['title'].toString(),
       verses: verses,
-      bridge: json['bridge']?.toString(),
+      bridge: bridge,
       hymnHint: json['hymnHint']?.toString(),
       createdAt: createdAt,
       createdBy: json['createdBy'].toString(),
