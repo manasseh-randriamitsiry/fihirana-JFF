@@ -34,7 +34,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   double _countFontSize = 50.0;
   bool _show = true;
   bool _showSlider = false;
-  bool _showNote = true; // Add this line to control note visibility
+  bool _showNote = true;
   final HymnService _hymnService = HymnService();
   final NoteService _noteService = NoteService();
   final AuthController _authController = Get.find<AuthController>();
@@ -279,12 +279,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         ),
         body: Column(
           children: [
-            // Fixed top section with title and bridge
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // Title
                   Center(
                     child: Text(
                       _hymn?.title ?? '',
@@ -296,7 +294,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       ),
                     ),
                   ),
-                  // Creator info for Firebase hymns (admins only)
                   if (isFirebaseHymn() && _hymn != null)
                     StreamBuilder(
                       stream: FirebaseAuth.instance.authStateChanges(),
@@ -320,7 +317,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       },
                     ),
                   const SizedBox(height: 8),
-                  // Animated container for bridge
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     child: Card(
@@ -409,7 +405,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                 ],
               ),
             ),
-            // Scrollable verses section
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -466,7 +461,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         ),
                       ),
                     ],
-                    // Public notes section (fixed at top)
                     if (isUserAuthenticated() && _hymn != null)
                       StreamBuilder<List<Note>>(
                         stream: _noteService.getPublicNotesStream(_hymn!.id),
@@ -557,7 +551,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         },
                       ),
 
-                    // Display all verses first
                     for (int i = 0; i < (_hymn?.verses.length ?? 0); i++) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -635,7 +628,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   }
 
   void _showNoteEditor({Note? note}) {
-    // Add optional note parameter
     if (!isUserAuthenticated()) return;
 
     final noteController =
@@ -664,7 +656,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       Text(
                         note != null
                             ? 'Hanova naoty'
-                            : 'Ny naoty manokana', // Different title for editing existing note
+                            : 'Ny naoty manokana',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -728,7 +720,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                     children: [
                       if (note != null ||
                           _userNote !=
-                              null) // Show delete button for existing notes
+                              null)
                         TextButton(
                           onPressed: () async {
                             final confirmed = await showDialog<bool>(
@@ -770,12 +762,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                             );
 
                             if (confirmed == true) {
-                              // Delete the note
                               if (note != null) {
-                                // Deleting a public note
                                 await _noteService.deleteNote(note.id);
                               } else {
-                                // Deleting user's personal note
                                 await _noteService.deleteNote(_userNote!.id);
                                 setState(() {
                                   _userNote = null;
@@ -810,7 +799,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         onPressed: () async {
                           final content = noteController.text.trim();
                           if (content.isEmpty) {
-                            // If content is empty and note exists, delete it
                             if (note != null) {
                               await _noteService.deleteNote(note.id);
                             } else if (_userNote != null) {
@@ -820,13 +808,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                               });
                             }
                           } else {
-                            // Save the note
                             final success = await _noteService.saveNote(
                                 widget.hymnId, content);
                             if (success) {
-                              // Reload the note to update the UI
                               if (note == null) {
-                                // Only reload user note if editing personal note
                                 await _loadUserNote();
                               }
                             }
