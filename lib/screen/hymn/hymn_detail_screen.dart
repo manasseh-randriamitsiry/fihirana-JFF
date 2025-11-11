@@ -320,6 +320,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     child: Card(
+                      color: colorController.backgroundColor.value,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

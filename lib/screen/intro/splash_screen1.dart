@@ -493,7 +493,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                         controller: _usernameController,
                         style: const TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
                         ),
                         decoration: InputDecoration(
                           labelText: 'Ampidiro ny anaranao',

@@ -50,25 +50,26 @@ class DrawerWidgetState extends State<DrawerWidget> {
     super.initState();
     _checkAuthStatus();
     _loadUsername();
-    _themeController.isDarkMode.listen((isDarkMode) {
-      _setSystemUiOverlayStyle(isDarkMode);
-    });
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      setState(() {
-        _currentUser = account;
-      });
+      if (mounted) {
+        setState(() {
+          _currentUser = account;
+        });
+      }
     });
   }
 
   void _checkAuthStatus() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null) {
-        _updateCurrentUser();
-      } else {
-        setState(() {
-          _isAuthenticated = false;
-          _currentUser = null;
-        });
+      if (mounted) {
+        if (user != null) {
+          _updateCurrentUser();
+        } else {
+          setState(() {
+            _isAuthenticated = false;
+            _currentUser = null;
+          });
+        }
       }
     });
   }
@@ -78,10 +79,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
     if (account == null && _firebaseAuth.currentUser != null) {
       account = await _googleSignIn.signInSilently();
     }
-    setState(() {
-      _isAuthenticated = _firebaseAuth.currentUser != null;
-      _currentUser = account;
-    });
+    if (mounted) {
+      setState(() {
+        _isAuthenticated = _firebaseAuth.currentUser != null;
+        _currentUser = account;
+      });
+    }
   }
 
   void _setSystemUiOverlayStyle(bool isDarkMode) {
@@ -131,14 +134,16 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   void _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _username = prefs.getString('username');
-    });
+    if (mounted) {
+      setState(() {
+        _username = prefs.getString('username');
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => Material(
+    return Material(
           color: _colorController.drawerColor.value,
           child: SafeArea(
             child: Theme(
@@ -410,6 +415,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
               ),
             ),
           ),
-        ));
+        );
   }
 }

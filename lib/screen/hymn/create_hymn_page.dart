@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../../controller/auth_controller.dart';
 import '../../controller/color_controller.dart';
@@ -66,7 +67,11 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
+        builder: (context) => Center(
+          child: CircularProgressIndicator(
+            color: Get.find<ColorController>().primaryColor.value,
+          ),
+        ),
       );
 
       final hymn = Hymn(
@@ -128,64 +133,57 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     int maxLines = 1,
     IconData? icon,
   }) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      style: TextStyle(color: Get.find<ColorController>().textColor.value),
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: Get.find<ColorController>().textColor.value),
-        prefixIcon: icon != null
-            ? Icon(icon, color: Get.find<ColorController>().iconColor.value)
-            : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: Get.find<ColorController>().primaryColor.value),
-        ),
-        fillColor: Get.find<ColorController>().backgroundColor.value.withOpacity(0.1),
-        filled: true,
+    final colorController = Get.find<ColorController>();
+    return Neumorphic(
+      style: NeumorphicStyle(
+        color: colorController.backgroundColor.value,
+        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+        depth: 2,
+        intensity: 0.8,
       ),
-      validator: validator,
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        keyboardType: keyboardType,
+        style: TextStyle(color: colorController.textColor.value),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(color: colorController.textColor.value),
+          prefixIcon: icon != null
+              ? NeumorphicIcon(icon, style: NeumorphicStyle(color: colorController.iconColor.value))
+              : null,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+        validator: validator,
+      ),
     );
   }
 
   Widget _buildVerseField(int index) {
-    return Card(
+    final colorController = Get.find<ColorController>();
+    return Neumorphic(
       key: ValueKey(index),
-      color: Get.find<ColorController>().backgroundColor.value,
+      style: NeumorphicStyle(
+        color: colorController.backgroundColor.value,
+        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+        depth: 3,
+        intensity: 0.8,
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(12.0),
         child: Row(
           children: [
             Expanded(
               child: TextFormField(
                 controller: _verseControllers[index],
                 maxLines: null,
-                style: TextStyle(color: Get.find<ColorController>().textColor.value),
+                style: TextStyle(color: colorController.textColor.value),
                 decoration: InputDecoration(
                   labelText: 'Andininy ${index + 1}',
-                  labelStyle: TextStyle(color: Get.find<ColorController>().textColor.value),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Get.find<ColorController>().textColor.value),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: Get.find<ColorController>().primaryColor.value),
-                  ),
+                  labelStyle: TextStyle(color: colorController.textColor.value),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 ),
                 onChanged: (value) {
 
@@ -202,8 +200,13 @@ class CreateHymnPageState extends State<CreateHymnPage> {
               ),
             ),
             const SizedBox(width: 8),
-            IconButton(
-              icon: Icon(Icons.delete, color: Get.find<ColorController>().iconColor.value),
+            NeumorphicButton(
+              style: NeumorphicStyle(
+                color: Colors.red.withOpacity(0.1),
+                boxShape: NeumorphicBoxShape.circle(),
+                depth: 2,
+              ),
+              child: const Icon(Icons.delete, color: Colors.red, size: 20),
               onPressed: () {
                 setState(() {
                   _verseControllers[index].dispose();
@@ -211,9 +214,13 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 });
               },
             ),
+            const SizedBox(width: 4),
             ReorderableDragStartListener(
               index: index,
-              child: Icon(Icons.drag_handle, color: Get.find<ColorController>().iconColor.value),
+              child: NeumorphicIcon(
+                Icons.drag_handle, 
+                style: NeumorphicStyle(color: colorController.iconColor.value),
+              ),
             ),
           ],
         ),
@@ -229,24 +236,41 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       return Scaffold(
         backgroundColor: Get.find<ColorController>().backgroundColor.value,
         appBar: AppBar(
-          backgroundColor: Get.find<ColorController>().primaryColor.value,
+          backgroundColor: Get.find<ColorController>().backgroundColor.value,
+          elevation: 0,
           title: Text(
             'Hamorona hira',
-            style: TextStyle(color: Get.find<ColorController>().textColor.value),
+            style: TextStyle(
+              color: Get.find<ColorController>().textColor.value,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           leading: IconButton(
-            icon:
-                Icon(Icons.arrow_back, color: Get.find<ColorController>().iconColor.value),
+            icon: Icon(
+              Icons.arrow_back_ios_outlined, 
+              color: Get.find<ColorController>().iconColor.value,
+            ),
             onPressed: () => Get.back(),
           ),
         ),
         body: Center(
-          child: Text(
-            'Salama ${user?.email},\nNoho ny antony manokana dia tsy mbolo mahazo alalana hamorona hira ianao.'
-            '\nMahandrasa kely azafady.'
-            '\nNa Antsoy ny admin (manassé) hanome alalana.',
-            style: TextStyle(color: Get.find<ColorController>().textColor.value),
-            textAlign: TextAlign.center,
+          child: Neumorphic(
+            style: NeumorphicStyle(
+              color: Get.find<ColorController>().backgroundColor.value,
+              boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+              depth: 4,
+              intensity: 0.8,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                'Salama ${user?.email},\nNoho ny antony manokana dia tsy mbolo mahazo alalana hamorona hira ianao.'
+                '\nMahandrasa kely azafady.'
+                '\nNa Antsoy ny admin (manassé) hanome alalana.',
+                style: TextStyle(color: Get.find<ColorController>().textColor.value),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
         ),
       );
@@ -257,6 +281,14 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         backgroundColor: colorController.backgroundColor.value,
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
+          elevation: 0,
+          leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: Icon(
+              Icons.arrow_back_ios_outlined,
+              color: colorController.iconColor.value,
+            ),
+          ),
           title: Text(
             'Mampiditra hira',
             style: TextStyle(
@@ -306,22 +338,22 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     },
                   ),
                   const SizedBox(height: 16.0),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color:
-                              colorController.textColor.value.withOpacity(0.2),
-                        ),
-                      ),
+                  Neumorphic(
+                    style: NeumorphicStyle(
+                      color: colorController.backgroundColor.value,
+                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                      depth: 2,
+                      intensity: 0.8,
                     ),
-                    child: Text(
-                      'Andininy',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
-                        color: colorController.textColor.value,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                      child: Text(
+                        'Andininy',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: colorController.textColor.value,
+                        ),
                       ),
                     ),
                   ),
@@ -344,10 +376,16 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: IconButton(
-                      icon: Icon(
+                    child: NeumorphicButton(
+                      style: NeumorphicStyle(
+                        color: colorController.primaryColor.value.withOpacity(0.1),
+                        boxShape: NeumorphicBoxShape.circle(),
+                        depth: 3,
+                        intensity: 0.8,
+                      ),
+                      child: Icon(
                         Icons.add_circle,
-                        color: colorController.iconColor.value,
+                        color: colorController.primaryColor.value,
                         size: 32,
                       ),
                       onPressed: () {
@@ -371,29 +409,24 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     icon: Icons.info_outline,
                   ),
                   const SizedBox(height: 24.0),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      border:
-                          Border.all(color: colorController.textColor.value),
+                  NeumorphicButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _createHymn();
+                      }
+                    },
+                    style: NeumorphicStyle(
+                      color: colorController.primaryColor.value,
+                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                      depth: 4,
+                      intensity: 0.8,
                     ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          _createHymn();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: colorController.textColor.value,
-                        backgroundColor: colorController.backgroundColor.value,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       child: Text(
                         'Apidiro',
+                        textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,
                           color: colorController.textColor.value,
