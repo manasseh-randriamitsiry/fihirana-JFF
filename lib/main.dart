@@ -133,7 +133,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await VersionCheckService.initializeNotifications();
-      await VersionCheckService.checkForUpdate();
+      // Don't check for updates on startup - let the UpdateCheckerWidget handle it
     });
   }
 

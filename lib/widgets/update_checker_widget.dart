@@ -52,6 +52,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
     } catch (e) {
       if (mounted) {
         setState(() {
+          _updateAvailable = false;
           _checkingForUpdates = false;
         });
       }
