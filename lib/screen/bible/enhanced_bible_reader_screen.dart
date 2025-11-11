@@ -216,52 +216,6 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     });
                   },
                 ),
-                
-                // Bookmark button (when verses are selected)
-                Obx(() {
-                  if (bibleController.startVerse.value > 0) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: NeumorphicButton(
-                        style: NeumorphicStyle(
-                          depth: 2,
-                          color: colorController.primaryColor.value,
-                          boxShape: NeumorphicBoxShape.circle(),
-                        ),
-                        child: const Icon(
-                          Icons.bookmark_add,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        onPressed: _saveHighlight,
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
-                
-                // Share button (when verses are selected)
-                Obx(() {
-                  if (bibleController.startVerse.value > 0) {
-                    return Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: NeumorphicButton(
-                        style: NeumorphicStyle(
-                          depth: 2,
-                          color: colorController.primaryColor.value,
-                          boxShape: NeumorphicBoxShape.circle(),
-                        ),
-                        child: const Icon(
-                          Icons.share,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        onPressed: _shareSelectedVerses,
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }),
               ],
             ),
           ),
