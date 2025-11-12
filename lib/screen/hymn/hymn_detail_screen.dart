@@ -641,6 +641,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Container(
+              color: colorController.backgroundColor.value,
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(context).viewInsets.bottom,
                 left: 16,
