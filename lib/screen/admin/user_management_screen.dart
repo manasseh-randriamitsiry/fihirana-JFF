@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/auth_controller.dart';
 import './user_hymns_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class UserManagementScreen extends StatefulWidget {
   const UserManagementScreen({super.key});
@@ -20,7 +21,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
   String _sortBy = 'recent';
 
   Stream<List<Map<String, dynamic>>> _getUsersWithHymnCount() {
-    return _firestore.collection('users').snapshots().asyncMap((userSnapshot) async {
+    return _firestore
+        .collection('users')
+        .snapshots()
+        .asyncMap((userSnapshot) async {
       List<Map<String, dynamic>> usersWithCount = [];
 
       for (var doc in userSnapshot.docs) {
@@ -49,8 +53,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               .compareTo(b['lastLogin'] as Timestamp));
           break;
         case 'songs':
-          usersWithCount.sort((a, b) => (b['hymnCount'] as int)
-              .compareTo(a['hymnCount'] as int));
+          usersWithCount.sort((a, b) =>
+              (b['hymnCount'] as int).compareTo(a['hymnCount'] as int));
           break;
       }
 
@@ -60,11 +64,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (!_authController.isAdmin) {
       return Scaffold(
         body: Center(
           child: Text(
-            'Tsy mahazo alalana ianao',
+            l10n.noPermission,
             style: TextStyle(color: colorController.textColor.value),
           ),
         ),
@@ -76,7 +81,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       appBar: AppBar(
         backgroundColor: colorController.primaryColor.value,
         title: Text(
-          'Fitantanana mpampiasa',
+          l10n.userManagement,
           style: TextStyle(color: colorController.textColor.value),
         ),
         leading: IconButton(
@@ -101,21 +106,21 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               PopupMenuItem<String>(
                 value: 'recent',
                 child: Text(
-                  'Vaovao indrindra',
+                  l10n.newest,
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'old',
                 child: Text(
-                  'Taloha indrindra',
+                  l10n.oldest,
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'songs',
                 child: Text(
-                  'Isan\'ny hira',
+                  l10n.sortBySongs,
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               ),
@@ -129,7 +134,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Nisy hadisoana: ${snapshot.error}',
+                '${l10n.errorOccurred}: ${snapshot.error}',
                 style: TextStyle(color: colorController.textColor.value),
               ),
             );
@@ -144,7 +149,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           if (users.isEmpty) {
             return Center(
               child: Text(
-                'Tsy misy mpampiasa',
+                l10n.noUsers,
                 style: TextStyle(color: colorController.textColor.value),
               ),
             );
@@ -155,8 +160,9 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
             itemBuilder: (context, index) {
               final userData = users[index];
               final userId = userData['id'] as String;
-              final email = userData['email'] as String? ?? 'Tsy misy mailaka';
-              final displayName = userData['displayName'] as String? ?? 'Unknown User';
+              final email = userData['email'] as String? ?? l10n.noEmail;
+              final displayName =
+                  userData['displayName'] as String? ?? l10n.unknownUser;
               final photoURL = userData['photoURL'] as String?;
               final canAddSongs = userData['canAddSongs'] as bool? ?? false;
               final lastLogin = userData['lastLogin'] as Timestamp?;
@@ -168,10 +174,10 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 color: colorController.drawerColor.value,
                 child: InkWell(
                   onTap: () => Get.to(() => UserHymnsScreen(
-                    userId: userId,
-                    userEmail: email,
-                    displayName: displayName,
-                  )),
+                        userId: userId,
+                        userEmail: email,
+                        displayName: displayName,
+                      )),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -183,10 +189,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   backgroundColor: Colors.transparent,
                                 )
                               : CircleAvatar(
-                                  backgroundColor: colorController.primaryColor.value,
+                                  backgroundColor:
+                                      colorController.primaryColor.value,
                                   child: Text(
                                     displayName[0].toUpperCase(),
-                                    style: TextStyle(color: colorController.textColor.value),
+                                    style: TextStyle(
+                                        color: colorController.textColor.value),
                                   ),
                                 ),
                           title: Row(
@@ -210,7 +218,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  '$hymnCount hira',
+                                  l10n.hymnCount(hymnCount),
                                   style: TextStyle(
                                     color: colorController.textColor.value,
                                     fontSize: 12,
@@ -226,22 +234,25 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               Text(
                                 email,
                                 style: TextStyle(
-                                  color: colorController.textColor.value.withOpacity(0.7),
+                                  color: colorController.textColor.value
+                                      .withOpacity(0.7),
                                 ),
                               ),
                               if (lastLogin != null)
                                 Text(
-                                  'Niditra farany: ${DateFormat('dd/MM/yyyy HH:mm').format(lastLogin.toDate())}',
+                                  '${l10n.lastLogin}: ${DateFormat('dd/MM/yyyy HH:mm').format(lastLogin.toDate())}',
                                   style: TextStyle(
-                                    color: colorController.textColor.value.withOpacity(0.5),
+                                    color: colorController.textColor.value
+                                        .withOpacity(0.5),
                                     fontSize: 12,
                                   ),
                                 ),
                               if (createdAt != null)
                                 Text(
-                                  'Nisoratra: ${DateFormat('dd/MM/yyyy').format(createdAt.toDate())}',
+                                  '${l10n.registered}: ${DateFormat('dd/MM/yyyy').format(createdAt.toDate())}',
                                   style: TextStyle(
-                                    color: colorController.textColor.value.withOpacity(0.5),
+                                    color: colorController.textColor.value
+                                        .withOpacity(0.5),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -249,7 +260,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                           ),
                           trailing: Switch(
                             value: canAddSongs,
-                            onChanged: (value) => _authController.updateUserPermission(userId, value),
+                            onChanged: (value) => _authController
+                                .updateUserPermission(userId, value),
                             activeThumbColor: Colors.green,
                           ),
                         ),

@@ -18,6 +18,7 @@ import '../screen/hymn/firebase_hymns_screen.dart';
 import '../screen/bible/enhanced_bible_reader_screen.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
+import '../l10n/app_localizations.dart';
 
 class DrawerWidget extends StatefulWidget {
   final Function() openDrawer;
@@ -97,6 +98,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   Future<void> _signInWithGoogle() async {
     try {
+      final l10n = AppLocalizations.of(context)!;
       await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
 
@@ -121,8 +123,8 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
         _updateCurrentUser();
         Get.snackbar(
-          'Tongasoa',
-          'Tafiditra ianao.',
+          l10n.welcome,
+          l10n.signedInSuccessfully,
           backgroundColor: Colors.green.withOpacity(0.2),
           colorText: _colorController.textColor.value,
         );
@@ -143,278 +145,279 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Material(
-          color: _colorController.drawerColor.value,
-          child: SafeArea(
-            child: Theme(
-              data: Theme.of(context).copyWith(
-                textTheme: Theme.of(context).textTheme.apply(
-                      bodyColor: _colorController.textColor.value,
-                      displayColor: _colorController.textColor.value,
-                    ),
-              ),
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  if (_currentUser == null && _username != null)
-                    UserAccountsDrawerHeader(
-                      decoration: BoxDecoration(
-                        color: _colorController.drawerColor.value,
-                      ),
-                      accountName: Text(
-                        _username!,
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      accountEmail: null,
-                      currentAccountPicture: CircleAvatar(
-                        backgroundColor: _colorController.primaryColor.value,
-                        child: Icon(
-                          Icons.person,
-                          color: _colorController.iconColor.value,
-                          size: 40,
-                        ),
-                      ),
-                    ),
-                  if (_isAuthenticated && _currentUser != null)
-                    UserAccountsDrawerHeader(
-                      decoration: BoxDecoration(
-                        color: _colorController.drawerColor.value,
-                      ),
-                      accountName: Text(
-                        _currentUser?.displayName ?? 'User',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                        ),
-                      ),
-                      accountEmail: Text(
-                        _currentUser?.email ?? '',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                        ),
-                      ),
-                      currentAccountPicture: CircleAvatar(
-                        backgroundColor: _colorController.primaryColor.value,
-                        child: _currentUser?.photoUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: _currentUser!.photoUrl!,
-                                imageBuilder: (context, imageProvider) =>
-                                    CircleAvatar(
-                                  backgroundImage: imageProvider,
-                                ),
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(
-                                  color: _colorController.primaryColor.value,
-                                ),
-                                errorWidget: (context, url, error) => Icon(
-                                  Icons.person,
-                                  color: _colorController.iconColor.value,
-                                ),
-                              )
-                            : Icon(
-                                Icons.person,
-                                color: _colorController.iconColor.value,
-                              ),
-                      ),
-                    ),
-                  if (!_isAuthenticated)
-                    ListTile(
-                      leading: Icon(
-                        Icons.login,
-                        color: _colorController.iconColor.value,
-                      ),
-                      title: Text(
-                        'Miditra',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                        ),
-                      ),
-                      onTap: _signInWithGoogle,
-                    ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.music_note,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Fihirana',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.back(),
-                  ),
-                  if (_isAuthenticated)
-                    ListTile(
-                      leading: Icon(
-                        Icons.add,
-                        color: _colorController.iconColor.value,
-                      ),
-                      title: Text(
-                        'Hamorona hira',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                        ),
-                      ),
-                      onTap: () => Get.to(() => const CreateHymnPage()),
-                    ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.library_add,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Fihirana Fanampiny',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.to(() => const FirebaseHymnsScreen()),
-                  ),
-                  if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
-                    ListTile(
-                      leading: Icon(
-                        Icons.admin_panel_settings,
-                        color: _colorController.iconColor.value,
-                      ),
-                      title: Text(
-                        'Admin Panel',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                        ),
-                      ),
-                      onTap: () => Get.to(() => const AdminPanelScreen()),
-                    ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.favorite,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Hira tiana',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.to(() => FavoritesPage()),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.history,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Tantaran-kira',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.to(() => HistoryScreen()),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.color_lens,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Hanova loko',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (context) => Dialog(
-                        backgroundColor: _colorController.backgroundColor.value,
-                        child: ColorPickerWidget(),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.font_download,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      "Endrikin'ny soratra",
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => showDialog(
-                      context: context,
-                      builder: (context) => Dialog(
-                        backgroundColor: _colorController.backgroundColor.value,
-                        child: FontPickerWidget(),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.notifications,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Filazana',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.to(() => const AnnouncementScreen()),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.menu_book,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Baiboly',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.to(() => const EnhancedBibleReaderScreen()),
-                  ),
-                  if (_isAuthenticated)
-                    ListTile(
-                      leading: Icon(
-                        Icons.logout,
-                        color: _colorController.iconColor.value,
-                      ),
-                      title: Text(
-                        'Hivoaka',
-                        style: TextStyle(
-                          color: _colorController.textColor.value,
-                        ),
-                      ),
-                      onTap: () {
-                        FirebaseAuth.instance.signOut();
-                        setState(() {
-                          _isAuthenticated = false;
-                          _currentUser = null;
-                        });
-                      },
-                    ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.info,
-                      color: _colorController.iconColor.value,
-                    ),
-                    title: Text(
-                      'Mombamomba',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                      ),
-                    ),
-                    onTap: () => Get.to(() => const AboutScreen()),
-                  ),
-                ],
-              ),
-            ),
+      color: _colorController.drawerColor.value,
+      child: SafeArea(
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            textTheme: Theme.of(context).textTheme.apply(
+                  bodyColor: _colorController.textColor.value,
+                  displayColor: _colorController.textColor.value,
+                ),
           ),
-        );
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              if (_currentUser == null && _username != null)
+                UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(
+                    color: _colorController.drawerColor.value,
+                  ),
+                  accountName: Text(
+                    _username!,
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  accountEmail: null,
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: _colorController.primaryColor.value,
+                    child: Icon(
+                      Icons.person,
+                      color: _colorController.iconColor.value,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              if (_isAuthenticated && _currentUser != null)
+                UserAccountsDrawerHeader(
+                  decoration: BoxDecoration(
+                    color: _colorController.drawerColor.value,
+                  ),
+                  accountName: Text(
+                    _currentUser?.displayName ?? 'User',
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                    ),
+                  ),
+                  accountEmail: Text(
+                    _currentUser?.email ?? '',
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                    ),
+                  ),
+                  currentAccountPicture: CircleAvatar(
+                    backgroundColor: _colorController.primaryColor.value,
+                    child: _currentUser?.photoUrl != null
+                        ? CachedNetworkImage(
+                            imageUrl: _currentUser!.photoUrl!,
+                            imageBuilder: (context, imageProvider) =>
+                                CircleAvatar(
+                              backgroundImage: imageProvider,
+                            ),
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(
+                              color: _colorController.primaryColor.value,
+                            ),
+                            errorWidget: (context, url, error) => Icon(
+                              Icons.person,
+                              color: _colorController.iconColor.value,
+                            ),
+                          )
+                        : Icon(
+                            Icons.person,
+                            color: _colorController.iconColor.value,
+                          ),
+                  ),
+                ),
+              if (!_isAuthenticated)
+                ListTile(
+                  leading: Icon(
+                    Icons.login,
+                    color: _colorController.iconColor.value,
+                  ),
+                  title: Text(
+                    l10n.signIn,
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                    ),
+                  ),
+                  onTap: _signInWithGoogle,
+                ),
+              ListTile(
+                leading: Icon(
+                  Icons.music_note,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.hymns,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => Get.back(),
+              ),
+              if (_isAuthenticated)
+                ListTile(
+                  leading: Icon(
+                    Icons.add,
+                    color: _colorController.iconColor.value,
+                  ),
+                  title: Text(
+                    l10n.createHymn,
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                    ),
+                  ),
+                  onTap: () => Get.to(() => const CreateHymnPage()),
+                ),
+              ListTile(
+                leading: Icon(
+                  Icons.library_add,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.additionalHymns,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => Get.to(() => const FirebaseHymnsScreen()),
+              ),
+              if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
+                ListTile(
+                  leading: Icon(
+                    Icons.admin_panel_settings,
+                    color: _colorController.iconColor.value,
+                  ),
+                  title: Text(
+                    'Admin Panel',
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                    ),
+                  ),
+                  onTap: () => Get.to(() => const AdminPanelScreen()),
+                ),
+              ListTile(
+                leading: Icon(
+                  Icons.favorite,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.favoriteHymns,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => Get.to(() => FavoritesPage()),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.history,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.hymnHistory,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => Get.to(() => HistoryScreen()),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.color_lens,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.changeColor,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => Dialog(
+                    backgroundColor: _colorController.backgroundColor.value,
+                    child: ColorPickerWidget(),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.font_download,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.fontStyle,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => showDialog(
+                  context: context,
+                  builder: (context) => Dialog(
+                    backgroundColor: _colorController.backgroundColor.value,
+                    child: FontPickerWidget(),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.notifications,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.announcements,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => Get.to(() => const AnnouncementScreen()),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.menu_book,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.bible,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => Get.to(() => const EnhancedBibleReaderScreen()),
+              ),
+              if (_isAuthenticated)
+                ListTile(
+                  leading: Icon(
+                    Icons.logout,
+                    color: _colorController.iconColor.value,
+                  ),
+                  title: Text(
+                    l10n.signOut,
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                    ),
+                  ),
+                  onTap: () {
+                    FirebaseAuth.instance.signOut();
+                    setState(() {
+                      _isAuthenticated = false;
+                      _currentUser = null;
+                    });
+                  },
+                ),
+              ListTile(
+                leading: Icon(
+                  Icons.info,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  l10n.aboutUs,
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => Get.to(() => const AboutScreen()),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

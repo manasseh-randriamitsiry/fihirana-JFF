@@ -4,11 +4,15 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/cupertino.dart';
+import 'l10n/app_localizations.dart';
 import 'controller/history_controller.dart';
 import 'controller/theme_controller.dart';
 import 'controller/font_controller.dart';
 import 'controller/color_controller.dart';
 import 'controller/auth_controller.dart';
+import 'controller/language_controller.dart';
 import 'screen/accueil/home_screen.dart';
 import 'screen/intro/splash_screen1.dart';
 import 'screen/loading/loading_screen.dart';
@@ -20,6 +24,50 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
 import 'services/firebase_sync_service.dart';
+import 'services/bible_service.dart';
+
+// Fallback localization delegate for unsupported locales
+class _FallbackMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
+  const _FallbackMaterialLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) {
+    // Support all locales to prevent warnings
+    return true;
+  }
+
+  @override
+  Future<MaterialLocalizations> load(Locale locale) async {
+    // For unsupported locales, fall back to English Material localizations
+    // Use proper way to load Material localizations
+    return await GlobalMaterialLocalizations.delegate.load(const Locale('en'));
+  }
+
+  @override
+  bool shouldReload(LocalizationsDelegate<MaterialLocalizations> old) => false;
+}
+
+// Fallback Cupertino localization delegate for unsupported locales
+class _FallbackCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
+  const _FallbackCupertinoLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) {
+    // Support all locales to prevent warnings
+    return true;
+  }
+
+  @override
+  Future<CupertinoLocalizations> load(Locale locale) async {
+    // For unsupported locales, fall back to English Cupertino localizations
+    return await GlobalCupertinoLocalizations.delegate.load(const Locale('en'));
+  }
+
+  @override
+  bool shouldReload(LocalizationsDelegate<CupertinoLocalizations> old) => false;
+}
 
 Future<void> initializeNotifications() async {
   await AwesomeNotifications().initialize(
@@ -83,12 +131,19 @@ Future<void> main() async {
   final colorController = Get.put(ColorController());
   Get.put(FontController());
   Get.put(AuthController());
+  Get.put(LanguageController());
   Get.put(HymnService());
   Get.put(BackgroundService());
   Get.put(FirebaseSyncService());
+  // Initialize Bible service
+  Get.put(BibleService());
 
   await colorController.loadColors();
   await themeController.loadThemeFromPrefs();
+
+  // Initialize Bible service
+  final bibleService = Get.find<BibleService>();
+  await bibleService.initialize();
 
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: (ReceivedAction receivedAction) async {
@@ -222,10 +277,24 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final bool isFirstTime = widget.prefs.getBool('isFirstTime') ?? true;
+    final bool hasAgreed = widget.prefs.getBool('has_agreed_to_terms') ?? false;
+    final String? username = widget.prefs.getString('username');
+    final bool hasSelectedLanguage =
+        widget.prefs.getString('selected_language') != null;
+
+    // If user has completed onboarding, go directly to home screen
+    final bool shouldGoToHome = !isFirstTime &&
+        hasAgreed &&
+        (username?.isNotEmpty ?? false) &&
+        hasSelectedLanguage;
+
+    final LanguageController languageController =
+        Get.find<LanguageController>();
 
     return Obx(() {
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
+      final currentLocale = languageController.currentLocale.value;
 
       ThemeData baseTheme = isDark
           ? colorController.getDarkTheme()
@@ -235,10 +304,26 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       return GetMaterialApp(
         debugShowCheckedModeBanner: false,
+        locale: currentLocale,
+        localizationsDelegates: [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          // Add fallback delegates for unsupported locales
+          _FallbackMaterialLocalizationsDelegate(),
+          _FallbackCupertinoLocalizationsDelegate(),
+        ],
+        supportedLocales: const [
+          Locale('mg'), // Malagasy
+          Locale('en'), // English
+          Locale('fr'), // French
+        ],
         themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
         theme: themeWithFont,
         darkTheme: themeWithFont,
-        initialRoute: isFirstTime ? '/splash' : '/loading',
+        initialRoute:
+            shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading'),
         getPages: [
           GetPage(name: '/splash', page: () => const SplashScreen1()),
           GetPage(name: '/loading', page: () => const LoadingScreen()),

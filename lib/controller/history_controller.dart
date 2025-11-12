@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../services/firebase_sync_service.dart';
+import '../l10n/app_localizations.dart';
 
 class HistoryController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -51,7 +52,6 @@ class HistoryController extends GetxController {
       final user = _auth.currentUser;
 
       if (user != null) {
-
         final batch = _firestore.batch();
         for (String id in selectedItems) {
           final docRef = _firestore
@@ -63,14 +63,14 @@ class HistoryController extends GetxController {
         }
         await batch.commit();
       } else {
-
         final prefs = await SharedPreferences.getInstance();
         List<Map<String, dynamic>> localHistory = [];
         String? historyJson = prefs.getString(_localHistoryKey);
         if (historyJson != null) {
           localHistory = List<Map<String, dynamic>>.from(
               jsonDecode(historyJson).map((x) => Map<String, dynamic>.from(x)));
-          localHistory.removeWhere((item) => selectedItems.contains(item['id']));
+          localHistory
+              .removeWhere((item) => selectedItems.contains(item['id']));
           await prefs.setString(_localHistoryKey, jsonEncode(localHistory));
         }
       }
@@ -79,16 +79,20 @@ class HistoryController extends GetxController {
       selectedItems.clear();
       isSelectionMode.value = false;
 
+      // Get the localization instance
+      final l10n = AppLocalizations.of(Get.context!)!;
+
       Get.snackbar(
-        'Vita!',
-        'Voafafa ny tantara voafidy',
+        l10n.success,
+        l10n.deleteHistorySuccess,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
+      final l10n = AppLocalizations.of(Get.context!)!;
       Get.snackbar(
-        'Nisy olana',
-        'Tsy afaka mamafa ny tantara: $e',
+        l10n.error,
+        l10n.deleteHistoryError,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );
@@ -103,19 +107,22 @@ class HistoryController extends GetxController {
       final user = _auth.currentUser;
 
       if (user != null) {
-
-        final firebaseHistory = await _firebaseSyncService.loadHistoryFromFirebase();
+        final firebaseHistory =
+            await _firebaseSyncService.loadHistoryFromFirebase();
         userHistory.value = firebaseHistory;
       } else {
         final prefs = await SharedPreferences.getInstance();
         final localHistory = prefs.getString(_localHistoryKey);
         if (localHistory != null) {
           final List<dynamic> decoded = json.decode(localHistory);
-          userHistory.value = decoded.map((item) => Map<String, dynamic>.from({
-            ...Map<String, dynamic>.from(item),
-            'id': item['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
-            'timestamp': DateTime.parse(item['timestamp'].toString()),
-          })).toList();
+          userHistory.value = decoded
+              .map((item) => Map<String, dynamic>.from({
+                    ...Map<String, dynamic>.from(item),
+                    'id': item['id'] ??
+                        DateTime.now().millisecondsSinceEpoch.toString(),
+                    'timestamp': DateTime.parse(item['timestamp'].toString()),
+                  }))
+              .toList();
         }
       }
     } finally {
@@ -135,7 +142,6 @@ class HistoryController extends GetxController {
       };
 
       if (user != null) {
-
         await _firebaseSyncService.addHistoryToFirebase(hymnId, title, number);
 
         await loadUserHistory();
@@ -159,34 +165,33 @@ class HistoryController extends GetxController {
       }
 
       await loadUserHistory();
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   Future<void> clearHistory() async {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-
         await _firebaseSyncService.clearHistoryFromFirebase();
       } else {
-
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove(_localHistoryKey);
       }
 
       userHistory.clear();
 
+      final l10n = AppLocalizations.of(Get.context!)!;
       Get.snackbar(
-        'Vita!',
-        'Voafafa ny tantara',
+        l10n.success,
+        l10n.clearHistorySuccess,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
+      final l10n = AppLocalizations.of(Get.context!)!;
       Get.snackbar(
-        'Nisy olana',
-        'Tsy afaka mamafa ny tantara: $e',
+        l10n.error,
+        l10n.clearHistoryError,
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );

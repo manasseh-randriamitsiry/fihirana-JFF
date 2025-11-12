@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class HymnSearchField extends StatelessWidget {
   final TextEditingController controller;
@@ -20,7 +21,8 @@ class HymnSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-return Padding(
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
         elevation: 4,
@@ -34,7 +36,7 @@ return Padding(
             controller: controller,
             style: defaultTextStyle,
             decoration: InputDecoration(
-              labelText: 'Hikaroka hira',
+              labelText: l10n.searchHymnsHint,
               labelStyle: defaultTextStyle.copyWith(
                 color: textColor.withOpacity(0.7),
               ),

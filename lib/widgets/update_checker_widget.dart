@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/services/version_check_service.dart';
 import 'package:fihirana/services/apk_download_service.dart';
+import '../l10n/app_localizations.dart';
 
 class UpdateCheckerWidget extends StatefulWidget {
   final Widget child;
@@ -43,7 +44,8 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
     });
 
     try {
-      final updateAvailable = await VersionCheckService.checkForUpdateManually();
+      final updateAvailable =
+          await VersionCheckService.checkForUpdateManually();
       if (mounted) {
         setState(() {
           _updateAvailable = updateAvailable;
@@ -59,9 +61,10 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
       }
 
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tsy afaka mijery rindrambaiko'),
+          SnackBar(
+            content: Text(l10n.errorCheckingUpdates),
             backgroundColor: Colors.red,
           ),
         );
@@ -78,9 +81,10 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
       await VersionCheckService.downloadAndInstallLatestVersion();
     } catch (e) {
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Tsy afaka mandefa: ${e.toString()}'),
+            content: Text('${l10n.errorDownloadingUpdate2}: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -98,21 +102,21 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
         return AlertDialog(
-          title: const Text('Hampiditra vaovao'),
-          content: const Text(
-              'Tena te hampiditra ny version vaovao? Handefa anaty rakitra ary hametraka azy ho azy.'),
+          title: Text(l10n.installUpdateTitle),
+          content: Text(l10n.installUpdateContent),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Tsia'),
+              child: Text(l10n.no),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 _downloadAndUpdate();
               },
-              child: const Text('Eny'),
+              child: Text(l10n.yes),
             ),
           ],
         );

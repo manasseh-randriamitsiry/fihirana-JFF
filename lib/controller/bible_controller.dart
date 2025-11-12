@@ -30,7 +30,7 @@ class BibleController extends GetxController {
 
   // Filtered books for search
   var filteredBooks = <String>[].obs;
-  
+
   // Search functionality
   var searchQuery = ''.obs;
   var searchResults = <BibleSearchResult>[].obs;
@@ -126,7 +126,7 @@ class BibleController extends GetxController {
       } else {
         if (kDebugMode) {
           print(
-            'Chapter not found: ${selectedChapter.value} in book: ${selectedBook.value}');
+              'Chapter not found: ${selectedChapter.value} in book: ${selectedBook.value}');
         }
       }
     } catch (e) {
@@ -193,7 +193,7 @@ class BibleController extends GetxController {
     // Get chapters for the selected book
     chapterList.value = _bibleService.getChaptersForBook(bookName);
     if (kDebugMode) {
-      print('Chapter list for $bookName: ${chapterList.value}');
+      print('Chapter list for $bookName: ${chapterList.toList()}');
     }
   }
 
@@ -346,7 +346,7 @@ class BibleController extends GetxController {
         startVerse.value = verse;
         endVerse.value = verse;
       }
-      
+
       // Reset if selection becomes invalid
       if (startVerse.value > endVerse.value) {
         startVerse.value = 0;
@@ -367,7 +367,7 @@ class BibleController extends GetxController {
     if (selectedBook.isEmpty || selectedChapter.value == 0) {
       return [];
     }
-    
+
     try {
       final book = _bibleService.getBookSync(selectedBook.value);
       if (book != null) {
@@ -379,9 +379,9 @@ class BibleController extends GetxController {
     } catch (e) {
       if (kDebugMode) {
         print('Error getting current chapter verses: $e');
+      }
     }
-    }
-    
+
     return [];
   }
 
@@ -401,7 +401,7 @@ class BibleController extends GetxController {
 
     isSearching.value = true;
     searchQuery.value = query;
-    
+
     try {
       switch (searchContext.value) {
         case BibleSearchContext.books:
@@ -414,7 +414,7 @@ class BibleController extends GetxController {
           await _searchAllBible(query);
           break;
       }
-      
+
       // Add to search history
       _addToSearchHistory(query);
     } catch (e) {
@@ -427,33 +427,34 @@ class BibleController extends GetxController {
   }
 
   Future<void> _searchBooks(String query) async {
-    final results = _bibleService.getAllBookNames()
+    final results = _bibleService
+        .getAllBookNames()
         .where((book) => book.toLowerCase().contains(query.toLowerCase()))
         .map((book) => BibleSearchResult(
-          type: BibleSearchResultType.book,
-          bookName: book,
-          chapter: 0,
-          verse: 0,
-          text: book,
-          relevance: _calculateRelevance(book, query),
-        ))
+              type: BibleSearchResultType.book,
+              bookName: book,
+              chapter: 0,
+              verse: 0,
+              text: book,
+              relevance: _calculateRelevance(book, query),
+            ))
         .toList();
-    
+
     searchResults.assignAll(results);
   }
 
   Future<void> _searchCurrentChapter(String query) async {
     if (selectedBook.isEmpty || selectedChapter.value == 0) return;
-    
+
     final book = _bibleService.getBookSync(selectedBook.value);
     if (book == null) return;
-    
+
     final chapter = book.getChapter(selectedChapter.value);
     if (chapter == null) return;
-    
+
     final results = <BibleSearchResult>[];
     final lowerQuery = query.toLowerCase();
-    
+
     chapter.verses.forEach((verseNum, verseText) {
       if (verseText.toLowerCase().contains(lowerQuery)) {
         results.add(BibleSearchResult(
@@ -466,7 +467,7 @@ class BibleController extends GetxController {
         ));
       }
     });
-    
+
     // Sort by relevance
     results.sort((a, b) => b.relevance.compareTo(a.relevance));
     searchResults.assignAll(results);
@@ -475,17 +476,17 @@ class BibleController extends GetxController {
   Future<void> _searchAllBible(String query) async {
     final results = <BibleSearchResult>[];
     final lowerQuery = query.toLowerCase();
-    
+
     // Search through all books
     for (final bookName in _bibleService.getAllBookNames()) {
       final book = _bibleService.getBookSync(bookName);
       if (book == null) continue;
-      
+
       // Search through all chapters
       for (final chapterNum in book.chapterData.keys) {
         final chapter = book.getChapter(chapterNum);
         if (chapter == null) continue;
-        
+
         // Search through all verses
         chapter.verses.forEach((verseNum, verseText) {
           if (verseText.toLowerCase().contains(lowerQuery)) {
@@ -501,7 +502,7 @@ class BibleController extends GetxController {
         });
       }
     }
-    
+
     // Sort by relevance and limit results
     results.sort((a, b) => b.relevance.compareTo(a.relevance));
     searchResults.assignAll(results.take(100).toList()); // Limit to 100 results
@@ -510,19 +511,19 @@ class BibleController extends GetxController {
   double _calculateRelevance(String text, String query) {
     final lowerText = text.toLowerCase();
     final lowerQuery = query.toLowerCase();
-    
+
     double relevance = 0.0;
-    
+
     // Exact match gets highest relevance
     if (lowerText == lowerQuery) {
       relevance += 100.0;
     }
-    
+
     // Starts with query gets high relevance
     if (lowerText.startsWith(lowerQuery)) {
       relevance += 50.0;
     }
-    
+
     // Count occurrences of query in text
     int occurrences = 0;
     int index = lowerText.indexOf(lowerQuery);
@@ -531,22 +532,22 @@ class BibleController extends GetxController {
       index = lowerText.indexOf(lowerQuery, index + 1);
     }
     relevance += occurrences * 10.0;
-    
+
     // Shorter text gets slightly higher relevance (more likely to be specific)
     relevance += (100 - text.length) * 0.1;
-    
+
     return relevance;
   }
 
   void _addToSearchHistory(String query) {
     if (query.trim().isEmpty) return;
-    
+
     // Remove if already exists
     searchHistory.remove(query);
-    
+
     // Add to beginning
     searchHistory.insert(0, query);
-    
+
     // Keep only last 10 searches
     if (searchHistory.length > 10) {
       searchHistory.removeLast();
@@ -588,7 +589,7 @@ class BibleController extends GetxController {
 
   // Debug method
   bool isServiceInitialized() {
-    return _bibleService.isInitialized();
+    return _bibleService.isInitialized;
   }
 
   int getBookCount() {

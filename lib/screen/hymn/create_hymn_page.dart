@@ -8,6 +8,7 @@ import '../../controller/auth_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class CreateHymnPage extends StatefulWidget {
   const CreateHymnPage({super.key});
@@ -22,12 +23,13 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   final _titleController = TextEditingController();
   final _bridgeController = TextEditingController();
   final _hymnHintController = TextEditingController();
-  final List<TextEditingController> _verseControllers = [TextEditingController()];
+  final List<TextEditingController> _verseControllers = [
+    TextEditingController()
+  ];
   final _debouncer = Debouncer(milliseconds: 500);
 
   @override
   void dispose() {
-
     _hymnNumberController.dispose();
     _titleController.dispose();
     _bridgeController.dispose();
@@ -40,7 +42,6 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   void _clearForm() {
-
     if (!mounted) return;
 
     setState(() {
@@ -59,10 +60,10 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   Future<void> _createHymn() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     try {
-
       if (!mounted) return;
       showDialog(
         context: context,
@@ -99,8 +100,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Voasoratra soa aman-tsara ny hira',
-              style: TextStyle(color: Get.find<ColorController>().textColor.value),
+              l10n.hymnSavedSuccessfully,
+              style:
+                  TextStyle(color: Get.find<ColorController>().textColor.value),
             ),
             backgroundColor: Get.find<ColorController>().backgroundColor.value,
           ),
@@ -109,15 +111,15 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         Navigator.of(context).pop();
       }
     } catch (error) {
-
       if (!mounted) return;
       Navigator.of(context).pop();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Nisy olana fa ialana tsiny: $error',
-            style: TextStyle(color: Get.find<ColorController>().textColor.value),
+            l10n.errorSavingHymn(error.toString()),
+            style:
+                TextStyle(color: Get.find<ColorController>().textColor.value),
           ),
           backgroundColor: Get.find<ColorController>().backgroundColor.value,
         ),
@@ -150,10 +152,13 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           labelText: label,
           labelStyle: TextStyle(color: colorController.textColor.value),
           prefixIcon: icon != null
-              ? NeumorphicIcon(icon, style: NeumorphicStyle(color: colorController.iconColor.value))
+              ? NeumorphicIcon(icon,
+                  style:
+                      NeumorphicStyle(color: colorController.iconColor.value))
               : null,
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
         validator: validator,
       ),
@@ -161,6 +166,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   Widget _buildVerseField(int index) {
+    final l10n = AppLocalizations.of(context)!;
     final colorController = Get.find<ColorController>();
     return Neumorphic(
       key: ValueKey(index),
@@ -180,20 +186,20 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 maxLines: null,
                 style: TextStyle(color: colorController.textColor.value),
                 decoration: InputDecoration(
-                  labelText: 'Andininy ${index + 1}',
+                  labelText: l10n.verseWithNumber(index + 1),
                   labelStyle: TextStyle(color: colorController.textColor.value),
                   border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 ),
                 onChanged: (value) {
-
                   _debouncer.run(() {
                     setState(() {});
                   });
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Soraty ny andininy';
+                    return l10n.enterVerse;
                   }
                   return null;
                 },
@@ -218,7 +224,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
             ReorderableDragStartListener(
               index: index,
               child: NeumorphicIcon(
-                Icons.drag_handle, 
+                Icons.drag_handle,
                 style: NeumorphicStyle(color: colorController.iconColor.value),
               ),
             ),
@@ -230,6 +236,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final authController = Get.find<AuthController>();
     final user = FirebaseAuth.instance.currentUser;
     if (!authController.isAdmin && !authController.canAddSongs) {
@@ -239,7 +246,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           backgroundColor: Get.find<ColorController>().backgroundColor.value,
           elevation: 0,
           title: Text(
-            'Hamorona hira',
+            l10n.createHymn,
             style: TextStyle(
               color: Get.find<ColorController>().textColor.value,
               fontWeight: FontWeight.bold,
@@ -247,7 +254,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           ),
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back_ios_outlined, 
+              Icons.arrow_back_ios_outlined,
               color: Get.find<ColorController>().iconColor.value,
             ),
             onPressed: () => Get.back(),
@@ -264,10 +271,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
             child: Padding(
               padding: const EdgeInsets.all(20.0),
               child: Text(
-                'Salama ${user?.email},\nNoho ny antony manokana dia tsy mbolo mahazo alalana hamorona hira ianao.'
-                '\nMahandrasa kely azafady.'
-                '\nNa Antsoy ny admin (manassé) hanome alalana.',
-                style: TextStyle(color: Get.find<ColorController>().textColor.value),
+                l10n.noPermissionToCreate(user?.email ?? ''),
+                style: TextStyle(
+                    color: Get.find<ColorController>().textColor.value),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -290,7 +296,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
             ),
           ),
           title: Text(
-            'Mampiditra hira',
+            l10n.addHymn,
             style: TextStyle(
               color: colorController.textColor.value,
               fontWeight: FontWeight.bold,
@@ -307,20 +313,20 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 children: [
                   _buildTextField(
                     controller: _hymnNumberController,
-                    label: 'Laharana',
+                    label: l10n.number,
                     keyboardType: TextInputType.number,
                     icon: Icons.onetwothree_outlined,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Apidiro ny laharan'ny hira";
+                        return l10n.enterHymnNumber;
                       }
                       try {
                         int? number = int.tryParse(value);
                         if (number == null || number <= 0) {
-                          return "Laharana tsy mety";
+                          return l10n.invalidNumber;
                         }
                       } catch (e) {
-                        return "Laharana tsy mety";
+                        return l10n.invalidNumber;
                       }
                       return null;
                     },
@@ -328,11 +334,11 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   const SizedBox(height: 16.0),
                   _buildTextField(
                     controller: _titleController,
-                    label: 'Lohateny',
+                    label: l10n.title,
                     icon: Icons.title,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Soraty ny lohateny';
+                        return l10n.enterTitle;
                       }
                       return null;
                     },
@@ -341,14 +347,16 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   Neumorphic(
                     style: NeumorphicStyle(
                       color: colorController.backgroundColor.value,
-                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                      boxShape: NeumorphicBoxShape.roundRect(
+                          BorderRadius.circular(8)),
                       depth: 2,
                       intensity: 0.8,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 16.0),
                       child: Text(
-                        'Andininy',
+                        l10n.verses,
                         style: TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,
@@ -378,7 +386,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: NeumorphicButton(
                       style: NeumorphicStyle(
-                        color: colorController.primaryColor.value.withOpacity(0.1),
+                        color:
+                            colorController.primaryColor.value.withOpacity(0.1),
                         boxShape: NeumorphicBoxShape.circle(),
                         depth: 3,
                         intensity: 0.8,
@@ -398,14 +407,14 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   const SizedBox(height: 16.0),
                   _buildTextField(
                     controller: _bridgeController,
-                    label: 'Fiverenany (Raha misy)',
+                    label: l10n.bridgeOptional,
                     maxLines: 3,
                     icon: Icons.repeat,
                   ),
                   const SizedBox(height: 16.0),
                   _buildTextField(
                     controller: _hymnHintController,
-                    label: 'Naoty',
+                    label: l10n.notes,
                     icon: Icons.info_outline,
                   ),
                   const SizedBox(height: 24.0),
@@ -417,7 +426,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     },
                     style: NeumorphicStyle(
                       color: colorController.primaryColor.value,
-                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                      boxShape: NeumorphicBoxShape.roundRect(
+                          BorderRadius.circular(12)),
                       depth: 4,
                       intensity: 0.8,
                     ),
@@ -425,7 +435,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       child: Text(
-                        'Apidiro',
+                        l10n.submit,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontSize: 18,

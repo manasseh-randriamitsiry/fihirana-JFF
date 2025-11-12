@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class EditHymnScreen extends StatefulWidget {
   final Hymn hymn;
@@ -54,10 +55,11 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   }
 
   void _saveChanges() {
+    final l10n = AppLocalizations.of(context)!;
     if (!isUserAuthenticated()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Mila miditra aloha ianao'),
+          content: Text(l10n.loginRequired),
           backgroundColor: colorController.backgroundColor.value,
         ),
       );
@@ -78,38 +80,35 @@ class EditHymnScreenState extends State<EditHymnScreen> {
       createdByEmail: widget.hymn.createdByEmail,
     );
 
-    _hymnService
-        .updateHymn(updatedHymn.id, updatedHymn)
-        .then((_) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Voaova soa aman-tsara'),
-              backgroundColor: colorController.backgroundColor.value,
-            ),
-          );
-          Navigator.pop(context);
-        })
-        .catchError((error) {
-          if (kDebugMode) {
-          }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Nisy olana: $error'),
-              backgroundColor: colorController.backgroundColor.value,
-            ),
-          );
-        });
+    _hymnService.updateHymn(updatedHymn.id, updatedHymn).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.hymnUpdatedSuccessfully),
+          backgroundColor: colorController.backgroundColor.value,
+        ),
+      );
+      Navigator.pop(context);
+    }).catchError((error) {
+      if (kDebugMode) {}
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(l10n.errorUpdating(error.toString())),
+          backgroundColor: colorController.backgroundColor.value,
+        ),
+      );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
           title: Text(
-            'Hanova ny hira faha: ${widget.hymn.hymnNumber}',
+            '${l10n.edit} ${widget.hymn.hymnNumber}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: colorController.textColor.value,
@@ -131,20 +130,20 @@ class EditHymnScreenState extends State<EditHymnScreen> {
               children: [
                 _buildTextField(
                   controller: _hymnNumberController,
-                  label: 'Laharan\'ny hira',
+                  label: l10n.number,
                   icon: Icons.onetwothree_outlined,
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Apidiro ny laharan'ny hira";
+                      return l10n.enterHymnNumber;
                     }
                     try {
                       int? number = int.tryParse(value);
                       if (number == null || number <= 0) {
-                        return "Laharana tsy mety";
+                        return l10n.invalidNumber;
                       }
                     } catch (e) {
-                      return "Laharana tsy mety";
+                      return l10n.invalidNumber;
                     }
                     return null;
                   },
@@ -152,12 +151,12 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                 const SizedBox(height: 16.0),
                 _buildTextField(
                   controller: _titleController,
-                  label: 'Lohateny',
+                  label: l10n.title,
                   icon: Icons.title,
                 ),
                 const SizedBox(height: 16.0),
                 Text(
-                  'Andininy',
+                  l10n.verses,
                   style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.bold,
@@ -169,14 +168,14 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                 const SizedBox(height: 16.0),
                 _buildTextField(
                   controller: _bridgeController,
-                  label: 'Fiverenany',
+                  label: l10n.bridge,
                   icon: Icons.repeat,
                   maxLines: 3,
                 ),
                 const SizedBox(height: 16.0),
                 _buildTextField(
                   controller: _hymnHintController,
-                  label: 'Fanamarihana',
+                  label: l10n.notes,
                   icon: Icons.info_outline,
                 ),
                 const SizedBox(height: 16.0),
@@ -188,12 +187,12 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                         foregroundColor: colorController.textColor.value,
                         backgroundColor: colorController.backgroundColor.value,
                       ),
-                      child: const Padding(
-                        padding: EdgeInsets.only(
+                      child: Padding(
+                        padding: const EdgeInsets.only(
                             left: 40.0, right: 40, top: 20, bottom: 20),
                         child: Text(
-                          "Apidiro",
-                          style: TextStyle(fontSize: 20),
+                          l10n.submit,
+                          style: const TextStyle(fontSize: 20),
                         ),
                       ),
                     ),
@@ -262,6 +261,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   }
 
   Widget _buildVerseField(int index) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       key: ValueKey(index),
       color: colorController.backgroundColor.value,
@@ -275,19 +275,22 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                 maxLines: null,
                 style: TextStyle(color: colorController.textColor.value),
                 decoration: InputDecoration(
-                  labelText: 'Andininy ${index + 1}',
+                  labelText: '${l10n.verse} ${index + 1}',
                   labelStyle: TextStyle(color: colorController.textColor.value),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: colorController.textColor.value),
+                    borderSide:
+                        BorderSide(color: colorController.textColor.value),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: colorController.textColor.value),
+                    borderSide:
+                        BorderSide(color: colorController.textColor.value),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(color: colorController.primaryColor.value),
+                    borderSide:
+                        BorderSide(color: colorController.primaryColor.value),
                   ),
                 ),
               ),
@@ -303,7 +306,8 @@ class EditHymnScreenState extends State<EditHymnScreen> {
             ),
             ReorderableDragStartListener(
               index: index,
-              child: Icon(Icons.drag_handle, color: colorController.iconColor.value),
+              child: Icon(Icons.drag_handle,
+                  color: colorController.iconColor.value),
             ),
           ],
         ),
