@@ -70,6 +70,7 @@ flutter:
     - assets/json/
     - assets/baiboly/Testameta taloha/
     - assets/baiboly/Testameta vaovao/
+    - pubspec.yaml
 
 flutter_launcher_icons:
   image_path_android: "assets/images/icon.png"

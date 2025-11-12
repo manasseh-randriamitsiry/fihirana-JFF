@@ -2,6 +2,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import 'package:fihirana/services/pubspec_service.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 
@@ -14,6 +15,7 @@ class AboutScreen extends StatefulWidget {
 
 class _AboutScreenState extends State<AboutScreen> {
   String _appVersion = '1.0.0';
+  String _appName = 'Fihirana';
   bool _checkingForUpdates = false;
   bool _updateAvailable = false;
   bool _flexibleUpdateDownloaded = false;
@@ -22,7 +24,7 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
-    _getAppVersion();
+    _getAppInfo();
 
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
@@ -41,10 +43,12 @@ class _AboutScreenState extends State<AboutScreen> {
     });
   }
 
-  Future<void> _getAppVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
+  Future<void> _getAppInfo() async {
+    final appVersion = await PubspecService.getAppVersion();
+    final appName = await PubspecService.getAppName();
     setState(() {
-      _appVersion = packageInfo.version;
+      _appVersion = appVersion;
+      _appName = appName;
     });
   }
 
@@ -199,11 +203,11 @@ class _AboutScreenState extends State<AboutScreen> {
                      ),
                    ),
                  ),
-                 const SizedBox(height: 10),
-                Text(
-                  'Fihirana JFF',
-                  style: TextStyle(fontSize: 18, color: colorController.textColor.value),
-                ),
+const SizedBox(height: 10),
+                 Text(
+                   '$_appName JFF',
+                   style: TextStyle(fontSize: 18, color: colorController.textColor.value),
+                 ),
                 const SizedBox(height: 5),
                 Text(
                   'Foibe: Antsororokavo Fianarantsoa 301',

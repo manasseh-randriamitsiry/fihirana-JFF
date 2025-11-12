@@ -10,6 +10,7 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'apk_download_service.dart';
+import 'pubspec_service.dart';
 
 class VersionCheckService {
   static const String GITHUB_API_URL =
@@ -80,8 +81,7 @@ static Future<void> checkForUpdate() async {
       final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
       final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
 
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
       
       // First check GitHub for the latest version
       final githubHasUpdate = await _checkGitHubVersionOnly();
@@ -172,8 +172,7 @@ static Future<void> checkForUpdate() async {
     } else if (receivedAction.buttonKeyPressed == 'DISMISS') {
       // Save the current version as dismissed to prevent future notifications
       final prefs = await SharedPreferences.getInstance();
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
       await prefs.setString(DISMISSED_VERSION_KEY, currentVersion);
       
       stopPeriodicCheck();
@@ -247,17 +246,16 @@ static Future<bool> checkForUpdateManually() async {
       final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
       
       // Check GitHub for accurate version info
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
 
       // Debug mode: skip update check for testing (uncomment to disable updates)
-      if (kDebugMode) {
-        if (kDebugMode) {
-          print('🔍 Debug mode: Skipping manual update check for testing');
-        }
-        await clearUpdateState();
-        return false;
-      }
+      // if (kDebugMode) {
+      //   if (kDebugMode) {
+      //     print('🔍 Debug mode: Skipping manual update check for testing');
+      //   }
+      //   await clearUpdateState();
+      //   return false;
+      // }
 
       final response = await http.get(
         Uri.parse(GITHUB_API_URL),
@@ -344,17 +342,16 @@ static Future<bool> checkForUpdateManually() async {
 
   static Future<bool> _checkGitHubVersionOnly() async {
     try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
 
       // Debug mode: skip update check for testing (uncomment to disable updates)
-      if (kDebugMode) {
-        if (kDebugMode) {
-          print('🔍 Debug mode: Skipping update check for testing');
-        }
-        await clearUpdateState();
-        return false;
-      }
+      // if (kDebugMode) {
+      //   if (kDebugMode) {
+      //     print('🔍 Debug mode: Skipping update check for testing');
+      //   }
+      //   await clearUpdateState();
+      //   return false;
+      // }
 
       final response = await http.get(
         Uri.parse(GITHUB_API_URL),
@@ -403,8 +400,7 @@ static Future<bool> checkForUpdateManually() async {
       final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
       final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
 
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
 
       final response = await http.get(
         Uri.parse(GITHUB_API_URL),
