@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import './user_management_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -27,10 +28,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Future<void> _checkAdminAccess() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user?.email != 'manassehrandriamitsiry@gmail.com') {
+      final l10n = AppLocalizations.of(context)!;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Tsy manana alalana hiditra amin\'ny admin panel ianao'),
+        SnackBar(
+          content: Text(l10n.noAdminPermission),
           backgroundColor: Colors.red,
         ),
       );
@@ -40,6 +42,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Future<void> _deleteSelectedHymns() async {
     if (selectedHymns.isEmpty) return;
 
+    final l10n = AppLocalizations.of(context)!;
     setState(() => isLoading = true);
     try {
       for (String hymnId in selectedHymns) {
@@ -47,15 +50,15 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       }
       selectedHymns.clear();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Voafafa daholo ny hira nosafidiana'),
+        SnackBar(
+          content: Text(l10n.selectedHymnsDeleted),
           backgroundColor: Colors.green,
         ),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Nisy olana: $e'),
+          content: Text('${l10n.error}: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -65,9 +68,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Panel'),
+        title: Text(l10n.adminPanel),
         actions: [
           IconButton(
             icon: const Icon(Icons.people, color: Colors.white),
@@ -84,7 +88,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         stream: _hymnService.getFirebaseHymnsStream(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text('${l10n.error}: ${snapshot.error}'));
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -96,7 +100,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
           hymns.sort((a, b) => b.createdAt.compareTo(a.createdAt));
 
           if (hymns.isEmpty) {
-            return const Center(child: Text('Tsy misy hira'));
+            return Center(child: Text(l10n.noHymns));
           }
 
           return ListView.builder(
@@ -124,10 +128,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Nampiditra: ${hymn.createdBy}'),
+                      Text('${l10n.createdBy}: ${hymn.createdBy}'),
                       if (hymn.createdByEmail != null)
                         Text('Email: ${hymn.createdByEmail}'),
-                      Text('Daty: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}'),
+                      Text(
+                          '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}'),
                     ],
                   ),
                 ),

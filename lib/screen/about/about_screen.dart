@@ -5,6 +5,7 @@ import 'package:fihirana/services/version_check_service.dart';
 import 'package:fihirana/services/pubspec_service.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -82,8 +83,8 @@ class _AboutScreenState extends State<AboutScreen> {
     });
 
     try {
-
-      final updateAvailable = await VersionCheckService.checkForUpdateManually();
+      final updateAvailable =
+          await VersionCheckService.checkForUpdateManually();
 
       if (mounted) {
         setState(() {
@@ -98,9 +99,10 @@ class _AboutScreenState extends State<AboutScreen> {
         });
 
         if (context.mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tsy afaka vaovao'),
+            SnackBar(
+              content: Text(l10n.errorCheckingUpdate),
               backgroundColor: Colors.red,
             ),
           );
@@ -123,9 +125,10 @@ class _AboutScreenState extends State<AboutScreen> {
         });
 
         if (context.mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Tsy afaka mandefa: ${e.toString()}'),
+              content: Text('${l10n.errorDownloadingUpdate}: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -140,10 +143,9 @@ class _AboutScreenState extends State<AboutScreen> {
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
@@ -173,52 +175,56 @@ class _AboutScreenState extends State<AboutScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                 const SizedBox(height: 20),
-                 Neumorphic(
-                   style: NeumorphicStyle(
-                     color: colorController.backgroundColor.value,
-                     boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-                     depth: 4,
-                     intensity: 0.8,
-                   ),
-                   child: Padding(
-                     padding: const EdgeInsets.all(16.0),
-                     child: Column(
-                       children: [
-                         Icon(
-                           Icons.music_note,
-                           size: 60,
-                           color: colorController.primaryColor.value,
-                         ),
-                         const SizedBox(height: 10),
-                         Text(
-                           'Version $_appVersion',
-                           style: TextStyle(
-                             fontSize: 16,
-                             fontWeight: FontWeight.bold,
-                             color: colorController.textColor.value,
-                           ),
-                         ),
-                       ],
-                     ),
-                   ),
-                 ),
-const SizedBox(height: 10),
-                 Text(
-                   '$_appName JFF',
-                   style: TextStyle(fontSize: 18, color: colorController.textColor.value),
-                 ),
+                const SizedBox(height: 20),
+                Neumorphic(
+                  style: NeumorphicStyle(
+                    color: colorController.backgroundColor.value,
+                    boxShape:
+                        NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+                    depth: 4,
+                    intensity: 0.8,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.music_note,
+                          size: 60,
+                          color: colorController.primaryColor.value,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Version $_appVersion',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: colorController.textColor.value,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  '$_appName JFF',
+                  style: TextStyle(
+                      fontSize: 18, color: colorController.textColor.value),
+                ),
                 const SizedBox(height: 5),
                 Text(
                   'Foibe: Antsororokavo Fianarantsoa 301',
-                  style: TextStyle(fontSize: 18, color: colorController.textColor.value),
+                  style: TextStyle(
+                      fontSize: 18, color: colorController.textColor.value),
                 ),
                 const SizedBox(height: 20),
                 NeumorphicButton(
                   onPressed: () => _makePhoneCall('+261342943971'),
                   style: NeumorphicStyle(
                     color: colorController.backgroundColor.value,
-                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    boxShape:
+                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
                     depth: 4,
                     intensity: 0.8,
                   ),
@@ -229,23 +235,26 @@ const SizedBox(height: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.phone, color: colorController.iconColor.value),
+                        Icon(Icons.phone,
+                            color: colorController.iconColor.value),
                         const SizedBox(width: 8),
                         Text(
                           '+261 34 29 439 71',
-                          style: TextStyle(color: colorController.textColor.value),
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-
                 NeumorphicButton(
-                  onPressed: () => _sendEmail('manassehrandriamitsiry@gmail.com'),
+                  onPressed: () =>
+                      _sendEmail('manassehrandriamitsiry@gmail.com'),
                   style: NeumorphicStyle(
                     color: colorController.backgroundColor.value,
-                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    boxShape:
+                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
                     depth: 4,
                     intensity: 0.8,
                   ),
@@ -256,23 +265,26 @@ const SizedBox(height: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.email, color: colorController.iconColor.value),
+                        Icon(Icons.email,
+                            color: colorController.iconColor.value),
                         const SizedBox(width: 8),
                         Text(
                           'Email',
-                          style: TextStyle(color: colorController.textColor.value),
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-
                 NeumorphicButton(
-                  onPressed: () => _launchURL('https://github.com/manasseh-randriamitsiry'),
+                  onPressed: () =>
+                      _launchURL('https://github.com/manasseh-randriamitsiry'),
                   style: NeumorphicStyle(
                     color: colorController.backgroundColor.value,
-                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    boxShape:
+                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
                     depth: 4,
                     intensity: 0.8,
                   ),
@@ -283,23 +295,25 @@ const SizedBox(height: 10),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.code, color: colorController.iconColor.value),
+                        Icon(Icons.code,
+                            color: colorController.iconColor.value),
                         const SizedBox(width: 8),
                         Text(
                           'GitHub',
-                          style: TextStyle(color: colorController.textColor.value),
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 10),
-
                 NeumorphicButton(
                   onPressed: () => _makePhoneCall('*111*1*2*0342943971#'),
                   style: NeumorphicStyle(
                     color: Colors.green.withValues(alpha: 0.1),
-                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    boxShape:
+                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
                     depth: 4,
                     intensity: 0.8,
                   ),
@@ -313,21 +327,20 @@ const SizedBox(height: 10),
                         Icon(Icons.monetization_on, color: Colors.green),
                         const SizedBox(width: 8),
                         Text(
-                          'fanohanana',
+                          l10n.support,
                           style: const TextStyle(color: Colors.green),
                         ),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
                 NeumorphicButton(
                   onPressed: _checkingForUpdates ? null : _checkForUpdates,
                   style: NeumorphicStyle(
                     color: colorController.backgroundColor.value,
-                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                    boxShape:
+                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
                     depth: 4,
                     intensity: 0.8,
                   ),
@@ -339,33 +352,38 @@ const SizedBox(height: 10),
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _checkingForUpdates
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(colorController.primaryColor.value),
-                              ),
-                            )
-                          : Icon(Icons.system_update, color: colorController.iconColor.value),
+                            ? SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      colorController.primaryColor.value),
+                                ),
+                              )
+                            : Icon(Icons.system_update,
+                                color: colorController.iconColor.value),
                         const SizedBox(width: 8),
                         Text(
-                          _checkingForUpdates ? 'vaovao...' : 'vaovao',
-                          style: TextStyle(color: colorController.textColor.value),
+                          _checkingForUpdates
+                              ? l10n.checkingForUpdates
+                              : l10n.checkForUpdates,
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                       ],
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 10),
-
                 if (_updateAvailable) ...[
                   NeumorphicButton(
-                    onPressed: _checkingForUpdates ? null : _downloadAndInstallUpdate,
+                    onPressed:
+                        _checkingForUpdates ? null : _downloadAndInstallUpdate,
                     style: NeumorphicStyle(
                       color: Colors.orange.withValues(alpha: 0.1),
-                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+                      boxShape: NeumorphicBoxShape.roundRect(
+                          BorderRadius.circular(12)),
                       depth: 4,
                       intensity: 0.8,
                     ),
@@ -377,29 +395,30 @@ const SizedBox(height: 10),
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _checkingForUpdates
-                            ? SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                                ),
-                              )
-                            : Icon(Icons.download, color: Colors.orange),
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.orange),
+                                  ),
+                                )
+                              : Icon(Icons.download, color: Colors.orange),
                           const SizedBox(width: 8),
-                            Text(
-                              _flexibleUpdateDownloaded
-                                ? 'Download & Install'
-                                : (_checkingForUpdates ? 'Download...' : 'Download'),
-                              style: TextStyle(color: Colors.orange),
-                            ),
+                          Text(
+                            _flexibleUpdateDownloaded
+                                ? l10n.downloadAndInstall
+                                : (_checkingForUpdates
+                                    ? l10n.downloading
+                                    : l10n.download),
+                            style: TextStyle(color: Colors.orange),
+                          ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
-
-
                 ],
                 const SizedBox(height: 10),
                 Text(

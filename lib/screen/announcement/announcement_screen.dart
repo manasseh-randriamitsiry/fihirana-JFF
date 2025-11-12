@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../models/announcement.dart';
 import '../../services/announcement_service.dart';
 import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   const AnnouncementScreen({super.key});
@@ -30,13 +31,14 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     _titleController.clear();
     _messageController.clear();
     _selectedExpirationDate = null;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
         title: Text(
-          'Hamorona filazana',
+          l10n.createAnnouncement,
           style: TextStyle(color: colorController.textColor.value),
         ),
         content: Column(
@@ -45,7 +47,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
-                labelText: 'Lohateny',
+                labelText: l10n.title,
                 labelStyle: TextStyle(color: colorController.textColor.value),
               ),
               style: TextStyle(color: colorController.textColor.value),
@@ -53,24 +55,24 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             TextField(
               controller: _messageController,
               decoration: InputDecoration(
-                labelText: 'Hafatra',
+                labelText: l10n.message,
                 labelStyle: TextStyle(color: colorController.textColor.value),
               ),
               style: TextStyle(color: colorController.textColor.value),
               maxLines: 3,
             ),
             const SizedBox(height: 10),
-
             ListTile(
               title: Text(
-                'Daty farany isehoany',
+                l10n.expirationDate,
                 style: TextStyle(color: colorController.textColor.value),
               ),
               subtitle: Text(
                 _selectedExpirationDate != null
                     ? DateFormat('dd/MM/yyyy').format(_selectedExpirationDate!)
-                    : 'Tsy misy daty',
-                style: TextStyle(color: colorController.textColor.value.withOpacity(0.7)),
+                    : l10n.noDate,
+                style: TextStyle(
+                    color: colorController.textColor.value.withOpacity(0.7)),
               ),
               trailing: Icon(
                 Icons.calendar_today,
@@ -84,7 +86,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Hiala',
+              l10n.cancel2,
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
@@ -101,7 +103,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
               Navigator.pop(context);
             },
             child: Text(
-              'Hamorona',
+              l10n.create,
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
@@ -114,13 +116,14 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     _titleController.text = announcement.title;
     _messageController.text = announcement.message;
     _selectedExpirationDate = announcement.expiresAt;
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
         title: Text(
-          'Hanova filazana',
+          l10n.editAnnouncement,
           style: TextStyle(color: colorController.textColor.value),
         ),
         content: Column(
@@ -129,7 +132,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
-                labelText: 'Lohateny',
+                labelText: l10n.title,
                 labelStyle: TextStyle(color: colorController.textColor.value),
               ),
               style: TextStyle(color: colorController.textColor.value),
@@ -137,24 +140,24 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             TextField(
               controller: _messageController,
               decoration: InputDecoration(
-                labelText: 'Hafatra',
+                labelText: l10n.message,
                 labelStyle: TextStyle(color: colorController.textColor.value),
               ),
               style: TextStyle(color: colorController.textColor.value),
               maxLines: 3,
             ),
             const SizedBox(height: 10),
-
             ListTile(
               title: Text(
-                'Daty faran\'izay',
+                l10n.expirationDate,
                 style: TextStyle(color: colorController.textColor.value),
               ),
               subtitle: Text(
                 _selectedExpirationDate != null
                     ? DateFormat('dd/MM/yyyy').format(_selectedExpirationDate!)
-                    : 'Tsy misy daty faran\'izay',
-                style: TextStyle(color: colorController.textColor.value.withOpacity(0.7)),
+                    : l10n.noExpirationDate,
+                style: TextStyle(
+                    color: colorController.textColor.value.withOpacity(0.7)),
               ),
               trailing: Icon(
                 Icons.calendar_today,
@@ -168,7 +171,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Hiala',
+              l10n.cancel2,
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
@@ -186,7 +189,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
               Navigator.pop(context);
             },
             child: Text(
-              'Hanova',
+              l10n.update,
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
@@ -301,9 +304,10 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           }
 
           final announcements = snapshot.data?.docs
-              .map((doc) => Announcement.fromFirestore(doc))
-              .where((announcement) => announcement.isActive())
-              .toList() ?? [];
+                  .map((doc) => Announcement.fromFirestore(doc))
+                  .where((announcement) => announcement.isActive())
+                  .toList() ??
+              [];
 
           if (announcements.isEmpty) {
             return Center(
@@ -347,7 +351,6 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                           fontSize: 12,
                         ),
                       ),
-
                       if (announcement.expiresAt != null) ...[
                         const SizedBox(height: 4),
                         Text(
@@ -355,7 +358,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                           style: TextStyle(
                             color: announcement.isExpired()
                                 ? Colors.red
-                                : colorController.textColor.value.withOpacity(0.7),
+                                : colorController.textColor.value
+                                    .withOpacity(0.7),
                             fontSize: 12,
                           ),
                         ),

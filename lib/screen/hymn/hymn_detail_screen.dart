@@ -6,14 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../models/note.dart';
 import '../../services/note_service.dart';
 import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
-import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/auth_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -117,6 +119,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
@@ -231,8 +234,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                             color: colorController.iconColor.value,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
-                            'Hanova',
+                          Text(
+                            l10n.edit,
                           ),
                         ],
                       ),
@@ -250,9 +253,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            _userNote != null
-                                ? 'Hanova ny naoty'
-                                : 'Hanampy naoty',
+                            _userNote != null ? l10n.editNote : l10n.add,
                           ),
                         ],
                       ),
@@ -266,8 +267,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           color: colorController.iconColor.value,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          "Haben'ny soratra",
+                        Text(
+                          l10n.font,
                         ),
                       ],
                     ),
@@ -304,7 +305,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
 
                         if (isAdmin) {
                           return Text(
-                            'Nampiditra: ${_hymn!.createdBy}${_hymn!.createdByEmail != null ? ' (${_hymn!.createdByEmail})' : ''}',
+                            l10n.createdBy(_hymn!.createdBy +
+                                (_hymn!.createdByEmail != null
+                                    ? ' (${_hymn!.createdByEmail})'
+                                    : '')),
                             style: TextStyle(
                               fontSize: _fontSize * 0.8,
                               color: colorController.textColor.value
@@ -341,7 +345,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                                     Row(
                                       children: [
                                         Text(
-                                          'Isan\'andininy:',
+                                          l10n.everyVerseChorus,
                                           style: TextStyle(
                                             fontSize: _fontSize + 2,
                                             fontWeight: FontWeight.bold,
@@ -551,7 +555,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           );
                         },
                       ),
-
                     for (int i = 0; i < (_hymn?.verses.length ?? 0); i++) ...[
                       Padding(
                         padding: const EdgeInsets.symmetric(
@@ -638,6 +641,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
       context: context,
       isScrollControlled: true,
       builder: (BuildContext context) {
+        final l10n = AppLocalizations.of(context)!;
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
             return Container(
@@ -656,9 +660,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        note != null
-                            ? 'Hanova naoty'
-                            : 'Ny naoty manokana',
+                        note != null ? 'Hanova naoty' : 'Ny naoty manokana',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -720,9 +722,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (note != null ||
-                          _userNote !=
-                              null)
+                      if (note != null || _userNote != null)
                         TextButton(
                           onPressed: () async {
                             final confirmed = await showDialog<bool>(
@@ -777,22 +777,22 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                                 Navigator.pop(context);
                               }
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Voafafa ny naoty'),
+                                SnackBar(
+                                  content: Text(l10n.noteDeleted),
                                   backgroundColor: Colors.green,
                                 ),
                               );
                             }
                           },
-                          child: const Text(
-                            'Hamafa',
-                            style: TextStyle(color: Colors.red),
+                          child: Text(
+                            l10n.delete,
+                            style: const TextStyle(color: Colors.red),
                           ),
                         ),
                       TextButton(
                         onPressed: () => Navigator.pop(context),
                         child: Text(
-                          'Aoka ihany',
+                          l10n.cancel,
                           style:
                               TextStyle(color: colorController.textColor.value),
                         ),
@@ -826,8 +826,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                               SnackBar(
                                 content: Text(
                                   content.isEmpty
-                                      ? 'Voafafa ny naoty'
-                                      : 'Voatahiry ny naoty',
+                                      ? l10n.noteDeleted
+                                      : l10n.noteSaved,
                                 ),
                                 backgroundColor:
                                     content.isEmpty ? Colors.red : Colors.green,
@@ -840,7 +840,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           foregroundColor:
                               colorController.backgroundColor.value,
                         ),
-                        child: const Text('Tehirizo'),
+                        child: Text(l10n.save),
                       ),
                     ],
                   ),
@@ -926,6 +926,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
       backgroundColor: widget.colorController.backgroundColor.value,
       content: SizedBox(
@@ -936,7 +937,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Karoka hira...',
+                hintText: l10n.searchHymns,
                 hintStyle: TextStyle(
                   color:
                       widget.colorController.textColor.value.withOpacity(0.7),
@@ -958,7 +959,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                   : _hymns.isEmpty
                       ? Center(
                           child: Text(
-                            'Tsy misy hira',
+                            l10n.noHymnsFound,
                             style: TextStyle(
                               color: widget.colorController.textColor.value,
                             ),

@@ -6,6 +6,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../utility/snackbar_utility.dart';
 import '../hymn/edit_hymn_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class UserHymnsScreen extends StatefulWidget {
   final String userId;
@@ -30,11 +31,10 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
   String _sortBy = 'recent';
 
   Stream<List<Hymn>> _getHymnsStream() async* {
-
     final allHymns = await _hymnService.getFirebaseHymnsStream().first;
-    final userHymns = allHymns.where((hymn) =>
-      hymn.createdByEmail == widget.userEmail
-    ).toList();
+    final userHymns = allHymns
+        .where((hymn) => hymn.createdByEmail == widget.userEmail)
+        .toList();
 
     switch (_sortBy) {
       case 'recent':
@@ -58,42 +58,45 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
   Future<void> _deleteHymn(String hymnId) async {
     try {
       await _hymnService.deleteHymn(hymnId);
+      final l10n = AppLocalizations.of(Get.context!)!;
       SnackbarUtility.showSuccess(
-        title: 'Fahombiazana',
-        message: 'Voafafa ny hira',
+        title: l10n.success,
+        message: l10n.hymnDeletedSuccess,
       );
     } catch (e) {
+      final l10n = AppLocalizations.of(Get.context!)!;
       SnackbarUtility.showError(
-        title: 'Hadisoana',
-        message: 'Tsy nahomby ny famafana: $e',
+        title: l10n.errorLabel,
+        message: '${l10n.deleteFailed}: $e',
       );
     }
   }
 
   Future<void> _showDeleteConfirmation(BuildContext context, Hymn hymn) async {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: colorController.backgroundColor.value,
           title: Text(
-            'Hamafa hira?',
+            l10n.deleteHymnQuestion,
             style: TextStyle(color: colorController.textColor.value),
           ),
           content: Text(
-            'Tena hamafa ny hira "${hymn.title}" ve ianao?',
+            l10n.confirmDeleteHymn(hymn.title),
             style: TextStyle(color: colorController.textColor.value),
           ),
           actions: <Widget>[
             TextButton(
               child: Text(
-                'Tsia',
+                l10n.no,
                 style: TextStyle(color: colorController.textColor.value),
               ),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text('Eny', style: TextStyle(color: Colors.red)),
+              child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteHymn(hymn.id);
@@ -107,6 +110,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
@@ -152,21 +156,21 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
               PopupMenuItem<String>(
                 value: 'recent',
                 child: Text(
-                  'Vaovao indrindra',
+                  l10n.newest,
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'old',
                 child: Text(
-                  'Taloha indrindra',
+                  l10n.oldest,
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               ),
               PopupMenuItem<String>(
                 value: 'number',
                 child: Text(
-                  'Laharana',
+                  l10n.sortByNumber,
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               ),
@@ -180,7 +184,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Nisy hadisoana: ${snapshot.error}',
+                '${l10n.errorOccurred}: ${snapshot.error}',
                 style: TextStyle(color: colorController.textColor.value),
               ),
             );
@@ -195,7 +199,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
           if (hymns.isEmpty) {
             return Center(
               child: Text(
-                'Tsy misy hira',
+                l10n.noHymns,
                 style: TextStyle(color: colorController.textColor.value),
               ),
             );

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/hymn.dart';
 import '../utility/navigation_utility.dart';
 import '../services/hymn_service.dart';
+import '../l10n/app_localizations.dart';
 
 class HymnListItem extends StatelessWidget {
   final Hymn hymn;
@@ -24,6 +25,7 @@ class HymnListItem extends StatelessWidget {
   Future<bool> _confirmDeletion(BuildContext context) async {
     final confirmationController = TextEditingController();
     bool isConfirmed = false;
+    final l10n = AppLocalizations.of(context)!;
 
     await showDialog<void>(
       context: context,
@@ -34,14 +36,14 @@ class HymnListItem extends StatelessWidget {
             return AlertDialog(
               backgroundColor: backgroundColor,
               title: Text(
-                'Hamafa hira?',
+                l10n.deleteHymnQuestion,
                 style: TextStyle(color: textColor),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Raha te hamafa ny hira "${hymn.title}" dia soraty hoe "eny" eo ambany',
+                    l10n.confirmDeleteHymn(hymn.title),
                     style: TextStyle(color: textColor),
                   ),
                   const SizedBox(height: 16),
@@ -71,10 +73,10 @@ class HymnListItem extends StatelessWidget {
                         Navigator.of(context).pop();
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
+                          SnackBar(
                             content: Text(
-                              'Soraty hoe "eny" mba hamafana',
-                              style: TextStyle(color: Colors.white),
+                              l10n.typeYesToConfirm,
+                              style: const TextStyle(color: Colors.white),
                             ),
                             backgroundColor: Colors.red,
                           ),
@@ -86,22 +88,22 @@ class HymnListItem extends StatelessWidget {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text('Ajanona', style: TextStyle(color: textColor)),
+                  child: Text(l10n.cancel, style: TextStyle(color: textColor)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
-                  child:
-                      const Text('Fafao', style: TextStyle(color: Colors.red)),
+                  child: Text(l10n.delete,
+                      style: const TextStyle(color: Colors.red)),
                   onPressed: () {
                     if (confirmationController.text.toLowerCase() == 'eny') {
                       isConfirmed = true;
                       Navigator.of(context).pop();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text(
-                            'Soraty hoe "eny" mba hamafana',
-                            style: TextStyle(color: Colors.white),
+                            l10n.typeYesToConfirm,
+                            style: const TextStyle(color: Colors.white),
                           ),
                           backgroundColor: Colors.red,
                         ),
@@ -120,23 +122,25 @@ class HymnListItem extends StatelessWidget {
   }
 
   Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: backgroundColor,
-          title: Text('Hamafa hira?', style: TextStyle(color: textColor)),
+          title:
+              Text(l10n.deleteHymnQuestion, style: TextStyle(color: textColor)),
           content: Text(
-            'Tena hamafa ny hira "${hymn.title}" ve ianao?',
+            l10n.confirmDeleteHymn(hymn.title),
             style: TextStyle(color: textColor),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Tsia', style: TextStyle(color: textColor)),
+              child: Text(l10n.no, style: TextStyle(color: textColor)),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text('Eny', style: TextStyle(color: Colors.red)),
+              child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
               onPressed: () async {
                 Navigator.of(context).pop();
 
@@ -144,8 +148,8 @@ class HymnListItem extends StatelessWidget {
 
                 if (!confirmed) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Tsy nahomby ny famafana.'),
+                    SnackBar(
+                      content: Text(l10n.deleteHymnFailed),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -155,15 +159,15 @@ class HymnListItem extends StatelessWidget {
                 try {
                   await _hymnService.deleteHymn(hymn.id);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Voafafa ny hira'),
+                    SnackBar(
+                      content: Text(l10n.hymnDeletedSuccess),
                       backgroundColor: Colors.green,
                     ),
                   );
                 } catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Nisy olana: $e'),
+                      content: Text('${l10n.error}: $e'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -182,7 +186,7 @@ class HymnListItem extends StatelessWidget {
     final isLoggedIn = user != null;
     final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
 
-return Padding(
+    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       child: Card(
         elevation: 2,

@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'language_selection_page.dart';
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -255,7 +256,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                       ],
                     ),
                   ),
-                  const ModernDotsIndicator(active: 0, number: 3),
+                  const ModernDotsIndicator(active: 0, number: 4),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -337,7 +338,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                       ],
                     ),
                   ),
-                  const ModernDotsIndicator(active: 1, number: 3),
+                  const ModernDotsIndicator(active: 1, number: 4),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -559,7 +560,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                       ),
                     ),
                     const SizedBox(height: 30),
-                    const ModernDotsIndicator(active: 2, number: 3),
+                    const ModernDotsIndicator(active: 2, number: 4),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -568,23 +569,37 @@ class _SplashScreen1State extends State<SplashScreen1>
           ),
         ),
       ),
+      // Page 4: Language Selection
+      const LanguageSelectionPage(),
     ];
 
-    return Scaffold(
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: LiquidSwipe(
-          pages: pages,
-          enableLoop: false,
-          fullTransitionValue: 400,
-          enableSideReveal: true,
-          waveType: WaveType.liquidReveal,
-          positionSlideIcon: 0.75,
-          onPageChangeCallback: (page) {
-            setState(() {
-              _currentPage = page;
-            });
-          },
+    return Material(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFE8F5E9),
+              Color(0xFFC8E6C9),
+            ],
+          ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: LiquidSwipe(
+            pages: pages,
+            enableLoop: false,
+            fullTransitionValue: 400,
+            enableSideReveal: true,
+            waveType: WaveType.liquidReveal,
+            positionSlideIcon: 0.75,
+            onPageChangeCallback: (page) {
+              setState(() {
+                _currentPage = page;
+              });
+            },
+          ),
         ),
       ),
     );
