@@ -47,6 +47,23 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             isDebuggable = false
+            
+            // Ensure assets are properly included in release builds
+            packaging {
+                resources {
+                    excludes += "/META-INF/{AL2.0,LGPL2.1}"
+                    // Include all assets
+                    pickFirsts += "**/*.json"
+                    pickFirsts += "**/*.ttf"
+                    pickFirsts += "**/*.png"
+                    pickFirsts += "**/*.svg"
+                }
+            }
+        }
+        
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+            isDebuggable = true
         }
     }
 

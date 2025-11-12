@@ -72,6 +72,19 @@ flutter:
     - assets/baiboly/Testameta vaovao/
     - pubspec.yaml
 
+  # Explicitly include common asset files to ensure they're not tree-shaken in release mode
+  fonts:
+    - family: Lato
+      fonts:
+        - asset: assets/fonts/Lato-Regular.ttf
+        - asset: assets/fonts/Lato-Bold.ttf
+          weight: 700
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+
 flutter_launcher_icons:
   image_path_android: "assets/images/icon.png"
   image_path_ios: "assets/images/icon.png"

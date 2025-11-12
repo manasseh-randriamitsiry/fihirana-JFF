@@ -24,6 +24,7 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
 import 'services/firebase_sync_service.dart';
+import 'services/bible_service.dart';
 
 // Fallback localization delegate for unsupported locales
 class _FallbackMaterialLocalizationsDelegate
@@ -134,9 +135,15 @@ Future<void> main() async {
   Get.put(HymnService());
   Get.put(BackgroundService());
   Get.put(FirebaseSyncService());
+  // Initialize Bible service
+  Get.put(BibleService());
 
   await colorController.loadColors();
   await themeController.loadThemeFromPrefs();
+
+  // Initialize Bible service
+  final bibleService = Get.find<BibleService>();
+  await bibleService.initialize();
 
   AwesomeNotifications().setListeners(
     onActionReceivedMethod: (ReceivedAction receivedAction) async {
