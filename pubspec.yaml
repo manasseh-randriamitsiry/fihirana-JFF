@@ -70,7 +70,6 @@ flutter:
     - assets/json/
     - assets/baiboly/Testameta taloha/
     - assets/baiboly/Testameta vaovao/
-    - pubspec.yaml
 
   # Explicitly include common asset files to ensure they're not tree-shaken in release mode
   fonts:
