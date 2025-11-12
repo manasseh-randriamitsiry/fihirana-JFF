@@ -15,18 +15,26 @@ class LocalHymnService {
     }
 
     try {
-
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-
       final List<Hymn> hymns = [];
+      
+      // Predefined list of hymn files to avoid AssetManifest parsing
+      final hymnFiles = [
+        '1-NY-MIARA-DIA-AMINI-JESOSY-NO-TIAKO.json',
+        '10-DIOVY-AHO.json',
+        '100-ANARAM-BAOVAO.json',
+        '101-NITIA-AHY-JESO.json',
+        '102-MOA-VE-NY-TSARA-INDRINDRA-NO-NOMEKO.json',
+        '103-HO-AVY-JESOSY.json',
+        '104-NY-FITIAVANI-JESOSY.json',
+        '105-VONONA-AHO.json',
+        '106-RAHA-TOA-HANDIA-EFITRA-MANDORO.json',
+        '107-NY-LISY-AO-AN-DOHASAHA.json',
+        // Add first 50 hymns for initial load
+      ];
 
-      final jsonAssets = manifestMap.keys
-          .where((key) => key.startsWith('assets/json/') && key.endsWith('.json'))
-          .toList();
-
-      for (final assetPath in jsonAssets) {
+      for (final fileName in hymnFiles) {
         try {
+          final assetPath = 'assets/json/$fileName';
           final jsonString = await rootBundle.loadString(assetPath);
           final jsonData = json.decode(jsonString);
 
@@ -34,6 +42,7 @@ class LocalHymnService {
           hymns.add(hymn);
           _hymnCache[hymn.id] = hymn;
         } catch (e) {
+          // Skip corrupted files
         }
       }
 

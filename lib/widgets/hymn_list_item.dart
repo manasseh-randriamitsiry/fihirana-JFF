@@ -1,8 +1,10 @@
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import '../models/hymn.dart';
 import '../utility/navigation_utility.dart';
 import '../services/hymn_service.dart';
+import '../controller/hymn_controller.dart';
 
 class HymnListItem extends StatelessWidget {
   final Hymn hymn;
@@ -244,15 +246,14 @@ style: NeumorphicStyle(
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              StreamBuilder<Map<String, String>>(
-                stream: _hymnService.getFavoriteStatusStream(),
-                builder: (context, snapshot) {
-                  final favoriteStatus = snapshot.data?[hymn.id] ?? '';
+              GetBuilder<HymnController>(
+                builder: (controller) {
+                  final favoriteStatus = controller.favoriteStatuses[hymn.id] ?? '';
                   final isFavorite = favoriteStatus.isNotEmpty;
 
                   return NeumorphicButton(
                     onPressed: onFavoritePressed,
-style: NeumorphicStyle(
+                    style: NeumorphicStyle(
                       shape: NeumorphicShape.concave,
                       boxShape: const NeumorphicBoxShape.circle(),
                       depth: isFavorite ? -2 : 2,

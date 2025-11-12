@@ -23,10 +23,19 @@ class AccueilScreen extends StatefulWidget {
 class AccueilScreenState extends State<AccueilScreen> {
   final HymnController _hymnController = Get.put(HymnController());
   bool _updateAvailable = false;
+  
+  // Cache expensive objects
+  late final NeumorphicThemeData _lightTheme;
+  late final NeumorphicThemeData _darkTheme;
+  late TextStyle _defaultTextStyle;
+  Color? _cachedTextColor;
+  Color? _cachedBackgroundColor;
+  Color? _cachedIconColor;
 
   @override
   void initState() {
     super.initState();
+    _initializeThemes();
 
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
@@ -35,6 +44,12 @@ class AccueilScreenState extends State<AccueilScreen> {
         });
       }
     });
+  }
+
+  void _initializeThemes() {
+    final colorController = Get.find<ColorController>();
+    _lightTheme = colorController.getNeumorphicLightTheme();
+    _darkTheme = colorController.getNeumorphicDarkTheme();
   }
 
   Future<void> _checkForUpdates() async {
@@ -61,110 +76,101 @@ class AccueilScreenState extends State<AccueilScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ColorController>(
-      builder: (colorController) => Obx(() {
+      builder: (colorController) {
+        // Only update cached values when colors actually change
         final textColor = colorController.textColor.value;
-        final accentColor = colorController.accentColor.value;
         final backgroundColor = colorController.backgroundColor.value;
         final iconColor = colorController.iconColor.value;
-        final defaultTextStyle = TextStyle(color: textColor, inherit: true);
+        
+        if (_cachedTextColor != textColor || 
+            _cachedBackgroundColor != backgroundColor || 
+            _cachedIconColor != iconColor) {
+          _cachedTextColor = textColor;
+          _cachedBackgroundColor = backgroundColor;
+          _cachedIconColor = iconColor;
+          _defaultTextStyle = TextStyle(color: textColor, inherit: true);
+        }
 
-return NeumorphicTheme(
+        return NeumorphicTheme(
           themeMode: colorController.themeMode,
-          theme: colorController.getNeumorphicLightTheme(),
-          darkTheme: colorController.getNeumorphicDarkTheme(),
+          theme: _lightTheme,
+          darkTheme: _darkTheme,
           child: Scaffold(
             backgroundColor: backgroundColor,
             appBar: AppBar(
-            backgroundColor: backgroundColor,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.menu, color: iconColor),
-              onPressed: widget.openDrawer,
-            ),
-            title: Text(
-              'JFF',
-              style: defaultTextStyle.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
+              backgroundColor: backgroundColor,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              leading: IconButton(
+                icon: Icon(Icons.menu, color: iconColor),
+                onPressed: widget.openDrawer,
               ),
-            ),
-            actions: [
-              if (_updateAvailable)
-                IconButton(
-                  icon: const Icon(Icons.system_update, color: Colors.orange),
-                  onPressed: _checkForUpdates,
+              title: Text(
+                'JFF',
+                style: _defaultTextStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 26,
                 ),
-              IconButton(
-                icon: Icon(Icons.favorite, color: iconColor),
-                onPressed: () => NavigationUtility.navigateToFavorites(),
               ),
-            ],
-          ),
-          body: Column(
-            children: [
-              HymnSearchField(
-                controller: _hymnController.searchController,
-                defaultTextStyle: defaultTextStyle,
-                textColor: textColor,
-                iconColor: iconColor,
-                backgroundColor: backgroundColor,
-                onChanged: () => setState(() {}),
-              ),
-              Expanded(
-                child: StreamBuilder<List<Hymn>>(
-                  stream: _hymnController.hymnsStream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          'Nisy olana: ${snapshot.error}',
-                          style: defaultTextStyle,
-                        ),
-                      );
-                    }
-
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final hymns =
-                        _hymnController.filterHymnList(snapshot.data ?? []);
-                    if (hymns.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'Tsy misy hira',
-                          style: defaultTextStyle,
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                      itemCount: hymns.length,
-                      itemBuilder: (context, index) {
-                        final hymn = hymns[index];
-                        return StreamBuilder<Map<String, String>>(
-                          stream: _hymnController.getFavoriteStatusStream(),
-                          builder: (context, snapshot) {
-                            return HymnListItem(
-                              hymn: hymn,
-                              textColor: textColor,
-                              backgroundColor: backgroundColor,
-                              onFavoritePressed: () =>
-                                  _hymnController.toggleFavorite(hymn),
-                            );
-                          },
-                        );
-                      },
-                    );
+              actions: [
+                if (_updateAvailable)
+                  IconButton(
+                    icon: const Icon(Icons.system_update, color: Colors.orange),
+                    onPressed: _checkForUpdates,
+                  ),
+                IconButton(
+                  icon: Icon(Icons.favorite, color: iconColor),
+                  onPressed: () => NavigationUtility.navigateToFavorites(),
+                ),
+              ],
+            ),
+            body: Column(
+              children: [
+                HymnSearchField(
+                  controller: _hymnController.searchController,
+                  defaultTextStyle: _defaultTextStyle,
+                  textColor: textColor,
+                  iconColor: iconColor,
+                  backgroundColor: backgroundColor,
+                  onChanged: () {
+                    _hymnController.update();
+                    setState(() {});
                   },
                 ),
-              ),
-],
-          ),
+                Expanded(
+                  child: GetBuilder<HymnController>(
+                    builder: (controller) {
+                      final hymns = controller.filterHymnList([]);
+                      if (hymns.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'Mandatsa ny data...',
+                            style: _defaultTextStyle,
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: hymns.length,
+                        itemBuilder: (context, index) {
+                          final hymn = hymns[index];
+                          return HymnListItem(
+                            hymn: hymn,
+                            textColor: textColor,
+                            backgroundColor: backgroundColor,
+                            onFavoritePressed: () =>
+                                controller.toggleFavorite(hymn),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         );
-      }),
+      },
     );
   }
 }

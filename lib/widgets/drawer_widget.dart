@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/services.dart';
@@ -44,34 +45,49 @@ class DrawerWidgetState extends State<DrawerWidget> {
     ],
   );
   GoogleSignInAccount? _currentUser;
+  StreamSubscription<User?>? _authSubscription;
+
+  late final Color _drawerColor;
+  late final Color _textColor;
+  late final Color _primaryColor;
+  late final Color _iconColor;
 
   @override
   void initState() {
     super.initState();
-    _checkAuthStatus();
     _loadUsername();
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
-      if (mounted) {
-        setState(() {
-          _currentUser = account;
-        });
-      }
-    });
+    _initializeAuth();
+    _initializeColors();
   }
 
-  void _checkAuthStatus() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+  void _initializeColors() {
+    _drawerColor = _colorController.drawerColor.value;
+    _textColor = _colorController.textColor.value;
+    _primaryColor = _colorController.primaryColor.value;
+    _iconColor = _colorController.iconColor.value;
+  }
+
+  void _initializeAuth() {
+    _authSubscription = _firebaseAuth.authStateChanges().listen((user) {
       if (mounted) {
+        setState(() {
+          _isAuthenticated = user != null;
+        });
         if (user != null) {
           _updateCurrentUser();
         } else {
           setState(() {
-            _isAuthenticated = false;
             _currentUser = null;
           });
         }
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
   }
 
   void _updateCurrentUser() async {
@@ -144,13 +160,13 @@ class DrawerWidgetState extends State<DrawerWidget> {
   @override
   Widget build(BuildContext context) {
     return Material(
-          color: _colorController.drawerColor.value,
+          color: _drawerColor,
           child: SafeArea(
             child: Theme(
               data: Theme.of(context).copyWith(
                 textTheme: Theme.of(context).textTheme.apply(
-                      bodyColor: _colorController.textColor.value,
-                      displayColor: _colorController.textColor.value,
+                      bodyColor: _textColor,
+                      displayColor: _textColor,
                     ),
               ),
               child: ListView(
@@ -159,22 +175,22 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   if (_currentUser == null && _username != null)
                     UserAccountsDrawerHeader(
                       decoration: BoxDecoration(
-                        color: _colorController.drawerColor.value,
+                        color: _drawerColor,
                       ),
                       accountName: Text(
                         _username!,
                         style: TextStyle(
-                          color: _colorController.textColor.value,
+                          color: _textColor,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       accountEmail: null,
                       currentAccountPicture: CircleAvatar(
-                        backgroundColor: _colorController.primaryColor.value,
+                        backgroundColor: _primaryColor,
                         child: Icon(
                           Icons.person,
-                          color: _colorController.iconColor.value,
+                          color: _iconColor,
                           size: 40,
                         ),
                       ),
@@ -182,41 +198,38 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   if (_isAuthenticated && _currentUser != null)
                     UserAccountsDrawerHeader(
                       decoration: BoxDecoration(
-                        color: _colorController.drawerColor.value,
+                        color: _drawerColor,
                       ),
                       accountName: Text(
                         _currentUser?.displayName ?? 'User',
                         style: TextStyle(
-                          color: _colorController.textColor.value,
+                          color: _textColor,
                         ),
                       ),
                       accountEmail: Text(
                         _currentUser?.email ?? '',
                         style: TextStyle(
-                          color: _colorController.textColor.value,
+                          color: _textColor,
                         ),
                       ),
                       currentAccountPicture: CircleAvatar(
-                        backgroundColor: _colorController.primaryColor.value,
+                        backgroundColor: _primaryColor,
                         child: _currentUser?.photoUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: _currentUser!.photoUrl!,
-                                imageBuilder: (context, imageProvider) =>
-                                    CircleAvatar(
-                                  backgroundImage: imageProvider,
-                                ),
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(
-                                  color: _colorController.primaryColor.value,
-                                ),
-                                errorWidget: (context, url, error) => Icon(
-                                  Icons.person,
-                                  color: _colorController.iconColor.value,
+                            ? ClipOval(
+                                child: Image.network(
+                                  _currentUser!.photoUrl!,
+                                  width: 40,
+                                  height: 40,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) => Icon(
+                                    Icons.person,
+                                    color: _iconColor,
+                                  ),
                                 ),
                               )
                             : Icon(
                                 Icons.person,
-                                color: _colorController.iconColor.value,
+                                color: _iconColor,
                               ),
                       ),
                     ),
@@ -224,12 +237,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     ListTile(
                       leading: Icon(
                         Icons.login,
-                        color: _colorController.iconColor.value,
+                        color: _iconColor,
                       ),
                       title: Text(
                         'Miditra',
                         style: TextStyle(
-                          color: _colorController.textColor.value,
+                          color: _textColor,
                         ),
                       ),
                       onTap: _signInWithGoogle,
@@ -237,12 +250,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.music_note,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Fihirana',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => Get.back(),
@@ -251,12 +264,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     ListTile(
                       leading: Icon(
                         Icons.add,
-                        color: _colorController.iconColor.value,
+                        color: _iconColor,
                       ),
                       title: Text(
                         'Hamorona hira',
                         style: TextStyle(
-                          color: _colorController.textColor.value,
+                          color: _textColor,
                         ),
                       ),
                       onTap: () => Get.to(() => const CreateHymnPage()),
@@ -264,12 +277,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.library_add,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Fihirana Fanampiny',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => Get.to(() => const FirebaseHymnsScreen()),
@@ -278,12 +291,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     ListTile(
                       leading: Icon(
                         Icons.admin_panel_settings,
-                        color: _colorController.iconColor.value,
+                        color: _iconColor,
                       ),
                       title: Text(
                         'Admin Panel',
                         style: TextStyle(
-                          color: _colorController.textColor.value,
+                          color: _textColor,
                         ),
                       ),
                       onTap: () => Get.to(() => const AdminPanelScreen()),
@@ -291,12 +304,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.favorite,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Hira tiana',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => Get.to(() => FavoritesPage()),
@@ -304,12 +317,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.history,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Tantaran-kira',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => Get.to(() => HistoryScreen()),
@@ -317,12 +330,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.color_lens,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Hanova loko',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => showDialog(
@@ -336,12 +349,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.font_download,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       "Endrikin'ny soratra",
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => showDialog(
@@ -355,12 +368,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.notifications,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Filazana',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => Get.to(() => const AnnouncementScreen()),
@@ -368,12 +381,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.menu_book,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Baiboly',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => Get.to(() => const EnhancedBibleReaderScreen()),
@@ -382,12 +395,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     ListTile(
                       leading: Icon(
                         Icons.logout,
-                        color: _colorController.iconColor.value,
+                        color: _iconColor,
                       ),
                       title: Text(
                         'Hivoaka',
                         style: TextStyle(
-                          color: _colorController.textColor.value,
+                          color: _textColor,
                         ),
                       ),
                       onTap: () {
@@ -401,12 +414,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ListTile(
                     leading: Icon(
                       Icons.info,
-                      color: _colorController.iconColor.value,
+                      color: _iconColor,
                     ),
                     title: Text(
                       'Mombamomba',
                       style: TextStyle(
-                        color: _colorController.textColor.value,
+                        color: _textColor,
                       ),
                     ),
                     onTap: () => Get.to(() => const AboutScreen()),

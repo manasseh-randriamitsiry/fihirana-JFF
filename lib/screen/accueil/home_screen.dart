@@ -68,22 +68,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return UpdateCheckerWidget(
-      child: Obx(() => NeumorphicBackground(
-            child: ZoomDrawer(
-              controller: zoomDrawerController,
-              style: DrawerStyle.defaultStyle,
-              menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
-              mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
-              borderRadius: 24.0,
-              showShadow: true,
-              angle: -12.0,
-              menuBackgroundColor: _colorController.drawerColor.value,
-              slideWidth: MediaQuery.of(context).size.width * 0.85,
-              mainScreenTapClose: true,
-              openCurve: Curves.fastOutSlowIn,
-              closeCurve: Curves.bounceIn,
-            ),
-          )),
+      child: NeumorphicBackground(
+        child: ZoomDrawer(
+          controller: zoomDrawerController,
+          style: DrawerStyle.defaultStyle,
+          menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
+          mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
+          borderRadius: 24.0,
+          showShadow: true,
+          angle: -12.0,
+          menuBackgroundColor: _colorController.drawerColor.value,
+          slideWidth: MediaQuery.of(context).size.width * 0.85,
+          mainScreenTapClose: true,
+          openCurve: Curves.fastOutSlowIn,
+          closeCurve: Curves.easeOut,
+        ),
+      ),
     );
   }
 }

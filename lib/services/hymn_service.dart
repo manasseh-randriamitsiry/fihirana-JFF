@@ -158,23 +158,23 @@ class HymnService {
 
   static final _favoritesController =
       StreamController<Map<String, String>>.broadcast();
+  static bool _initialized = false;
 
   HymnService() {
-    _initFavoriteStream();
+    if (!_initialized) {
+      _initFavoriteStream();
+      _initialized = true;
 
-    _auth.authStateChanges().listen((User? user) {
-      if (user != null) {
-
-        checkPendingSyncs();
-
-        _updateFavoriteStatus();
-      } else {
-
-        _firebaseSyncService.resetSyncStatus();
-
-        _updateFavoriteStatus();
-      }
-    });
+      _auth.authStateChanges().listen((User? user) {
+        if (user != null) {
+          checkPendingSyncs();
+          _updateFavoriteStatus();
+        } else {
+          _firebaseSyncService.resetSyncStatus();
+          _updateFavoriteStatus();
+        }
+      });
+    }
   }
 
   void _initFavoriteStream() {
