@@ -4,6 +4,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../l10n/app_localizations.dart';
+import '../../controller/language_controller.dart';
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -22,10 +24,18 @@ class _SplashScreen1State extends State<SplashScreen1>
   late Animation<double> _fadeAnimation;
   int _currentPage = 0;
 
+  // Language selection state variables
+  late final LanguageController languageController;
+  Locale? selectedLocale;
+
   @override
   void initState() {
     super.initState();
     _checkAgreementStatus();
+
+    // Initialize language controller
+    languageController = Get.find<LanguageController>();
+    selectedLocale = languageController.currentLocaleValue;
 
     _balloonController = AnimationController(
       duration: const Duration(seconds: 6),
@@ -106,6 +116,15 @@ class _SplashScreen1State extends State<SplashScreen1>
     );
   }
 
+  Future<void> _saveAndProceed() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('hasSeenLanguageSelection', true);
+    // Move to the next page after language selection
+    setState(() {
+      _currentPage = 1;
+    });
+  }
+
   Future<void> _handleUsernameSubmit() async {
     print('Button pressed! Agreement: $_agreementAccepted');
 
@@ -149,10 +168,95 @@ class _SplashScreen1State extends State<SplashScreen1>
   Future<void> _checkAgreementStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final hasAgreed = prefs.getBool('has_agreed_to_terms') ?? false;
+    final username = prefs.getString('username') ?? '';
+    final hasSelectedLanguage = prefs.getString('selected_language') != null;
 
-    if (hasAgreed && _usernameController.text.trim().isNotEmpty) {
+    // If user has agreed to terms, entered username, and selected language, go directly to home
+    if (hasAgreed && username.isNotEmpty && hasSelectedLanguage) {
       Get.offAll(() => const HomeScreen());
     }
+  }
+
+  Widget _buildLanguageOptions(AppLocalizations l10n) {
+    return Neumorphic(
+      style: NeumorphicStyle(
+        depth: 10,
+        intensity: 0.7,
+        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(25)),
+        color: Colors.white.withValues(alpha: 0.9),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        children: [
+          for (final locale in languageController.supportedLocales)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: NeumorphicButton(
+                onPressed: () async {
+                  setState(() {
+                    selectedLocale = locale;
+                  });
+                  languageController.changeLanguage(locale);
+                  // Automatically proceed to the next page after language selection
+                  await _saveAndProceed();
+                },
+                style: NeumorphicStyle(
+                  depth: selectedLocale?.languageCode == locale.languageCode
+                      ? -5
+                      : 5,
+                  intensity: 0.7,
+                  boxShape: NeumorphicBoxShape.roundRect(
+                    BorderRadius.circular(20),
+                  ),
+                  color: selectedLocale?.languageCode == locale.languageCode
+                      ? Colors.orange.shade100
+                      : Colors.grey.shade50,
+                ),
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Text(
+                      languageController.getLanguageFlag(locale),
+                      style: const TextStyle(fontSize: 32),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        languageController.getLanguageName(locale),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: selectedLocale?.languageCode ==
+                                  locale.languageCode
+                              ? FontWeight.bold
+                              : FontWeight.w600,
+                          color: selectedLocale?.languageCode ==
+                                  locale.languageCode
+                              ? Colors.orange.shade800
+                              : Colors.black87,
+                        ),
+                      ),
+                    ),
+                    if (selectedLocale?.languageCode == locale.languageCode)
+                      Neumorphic(
+                        style: NeumorphicStyle(
+                          depth: -3,
+                          boxShape: const NeumorphicBoxShape.circle(),
+                          color: Colors.orange.shade600,
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   static const TextStyle boldStyle = TextStyle(
@@ -182,12 +286,73 @@ class _SplashScreen1State extends State<SplashScreen1>
   );
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     final pages = [
-      // Page 1: Welcome
+      // Page 1: Language Selection (new first page)
+      NeumorphicBackground(
+        child: Container(
+          height: screenHeight,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.orange.shade100,
+                Colors.pink.shade100,
+              ],
+            ),
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  Column(
+                    children: [
+                      Neumorphic(
+                        style: NeumorphicStyle(
+                          depth: 12,
+                          intensity: 0.8,
+                          boxShape: const NeumorphicBoxShape.circle(),
+                          color: Colors.white.withValues(alpha: 0.3),
+                        ),
+                        padding: const EdgeInsets.all(25),
+                        child: const Icon(
+                          Icons.language,
+                          size: 80,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      Text(
+                        l10n.chooseLanguage,
+                        style: const TextStyle(
+                          fontSize: 32.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.5,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                  _buildLanguageOptions(l10n),
+                  const ModernDotsIndicator(active: 0, number: 4),
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      // Page 2: Welcome (previously Page 1)
       NeumorphicBackground(
         child: Container(
           height: screenHeight,
@@ -214,13 +379,13 @@ class _SplashScreen1State extends State<SplashScreen1>
                     child: Column(
                       children: [
                         Text(
-                          "Fihirana jesosy famonjena fahamarinantsika",
+                          l10n.splashScreenTitle,
                           style: boldStyle.copyWith(fontSize: 26),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 16.0),
-                        const Text(
-                          "Miderà an'i Jehovah fa tsara Izy",
+                        Text(
+                          l10n.splashScreenSubtitle,
                           style: descriptionGreyStyle,
                           textAlign: TextAlign.center,
                         ),
@@ -255,7 +420,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                       ],
                     ),
                   ),
-                  const ModernDotsIndicator(active: 0, number: 3),
+                  const ModernDotsIndicator(active: 1, number: 4),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -263,7 +428,7 @@ class _SplashScreen1State extends State<SplashScreen1>
           ),
         ),
       ),
-      // Page 2: About
+      // Page 3: About (previously Page 2)
       NeumorphicBackground(
         child: Container(
           height: screenHeight,
@@ -303,8 +468,8 @@ class _SplashScreen1State extends State<SplashScreen1>
                         ),
                       ),
                       const SizedBox(height: 30),
-                      const Text(
-                        "Miarahaba anao!",
+                      Text(
+                        l10n.welcome,
                         style: titleStyle,
                         textAlign: TextAlign.center,
                       ),
@@ -312,32 +477,32 @@ class _SplashScreen1State extends State<SplashScreen1>
                   ),
                   _buildNeumorphicCard(
                     color: Colors.white.withOpacity(0.15),
-                    child: const Column(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _FeatureItem(
                           icon: Icons.church,
-                          text: "Fihirana natao hoan'ny fiangonana JFF",
+                          text: l10n.feature1,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         _FeatureItem(
                           icon: Icons.book_outlined,
-                          text: "Hanamora kokoa ny fiderana an'Andriamanitra",
+                          text: l10n.feature2,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         _FeatureItem(
                           icon: Icons.cloud_upload,
-                          text: "Afaka hampiditra hira vaovao ianao",
+                          text: l10n.feature3,
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         _FeatureItem(
                           icon: Icons.account_circle,
-                          text: "Mila compte Google ho an'ny fanampiana",
+                          text: l10n.feature4,
                         ),
                       ],
                     ),
                   ),
-                  const ModernDotsIndicator(active: 1, number: 3),
+                  const ModernDotsIndicator(active: 2, number: 4),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -345,7 +510,7 @@ class _SplashScreen1State extends State<SplashScreen1>
           ),
         ),
       ),
-      // Page 3: Get Started
+      // Page 4: Get Started (previously Page 3)
       NeumorphicBackground(
         child: Container(
           height: screenHeight,
@@ -368,7 +533,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                   children: <Widget>[
                     const SizedBox(height: 20),
                     Text(
-                      "Fanekena",
+                      l10n.termsAndConditions,
                       style: boldStyle.copyWith(
                         fontSize: 32,
                         color: Colors.teal.shade900,
@@ -398,10 +563,10 @@ class _SplashScreen1State extends State<SplashScreen1>
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              const Expanded(
+                              Expanded(
                                 child: Text(
-                                  "Izaho dia manaiky fa:",
-                                  style: TextStyle(
+                                  l10n.agreement,
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.black87,
@@ -412,11 +577,11 @@ class _SplashScreen1State extends State<SplashScreen1>
                           ),
                           const SizedBox(height: 16),
                           _buildAgreementItem(
-                            "Tsy hampiasa ny application amin'ny fomba ratsy",
+                            l10n.term1,
                           ),
                           const SizedBox(height: 12),
                           _buildAgreementItem(
-                            "Tsy hampiditra hira tsy mifanaraka amin'ny fivavahana JFF",
+                            l10n.term2,
                           ),
                           const SizedBox(height: 20),
                           NeumorphicButton(
@@ -459,10 +624,10 @@ class _SplashScreen1State extends State<SplashScreen1>
                                   ),
                                 ),
                                 const SizedBox(width: 12),
-                                const Expanded(
+                                Expanded(
                                   child: Text(
-                                    "Ekeko ireo fepetra ireo",
-                                    style: TextStyle(
+                                    l10n.acceptTerms,
+                                    style: const TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
                                       color: Colors.black87,
@@ -496,7 +661,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                           color: Colors.black,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Ampidiro ny anaranao',
+                          labelText: l10n.enterYourName,
                           labelStyle: TextStyle(
                             color: Colors.teal.shade700,
                             fontSize: 15,
@@ -537,7 +702,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              "Tohizana",
+                              l10n.continueText,
                               style: TextStyle(
                                 fontSize: 18,
                                 color: _agreementAccepted
@@ -559,7 +724,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                       ),
                     ),
                     const SizedBox(height: 30),
-                    const ModernDotsIndicator(active: 2, number: 3),
+                    const ModernDotsIndicator(active: 3, number: 4),
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -570,21 +735,33 @@ class _SplashScreen1State extends State<SplashScreen1>
       ),
     ];
 
-    return Scaffold(
-      body: FadeTransition(
-        opacity: _fadeAnimation,
-        child: LiquidSwipe(
-          pages: pages,
-          enableLoop: false,
-          fullTransitionValue: 400,
-          enableSideReveal: true,
-          waveType: WaveType.liquidReveal,
-          positionSlideIcon: 0.75,
-          onPageChangeCallback: (page) {
-            setState(() {
-              _currentPage = page;
-            });
-          },
+    return Material(
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFE8F5E9),
+              Color(0xFFC8E6C9),
+            ],
+          ),
+        ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: LiquidSwipe(
+            pages: pages,
+            enableLoop: false,
+            fullTransitionValue: 400,
+            enableSideReveal: true,
+            waveType: WaveType.liquidReveal,
+            positionSlideIcon: 0.75,
+            onPageChangeCallback: (page) {
+              setState(() {
+                _currentPage = page;
+              });
+            },
+          ),
         ),
       ),
     );

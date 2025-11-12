@@ -1,6 +1,6 @@
 # 🎵 Fihirana Jesosy Famonjena Fahamarinantsika
 
-### Developer  
+### Developer
 **👨‍💻** Manasseh Randriamitsiry — [manassehrandriamitsiry@gmail.com](mailto:manassehrandriamitsiry@gmail.com)
 
 ---
@@ -11,7 +11,7 @@
 
 #### 🔹 Google Services Configuration
 
-1. Copy the `google-services.json` file from your Firebase project into:  
+1. Copy the `google-services.json` file from your Firebase project into:
    ```
    android/app/google-services.json
    ```
@@ -21,14 +21,14 @@
    python -c "import base64; print(base64.b64encode(open('android/app/google-services.json','rb').read()).decode())"
    ```
 
-3. Copy the Base64 output and add it as a **GitHub secret**:  
-   - Go to your repository:  
-     **Settings → Secrets and Variables → Actions → New repository secret**
-   - Name the secret:  
-     ```
-     GOOGLE_JSON_BASE64
-     ```
-   - Paste the Base64 string as the value.
+3. Copy the Base64 output and add it as a **GitHub secret**:
+    - Go to your repository:  
+      **Settings → Secrets and Variables → Actions → New repository secret**
+    - Name the secret:
+      ```
+      GOOGLE_JSON_BASE64
+      ```
+    - Paste the Base64 string as the value.
 
 ---
 
@@ -61,3 +61,8 @@ git push origin v1.0.5
 ```
 
 > ✅ The CI/CD build succeeds in **release mode** only if the Firebase JSON and keystore files are correctly configured via secrets.
+
+## after adding language
+```bash
+flutter gen-l10n
+```

@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/history_controller.dart';
+import '../../controller/language_controller.dart';
+import '../../widgets/language_picker_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,25 +17,27 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final HistoryController historyController = Get.find<HistoryController>();
+  final LanguageController languageController = Get.find<LanguageController>();
 
   void _showClearHistoryDialog() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
         title: Text(
-          'Hamafa ny tantara',
+          l10n.confirmDelete,
           style: TextStyle(color: colorController.textColor.value),
         ),
         content: Text(
-          'Tena te hamafa ny tantara rehetra ve ianao? Tsy afaka averina io hafainganana.',
+          l10n.confirmDelete,
           style: TextStyle(color: colorController.textColor.value),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Aoka ihany',
+              l10n.cancel,
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
@@ -41,9 +46,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               historyController.clearHistory();
               Navigator.pop(context);
             },
-            child: const Text(
-              'Hamafa',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              l10n.delete,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],
@@ -53,12 +58,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
         backgroundColor: colorController.backgroundColor.value,
         title: Text(
-          'Fandrindrana',
+          l10n.settings,
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
@@ -74,6 +80,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         children: [
+          // Language Picker Section
+          const LanguagePickerWidget(),
+          
+          const SizedBox(height: 16),
 
           Obx(() {
             final user = FirebaseAuth.instance.currentUser;
@@ -87,7 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ny mombamomba anao',
+                        'Your Profile',
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontSize: 18,
@@ -96,12 +106,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Anaran\'utilisateur: ${user.displayName ?? 'Tsy fantatra'}',
+                        'Username: ${user.displayName ?? 'Unknown'}',
                         style: TextStyle(color: colorController.textColor.value),
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'Mailaka: ${user.email ?? 'Tsy misy mailaka'}',
+                        'Email: ${user.email ?? 'No email'}',
                         style: TextStyle(color: colorController.textColor.value),
                       ),
                       const SizedBox(height: 5),
@@ -126,7 +136,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Tsy tonta',
+                        'Not Logged In',
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontSize: 18,
@@ -135,7 +145,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Tsy tonta ianao amin\'izao. Ampidiro ny kaontinao mba handanjalanjana azy ireo.',
+                        'You are not logged in. Sign in to your account to access all features.',
                         style: TextStyle(color: colorController.textColor.value),
                       ),
                     ],
@@ -154,7 +164,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tantara',
+                    l10n.history,
                     style: TextStyle(
                       color: colorController.textColor.value,
                       fontSize: 18,
@@ -165,11 +175,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(
-                      'Hamafa ny tantara rehetra',
+                      'Clear all history',
                       style: TextStyle(color: colorController.textColor.value),
                     ),
                     subtitle: Text(
-                      'Mamafa ny tantara rehetra misy anao',
+                      'Remove all your history',
                       style: TextStyle(
                         color: colorController.textColor.value.withOpacity(0.7),
                       ),
@@ -197,7 +207,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Fampahalalam-baovao',
+                        'Sync Information',
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontSize: 18,
@@ -206,12 +216,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Ny hira tiana sy ny tantara dia voatahiry amin\'ny kaontinao Google.',
+                        'Your favorite hymns and history are saved to your Google account.',
                         style: TextStyle(color: colorController.textColor.value),
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'Raha miova kaonty ianao dia tsy ho very izany.',
+                        'This will not be lost if you change accounts.',
                         style: TextStyle(color: colorController.textColor.value),
                       ),
                     ],

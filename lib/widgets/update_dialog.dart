@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import '../l10n/app_localizations.dart';
 
 class UpdateDialog extends StatefulWidget {
   final bool updateAvailable;
@@ -20,7 +21,6 @@ class _UpdateDialogState extends State<UpdateDialog> {
     });
 
     try {
-
       await VersionCheckService.triggerFlexibleUpdate();
 
       if (mounted) {
@@ -36,9 +36,10 @@ class _UpdateDialogState extends State<UpdateDialog> {
         });
 
         if (context.mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Tsy afaka mandefa ny fakàna'),
+            SnackBar(
+              content: Text(l10n.errorDownloadingUpdate2),
               backgroundColor: Colors.red,
             ),
           );
@@ -52,9 +53,10 @@ class _UpdateDialogState extends State<UpdateDialog> {
       await VersionCheckService.completeFlexibleUpdate();
     } catch (e) {
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tsy afaka mametraka ny vaovao'),
+          SnackBar(
+            content: Text(l10n.errorInstallingUpdate),
             backgroundColor: Colors.red,
           ),
         );
@@ -67,9 +69,10 @@ class _UpdateDialogState extends State<UpdateDialog> {
       await VersionCheckService.triggerImmediateUpdate();
     } catch (e) {
       if (context.mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tsy afaka mandefa ny fanavaozana'),
+          SnackBar(
+            content: Text(l10n.errorCheckingUpdates),
             backgroundColor: Colors.red,
           ),
         );
@@ -79,36 +82,37 @@ class _UpdateDialogState extends State<UpdateDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AlertDialog(
-      title: const Text('Vaovao misy'),
-      content: const Text('Misy rindrambaiko vaovao azo ampiasaina. Tianao haka izany ve?'),
+      title: Text(l10n.updateAvailableTitle),
+      content: Text(l10n.updateAvailableContent),
       actions: [
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: const Text('Tsia'),
+          child: Text(l10n.no),
         ),
         if (!_downloadCompleted && !_isDownloading) ...[
           TextButton(
             onPressed: _startFlexibleUpdate,
-            child: const Text('Fakàna'),
+            child: Text(l10n.download),
           ),
           TextButton(
             onPressed: _performImmediateUpdate,
-            child: const Text('Vaovao haingana'),
+            child: Text(l10n.updateNow),
           ),
         ],
         if (_isDownloading) ...[
-          const TextButton(
+          TextButton(
             onPressed: null,
-            child: Text('Mandefa fakàna...'),
+            child: Text(l10n.downloading3),
           ),
         ],
         if (_downloadCompleted) ...[
           TextButton(
             onPressed: _completeFlexibleUpdate,
-            child: const Text('Apetraho'),
+            child: Text(l10n.install),
           ),
         ],
       ],

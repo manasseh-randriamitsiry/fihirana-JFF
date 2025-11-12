@@ -4,6 +4,7 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../widgets/hymn_list_item.dart';
+import '../../l10n/app_localizations.dart';
 
 class FirebaseHymnsScreen extends StatefulWidget {
   const FirebaseHymnsScreen({super.key});
@@ -17,20 +18,22 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
 
   @override
   Widget build(BuildContext context) {
-return GetBuilder<ColorController>(
+    final l10n = AppLocalizations.of(context)!;
+    return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
-          backgroundColor: colorController.backgroundColor.value,
-          appBar: AppBar(
+        backgroundColor: colorController.backgroundColor.value,
+        appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
           title: Text(
-            'Fihirana Fanampiny',
+            l10n.additionalHymns,
             style: TextStyle(
               color: colorController.textColor.value,
               fontWeight: FontWeight.bold,
             ),
           ),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: colorController.iconColor.value),
+            icon:
+                Icon(Icons.arrow_back, color: colorController.iconColor.value),
             onPressed: () => Get.back(),
           ),
         ),
@@ -40,7 +43,7 @@ return GetBuilder<ColorController>(
             if (snapshot.hasError) {
               return Center(
                 child: Text(
-                  'Nisy olana: ${snapshot.error}',
+                  l10n.errorOccurredColon(snapshot.error.toString()),
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               );
@@ -54,7 +57,7 @@ return GetBuilder<ColorController>(
             if (hymns.isEmpty) {
               return Center(
                 child: Text(
-                  'Tsy misy hira fanampiny',
+                  l10n.noAdditionalHymns,
                   style: TextStyle(color: colorController.textColor.value),
                 ),
               );
@@ -71,7 +74,8 @@ return GetBuilder<ColorController>(
                       hymn: hymn,
                       textColor: colorController.textColor.value,
                       backgroundColor: colorController.backgroundColor.value,
-                      onFavoritePressed: () => _hymnService.toggleFavorite(hymn),
+                      onFavoritePressed: () =>
+                          _hymnService.toggleFavorite(hymn),
                       isFirebaseHymn: true,
                     );
                   },
@@ -79,8 +83,8 @@ return GetBuilder<ColorController>(
               },
             );
           },
-),
         ),
+      ),
     );
   }
 }

@@ -8,12 +8,15 @@ import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
 import '../../models/bible_search.dart';
 import '../../widgets/bible_book_list_item.dart';
+import '../../widgets/color_picker_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 class EnhancedBibleReaderScreen extends StatefulWidget {
   const EnhancedBibleReaderScreen({super.key});
 
   @override
-  State<EnhancedBibleReaderScreen> createState() => _EnhancedBibleReaderScreenState();
+  State<EnhancedBibleReaderScreen> createState() =>
+      _EnhancedBibleReaderScreenState();
 }
 
 class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
@@ -84,6 +87,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GetBuilder<ColorController>(
       builder: (colorController) => NeumorphicTheme(
         themeMode: colorController.themeMode,
@@ -95,12 +99,12 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
             child: Column(
               children: [
                 _buildNeumorphicAppBar(colorController),
-          Expanded(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Obx(() => _buildContentArea(colorController)),
-            ),
-          ),
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Obx(() => _buildContentArea(colorController)),
+                  ),
+                ),
               ],
             ),
           ),
@@ -140,10 +144,11 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(width: 12),
-                
+
                 // Title
                 Expanded(
                   child: Obx(() {
+                    final l10n = AppLocalizations.of(context)!;
                     if (bibleController.selectedBook.isNotEmpty &&
                         bibleController.selectedChapter.value > 0) {
                       return Text(
@@ -156,7 +161,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                       );
                     } else {
                       return Text(
-                        'Famakiana Baiboly',
+                        l10n.bibleReader,
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontWeight: FontWeight.bold,
@@ -166,7 +171,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     }
                   }),
                 ),
-                
+
                 // Search button
                 NeumorphicButton(
                   style: NeumorphicStyle(
@@ -197,7 +202,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                   },
                 ),
                 const SizedBox(width: 8),
-                
+
                 // Font size button
                 NeumorphicButton(
                   style: NeumorphicStyle(
@@ -216,6 +221,24 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     });
                   },
                 ),
+                const SizedBox(width: 8),
+
+                // Color picker button
+                NeumorphicButton(
+                  style: NeumorphicStyle(
+                    depth: 2,
+                    color: colorController.backgroundColor.value,
+                    boxShape: NeumorphicBoxShape.circle(),
+                  ),
+                  child: Icon(
+                    Icons.color_lens,
+                    color: colorController.iconColor.value,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    ColorPickerWidget.showColorPickerDialog(context);
+                  },
+                ),
               ],
             ),
           ),
@@ -228,15 +251,15 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     final selectedBook = bibleController.selectedBook.value;
     final selectedChapter = bibleController.selectedChapter.value;
     final hasChapters = bibleController.chapterList.isNotEmpty;
-    
+
     // Update search context based on current view
     _updateSearchContext();
-    
+
     // If search is active, show search results
     if (_showSearchBar && bibleController.searchQuery.value.isNotEmpty) {
       return _buildSearchResultsView(colorController);
     }
-    
+
     // If no book selected, show book list
     if (selectedBook.isEmpty) {
       if (_showSearchBar) {
@@ -250,7 +273,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
         return _buildBookListView(colorController);
       }
     }
-    
+
     // If book selected but no chapter, show chapter selection
     if (selectedChapter == 0) {
       if (_showSearchBar) {
@@ -264,7 +287,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
         return _buildChapterSelectionView(colorController);
       }
     }
-    
+
     // If chapter selected, show verse reading view
     if (_showSearchBar) {
       return Column(
@@ -279,6 +302,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   }
 
   Widget _buildNeumorphicSearchBar(ColorController colorController) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.all(16),
       child: Neumorphic(
@@ -293,7 +317,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
             // Search context selector
             if (_currentSearchContext != BibleSearchContext.books)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
                     Icon(
@@ -304,9 +329,10 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        _getSearchContextText(),
+                        _getSearchContextText(l10n),
                         style: TextStyle(
-                          color: colorController.textColor.value.withOpacity(0.7),
+                          color:
+                              colorController.textColor.value.withOpacity(0.7),
                           fontSize: _fontSize * 0.8,
                         ),
                       ),
@@ -315,12 +341,15 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                       style: NeumorphicStyle(
                         depth: 1,
                         color: colorController.backgroundColor.value,
-                        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                        boxShape: NeumorphicBoxShape.roundRect(
+                            BorderRadius.circular(8)),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                      onPressed: () => _showSearchContextDialog(colorController),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 4),
+                      onPressed: () =>
+                          _showSearchContextDialog(colorController),
                       child: Text(
-                        'Ovay',
+                        l10n.change,
                         style: TextStyle(
                           color: colorController.primaryColor.value,
                           fontSize: _fontSize * 0.8,
@@ -330,7 +359,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                   ],
                 ),
               ),
-            
+
             // Search input
             Padding(
               padding: const EdgeInsets.all(16),
@@ -342,7 +371,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                   fontSize: _fontSize,
                 ),
                 decoration: InputDecoration(
-                  hintText: _getSearchHintText(),
+                  hintText: _getSearchHintText(l10n),
                   hintStyle: TextStyle(
                     color: colorController.textColor.value.withOpacity(0.6),
                   ),
@@ -382,25 +411,27 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     );
   }
 
-  String _getSearchContextText() {
+  String _getSearchContextText(AppLocalizations l10n) {
     switch (_currentSearchContext) {
       case BibleSearchContext.books:
-        return 'Karoka boky';
+        return l10n.searchBooks;
       case BibleSearchContext.currentChapter:
-        return 'Karoka anatin\'ny toko ${bibleController.selectedChapter.value}';
+        return l10n.searchCurrentChapter(
+            bibleController.selectedChapter.value.toString());
       case BibleSearchContext.allBible:
-        return 'Karoka ny Baiboly manontolo';
+        return l10n.searchEntireBible;
     }
   }
 
-  String _getSearchHintText() {
+  String _getSearchHintText(AppLocalizations l10n) {
     switch (_currentSearchContext) {
       case BibleSearchContext.books:
-        return 'Karoka boky...';
+        return l10n.searchBooks;
       case BibleSearchContext.currentChapter:
-        return 'Karoka anatin\'ity toko...';
+        return l10n.searchCurrentChapter(
+            bibleController.selectedChapter.value.toString());
       case BibleSearchContext.allBible:
-        return 'Karoka ny Baiboly manontolo...';
+        return l10n.searchEntireBible;
     }
   }
 
@@ -513,18 +544,18 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
       children: [
         // Font size slider
         if (_showSlider) _buildNeumorphicFontSizeSlider(colorController),
-        
+
         // Books grid
         Expanded(
           child: Obx(() {
             if (bibleController.isLoading.value) {
               return _buildLoadingWidget(colorController);
             }
-            
-            final filteredBooks = bibleController.filteredBooks.isEmpty 
-                ? bibleController.bookList 
+
+            final filteredBooks = bibleController.filteredBooks.isEmpty
+                ? bibleController.bookList
                 : bibleController.filteredBooks;
-            
+
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
               child: GridView.builder(
@@ -539,8 +570,9 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 itemCount: filteredBooks.length,
                 itemBuilder: (context, index) {
                   final bookName = filteredBooks[index];
-                  final chapterCount = bibleController.getChapterCountForBook(bookName);
-                  
+                  final chapterCount =
+                      bibleController.getChapterCountForBook(bookName);
+
                   return _buildNeumorphicBookItem(
                     bookName: bookName,
                     chapterCount: chapterCount,
@@ -610,10 +642,10 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
       children: [
         // Header with book info
         _buildChapterHeader(colorController),
-        
+
         // Font size slider
         if (_showSlider) _buildNeumorphicFontSizeSlider(colorController),
-        
+
         // Chapter grid
         Expanded(
           child: Obx(() {
@@ -630,8 +662,9 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 ),
               );
             }
-            
-            print('Building grid with ${bibleController.chapterList.length} chapters');
+
+            print(
+                'Building grid with ${bibleController.chapterList.length} chapters');
             return GridView.builder(
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -734,17 +767,17 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
       children: [
         // Chapter navigation
         _buildChapterNavigation(colorController),
-        
+
         // Font size slider
         if (_showSlider) _buildNeumorphicFontSizeSlider(colorController),
-        
+
         // Verses
         Expanded(
           child: Obx(() {
             if (bibleController.isLoading.value) {
               return _buildLoadingWidget(colorController);
             }
-            
+
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: _buildVersesList(colorController),
@@ -783,7 +816,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 ),
                 onPressed: () => _navigateChapter(-1),
               ),
-              
+
               // Current chapter
               Text(
                 'Toko ${bibleController.selectedChapter.value}',
@@ -793,7 +826,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              
+
               // Next chapter
               NeumorphicButton(
                 style: NeumorphicStyle(
@@ -816,7 +849,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
 
   Widget _buildVersesList(ColorController colorController) {
     final verses = bibleController.getCurrentChapterVerses();
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -844,13 +877,13 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
             ),
           ),
         ),
-        
+
         // Verses
         ...verses.asMap().entries.map((entry) {
           final index = entry.key;
           final verse = entry.value;
           final verseNumber = index + 1;
-          
+
           return _buildNeumorphicVerse(
             verseNumber: verseNumber,
             verseText: verse,
@@ -869,14 +902,14 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     return Obx(() {
       final isSelected = bibleController.isVerseSelected(verseNumber);
       final isHighlighted = bibleController.isVerseHighlighted(verseNumber);
-      
+
       return Container(
         margin: const EdgeInsets.only(bottom: 8),
         child: NeumorphicButton(
           style: NeumorphicStyle(
             depth: isSelected ? 1 : 2,
             intensity: 0.8,
-            color: isHighlighted 
+            color: isHighlighted
                 ? colorController.primaryColor.value.withOpacity(0.2)
                 : colorController.backgroundColor.value,
             boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
@@ -891,8 +924,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: isSelected 
-                      ? colorController.primaryColor.value 
+                  color: isSelected
+                      ? colorController.primaryColor.value
                       : colorController.primaryColor.value.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
@@ -900,8 +933,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                   child: Text(
                     verseNumber.toString(),
                     style: TextStyle(
-                      color: isSelected 
-                          ? Colors.white 
+                      color: isSelected
+                          ? Colors.white
                           : colorController.primaryColor.value,
                       fontSize: _fontSize * 0.7,
                       fontWeight: FontWeight.bold,
@@ -910,7 +943,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 ),
               ),
               const SizedBox(width: 12),
-              
+
               // Verse text
               Expanded(
                 child: Text(
@@ -969,11 +1002,13 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 min: 12,
                 max: 40,
                 activeColor: colorController.primaryColor.value,
-                inactiveColor: colorController.primaryColor.value.withOpacity(0.3),
+                inactiveColor:
+                    colorController.primaryColor.value.withOpacity(0.3),
                 onChanged: (double value) {
                   setState(() {
                     _fontSize = value;
-                    _countFontSize = value * (_baseCountFontSize / _baseFontSize);
+                    _countFontSize =
+                        value * (_baseCountFontSize / _baseFontSize);
                   });
                 },
                 onChangeEnd: (double value) async {
@@ -1012,12 +1047,12 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
           ),
           const SizedBox(height: 20),
           Obx(() => Text(
-            bibleController.loadingMessage.value,
-            style: TextStyle(
-              color: colorController.textColor.value,
-              fontSize: _fontSize,
-            ),
-          )),
+                bibleController.loadingMessage.value,
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontSize: _fontSize,
+                ),
+              )),
         ],
       ),
     );
@@ -1026,8 +1061,9 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   void _navigateChapter(int direction) {
     final currentChapter = bibleController.selectedChapter.value;
     final newChapter = currentChapter + direction;
-    final maxChapters = bibleController.getChapterCountForBook(bibleController.selectedBook.value);
-    
+    final maxChapters = bibleController
+        .getChapterCountForBook(bibleController.selectedBook.value);
+
     if (newChapter >= 1 && newChapter <= maxChapters) {
       bibleController.selectChapter(newChapter);
     }
@@ -1046,7 +1082,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   void _updateSearchContext() {
     final selectedBook = bibleController.selectedBook.value;
     final selectedChapter = bibleController.selectedChapter.value;
-    
+
     if (selectedBook.isEmpty) {
       _currentSearchContext = BibleSearchContext.books;
     } else if (selectedChapter == 0) {
@@ -1054,7 +1090,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     } else {
       _currentSearchContext = BibleSearchContext.currentChapter;
     }
-    
+
     bibleController.setSearchContext(_currentSearchContext);
   }
 
@@ -1067,7 +1103,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
             if (bibleController.isSearching.value) {
               return _buildLoadingWidget(colorController);
             }
-            
+
             if (bibleController.searchResults.isEmpty) {
               return Center(
                 child: Column(
@@ -1090,7 +1126,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 ),
               );
             }
-            
+
             return ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: bibleController.searchResults.length,
@@ -1105,7 +1141,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     );
   }
 
-  Widget _buildSearchResultItem(BibleSearchResult result, ColorController colorController) {
+  Widget _buildSearchResultItem(
+      BibleSearchResult result, ColorController colorController) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: NeumorphicButton(
@@ -1123,7 +1160,9 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
             Row(
               children: [
                 Icon(
-                  result.type == BibleSearchResultType.book ? Icons.book : Icons.article,
+                  result.type == BibleSearchResultType.book
+                      ? Icons.book
+                      : Icons.article,
                   color: colorController.primaryColor.value,
                   size: 16,
                 ),
@@ -1157,7 +1196,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     );
   }
 
-  Widget _buildHighlightedVerseText(BibleSearchResult result, ColorController colorController) {
+  Widget _buildHighlightedVerseText(
+      BibleSearchResult result, ColorController colorController) {
     final query = bibleController.searchQuery.value;
     if (query.isEmpty) {
       return Text(
@@ -1174,10 +1214,10 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     final List<TextSpan> spans = [];
     final lowerText = result.text.toLowerCase();
     final lowerQuery = query.toLowerCase();
-    
+
     int start = 0;
     int index = lowerText.indexOf(lowerQuery);
-    
+
     while (index != -1) {
       // Add text before match
       if (index > start) {
@@ -1189,7 +1229,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
           ),
         ));
       }
-      
+
       // Add highlighted match
       spans.add(TextSpan(
         text: result.text.substring(index, index + query.length),
@@ -1200,11 +1240,11 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
           fontWeight: FontWeight.bold,
         ),
       ));
-      
+
       start = index + query.length;
       index = lowerText.indexOf(lowerQuery, start);
     }
-    
+
     // Add remaining text
     if (start < result.text.length) {
       spans.add(TextSpan(
@@ -1215,7 +1255,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
         ),
       ));
     }
-    
+
     return RichText(
       text: TextSpan(children: spans),
       maxLines: 3,
