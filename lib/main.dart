@@ -13,6 +13,7 @@ import 'screen/accueil/home_screen.dart';
 import 'screen/intro/splash_screen1.dart';
 import 'screen/loading/loading_screen.dart';
 import 'services/version_check_service.dart';
+import 'services/apk_download_service.dart';
 import 'firebase_options.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
@@ -97,6 +98,12 @@ Future<void> main() async {
         if (announcementId != null) {
           Get.to(() => const AnnouncementScreen());
         }
+      } else if (receivedAction.channelKey == 'hymn_download_channel' &&
+          receivedAction.buttonKeyPressed == 'CANCEL_DOWNLOAD') {
+        await ApkDownloadService.handleDownloadAction('CANCEL_DOWNLOAD');
+      } else {
+        // Handle version check actions
+        await VersionCheckService.onActionReceivedMethod(receivedAction);
       }
     },
   );

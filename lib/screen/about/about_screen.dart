@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import 'package:fihirana/services/pubspec_service.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 
@@ -15,6 +15,7 @@ class AboutScreen extends StatefulWidget {
 
 class _AboutScreenState extends State<AboutScreen> {
   String _appVersion = '1.0.0';
+  String _appName = 'Fihirana';
   bool _checkingForUpdates = false;
   bool _updateAvailable = false;
   bool _flexibleUpdateDownloaded = false;
@@ -23,7 +24,7 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
-    _getAppVersion();
+    _getAppInfo();
 
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
@@ -42,10 +43,12 @@ class _AboutScreenState extends State<AboutScreen> {
     });
   }
 
-  Future<void> _getAppVersion() async {
-    final packageInfo = await PackageInfo.fromPlatform();
+  Future<void> _getAppInfo() async {
+    final appVersion = await PubspecService.getAppVersion();
+    final appName = await PubspecService.getAppName();
     setState(() {
-      _appVersion = packageInfo.version;
+      _appVersion = appVersion;
+      _appName = appName;
     });
   }
 
@@ -108,24 +111,11 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Future<void> _downloadAndInstallUpdate() async {
     try {
+      setState(() {
+        _checkingForUpdates = true;
+      });
 
-      if (VersionCheckService.isFlexibleUpdateAvailable()) {
-
-        await VersionCheckService.completeFlexibleUpdate();
-      } else {
-
-        setState(() {
-          _checkingForUpdates = true;
-        });
-
-        await VersionCheckService.triggerFlexibleUpdate();
-
-        if (mounted) {
-          setState(() {
-            _checkingForUpdates = false;
-          });
-        }
-      }
+      await VersionCheckService.downloadAndInstallLatestVersion();
     } catch (e) {
       if (mounted) {
         setState(() {
@@ -134,31 +124,23 @@ class _AboutScreenState extends State<AboutScreen> {
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Nisy olana'),
+            SnackBar(
+              content: Text('Tsy afaka mandefa: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
         }
       }
-    }
-  }
-
-  Future<void> _performImmediateUpdate() async {
-    try {
-      await VersionCheckService.triggerImmediateUpdate();
-    } catch (e) {
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Nisy olana fa avereno rehefa afaka kelikely'),
-            backgroundColor: Colors.red,
-          ),
-        );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _checkingForUpdates = false;
+        });
       }
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -191,20 +173,41 @@ class _AboutScreenState extends State<AboutScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
-                Neumorphic(
-                  style: NeumorphicStyle(
-                    color: colorController.backgroundColor.value,
-                    boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-                    depth: 4,
-                    intensity: 0.8,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Fihirana JFF',
-                  style: TextStyle(fontSize: 18, color: colorController.textColor.value),
-                ),
+                 const SizedBox(height: 20),
+                 Neumorphic(
+                   style: NeumorphicStyle(
+                     color: colorController.backgroundColor.value,
+                     boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+                     depth: 4,
+                     intensity: 0.8,
+                   ),
+                   child: Padding(
+                     padding: const EdgeInsets.all(16.0),
+                     child: Column(
+                       children: [
+                         Icon(
+                           Icons.music_note,
+                           size: 60,
+                           color: colorController.primaryColor.value,
+                         ),
+                         const SizedBox(height: 10),
+                         Text(
+                           'Version $_appVersion',
+                           style: TextStyle(
+                             fontSize: 16,
+                             fontWeight: FontWeight.bold,
+                             color: colorController.textColor.value,
+                           ),
+                         ),
+                       ],
+                     ),
+                   ),
+                 ),
+const SizedBox(height: 10),
+                 Text(
+                   '$_appName JFF',
+                   style: TextStyle(fontSize: 18, color: colorController.textColor.value),
+                 ),
                 const SizedBox(height: 5),
                 Text(
                   'Foibe: Antsororokavo Fianarantsoa 301',
@@ -295,7 +298,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 NeumorphicButton(
                   onPressed: () => _makePhoneCall('*111*1*2*0342943971#'),
                   style: NeumorphicStyle(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.green.withValues(alpha: 0.1),
                     boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
                     depth: 4,
                     intensity: 0.8,
@@ -307,11 +310,11 @@ class _AboutScreenState extends State<AboutScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.monetization_on, color: Colors.green),
+                        Icon(Icons.monetization_on, color: Colors.green),
                         const SizedBox(width: 8),
-                        const Text(
+                        Text(
                           'fanohanana',
-                          style: TextStyle(color: Colors.green),
+                          style: const TextStyle(color: Colors.green),
                         ),
                       ],
                     ),
@@ -361,7 +364,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   NeumorphicButton(
                     onPressed: _checkingForUpdates ? null : _downloadAndInstallUpdate,
                     style: NeumorphicStyle(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha: 0.1),
                       boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
                       depth: 4,
                       intensity: 0.8,
@@ -382,45 +385,21 @@ class _AboutScreenState extends State<AboutScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
                                 ),
                               )
-                            : const Icon(Icons.download, color: Colors.orange),
+                            : Icon(Icons.download, color: Colors.orange),
                           const SizedBox(width: 8),
-                          Text(
-                            _flexibleUpdateDownloaded
-                              ? 'Download & Install'
-                              : (_checkingForUpdates ? 'Download...' : 'Download'),
-                            style: const TextStyle(color: Colors.orange),
-                          ),
+                            Text(
+                              _flexibleUpdateDownloaded
+                                ? 'Download & Install'
+                                : (_checkingForUpdates ? 'Download...' : 'Download'),
+                              style: TextStyle(color: Colors.orange),
+                            ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
 
-                  NeumorphicButton(
-                    onPressed: _checkingForUpdates ? null : _performImmediateUpdate,
-                    style: NeumorphicStyle(
-                      color: Colors.red.withOpacity(0.1),
-                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-                      depth: 4,
-                      intensity: 0.8,
-                    ),
-                    child: Container(
-                      width: 250,
-                      height: 45,
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.update, color: Colors.red),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Vaovao',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+
                 ],
                 const SizedBox(height: 10),
                 Text(

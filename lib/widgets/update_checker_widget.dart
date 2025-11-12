@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import 'package:fihirana/services/apk_download_service.dart';
 
 class UpdateCheckerWidget extends StatefulWidget {
   final Widget child;
@@ -68,6 +69,57 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
     }
   }
 
+  Future<void> _downloadAndUpdate() async {
+    setState(() {
+      _checkingForUpdates = true;
+    });
+
+    try {
+      await VersionCheckService.downloadAndInstallLatestVersion();
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Tsy afaka mandefa: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _checkingForUpdates = false;
+        });
+      }
+    }
+  }
+
+  void _showUpdateDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Hampiditra vaovao'),
+          content: const Text(
+              'Tena te hampiditra ny version vaovao? Handefa anaty rakitra ary hametraka azy ho azy.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Tsia'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _downloadAndUpdate();
+              },
+              child: const Text('Eny'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -78,7 +130,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
             top: 16,
             right: 16,
             child: GestureDetector(
-              onTap: _checkForUpdates,
+              onTap: _showUpdateDialog,
               child: Stack(
                 alignment: Alignment.center,
                 children: [

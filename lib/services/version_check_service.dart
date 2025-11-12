@@ -9,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'apk_download_service.dart';
+import 'pubspec_service.dart';
 
 class VersionCheckService {
   static const String GITHUB_API_URL =
@@ -79,8 +81,7 @@ static Future<void> checkForUpdate() async {
       final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
       final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
 
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
       
       // First check GitHub for the latest version
       final githubHasUpdate = await _checkGitHubVersionOnly();
@@ -171,11 +172,12 @@ static Future<void> checkForUpdate() async {
     } else if (receivedAction.buttonKeyPressed == 'DISMISS') {
       // Save the current version as dismissed to prevent future notifications
       final prefs = await SharedPreferences.getInstance();
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
       await prefs.setString(DISMISSED_VERSION_KEY, currentVersion);
       
       stopPeriodicCheck();
+    } else if (receivedAction.buttonKeyPressed == 'CANCEL_DOWNLOAD') {
+      await ApkDownloadService.handleDownloadAction('CANCEL_DOWNLOAD');
     }
   }
 
@@ -244,8 +246,16 @@ static Future<bool> checkForUpdateManually() async {
       final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
       
       // Check GitHub for accurate version info
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
+
+      // Debug mode: skip update check for testing (uncomment to disable updates)
+      // if (kDebugMode) {
+      //   if (kDebugMode) {
+      //     print('🔍 Debug mode: Skipping manual update check for testing');
+      //   }
+      //   await clearUpdateState();
+      //   return false;
+      // }
 
       final response = await http.get(
         Uri.parse(GITHUB_API_URL),
@@ -330,10 +340,18 @@ static Future<bool> checkForUpdateManually() async {
     return _flexibleUpdateAvailable;
   }
 
-static Future<bool> _checkGitHubVersionOnly() async {
+  static Future<bool> _checkGitHubVersionOnly() async {
     try {
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
+
+      // Debug mode: skip update check for testing (uncomment to disable updates)
+      // if (kDebugMode) {
+      //   if (kDebugMode) {
+      //     print('🔍 Debug mode: Skipping update check for testing');
+      //   }
+      //   await clearUpdateState();
+      //   return false;
+      // }
 
       final response = await http.get(
         Uri.parse(GITHUB_API_URL),
@@ -382,8 +400,7 @@ static Future<bool> _checkGitHubVersionOnly() async {
       final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
       final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
 
-      final packageInfo = await PackageInfo.fromPlatform();
-      final currentVersion = packageInfo.version.replaceAll('v', '');
+      final currentVersion = await PubspecService.getAppVersion();
 
       final response = await http.get(
         Uri.parse(GITHUB_API_URL),
@@ -481,22 +498,28 @@ static Future<bool> _checkGitHubVersionOnly() async {
 
   static Future<void> _downloadAndInstallUpdate(String url) async {
     try {
-      final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(
-          uri,
-          mode: LaunchMode.externalApplication,
-          webViewConfiguration: const WebViewConfiguration(
-            enableJavaScript: true,
-            enableDomStorage: true,
-          ),
-        );
+      if (_cachedVersion != null) {
+        // Use the new APK download service
+        await ApkDownloadService.downloadAndInstallApk(url, _cachedVersion!);
       } else {
-        final intent = AndroidIntent(
-          action: 'android.intent.action.VIEW',
-          data: url,
-        );
-        await intent.launch();
+        // Fallback to external browser
+        final uri = Uri.parse(url);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(
+            uri,
+            mode: LaunchMode.externalApplication,
+            webViewConfiguration: const WebViewConfiguration(
+              enableJavaScript: true,
+              enableDomStorage: true,
+            ),
+          );
+        } else {
+          final intent = AndroidIntent(
+            action: 'android.intent.action.VIEW',
+            data: url,
+          );
+          await intent.launch();
+        }
       }
     } catch (e) {
       await AwesomeNotifications().createNotification(
@@ -562,5 +585,11 @@ static bool _isNewerVersion(String currentVersion, String latestVersion) {
     _cachedReleaseNotes = null;
     _flexibleUpdateAvailable = false;
     stopPeriodicCheck();
+  }
+
+  static Future<void> downloadAndInstallLatestVersion() async {
+    if (_cachedDownloadUrl != null && _cachedVersion != null) {
+      await ApkDownloadService.downloadAndInstallApk(_cachedDownloadUrl!, _cachedVersion!);
+    }
   }
 }
