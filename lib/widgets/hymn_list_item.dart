@@ -1,10 +1,8 @@
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
 import '../models/hymn.dart';
 import '../utility/navigation_utility.dart';
 import '../services/hymn_service.dart';
-import '../controller/hymn_controller.dart';
 
 class HymnListItem extends StatelessWidget {
   final Hymn hymn;
@@ -184,13 +182,14 @@ class HymnListItem extends StatelessWidget {
     final isLoggedIn = user != null;
     final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
 
-    return Padding(
+return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-child: Neumorphic(
-        style: NeumorphicStyle(
-          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(20)),
-          color: backgroundColor,
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
         ),
+        color: backgroundColor,
         child: ListTile(
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -224,43 +223,33 @@ child: Neumorphic(
                 ),
             ],
           ),
-          leading: Neumorphic(
-style: NeumorphicStyle(
-              boxShape: const NeumorphicBoxShape.circle(),
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: Center(
-                child: Text(
-                  hymn.hymnNumber,
-                  style: TextStyle(
-                    color: backgroundColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+          leading: CircleAvatar(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            radius: 25,
+            child: Text(
+              hymn.hymnNumber,
+              style: TextStyle(
+                color: backgroundColor,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              GetBuilder<HymnController>(
-                builder: (controller) {
-                  final favoriteStatus = controller.favoriteStatuses[hymn.id] ?? '';
+              StreamBuilder<Map<String, String>>(
+                stream: _hymnService.getFavoriteStatusStream(),
+                builder: (context, snapshot) {
+                  final favoriteStatus = snapshot.data?[hymn.id] ?? '';
                   final isFavorite = favoriteStatus.isNotEmpty;
 
-                  return NeumorphicButton(
+                  return IconButton(
                     onPressed: onFavoritePressed,
-                    style: NeumorphicStyle(
-                      shape: NeumorphicShape.concave,
-                      boxShape: const NeumorphicBoxShape.circle(),
-                      depth: isFavorite ? -2 : 2,
-                      color: backgroundColor,
+                    style: IconButton.styleFrom(
+                      backgroundColor: backgroundColor,
+                      padding: const EdgeInsets.all(12),
                     ),
-                    padding: const EdgeInsets.all(12),
-                    child: Icon(
+                    icon: Icon(
                       isFavorite ? Icons.favorite : Icons.favorite_border,
                       color: isFavorite
                           ? (favoriteStatus == 'cloud'
@@ -275,31 +264,25 @@ style: NeumorphicStyle(
               if (isFirebaseHymn &&
                   isLoggedIn &&
                   (hymn.createdByEmail == user.email || isAdmin))
-NeumorphicButton(
+                IconButton(
                   onPressed: () =>
                       NavigationUtility.navigateToEditScreen(context, hymn),
-                  style: NeumorphicStyle(
-                    shape: NeumorphicShape.concave,
-                    boxShape: const NeumorphicBoxShape.circle(),
-                    depth: 2,
-                    color: backgroundColor,
+                  style: IconButton.styleFrom(
+                    backgroundColor: backgroundColor,
+                    padding: const EdgeInsets.all(12),
                   ),
-                  padding: const EdgeInsets.all(12),
-                  child: Icon(Icons.edit, color: textColor, size: 20),
+                  icon: Icon(Icons.edit, color: textColor, size: 20),
                 ),
               if (isFirebaseHymn &&
                   isLoggedIn &&
                   (hymn.createdByEmail == user.email || isAdmin))
-NeumorphicButton(
+                IconButton(
                   onPressed: () => _showDeleteConfirmation(context),
-                  style: NeumorphicStyle(
-                    shape: NeumorphicShape.concave,
-                    boxShape: const NeumorphicBoxShape.circle(),
-                    depth: 2,
-                    color: backgroundColor,
+                  style: IconButton.styleFrom(
+                    backgroundColor: backgroundColor,
+                    padding: const EdgeInsets.all(12),
                   ),
-                  padding: const EdgeInsets.all(12),
-                  child: const Icon(Icons.delete_outline,
+                  icon: const Icon(Icons.delete_outline,
                       color: Colors.red, size: 20),
                 ),
             ],

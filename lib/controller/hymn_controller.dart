@@ -10,7 +10,6 @@ class HymnController extends GetxController {
   final _hymnService = HymnService();
   final favoriteStatuses = <String, String>{}.obs;
   StreamSubscription? _favoriteStatusSubscription;
-  static HymnController? _instance;
 
   void _initFavoriteStatusStream() {
     _favoriteStatusSubscription?.cancel();
@@ -24,18 +23,10 @@ class HymnController extends GetxController {
     );
   }
 
-  factory HymnController() {
-    _instance ??= HymnController._();
-    return _instance!;
-  }
-
-  HymnController._() : super();
-
   @override
   void onInit() {
     super.onInit();
     _initFavoriteStatusStream();
-    _loadHymns();
   }
 
   Stream<Map<String, String>> getFavoriteStatusStream() {
@@ -56,48 +47,28 @@ class HymnController extends GetxController {
     return await _hymnService.searchHymns(query);
   }
 
-  List<Hymn> _sortedHymns = [];
-  List<Hymn> _allHymns = [];
-  bool _loaded = false;
-  
-  Future<void> _loadHymns() async {
-    if (_loaded) return;
-    
-    try {
-      _allHymns = await _hymnService.getLocalHymnsStream().first;
-      _sortedHymns = List<Hymn>.from(_allHymns);
-      _sortedHymns.sort((a, b) {
-        String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-        String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-
-        if (numA.isNotEmpty && numB.isNotEmpty) {
-          return int.parse(numA).compareTo(int.parse(numB));
-        }
-
-        return a.hymnNumber.compareTo(b.hymnNumber);
-      });
-      _loaded = true;
-      update();
-    } catch (e) {
-      _allHymns = [];
-      _sortedHymns = [];
-      _loaded = true;
-    }
-  }
-  
   List<Hymn> filterHymnList(List<Hymn> hymns) {
-    if (!_loaded) {
-      _loadHymns();
-      return [];
-    }
+    hymns.sort((a, b) {
 
-    final searchQuery = searchController.text.toLowerCase().trim();
-    if (searchQuery.isEmpty) return _sortedHymns;
+      String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+      String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
 
-    return _sortedHymns
+      if (numA.isNotEmpty && numB.isNotEmpty) {
+        return int.parse(numA).compareTo(int.parse(numB));
+      }
+
+      return a.hymnNumber.compareTo(b.hymnNumber);
+    });
+
+    final searchQuery = searchController.text.toLowerCase();
+    if (searchQuery.isEmpty) return hymns;
+
+    return hymns
         .where((hymn) =>
             hymn.hymnNumber.toLowerCase().contains(searchQuery) ||
-            hymn.title.toLowerCase().contains(searchQuery))
+            hymn.title.toLowerCase().contains(searchQuery) ||
+            hymn.verses
+                .any((verse) => verse.toLowerCase().contains(searchQuery)))
         .toList();
   }
 

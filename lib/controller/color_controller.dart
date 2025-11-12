@@ -260,6 +260,7 @@ class ColorController extends GetxController {
     );
 
     update();
+    Get.forceAppUpdate();
 
     if (accent != null) {
       accentColor.value = accent;
@@ -297,6 +298,7 @@ class ColorController extends GetxController {
     );
 
     update();
+    Get.forceAppUpdate();
   }
 
   Future<void> saveAllColors() async {
