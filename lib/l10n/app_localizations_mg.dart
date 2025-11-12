@@ -15,7 +15,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get home => 'Fandraisana';
 
   @override
-  String get hymns => 'Hira';
+  String get hymns => 'Fihirana';
 
   @override
   String get favorites => 'Hira tiana';
@@ -788,7 +788,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get signIn => 'Midira';
 
   @override
-  String get additionalHymns => 'Hira fanampiny';
+  String get additionalHymns => 'Fihirana fanampiny';
 
   @override
   String errorOccurredColon(String error) {

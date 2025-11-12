@@ -15,6 +15,7 @@ import '../../services/hymn_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/auth_controller.dart';
+import '../../widgets/color_picker_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class HymnDetailScreen extends StatefulWidget {
@@ -220,6 +221,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       _showNote = !_showNote;
                     });
                     break;
+                  case 'color_picker':
+                    ColorPickerWidget.showColorPickerDialog(context);
+                    break;
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -269,6 +273,21 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         const SizedBox(width: 8),
                         Text(
                           l10n.font,
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'color_picker',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.color_lens,
+                          color: colorController.iconColor.value,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.color,
                         ),
                       ],
                     ),

@@ -10,6 +10,19 @@ class ColorPickerWidget extends StatelessWidget {
 
   ColorPickerWidget({super.key});
 
+  // Method to show the color picker as a dialog
+  static void showColorPickerDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: ColorPickerWidget(),
+        );
+      },
+    );
+  }
+
   void _showColorPicker(BuildContext context, String colorType,
       Color currentColor, Function(Color) onColorChanged) {
     final l10n = AppLocalizations.of(context)!;

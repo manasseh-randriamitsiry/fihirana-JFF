@@ -15,11 +15,11 @@ class LanguagePickerWidget extends StatelessWidget {
     return Obx(() => Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
+            color: Theme.of(context).hintColor,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Theme.of(context).shadowColor.withOpacity(0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -40,6 +40,7 @@ class LanguagePickerWidget extends StatelessWidget {
                     l10n.language,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
+                          color: Theme.of(context).textTheme.titleLarge?.color,
                         ),
                   ),
                 ],
@@ -66,13 +67,15 @@ class LanguagePickerWidget extends StatelessWidget {
                           border: Border.all(
                             color: isSelected
                                 ? Theme.of(context).primaryColor
-                                : Colors.grey.withOpacity(0.3),
+                                : Theme.of(context)
+                                    .dividerColor
+                                    .withOpacity(0.3),
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: isSelected
                               ? Theme.of(context).primaryColor.withOpacity(0.1)
-                              : Colors.transparent,
+                              : Theme.of(context).cardColor,
                         ),
                         child: Row(
                           children: [
@@ -93,7 +96,10 @@ class LanguagePickerWidget extends StatelessWidget {
                                           : FontWeight.normal,
                                       color: isSelected
                                           ? Theme.of(context).primaryColor
-                                          : null,
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyLarge
+                                              ?.color,
                                     ),
                               ),
                             ),
@@ -126,6 +132,7 @@ class LanguagePickerDialog extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return Dialog(
+      backgroundColor: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -138,6 +145,7 @@ class LanguagePickerDialog extends StatelessWidget {
               l10n.chooseLanguage,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: Theme.of(context).textTheme.titleLarge?.color,
                   ),
               textAlign: TextAlign.center,
             ),
@@ -159,7 +167,9 @@ class LanguagePickerDialog extends StatelessWidget {
                     style: TextStyle(
                       fontWeight:
                           isSelected ? FontWeight.bold : FontWeight.normal,
-                      color: isSelected ? Theme.of(context).primaryColor : null,
+                      color: isSelected
+                          ? Theme.of(context).primaryColor
+                          : Theme.of(context).textTheme.bodyMedium?.color,
                     ),
                   ),
                   trailing: isSelected
@@ -177,7 +187,7 @@ class LanguagePickerDialog extends StatelessWidget {
                     side: BorderSide(
                       color: isSelected
                           ? Theme.of(context).primaryColor
-                          : Colors.grey.withOpacity(0.3),
+                          : Theme.of(context).dividerColor.withOpacity(0.3),
                       width: isSelected ? 2 : 1,
                     ),
                   ),
@@ -187,7 +197,10 @@ class LanguagePickerDialog extends StatelessWidget {
             const SizedBox(height: 16),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
           ],
         ),

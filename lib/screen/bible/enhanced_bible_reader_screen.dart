@@ -8,6 +8,7 @@ import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
 import '../../models/bible_search.dart';
 import '../../widgets/bible_book_list_item.dart';
+import '../../widgets/color_picker_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class EnhancedBibleReaderScreen extends StatefulWidget {
@@ -218,6 +219,24 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     setState(() {
                       _showSlider = !_showSlider;
                     });
+                  },
+                ),
+                const SizedBox(width: 8),
+
+                // Color picker button
+                NeumorphicButton(
+                  style: NeumorphicStyle(
+                    depth: 2,
+                    color: colorController.backgroundColor.value,
+                    boxShape: NeumorphicBoxShape.circle(),
+                  ),
+                  child: Icon(
+                    Icons.color_lens,
+                    color: colorController.iconColor.value,
+                    size: 20,
+                  ),
+                  onPressed: () {
+                    ColorPickerWidget.showColorPickerDialog(context);
                   },
                 ),
               ],
