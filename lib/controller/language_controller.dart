@@ -5,9 +5,9 @@ import '../l10n/app_localizations.dart';
 
 class LanguageController extends GetxController {
   static const String _languageKey = 'selected_language';
-  
+
   final Rx<Locale> currentLocale = const Locale('mg').obs;
-  
+
   final List<Locale> supportedLocales = [
     const Locale('mg'), // Malagasy
     const Locale('en'), // English
@@ -24,15 +24,61 @@ class LanguageController extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       final languageCode = prefs.getString(_languageKey);
-      
+
       if (languageCode != null) {
         final locale = Locale(languageCode);
         if (supportedLocales.contains(locale)) {
           currentLocale.value = locale;
         }
+      } else {
+        // Auto-detect system language if no language is saved
+        _detectSystemLanguage();
       }
     } catch (e) {
       debugPrint('Error loading language: $e');
+      // Fallback to Malagasy if there's an error
+      currentLocale.value = const Locale('mg');
+    }
+  }
+
+  void _detectSystemLanguage() {
+    try {
+      final systemLocale = Get.deviceLocale ?? const Locale('mg');
+      final supportedLocale = _findSupportedLocale(systemLocale);
+      currentLocale.value = supportedLocale;
+
+      // Save the detected language
+      _saveLanguage(supportedLocale.languageCode);
+    } catch (e) {
+      debugPrint('Error detecting system language: $e');
+      // Fallback to Malagasy
+      currentLocale.value = const Locale('mg');
+    }
+  }
+
+  Locale _findSupportedLocale(Locale systemLocale) {
+    // Check if the exact locale is supported
+    if (supportedLocales.contains(systemLocale)) {
+      return systemLocale;
+    }
+
+    // Check if a locale with the same language code is supported
+    for (final locale in supportedLocales) {
+      if (locale.languageCode == systemLocale.languageCode) {
+        return locale;
+      }
+    }
+
+    // Fallback to Malagasy
+    return const Locale('mg');
+  }
+
+  Future<void> _saveLanguage(String languageCode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_languageKey, languageCode);
+    } catch (e) {
+      debugPrint('Error saving language: $e');
     }
   }
 
@@ -46,10 +92,10 @@ class LanguageController extends GetxController {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_languageKey, locale.languageCode);
       currentLocale.value = locale;
-      
+
       // Update GetX locale
       Get.updateLocale(locale);
-      
+
       debugPrint('Language changed to: ${locale.languageCode}');
     } catch (e) {
       debugPrint('Error changing language: $e');
@@ -83,7 +129,7 @@ class LanguageController extends GetxController {
   }
 
   Locale get currentLocaleValue => currentLocale.value;
-  
+
   bool isCurrentLocale(Locale locale) {
     return currentLocale.value.languageCode == locale.languageCode;
   }

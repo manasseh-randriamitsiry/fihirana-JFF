@@ -26,7 +26,8 @@ import 'services/background_service.dart';
 import 'services/firebase_sync_service.dart';
 
 // Fallback localization delegate for unsupported locales
-class _FallbackMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+class _FallbackMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
   const _FallbackMaterialLocalizationsDelegate();
 
   @override
@@ -47,7 +48,8 @@ class _FallbackMaterialLocalizationsDelegate extends LocalizationsDelegate<Mater
 }
 
 // Fallback Cupertino localization delegate for unsupported locales
-class _FallbackCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+class _FallbackCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
   const _FallbackCupertinoLocalizationsDelegate();
 
   @override
@@ -265,10 +267,22 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     );
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     final bool isFirstTime = widget.prefs.getBool('isFirstTime') ?? true;
-    final LanguageController languageController = Get.find<LanguageController>();
+    final bool hasAgreed = widget.prefs.getBool('has_agreed_to_terms') ?? false;
+    final String? username = widget.prefs.getString('username');
+    final bool hasSelectedLanguage =
+        widget.prefs.getString('selected_language') != null;
+
+    // If user has completed onboarding, go directly to home screen
+    final bool shouldGoToHome = !isFirstTime &&
+        hasAgreed &&
+        (username?.isNotEmpty ?? false) &&
+        hasSelectedLanguage;
+
+    final LanguageController languageController =
+        Get.find<LanguageController>();
 
     return Obx(() {
       final currentFont = fontController.currentFont.value;
@@ -301,7 +315,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
         theme: themeWithFont,
         darkTheme: themeWithFont,
-        initialRoute: isFirstTime ? '/splash' : '/loading',
+        initialRoute:
+            shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading'),
         getPages: [
           GetPage(name: '/splash', page: () => const SplashScreen1()),
           GetPage(name: '/loading', page: () => const LoadingScreen()),

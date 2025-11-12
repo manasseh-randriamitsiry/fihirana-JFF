@@ -506,7 +506,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get chooseFont => 'Safidio endri-tsoratra';
 
   @override
-  String get chooseLanguage => 'Safidio fiteny';
+  String get chooseLanguage => 'Safidio ny fiteny';
 
   @override
   String get searchHymnsHint => 'Karohy hira…';
@@ -1118,4 +1118,61 @@ class AppLocalizationsMg extends AppLocalizations {
   String selectedItems(Object count) {
     return '$count voafidy';
   }
+
+  @override
+  String get welcomeToHymnsApp => 'Tongasoa eto amin\'ny Fihirana';
+
+  @override
+  String get praiseTheLord => 'Miderà an\'i Jehovah fa tsara Izy';
+
+  @override
+  String get hymnsApp => 'Fihirana';
+
+  @override
+  String get aboutTheApp => 'Mombamomba ny fampiharana';
+
+  @override
+  String get features => 'Toetoetony';
+
+  @override
+  String get feature1 => 'Fihirana natao hoan\'ny fiangonana JFF';
+
+  @override
+  String get feature2 => 'Hanamora kokoa ny fiderana an\'Andriamanitra';
+
+  @override
+  String get feature3 => 'Afaka hampiditra hira vaovao ianao';
+
+  @override
+  String get feature4 => 'Mila compte Google ho an\'ny fanampiana';
+
+  @override
+  String get termsOfUse => 'Fepetra fampiasana';
+
+  @override
+  String get term1 => 'Tsy hampiasa ny application amin\'ny fomba ratsy';
+
+  @override
+  String get term2 => 'Tsy hampiditra hira tsy mifanaraka amin\'ny fivavahana JFF';
+
+  @override
+  String get agreement => 'Ekeko ireo fepetra ireo';
+
+  @override
+  String get enterYourName => 'Ampidiro ny anaranao';
+
+  @override
+  String get continueText => 'Tohizana';
+
+  @override
+  String get splashScreenTitle => 'Fihirana jesosy famonjena fahamarinantsika';
+
+  @override
+  String get splashScreenSubtitle => 'Miderà an\'i Jehovah fa tsara Izy';
+
+  @override
+  String get termsAndConditions => 'Fanekena';
+
+  @override
+  String get acceptTerms => 'Ekeko ireo fepetra ireo';
 }

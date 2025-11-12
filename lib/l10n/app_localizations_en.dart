@@ -1118,4 +1118,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String selectedItems(Object count) {
     return '$count selected';
   }
+
+  @override
+  String get welcomeToHymnsApp => 'Welcome to Hymns App';
+
+  @override
+  String get praiseTheLord => 'Praise the Lord for He is good';
+
+  @override
+  String get hymnsApp => 'Hymns App';
+
+  @override
+  String get aboutTheApp => 'About the App';
+
+  @override
+  String get features => 'Features';
+
+  @override
+  String get feature1 => 'Hymns created for JFF church';
+
+  @override
+  String get feature2 => 'Makes worship to God easier';
+
+  @override
+  String get feature3 => 'You can add new hymns';
+
+  @override
+  String get feature4 => 'Need Google account for additional features';
+
+  @override
+  String get termsOfUse => 'Terms of Use';
+
+  @override
+  String get term1 => 'I will not use the application in a bad way';
+
+  @override
+  String get term2 => 'I will not add hymns that do not align with JFF worship';
+
+  @override
+  String get agreement => 'I agree to the terms above';
+
+  @override
+  String get enterYourName => 'Enter your name';
+
+  @override
+  String get continueText => 'Continue';
+
+  @override
+  String get splashScreenTitle => 'Hymns of Jesus Savior of Our Souls';
+
+  @override
+  String get splashScreenSubtitle => 'Praise the Lord for He is good';
+
+  @override
+  String get termsAndConditions => 'Terms and Conditions';
+
+  @override
+  String get acceptTerms => 'Accept terms';
 }

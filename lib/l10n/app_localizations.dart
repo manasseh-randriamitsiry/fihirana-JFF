@@ -2226,6 +2226,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} selected'**
   String selectedItems(Object count);
+
+  /// No description provided for @welcomeToHymnsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to Hymns App'**
+  String get welcomeToHymnsApp;
+
+  /// No description provided for @praiseTheLord.
+  ///
+  /// In en, this message translates to:
+  /// **'Praise the Lord for He is good'**
+  String get praiseTheLord;
+
+  /// No description provided for @hymnsApp.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymns App'**
+  String get hymnsApp;
+
+  /// No description provided for @aboutTheApp.
+  ///
+  /// In en, this message translates to:
+  /// **'About the App'**
+  String get aboutTheApp;
+
+  /// No description provided for @features.
+  ///
+  /// In en, this message translates to:
+  /// **'Features'**
+  String get features;
+
+  /// No description provided for @feature1.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymns created for JFF church'**
+  String get feature1;
+
+  /// No description provided for @feature2.
+  ///
+  /// In en, this message translates to:
+  /// **'Makes worship to God easier'**
+  String get feature2;
+
+  /// No description provided for @feature3.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add new hymns'**
+  String get feature3;
+
+  /// No description provided for @feature4.
+  ///
+  /// In en, this message translates to:
+  /// **'Need Google account for additional features'**
+  String get feature4;
+
+  /// No description provided for @termsOfUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Use'**
+  String get termsOfUse;
+
+  /// No description provided for @term1.
+  ///
+  /// In en, this message translates to:
+  /// **'I will not use the application in a bad way'**
+  String get term1;
+
+  /// No description provided for @term2.
+  ///
+  /// In en, this message translates to:
+  /// **'I will not add hymns that do not align with JFF worship'**
+  String get term2;
+
+  /// No description provided for @agreement.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the terms above'**
+  String get agreement;
+
+  /// No description provided for @enterYourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get enterYourName;
+
+  /// No description provided for @continueText.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueText;
+
+  /// No description provided for @splashScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymns of Jesus Savior of Our Souls'**
+  String get splashScreenTitle;
+
+  /// No description provided for @splashScreenSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Praise the Lord for He is good'**
+  String get splashScreenSubtitle;
+
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms and Conditions'**
+  String get termsAndConditions;
+
+  /// No description provided for @acceptTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept terms'**
+  String get acceptTerms;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

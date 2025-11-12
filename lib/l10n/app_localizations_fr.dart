@@ -1118,4 +1118,61 @@ class AppLocalizationsFr extends AppLocalizations {
   String selectedItems(Object count) {
     return '$count sélectionné(s)';
   }
+
+  @override
+  String get welcomeToHymnsApp => 'Bienvenue dans l\'application de cantiques';
+
+  @override
+  String get praiseTheLord => 'Louez le Seigneur car il est bon';
+
+  @override
+  String get hymnsApp => 'Cantiques';
+
+  @override
+  String get aboutTheApp => 'À propos de l\'application';
+
+  @override
+  String get features => 'Fonctionnalités';
+
+  @override
+  String get feature1 => 'Cantiques créés pour l\'église JFF';
+
+  @override
+  String get feature2 => 'Facilite l\'adoration de Dieu';
+
+  @override
+  String get feature3 => 'Vous pouvez ajouter de nouveaux cantiques';
+
+  @override
+  String get feature4 => 'Nécessite un compte Google pour les fonctionnalités supplémentaires';
+
+  @override
+  String get termsOfUse => 'Conditions d\'utilisation';
+
+  @override
+  String get term1 => 'Je n\'utiliserai pas l\'application de manière inappropriée';
+
+  @override
+  String get term2 => 'Je n\'ajouterai pas de cantiques qui ne correspondent pas à l\'adoration JFF';
+
+  @override
+  String get agreement => 'J\'accepte les conditions ci-dessus';
+
+  @override
+  String get enterYourName => 'Entrez votre nom';
+
+  @override
+  String get continueText => 'Continuer';
+
+  @override
+  String get splashScreenTitle => 'Cantiques de Jésus Sauveur de Nos Âmes';
+
+  @override
+  String get splashScreenSubtitle => 'Louez le Seigneur car il est bon';
+
+  @override
+  String get termsAndConditions => 'Conditions d\'utilisation';
+
+  @override
+  String get acceptTerms => 'Accepter les conditions';
 }
