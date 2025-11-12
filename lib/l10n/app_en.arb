@@ -173,7 +173,42 @@
   "cannotRefresh": "Cannot refresh",
   "cannotSave": "Cannot save",
   "chooseFont": "Choose a Font",
-  "confirmDeleteHymn": "Are you sure you want to delete this hymn?",
+  "chooseLanguage": "Choose language",
+  "searchHymnsHint": "Search hymns",
+  "chaptersCount": "{count} chapters",
+  "chooseColorFor": "Choose color for {colorType}",
+  "@chooseColorFor": {
+    "placeholders": {
+      "colorType": {"type": "String"}
+    }
+  },
+  "chooseColor": "Choose color",
+  "ok": "OK",
+  "accept": "Accept",
+  "presetColors": "Preset colors",
+  "customColors": "Custom colors",
+  "primaryColor": "Primary color",
+  "textColor": "Text color",
+  "backgroundColor": "Background color",
+  "drawerColor": "Drawer color",
+  "iconColor": "Icon color",
+  "chooseFontStyle": "Choose font style",
+  "sampleText": "Jesus Saves Our Souls",
+  "confirm": "Confirm",
+  "yesLowercase": "yes",
+  "createdByLabel": "Created by: {name}{email}",
+  "@createdByLabel": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "email": {"type": "String"}
+    }
+  },
+  "confirmDeleteHymn": "Are you sure you want to delete the hymn \"{title}\"?",
+  "@confirmDeleteHymn": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
   "copyHymnContent": "Copy hymn content",
   "deleteHymn": "Delete hymn",
   "deleteHymnContent": "Delete selected hymn",
@@ -396,6 +431,7 @@
   "update": "Update",
   "noExpirationDate": "No expiration date",
   "chooseFont": "Choose a Font",
+  "chooseLanguage": "Choose language",
   "loadingBooks": "Loading books...",
   "loadingChapter": "Loading chapter {chapter} from {book}...",
   "settingsSaved": "Settings saved successfully",
@@ -411,5 +447,22 @@
   "searchEntireBible": "Search entire Bible",
   "change": "Change",
   "bibleReader": "Bible Reader",
-  "emailLabel": "Email: {email}"
+  "emailLabel": "Email: {email}",
+  "developedBy": "Developed by",
+  "addressLabel": "Address:",
+  "appVersion": "Version {version}",
+  "appNameSuffix": "JFF",
+  "headquarters": "Headquarters:",
+  "headquartersAddress": "Antsororokavo Fianarantsoa 301",
+  "phoneNumber": "+261 34 29 439 71",
+  "email": "Email",
+  "github": "GitHub",
+  "noHistory": "No history",
+  "clearAllHistoryQuestion": "Clear all history?",
+  "historyCannotBeUndone": "History cannot be undone once deleted.",
+  "deleteSelectedHistoryQuestion": "Delete selected history?",
+  "yes": "Yes",
+  "no": "No",
+  "history": "History",
+  "selectedItems": "{count} selected"
 }

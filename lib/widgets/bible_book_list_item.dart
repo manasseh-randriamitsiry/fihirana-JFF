@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class BibleBookListItem extends StatelessWidget {
   final String bookName;
@@ -18,6 +19,7 @@ class BibleBookListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -31,7 +33,7 @@ class BibleBookListItem extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '$chapterCount toko',
+          l10n.chaptersCount(chapterCount),
           style: TextStyle(
             color: textColor.withOpacity(0.7),
           ),

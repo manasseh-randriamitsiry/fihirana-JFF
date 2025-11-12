@@ -130,7 +130,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
                     children: [
                       Text('${l10n.createdBy}: ${hymn.createdBy}'),
                       if (hymn.createdByEmail != null)
-                        Text('Email: ${hymn.createdByEmail}'),
+                        Text(l10n.emailLabel(hymn.createdByEmail!)),
                       Text(
                           '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}'),
                     ],

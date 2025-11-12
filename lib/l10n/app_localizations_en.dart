@@ -506,6 +506,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseFont => 'Choose a Font';
 
   @override
+  String get chooseLanguage => 'Choose language';
+
+  @override
+  String get searchHymnsHint => 'Search hymns';
+
+  @override
+  String chaptersCount(Object count) {
+    return '$count chapters';
+  }
+
+  @override
+  String chooseColorFor(String colorType) {
+    return 'Choose color for $colorType';
+  }
+
+  @override
+  String get chooseColor => 'Choose color';
+
+  @override
+  String get accept => 'Accept';
+
+  @override
+  String get presetColors => 'Preset colors';
+
+  @override
+  String get customColors => 'Custom colors';
+
+  @override
+  String get primaryColor => 'Primary color';
+
+  @override
+  String get textColor => 'Text color';
+
+  @override
+  String get backgroundColor => 'Background color';
+
+  @override
+  String get drawerColor => 'Drawer color';
+
+  @override
+  String get iconColor => 'Icon color';
+
+  @override
+  String get chooseFontStyle => 'Choose font style';
+
+  @override
+  String get sampleText => 'Jesus Saves Our Souls';
+
+  @override
+  String get yesLowercase => 'yes';
+
+  @override
+  String createdByLabel(String name, String email) {
+    return 'Created by: $name$email';
+  }
+
+  @override
   String confirmDeleteHymn(String title) {
     return 'Are you sure you want to delete the hymn \"$title\"?';
   }
@@ -1020,5 +1077,45 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String emailLabel(Object email) {
     return 'Email: $email';
+  }
+
+  @override
+  String get addressLabel => 'Address:';
+
+  @override
+  String appVersion(Object version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get appNameSuffix => 'JFF';
+
+  @override
+  String get headquarters => 'Headquarters:';
+
+  @override
+  String get headquartersAddress => 'Antsororokavo Fianarantsoa 301';
+
+  @override
+  String get phoneNumber => '+261 34 29 439 71';
+
+  @override
+  String get github => 'GitHub';
+
+  @override
+  String get noHistory => 'No history';
+
+  @override
+  String get clearAllHistoryQuestion => 'Clear all history?';
+
+  @override
+  String get historyCannotBeUndone => 'History cannot be undone once deleted.';
+
+  @override
+  String get deleteSelectedHistoryQuestion => 'Delete selected history?';
+
+  @override
+  String selectedItems(Object count) {
+    return '$count selected';
   }
 }

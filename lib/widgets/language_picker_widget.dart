@@ -8,107 +8,111 @@ class LanguagePickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LanguageController languageController = Get.find<LanguageController>();
+    final LanguageController languageController =
+        Get.find<LanguageController>();
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return Obx(() => Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.language,
-                color: Theme.of(context).primaryColor,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                l10n.language,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          ...languageController.supportedLocales.map((locale) {
-            final isSelected = languageController.isCurrentLocale(locale);
-            final languageName = languageController.getLanguageName(locale);
-            final languageFlag = languageController.getLanguageFlag(locale);
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.language,
+                    color: Theme.of(context).primaryColor,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    l10n.language,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ...languageController.supportedLocales.map((locale) {
+                final isSelected = languageController.isCurrentLocale(locale);
+                final languageName = languageController.getLanguageName(locale);
+                final languageFlag = languageController.getLanguageFlag(locale);
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => languageController.changeLanguage(locale),
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: isSelected
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey.withOpacity(0.3),
-                        width: isSelected ? 2 : 1,
-                      ),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => languageController.changeLanguage(locale),
                       borderRadius: BorderRadius.circular(8),
-                      color: isSelected
-                          ? Theme.of(context).primaryColor.withOpacity(0.1)
-                          : Colors.transparent,
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          languageFlag,
-                          style: const TextStyle(fontSize: 24),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            languageName,
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              fontWeight: isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isSelected
-                                  ? Theme.of(context).primaryColor
-                                  : null,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? Theme.of(context).primaryColor
+                                : Colors.grey.withOpacity(0.3),
+                            width: isSelected ? 2 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                          color: isSelected
+                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              : Colors.transparent,
+                        ),
+                        child: Row(
+                          children: [
+                            Text(
+                              languageFlag,
+                              style: const TextStyle(fontSize: 24),
                             ),
-                          ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                languageName,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.copyWith(
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      color: isSelected
+                                          ? Theme.of(context).primaryColor
+                                          : null,
+                                    ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(
+                                Icons.check_circle,
+                                color: Theme.of(context).primaryColor,
+                                size: 20,
+                              ),
+                          ],
                         ),
-                        if (isSelected)
-                          Icon(
-                            Icons.check_circle,
-                            color: Theme.of(context).primaryColor,
-                            size: 20,
-                          ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            );
-          }).toList(),
-        ],
-      ),
-    ));
+                );
+              }).toList(),
+            ],
+          ),
+        ));
   }
 }
 
@@ -117,7 +121,9 @@ class LanguagePickerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LanguageController languageController = Get.find<LanguageController>();
+    final LanguageController languageController =
+        Get.find<LanguageController>();
+    final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -129,10 +135,10 @@ class LanguagePickerDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Safidio fiteny / Choose language / Choisissez la langue',
+              l10n.chooseLanguage,
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+                    fontWeight: FontWeight.bold,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -151,12 +157,9 @@ class LanguagePickerDialog extends StatelessWidget {
                   title: Text(
                     languageName,
                     style: TextStyle(
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: isSelected
-                          ? Theme.of(context).primaryColor
-                          : null,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      color: isSelected ? Theme.of(context).primaryColor : null,
                     ),
                   ),
                   trailing: isSelected
@@ -198,7 +201,8 @@ class LanguagePickerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final LanguageController languageController = Get.find<LanguageController>();
+    final LanguageController languageController =
+        Get.find<LanguageController>();
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return Obx(() {

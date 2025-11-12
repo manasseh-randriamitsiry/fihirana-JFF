@@ -51,7 +51,7 @@ class HymnListItem extends StatelessWidget {
                     controller: confirmationController,
                     style: TextStyle(color: textColor),
                     decoration: InputDecoration(
-                      hintText: 'eny',
+                      hintText: l10n.yesLowercase,
                       hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -182,6 +182,7 @@ class HymnListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
     final isLoggedIn = user != null;
     final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
@@ -218,7 +219,11 @@ class HymnListItem extends StatelessWidget {
                 ),
               if (isAdmin && isFirebaseHymn)
                 Text(
-                  'Nampiditra: ${hymn.createdBy}${hymn.createdByEmail != null ? ' (${hymn.createdByEmail})' : ''}',
+                  l10n.createdByLabel(
+                      hymn.createdBy,
+                      hymn.createdByEmail != null
+                          ? ' (${hymn.createdByEmail})'
+                          : ''),
                   style: TextStyle(
                     color: textColor.withOpacity(0.5),
                     fontSize: 12,

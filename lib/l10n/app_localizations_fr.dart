@@ -506,6 +506,63 @@ class AppLocalizationsFr extends AppLocalizations {
   String get chooseFont => 'Choisir une police';
 
   @override
+  String get chooseLanguage => 'Choisir la langue';
+
+  @override
+  String get searchHymnsHint => 'Rechercher des cantiques';
+
+  @override
+  String chaptersCount(Object count) {
+    return '$count chapitres';
+  }
+
+  @override
+  String chooseColorFor(String colorType) {
+    return 'Choisir la couleur pour $colorType';
+  }
+
+  @override
+  String get chooseColor => 'Choisir la couleur';
+
+  @override
+  String get accept => 'Accepter';
+
+  @override
+  String get presetColors => 'Couleurs prédéfinies';
+
+  @override
+  String get customColors => 'Couleurs personnalisées';
+
+  @override
+  String get primaryColor => 'Couleur primaire';
+
+  @override
+  String get textColor => 'Couleur du texte';
+
+  @override
+  String get backgroundColor => 'Couleur de fond';
+
+  @override
+  String get drawerColor => 'Couleur du tiroir';
+
+  @override
+  String get iconColor => 'Couleur de l\'icône';
+
+  @override
+  String get chooseFontStyle => 'Choisir le style de police';
+
+  @override
+  String get sampleText => 'Jésus Sauve Nos Âmes';
+
+  @override
+  String get yesLowercase => 'oui';
+
+  @override
+  String createdByLabel(String name, String email) {
+    return 'Créé par : $name$email';
+  }
+
+  @override
   String confirmDeleteHymn(String title) {
     return 'Êtes-vous sûr de vouloir supprimer le cantique \"$title\"?';
   }
@@ -1020,5 +1077,45 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String emailLabel(Object email) {
     return 'Email : $email';
+  }
+
+  @override
+  String get addressLabel => 'Adresse :';
+
+  @override
+  String appVersion(Object version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get appNameSuffix => 'JFF';
+
+  @override
+  String get headquarters => 'Siège :';
+
+  @override
+  String get headquartersAddress => 'Antsororokavo Fianarantsoa 301';
+
+  @override
+  String get phoneNumber => '+261 34 29 439 71';
+
+  @override
+  String get github => 'GitHub';
+
+  @override
+  String get noHistory => 'Aucun historique';
+
+  @override
+  String get clearAllHistoryQuestion => 'Effacer tout l\'historique ?';
+
+  @override
+  String get historyCannotBeUndone => 'L\'historique ne peut pas être annulé une fois supprimé.';
+
+  @override
+  String get deleteSelectedHistoryQuestion => 'Supprimer l\'historique sélectionné ?';
+
+  @override
+  String selectedItems(Object count) {
+    return '$count sélectionné(s)';
   }
 }

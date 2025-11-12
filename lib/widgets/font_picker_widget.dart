@@ -3,6 +3,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../controller/font_controller.dart';
 import '../controller/color_controller.dart';
+import '../l10n/app_localizations.dart';
 
 class FontPickerWidget extends StatelessWidget {
   final FontController _fontController = Get.find<FontController>();
@@ -12,6 +13,7 @@ class FontPickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Neumorphic(
       style: NeumorphicStyle(
         color: _colorController.backgroundColor.value,
@@ -28,14 +30,15 @@ class FontPickerWidget extends StatelessWidget {
             Neumorphic(
               style: NeumorphicStyle(
                 color: _colorController.primaryColor.value,
-                boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                boxShape:
+                    NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
                 depth: 2,
                 intensity: 0.8,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Text(
-                  'Safidio ny endrika soratra tianao',
+                  l10n.chooseFontStyle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -55,7 +58,8 @@ class FontPickerWidget extends StatelessWidget {
                     return Obx(() => Neumorphic(
                           style: NeumorphicStyle(
                             color: _colorController.backgroundColor.value,
-                            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
+                            boxShape: NeumorphicBoxShape.roundRect(
+                                BorderRadius.circular(8)),
                             depth: 2,
                             intensity: 0.8,
                           ),
@@ -71,7 +75,7 @@ class FontPickerWidget extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  'Jesosy Famonjena Fahamarinantsika',
+                                  l10n.sampleText,
                                   style: _fontController.getFontStyle(
                                     fontName,
                                     TextStyle(
@@ -103,7 +107,7 @@ class FontPickerWidget extends StatelessWidget {
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text(
-                    'Ekena',
+                    l10n.accept,
                     style: TextStyle(
                       color: _colorController.primaryColor.value,
                     ),

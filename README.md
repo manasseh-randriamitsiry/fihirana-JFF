@@ -61,3 +61,8 @@ git push origin v1.0.5
 ```
 
 > ✅ The CI/CD build succeeds in **release mode** only if the Firebase JSON and keystore files are correctly configured via secrets.
+
+## after adding language
+```bash
+flutter gen-l10n
+```

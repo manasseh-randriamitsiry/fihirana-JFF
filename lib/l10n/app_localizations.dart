@@ -1087,6 +1087,108 @@ abstract class AppLocalizations {
   /// **'Choose a Font'**
   String get chooseFont;
 
+  /// No description provided for @chooseLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose language'**
+  String get chooseLanguage;
+
+  /// No description provided for @searchHymnsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search hymns'**
+  String get searchHymnsHint;
+
+  /// No description provided for @chaptersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} chapters'**
+  String chaptersCount(Object count);
+
+  /// No description provided for @chooseColorFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose color for {colorType}'**
+  String chooseColorFor(String colorType);
+
+  /// No description provided for @chooseColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose color'**
+  String get chooseColor;
+
+  /// No description provided for @accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get accept;
+
+  /// No description provided for @presetColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Preset colors'**
+  String get presetColors;
+
+  /// No description provided for @customColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom colors'**
+  String get customColors;
+
+  /// No description provided for @primaryColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Primary color'**
+  String get primaryColor;
+
+  /// No description provided for @textColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Text color'**
+  String get textColor;
+
+  /// No description provided for @backgroundColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Background color'**
+  String get backgroundColor;
+
+  /// No description provided for @drawerColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Drawer color'**
+  String get drawerColor;
+
+  /// No description provided for @iconColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon color'**
+  String get iconColor;
+
+  /// No description provided for @chooseFontStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose font style'**
+  String get chooseFontStyle;
+
+  /// No description provided for @sampleText.
+  ///
+  /// In en, this message translates to:
+  /// **'Jesus Saves Our Souls'**
+  String get sampleText;
+
+  /// No description provided for @yesLowercase.
+  ///
+  /// In en, this message translates to:
+  /// **'yes'**
+  String get yesLowercase;
+
+  /// No description provided for @createdByLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Created by: {name}{email}'**
+  String createdByLabel(String name, String email);
+
   /// No description provided for @confirmDeleteHymn.
   ///
   /// In en, this message translates to:
@@ -2052,6 +2154,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Email: {email}'**
   String emailLabel(Object email);
+
+  /// No description provided for @addressLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Address:'**
+  String get addressLabel;
+
+  /// No description provided for @appVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String appVersion(Object version);
+
+  /// No description provided for @appNameSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'JFF'**
+  String get appNameSuffix;
+
+  /// No description provided for @headquarters.
+  ///
+  /// In en, this message translates to:
+  /// **'Headquarters:'**
+  String get headquarters;
+
+  /// No description provided for @headquartersAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Antsororokavo Fianarantsoa 301'**
+  String get headquartersAddress;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'+261 34 29 439 71'**
+  String get phoneNumber;
+
+  /// No description provided for @github.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub'**
+  String get github;
+
+  /// No description provided for @noHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No history'**
+  String get noHistory;
+
+  /// No description provided for @clearAllHistoryQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all history?'**
+  String get clearAllHistoryQuestion;
+
+  /// No description provided for @historyCannotBeUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'History cannot be undone once deleted.'**
+  String get historyCannotBeUndone;
+
+  /// No description provided for @deleteSelectedHistoryQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete selected history?'**
+  String get deleteSelectedHistoryQuestion;
+
+  /// No description provided for @selectedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} selected'**
+  String selectedItems(Object count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

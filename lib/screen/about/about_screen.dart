@@ -195,7 +195,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Version $_appVersion',
+                          l10n.appVersion(_appVersion),
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -208,13 +208,13 @@ class _AboutScreenState extends State<AboutScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '$_appName JFF',
+                  '$_appName ${l10n.appNameSuffix}',
                   style: TextStyle(
                       fontSize: 18, color: colorController.textColor.value),
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Foibe: Antsororokavo Fianarantsoa 301',
+                  '${l10n.headquarters} ${l10n.headquartersAddress}',
                   style: TextStyle(
                       fontSize: 18, color: colorController.textColor.value),
                 ),
@@ -239,7 +239,7 @@ class _AboutScreenState extends State<AboutScreen> {
                             color: colorController.iconColor.value),
                         const SizedBox(width: 8),
                         Text(
-                          '+261 34 29 439 71',
+                          l10n.phoneNumber,
                           style:
                               TextStyle(color: colorController.textColor.value),
                         ),
@@ -269,7 +269,7 @@ class _AboutScreenState extends State<AboutScreen> {
                             color: colorController.iconColor.value),
                         const SizedBox(width: 8),
                         Text(
-                          'Email',
+                          l10n.email,
                           style:
                               TextStyle(color: colorController.textColor.value),
                         ),
@@ -299,7 +299,7 @@ class _AboutScreenState extends State<AboutScreen> {
                             color: colorController.iconColor.value),
                         const SizedBox(width: 8),
                         Text(
-                          'GitHub',
+                          l10n.github,
                           style:
                               TextStyle(color: colorController.textColor.value),
                         ),
@@ -422,11 +422,11 @@ class _AboutScreenState extends State<AboutScreen> {
                 ],
                 const SizedBox(height: 10),
                 Text(
-                  'By Randriamitsiry Valimbavaka Nandrasana Manassé',
+                  '${l10n.developedBy} Randriamitsiry Valimbavaka Nandrasana Manassé',
                   style: TextStyle(color: colorController.textColor.value),
                 ),
                 Text(
-                  'Adiresy: Ambalavao tsienimparihy',
+                  '${l10n.addressLabel} Ambalavao tsienimparihy',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: colorController.textColor.value),
                 ),

@@ -173,7 +173,42 @@
   "cannotRefresh": "Impossible d'actualiser",
   "cannotSave": "Impossible de sauvegarder",
   "chooseFont": "Choisir une police",
-  "confirmDeleteHymn": "Êtes-vous sûr de vouloir supprimer ce cantique?",
+  "chooseLanguage": "Choisir la langue",
+  "searchHymnsHint": "Rechercher des cantiques",
+  "chaptersCount": "{count} chapitres",
+  "chooseColorFor": "Choisir la couleur pour {colorType}",
+  "@chooseColorFor": {
+    "placeholders": {
+      "colorType": {"type": "String"}
+    }
+  },
+  "chooseColor": "Choisir la couleur",
+  "ok": "OK",
+  "accept": "Accepter",
+  "presetColors": "Couleurs prédéfinies",
+  "customColors": "Couleurs personnalisées",
+  "primaryColor": "Couleur primaire",
+  "textColor": "Couleur du texte",
+  "backgroundColor": "Couleur de fond",
+  "drawerColor": "Couleur du tiroir",
+  "iconColor": "Couleur de l'icône",
+  "chooseFontStyle": "Choisir le style de police",
+  "sampleText": "Jésus Sauve Nos Âmes",
+  "confirm": "Confirmer",
+  "yesLowercase": "oui",
+  "createdByLabel": "Créé par : {name}{email}",
+  "@createdByLabel": {
+    "placeholders": {
+      "name": {"type": "String"},
+      "email": {"type": "String"}
+    }
+  },
+  "confirmDeleteHymn": "Êtes-vous sûr de vouloir supprimer le cantique \"{title}\" ?",
+  "@confirmDeleteHymn": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
   "copyHymnContent": "Copier le contenu du cantique",
   "deleteHymn": "Supprimer le cantique",
   "deleteHymnContent": "Supprimer le cantique sélectionné",
@@ -396,6 +431,7 @@
   "update": "Mettre à jour",
   "noExpirationDate": "Aucune date d'expiration",
   "chooseFont": "Choisir une police",
+  "chooseLanguage": "Choisir la langue",
   "loadingBooks": "Chargement des livres...",
   "loadingChapter": "Chargement du chapitre {chapter} de {book}...",
   "settingsSaved": "Paramètres enregistrés avec succès",
@@ -411,5 +447,23 @@
   "searchEntireBible": "Rechercher dans toute la Bible",
   "change": "Changer",
   "bibleReader": "Lecteur de Bible",
-  "emailLabel": "Email : {email}"
+  "emailLabel": "Email : {email}",
+  "developedBy": "Développé par",
+  "addressLabel": "Adresse :",
+  "appVersion": "Version {version}",
+  "appNameSuffix": "JFF",
+  "headquarters": "Siège :",
+  "headquartersAddress": "Antsororokavo Fianarantsoa 301",
+  "phoneNumber": "+261 34 29 439 71",
+  "email": "Email",
+  "github": "GitHub",
+  "noHistory": "Aucun historique",
+  "clearAllHistoryQuestion": "Effacer tout l'historique ?",
+  "historyCannotBeUndone": "L'historique ne peut pas être annulé une fois supprimé.",
+  "deleteSelectedHistoryQuestion": "Supprimer l'historique sélectionné ?",
+  "yes": "Oui",
+  "no": "Non",
+  "history": "Historique",
+  "selectedItems": "{count} sélectionné(s)"
+
 }
