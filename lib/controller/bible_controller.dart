@@ -31,6 +31,11 @@ class BibleController extends GetxController {
   // Filtered books for search
   var filteredBooks = <String>[].obs;
 
+  // Books organized by testament
+  var booksByTestament = <String, List<String>>{}.obs;
+  var oldTestamentBooks = <String>[].obs;
+  var newTestamentBooks = <String>[].obs;
+
   // Search functionality
   var searchQuery = ''.obs;
   var searchResults = <BibleSearchResult>[].obs;
@@ -56,8 +61,11 @@ class BibleController extends GetxController {
       await _bibleService.initialize((message) {
         loadingMessage.value = message;
       });
-      // Get all book names
+      // Get all book names and organize by testament
       bookList.value = _bibleService.getAllBookNames();
+      booksByTestament.value = _bibleService.getAllBooksByTestament();
+      oldTestamentBooks.value = _bibleService.getOldTestamentBooks();
+      newTestamentBooks.value = _bibleService.getNewTestamentBooks();
     } catch (e) {
       if (kDebugMode) {
         print('Error initializing Bible service: $e');
@@ -227,6 +235,18 @@ class BibleController extends GetxController {
 
   List<String> getAllBooks() {
     return _bibleService.getAllBookNames();
+  }
+
+  Map<String, List<String>> getAllBooksByTestament() {
+    return _bibleService.getAllBooksByTestament();
+  }
+
+  List<String> getOldTestamentBooks() {
+    return _bibleService.getOldTestamentBooks();
+  }
+
+  List<String> getNewTestamentBooks() {
+    return _bibleService.getNewTestamentBooks();
   }
 
   List<int> getChaptersForSelectedBook() {

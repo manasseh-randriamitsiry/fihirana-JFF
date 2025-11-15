@@ -545,44 +545,146 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
         // Font size slider
         if (_showSlider) _buildNeumorphicFontSizeSlider(colorController),
 
-        // Books grid
+        // Books organized by testament
         Expanded(
           child: Obx(() {
             if (bibleController.isLoading.value) {
               return _buildLoadingWidget(colorController);
             }
 
-            final filteredBooks = bibleController.filteredBooks.isEmpty
-                ? bibleController.bookList
-                : bibleController.filteredBooks;
+            final booksByTestament = bibleController.filteredBooks.isEmpty
+                ? bibleController.booksByTestament
+                : _getFilteredBooksByTestament();
 
             return AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              child: GridView.builder(
-                key: ValueKey(filteredBooks.length),
+              child: ListView.builder(
+                key: ValueKey(booksByTestament.length),
                 padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 2.5,
-                ),
-                itemCount: filteredBooks.length,
+                itemCount: booksByTestament.length,
                 itemBuilder: (context, index) {
-                  final bookName = filteredBooks[index];
-                  final chapterCount =
-                      bibleController.getChapterCountForBook(bookName);
+                  final testamentName = booksByTestament.keys.elementAt(index);
+                  final books = booksByTestament[testamentName]!;
 
-                  return _buildNeumorphicBookItem(
-                    bookName: bookName,
-                    chapterCount: chapterCount,
+                  return _buildTestamentSection(
+                    testamentName: testamentName,
+                    books: books,
                     colorController: colorController,
-                    onTap: () => bibleController.selectBook(bookName),
                   );
                 },
               ),
             );
           }),
+        ),
+      ],
+    );
+  }
+
+  Map<String, List<String>> _getFilteredBooksByTestament() {
+    final filteredBooks = bibleController.filteredBooks;
+    final allBooksByTestament = bibleController.booksByTestament;
+    
+    final result = <String, List<String>>{};
+    
+    for (final testamentName in allBooksByTestament.keys) {
+      final testamentBooks = allBooksByTestament[testamentName]!;
+      final filteredTestamentBooks = testamentBooks
+          .where((book) => filteredBooks.contains(book))
+          .toList();
+      
+      if (filteredTestamentBooks.isNotEmpty) {
+        result[testamentName] = filteredTestamentBooks;
+      }
+    }
+    
+    return result;
+  }
+
+  Widget _buildTestamentSection({
+    required String testamentName,
+    required List<String> books,
+    required ColorController colorController,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Testament header
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Neumorphic(
+            style: NeumorphicStyle(
+              depth: 3,
+              intensity: 0.8,
+              color: colorController.primaryColor.value.withOpacity(0.1),
+              boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.menu_book,
+                    color: colorController.primaryColor.value,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      testamentName,
+                      style: TextStyle(
+                        color: colorController.primaryColor.value,
+                        fontSize: _fontSize * 1.1,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colorController.primaryColor.value,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '${books.length} boky',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // Books grid for this testament
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(bottom: 24),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 2.5,
+          ),
+          itemCount: books.length,
+          itemBuilder: (context, index) {
+            final bookName = books[index];
+            final chapterCount = bibleController.getChapterCountForBook(bookName);
+
+            return _buildNeumorphicBookItem(
+              bookName: bookName,
+              chapterCount: chapterCount,
+              colorController: colorController,
+              onTap: () => bibleController.selectBook(bookName),
+            );
+          },
         ),
       ],
     );

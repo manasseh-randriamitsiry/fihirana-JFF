@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
 import '../models/bible.dart';
+import '../utility/bible_book_order.dart';
 
 class BibleService {
   static final BibleService _instance = BibleService._internal();
@@ -117,8 +118,8 @@ class BibleService {
                 fileName.substring(0, fileName.lastIndexOf('.'));
             final isOldTestament = assetPath.contains('Testameta taloha');
             final bookName = isOldTestament
-                ? _getOldTestamentBookDisplayName(bookFileName)
-                : _getNewTestamentBookDisplayName(bookFileName);
+                ? BibleBookOrder.getOldTestamentDisplayName(bookFileName)
+                : BibleBookOrder.getNewTestamentDisplayName(bookFileName);
 
             // Parse JSON data directly without compute for better performance in this case
             final jsonData = json.decode(jsonString) as Map<String, dynamic>;
@@ -249,7 +250,7 @@ class BibleService {
               'assets/baiboly/Testameta taloha/$bookFileName.json';
           final jsonString = await rootBundle.loadString(assetPath);
           final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-          final bookName = _getOldTestamentBookDisplayName(bookFileName);
+          final bookName = BibleBookOrder.getOldTestamentDisplayName(bookFileName);
           final book = BibleBook.fromJson(jsonData, bookName);
           _bibleCache[book.name] = book;
           loadedBooks++;
@@ -271,7 +272,7 @@ class BibleService {
               'assets/baiboly/Testameta vaovao/$bookFileName.json';
           final jsonString = await rootBundle.loadString(assetPath);
           final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-          final bookName = _getNewTestamentBookDisplayName(bookFileName);
+          final bookName = BibleBookOrder.getNewTestamentDisplayName(bookFileName);
           final book = BibleBook.fromJson(jsonData, bookName);
           _bibleCache[book.name] = book;
           loadedBooks++;
@@ -299,85 +300,7 @@ class BibleService {
     }
   }
 
-  String _getOldTestamentBookDisplayName(String fileName) {
-    final bookNames = {
-      'amosa': 'Amosa',
-      'daniela': 'Daniela',
-      'deoteronomia': 'Deoteronomia',
-      'eksodosy': 'Eksodosy',
-      'estera': 'Estera',
-      'ezekiela': 'Ezekiela',
-      'ezra': 'Ezra',
-      'fitomaniana': 'Fitomaniana',
-      'genesisy': 'Genesisy',
-      'habakoka': 'Habakoka',
-      'hagay': 'Hagay',
-      'hosea': 'Hosea',
-      'isaia': 'Isaia',
-      'jeremia': 'Jeremia',
-      'joba': 'Joba',
-      'joela': 'Joela',
-      'jona': 'Jona',
-      'josoa': 'Josoa',
-      'lioka': 'Lioka',
-      'malakia': 'Malakia',
-      'mika': 'Mika',
-      'mpanjaka-faharoa': 'Mpanjaka Faharoa',
-      'mpanjaka-voalohany': 'Mpanjaka Voalohany',
-      'mpitoriteny': 'Mpitoriteny',
-      'mpitsara': 'Mpitsara',
-      'nahoma': 'Nahoma',
-      'nehemia': 'Nehemia',
-      'nomery': 'Nomery',
-      'obadia': 'Obadia',
-      'ohabolana': 'Ohabolana',
-      'rota': 'Rota',
-      'salamo': 'Salamo',
-      'samoela-faharoa': 'Samoela Faharoa',
-      'samoela-voalohany': 'Samoela Voalohany',
-      'tantara-faharoa': 'Tantara Faharoa',
-      'tantara-voalohany': 'Tantara Voalohany',
-      'tononkirani-solomona': 'Tononkirani Solomona',
-      'zakaria': 'Zakaria',
-      'zefania': 'Zefania'
-    };
 
-    return bookNames[fileName] ?? fileName;
-  }
-
-  String _getNewTestamentBookDisplayName(String fileName) {
-    final bookNames = {
-      '1-jaona': '1 Jaona',
-      '1-korintianina': '1 Korintianina',
-      '1-petera': '1 Petera',
-      '1-tesalonianina': '1 Tesalonianina',
-      '1-timoty': '1 Timoty',
-      '2-jaona': '2 Jaona',
-      '2-korintianina': '2 Korintianina',
-      '2-petera': '2 Petera',
-      '2-tesalonianina': '2 Tesalonianina',
-      '2-timoty': '2 Timoty',
-      '3-jaona': '3 Jaona',
-      'apokalypsy': 'Apokalypsy',
-      'asanny-apostoly': 'Asanny Apostoly',
-      'efesianina': 'Efesianina',
-      'filemona': 'Filemona',
-      'filipianina': 'Filipianina',
-      'galatianina': 'Galatianina',
-      'hebreo': 'Hebreo',
-      'jakoba': 'Jakoba',
-      'jaona': 'Jaona',
-      'joda': 'Joda',
-      'kolosianina': 'Kolosianina',
-      'levitikosy': 'Levitikosy',
-      'marka': 'Marka',
-      'matio': 'Matio',
-      'romanina': 'Romanina',
-      'titosy': 'Titosy'
-    };
-
-    return bookNames[fileName] ?? fileName;
-  }
 
   // Get all Bible books
   List<BibleBook> getAllBooks() {
@@ -394,7 +317,30 @@ class BibleService {
 
   // New methods needed by BibleController
   List<String> getAllBookNames() {
-    return _bibleCache.keys.toList()..sort();
+    final allBooks = _bibleCache.keys.toList();
+    // Sort by biblical order instead of alphabetical
+    allBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a).compareTo(BibleBookOrder.getBookOrderPosition(b)));
+    return allBooks;
+  }
+
+  // Get books organized by testament
+  Map<String, List<String>> getAllBooksByTestament() {
+    final allBooks = _bibleCache.keys.toList();
+    return BibleBookOrder.getAllBooksSortedByTestament(allBooks);
+  }
+
+  // Get only Old Testament books in order
+  List<String> getOldTestamentBooks() {
+    final allBooks = _bibleCache.keys.toList();
+    final oldTestamentBooks = allBooks.where(BibleBookOrder.isOldTestamentBook).toList();
+    return BibleBookOrder.getSortedOldTestamentBooks(oldTestamentBooks);
+  }
+
+  // Get only New Testament books in order
+  List<String> getNewTestamentBooks() {
+    final allBooks = _bibleCache.keys.toList();
+    final newTestamentBooks = allBooks.where(BibleBookOrder.isNewTestamentBook).toList();
+    return BibleBookOrder.getSortedNewTestamentBooks(newTestamentBooks);
   }
 
   Future<BibleBook?> getBook(String bookName) async {
@@ -418,11 +364,14 @@ class BibleService {
       return getAllBookNames();
     }
 
-    return _bibleCache.keys
+    final filteredBooks = _bibleCache.keys
         .where(
             (bookName) => bookName.toLowerCase().contains(query.toLowerCase()))
-        .toList()
-      ..sort();
+        .toList();
+    
+    // Sort by biblical order instead of alphabetical
+    filteredBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a).compareTo(BibleBookOrder.getBookOrderPosition(b)));
+    return filteredBooks;
   }
 
   void clearCache() {
