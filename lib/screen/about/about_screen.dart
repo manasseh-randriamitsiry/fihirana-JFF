@@ -15,7 +15,7 @@ class AboutScreen extends StatefulWidget {
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  String _appVersion = '1.0.0';
+  String _appVersion = '1.0.8';
   String _appName = 'Fihirana';
   bool _checkingForUpdates = false;
   bool _updateAvailable = false;
