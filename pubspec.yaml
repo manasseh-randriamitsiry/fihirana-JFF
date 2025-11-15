@@ -64,12 +64,11 @@ flutter:
   generate: true
 
   assets:
-    # Add assets from the images directory to the application.
+    # Add assets from images directory to the application.
     - assets/images/
     - assets/fonts/
     - assets/json/
-    - assets/baiboly/Testameta taloha/
-    - assets/baiboly/Testameta vaovao/
+    - assets/baiboly/
 
   # Explicitly include common asset files to ensure they're not tree-shaken in release mode
   fonts:

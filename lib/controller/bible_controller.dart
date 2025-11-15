@@ -6,6 +6,7 @@ import '../models/bible_highlight.dart';
 import '../models/bible_search.dart';
 import '../services/bible_service.dart';
 import '../services/bible_highlight_service.dart';
+import '../utility/bible_book_order.dart';
 
 class BibleController extends GetxController {
   final BibleService _bibleService = BibleService();
@@ -62,10 +63,33 @@ class BibleController extends GetxController {
         loadingMessage.value = message;
       });
       // Get all book names and organize by testament
-      bookList.value = _bibleService.getAllBookNames();
-      booksByTestament.value = _bibleService.getAllBooksByTestament();
-      oldTestamentBooks.value = _bibleService.getOldTestamentBooks();
-      newTestamentBooks.value = _bibleService.getNewTestamentBooks();
+      final allBookNames = _bibleService.getAllBookNames();
+      
+      // Translate book names to display names if needed
+      final translatedBookList = allBookNames.map((name) => BibleBookOrder.getDisplayName(name)).toList();
+      bookList.value = translatedBookList;
+      
+      // Get books by testament with translated names
+      final booksByTestamentMap = _bibleService.getAllBooksByTestament();
+      final translatedBooksByTestament = <String, List<String>>{};
+      booksByTestamentMap.forEach((testament, books) {
+        translatedBooksByTestament[testament] = books.map((name) => BibleBookOrder.getDisplayName(name)).toList();
+      });
+      booksByTestament.value = translatedBooksByTestament;
+      
+      oldTestamentBooks.value = _bibleService.getOldTestamentBooks().map((name) => BibleBookOrder.getDisplayName(name)).toList();
+      newTestamentBooks.value = _bibleService.getNewTestamentBooks().map((name) => BibleBookOrder.getDisplayName(name)).toList();
+      
+      // Show books with actual content vs total
+      final booksWithContent = _bibleService.getBooksWithContent();
+      final totalBooks = _bibleService.getBookCount();
+      
+      if (kDebugMode) {
+        print('Bible initialization complete:');
+        print('  Total books: $totalBooks');
+        print('  Books with content: ${booksWithContent.length}');
+        print('  Books with placeholders: ${totalBooks - booksWithContent.length}');
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Error initializing Bible service: $e');
@@ -189,7 +213,21 @@ class BibleController extends GetxController {
     if (kDebugMode) {
       print('Selecting book: $bookName');
     }
-    selectedBook.value = bookName;
+    
+    // We need to find the actual book name in the cache
+    // The display name might be translated, so we need to find the original name
+    String actualBookName = bookName;
+    final allBooks = _bibleService.getAllBookNames();
+    
+    // Try to find the book by display name or original name
+    for (final cachedBookName in allBooks) {
+      if (BibleBookOrder.getDisplayName(cachedBookName) == bookName || cachedBookName == bookName) {
+        actualBookName = cachedBookName;
+        break;
+      }
+    }
+    
+    selectedBook.value = actualBookName;
     selectedChapter.value = 0;
     passageText.value = '';
 
@@ -199,9 +237,9 @@ class BibleController extends GetxController {
     isSelecting.value = false;
 
     // Get chapters for the selected book
-    chapterList.value = _bibleService.getChaptersForBook(bookName);
+    chapterList.value = _bibleService.getChaptersForBook(actualBookName);
     if (kDebugMode) {
-      print('Chapter list for $bookName: ${chapterList.toList()}');
+      print('Chapter list for $actualBookName: ${chapterList.toList()}');
     }
   }
 
@@ -247,6 +285,11 @@ class BibleController extends GetxController {
 
   List<String> getNewTestamentBooks() {
     return _bibleService.getNewTestamentBooks();
+  }
+
+  // Get only books that have actual Bible content
+  List<String> getBooksWithContent() {
+    return _bibleService.getBooksWithActualContent();
   }
 
   List<int> getChaptersForSelectedBook() {

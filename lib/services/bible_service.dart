@@ -49,87 +49,51 @@ class BibleService {
 
   Future<void> _loadBibleBooksUltraFast() async {
     try {
-      _onLoadingMessage('Maka lisitra ny boky...');
+      _onLoadingMessage('Maka Baiboly iray manontolo...');
 
-      // Load the manifest to get all JSON files
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+      // Load single bible.json file
+      final jsonString = await rootBundle.loadString('assets/baiboly/bible.json');
+      _onLoadingMessage('Manakatra ny Baiboly...');
 
-      // Filter for Bible books in both Testameta taloha and Testameta vaovao directories
-      final List<String> oldTestamentBooks = manifestMap.keys
-          .where((key) =>
-              key.startsWith('assets/baiboly/Testameta taloha/') &&
-              key.endsWith('.json'))
-          .toList();
+      // Parse JSON data
+      final jsonData = json.decode(jsonString) as Map<String, dynamic>;
+      
+      if (!jsonData.containsKey('books')) {
+        throw Exception('Invalid bible.json format: missing "books" key');
+      }
 
-      final List<String> newTestamentBooks = manifestMap.keys
-          .where((key) =>
-              key.startsWith('assets/baiboly/Testameta vaovao/') &&
-              key.endsWith('.json'))
-          .toList();
+      final booksData = jsonData['books'] as List<dynamic>;
+      final totalBooks = booksData.length;
+      
+      _onLoadingMessage('Mamaky boky $totalBooks...');
 
-      final totalBooks = oldTestamentBooks.length + newTestamentBooks.length;
-      _onLoadingMessage('Maka boky rehetra ($totalBooks boky)...');
-
-      // Combine all books
-      final allBooks = [...oldTestamentBooks, ...newTestamentBooks];
-
-      // Load all JSON strings in parallel for maximum performance
-      _onLoadingMessage('Maka boky rehetra any amin\'ny cache...');
-      final jsonStringFutures = allBooks.map((assetPath) async {
-        try {
-          final jsonString = await rootBundle.loadString(assetPath);
-          return {'path': assetPath, 'data': jsonString};
-        } catch (e) {
-          if (kDebugMode) {
-            print('Failed to load $assetPath: $e');
-          }
-          return {'path': assetPath, 'data': null};
-        }
-      }).toList();
-
-      // Wait for all JSON strings to load
-      final jsonResults = await Future.wait(jsonStringFutures);
-
-      // Filter out failed loads
-      final successfulLoads =
-          jsonResults.where((result) => result['data'] != null).toList();
-
-      _onLoadingMessage('Mamaky boky ${successfulLoads.length}...');
-
-      // Parse all JSON data in parallel batches to avoid memory issues
+      // Parse all books in batches to avoid memory issues
       const batchSize = 10;
       var loadedBooks = 0;
 
-      for (var i = 0; i < successfulLoads.length; i += batchSize) {
-        final end = (i + batchSize < successfulLoads.length)
+      for (var i = 0; i < booksData.length; i += batchSize) {
+        final end = (i + batchSize < booksData.length)
             ? i + batchSize
-            : successfulLoads.length;
-        final batch = successfulLoads.sublist(i, end);
+            : booksData.length;
+        final batch = booksData.sublist(i, end);
 
         // Parse batch in parallel
-        final parseFutures = batch.map((result) async {
-          final assetPath = result['path'] as String;
-          final jsonString = result['data'] as String;
-
+        final parseFutures = batch.map((bookData) async {
           try {
-            final fileName = assetPath.split('/').last;
-            final bookFileName =
-                fileName.substring(0, fileName.lastIndexOf('.'));
-            final isOldTestament = assetPath.contains('Testameta taloha');
-            final bookName = isOldTestament
-                ? BibleBookOrder.getOldTestamentDisplayName(bookFileName)
-                : BibleBookOrder.getNewTestamentDisplayName(bookFileName);
-
-            // Parse JSON data directly without compute for better performance in this case
-            final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-
-            // Create BibleBook directly
-            final book = BibleBook.fromJson(jsonData, bookName);
+            final bookMap = bookData as Map<String, dynamic>;
+            
+            // Extract book name from data
+            final originalBookName = bookMap['name'] as String? ?? 'Unknown Book';
+            
+            // Translate English book names to Malagasy for consistency
+            final bookName = BibleBookOrder.getDisplayName(originalBookName);
+            
+            // Create BibleBook directly from book data
+            final book = BibleBook.fromJson(bookMap, bookName);
             return book;
           } catch (e) {
             if (kDebugMode) {
-              print('Failed to parse $assetPath: $e');
+              print('Failed to parse book: $e');
             }
             return null;
           }
@@ -150,146 +114,85 @@ class BibleService {
           }
         }
 
-        // Add a small delay to prevent blocking the UI
+        // Add a small delay to prevent blocking UI
         await Future.delayed(const Duration(milliseconds: 10));
       }
 
-      _onLoadingMessage('Vita ny famakiana boky ($loadedBooks/$totalBooks)');
+      _onLoadingMessage('Vita ny famakiana Baiboly ($loadedBooks/$totalBooks)');
     } catch (e) {
-      _onLoadingMessage('Nisy olana tamin\'ny famakiana boky: $e');
+      _onLoadingMessage('Nisy olana tamin\'ny famakiana Baiboly: $e');
       rethrow; // Re-throw to trigger fallback
     }
   }
 
+  // Check if a book has actual content (not just placeholder text)
+  bool _bookHasContent(BibleBook book) {
+    for (final chapter in book.chapterData.values) {
+      for (final verseText in chapter.verses.values) {
+        // Check if verse contains actual content (not just placeholder)
+        if (verseText.isNotEmpty && 
+            !verseText.contains('[Tsy misy soratra') && 
+            !verseText.contains('Ampidiro eto ny teny malagasy')) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // Get books with actual content
+  List<String> getBooksWithContent() {
+    return _bibleCache.entries
+        .where((entry) => _bookHasContent(entry.value))
+        .map((entry) => entry.key)
+        .toList();
+  }
+
   Future<void> _loadBibleBooksFallback() async {
     try {
-      _onLoadingMessage('Maka lisitra ny boky (fallback)...');
+      _onLoadingMessage('Maka Baiboly (fallback)...');
 
-      // Fallback method: Try to load specific known books
-      final oldTestamentBooks = [
-        'amosa',
-        'daniela',
-        'deoteronomia',
-        'eksodosy',
-        'estera',
-        'ezekiela',
-        'ezra',
-        'fitomaniana',
-        'genesisy',
-        'habakoka',
-        'hagay',
-        'hosea',
-        'isaia',
-        'jeremia',
-        'joba',
-        'joela',
-        'jona',
-        'josoa',
-        'lioka',
-        'malakia',
-        'mika',
-        'mpanjaka-faharoa',
-        'mpanjaka-voalohany',
-        'mpitoriteny',
-        'mpitsara',
-        'nahoma',
-        'nehemia',
-        'nomery',
-        'obadia',
-        'ohabolana',
-        'rota',
-        'salamo',
-        'samoela-faharoa',
-        'samoela-voalohany',
-        'tantara-faharoa',
-        'tantara-voalohany',
-        'tononkirani-solomona',
-        'zakaria',
-        'zefania'
-      ];
+      // Fallback method: Try to load single bible.json file directly
+      final jsonString = await rootBundle.loadString('assets/baiboly/bible.json');
+      _onLoadingMessage('Manakatra ny Baiboly (fallback)...');
 
-      final newTestamentBooks = [
-        '1-jaona',
-        '1-korintianina',
-        '1-petera',
-        '1-tesalonianina',
-        '1-timoty',
-        '2-jaona',
-        '2-korintianina',
-        '2-petera',
-        '2-tesalonianina',
-        '2-timoty',
-        '3-jaona',
-        'apokalypsy',
-        'asanny-apostoly',
-        'efesianina',
-        'filemona',
-        'filipianina',
-        'galatianina',
-        'hebreo',
-        'jakoba',
-        'jaona',
-        'joda',
-        'kolosianina',
-        'levitikosy',
-        'marka',
-        'matio',
-        'romanina',
-        'titosy'
-      ];
+      // Parse JSON data
+      final jsonData = json.decode(jsonString) as Map<String, dynamic>;
+      
+      if (!jsonData.containsKey('books')) {
+        throw Exception('Invalid bible.json format: missing "books" key');
+      }
 
-      final totalBooks = oldTestamentBooks.length + newTestamentBooks.length;
+      final booksData = jsonData['books'] as List<dynamic>;
+      final totalBooks = booksData.length;
       var loadedBooks = 0;
 
-      _onLoadingMessage('Maka boky rehetra ($totalBooks boky)...');
+      _onLoadingMessage('Mamaky boky ($totalBooks boky)...');
 
-      // Load Old Testament books
-      for (final bookFileName in oldTestamentBooks) {
+      // Parse books one by one for fallback
+      for (final bookData in booksData) {
         try {
-          final assetPath =
-              'assets/baiboly/Testameta taloha/$bookFileName.json';
-          final jsonString = await rootBundle.loadString(assetPath);
-          final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-          final bookName = BibleBookOrder.getOldTestamentDisplayName(bookFileName);
-          final book = BibleBook.fromJson(jsonData, bookName);
+          final bookMap = bookData as Map<String, dynamic>;
+          final bookName = bookMap['name'] as String? ?? 'Unknown Book';
+          
+          final book = BibleBook.fromJson(bookMap, bookName);
           _bibleCache[book.name] = book;
           loadedBooks++;
+          
           if (loadedBooks % 3 == 0) {
             _onLoadingMessage('Voakija: $loadedBooks/$totalBooks boky');
           }
         } catch (e) {
           if (kDebugMode) {
-            print('Failed to load Old Testament book $bookFileName: $e');
+            print('Failed to parse book in fallback: $e');
           }
           continue;
         }
       }
 
-      // Load New Testament books
-      for (final bookFileName in newTestamentBooks) {
-        try {
-          final assetPath =
-              'assets/baiboly/Testameta vaovao/$bookFileName.json';
-          final jsonString = await rootBundle.loadString(assetPath);
-          final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-          final bookName = BibleBookOrder.getNewTestamentDisplayName(bookFileName);
-          final book = BibleBook.fromJson(jsonData, bookName);
-          _bibleCache[book.name] = book;
-          loadedBooks++;
-          if (loadedBooks % 3 == 0) {
-            _onLoadingMessage('Voakija: $loadedBooks/$totalBooks boky');
-          }
-        } catch (e) {
-          if (kDebugMode) {
-            print('Failed to load New Testament book $bookFileName: $e');
-          }
-          continue;
-        }
-      }
-
-      _onLoadingMessage('Vita ny famakiana boky ($loadedBooks/$totalBooks)');
+      _onLoadingMessage('Vita ny famakiana Baiboly ($loadedBooks/$totalBooks)');
     } catch (e) {
-      _onLoadingMessage('Nisy olana tamin\'ny famakiana boky (fallback): $e');
+      _onLoadingMessage('Nisy olana tamin\'ny famakiana Baiboly (fallback): $e');
     }
   }
 
@@ -299,8 +202,6 @@ class BibleService {
       onLoadingMessage!(message);
     }
   }
-
-
 
   // Get all Bible books
   List<BibleBook> getAllBooks() {
@@ -390,5 +291,50 @@ class BibleService {
       info[name] = book.chapters;
     });
     return info;
+  }
+
+  // Get books that have actual Bible content (not placeholders)
+  List<String> getBooksWithActualContent() {
+    return _bibleCache.entries
+        .where((entry) => _bookHasContent(entry.value))
+        .map((entry) => entry.key)
+        .toList();
+  }
+
+  // Check if a specific book has content
+  bool bookHasContent(String bookName) {
+    final book = _bibleCache[bookName];
+    if (book == null) return false;
+    return _bookHasContent(book);
+  }
+
+  // Get placeholder status for a book
+  String getBookStatus(String bookName) {
+    final book = _bibleCache[bookName];
+    if (book == null) return 'Unknown';
+    
+    if (_bookHasContent(book)) {
+      return 'Complete';
+    } else {
+      return 'Placeholder';
+    }
+  }
+
+  // Get books grouped by status
+  Map<String, List<String>> getBooksByStatus() {
+    final Map<String, List<String>> result = {
+      'Complete': [],
+      'Placeholder': []
+    };
+    
+    _bibleCache.forEach((name, book) {
+      if (_bookHasContent(book)) {
+        result['Complete']!.add(name);
+      } else {
+        result['Placeholder']!.add(name);
+      }
+    });
+    
+    return result;
   }
 }

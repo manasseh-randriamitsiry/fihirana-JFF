@@ -14,19 +14,37 @@ class BibleBook {
   factory BibleBook.fromJson(Map<String, dynamic> json, String bookName) {
     final Map<int, BibleChapter> chapters = {};
 
-    // Pre-size map for better performance
-    chapters.reserve(_estimateChapterCount(json));
+    // Handle new format with "chapters" array
+    if (json.containsKey('chapters')) {
+      final chaptersList = json['chapters'] as List<dynamic>;
+      
+      // Pre-size map for better performance
+      chapters.reserve(chaptersList.length);
 
-    // Process chapters more efficiently
-    json.forEach((key, value) {
-      if (value is Map<String, dynamic>) {
-        // Fast integer parsing
-        final chapterNum = _fastParseInt(key);
-        if (chapterNum != null) {
-          chapters[chapterNum] = BibleChapter.fromJson(value, chapterNum);
+      for (final chapterData in chaptersList) {
+        if (chapterData is Map<String, dynamic>) {
+          final chapterNum = chapterData['chapter'] as int? ?? 0;
+          if (chapterNum > 0) {
+            chapters[chapterNum] = BibleChapter.fromJson(chapterData, chapterNum);
+          }
         }
       }
-    });
+    } else {
+      // Handle legacy format (flat structure)
+      // Pre-size map for better performance
+      chapters.reserve(_estimateChapterCount(json));
+
+      // Process chapters more efficiently
+      json.forEach((key, value) {
+        if (value is Map<String, dynamic>) {
+          // Fast integer parsing
+          final chapterNum = _fastParseInt(key);
+          if (chapterNum != null) {
+            chapters[chapterNum] = BibleChapter.fromJson(value, chapterNum);
+          }
+        }
+      });
+    }
 
     return BibleBook(
       name: bookName,
@@ -77,19 +95,38 @@ class BibleChapter {
   factory BibleChapter.fromJson(Map<String, dynamic> json, int chapterNumber) {
     final Map<int, String> verses = {};
 
-    // Pre-size map for better performance
-    verses.reserve(_estimateVerseCount(json));
+    // Handle new format with "verses" array
+    if (json.containsKey('verses')) {
+      final versesList = json['verses'] as List<dynamic>;
+      
+      // Pre-size map for better performance
+      verses.reserve(versesList.length);
 
-    // Process verses more efficiently
-    json.forEach((key, value) {
-      if (value is String) {
-        // Fast integer parsing
-        final verseNum = BibleBook._fastParseInt(key);
-        if (verseNum != null) {
-          verses[verseNum] = value;
+      for (final verseData in versesList) {
+        if (verseData is Map<String, dynamic>) {
+          final verseNum = verseData['verse'] as int? ?? 0;
+          final verseText = verseData['text'] as String? ?? '';
+          if (verseNum > 0 && verseText.isNotEmpty) {
+            verses[verseNum] = verseText;
+          }
         }
       }
-    });
+    } else {
+      // Handle legacy format (flat structure)
+      // Pre-size map for better performance
+      verses.reserve(_estimateVerseCount(json));
+
+      // Process verses more efficiently
+      json.forEach((key, value) {
+        if (value is String) {
+          // Fast integer parsing
+          final verseNum = BibleBook._fastParseInt(key);
+          if (verseNum != null) {
+            verses[verseNum] = value;
+          }
+        }
+      });
+    }
 
     return BibleChapter(
       number: chapterNumber,
