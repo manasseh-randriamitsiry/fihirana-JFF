@@ -1,14 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
-import '../../models/bible_search.dart';
-import '../../widgets/bible_book_list_item.dart';
 import '../../widgets/color_picker_widget.dart';
+import '../../widgets/bible_search_dialog.dart';
 import '../../l10n/app_localizations.dart';
 
 class EnhancedBibleReaderScreen extends StatefulWidget {
@@ -24,8 +20,6 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   final BibleController bibleController = Get.put(BibleController());
   final ColorController colorController = Get.find<ColorController>();
 
-  final TextEditingController _searchController = TextEditingController();
-  final FocusNode _searchFocusNode = FocusNode();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late AnimationController _slideController;
@@ -33,12 +27,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
 
   // Font size variables
   final double _baseFontSize = 18.0;
-  final double _baseCountFontSize = 50.0;
   double _fontSize = 18.0;
-  double _countFontSize = 50.0;
   bool _showSlider = false;
-  bool _showSearchBar = false;
-  BibleSearchContext _currentSearchContext = BibleSearchContext.books;
 
   @override
   void initState() {
@@ -72,7 +62,6 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _fontSize = prefs.getDouble('fontSize') ?? _baseFontSize;
-      _countFontSize = prefs.getDouble('countFontSize') ?? _baseCountFontSize;
     });
   }
 
@@ -80,14 +69,11 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   void dispose() {
     _animationController.dispose();
     _slideController.dispose();
-    _searchController.dispose();
-    _searchFocusNode.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return GetBuilder<ColorController>(
       builder: (colorController) => NeumorphicTheme(
         themeMode: colorController.themeMode,
@@ -180,25 +166,12 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     boxShape: NeumorphicBoxShape.circle(),
                   ),
                   child: Icon(
-                    _showSearchBar ? Icons.close : Icons.search,
+                    Icons.search,
                     color: colorController.iconColor.value,
                     size: 20,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _showSearchBar = !_showSearchBar;
-                      if (_showSearchBar) {
-                        // Request focus when opening search
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          _searchFocusNode.requestFocus();
-                        });
-                      } else {
-                        // Clear search and unfocus when closing
-                        _searchController.clear();
-                        _searchFocusNode.unfocus();
-                        bibleController.filterBooks('');
-                      }
-                    });
+                    _showSearchDialog();
                   },
                 ),
                 const SizedBox(width: 8),
@@ -250,294 +223,22 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   Widget _buildContentArea(ColorController colorController) {
     final selectedBook = bibleController.selectedBook.value;
     final selectedChapter = bibleController.selectedChapter.value;
-    final hasChapters = bibleController.chapterList.isNotEmpty;
-
-    // Update search context based on current view
-    _updateSearchContext();
-
-    // If search is active, show search results
-    if (_showSearchBar && bibleController.searchQuery.value.isNotEmpty) {
-      return _buildSearchResultsView(colorController);
-    }
 
     // If no book selected, show book list
     if (selectedBook.isEmpty) {
-      if (_showSearchBar) {
-        return Column(
-          children: [
-            _buildNeumorphicSearchBar(colorController),
-            Expanded(child: _buildBookListView(colorController)),
-          ],
-        );
-      } else {
-        return _buildBookListView(colorController);
-      }
+      return _buildBookListView(colorController);
     }
 
     // If book selected but no chapter, show chapter selection
     if (selectedChapter == 0) {
-      if (_showSearchBar) {
-        return Column(
-          children: [
-            _buildNeumorphicSearchBar(colorController),
-            Expanded(child: _buildChapterSelectionView(colorController)),
-          ],
-        );
-      } else {
-        return _buildChapterSelectionView(colorController);
-      }
+      return _buildChapterSelectionView(colorController);
     }
 
     // If chapter selected, show verse reading view
-    if (_showSearchBar) {
-      return Column(
-        children: [
-          _buildNeumorphicSearchBar(colorController),
-          Expanded(child: _buildVerseReadingView(colorController)),
-        ],
-      );
-    } else {
-      return _buildVerseReadingView(colorController);
-    }
+    return _buildVerseReadingView(colorController);
   }
 
-  Widget _buildNeumorphicSearchBar(ColorController colorController) {
-    final l10n = AppLocalizations.of(context)!;
-    return Container(
-      margin: const EdgeInsets.all(16),
-      child: Neumorphic(
-        style: NeumorphicStyle(
-          depth: 3,
-          intensity: 0.8,
-          color: colorController.backgroundColor.value,
-          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-        ),
-        child: Column(
-          children: [
-            // Search context selector
-            if (_currentSearchContext != BibleSearchContext.books)
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: colorController.iconColor.value,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _getSearchContextText(l10n),
-                        style: TextStyle(
-                          color:
-                              colorController.textColor.value.withOpacity(0.7),
-                          fontSize: _fontSize * 0.8,
-                        ),
-                      ),
-                    ),
-                    NeumorphicButton(
-                      style: NeumorphicStyle(
-                        depth: 1,
-                        color: colorController.backgroundColor.value,
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
-                      onPressed: () =>
-                          _showSearchContextDialog(colorController),
-                      child: Text(
-                        l10n.change,
-                        style: TextStyle(
-                          color: colorController.primaryColor.value,
-                          fontSize: _fontSize * 0.8,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
 
-            // Search input
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                controller: _searchController,
-                focusNode: _searchFocusNode,
-                style: TextStyle(
-                  color: colorController.textColor.value,
-                  fontSize: _fontSize,
-                ),
-                decoration: InputDecoration(
-                  hintText: _getSearchHintText(l10n),
-                  hintStyle: TextStyle(
-                    color: colorController.textColor.value.withOpacity(0.6),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: colorController.iconColor.value,
-                  ),
-                  suffixIcon: bibleController.searchQuery.value.isNotEmpty
-                      ? NeumorphicButton(
-                          style: NeumorphicStyle(
-                            depth: 1,
-                            color: colorController.backgroundColor.value,
-                            boxShape: NeumorphicBoxShape.circle(),
-                          ),
-                          child: Icon(
-                            Icons.clear,
-                            color: colorController.iconColor.value,
-                            size: 16,
-                          ),
-                          onPressed: () {
-                            _searchController.clear();
-                            bibleController.performSearch('');
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
-                ),
-                onChanged: (value) {
-                  bibleController.performSearch(value);
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  String _getSearchContextText(AppLocalizations l10n) {
-    switch (_currentSearchContext) {
-      case BibleSearchContext.books:
-        return l10n.searchBooks;
-      case BibleSearchContext.currentChapter:
-        return l10n.searchCurrentChapter(
-            bibleController.selectedChapter.value.toString());
-      case BibleSearchContext.allBible:
-        return l10n.searchEntireBible;
-    }
-  }
-
-  String _getSearchHintText(AppLocalizations l10n) {
-    switch (_currentSearchContext) {
-      case BibleSearchContext.books:
-        return l10n.searchBooks;
-      case BibleSearchContext.currentChapter:
-        return l10n.searchCurrentChapter(
-            bibleController.selectedChapter.value.toString());
-      case BibleSearchContext.allBible:
-        return l10n.searchEntireBible;
-    }
-  }
-
-  void _showSearchContextDialog(ColorController colorController) {
-    Get.dialog(
-      Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          child: Neumorphic(
-            style: NeumorphicStyle(
-              depth: 4,
-              color: colorController.backgroundColor.value,
-              boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(16)),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Safidio ny karoka',
-                    style: TextStyle(
-                      color: colorController.textColor.value,
-                      fontSize: _fontSize * 1.2,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  ...BibleSearchContext.values.map((context) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: NeumorphicButton(
-                        style: NeumorphicStyle(
-                          depth: 2,
-                          color: _currentSearchContext == context
-                              ? colorController.primaryColor.value
-                              : colorController.backgroundColor.value,
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        onPressed: () {
-                          _currentSearchContext = context;
-                          bibleController.setSearchContext(context);
-                          Get.back();
-                        },
-                        child: Row(
-                          children: [
-                            Icon(
-                              _getSearchContextIcon(context),
-                              color: _currentSearchContext == context
-                                  ? Colors.white
-                                  : colorController.textColor.value,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                _getSearchContextTitle(context),
-                                style: TextStyle(
-                                  color: _currentSearchContext == context
-                                      ? Colors.white
-                                      : colorController.textColor.value,
-                                  fontSize: _fontSize,
-                                ),
-                              ),
-                            ),
-                            if (_currentSearchContext == context)
-                              Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  IconData _getSearchContextIcon(BibleSearchContext context) {
-    switch (context) {
-      case BibleSearchContext.books:
-        return Icons.book;
-      case BibleSearchContext.currentChapter:
-        return Icons.article;
-      case BibleSearchContext.allBible:
-        return Icons.menu_book;
-    }
-  }
-
-  String _getSearchContextTitle(BibleSearchContext context) {
-    switch (context) {
-      case BibleSearchContext.books:
-        return 'Boky iray';
-      case BibleSearchContext.currentChapter:
-        return 'Toko misy anko';
-      case BibleSearchContext.allBible:
-        return 'Baiboly manontolo';
-    }
-  }
 
   Widget _buildBookListView(ColorController colorController) {
     return Column(
@@ -1109,8 +810,6 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 onChanged: (double value) {
                   setState(() {
                     _fontSize = value;
-                    _countFontSize =
-                        value * (_baseCountFontSize / _baseFontSize);
                   });
                 },
                 onChangeEnd: (double value) async {
@@ -1171,197 +870,12 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     }
   }
 
-  void _saveHighlight() async {
-    // Implementation for saving highlights
-    // This would integrate with the existing highlight functionality
-  }
-
-  void _shareSelectedVerses() {
-    // Implementation for sharing selected verses
-    // This would integrate with existing share functionality
-  }
-
-  void _updateSearchContext() {
-    final selectedBook = bibleController.selectedBook.value;
-    final selectedChapter = bibleController.selectedChapter.value;
-
-    if (selectedBook.isEmpty) {
-      _currentSearchContext = BibleSearchContext.books;
-    } else if (selectedChapter == 0) {
-      _currentSearchContext = BibleSearchContext.books;
-    } else {
-      _currentSearchContext = BibleSearchContext.currentChapter;
-    }
-
-    bibleController.setSearchContext(_currentSearchContext);
-  }
-
-  Widget _buildSearchResultsView(ColorController colorController) {
-    return Column(
-      children: [
-        _buildNeumorphicSearchBar(colorController),
-        Expanded(
-          child: Obx(() {
-            if (bibleController.isSearching.value) {
-              return _buildLoadingWidget(colorController);
-            }
-
-            if (bibleController.searchResults.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.search_off,
-                      size: 64,
-                      color: colorController.textColor.value.withOpacity(0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Tsy misy valiny',
-                      style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.7),
-                        fontSize: _fontSize,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: bibleController.searchResults.length,
-              itemBuilder: (context, index) {
-                final result = bibleController.searchResults[index];
-                return _buildSearchResultItem(result, colorController);
-              },
-            );
-          }),
-        ),
-      ],
+  void _showSearchDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => const BibleSearchDialog(),
     );
   }
 
-  Widget _buildSearchResultItem(
-      BibleSearchResult result, ColorController colorController) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: NeumorphicButton(
-        style: NeumorphicStyle(
-          depth: 2,
-          intensity: 0.8,
-          color: colorController.backgroundColor.value,
-          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-        ),
-        padding: const EdgeInsets.all(16),
-        onPressed: () => bibleController.navigateToSearchResult(result),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  result.type == BibleSearchResultType.book
-                      ? Icons.book
-                      : Icons.article,
-                  color: colorController.primaryColor.value,
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    result.displayText,
-                    style: TextStyle(
-                      color: colorController.primaryColor.value,
-                      fontSize: _fontSize,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (result.type == BibleSearchResultType.verse)
-              _buildHighlightedVerseText(result, colorController)
-            else
-              Text(
-                result.subtitle,
-                style: TextStyle(
-                  color: colorController.textColor.value.withOpacity(0.7),
-                  fontSize: _fontSize * 0.9,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHighlightedVerseText(
-      BibleSearchResult result, ColorController colorController) {
-    final query = bibleController.searchQuery.value;
-    if (query.isEmpty) {
-      return Text(
-        result.text,
-        style: TextStyle(
-          color: colorController.textColor.value.withOpacity(0.7),
-          fontSize: _fontSize * 0.9,
-        ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      );
-    }
-
-    final List<TextSpan> spans = [];
-    final lowerText = result.text.toLowerCase();
-    final lowerQuery = query.toLowerCase();
-
-    int start = 0;
-    int index = lowerText.indexOf(lowerQuery);
-
-    while (index != -1) {
-      // Add text before match
-      if (index > start) {
-        spans.add(TextSpan(
-          text: result.text.substring(start, index),
-          style: TextStyle(
-            color: colorController.textColor.value.withOpacity(0.7),
-            fontSize: _fontSize * 0.9,
-          ),
-        ));
-      }
-
-      // Add highlighted match
-      spans.add(TextSpan(
-        text: result.text.substring(index, index + query.length),
-        style: TextStyle(
-          backgroundColor: colorController.primaryColor.value.withOpacity(0.3),
-          color: colorController.primaryColor.value,
-          fontSize: _fontSize * 0.9,
-          fontWeight: FontWeight.bold,
-        ),
-      ));
-
-      start = index + query.length;
-      index = lowerText.indexOf(lowerQuery, start);
-    }
-
-    // Add remaining text
-    if (start < result.text.length) {
-      spans.add(TextSpan(
-        text: result.text.substring(start),
-        style: TextStyle(
-          color: colorController.textColor.value.withOpacity(0.7),
-          fontSize: _fontSize * 0.9,
-        ),
-      ));
-    }
-
-    return RichText(
-      text: TextSpan(children: spans),
-      maxLines: 3,
-      overflow: TextOverflow.ellipsis,
-    );
-  }
 }
