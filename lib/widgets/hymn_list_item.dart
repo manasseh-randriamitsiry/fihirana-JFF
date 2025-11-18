@@ -38,18 +38,26 @@ class _HymnListItemState extends State<HymnListItem> {
   @override
   void initState() {
     super.initState();
-    _checkAudioAvailability();
+    // Defer audio check to after initial build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkAudioAvailability();
+    });
   }
 
   Future<void> _checkAudioAvailability() async {
     if (widget.onMusicPressed != null) {
-      final hasAudio = await _audioService.checkAudioFileExists(widget.hymn.id);
-      if (mounted) {
-        setState(() {
-          _hasAudio = hasAudio;
-          _audioChecked = true;
-        });
-      }
+      // Use a delayed check to not block initial rendering
+      Future.delayed(const Duration(milliseconds: 100), () async {
+        if (!mounted) return;
+        
+        final hasAudio = await _audioService.checkAudioFileExists(widget.hymn.id);
+        if (mounted) {
+          setState(() {
+            _hasAudio = hasAudio;
+            _audioChecked = true;
+          });
+        }
+      });
     } else {
       setState(() {
         _audioChecked = true;

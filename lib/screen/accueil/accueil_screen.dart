@@ -28,6 +28,7 @@ class AccueilScreen extends StatefulWidget {
 class AccueilScreenState extends State<AccueilScreen> {
   final HymnController _hymnController = Get.put(HymnController());
   bool _updateAvailable = false;
+  final Set<String> _checkedHymnIds = <String>{};
 
   void _showAudioPlayerDialog(Hymn hymn) {
     final ColorController colorController = Get.find<ColorController>();
@@ -81,12 +82,33 @@ class AccueilScreenState extends State<AccueilScreen> {
     
     if (currentHymnId.isEmpty) return;
     
-    // Get the hymn data
+    // Get hymn data
     final hymnService = HymnService();
     final hymn = await hymnService.getHymnById(currentHymnId);
     
     if (hymn != null && context.mounted) {
       _showAudioPlayerDialog(hymn);
+    }
+  }
+
+  void _batchCheckAudioFiles(List<Hymn> hymns) {
+    final audioService = AudioService.instance;
+    final List<String> uncheckedIds = [];
+    
+    for (final hymn in hymns) {
+      if (!_checkedHymnIds.contains(hymn.id)) {
+        uncheckedIds.add(hymn.id);
+      }
+    }
+    
+    if (uncheckedIds.isNotEmpty) {
+      // Batch check in background to not block UI
+      audioService.checkAudioFilesExist(uncheckedIds).then((results) {
+        _checkedHymnIds.addAll(results.keys);
+      }).catchError((error) {
+        // Silently handle errors to not affect UI
+        print('Batch audio check error: $error');
+      });
     }
   }
 
@@ -252,6 +274,12 @@ class AccueilScreenState extends State<AccueilScreen> {
                           ),
                         );
                       }
+
+                      // Initial batch check for first 10 items
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final List<Hymn> firstTen = hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
+                        _batchCheckAudioFiles(firstTen);
+                      });
 
                       return StreamBuilder<Map<String, String>>(
                         stream: _hymnController.getFavoriteStatusStream(),

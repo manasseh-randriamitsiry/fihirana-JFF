@@ -53,7 +53,52 @@ class AudioService {
     final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
     
     try {
-      final response = await http.head(Uri.parse(audioUrl));
+      final response = await http.head(Uri.parse(audioUrl)).timeout(
+        const Duration(seconds: 3), // Quick timeout
+      );
+      final exists = response.statusCode == 200;
+      _audioFileCache[hymnId] = exists;
+      return exists;
+    } catch (e) {
+      _audioFileCache[hymnId] = false;
+      return false;
+    }
+  }
+
+  // Batch check for multiple hymns (more efficient)
+  Future<Map<String, bool>> checkAudioFilesExist(List<String> hymnIds) async {
+    final Map<String, bool> results = {};
+    final List<Future<bool>> futures = [];
+    
+    for (final hymnId in hymnIds) {
+      if (_audioFileCache.containsKey(hymnId)) {
+        results[hymnId] = _audioFileCache[hymnId]!;
+      } else {
+        futures.add(_checkSingleAudioFile(hymnId));
+      }
+    }
+    
+    // Execute remaining checks in parallel
+    final remainingResults = await Future.wait(futures);
+    
+    // Combine results
+    int index = 0;
+    for (final hymnId in hymnIds) {
+      if (!_audioFileCache.containsKey(hymnId)) {
+        results[hymnId] = remainingResults[index++];
+      }
+    }
+    
+    return results;
+  }
+
+  Future<bool> _checkSingleAudioFile(String hymnId) async {
+    final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
+    
+    try {
+      final response = await http.head(Uri.parse(audioUrl)).timeout(
+        const Duration(seconds: 2), // Even faster for batch
+      );
       final exists = response.statusCode == 200;
       _audioFileCache[hymnId] = exists;
       return exists;
