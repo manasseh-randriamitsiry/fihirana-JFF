@@ -45,6 +45,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   final NoteService _noteService = NoteService();
   final AuthController _authController = Get.find<AuthController>();
   final ColorController colorController = Get.find<ColorController>();
+  final AudioService _audioService = AudioService.instance;
   late final HistoryController historyController;
   Hymn? _hymn;
   Note? _userNote;
@@ -104,7 +105,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
 
   Future<void> _checkAudioAvailability() async {
     if (_hymn != null) {
-      final audioService = AudioService();
+      final audioService = AudioService.instance;
       final hasAudio = await audioService.checkAudioFileExists(_hymn!.id);
       if (mounted) {
         setState(() {
@@ -191,15 +192,34 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           ),
           actions: [
             if (_audioChecked && _hasAudio)
-              IconButton(
-                icon: Icon(
-                  Icons.music_note,
-                  color: colorController.iconColor.value,
+              Obx(() => IconButton(
+                icon: Stack(
+                  children: [
+                    Icon(
+                      Icons.music_note,
+                      color: _audioService.isHymnPlaying(_hymn?.id ?? '')
+                          ? Theme.of(context).colorScheme.primary
+                          : colorController.iconColor.value,
+                    ),
+                    if (_audioService.isHymnPlaying(_hymn?.id ?? ''))
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 onPressed: () {
                   _showAudioPlayerDialog();
                 },
-              ),
+              )),
             StreamBuilder<Map<String, String>>(
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {

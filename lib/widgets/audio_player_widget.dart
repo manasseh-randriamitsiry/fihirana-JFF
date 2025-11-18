@@ -16,7 +16,7 @@ class AudioPlayerWidget extends StatefulWidget {
 }
 
 class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
-  final AudioService _audioService = AudioService();
+  final AudioService _audioService = AudioService.instance;
   bool _isLoading = false;
   Duration? _duration;
   Duration? _position;

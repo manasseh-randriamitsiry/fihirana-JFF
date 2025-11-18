@@ -1,15 +1,36 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
+import 'package:get/get.dart';
 import '../models/hymn.dart';
 
 class AudioService {
-  static final AudioService _instance = AudioService._internal();
-  factory AudioService() => _instance;
-  AudioService._internal();
+  static AudioService? _instance;
+  static AudioService get instance {
+    _instance ??= AudioService._internal();
+    return _instance!;
+  }
+  
+  factory AudioService() => instance;
+  AudioService._internal() {
+    _initializePlayerStateListener();
+  }
+
+  void _initializePlayerStateListener() {
+    // Listen to player state changes to clear current playing hymn when playback stops
+    _player.playerStateStream.listen((state) {
+      print('AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
+      if (state.processingState == ProcessingState.completed ||
+          (state.playing == false && _currentPlayingHymnId.value.isNotEmpty)) {
+        print('AudioService: Clearing playing hymn ${_currentPlayingHymnId.value}');
+        _currentPlayingHymnId.value = '';
+      }
+    });
+  }
 
   final AudioPlayer _player = AudioPlayer();
   Hymn? _currentHymn;
   final Map<String, bool> _audioFileCache = {};
+  final RxString _currentPlayingHymnId = ''.obs;
 
   AudioPlayer get player => _player;
   Hymn? get currentHymn => _currentHymn;
@@ -35,13 +56,18 @@ class AudioService {
 
   Future<void> playHymn(Hymn hymn) async {
     _currentHymn = hymn;
+    _currentPlayingHymnId.value = hymn.id;
+    print('AudioService: Setting playing hymn to ${hymn.id}');
     
     final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
     
     try {
       await _player.setUrl(audioUrl);
       await _player.play();
+      print('AudioService: Started playing hymn ${hymn.id}');
     } catch (e) {
+      _currentPlayingHymnId.value = '';
+      print('AudioService: Error playing hymn ${hymn.id}: $e');
       throw Exception('Failed to play audio: $e');
     }
   }
@@ -57,6 +83,7 @@ class AudioService {
   Future<void> stop() async {
     await _player.stop();
     _currentHymn = null;
+    _currentPlayingHymnId.value = '';
   }
 
   Future<void> seekTo(Duration position) async {
@@ -74,5 +101,16 @@ class AudioService {
 
   void dispose() {
     _player.dispose();
+    _currentPlayingHymnId.value = '';
+  }
+
+  // Getters for reactive state
+  String get currentPlayingHymnId => _currentPlayingHymnId.value;
+  RxString get currentPlayingHymnIdRx => _currentPlayingHymnId;
+
+  bool isHymnPlaying(String hymnId) {
+    final result = _currentPlayingHymnId.value == hymnId && isPlaying;
+    print('AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isPlaying)');
+    return result;
   }
 }

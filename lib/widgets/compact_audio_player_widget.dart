@@ -18,7 +18,7 @@ class CompactAudioPlayerWidget extends StatefulWidget {
 }
 
 class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
-  final AudioService _audioService = AudioService();
+  final AudioService _audioService = AudioService.instance;
   bool _isLoading = false;
   Duration? _duration;
   Duration? _position;
@@ -128,28 +128,28 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
           width: 1,
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            widget.hymn.title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: colorController.textColor.value,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              widget.hymn.title,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: colorController.textColor.value,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Hymn ${widget.hymn.hymnNumber}',
-            style: TextStyle(
-              fontSize: 12,
-              color: colorController.textColor.value.withOpacity(0.7),
+            const SizedBox(height: 4),
+            Text(
+              'Hymn ${widget.hymn.hymnNumber}',
+              style: TextStyle(
+                fontSize: 12,
+                color: colorController.textColor.value.withOpacity(0.7),
+              ),
             ),
-          ),
           const SizedBox(height: 8),
           Row(
             children: [
