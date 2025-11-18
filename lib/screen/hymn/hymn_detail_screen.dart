@@ -16,6 +16,8 @@ import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
+import '../../widgets/audio_player_widget.dart';
+import '../../widgets/compact_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class HymnDetailScreen extends StatefulWidget {
@@ -169,6 +171,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             },
           ),
           actions: [
+            IconButton(
+              icon: Icon(
+                Icons.music_note,
+                color: colorController.iconColor.value,
+              ),
+              onPressed: () {
+                _showAudioPlayerDialog();
+              },
+            ),
             StreamBuilder<Map<String, String>>(
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
@@ -223,6 +234,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                     break;
                   case 'color_picker':
                     ColorPickerWidget.showColorPickerDialog(context);
+                    break;
+                  case 'audio_player':
+                    _showAudioPlayerDialog();
                     break;
                 }
               },
@@ -288,6 +302,21 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                         const SizedBox(width: 8),
                         Text(
                           l10n.color,
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'audio_player',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.music_note,
+                          color: colorController.iconColor.value,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Audio Player',
                         ),
                       ],
                     ),
@@ -420,7 +449,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           _showSlider = false;
                         });
                       },
-                    ),
+                  ),
+
                 ],
               ),
             ),
@@ -861,6 +891,53 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showAudioPlayerDialog() {
+    if (_hymn == null) return;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: colorController.backgroundColor.value,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Audio Player',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        color: colorController.iconColor.value,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CompactAudioPlayerWidget(hymn: _hymn!),
+              ],
+            ),
+          ),
         );
       },
     );

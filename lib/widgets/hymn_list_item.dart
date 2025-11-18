@@ -10,6 +10,7 @@ class HymnListItem extends StatelessWidget {
   final Color textColor;
   final Color backgroundColor;
   final VoidCallback onFavoritePressed;
+  final VoidCallback? onMusicPressed;
   final bool isFirebaseHymn;
   final HymnService _hymnService = HymnService();
 
@@ -19,6 +20,7 @@ class HymnListItem extends StatelessWidget {
     required this.textColor,
     required this.backgroundColor,
     required this.onFavoritePressed,
+    this.onMusicPressed,
     this.isFirebaseHymn = false,
   });
 
@@ -246,6 +248,19 @@ class HymnListItem extends StatelessWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (onMusicPressed != null)
+                IconButton(
+                  onPressed: onMusicPressed,
+                  style: IconButton.styleFrom(
+                    backgroundColor: backgroundColor,
+                    padding: const EdgeInsets.all(12),
+                  ),
+                  icon: Icon(
+                    Icons.music_note,
+                    color: textColor,
+                    size: 20,
+                  ),
+                ),
               StreamBuilder<Map<String, String>>(
                 stream: _hymnService.getFavoriteStatusStream(),
                 builder: (context, snapshot) {

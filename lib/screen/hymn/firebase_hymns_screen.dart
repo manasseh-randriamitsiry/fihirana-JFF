@@ -4,6 +4,7 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../widgets/hymn_list_item.dart';
+import '../../widgets/compact_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class FirebaseHymnsScreen extends StatefulWidget {
@@ -15,6 +16,52 @@ class FirebaseHymnsScreen extends StatefulWidget {
 
 class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
   final HymnService _hymnService = Get.find<HymnService>();
+
+  void _showAudioPlayerDialog(Hymn hymn) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final ColorController colorController = Get.find<ColorController>();
+        return Dialog(
+          backgroundColor: colorController.backgroundColor.value,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Audio Player',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        color: colorController.iconColor.value,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CompactAudioPlayerWidget(hymn: hymn),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +123,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                       backgroundColor: colorController.backgroundColor.value,
                       onFavoritePressed: () =>
                           _hymnService.toggleFavorite(hymn),
+                      onMusicPressed: () => _showAudioPlayerDialog(hymn),
                       isFirebaseHymn: true,
                     );
                   },
