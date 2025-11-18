@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 import '../models/hymn.dart';
 import '../utility/navigation_utility.dart';
 import '../services/hymn_service.dart';
@@ -30,7 +31,7 @@ class HymnListItem extends StatefulWidget {
 
 class _HymnListItemState extends State<HymnListItem> {
   final HymnService _hymnService = HymnService();
-  final AudioService _audioService = AudioService();
+  final AudioService _audioService = AudioService.instance;
   bool _hasAudio = false;
   bool _audioChecked = false;
 
@@ -281,18 +282,43 @@ class _HymnListItemState extends State<HymnListItem> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (widget.onMusicPressed != null && _audioChecked && _hasAudio)
-                IconButton(
-                  onPressed: widget.onMusicPressed,
-                  style: IconButton.styleFrom(
-                    backgroundColor: widget.backgroundColor,
-                    padding: const EdgeInsets.all(12),
-                  ),
-                  icon: Icon(
-                    Icons.music_note,
-                    color: widget.textColor,
-                    size: 20,
-                  ),
-                ),
+                Obx(() {
+                  final isPlaying = _audioService.isHymnPlaying(widget.hymn.id);
+                  print('Hymn ${widget.hymn.id} playing status: $isPlaying');
+                  return IconButton(
+                    onPressed: widget.onMusicPressed,
+                    style: IconButton.styleFrom(
+                      backgroundColor: isPlaying
+                          ? widget.textColor.withOpacity(0.2)
+                          : widget.backgroundColor,
+                      padding: const EdgeInsets.all(12),
+                    ),
+                    icon: Stack(
+                      children: [
+                        Icon(
+                          Icons.music_note,
+                          color: isPlaying
+                              ? (Theme.of(context).colorScheme.primary)
+                              : widget.textColor,
+                          size: 20,
+                        ),
+                        if (isPlaying)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                }),
               StreamBuilder<Map<String, String>>(
                 stream: _hymnService.getFavoriteStatusStream(),
                 builder: (context, snapshot) {

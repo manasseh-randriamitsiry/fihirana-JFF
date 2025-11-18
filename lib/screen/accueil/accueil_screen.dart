@@ -8,6 +8,8 @@ import '../../widgets/language_picker_widget.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/version_check_service.dart';
+import '../../services/audio_service.dart';
+import '../../services/hymn_service.dart';
 import '../../models/hymn.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -71,6 +73,21 @@ class AccueilScreenState extends State<AccueilScreen> {
         );
       },
     );
+  }
+
+  void _showCurrentPlayingDialog() async {
+    final audioService = AudioService.instance;
+    final currentHymnId = audioService.currentPlayingHymnId;
+    
+    if (currentHymnId.isEmpty) return;
+    
+    // Get the hymn data
+    final hymnService = HymnService();
+    final hymn = await hymnService.getHymnById(currentHymnId);
+    
+    if (hymn != null && context.mounted) {
+      _showAudioPlayerDialog(hymn);
+    }
   }
 
   @override
@@ -146,6 +163,41 @@ class AccueilScreenState extends State<AccueilScreen> {
                     icon: const Icon(Icons.system_update, color: Colors.orange),
                     onPressed: _checkForUpdates,
                   ),
+                Obx(() {
+                  final audioService = AudioService.instance;
+                  final currentHymnId = audioService.currentPlayingHymnId;
+                  final isPlaying = currentHymnId.isNotEmpty && audioService.isPlaying;
+                  
+                  return IconButton(
+                    key: const ValueKey('now_playing_button'),
+                    icon: Stack(
+                      children: [
+                        Icon(
+                          Icons.music_note,
+                          color: isPlaying ? Theme.of(context).colorScheme.primary : iconColor,
+                        ),
+                        if (isPlaying)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: backgroundColor,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    onPressed: isPlaying ? () => _showCurrentPlayingDialog() : null,
+                  );
+                }),
                 IconButton(
                   key: const ValueKey('language_button'),
                   icon: Icon(Icons.language, color: iconColor),
