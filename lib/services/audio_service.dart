@@ -18,7 +18,7 @@ class AudioService {
   }
 
   void _initializePlayerStateListener() {
-    // Listen to player state changes to clear current playing hymn when playback stops
+    // Listen to player state changes to properly manage playing state
     _player.playerStateStream.listen((state) {
       print('AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       
@@ -28,8 +28,11 @@ class AudioService {
         foregroundService.updateNotification(_currentHymn, state.playing);
       }
       
+      // Only clear the current playing hymn when playback actually stops or completes
       if (state.processingState == ProcessingState.completed ||
-          (state.playing == false && _currentPlayingHymnId.value.isNotEmpty)) {
+          (state.playing == false && _currentPlayingHymnId.value.isNotEmpty && 
+           state.processingState != ProcessingState.loading && 
+           state.processingState != ProcessingState.buffering)) {
         print('AudioService: Clearing playing hymn ${_currentPlayingHymnId.value}');
         _currentPlayingHymnId.value = '';
       }
@@ -109,16 +112,27 @@ class AudioService {
   }
 
   Future<void> playHymn(Hymn hymn) async {
+    print('AudioService: Starting to play hymn ${hymn.id}');
+    
+    // Stop current playback if different hymn is playing
+    if (_currentPlayingHymnId.value.isNotEmpty && _currentPlayingHymnId.value != hymn.id) {
+      await _player.stop();
+      await Future.delayed(const Duration(milliseconds: 100)); // Brief pause for cleanup
+    }
+    
     _currentHymn = hymn;
-    _currentPlayingHymnId.value = hymn.id;
-    print('AudioService: Setting playing hymn to ${hymn.id}');
     
     final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
     
     try {
+      // Set the current playing ID only after successfully setting the URL
       await _player.setUrl(audioUrl);
+      _currentPlayingHymnId.value = hymn.id;
+      print('AudioService: URL set, playing hymn ${hymn.id}');
+      
       await _player.play();
       print('AudioService: Started playing hymn ${hymn.id}');
+      
       // Let foreground service handle notification
       final foregroundService = AudioForegroundService.instance;
       foregroundService.updateNotification(hymn, true);
@@ -140,11 +154,25 @@ class AudioService {
   }
 
   Future<void> stop() async {
+    print('AudioService: Stopping playback');
     await _player.stop();
     _currentHymn = null;
     _currentPlayingHymnId.value = '';
     final foregroundService = AudioForegroundService.instance;
     foregroundService.updateNotification(null, false);
+  }
+
+  Future<void> stopCurrentAndPlayNew(Hymn newHymn) async {
+    print('AudioService: Stopping current and playing new hymn ${newHymn.id}');
+    
+    // Stop current playback if any
+    if (_currentPlayingHymnId.value.isNotEmpty) {
+      await _player.stop();
+      await Future.delayed(const Duration(milliseconds: 200)); // Allow for cleanup
+    }
+    
+    // Play new hymn
+    await playHymn(newHymn);
   }
 
   Future<void> seekTo(Duration position) async {
@@ -170,9 +198,26 @@ class AudioService {
   RxString get currentPlayingHymnIdRx => _currentPlayingHymnId;
 
   bool isHymnPlaying(String hymnId) {
-    final result = _currentPlayingHymnId.value == hymnId && isPlaying;
-    print('AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isPlaying)');
+    final isCurrentHymn = _currentPlayingHymnId.value == hymnId;
+    final isActuallyPlaying = isPlaying;
+    final result = isCurrentHymn && isActuallyPlaying;
+    
+    print('AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isActuallyPlaying)');
     return result;
+  }
+
+  // Force refresh the current playing state (useful for UI synchronization)
+  void refreshPlayingState() {
+    final currentId = _currentPlayingHymnId.value;
+    final currentlyPlaying = isPlaying;
+    
+    print('AudioService: Refresh state - ID: $currentId, Playing: $currentlyPlaying');
+    
+    // If we think something is playing but it's not, clear the state
+    if (currentId.isNotEmpty && !currentlyPlaying) {
+      _currentPlayingHymnId.value = '';
+      _currentHymn = null;
+    }
   }
 
   static Future<void> handleNotificationAction(String action) async {
