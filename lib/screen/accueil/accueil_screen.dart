@@ -5,8 +5,11 @@ import '../../controller/hymn_controller.dart';
 import '../../widgets/hymn_list_item.dart';
 import '../../widgets/hymn_search_field.dart';
 import '../../widgets/language_picker_widget.dart';
+import '../../widgets/compact_audio_player_widget.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/version_check_service.dart';
+import '../../services/audio_service.dart';
+import '../../services/hymn_service.dart';
 import '../../models/hymn.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -25,6 +28,89 @@ class AccueilScreen extends StatefulWidget {
 class AccueilScreenState extends State<AccueilScreen> {
   final HymnController _hymnController = Get.put(HymnController());
   bool _updateAvailable = false;
+  final Set<String> _checkedHymnIds = <String>{};
+
+  void _showAudioPlayerDialog(Hymn hymn) {
+    final ColorController colorController = Get.find<ColorController>();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: colorController.backgroundColor.value,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Audio Player',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        color: colorController.iconColor.value,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CompactAudioPlayerWidget(hymn: hymn),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCurrentPlayingDialog() async {
+    final audioService = AudioService.instance;
+    final currentHymnId = audioService.currentPlayingHymnId;
+    
+    if (currentHymnId.isEmpty) return;
+    
+    // Get hymn data
+    final hymnService = HymnService();
+    final hymn = await hymnService.getHymnById(currentHymnId);
+    
+    if (hymn != null && context.mounted) {
+      _showAudioPlayerDialog(hymn);
+    }
+  }
+
+  void _batchCheckAudioFiles(List<Hymn> hymns) {
+    final audioService = AudioService.instance;
+    final List<String> uncheckedIds = [];
+    
+    for (final hymn in hymns) {
+      if (!_checkedHymnIds.contains(hymn.id)) {
+        uncheckedIds.add(hymn.id);
+      }
+    }
+    
+    if (uncheckedIds.isNotEmpty) {
+      // Batch check in background to not block UI
+      audioService.checkAudioFilesExist(uncheckedIds).then((results) {
+        _checkedHymnIds.addAll(results.keys);
+      }).catchError((error) {
+        // Silently handle errors to not affect UI
+        print('Batch audio check error: $error');
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -99,6 +185,41 @@ class AccueilScreenState extends State<AccueilScreen> {
                     icon: const Icon(Icons.system_update, color: Colors.orange),
                     onPressed: _checkForUpdates,
                   ),
+                Obx(() {
+                  final audioService = AudioService.instance;
+                  final currentHymnId = audioService.currentPlayingHymnId;
+                  final isPlaying = currentHymnId.isNotEmpty && audioService.isPlaying;
+                  
+                  return IconButton(
+                    key: const ValueKey('now_playing_button'),
+                    icon: Stack(
+                      children: [
+                        Icon(
+                          Icons.play_circle,
+                          color: isPlaying ? Theme.of(context).colorScheme.primary : iconColor,
+                        ),
+                        if (isPlaying)
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: backgroundColor,
+                                  width: 1,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    onPressed: isPlaying ? () => _showCurrentPlayingDialog() : null,
+                  );
+                }),
                 IconButton(
                   key: const ValueKey('language_button'),
                   icon: Icon(Icons.language, color: iconColor),
@@ -154,6 +275,12 @@ class AccueilScreenState extends State<AccueilScreen> {
                         );
                       }
 
+                      // Initial batch check for first 10 items
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        final List<Hymn> firstTen = hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
+                        _batchCheckAudioFiles(firstTen);
+                      });
+
                       return StreamBuilder<Map<String, String>>(
                         stream: _hymnController.getFavoriteStatusStream(),
                         builder: (context, favoriteSnapshot) {
@@ -168,6 +295,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                                 backgroundColor: backgroundColor,
                                 onFavoritePressed: () =>
                                     _hymnController.toggleFavorite(hymn),
+                                onMusicPressed: () => _showAudioPlayerDialog(hymn),
                               );
                             },
                           );

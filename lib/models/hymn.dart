@@ -9,6 +9,8 @@ class Hymn {
   String createdBy;
   String? createdByEmail;
 
+  String get audioUrl => 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$id.mp3';
+
   Hymn({
     required this.id,
     required this.hymnNumber,

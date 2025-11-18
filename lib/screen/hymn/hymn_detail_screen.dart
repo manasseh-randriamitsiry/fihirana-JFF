@@ -16,6 +16,9 @@ import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
+import '../../widgets/audio_player_widget.dart';
+import '../../widgets/compact_audio_player_widget.dart';
+import '../../services/audio_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class HymnDetailScreen extends StatefulWidget {
@@ -42,10 +45,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   final NoteService _noteService = NoteService();
   final AuthController _authController = Get.find<AuthController>();
   final ColorController colorController = Get.find<ColorController>();
+  final AudioService _audioService = AudioService.instance;
   late final HistoryController historyController;
   Hymn? _hymn;
   Note? _userNote;
   bool _isLoadingNote = true;
+  bool _hasAudio = false;
+  bool _audioChecked = false;
 
   @override
   void initState() {
@@ -88,10 +94,26 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           _hymn!.hymnNumber,
         );
         if (kDebugMode) {}
+        
+        // Check audio availability after hymn is loaded
+        await _checkAudioAvailability();
       } else {
         if (kDebugMode) {}
       }
     } catch (e) {}
+  }
+
+  Future<void> _checkAudioAvailability() async {
+    if (_hymn != null) {
+      final audioService = AudioService.instance;
+      final hasAudio = await audioService.checkAudioFileExists(_hymn!.id);
+      if (mounted) {
+        setState(() {
+          _hasAudio = hasAudio;
+          _audioChecked = true;
+        });
+      }
+    }
   }
 
   Future<void> _loadUserNote() async {
@@ -169,6 +191,35 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             },
           ),
           actions: [
+            if (_audioChecked && _hasAudio)
+              Obx(() => IconButton(
+                icon: Stack(
+                  children: [
+                    Icon(
+                      Icons.music_note,
+                      color: _audioService.isHymnPlaying(_hymn?.id ?? '')
+                          ? Theme.of(context).colorScheme.primary
+                          : colorController.iconColor.value,
+                    ),
+                    if (_audioService.isHymnPlaying(_hymn?.id ?? ''))
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                onPressed: () {
+                  _showAudioPlayerDialog();
+                },
+              )),
             StreamBuilder<Map<String, String>>(
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
@@ -223,6 +274,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                     break;
                   case 'color_picker':
                     ColorPickerWidget.showColorPickerDialog(context);
+                    break;
+                  case 'audio_player':
+                    _showAudioPlayerDialog();
                     break;
                 }
               },
@@ -420,7 +474,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           _showSlider = false;
                         });
                       },
-                    ),
+                  ),
+
                 ],
               ),
             ),
@@ -861,6 +916,53 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
               ),
             );
           },
+        );
+      },
+    );
+  }
+
+  void _showAudioPlayerDialog() {
+    if (_hymn == null) return;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: colorController.backgroundColor.value,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Audio Player',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        color: colorController.iconColor.value,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CompactAudioPlayerWidget(hymn: _hymn!),
+              ],
+            ),
+          ),
         );
       },
     );

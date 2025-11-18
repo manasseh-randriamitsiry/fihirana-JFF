@@ -25,6 +25,9 @@ import 'screen/announcement/announcement_screen.dart';
 import 'services/background_service.dart';
 import 'services/firebase_sync_service.dart';
 import 'services/bible_service.dart';
+import 'services/audio_service.dart';
+import 'services/notification_service.dart';
+import 'services/audio_foreground_service.dart';
 
 // Fallback localization delegate for unsupported locales
 class _FallbackMaterialLocalizationsDelegate
@@ -70,6 +73,8 @@ class _FallbackCupertinoLocalizationsDelegate
 }
 
 Future<void> initializeNotifications() async {
+  await NotificationService.initializeNotificationChannels();
+  
   await AwesomeNotifications().initialize(
     'resource://mipmap/ic_launcher',
     [
@@ -135,6 +140,7 @@ Future<void> main() async {
   Get.put(HymnService());
   Get.put(BackgroundService());
   Get.put(FirebaseSyncService());
+  Get.put(AudioForegroundService());
   // Initialize Bible service
   Get.put(BibleService());
 
@@ -156,6 +162,8 @@ Future<void> main() async {
       } else if (receivedAction.channelKey == 'hymn_download_channel' &&
           receivedAction.buttonKeyPressed == 'CANCEL_DOWNLOAD') {
         await ApkDownloadService.handleDownloadAction('CANCEL_DOWNLOAD');
+      } else if (receivedAction.channelKey == 'audio_player_channel') {
+        await AudioService.handleNotificationAction(receivedAction.buttonKeyPressed);
       } else {
         // Handle version check actions
         await VersionCheckService.onActionReceivedMethod(receivedAction);

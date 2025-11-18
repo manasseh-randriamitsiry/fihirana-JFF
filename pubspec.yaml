@@ -53,6 +53,7 @@ dependencies:
   open_file: ^3.3.2
   permission_handler: ^11.3.1
   dio: ^5.4.3+1
+  just_audio: ^0.9.36
 
 dev_dependencies:
   flutter_test:
