@@ -8,6 +8,9 @@ import '../../controller/auth_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
+import '../../services/audio_service.dart';
+import '../../widgets/audio_player_widget.dart';
+import '../../widgets/compact_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class CreateHymnPage extends StatefulWidget {
@@ -27,6 +30,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     TextEditingController()
   ];
   final _debouncer = Debouncer(milliseconds: 500);
+  final AudioService _audioService = AudioService.instance;
+  bool _hasAudio = false;
+  bool _audioChecked = false;
 
   @override
   void dispose() {
@@ -75,9 +81,10 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         ),
       );
 
+      final hymnNumber = _hymnNumberController.text.trim();
       final hymn = Hymn(
         id: '',
-        hymnNumber: _hymnNumberController.text.trim(),
+        hymnNumber: hymnNumber,
         title: _titleController.text.trim(),
         verses: _verseControllers
             .map((controller) => controller.text.trim())
@@ -96,6 +103,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       Navigator.of(context).pop();
 
       if (success) {
+        // Check if audio exists for this hymn after creation
+        await _checkAudioAvailability(hymnNumber);
+        
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -127,6 +137,73 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     }
   }
 
+  Future<void> _checkAudioAvailability(String hymnNumber) async {
+    final hasAudio = await _audioService.checkAudioFileExists(hymnNumber);
+    if (mounted) {
+      setState(() {
+        _hasAudio = hasAudio;
+        _audioChecked = true;
+      });
+    }
+  }
+
+  void _showAudioPlayerDialog() {
+    if (_hymnNumberController.text.trim().isEmpty) return;
+    
+    final hymn = Hymn(
+      id: '',
+      hymnNumber: _hymnNumberController.text.trim(),
+      title: _titleController.text.trim() ?? 'New Hymn',
+      verses: [],
+      createdAt: DateTime.now(),
+      createdBy: '',
+      createdByEmail: '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Get.find<ColorController>().backgroundColor.value,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.9,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Audio Player',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Get.find<ColorController>().textColor.value,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close,
+                        color: Get.find<ColorController>().iconColor.value,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                CompactAudioPlayerWidget(hymn: hymn),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -134,6 +211,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     TextInputType? keyboardType,
     int maxLines = 1,
     IconData? icon,
+    void Function(String)? onChanged,
   }) {
     final colorController = Get.find<ColorController>();
     return Neumorphic(
@@ -161,6 +239,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
               const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
         validator: validator,
+        onChanged: onChanged,
       ),
     );
   }
@@ -413,10 +492,86 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ),
                   const SizedBox(height: 16.0),
                   _buildTextField(
-                    controller: _hymnHintController,
-                    label: l10n.notes,
-                    icon: Icons.info_outline,
+                    controller: _hymnNumberController,
+                    label: l10n.number,
+                    keyboardType: TextInputType.number,
+                    icon: Icons.onetwothree_outlined,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.enterHymnNumber;
+                      }
+                      try {
+                        int? number = int.tryParse(value);
+                        if (number == null || number <= 0) {
+                          return l10n.invalidNumber;
+                        }
+                      } catch (e) {
+                        return l10n.invalidNumber;
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      if (value.trim().isNotEmpty) {
+                        _debouncer.run(() {
+                          _checkAudioAvailability(value.trim());
+                        });
+                      }
+                    },
                   ),
+                  // Audio availability indicator
+                  if (_audioChecked)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Neumorphic(
+                        style: NeumorphicStyle(
+                          color: _hasAudio 
+                              ? Colors.green.withOpacity(0.1)
+                              : Colors.grey.withOpacity(0.1),
+                          boxShape: NeumorphicBoxShape.roundRect(
+                              BorderRadius.circular(12)),
+                          depth: 2,
+                          intensity: 0.8,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _hasAudio ? Icons.music_note : Icons.music_off,
+                                color: _hasAudio ? Colors.green : Colors.grey,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  _hasAudio 
+                                      ? 'Audio available for this hymn number'
+                                      : 'No audio available for this hymn number',
+                                  style: TextStyle(
+                                    color: _hasAudio ? Colors.green : Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                              if (_hasAudio)
+                                NeumorphicButton(
+                                  onPressed: _showAudioPlayerDialog,
+                                  style: NeumorphicStyle(
+                                    color: colorController.primaryColor.value.withOpacity(0.1),
+                                    boxShape: NeumorphicBoxShape.circle(),
+                                    depth: 2,
+                                  ),
+                                  child: Icon(
+                                    Icons.play_arrow,
+                                    color: colorController.primaryColor.value,
+                                    size: 20,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 24.0),
                   NeumorphicButton(
                     onPressed: () {
