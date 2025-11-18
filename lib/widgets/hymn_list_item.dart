@@ -3,18 +3,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../models/hymn.dart';
 import '../utility/navigation_utility.dart';
 import '../services/hymn_service.dart';
+import '../services/audio_service.dart';
 import '../l10n/app_localizations.dart';
 
-class HymnListItem extends StatelessWidget {
+class HymnListItem extends StatefulWidget {
   final Hymn hymn;
   final Color textColor;
   final Color backgroundColor;
   final VoidCallback onFavoritePressed;
   final VoidCallback? onMusicPressed;
   final bool isFirebaseHymn;
-  final HymnService _hymnService = HymnService();
 
-  HymnListItem({
+  const HymnListItem({
     super.key,
     required this.hymn,
     required this.textColor,
@@ -23,6 +23,38 @@ class HymnListItem extends StatelessWidget {
     this.onMusicPressed,
     this.isFirebaseHymn = false,
   });
+
+  @override
+  State<HymnListItem> createState() => _HymnListItemState();
+}
+
+class _HymnListItemState extends State<HymnListItem> {
+  final HymnService _hymnService = HymnService();
+  final AudioService _audioService = AudioService();
+  bool _hasAudio = false;
+  bool _audioChecked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAudioAvailability();
+  }
+
+  Future<void> _checkAudioAvailability() async {
+    if (widget.onMusicPressed != null) {
+      final hasAudio = await _audioService.checkAudioFileExists(widget.hymn.id);
+      if (mounted) {
+        setState(() {
+          _hasAudio = hasAudio;
+          _audioChecked = true;
+        });
+      }
+    } else {
+      setState(() {
+        _audioChecked = true;
+      });
+    }
+  }
 
   Future<bool> _confirmDeletion(BuildContext context) async {
     final confirmationController = TextEditingController();
@@ -36,32 +68,32 @@ class HymnListItem extends StatelessWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: backgroundColor,
+              backgroundColor: widget.backgroundColor,
               title: Text(
                 l10n.deleteHymnQuestion,
-                style: TextStyle(color: textColor),
+                style: TextStyle(color: widget.textColor),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    l10n.confirmDeleteHymn(hymn.title),
-                    style: TextStyle(color: textColor),
+                    l10n.confirmDeleteHymn(widget.hymn.title),
+                    style: TextStyle(color: widget.textColor),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: confirmationController,
-                    style: TextStyle(color: textColor),
+                    style: TextStyle(color: widget.textColor),
                     decoration: InputDecoration(
                       hintText: l10n.yesLowercase,
-                      hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
+                      hintStyle: TextStyle(color: widget.textColor.withOpacity(0.5)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: textColor),
+                        borderSide: BorderSide(color: widget.textColor),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(color: textColor),
+                        borderSide: BorderSide(color: widget.textColor),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
@@ -90,7 +122,7 @@ class HymnListItem extends StatelessWidget {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text(l10n.cancel, style: TextStyle(color: textColor)),
+                  child: Text(l10n.cancel, style: TextStyle(color: widget.textColor)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
@@ -129,16 +161,16 @@ class HymnListItem extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: backgroundColor,
+          backgroundColor: widget.backgroundColor,
           title:
-              Text(l10n.deleteHymnQuestion, style: TextStyle(color: textColor)),
+              Text(l10n.deleteHymnQuestion, style: TextStyle(color: widget.textColor)),
           content: Text(
-            l10n.confirmDeleteHymn(hymn.title),
-            style: TextStyle(color: textColor),
+            l10n.confirmDeleteHymn(widget.hymn.title),
+            style: TextStyle(color: widget.textColor),
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(l10n.no, style: TextStyle(color: textColor)),
+              child: Text(l10n.no, style: TextStyle(color: widget.textColor)),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
@@ -159,7 +191,7 @@ class HymnListItem extends StatelessWidget {
                 }
 
                 try {
-                  await _hymnService.deleteHymn(hymn.id);
+                  await _hymnService.deleteHymn(widget.hymn.id);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(l10n.hymnDeletedSuccess),
@@ -196,38 +228,38 @@ class HymnListItem extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
-        color: backgroundColor,
+        color: widget.backgroundColor,
         child: ListTile(
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           title: Text(
-            hymn.title,
+            widget.hymn.title,
             style: TextStyle(
-              color: textColor,
+              color: widget.textColor,
               fontWeight: FontWeight.bold,
             ),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (hymn.verses.isNotEmpty)
+              if (widget.hymn.verses.isNotEmpty)
                 Text(
-                  hymn.verses[0],
+                  widget.hymn.verses[0],
                   style: TextStyle(
-                    color: textColor.withOpacity(0.7),
+                    color: widget.textColor.withOpacity(0.7),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-              if (isAdmin && isFirebaseHymn)
+              if (isAdmin && widget.isFirebaseHymn)
                 Text(
                   l10n.createdByLabel(
-                      hymn.createdBy,
-                      hymn.createdByEmail != null
-                          ? ' (${hymn.createdByEmail})'
+                      widget.hymn.createdBy,
+                      widget.hymn.createdByEmail != null
+                          ? ' (${widget.hymn.createdByEmail})'
                           : ''),
                   style: TextStyle(
-                    color: textColor.withOpacity(0.5),
+                    color: widget.textColor.withOpacity(0.5),
                     fontSize: 12,
                     fontStyle: FontStyle.italic,
                   ),
@@ -238,9 +270,9 @@ class HymnListItem extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.primary,
             radius: 25,
             child: Text(
-              hymn.hymnNumber,
+              widget.hymn.hymnNumber,
               style: TextStyle(
-                color: backgroundColor,
+                color: widget.backgroundColor,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -248,29 +280,29 @@ class HymnListItem extends StatelessWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (onMusicPressed != null)
+              if (widget.onMusicPressed != null && _audioChecked && _hasAudio)
                 IconButton(
-                  onPressed: onMusicPressed,
+                  onPressed: widget.onMusicPressed,
                   style: IconButton.styleFrom(
-                    backgroundColor: backgroundColor,
+                    backgroundColor: widget.backgroundColor,
                     padding: const EdgeInsets.all(12),
                   ),
                   icon: Icon(
                     Icons.music_note,
-                    color: textColor,
+                    color: widget.textColor,
                     size: 20,
                   ),
                 ),
               StreamBuilder<Map<String, String>>(
                 stream: _hymnService.getFavoriteStatusStream(),
                 builder: (context, snapshot) {
-                  final favoriteStatus = snapshot.data?[hymn.id] ?? '';
+                  final favoriteStatus = snapshot.data?[widget.hymn.id] ?? '';
                   final isFavorite = favoriteStatus.isNotEmpty;
 
                   return IconButton(
-                    onPressed: onFavoritePressed,
+                    onPressed: widget.onFavoritePressed,
                     style: IconButton.styleFrom(
-                      backgroundColor: backgroundColor,
+                      backgroundColor: widget.backgroundColor,
                       padding: const EdgeInsets.all(12),
                     ),
                     icon: Icon(
@@ -279,31 +311,31 @@ class HymnListItem extends StatelessWidget {
                           ? (favoriteStatus == 'cloud'
                               ? Colors.red
                               : Colors.blue)
-                          : textColor,
+                          : widget.textColor,
                       size: 20,
                     ),
                   );
                 },
               ),
-              if (isFirebaseHymn &&
+              if (widget.isFirebaseHymn &&
                   isLoggedIn &&
-                  (hymn.createdByEmail == user.email || isAdmin))
+                  (widget.hymn.createdByEmail == user.email || isAdmin))
                 IconButton(
                   onPressed: () =>
-                      NavigationUtility.navigateToEditScreen(context, hymn),
+                      NavigationUtility.navigateToEditScreen(context, widget.hymn),
                   style: IconButton.styleFrom(
-                    backgroundColor: backgroundColor,
+                    backgroundColor: widget.backgroundColor,
                     padding: const EdgeInsets.all(12),
                   ),
-                  icon: Icon(Icons.edit, color: textColor, size: 20),
+                  icon: Icon(Icons.edit, color: widget.textColor, size: 20),
                 ),
-              if (isFirebaseHymn &&
+              if (widget.isFirebaseHymn &&
                   isLoggedIn &&
-                  (hymn.createdByEmail == user.email || isAdmin))
+                  (widget.hymn.createdByEmail == user.email || isAdmin))
                 IconButton(
                   onPressed: () => _showDeleteConfirmation(context),
                   style: IconButton.styleFrom(
-                    backgroundColor: backgroundColor,
+                    backgroundColor: widget.backgroundColor,
                     padding: const EdgeInsets.all(12),
                   ),
                   icon: const Icon(Icons.delete_outline,
@@ -311,7 +343,7 @@ class HymnListItem extends StatelessWidget {
                 ),
             ],
           ),
-          onTap: () => NavigationUtility.navigateToDetailScreen(context, hymn),
+          onTap: () => NavigationUtility.navigateToDetailScreen(context, widget.hymn),
         ),
       ),
     );
