@@ -173,7 +173,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                     icon: Stack(
                       children: [
                         Icon(
-                          Icons.music_note,
+                          Icons.play_circle,
                           color: isPlaying ? Theme.of(context).colorScheme.primary : iconColor,
                         ),
                         if (isPlaying)
