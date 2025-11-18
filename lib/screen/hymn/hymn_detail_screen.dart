@@ -18,6 +18,7 @@ import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
 import '../../widgets/audio_player_widget.dart';
 import '../../widgets/compact_audio_player_widget.dart';
+import '../../services/audio_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class HymnDetailScreen extends StatefulWidget {
@@ -48,6 +49,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   Hymn? _hymn;
   Note? _userNote;
   bool _isLoadingNote = true;
+  bool _hasAudio = false;
+  bool _audioChecked = false;
 
   @override
   void initState() {
@@ -90,10 +93,26 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           _hymn!.hymnNumber,
         );
         if (kDebugMode) {}
+        
+        // Check audio availability after hymn is loaded
+        await _checkAudioAvailability();
       } else {
         if (kDebugMode) {}
       }
     } catch (e) {}
+  }
+
+  Future<void> _checkAudioAvailability() async {
+    if (_hymn != null) {
+      final audioService = AudioService();
+      final hasAudio = await audioService.checkAudioFileExists(_hymn!.id);
+      if (mounted) {
+        setState(() {
+          _hasAudio = hasAudio;
+          _audioChecked = true;
+        });
+      }
+    }
   }
 
   Future<void> _loadUserNote() async {
@@ -171,15 +190,16 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             },
           ),
           actions: [
-            IconButton(
-              icon: Icon(
-                Icons.music_note,
-                color: colorController.iconColor.value,
+            if (_audioChecked && _hasAudio)
+              IconButton(
+                icon: Icon(
+                  Icons.music_note,
+                  color: colorController.iconColor.value,
+                ),
+                onPressed: () {
+                  _showAudioPlayerDialog();
+                },
               ),
-              onPressed: () {
-                _showAudioPlayerDialog();
-              },
-            ),
             StreamBuilder<Map<String, String>>(
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
@@ -306,21 +326,22 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       ],
                     ),
                   ),
-                  PopupMenuItem<String>(
-                    value: 'audio_player',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.music_note,
-                          color: colorController.iconColor.value,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Audio Player',
-                        ),
-                      ],
+                  if (_audioChecked && _hasAudio)
+                    PopupMenuItem<String>(
+                      value: 'audio_player',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.music_note,
+                            color: colorController.iconColor.value,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Audio Player',
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
                 ];
               },
             ),
