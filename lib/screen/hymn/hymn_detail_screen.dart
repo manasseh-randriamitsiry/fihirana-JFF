@@ -346,22 +346,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                       ],
                     ),
                   ),
-                  if (_audioChecked && _hasAudio)
-                    PopupMenuItem<String>(
-                      value: 'audio_player',
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.music_note,
-                            color: colorController.iconColor.value,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Audio Player',
-                          ),
-                        ],
-                      ),
-                    ),
                 ];
               },
             ),
