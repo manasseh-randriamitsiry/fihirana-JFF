@@ -102,14 +102,21 @@ class AccueilScreenState extends State<AccueilScreen> {
     }
     
     if (uncheckedIds.isNotEmpty) {
-      // Batch check in background to not block UI
+      // Use new cache service for efficient batch checking
       audioService.checkAudioFilesExist(uncheckedIds).then((results) {
         _checkedHymnIds.addAll(results.keys);
+        print('AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
       }).catchError((error) {
         // Silently handle errors to not affect UI
         print('Batch audio check error: $error');
       });
     }
+  }
+
+  void _preloadCommonHymns(List<Hymn> hymns) {
+    // Preload first 20 hymns to improve user experience
+    final commonHymnIds = hymns.take(20).map((h) => h.id).toList();
+    AudioService.instance.preloadCommonHymns(commonHymnIds);
   }
 
   @override
@@ -275,10 +282,13 @@ class AccueilScreenState extends State<AccueilScreen> {
                         );
                       }
 
-                      // Initial batch check for first 10 items
+                      // Initial batch check for first 10 items and preload common hymns
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         final List<Hymn> firstTen = hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
                         _batchCheckAudioFiles(firstTen);
+                        
+                        // Preload common hymns in background
+                        _preloadCommonHymns(hymns);
                       });
 
                       return StreamBuilder<Map<String, String>>(
