@@ -16,7 +16,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   final ColorController colorController = Get.find<ColorController>();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  
+
   BibleSearchContext _currentSearchContext = BibleSearchContext.books;
   final double _fontSize = 16.0;
 
@@ -40,7 +40,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     }
 
     bibleController.setSearchContext(_currentSearchContext);
-    
+
     // Request focus after dialog is fully shown
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Future.delayed(const Duration(milliseconds: 100), () {
@@ -211,21 +211,14 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
               child: _buildContextButton(
                 context: BibleSearchContext.books,
                 icon: Icons.book,
-                label: 'Boky',
-              ),
-            ),
-            Expanded(
-              child: _buildContextButton(
-                context: BibleSearchContext.currentChapter,
-                icon: Icons.article,
-                label: 'Toko misy anko',
+                label: 'Karoka Baiboly',
               ),
             ),
             Expanded(
               child: _buildContextButton(
                 context: BibleSearchContext.allBible,
                 icon: Icons.menu_book,
-                label: 'Baiboly manontolo',
+                label: 'Karoka ao amin\'ny Baiboly manontolo',
               ),
             ),
           ],
@@ -240,7 +233,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     required String label,
   }) {
     final isSelected = _currentSearchContext == context;
-    
+
     return NeumorphicButton(
       style: NeumorphicStyle(
         depth: isSelected ? 1 : 2,
@@ -263,18 +256,15 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
         children: [
           Icon(
             icon,
-            color: isSelected
-                ? Colors.white
-                : colorController.textColor.value,
+            color: isSelected ? Colors.white : colorController.textColor.value,
             size: 20,
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: isSelected
-                  ? Colors.white
-                  : colorController.textColor.value,
+              color:
+                  isSelected ? Colors.white : colorController.textColor.value,
               fontSize: _fontSize * 0.8,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
@@ -416,7 +406,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
         padding: const EdgeInsets.all(16),
         onPressed: () {
           Navigator.of(context).pop(); // Close dialog first
-          bibleController.navigateToSearchResult(result, highlightVerse: result.verse);
+          bibleController.navigateToSearchResult(result,
+              highlightVerse: result.verse);
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
