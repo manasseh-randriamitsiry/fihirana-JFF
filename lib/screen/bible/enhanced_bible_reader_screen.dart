@@ -899,23 +899,31 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   void _scrollToHighlightedVerse() {
     final highlightedVerse = bibleController.highlightedVerse.value;
     if (highlightedVerse > 0) {
-      // Calculate the approximate position of the verse
-      // Each verse container has margin and padding, estimate height
-      final verseHeight = 80.0; // Estimated height per verse
-      final targetOffset = (highlightedVerse - 1) * verseHeight;
-      
+      // Wait for the verse widgets to be rendered
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(const Duration(milliseconds: 300), () {
+        Future.delayed(const Duration(milliseconds: 400), () {
           if (_verseScrollController.hasClients) {
+            // More accurate calculation based on actual verse layout
+            final headerHeight = 120.0; // Chapter navigation + header
+            final verseHeight = 90.0; // Actual verse height (padding + content)
+            final verseSpacing = 8.0; // Margin between verses
+            
+            // Calculate target offset to center the verse in the viewport
+            final targetOffset = headerHeight + 
+                (highlightedVerse - 1) * (verseHeight + verseSpacing) - 
+                100.0; // Offset to bring verse higher in viewport
+            
+            final maxScroll = _verseScrollController.position.maxScrollExtent;
+            final clampedOffset = targetOffset.clamp(0.0, maxScroll);
+            
             _verseScrollController.animateTo(
-              targetOffset,
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
+              clampedOffset,
+              duration: const Duration(milliseconds: 700),
+              curve: Curves.easeOutCubic,
             );
           }
         });
       });
     }
   }
-
 }
