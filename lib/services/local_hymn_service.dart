@@ -19,6 +19,9 @@ class LocalHymnService {
     try {
       // Try to load from manifest first
       try {
+        if (kDebugMode) {
+          print('Attempting to load AssetManifest.json...');
+        }
         final manifestContent =
             await rootBundle.loadString('AssetManifest.json');
         final Map<String, dynamic> manifestMap = json.decode(manifestContent);
@@ -32,16 +35,20 @@ class LocalHymnService {
 
         if (kDebugMode) {
           print('Found ${jsonAssets.length} JSON assets in manifest');
+          print('Total manifest keys: ${manifestMap.keys.length}');
           if (jsonAssets.isNotEmpty) {
             print('First few assets: ${jsonAssets.take(5).join(', ')}');
+          } else {
+            print('No JSON assets found! Available asset types:');
+            final assetTypes = manifestMap.keys.map((k) => k.split('.').last).toSet();
+            print('Asset extensions: ${assetTypes.take(10).join(', ')}');
+            print('Sample keys: ${manifestMap.keys.take(20).toList()}');
           }
         }
 
         if (jsonAssets.isEmpty) {
           if (kDebugMode) {
             print('No JSON assets found in manifest, trying fallback method');
-            print('Total manifest keys: ${manifestMap.keys.length}');
-            print('Sample manifest keys: ${manifestMap.keys.take(10).toList()}');
           }
           return await _loadHymnsFallback();
         }
@@ -102,9 +109,16 @@ class LocalHymnService {
   Future<List<Hymn>> _loadHymnsFallback() async {
     final List<Hymn> hymns = [];
 
+    if (kDebugMode) {
+      print('Starting fallback hymn loading method...');
+    }
+
     try {
       // Try a range of hymn IDs based on the actual file count
       // We know there are 829 JSON files from our check
+      int successCount = 0;
+      int failureCount = 0;
+      
       for (int i = 1; i <= 1000; i++) {
         try {
           // Try different naming patterns
@@ -114,11 +128,14 @@ class LocalHymnService {
           ];
 
           Hymn? hymn;
+          String? successfulPath;
+          
           for (final path in possiblePaths) {
             try {
               final jsonString = await rootBundle.loadString(path);
               final jsonData = json.decode(jsonString);
               hymn = _parseHymnFromJson(jsonData, i.toString());
+              successfulPath = path;
               break;
             } catch (pathError) {
               continue;
@@ -128,8 +145,16 @@ class LocalHymnService {
           if (hymn != null) {
             hymns.add(hymn);
             _hymnCache[hymn.id] = hymn;
+            successCount++;
+            
+            if (kDebugMode && successCount <= 5) {
+              print('Loaded hymn $i from $successfulPath: ${hymn.title}');
+            }
+          } else {
+            failureCount++;
           }
         } catch (e) {
+          failureCount++;
           // Continue with next hymn
           continue;
         }
@@ -137,12 +162,16 @@ class LocalHymnService {
         // Add a small delay every 50 hymns to prevent overwhelming the system
         if (i % 50 == 0) {
           await Future.delayed(const Duration(milliseconds: 5));
+          if (kDebugMode) {
+            print('Progress: $i hymns checked, $successCount loaded, $failureCount failed');
+          }
         }
       }
 
       if (hymns.isNotEmpty) {
         if (kDebugMode) {
-          print('Loaded ${hymns.length} hymns using fallback method');
+          print('Successfully loaded ${hymns.length} hymns using fallback method');
+          print('Success rate: $successCount loaded, $failureCount failed');
           print('First hymn: ${hymns.first.title} (${hymns.first.hymnNumber})');
           print('Last hymn: ${hymns.last.title} (${hymns.last.hymnNumber})');
         }
