@@ -416,7 +416,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
         padding: const EdgeInsets.all(16),
         onPressed: () {
           Navigator.of(context).pop(); // Close dialog first
-          bibleController.navigateToSearchResult(result);
+          bibleController.navigateToSearchResult(result, highlightVerse: result.verse);
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,6 +439,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
                       fontSize: _fontSize,
                       fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -453,6 +455,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
                   color: colorController.textColor.value.withOpacity(0.7),
                   fontSize: _fontSize * 0.9,
                 ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
           ],
         ),

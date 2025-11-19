@@ -30,6 +30,9 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   double _fontSize = 18.0;
   bool _showSlider = false;
 
+  // Scroll controller for verse navigation
+  final ScrollController _verseScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -69,6 +72,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   void dispose() {
     _animationController.dispose();
     _slideController.dispose();
+    _verseScrollController.dispose();
     super.dispose();
   }
 
@@ -581,7 +585,13 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
               return _buildLoadingWidget(colorController);
             }
 
+            // Scroll to highlighted verse after loading
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scrollToHighlightedVerse();
+            });
+
             return SingleChildScrollView(
+              controller: _verseScrollController,
               padding: const EdgeInsets.all(16),
               child: _buildVersesList(colorController),
             );
@@ -705,16 +715,20 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     return Obx(() {
       final isSelected = bibleController.isVerseSelected(verseNumber);
       final isHighlighted = bibleController.isVerseHighlighted(verseNumber);
+      final isSearchHighlighted = bibleController.isVerseSearchHighlighted(verseNumber);
 
       return Container(
+        key: ValueKey('verse_$verseNumber'),
         margin: const EdgeInsets.only(bottom: 8),
         child: NeumorphicButton(
           style: NeumorphicStyle(
             depth: isSelected ? 1 : 2,
             intensity: 0.8,
-            color: isHighlighted
-                ? colorController.primaryColor.value.withOpacity(0.2)
-                : colorController.backgroundColor.value,
+            color: isSearchHighlighted
+                ? colorController.accentColor.value.withOpacity(0.3)
+                : isHighlighted
+                    ? colorController.primaryColor.value.withOpacity(0.2)
+                    : colorController.backgroundColor.value,
             boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
           ),
           padding: const EdgeInsets.all(16),
@@ -727,16 +741,18 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? colorController.primaryColor.value
-                      : colorController.primaryColor.value.withOpacity(0.1),
+                  color: isSearchHighlighted
+                      ? colorController.accentColor.value
+                      : isSelected
+                          ? colorController.primaryColor.value
+                          : colorController.primaryColor.value.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: Text(
                     verseNumber.toString(),
                     style: TextStyle(
-                      color: isSelected
+                      color: isSearchHighlighted || isSelected
                           ? Colors.white
                           : colorController.primaryColor.value,
                       fontSize: _fontSize * 0.7,
@@ -755,6 +771,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     color: colorController.textColor.value,
                     fontSize: _fontSize,
                     height: 1.6,
+                    fontWeight: isSearchHighlighted ? FontWeight.bold : FontWeight.normal,
                   ),
                   textAlign: TextAlign.justify,
                 ),
@@ -877,6 +894,28 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
       barrierDismissible: true,
       builder: (context) => const BibleSearchDialog(),
     );
+  }
+
+  void _scrollToHighlightedVerse() {
+    final highlightedVerse = bibleController.highlightedVerse.value;
+    if (highlightedVerse > 0) {
+      // Calculate the approximate position of the verse
+      // Each verse container has margin and padding, estimate height
+      final verseHeight = 80.0; // Estimated height per verse
+      final targetOffset = (highlightedVerse - 1) * verseHeight;
+      
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (_verseScrollController.hasClients) {
+            _verseScrollController.animateTo(
+              targetOffset,
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      });
+    }
   }
 
 }

@@ -44,6 +44,9 @@ class BibleController extends GetxController {
   var searchContext = BibleSearchContext.books.obs; // Default to book search
   var searchHistory = <String>[].obs;
 
+  // Verse highlighting for search navigation
+  var highlightedVerse = 0.obs;
+
   // Caching for recently accessed passages
   final Map<String, String> _passageCache = {};
   static const int _maxCacheSize = 50;
@@ -253,6 +256,9 @@ class BibleController extends GetxController {
     startVerse.value = 0;
     endVerse.value = 0;
     isSelecting.value = false;
+    
+    // Clear highlighted verse when changing chapters
+    clearHighlightedVerse();
 
     loadPassage();
   }
@@ -384,6 +390,14 @@ class BibleController extends GetxController {
       }
     }
     return false;
+  }
+
+  bool isVerseSearchHighlighted(int verse) {
+    return highlightedVerse.value == verse;
+  }
+
+  void clearHighlightedVerse() {
+    highlightedVerse.value = 0;
   }
 
   // New methods for enhanced screen
@@ -621,7 +635,7 @@ class BibleController extends GetxController {
     searchHistory.clear();
   }
 
-  void navigateToSearchResult(BibleSearchResult result) {
+  void navigateToSearchResult(BibleSearchResult result, {int? highlightVerse}) {
     switch (result.type) {
       case BibleSearchResultType.book:
         selectBook(result.bookName);
@@ -629,7 +643,10 @@ class BibleController extends GetxController {
       case BibleSearchResultType.verse:
         selectBook(result.bookName);
         selectChapter(result.chapter);
-        // Scroll to specific verse (implementation needed)
+        // Set the verse to highlight for navigation
+        if (highlightVerse != null) {
+          highlightedVerse.value = highlightVerse;
+        }
         break;
     }
   }
@@ -643,6 +660,8 @@ class BibleController extends GetxController {
     }
     return null;
   }
+
+
 
   // Clear cache
   void clearCache() {
