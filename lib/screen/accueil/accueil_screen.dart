@@ -188,7 +188,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                           ),
                       ],
                     ),
-                    onPressed: isPlaying ? () => _showCurrentPlayingDialog() : _showCurrentPlayingDialog,
+                    onPressed: isPlaying ? () => _showCurrentPlayingDialog() : null,
                   );
                 }),
                 IconButton(
