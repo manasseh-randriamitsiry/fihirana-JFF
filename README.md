@@ -66,3 +66,4 @@ git push origin v1.0.5
 ```bash
 flutter gen-l10n
 ```
+sds
