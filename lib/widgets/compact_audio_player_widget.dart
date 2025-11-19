@@ -7,11 +7,19 @@ import 'package:get/get.dart';
 
 class CompactAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;
+  final List<Hymn>? playlist;
+  final Function(Hymn)? onHymnChange;
+  final bool autoPlayNext;
+  final Function(bool)? onAutoPlayNextChange;
 
   const CompactAudioPlayerWidget({
-    Key? key,
+    super.key,
     required this.hymn,
-  }) : super(key: key);
+    this.playlist,
+    this.onHymnChange,
+    this.autoPlayNext = false,
+    this.onAutoPlayNextChange,
+  });
 
   @override
   State<CompactAudioPlayerWidget> createState() => _CompactAudioPlayerWidgetState();
@@ -23,16 +31,26 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
   Duration? _duration;
   Duration? _position;
   bool _isPlaying = false;
+  bool _autoPlayNext = false;
+  int _currentPlaylistIndex = 0;
+  bool _isSeeking = false;
 
   @override
   void initState() {
     super.initState();
+    _autoPlayNext = widget.autoPlayNext;
     _initializePlayer();
     
     // Refresh audio service state to ensure consistency
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _audioService.refreshPlayingState();
     });
+    
+    if (widget.playlist != null) {
+      _currentPlaylistIndex = widget.playlist!.indexWhere(
+        (hymn) => hymn.id == widget.hymn.id,
+      );
+    }
   }
 
   @override
@@ -61,6 +79,12 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
             _isLoading = state.processingState == ProcessingState.loading ||
                         state.processingState == ProcessingState.buffering;
           });
+          
+          // Handle auto-play next when current track completes
+          if (state.processingState == ProcessingState.completed && _autoPlayNext && widget.playlist != null) {
+            _updateCurrentPlaylistIndex();
+            _playNext();
+          }
         } else {
           // If another hymn is playing, reset this widget's state
           setState(() {
@@ -73,17 +97,46 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
 
     _audioService.positionStream.listen((position) {
       if (mounted && _audioService.currentHymn?.id == widget.hymn.id) {
-        setState(() {
-          _position = position;
-        });
+        // Validate position before setting state
+        if (position != null && position >= Duration.zero) {
+          // ULTRA-AGGRESSIVE VALIDATION: Reject extremely large positions immediately
+          const absoluteMaxPosition = 600000000; // 10 minutes in milliseconds
+          if (position.inMilliseconds > absoluteMaxPosition) {
+            print('CompactAudioPlayerWidget: Rejecting extremely large position: ${position.inMilliseconds}ms (max: $absoluteMaxPosition)');
+            if (mounted) {
+              setState(() {
+                _position = Duration.zero;
+              });
+            }
+            return; // Completely ignore this position update
+          }
+          
+          // Additional validation: position should not be unreasonably large
+          if (_duration != null && position.inMilliseconds > _duration!.inMilliseconds * 2.0) {
+            print('CompactAudioPlayerWidget: Ignoring unreasonable position: ${position.inMilliseconds}ms vs duration: ${_duration!.inMilliseconds}ms');
+            if (mounted) {
+              setState(() {
+                _position = Duration.zero;
+              });
+            }
+            return; // Ignore this position update
+          }
+          
+          setState(() {
+            _position = position;
+          });
+        }
       }
     });
 
     _audioService.durationStream.listen((duration) {
       if (mounted && _audioService.currentHymn?.id == widget.hymn.id) {
-        setState(() {
-          _duration = duration;
-        });
+        // Validate duration before setting state
+        if (duration != null && duration >= Duration.zero) {
+          setState(() {
+            _duration = duration;
+          });
+        }
       }
     });
   }
@@ -103,6 +156,24 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
         _duration = null;
       });
     }
+  }
+
+  void _updateCurrentPlaylistIndex() {
+    if (widget.playlist != null && _audioService.currentHymn != null) {
+      final currentIndex = widget.playlist!.indexWhere(
+        (hymn) => hymn.id == _audioService.currentHymn!.id,
+      );
+      if (currentIndex != -1) {
+        _currentPlaylistIndex = currentIndex;
+      }
+    }
+  }
+
+  void _toggleAutoPlay() {
+    setState(() {
+      _autoPlayNext = !_autoPlayNext;
+    });
+    widget.onAutoPlayNextChange?.call(_autoPlayNext);
   }
 
   Future<void> _togglePlayPause() async {
@@ -139,9 +210,136 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     }
   }
 
-  void _seekTo(double value) {
-    final position = Duration(milliseconds: (value * (_duration?.inMilliseconds ?? 0)).round());
-    _audioService.seekTo(position);
+  double _calculateSliderValue() {
+    if (_duration == null || _position == null) return 0.0;
+    
+    final durationMs = _duration!.inMilliseconds.toDouble();
+    final positionMs = _position!.inMilliseconds.toDouble();
+    
+    if (durationMs <= 0) return 0.0;
+    
+    // Additional safety check for extreme values
+    if (positionMs < 0) return 0.0;
+    
+    // ULTRA-AGGRESSIVE FIX: Multiple validation layers
+    // 1. Basic sanity check
+    if (positionMs < 0 || durationMs <= 0) {
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
+    // 2. Reasonable position check (position should not exceed duration by more than 10 seconds)
+    final maxReasonablePosition = durationMs + 10000; // +10 seconds buffer
+    if (positionMs > maxReasonablePosition) {
+      print('CompactAudioPlayerWidget: Position ($positionMs) exceeds reasonable max ($maxReasonablePosition) - resetting to 0.0');
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
+    // 3. Absolute maximum cap (prevent any extremely large values)
+    const absoluteMaxPosition = 600000000; // 10 minutes in milliseconds
+    if (positionMs > absoluteMaxPosition) {
+      print('CompactAudioPlayerWidget: Position ($positionMs) exceeds absolute max ($absoluteMaxPosition) - resetting to 0.0');
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
+    // 4. Duration-based cap (position should not be more than 3x duration)
+    if (positionMs > durationMs * 3.0) {
+      print('CompactAudioPlayerWidget: Position ($positionMs) > 3x duration ($durationMs) - resetting to 0.0');
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
+    final value = positionMs / durationMs;
+    final clampedValue = value.clamp(0.0, 1.0);
+    
+    // Debug logging for troubleshooting
+    if (clampedValue != value) {
+      print('CompactAudioPlayerWidget: Clamped slider value from $value to $clampedValue (pos: $positionMs, dur: $durationMs)');
+    }
+    
+    return clampedValue;
+  }
+
+  double _getSafeSliderValue() {
+    try {
+      final calculatedValue = _calculateSliderValue();
+      // Final safety check - ensure value is within valid range
+      return calculatedValue.clamp(0.0, 1.0);
+    } catch (e) {
+      print('CompactAudioPlayerWidget: Error calculating slider value: $e, returning 0.0');
+      return 0.0;
+    }
+  }
+
+  Future<void> _seekTo(double value) async {
+    if (_duration == null || 
+        _audioService.currentHymn?.id != widget.hymn.id || 
+        _isSeeking || 
+        _isLoading) {
+      return;
+    }
+    
+    _isSeeking = true;
+    
+    try {
+      final clampedValue = value.clamp(0.0, 1.0);
+      final position = Duration(milliseconds: (clampedValue * _duration!.inMilliseconds).round());
+      
+      print('CompactAudioPlayerWidget: Seeking to ${position.inSeconds}s (${(clampedValue * 100).toStringAsFixed(1)}%)');
+      await _audioService.seekTo(position);
+    } catch (e) {
+      print('CompactAudioPlayerWidget: Seek error: $e');
+    } finally {
+      _isSeeking = false;
+    }
+  }
+
+  Future<void> _playNext() async {
+    if (widget.playlist != null) {
+      _updateCurrentPlaylistIndex();
+      
+      if (_currentPlaylistIndex < widget.playlist!.length - 1) {
+        final nextHymn = widget.playlist![_currentPlaylistIndex + 1];
+        setState(() {
+          _currentPlaylistIndex++;
+        });
+        widget.onHymnChange?.call(nextHymn);
+        await _audioService.stopCurrentAndPlayNew(nextHymn);
+      }
+    }
+  }
+
+  Future<void> _playPrevious() async {
+    if (widget.playlist != null) {
+      _updateCurrentPlaylistIndex();
+      
+      if (_currentPlaylistIndex > 0) {
+        final previousHymn = widget.playlist![_currentPlaylistIndex - 1];
+        setState(() {
+          _currentPlaylistIndex--;
+        });
+        widget.onHymnChange?.call(previousHymn);
+        await _audioService.stopCurrentAndPlayNew(previousHymn);
+      }
+    }
   }
 
   String _formatDuration(Duration? duration) {
@@ -169,75 +367,128 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: colorController.primaryColor.value.withOpacity(0.3),
-          width: 1,
-        ),
+                      border: Border.all(
+                        color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                      ),
       ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              widget.hymn.title,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: colorController.textColor.value,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            widget.hymn.title,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: colorController.textColor.value,
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Hymn ${widget.hymn.hymnNumber}',
-              style: TextStyle(
-                fontSize: 12,
-                color: colorController.textColor.value.withOpacity(0.7),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Hymn ${widget.hymn.hymnNumber}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                ),
               ),
-            ),
+              if (widget.playlist != null) ...[
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: _toggleAutoPlay,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: _autoPlayNext
+                          ? colorController.primaryColor.value.withValues(alpha: 0.2)
+                          : colorController.backgroundColor.value,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+        color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _autoPlayNext ? Icons.play_circle : Icons.playlist_play,
+                          size: 12,
+                          color: _autoPlayNext
+                              ? colorController.primaryColor.value
+                              : colorController.textColor.value.withValues(alpha: 0.7),
+                        ),
+                        const SizedBox(width: 2),
+                        Text(
+                          _autoPlayNext ? 'Auto' : 'Single',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: _autoPlayNext
+                                ? colorController.primaryColor.value
+                                : colorController.textColor.value.withValues(alpha: 0.7),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
-              Text(
-                _formatDuration(_position),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: colorController.textColor.value.withOpacity(0.7),
-                ),
-              ),
+               Text(
+                 _formatDuration(_position),
+                 style: TextStyle(
+                   fontSize: 10,
+                   color: colorController.textColor.value.withValues(alpha: 0.7),
+                 ),
+               ),
               Expanded(
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4),
                     trackHeight: 2,
                     activeTrackColor: colorController.primaryColor.value,
-                    inactiveTrackColor: colorController.primaryColor.value.withOpacity(0.3),
+                    inactiveTrackColor: colorController.primaryColor.value.withValues(alpha: 0.3),
                     thumbColor: colorController.primaryColor.value,
                   ),
                   child: Slider(
-                    value: _duration != null && _position != null
-                        ? (_position!.inMilliseconds / _duration!.inMilliseconds).clamp(0.0, 1.0)
-                        : 0.0,
-                    onChanged: _duration != null ? _seekTo : null,
+                    value: _getSafeSliderValue(),
+                    onChanged: (_duration != null && !_isLoading && !_isSeeking && _audioService.currentHymn?.id == widget.hymn.id) ? _seekTo : null,
                     min: 0.0,
                     max: 1.0,
                   ),
                 ),
               ),
-              Text(
-                _formatDuration(_duration),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: colorController.textColor.value.withOpacity(0.7),
-                ),
-              ),
+               Text(
+                 _formatDuration(_duration),
+                 style: TextStyle(
+                   fontSize: 10,
+                   color: colorController.textColor.value.withValues(alpha: 0.7),
+                 ),
+               ),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              if (widget.playlist != null) ...[
+                IconButton(
+                  onPressed: _currentPlaylistIndex > 0 ? _playPrevious : null,
+                  icon: Icon(
+                    Icons.skip_previous,
+                    size: 24,
+                     color: colorController.textColor.value.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
               IconButton(
                 onPressed: _isLoading ? null : _togglePlayPause,
                 icon: _isLoading
@@ -255,14 +506,25 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                         color: colorController.primaryColor.value,
                       ),
               ),
-              IconButton(
-                onPressed: _isLoading ? null : _stop,
-                icon: Icon(
-                  Icons.stop_circle,
-                  size: 24,
-                  color: colorController.textColor.value.withOpacity(0.6),
+              if (widget.playlist != null) ...[
+                IconButton(
+                  onPressed: _currentPlaylistIndex < widget.playlist!.length - 1 ? _playNext : null,
+                  icon: Icon(
+                    Icons.skip_next,
+                    size: 24,
+                     color: colorController.textColor.value.withValues(alpha: 0.6),
+                  ),
                 ),
-              ),
+              ] else ...[
+                IconButton(
+                  onPressed: _isLoading ? null : _stop,
+                  icon: Icon(
+                    Icons.stop_circle,
+                    size: 24,
+                     color: colorController.textColor.value.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
             ],
           ),
         ],

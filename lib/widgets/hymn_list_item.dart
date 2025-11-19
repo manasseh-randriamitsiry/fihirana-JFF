@@ -273,6 +273,8 @@ class _HymnListItemState extends State<HymnListItem> {
               color: widget.textColor,
               fontWeight: FontWeight.bold,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,99 +314,107 @@ class _HymnListItemState extends State<HymnListItem> {
               ),
             ),
           ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (_audioChecked && _hasAudio)
-                Obx(() {
-                  final isPlaying = _audioService.isHymnPlaying(widget.hymn.id);
-                  print('Hymn ${widget.hymn.id} playing status: $isPlaying');
-                  return IconButton(
-                    onPressed: widget.onMusicPressed ?? () {
-                      // Default audio play behavior if no callback provided
-                      _playHymnAudio();
-                    },
-                    style: IconButton.styleFrom(
-                      backgroundColor: isPlaying
-                          ? widget.textColor.withOpacity(0.2)
-                          : widget.backgroundColor,
-                      padding: const EdgeInsets.all(12),
-                    ),
-                    icon: Stack(
-                      children: [
-                        Icon(
-                          Icons.music_note,
-                          color: isPlaying
-                              ? (Theme.of(context).colorScheme.primary)
-                              : widget.textColor,
-                          size: 20,
-                        ),
-                        if (isPlaying)
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
+          trailing: SizedBox(
+            width: 120,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                if (_audioChecked && _hasAudio)
+                  Obx(() {
+                    final isPlaying = _audioService.isHymnPlaying(widget.hymn.id);
+                    print('Hymn ${widget.hymn.id} playing status: $isPlaying');
+                    return IconButton(
+                      onPressed: widget.onMusicPressed ?? () {
+                        // Default audio play behavior if no callback provided
+                        _playHymnAudio();
+                      },
+                      style: IconButton.styleFrom(
+                        backgroundColor: isPlaying
+                            ? widget.textColor.withOpacity(0.2)
+                            : widget.backgroundColor,
+                        padding: const EdgeInsets.all(8),
+                        minimumSize: const Size(32, 32),
+                      ),
+                      icon: Stack(
+                        children: [
+                          Icon(
+                            Icons.music_note,
+                            color: isPlaying
+                                ? (Theme.of(context).colorScheme.primary)
+                                : widget.textColor,
+                            size: 18,
+                          ),
+                          if (isPlaying)
+                            Positioned(
+                              right: 0,
+                              top: 0,
+                              child: Container(
+                                width: 6,
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                  );
-                }),
-              StreamBuilder<Map<String, String>>(
-                stream: _hymnService.getFavoriteStatusStream(),
-                builder: (context, snapshot) {
-                  final favoriteStatus = snapshot.data?[widget.hymn.id] ?? '';
-                  final isFavorite = favoriteStatus.isNotEmpty;
+                        ],
+                      ),
+                    );
+                  }),
+                StreamBuilder<Map<String, String>>(
+                  stream: _hymnService.getFavoriteStatusStream(),
+                  builder: (context, snapshot) {
+                    final favoriteStatus = snapshot.data?[widget.hymn.id] ?? '';
+                    final isFavorite = favoriteStatus.isNotEmpty;
 
-                  return IconButton(
-                    onPressed: widget.onFavoritePressed,
+                    return IconButton(
+                      onPressed: widget.onFavoritePressed,
+                      style: IconButton.styleFrom(
+                        backgroundColor: widget.backgroundColor,
+                        padding: const EdgeInsets.all(8),
+                        minimumSize: const Size(32, 32),
+                      ),
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: isFavorite
+                            ? (favoriteStatus == 'cloud'
+                                ? Colors.red
+                                : Colors.blue)
+                            : widget.textColor,
+                        size: 18,
+                      ),
+                    );
+                  },
+                ),
+                if (widget.isFirebaseHymn &&
+                    isLoggedIn &&
+                    (widget.hymn.createdByEmail == user.email || isAdmin))
+                  IconButton(
+                    onPressed: () =>
+                        NavigationUtility.navigateToEditScreen(context, widget.hymn),
                     style: IconButton.styleFrom(
                       backgroundColor: widget.backgroundColor,
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(8),
+                      minimumSize: const Size(32, 32),
                     ),
-                    icon: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      color: isFavorite
-                          ? (favoriteStatus == 'cloud'
-                              ? Colors.red
-                              : Colors.blue)
-                          : widget.textColor,
-                      size: 20,
+                    icon: Icon(Icons.edit, color: widget.textColor, size: 18),
+                  ),
+                if (widget.isFirebaseHymn &&
+                    isLoggedIn &&
+                    (widget.hymn.createdByEmail == user.email || isAdmin))
+                  IconButton(
+                    onPressed: () => _showDeleteConfirmation(context),
+                    style: IconButton.styleFrom(
+                      backgroundColor: widget.backgroundColor,
+                      padding: const EdgeInsets.all(8),
+                      minimumSize: const Size(32, 32),
                     ),
-                  );
-                },
-              ),
-              if (widget.isFirebaseHymn &&
-                  isLoggedIn &&
-                  (widget.hymn.createdByEmail == user.email || isAdmin))
-                IconButton(
-                  onPressed: () =>
-                      NavigationUtility.navigateToEditScreen(context, widget.hymn),
-                  style: IconButton.styleFrom(
-                    backgroundColor: widget.backgroundColor,
-                    padding: const EdgeInsets.all(12),
+                    icon: const Icon(Icons.delete_outline,
+                        color: Colors.red, size: 18),
                   ),
-                  icon: Icon(Icons.edit, color: widget.textColor, size: 20),
-                ),
-              if (widget.isFirebaseHymn &&
-                  isLoggedIn &&
-                  (widget.hymn.createdByEmail == user.email || isAdmin))
-                IconButton(
-                  onPressed: () => _showDeleteConfirmation(context),
-                  style: IconButton.styleFrom(
-                    backgroundColor: widget.backgroundColor,
-                    padding: const EdgeInsets.all(12),
-                  ),
-                  icon: const Icon(Icons.delete_outline,
-                      color: Colors.red, size: 20),
-                ),
-            ],
+              ],
+            ),
           ),
           onTap: () => NavigationUtility.navigateToDetailScreen(context, widget.hymn),
         ),

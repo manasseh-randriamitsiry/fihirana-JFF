@@ -2,7 +2,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import '../models/hymn.dart';
-import 'notification_service.dart';
 import 'audio_foreground_service.dart';
 import 'audio_cache_service.dart';
 
@@ -12,7 +11,7 @@ class AudioService {
     _instance ??= AudioService._internal();
     return _instance!;
   }
-  
+
   factory AudioService() => instance;
   AudioService._internal() {
     _initializePlayerStateListener();
@@ -21,26 +20,37 @@ class AudioService {
   void _initializePlayerStateListener() {
     // Listen to player state changes to properly manage playing state
     _player.playerStateStream.listen((state) {
-      print('AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
-      
-      // Update notification through foreground service
-      if (_currentHymn != null) {
+      print(
+          'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
+
+      // Update notification only when playing state actually changes (not on every position update)
+      if (_currentHymn != null && state.playing != _lastNotifiedPlayingState) {
         final foregroundService = AudioForegroundService.instance;
         foregroundService.updateNotification(_currentHymn, state.playing);
+        _lastNotifiedPlayingState = state.playing;
       }
-      
+
       // Only clear the current playing hymn when playback actually stops or completes
       if (state.processingState == ProcessingState.completed ||
-          (state.playing == false && _currentPlayingHymnId.value.isNotEmpty && 
-           state.processingState != ProcessingState.loading && 
-           state.processingState != ProcessingState.buffering)) {
-        print('AudioService: Clearing playing hymn ${_currentPlayingHymnId.value}');
+          (state.playing == false &&
+              _currentPlayingHymnId.value.isNotEmpty &&
+              state.processingState != ProcessingState.loading &&
+              state.processingState != ProcessingState.buffering)) {
+        print(
+            'AudioService: Clearing playing hymn ${_currentPlayingHymnId.value}');
         _currentPlayingHymnId.value = '';
       }
     });
   }
 
-  final AudioPlayer _player = AudioPlayer();
+  bool _lastNotifiedPlayingState = false;
+
+  final AudioPlayer _player = AudioPlayer(
+    // Configure for better buffering and smoother seeking
+    audioPipeline: AudioPipeline(
+      androidAudioEffects: [],
+    ),
+  );
   Hymn? _currentHymn;
   final AudioCacheService _cacheService = AudioCacheService();
   final RxString _currentPlayingHymnId = ''.obs;
@@ -61,26 +71,40 @@ class AudioService {
 
   Future<void> playHymn(Hymn hymn) async {
     print('AudioService: Starting to play hymn ${hymn.id}');
-    
+
     // Stop current playback if different hymn is playing
-    if (_currentPlayingHymnId.value.isNotEmpty && _currentPlayingHymnId.value != hymn.id) {
+    if (_currentPlayingHymnId.value.isNotEmpty &&
+        _currentPlayingHymnId.value != hymn.id) {
       await _player.stop();
-      await Future.delayed(const Duration(milliseconds: 100)); // Brief pause for cleanup
+      await Future.delayed(
+          const Duration(milliseconds: 100)); // Brief pause for cleanup
     }
-    
+
     _currentHymn = hymn;
-    
-    final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
-    
+
+    final audioUrl =
+        'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
+
     try {
-      // Set the current playing ID only after successfully setting the URL
-      await _player.setUrl(audioUrl);
+      // Use AudioSource with proper buffering for smooth seeking
+      // This pre-buffers the audio for better performance
+      final audioSource = AudioSource.uri(
+        Uri.parse(audioUrl),
+        tag: hymn.id, // Tag for identification
+      );
+
+      // Set the audio source with buffering
+      await _player.setAudioSource(
+        audioSource,
+        preload: true, // Preload the audio for faster seeking
+      );
+
       _currentPlayingHymnId.value = hymn.id;
-      print('AudioService: URL set, playing hymn ${hymn.id}');
-      
+      print('AudioService: Audio source set, playing hymn ${hymn.id}');
+
       await _player.play();
       print('AudioService: Started playing hymn ${hymn.id}');
-      
+
       // Let foreground service handle notification
       final foregroundService = AudioForegroundService.instance;
       foregroundService.updateNotification(hymn, true);
@@ -89,7 +113,18 @@ class AudioService {
       print('AudioService: Error playing hymn ${hymn.id}: $e');
       final foregroundService = AudioForegroundService.instance;
       foregroundService.updateNotification(null, false);
-      throw Exception('Failed to play audio: $e');
+
+      // Provide more user-friendly error messages
+      String userMessage = 'Failed to play audio';
+      if (e.toString().contains('Network') ||
+          e.toString().contains('timeout')) {
+        userMessage =
+            'Network connection error. Please check your internet connection.';
+      } else if (e.toString().contains('not found')) {
+        userMessage = 'Audio file not found for hymn ${hymn.id}';
+      }
+
+      throw Exception(userMessage);
     }
   }
 
@@ -112,19 +147,26 @@ class AudioService {
 
   Future<void> stopCurrentAndPlayNew(Hymn newHymn) async {
     print('AudioService: Stopping current and playing new hymn ${newHymn.id}');
-    
+
     // Stop current playback if any
     if (_currentPlayingHymnId.value.isNotEmpty) {
       await _player.stop();
-      await Future.delayed(const Duration(milliseconds: 200)); // Allow for cleanup
+      await Future.delayed(
+          const Duration(milliseconds: 200)); // Allow for cleanup
     }
-    
+
     // Play new hymn
     await playHymn(newHymn);
   }
 
   Future<void> seekTo(Duration position) async {
-    await _player.seek(position);
+    try {
+      print('AudioService: Seeking to ${position.inMilliseconds}ms');
+      await _player.seek(position);
+    } catch (e) {
+      print('AudioService: Seek error: $e');
+      throw Exception('Failed to seek audio: $e');
+    }
   }
 
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;
@@ -150,8 +192,9 @@ class AudioService {
     final isCurrentHymn = _currentPlayingHymnId.value == hymnId;
     final isActuallyPlaying = isPlaying;
     final result = isCurrentHymn && isActuallyPlaying;
-    
-    print('AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isActuallyPlaying)');
+
+    print(
+        'AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isActuallyPlaying)');
     return result;
   }
 
@@ -159,9 +202,10 @@ class AudioService {
   void refreshPlayingState() {
     final currentId = _currentPlayingHymnId.value;
     final currentlyPlaying = isPlaying;
-    
-    print('AudioService: Refresh state - ID: $currentId, Playing: $currentlyPlaying');
-    
+
+    print(
+        'AudioService: Refresh state - ID: $currentId, Playing: $currentlyPlaying');
+
     // If we think something is playing but it's not, clear the state
     if (currentId.isNotEmpty && !currentlyPlaying) {
       _currentPlayingHymnId.value = '';
@@ -171,7 +215,7 @@ class AudioService {
 
   static Future<void> handleNotificationAction(String action) async {
     final audioService = AudioService.instance;
-    
+
     switch (action) {
       case 'play':
         if (audioService.currentHymn != null) {

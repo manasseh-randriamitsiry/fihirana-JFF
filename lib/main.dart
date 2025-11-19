@@ -28,6 +28,7 @@ import 'services/bible_service.dart';
 import 'services/audio_service.dart';
 import 'services/notification_service.dart';
 import 'services/audio_foreground_service.dart';
+import 'controller/hymn_controller.dart';
 
 // Fallback localization delegate for unsupported locales
 class _FallbackMaterialLocalizationsDelegate

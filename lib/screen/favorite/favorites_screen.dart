@@ -22,6 +22,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
   final AudioService _audioService = AudioService.instance;
   final Map<String, bool> _audioAvailability = {};
   final Set<String> _checkedAudioHymns = <String>{};
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   void _showAudioPlayerDialog(Hymn hymn) {
     showDialog(
@@ -106,38 +108,92 @@ class _FavoritesPageState extends State<FavoritesPage> {
           ),
         ),
       ),
-      body: StreamBuilder<List<Hymn>>(
-        stream: _hymnService.getFavoriteHymnsStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  colorController.primaryColor.value,
+      body: Column(
+        children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Neumorphic(
+              style: NeumorphicStyle(
+                color: colorController.backgroundColor.value,
+                boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+                depth: 4,
+                intensity: 0.8,
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
+                  });
+                },
+                decoration: InputDecoration(
+                  hintText: 'Karohy ny hira tiana...',
+                  hintStyle: TextStyle(color: colorController.iconColor.value.withOpacity(0.6)),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: colorController.iconColor.value,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                ),
+                style: TextStyle(
+                  color: colorController.textColor.value,
                 ),
               ),
-            );
-          } else if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Olana: ${snapshot.error}',
-                style: TextStyle(color: colorController.textColor.value),
-              ),
-            );
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(
-              child: Text(
-                'Mbola tsy misy hira tiana',
-                style: TextStyle(color: colorController.textColor.value),
-              ),
-            );
-          } else {
-            final favoriteHymns = snapshot.data!;
-            return ListView.builder(
+            ),
+          ),
+          // Favorites list
+          Expanded(
+            child: StreamBuilder<List<Hymn>>(
+              stream: _hymnService.getFavoriteHymnsStream(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        colorController.primaryColor.value,
+                      ),
+                    ),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Olana: ${snapshot.error}',
+                      style: TextStyle(color: colorController.textColor.value),
+                    ),
+                  );
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'Mbola tsy misy hira tiana',
+                      style: TextStyle(color: colorController.textColor.value),
+                    ),
+                  );
+                } else {
+                  final favoriteHymns = snapshot.data!;
+                  // Filter hymns based on search query
+                  final filteredHymns = _searchQuery.isEmpty
+                      ? favoriteHymns
+                      : favoriteHymns.where((hymn) {
+                          return hymn.title.toLowerCase().contains(_searchQuery) ||
+                                 hymn.hymnNumber.toLowerCase().contains(_searchQuery);
+                        }).toList();
+                  
+                  if (filteredHymns.isEmpty) {
+                    return Center(
+                      child: Text(
+                        'Tsy misy hira tiana mitovy amin\'ny karohy',
+                        style: TextStyle(color: colorController.textColor.value),
+                      ),
+                    );
+                  }
+                  
+                  return ListView.builder(
               padding: const EdgeInsets.all(16.0),
-              itemCount: favoriteHymns.length,
+              itemCount: filteredHymns.length,
               itemBuilder: (context, index) {
-                final hymn = favoriteHymns[index];
+                final hymn = filteredHymns[index];
                 
                 // Check audio availability when item is built
                 if (!_checkedAudioHymns.contains(hymn.id)) {
@@ -264,8 +320,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 );
               },
             );
-          }
-        },
+                }
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
