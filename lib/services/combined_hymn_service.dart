@@ -57,7 +57,10 @@ class CombinedHymnService {
       for (final hymnData in hymnsData) {
         try {
           final hymnMap = hymnData as Map<String, dynamic>;
-          final hymn = _parseHymnFromJson(hymnMap, hymnMap['number'].toString());
+          // Use filename as ID (without .json extension) for audio compatibility
+          final fileName = hymnMap['file_path'] as String? ?? '${hymnMap['number']}.json';
+          final hymnId = fileName.replaceAll('.json', '');
+          final hymn = _parseHymnFromJson(hymnMap, hymnId);
           hymns.add(hymn);
           _hymnCache[hymn.id] = hymn;
         } catch (e) {
