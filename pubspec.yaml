@@ -72,6 +72,16 @@ flutter:
     - assets/baiboly/
     - pubspec.yaml
 
+  # Ensure all JSON files are explicitly included
+  # This prevents tree-shaking of assets in release builds
+  
+  # Explicitly include some key JSON files to ensure they're not tree-shaken
+    - assets/json/1-NY-MIARA-DIA-AMINI-JESOSY-NO-TIAKO.json
+    - assets/json/10-DIOVY-AHO.json
+    - assets/json/100-ANARAM-BAOVAO.json
+    - assets/json/101-NITIA-AHY-JESO.json
+    - assets/json/102-MOA-VE-NY-TSARA-INDRINDRA-NO-NOMEKO.json
+
   # Explicitly include common asset files to ensure they're not tree-shaken in release mode
   fonts:
     - family: Lato
