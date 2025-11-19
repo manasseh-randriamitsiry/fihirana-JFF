@@ -17,7 +17,24 @@ class LocalHymnService {
     }
 
     try {
-      // Try to load from manifest first
+      // First try to load our custom hymn manifest
+      try {
+        if (kDebugMode) {
+          print('Attempting to load custom hymn manifest...');
+        }
+        final manifestContent = await rootBundle.loadString('assets/hymn_manifest.json');
+        final Map<String, dynamic> hymnManifest = json.decode(manifestContent);
+        
+        if (hymnManifest.isNotEmpty) {
+          return await _loadFromCustomManifest(hymnManifest);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Custom hymn manifest not found, trying AssetManifest.json...');
+        }
+      }
+
+      // Try to load from AssetManifest.json
       try {
         if (kDebugMode) {
           print('Attempting to load AssetManifest.json...');
@@ -104,6 +121,73 @@ class LocalHymnService {
       }
       return await _loadHymnsFallback();
     }
+  }
+
+  Future<List<Hymn>> _loadFromCustomManifest(Map<String, dynamic> hymnManifest) async {
+    final List<Hymn> hymns = [];
+    
+    if (kDebugMode) {
+      print('Loading ${hymnManifest.length} hymns from custom manifest');
+    }
+
+    try {
+      int successCount = 0;
+      int failureCount = 0;
+      
+      for (final entry in hymnManifest.entries) {
+        try {
+          final hymnId = entry.key;
+          final assetPath = entry.value.toString();
+          
+          final jsonString = await rootBundle.loadString(assetPath);
+          final jsonData = json.decode(jsonString);
+          final hymn = _parseHymnFromJson(jsonData, hymnId);
+          
+          hymns.add(hymn);
+          _hymnCache[hymn.id] = hymn;
+          successCount++;
+          
+          if (kDebugMode && successCount <= 5) {
+            print('Loaded hymn $hymnId from $assetPath: ${hymn.title}');
+          }
+        } catch (e) {
+          failureCount++;
+          if (kDebugMode && failureCount <= 5) {
+            print('Failed to load hymn ${entry.key}: $e');
+          }
+        }
+        
+        // Add a small delay every 50 hymns to prevent overwhelming the system
+        if (hymns.length % 50 == 0) {
+          await Future.delayed(const Duration(milliseconds: 5));
+        }
+      }
+      
+      if (hymns.isNotEmpty) {
+        hymns.sort((a, b) {
+          final numA = int.tryParse(a.hymnNumber) ?? 0;
+          final numB = int.tryParse(b.hymnNumber) ?? 0;
+          return numA.compareTo(numB);
+        });
+
+        _allHymns = hymns;
+        
+        if (kDebugMode) {
+          print('Successfully loaded ${hymns.length} hymns from custom manifest');
+          print('Success rate: $successCount loaded, $failureCount failed');
+          print('First hymn: ${hymns.first.title} (${hymns.first.hymnNumber})');
+          print('Last hymn: ${hymns.last.title} (${hymns.last.hymnNumber})');
+        }
+        
+        return hymns;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Custom manifest loading failed: $e');
+      }
+    }
+    
+    return [];
   }
 
   Future<List<Hymn>> _loadHymnsFallback() async {

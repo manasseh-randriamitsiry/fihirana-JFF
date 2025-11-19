@@ -2,9 +2,9 @@ name: Flutter CI/CD
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "beta" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "beta" ]
 
 jobs:
   build:
@@ -13,7 +13,9 @@ jobs:
       contents: write  # required to create releases
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for all branches
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -31,34 +33,33 @@ jobs:
         run: flutter pub run flutter_launcher_icons:main
 
       # ----------------------
-      # Verify assets are included
+      # Generate Asset Manifest
+      # ----------------------
+      - name: Generate Asset Manifest
+        run: |
+          echo "Generating custom hymn asset manifest..."
+          dart run tool/generate_assets.dart
+          echo "Regenerating dependencies after manifest creation..."
+          flutter pub get
+
+      # ----------------------
+      # Verify assets
       # ----------------------
       - name: Verify assets
         run: |
           echo "Checking assets directory..."
           ls -la assets/json/ | head -10
           echo "Total JSON files: $(find assets/json -name "*.json" | wc -l)"
+          echo "Generated manifest:"
+          cat assets/hymn_manifest.json | head -20
           echo "Sample JSON files:"
           ls assets/json/*.json | head -5
-          flutter pub get
-          echo "Flutter assets check:"
-          flutter analyze --no-fatal-infos
 
       # ----------------------
-      # Pre-build asset verification
-      # ----------------------
-      - name: Check asset inclusion
-        run: |
-          echo "Checking if assets will be included in build..."
-          flutter packages pub run build_runner build --delete-conflicting-outputs 2>/dev/null || true
-          echo "Asset manifest generation test:"
-          dart run tool/generate_assets.dart 2>/dev/null || echo "Asset generation tool not found"
-
-      # ----------------------
-      # Build with verbose output for debugging
+      # Build APK
       # ----------------------
       - name: Build APK
-        run: flutter build apk --release --verbose --no-tree-shake-icons
+        run: flutter build apk --release --verbose
 
       # ----------------------
       # Verify APK contents
@@ -66,7 +67,9 @@ jobs:
       - name: Check APK contents
         run: |
           echo "Checking APK contents for assets..."
-          unzip -l build/app/outputs/flutter-apk/app-release.apk | grep -i "assets/json" | head -10
+          unzip -l build/app/outputs/flutter-apk/app-release.apk | grep -i "assets" | head -20
+          echo "Checking for hymn manifest in APK:"
+          unzip -l build/app/outputs/flutter-apk/app-release.apk | grep "hymn_manifest.json" || echo "Hymn manifest not found in APK"
           echo "Total JSON files in APK: $(unzip -l build/app/outputs/flutter-apk/app-release.apk | grep -c "assets/json.*\.json" || echo "0")"
 
       # Create GitHub Release
