@@ -11,6 +11,7 @@ import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/audio_player_widget.dart';
 import '../../widgets/compact_audio_player_widget.dart';
+import '../../widgets/enhanced_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class CreateHymnPage extends StatefulWidget {
@@ -195,7 +196,10 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                CompactAudioPlayerWidget(hymn: hymn),
+                EnhancedAudioPlayerWidget(
+                  hymn: hymn,
+                  isCompact: true,
+                ),
               ],
             ),
           ),
@@ -324,6 +328,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         appBar: AppBar(
           backgroundColor: Get.find<ColorController>().backgroundColor.value,
           elevation: 0,
+          scrolledUnderElevation: 0,
           title: Text(
             l10n.createHymn,
             style: TextStyle(
@@ -367,6 +372,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
           elevation: 0,
+          scrolledUnderElevation: 0,
           leading: IconButton(
             onPressed: () => Get.back(),
             icon: Icon(

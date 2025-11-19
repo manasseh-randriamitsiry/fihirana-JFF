@@ -7,6 +7,7 @@ import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/compact_audio_player_widget.dart';
+import '../../widgets/enhanced_audio_player_widget.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -57,7 +58,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                CompactAudioPlayerWidget(hymn: hymn),
+                EnhancedAudioPlayerWidget(
+                  hymn: hymn,
+                ),
               ],
             ),
           ),
@@ -82,6 +85,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
       appBar: AppBar(
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: true,
         title: Text(
           'Tiana', 

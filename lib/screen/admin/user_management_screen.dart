@@ -80,6 +80,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
         backgroundColor: colorController.primaryColor.value,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           l10n.userManagement,
           style: TextStyle(color: colorController.textColor.value),
