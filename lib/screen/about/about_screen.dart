@@ -25,6 +25,8 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
+    // Clear cache to ensure fresh version
+    PubspecService.clearCache();
     _getAppInfo();
 
     VersionCheckService.setOnUpdateAvailableCallback(() {

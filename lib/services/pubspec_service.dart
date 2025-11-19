@@ -13,31 +13,13 @@ class PubspecService {
     }
 
     try {
-      // Try to read from pubspec.yaml using rootBundle (Flutter assets)
-      final content = await rootBundle.loadString('pubspec.yaml');
-      final lines = content.split('\n');
-      
-      for (final line in lines) {
-        final trimmedLine = line.trim();
-        if (trimmedLine.startsWith('version:')) {
-          _cachedVersion = trimmedLine.substring(8).trim();
-          return _cachedVersion!;
-        }
-      }
-
-      // Fallback to package_info_plus
+      // Use package_info_plus directly as primary source
       final packageInfo = await PackageInfo.fromPlatform();
       _cachedVersion = packageInfo.version;
       return _cachedVersion!;
     } catch (e) {
-      // Final fallback to package_info_plus
-      try {
-        final packageInfo = await PackageInfo.fromPlatform();
-        _cachedVersion = packageInfo.version;
-        return _cachedVersion!;
-      } catch (e) {
-        return '1.0.0'; // Default fallback
-      }
+      // Final fallback
+      return '1.0.0'; // Default fallback
     }
   }
 
