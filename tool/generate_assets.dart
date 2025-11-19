@@ -23,7 +23,7 @@ void main() async {
   // Create a manifest file that can be used at runtime
   final manifest = <String, String>{};
   for (final file in jsonFiles) {
-    final relativePath = file.path.split(Platform.pathSeparator).skip(1).join(Platform.pathSeparator);
+    final relativePath = file.path.split(Platform.pathSeparator).join('/');
     final fileName = file.path.split(Platform.pathSeparator).last;
     final hymnId = fileName.replaceAll('.json', '');
     manifest[hymnId] = relativePath;
