@@ -482,12 +482,22 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                 ],
               ),
             ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+Expanded(
+              child: GestureDetector(
+onHorizontalDragEnd: (DragEndDetails details) {
+                  if (details.primaryVelocity! < 0) {
+                    // Swiped right (next hymn)
+                    _navigateToNextHymn();
+                  } else if (details.primaryVelocity! > 0) {
+                    // Swiped left (previous hymn)
+                    _navigateToPreviousHymn();
+                  }
+                },
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     if (_show &&
                         (_hymn?.hymnHint?.trim().toLowerCase().isNotEmpty ??
                             false)) ...[
@@ -670,6 +680,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                 ),
               ),
             ),
+),
           ],
         ),
       ),
@@ -973,7 +984,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     );
   }
 
-  void _navigateToEditScreen(BuildContext context) {
+void _navigateToEditScreen(BuildContext context) {
     if (_hymn == null) return;
     Navigator.push(
       context,
@@ -981,6 +992,64 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         builder: (context) => EditHymnScreen(hymn: _hymn!),
       ),
     );
+  }
+
+  Future<void> _navigateToNextHymn() async {
+    if (_hymn == null) return;
+    
+    try {
+      final allHymns = await _hymnService.getAllHymns();
+      final currentIndex = allHymns.indexWhere((h) => h.id == _hymn!.id);
+      
+      if (currentIndex != -1 && currentIndex < allHymns.length - 1) {
+        final nextHymn = allHymns[currentIndex + 1];
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HymnDetailScreen(hymnId: nextHymn.id),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle error silently or show a message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not navigate to next hymn'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _navigateToPreviousHymn() async {
+    if (_hymn == null) return;
+    
+    try {
+      final allHymns = await _hymnService.getAllHymns();
+      final currentIndex = allHymns.indexWhere((h) => h.id == _hymn!.id);
+      
+      if (currentIndex != -1 && currentIndex > 0) {
+        final previousHymn = allHymns[currentIndex - 1];
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HymnDetailScreen(hymnId: previousHymn.id),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle error silently or show a message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not navigate to previous hymn'),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+    }
   }
 }
 
