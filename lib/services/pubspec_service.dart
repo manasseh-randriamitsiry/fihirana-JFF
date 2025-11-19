@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class PubspecService {
   static String? _cachedVersion;
@@ -13,32 +14,40 @@ class PubspecService {
     }
 
     try {
-      // Try to read from pubspec.yaml using rootBundle (Flutter assets)
+      // Method 1: Try reading from pubspec.yaml in assets
       final content = await rootBundle.loadString('pubspec.yaml');
       final lines = content.split('\n');
       
       for (final line in lines) {
         final trimmedLine = line.trim();
         if (trimmedLine.startsWith('version:')) {
-          _cachedVersion = trimmedLine.substring(8).trim();
+          final version = trimmedLine.substring(8).trim();
+          print('Pubspec.yaml version: $version'); // Debug print
+          _cachedVersion = version;
           return _cachedVersion!;
         }
       }
-
-      // Fallback to package_info_plus
-      final packageInfo = await PackageInfo.fromPlatform();
-      _cachedVersion = packageInfo.version;
-      return _cachedVersion!;
     } catch (e) {
-      // Final fallback to package_info_plus
-      try {
-        final packageInfo = await PackageInfo.fromPlatform();
-        _cachedVersion = packageInfo.version;
-        return _cachedVersion!;
-      } catch (e) {
-        return '1.0.0'; // Default fallback
-      }
+      print('Pubspec.yaml error: $e'); // Debug print
     }
+
+    try {
+      // Method 2: Fallback to package_info_plus
+      final packageInfo = await PackageInfo.fromPlatform();
+      final version = packageInfo.version;
+      print('PackageInfo version: $version'); // Debug print
+      if (version != null && version.isNotEmpty) {
+        _cachedVersion = version;
+        return _cachedVersion!;
+      }
+    } catch (e) {
+      print('PackageInfo error: $e'); // Debug print
+    }
+
+    // Method 3: Final fallback
+    print('Using fallback version: 1.0.8'); // Debug print
+    _cachedVersion = '1.0.8';
+    return _cachedVersion!;
   }
 
   static Future<Map<String, dynamic>> getPubspecData() async {

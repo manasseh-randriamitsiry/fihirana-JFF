@@ -16,6 +16,7 @@ import '../screen/announcement/announcement_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/hymn/firebase_hymns_screen.dart';
 import '../screen/bible/enhanced_bible_reader_screen.dart';
+import '../services/audio_service.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
 import '../l10n/app_localizations.dart';
@@ -136,12 +137,201 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   void _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _username = prefs.getString('username');
-      });
-    }
+    setState(() {
+      _username = prefs.getString('username');
+    });
   }
+
+  void _showAudioCacheDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: _colorController.backgroundColor.value,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Audio Cache Management',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: _colorController.textColor.value,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.close,
+                      color: _colorController.iconColor.value,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              FutureBuilder<Map<String, dynamic>>(
+                future: AudioService.instance.getCacheStats(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final stats = snapshot.data!;
+                    return Column(
+                      children: [
+                        Text(
+                          'Total cached hymns: ${stats['totalEntries']}',
+                          style: TextStyle(
+                            color: _colorController.textColor.value,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'With audio: ${stats['withAudio']}',
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Without audio: ${stats['withoutAudio']}',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 14,
+                          ),
+                        ),
+                        if (stats['lastChecked'] != null) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Last checked: ${_formatDate(stats['lastChecked'])}',
+                            style: TextStyle(
+                              color: _colorController.textColor.value.withOpacity(0.7),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 20),
+                      ],
+                    );
+                  }
+                  return const CircularProgressIndicator();
+                },
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  NeumorphicButton(
+                    onPressed: () async {
+                      await AudioService.instance.clearExpiredCache();
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Expired cache cleared'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                    style: NeumorphicStyle(
+                      color: Colors.orange.withOpacity(0.1),
+                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(10)),
+                      depth: 2,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Text(
+                        'Clear Expired',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  NeumorphicButton(
+                    onPressed: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          backgroundColor: _colorController.backgroundColor.value,
+                          title: Text(
+                            'Clear All Cache',
+                            style: TextStyle(
+                              color: _colorController.textColor.value,
+                            ),
+                          ),
+                          content: Text(
+                            'This will remove all cached audio availability data. The app will need to check audio availability again.',
+                            style: TextStyle(
+                              color: _colorController.textColor.value,
+                            ),
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  color: _colorController.textColor.value,
+                                ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text(
+                                'Clear All',
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      
+                      if (confirmed == true) {
+                        await AudioService.instance.clearAllCache();
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('All cache cleared'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    },
+                    style: NeumorphicStyle(
+                      color: Colors.red.withOpacity(0.1),
+                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(10)),
+                      depth: 2,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      child: Text(
+                        'Clear All',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -160,67 +350,90 @@ class DrawerWidgetState extends State<DrawerWidget> {
             padding: EdgeInsets.zero,
             children: [
               if (_currentUser == null && _username != null)
-                UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: _colorController.drawerColor.value,
-                  ),
-                  accountName: Text(
-                    _username!,
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  accountEmail: null,
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: _colorController.primaryColor.value,
-                    child: Icon(
-                      Icons.person,
-                      color: _colorController.iconColor.value,
-                      size: 40,
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  color: _colorController.drawerColor.value,
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: _colorController.primaryColor.value,
+                        child: Icon(
+                          Icons.person,
+                          color: _colorController.iconColor.value,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _username!,
+                              style: TextStyle(
+                                color: _colorController.textColor.value,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               if (_isAuthenticated && _currentUser != null)
-                UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: _colorController.drawerColor.value,
-                  ),
-                  accountName: Text(
-                    _currentUser?.displayName ?? 'User',
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  accountEmail: Text(
-                    _currentUser?.email ?? '',
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: _colorController.primaryColor.value,
-                    child: _currentUser?.photoUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: _currentUser!.photoUrl!,
-                            imageBuilder: (context, imageProvider) =>
-                                CircleAvatar(
-                              backgroundImage: imageProvider,
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  color: _colorController.drawerColor.value,
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: _colorController.primaryColor.value,
+                        child: _currentUser?.photoUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: _currentUser!.photoUrl!,
+                                imageBuilder: (context, imageProvider) =>
+                                    CircleAvatar(
+                                      backgroundImage: imageProvider,
+                                    ),
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(
+                                      color: _colorController.primaryColor.value,
+                                    ),
+                                errorWidget: (context, url, error) => Icon(
+                                  Icons.person,
+                                  color: _colorController.iconColor.value,
+                                ),
+                              )
+                            : Icon(
+                                Icons.person,
+                                color: _colorController.iconColor.value,
+                              ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _currentUser?.displayName ?? 'User',
+                              style: TextStyle(
+                                color: _colorController.textColor.value,
+                              ),
                             ),
-                            placeholder: (context, url) =>
-                                CircularProgressIndicator(
-                              color: _colorController.primaryColor.value,
+                            const SizedBox(height: 4),
+                            Text(
+                              _currentUser?.email ?? '',
+                              style: TextStyle(
+                                color: _colorController.textColor.value.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
                             ),
-                            errorWidget: (context, url, error) => Icon(
-                              Icons.person,
-                              color: _colorController.iconColor.value,
-                            ),
-                          )
-                        : Icon(
-                            Icons.person,
-                            color: _colorController.iconColor.value,
-                          ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               if (!_isAuthenticated)
@@ -380,6 +593,19 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ),
                 ),
                 onTap: () => Get.to(() => const EnhancedBibleReaderScreen()),
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.storage,
+                  color: _colorController.iconColor.value,
+                ),
+                title: Text(
+                  'Audio Cache',
+                  style: TextStyle(
+                    color: _colorController.textColor.value,
+                  ),
+                ),
+                onTap: () => _showAudioCacheDialog(),
               ),
               if (_isAuthenticated)
                 ListTile(

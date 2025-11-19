@@ -28,21 +28,51 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
   void initState() {
     super.initState();
     _initializePlayer();
+    
+    // Refresh audio service state to ensure consistency
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _audioService.refreshPlayingState();
+    });
+  }
+
+  @override
+  void didUpdateWidget(CompactAudioPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // If the hymn changed, update the state
+    if (oldWidget.hymn.id != widget.hymn.id) {
+      _updateCurrentState();
+    }
   }
 
   void _initializePlayer() {
+    // Initialize current state
+    _updateCurrentState();
+    
+    // Listen to player state changes
     _audioService.playerStateStream.listen((state) {
       if (mounted) {
-        setState(() {
-          _isPlaying = state.playing;
-          _isLoading = state.processingState == ProcessingState.loading ||
-                      state.processingState == ProcessingState.buffering;
-        });
+        print('CompactAudioPlayer: State changed for ${widget.hymn.id} - playing: ${state.playing}, processing: ${state.processingState}');
+        
+        // Only update state if this widget's hymn is the one currently playing
+        if (_audioService.currentHymn?.id == widget.hymn.id) {
+          setState(() {
+            _isPlaying = state.playing;
+            _isLoading = state.processingState == ProcessingState.loading ||
+                        state.processingState == ProcessingState.buffering;
+          });
+        } else {
+          // If another hymn is playing, reset this widget's state
+          setState(() {
+            _isPlaying = false;
+            _isLoading = false;
+          });
+        }
       }
     });
 
     _audioService.positionStream.listen((position) {
-      if (mounted) {
+      if (mounted && _audioService.currentHymn?.id == widget.hymn.id) {
         setState(() {
           _position = position;
         });
@@ -50,27 +80,46 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     });
 
     _audioService.durationStream.listen((duration) {
-      if (mounted) {
+      if (mounted && _audioService.currentHymn?.id == widget.hymn.id) {
         setState(() {
           _duration = duration;
         });
       }
     });
+  }
 
+  void _updateCurrentState() {
     if (_audioService.currentHymn?.id == widget.hymn.id) {
       setState(() {
         _isPlaying = _audioService.isPlaying;
         _position = _audioService.currentPosition;
         _duration = _audioService.duration;
       });
+    } else {
+      setState(() {
+        _isPlaying = false;
+        _isLoading = false;
+        _position = null;
+        _duration = null;
+      });
     }
   }
 
   Future<void> _togglePlayPause() async {
     try {
+      print('CompactAudioPlayer: Toggle play/pause for ${widget.hymn.id}');
+      
       if (_audioService.currentHymn?.id != widget.hymn.id) {
         setState(() => _isLoading = true);
-        await _audioService.playHymn(widget.hymn);
+        
+        // If another hymn is currently playing, stop it first
+        if (_audioService.currentPlayingHymnId.isNotEmpty) {
+          await _audioService.stopCurrentAndPlayNew(widget.hymn);
+        } else {
+          await _audioService.playHymn(widget.hymn);
+        }
+        
+        // State will be updated by the stream listener
       } else if (_isPlaying) {
         await _audioService.pause();
       } else {
@@ -78,10 +127,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       }
     } catch (e) {
       _showErrorSnackBar('Failed to play audio: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      setState(() => _isLoading = false);
     }
   }
 

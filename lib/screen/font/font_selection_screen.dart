@@ -48,6 +48,8 @@ class FontSelectionPageState extends State<FontSelectionPage> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(l10n.chooseFont),
       ),
       body: ListView.builder(

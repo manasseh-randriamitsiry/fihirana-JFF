@@ -45,24 +45,19 @@ class _HymnListItemState extends State<HymnListItem> {
   }
 
   Future<void> _checkAudioAvailability() async {
-    if (widget.onMusicPressed != null) {
-      // Use a delayed check to not block initial rendering
-      Future.delayed(const Duration(milliseconds: 100), () async {
-        if (!mounted) return;
-        
-        final hasAudio = await _audioService.checkAudioFileExists(widget.hymn.id);
-        if (mounted) {
-          setState(() {
-            _hasAudio = hasAudio;
-            _audioChecked = true;
-          });
-        }
-      });
-    } else {
-      setState(() {
-        _audioChecked = true;
-      });
-    }
+    // Always check audio availability for all hymns (including additional ones)
+    // Use a delayed check to not block initial rendering
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      if (!mounted) return;
+      
+      final hasAudio = await _audioService.checkAudioFileExists(widget.hymn.id);
+      if (mounted) {
+        setState(() {
+          _hasAudio = hasAudio;
+          _audioChecked = true;
+        });
+      }
+    });
   }
 
   Future<bool> _confirmDeletion(BuildContext context) async {
@@ -223,6 +218,37 @@ class _HymnListItemState extends State<HymnListItem> {
     );
   }
 
+  Future<void> _playHymnAudio() async {
+    try {
+      print('HymnListItem: Playing audio for ${widget.hymn.id}');
+      
+      // If this hymn is already playing, just pause/resume
+      if (_audioService.isHymnPlaying(widget.hymn.id)) {
+        if (_audioService.isPlaying) {
+          await _audioService.pause();
+        } else {
+          await _audioService.resume();
+        }
+      } else {
+        // Otherwise, stop current and play new
+        if (_audioService.currentPlayingHymnId.isNotEmpty) {
+          await _audioService.stopCurrentAndPlayNew(widget.hymn);
+        } else {
+          await _audioService.playHymn(widget.hymn);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error playing audio: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -289,12 +315,15 @@ class _HymnListItemState extends State<HymnListItem> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.onMusicPressed != null && _audioChecked && _hasAudio)
+              if (_audioChecked && _hasAudio)
                 Obx(() {
                   final isPlaying = _audioService.isHymnPlaying(widget.hymn.id);
                   print('Hymn ${widget.hymn.id} playing status: $isPlaying');
                   return IconButton(
-                    onPressed: widget.onMusicPressed,
+                    onPressed: widget.onMusicPressed ?? () {
+                      // Default audio play behavior if no callback provided
+                      _playHymnAudio();
+                    },
                     style: IconButton.styleFrom(
                       backgroundColor: isPlaying
                           ? widget.textColor.withOpacity(0.2)

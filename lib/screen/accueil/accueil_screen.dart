@@ -5,7 +5,7 @@ import '../../controller/hymn_controller.dart';
 import '../../widgets/hymn_list_item.dart';
 import '../../widgets/hymn_search_field.dart';
 import '../../widgets/language_picker_widget.dart';
-import '../../widgets/compact_audio_player_widget.dart';
+import '../player/enhanced_audio_player_screen.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/version_check_service.dart';
 import '../../services/audio_service.dart';
@@ -31,48 +31,12 @@ class AccueilScreenState extends State<AccueilScreen> {
   final Set<String> _checkedHymnIds = <String>{};
 
   void _showAudioPlayerDialog(Hymn hymn) {
-    final ColorController colorController = Get.find<ColorController>();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: colorController.backgroundColor.value,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Audio Player',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colorController.textColor.value,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
-                        Icons.close,
-                        color: colorController.iconColor.value,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                CompactAudioPlayerWidget(hymn: hymn),
-              ],
-            ),
-          ),
-        );
-      },
+    // Navigate to enhanced player - it will load all hymns as playlist
+    AudioPlayerNavigator.navigateToEnhancedPlayer(
+      context,
+      hymn: hymn,
+      playlist: null, // Let the enhanced player handle loading all hymns
+      initialIndex: null,
     );
   }
 
@@ -102,14 +66,21 @@ class AccueilScreenState extends State<AccueilScreen> {
     }
     
     if (uncheckedIds.isNotEmpty) {
-      // Batch check in background to not block UI
+      // Use new cache service for efficient batch checking
       audioService.checkAudioFilesExist(uncheckedIds).then((results) {
         _checkedHymnIds.addAll(results.keys);
+        print('AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
       }).catchError((error) {
         // Silently handle errors to not affect UI
         print('Batch audio check error: $error');
       });
     }
+  }
+
+  void _preloadCommonHymns(List<Hymn> hymns) {
+    // Preload first 20 hymns to improve user experience
+    final commonHymnIds = hymns.take(20).map((h) => h.id).toList();
+    AudioService.instance.preloadCommonHymns(commonHymnIds);
   }
 
   @override
@@ -275,10 +246,13 @@ class AccueilScreenState extends State<AccueilScreen> {
                         );
                       }
 
-                      // Initial batch check for first 10 items
+                      // Initial batch check for first 10 items and preload common hymns
                       WidgetsBinding.instance.addPostFrameCallback((_) {
                         final List<Hymn> firstTen = hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
                         _batchCheckAudioFiles(firstTen);
+                        
+                        // Preload common hymns in background
+                        _preloadCommonHymns(hymns);
                       });
 
                       return StreamBuilder<Map<String, String>>(
