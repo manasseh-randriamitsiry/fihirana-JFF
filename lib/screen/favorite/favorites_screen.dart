@@ -7,7 +7,7 @@ import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/compact_audio_player_widget.dart';
-import '../../widgets/enhanced_audio_player_widget.dart';
+import '../../widgets/lightweight_audio_player_widget.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -59,7 +59,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                EnhancedAudioPlayerWidget(
+                LightweightAudioPlayerWidget(
                   hymn: hymn,
                 ),
               ],
