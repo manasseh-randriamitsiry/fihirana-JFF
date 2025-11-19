@@ -49,6 +49,7 @@ class _AboutScreenState extends State<AboutScreen> {
   Future<void> _getAppInfo() async {
     final appVersion = await PubspecService.getAppVersion();
     final appName = await PubspecService.getAppName();
+    print('About screen - App version: $appVersion'); // Debug print
     setState(() {
       _appVersion = appVersion;
       _appName = appName;
