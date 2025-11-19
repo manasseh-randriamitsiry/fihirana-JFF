@@ -107,6 +107,8 @@ class EditHymnScreenState extends State<EditHymnScreen> {
         backgroundColor: colorController.backgroundColor.value,
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
+          elevation: 0,
+          scrolledUnderElevation: 0,
           title: Text(
             '${l10n.edit} ${widget.hymn.hymnNumber}',
             style: TextStyle(

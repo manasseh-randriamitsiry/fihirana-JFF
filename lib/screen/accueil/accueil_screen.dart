@@ -5,7 +5,7 @@ import '../../controller/hymn_controller.dart';
 import '../../widgets/hymn_list_item.dart';
 import '../../widgets/hymn_search_field.dart';
 import '../../widgets/language_picker_widget.dart';
-import '../../widgets/compact_audio_player_widget.dart';
+import '../enhanced_audio_player_screen.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/version_check_service.dart';
 import '../../services/audio_service.dart';
@@ -31,48 +31,12 @@ class AccueilScreenState extends State<AccueilScreen> {
   final Set<String> _checkedHymnIds = <String>{};
 
   void _showAudioPlayerDialog(Hymn hymn) {
-    final ColorController colorController = Get.find<ColorController>();
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: colorController.backgroundColor.value,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Audio Player',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colorController.textColor.value,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
-                        Icons.close,
-                        color: colorController.iconColor.value,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                CompactAudioPlayerWidget(hymn: hymn),
-              ],
-            ),
-          ),
-        );
-      },
+    // Navigate to enhanced player - it will load all hymns as playlist
+    AudioPlayerNavigator.navigateToEnhancedPlayer(
+      context,
+      hymn: hymn,
+      playlist: null, // Let the enhanced player handle loading all hymns
+      initialIndex: null,
     );
   }
 

@@ -18,6 +18,7 @@ import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
 import '../../widgets/audio_player_widget.dart';
 import '../../widgets/compact_audio_player_widget.dart';
+import '../../widgets/enhanced_audio_player_widget.dart';
 import '../../services/audio_service.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -156,6 +157,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                 color: colorController.iconColor.value,
               )),
           backgroundColor: colorController.backgroundColor.value,
+          elevation: 0,
+          scrolledUnderElevation: 0,
           centerTitle: true,
           title: GestureDetector(
             child: SizedBox(
@@ -959,7 +962,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                CompactAudioPlayerWidget(hymn: _hymn!),
+                EnhancedAudioPlayerWidget(
+                  hymn: _hymn!,
+                ),
               ],
             ),
           ),

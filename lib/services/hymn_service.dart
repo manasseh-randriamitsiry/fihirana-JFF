@@ -41,6 +41,10 @@ class HymnService {
     }
   }
 
+  Future<List<Hymn>> getAllHymns() async {
+    return await _localHymnService.getAllHymns();
+  }
+
   Future<Hymn?> getHymnById(String hymnId) async {
 
     var hymn = await _localHymnService.getHymnById(hymnId);

@@ -71,6 +71,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(l10n.adminPanel),
         actions: [
           IconButton(

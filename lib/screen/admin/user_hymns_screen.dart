@@ -115,6 +115,8 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
         backgroundColor: colorController.primaryColor.value,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

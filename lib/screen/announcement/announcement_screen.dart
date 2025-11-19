@@ -246,6 +246,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
         backgroundColor: colorController.backgroundColor.value,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(
           'Filazana',
           style: TextStyle(
