@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
-import '../../widgets/enhanced_audio_player_widget.dart';
+import '../../widgets/optimized_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class EnhancedAudioPlayerScreen extends StatefulWidget {
@@ -111,7 +111,7 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
             child: Column(
               children: [
                  // Enhanced audio player
-                 EnhancedAudioPlayerWidget(
+                 OptimizedAudioPlayerWidget(
                    hymn: _currentHymn,
                    playlist: _playlist,
                    autoPlayNext: _autoPlayNext,
