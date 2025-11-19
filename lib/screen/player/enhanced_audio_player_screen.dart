@@ -1,10 +1,10 @@
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
-import '../controller/color_controller.dart';
-import '../models/hymn.dart';
-import '../services/hymn_service.dart';
-import '../widgets/enhanced_audio_player_widget.dart';
-import '../l10n/app_localizations.dart';
+import '../../controller/color_controller.dart';
+import '../../models/hymn.dart';
+import '../../services/hymn_service.dart';
+import '../../widgets/enhanced_audio_player_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 class EnhancedAudioPlayerScreen extends StatefulWidget {
   final Hymn hymn;
