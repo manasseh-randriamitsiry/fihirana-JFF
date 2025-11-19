@@ -5,7 +5,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../widgets/hymn_list_item.dart';
 import '../../widgets/compact_audio_player_widget.dart';
-import '../../widgets/enhanced_audio_player_widget.dart';
+import '../../widgets/optimized_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class FirebaseHymnsScreen extends StatefulWidget {
@@ -55,7 +55,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                EnhancedAudioPlayerWidget(
+                OptimizedAudioPlayerWidget(
                   hymn: hymn,
                 ),
               ],

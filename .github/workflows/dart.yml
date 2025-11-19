@@ -110,10 +110,47 @@ jobs:
           echo "✅ Keystore created successfully"
 
       # ----------------------
-      # Build APK
+      # Build APKs for all architectures
       # ----------------------
-      - name: Build APK
-        run: flutter build apk --release
+      - name: Build APKs
+        run: |
+          echo "Building APKs for all architectures..."
+          
+          # Build APK for all architectures (arm64-v8a, armeabi-v7a, x86_64)
+          flutter build apk --release --split-per-abi
+          
+          # Build universal APK
+          flutter build apk --release
+          
+          echo "APKs built successfully"
+          ls -la build/app/outputs/flutter-apk/
+
+      # ----------------------
+      # Rename APKs to Fihirana-JFF
+      # ----------------------
+      - name: Rename APKs
+        run: |
+          echo "Renaming APKs to Fihirana-JFF..."
+          cd build/app/outputs/flutter-apk/
+          
+          # Rename architecture-specific APKs
+          if [ -f "app-arm64-v8a-release.apk" ]; then
+            mv "app-arm64-v8a-release.apk" "Fihirana-JFF-arm64-v8a.apk"
+          fi
+          if [ -f "app-armeabi-v7a-release.apk" ]; then
+            mv "app-armeabi-v7a-release.apk" "Fihirana-JFF-armeabi-v7a.apk"
+          fi
+          if [ -f "app-x86_64-release.apk" ]; then
+            mv "app-x86_64-release.apk" "Fihirana-JFF-x86_64.apk"
+          fi
+          
+          # Rename universal APK
+          if [ -f "app-release.apk" ]; then
+            mv "app-release.apk" "Fihirana-JFF-universal.apk"
+          fi
+          
+          echo "Renamed APKs:"
+          ls -la *.apk
 
       # ----------------------
       # Verify APK contents
@@ -121,10 +158,10 @@ jobs:
       - name: Check APK contents
         run: |
           echo "Checking APK contents for assets..."
-          unzip -l build/app/outputs/flutter-apk/app-release.apk | grep -i "assets" | head -20
+          unzip -l build/app/outputs/flutter-apk/Fihirana-JFF-universal.apk | grep -i "assets" | head -20
           echo "Checking for hymn manifest in APK:"
-          unzip -l build/app/outputs/flutter-apk/app-release.apk | grep "hymn_manifest.json" || echo "Hymn manifest not found in APK"
-          echo "Total JSON files in APK: $(unzip -l build/app/outputs/flutter-apk/app-release.apk | grep -c "assets/json.*\.json" || echo "0")"
+          unzip -l build/app/outputs/flutter-apk/Fihirana-JFF-universal.apk | grep "hymn_manifest.json" || echo "Hymn manifest not found in APK"
+          echo "Total JSON files in APK: $(unzip -l build/app/outputs/flutter-apk/Fihirana-JFF-universal.apk | grep -c "assets/json.*\.json" || echo "0")"
 
       # Create GitHub Release
       - name: Create Release
@@ -136,13 +173,43 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload APK to the release
-      - name: Upload APK to Release
+# Upload APKs to release
+      - name: Upload Universal APK to Release
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/app/outputs/flutter-apk/app-release.apk
-          asset_name: app-release.apk
+          asset_path: build/app/outputs/flutter-apk/Fihirana-JFF-universal.apk
+          asset_name: Fihirana-JFF-universal.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload ARM64 APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/Fihirana-JFF-arm64-v8a.apk
+          asset_name: Fihirana-JFF-arm64-v8a.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload ARM32 APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/Fihirana-JFF-armeabi-v7a.apk
+          asset_name: Fihirana-JFF-armeabi-v7a.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload x86_64 APK to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/app/outputs/flutter-apk/Fihirana-JFF-x86_64.apk
+          asset_name: Fihirana-JFF-x86_64.apk
           asset_content_type: application/vnd.android.package-archive
