@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../models/hymn.dart';
 import 'audio_foreground_service.dart';
 import 'audio_cache_service.dart';
+import 'audio_file_mapping.dart';
 
 class AudioService {
   static AudioService? _instance;
@@ -82,8 +83,22 @@ class AudioService {
 
     _currentHymn = hymn;
 
-    final audioUrl =
-        'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
+    // Get the correct audio URL using the mapping
+    final audioMapping = AudioFileMapping();
+    String? audioUrl = audioMapping.getAudioUrl(hymn.id);
+    
+    if (audioUrl == null) {
+      // If mapping is not available or expired, try to update it
+      if (audioMapping.isCacheExpired()) {
+        await audioMapping.updateAudioFileMapping();
+        audioUrl = audioMapping.getAudioUrl(hymn.id);
+      }
+      
+      // If still null, try the old format as fallback
+      if (audioUrl == null) {
+        audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
+      }
+    }
 
     try {
       // Use AudioSource with proper buffering for smooth seeking

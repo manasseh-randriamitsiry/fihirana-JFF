@@ -4,6 +4,7 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
+import '../../services/audio_file_mapping.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -54,21 +55,52 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
       // Load all hymns as playlist
       try {
         initialList = await _hymnService.getAllHymns();
+        print('EnhancedAudioPlayer: Loaded ${initialList.length} total hymns');
       } catch (e) {
         print('Error loading hymns: $e');
         initialList = [];
       }
     }
 
-    // Filter out hymns without audio
-    final hymnIds = initialList.map((h) => h.id).toList();
-    final audioExistence = await _audioService.checkAudioFilesExist(hymnIds);
+    // Create playlist of hymns that have audio
+    print('EnhancedAudioPlayer: Creating playlist of hymns with audio');
+    
+    final audioMapping = AudioFileMapping();
+    
+    // Ensure mapping is up to date
+    if (audioMapping.isCacheExpired()) {
+      print('EnhancedAudioPlayer: Audio mapping expired, updating...');
+      await audioMapping.updateAudioFileMapping();
+    }
+    
+    final audioFiles = audioMapping.getAllAudioFiles();
+    final audioCount = audioFiles.length;
+    print('EnhancedAudioPlayer: Found $audioCount hymns with audio');
+    
+    // Debug: Print sample audio files
+    print('EnhancedAudioPlayer: Sample audio files: ${audioFiles.entries.take(5).toList()}');
+    print('EnhancedAudioPlayer: Current hymn ID: ${widget.hymn.id}');
+    print('EnhancedAudioPlayer: Current hymn in audio files: ${audioFiles.containsKey(widget.hymn.id)}');
 
-    final filteredList = initialList.where((hymn) {
-      // Always include the current hymn even if check fails (to avoid empty screen)
-      if (hymn.id == widget.hymn.id) return true;
-      return audioExistence[hymn.id] ?? false;
-    }).toList();
+    // Create playlist by matching hymns with available audio files
+    final filteredList = <Hymn>[];
+    
+    for (final hymn in initialList) {
+      if (audioFiles.containsKey(hymn.id)) {
+        filteredList.add(hymn);
+        print('EnhancedAudioPlayer: Added hymn ${hymn.id} to playlist');
+      }
+    }
+    
+    // Always include current hymn even if not in audio files (to avoid empty screen)
+    if (!filteredList.any((h) => h.id == widget.hymn.id)) {
+      filteredList.insert(0, widget.hymn);
+      print('EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
+    }
+    
+    print('EnhancedAudioPlayer: Final playlist has ${filteredList.length} hymns');
+
+    print('EnhancedAudioPlayer: Filtered playlist has ${filteredList.length} hymns');
 
     if (mounted) {
       setState(() {
