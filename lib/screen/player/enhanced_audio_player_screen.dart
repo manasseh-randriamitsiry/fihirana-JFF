@@ -36,6 +36,8 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
   int _currentIndex = 0;
   bool _autoPlayNext = false;
   bool _isLoadingPlaylist = true;
+  final Map<String, double> _downloadProgress =
+      <String, double>{}; // Track download progress
 
   @override
   void initState() {
@@ -66,51 +68,57 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
 
     // Create playlist of hymns that have audio (local or remote)
     print('EnhancedAudioPlayer: Creating playlist of hymns with audio');
-    
+
     final audioMapping = AudioFileMapping();
-    
+
     // Ensure mapping is up to date
     if (audioMapping.isCacheExpired()) {
       print('EnhancedAudioPlayer: Audio mapping expired, updating...');
       await audioMapping.updateAudioFileMapping();
     }
-    
+
     // Get local audio files
     await _localAudioService.initialize();
     final localHymnIds = await _localAudioService.getLocalHymnIds();
     final remoteAudioFiles = audioMapping.getAllAudioFiles();
-    
+
     // Combine local and remote audio availability
     final allAvailableHymnIds = <String>{};
     allAvailableHymnIds.addAll(localHymnIds);
     allAvailableHymnIds.addAll(remoteAudioFiles.keys);
-    
+
     final audioCount = allAvailableHymnIds.length;
-    print('EnhancedAudioPlayer: Found $audioCount hymns with audio (${localHymnIds.length} local, ${remoteAudioFiles.length} remote)');
-    
+    print(
+        'EnhancedAudioPlayer: Found $audioCount hymns with audio (${localHymnIds.length} local, ${remoteAudioFiles.length} remote)');
+
     // Debug: Print sample info
-    print('EnhancedAudioPlayer: Sample local hymn IDs: ${localHymnIds.take(5).toList()}');
-    print('EnhancedAudioPlayer: Sample remote audio files: ${remoteAudioFiles.entries.take(5).toList()}');
+    print(
+        'EnhancedAudioPlayer: Sample local hymn IDs: ${localHymnIds.take(5).toList()}');
+    print(
+        'EnhancedAudioPlayer: Sample remote audio files: ${remoteAudioFiles.entries.take(5).toList()}');
     print('EnhancedAudioPlayer: Current hymn ID: ${widget.hymn.id}');
-    print('EnhancedAudioPlayer: Current hymn has local audio: ${localHymnIds.contains(widget.hymn.id)}');
+    print(
+        'EnhancedAudioPlayer: Current hymn has local audio: ${localHymnIds.contains(widget.hymn.id)}');
 
     // Create playlist by matching hymns with available audio files
     final filteredList = <Hymn>[];
-    
+
     for (final hymn in initialList) {
       if (allAvailableHymnIds.contains(hymn.id)) {
         filteredList.add(hymn);
         print('EnhancedAudioPlayer: Added hymn ${hymn.id} to playlist');
       }
     }
-    
+
     // Always include current hymn even if not in audio files (to avoid empty screen)
     if (!filteredList.any((h) => h.id == widget.hymn.id)) {
       filteredList.insert(0, widget.hymn);
-      print('EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
+      print(
+          'EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
     }
-    
-    print('EnhancedAudioPlayer: Final playlist has ${filteredList.length} hymns');
+
+    print(
+        'EnhancedAudioPlayer: Final playlist has ${filteredList.length} hymns');
 
     if (mounted) {
       setState(() {
@@ -146,68 +154,87 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
   }
 
   Future<void> _downloadAudioForHymn(Hymn hymn) async {
-    // Get the correct audio URL
-    final audioMapping = AudioFileMapping();
-    String? audioUrl = audioMapping.getAudioUrl(hymn.id);
-    
-    if (audioUrl == null) {
-      if (audioMapping.isCacheExpired()) {
-        await audioMapping.updateAudioFileMapping();
-        audioUrl = audioMapping.getAudioUrl(hymn.id);
-      }
-      
-      if (audioUrl == null) {
-        audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
-      }
+    // Check if already downloaded
+    if (_hasLocalAudio(hymn)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This hymn is already downloaded!'),
+          backgroundColor: Colors.blue,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
     }
 
-    // Show download progress dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        title: Text('Downloading ${hymn.title}'),
-        content: StatefulBuilder(
-          builder: (context, setState) {
-            double progress = 0.0;
-            
-            return FutureBuilder<void>(
-              future: _audioService.downloadAudioForHymn(hymn, onProgress: (p) {
-                setState(() {
-                  progress = p;
-                });
-              }),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Text('Download complete!');
-                }
-                
-                return Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    LinearProgressIndicator(
-                      value: progress,
-                      backgroundColor: _colorController.primaryColor.value,
-                    ),
-                    const SizedBox(height: 16),
-                    Text('${(progress * 100).toInt()}%'),
-                  ],
-                );
-              },
-            );
-          },
+    // Check if already downloading
+    if (_downloadProgress.containsKey(hymn.id)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('This hymn is already downloading!'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    ).then((_) {
-      // Refresh playlist to show the downloaded status
-      _initializePlaylist();
+      );
+      return;
+    }
+
+    // Initialize progress
+    setState(() {
+      _downloadProgress[hymn.id] = 0.0;
     });
+
+    try {
+      // Download with progress callback
+      final success = await _audioService.downloadAudioForHymn(
+        hymn,
+        onProgress: (progress) {
+          if (mounted) {
+            setState(() {
+              _downloadProgress[hymn.id] = progress;
+            });
+          }
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          _downloadProgress.remove(hymn.id);
+        });
+
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Downloaded ${hymn.title}!'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          // Refresh playlist to update download status
+          await _initializePlaylist();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Download failed. Please try again.'),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _downloadProgress.remove(hymn.id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Download error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   bool _hasLocalAudio(Hymn hymn) {
@@ -412,7 +439,7 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
                                       'Hymn ${hymn.hymnNumber}',
                                       style: TextStyle(
                                         color: _colorController.textColor.value
-                                              .withOpacity(0.6),
+                                            .withOpacity(0.6),
                                         fontSize: 12,
                                       ),
                                       maxLines: 1,
@@ -420,19 +447,29 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 12),
-                                  // Show local audio status
+                                  // Show local audio status or download progress
                                   Container(
                                     width: 40,
                                     height: 40,
                                     decoration: BoxDecoration(
                                       color: _hasLocalAudio(hymn)
                                           ? Colors.green.withOpacity(0.2)
-                                          : _colorController.primaryColor.value.withOpacity(0.1),
+                                          : _downloadProgress
+                                                  .containsKey(hymn.id)
+                                              ? Colors.orange.withOpacity(0.2)
+                                              : _colorController
+                                                  .primaryColor.value
+                                                  .withOpacity(0.1),
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                         color: _hasLocalAudio(hymn)
                                             ? Colors.green.withOpacity(0.5)
-                                            : _colorController.primaryColor.value.withOpacity(0.3),
+                                            : _downloadProgress
+                                                    .containsKey(hymn.id)
+                                                ? Colors.orange.withOpacity(0.5)
+                                                : _colorController
+                                                    .primaryColor.value
+                                                    .withOpacity(0.3),
                                         width: 2,
                                       ),
                                     ),
@@ -443,14 +480,48 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
                                               color: Colors.green,
                                               size: 20,
                                             )
-                                          : GestureDetector(
-                                              onTap: () => _downloadAudioForHymn(hymn),
-                                              child: Icon(
-                                                Icons.download,
-                                                color: _colorController.primaryColor.value,
-                                                size: 20,
-                                              ),
-                                            ),
+                                          : _downloadProgress
+                                                  .containsKey(hymn.id)
+                                              ? Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    SizedBox(
+                                                      width: 24,
+                                                      height: 24,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                        value:
+                                                            _downloadProgress[
+                                                                hymn.id],
+                                                        strokeWidth: 2,
+                                                        color: Colors.orange,
+                                                        backgroundColor: Colors
+                                                            .orange
+                                                            .withOpacity(0.2),
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '${(_downloadProgress[hymn.id]! * 100).toInt()}%',
+                                                      style: TextStyle(
+                                                        fontSize: 8,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.orange,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                              : GestureDetector(
+                                                  onTap: () =>
+                                                      _downloadAudioForHymn(
+                                                          hymn),
+                                                  child: Icon(
+                                                    Icons.download,
+                                                    color: _colorController
+                                                        .primaryColor.value,
+                                                    size: 20,
+                                                  ),
+                                                ),
                                     ),
                                   ),
                                 ],
@@ -496,10 +567,11 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
 
         return Neumorphic(
           style: NeumorphicStyle(
-            depth: 4,
-            intensity: 0.8,
-            color: _colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(16))),
+              depth: 4,
+              intensity: 0.8,
+              color: _colorController.backgroundColor.value,
+              boxShape:
+                  NeumorphicBoxShape.roundRect(BorderRadius.circular(16))),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -524,14 +596,17 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text('Clear Local Audio'),
-                              content: Text('Are you sure you want to delete all locally downloaded audio files?'),
+                              content: Text(
+                                  'Are you sure you want to delete all locally downloaded audio files?'),
                               actions: [
                                 TextButton(
-                                  onPressed: () => Navigator.of(context).pop(false),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(false),
                                   child: const Text('Cancel'),
                                 ),
                                 TextButton(
-                                  onPressed: () => Navigator.of(context).pop(true),
+                                  onPressed: () =>
+                                      Navigator.of(context).pop(true),
                                   child: const Text('Clear'),
                                 ),
                               ],

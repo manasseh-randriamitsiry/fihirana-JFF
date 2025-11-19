@@ -4,13 +4,14 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'storage_manager.dart';
 
 class LocalAudioService {
   static final LocalAudioService _instance = LocalAudioService._internal();
   factory LocalAudioService() => _instance;
   LocalAudioService._internal();
 
-  late String _audioDir;
+  final StorageManager _storageManager = StorageManager();
   bool _initialized = false;
 
   /// Initialize the local audio service
@@ -18,18 +19,15 @@ class LocalAudioService {
     if (_initialized) return;
     
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      _audioDir = path.join(directory.path, 'audio');
-      
-      // Create audio directory if it doesn't exist
-      final dir = Directory(_audioDir);
-      if (!await dir.exists()) {
-        await dir.create(recursive: true);
-      }
-      
+      await _storageManager.initialize();
       _initialized = true;
+      
+      // Clean up any temporary files
+      await _storageManager.cleanupTempFiles();
+      
       if (kDebugMode) {
-        print('LocalAudioService: Initialized with directory: $_audioDir');
+        print('LocalAudioService: Initialized with storage manager');
+        print('LocalAudioService: Audio directory: ${_storageManager.audioStorageDir}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -49,7 +47,7 @@ class LocalAudioService {
     ];
     
     for (final name in possibleNames) {
-      final filePath = path.join(_audioDir, name);
+      final filePath = path.join(_storageManager.audioStorageDir, name);
       final file = File(filePath);
       if (file.existsSync()) {
         return filePath;
@@ -71,6 +69,15 @@ class LocalAudioService {
       await initialize();
     }
 
+    // Check if we can write to storage
+    if (!await _storageManager.canWriteToStorage()) {
+      if (kDebugMode) {
+        print('LocalAudioService: Cannot write to storage, reinitializing...');
+      }
+      await _storageManager.initialize();
+      // Don't check again to avoid infinite loop - just try the download
+    }
+
     try {
       // Check if file already exists
       if (hasLocalAudio(hymnId)) {
@@ -84,51 +91,109 @@ class LocalAudioService {
         print('LocalAudioService: Downloading audio for $hymnId from $audioUrl');
       }
 
-      // Download the file
-      final request = http.Request('GET', Uri.parse(audioUrl));
-      final response = await request.send();
+      // Get filename from URL or use hymnId
+      final fileName = audioUrl.split('/').last;
+      final filePath = path.join(_storageManager.audioStorageDir, fileName);
+      final file = File(filePath);
 
-      if (response.statusCode != 200) {
+      // Create a temporary file for download
+      final tempFilePath = '${filePath}.tmp';
+      final tempFile = File(tempFilePath);
+
+      // Configure HTTP client with timeout and retry
+      final client = http.Client();
+      final request = http.Request('GET', Uri.parse(audioUrl))
+        ..headers.addAll({
+          'User-Agent': 'Fihirana-JFF/1.0',
+          'Accept': 'audio/mpeg,audio/*',
+          'Connection': 'keep-alive',
+        });
+
+      // Send request with timeout
+      final streamedResponse = await client.send(request).timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw TimeoutException('Download timeout for $hymnId');
+        },
+      );
+
+      if (streamedResponse.statusCode != 200) {
+        client.close();
         if (kDebugMode) {
-          print('LocalAudioService: Failed to download $hymnId: ${response.statusCode}');
+          print('LocalAudioService: Failed to download $hymnId: ${streamedResponse.statusCode}');
         }
         return false;
       }
 
-      final contentLength = response.contentLength ?? 0;
+      final contentLength = streamedResponse.contentLength ?? 0;
       if (contentLength == 0) {
+        client.close();
         if (kDebugMode) {
           print('LocalAudioService: No content for $hymnId');
         }
         return false;
       }
 
-      // Get filename from URL or use hymnId
-      final fileName = audioUrl.split('/').last;
-      final filePath = path.join(_audioDir, fileName);
-      final file = File(filePath);
-
-      // Save the file with progress tracking
-      final bytes = <int>[];
+      // Stream directly to file to avoid memory issues
+      final sink = tempFile.openWrite();
       int downloadedBytes = 0;
 
-      await for (final chunk in response.stream) {
-        bytes.addAll(chunk);
-        downloadedBytes += chunk.length;
-        
-        if (onProgress != null && contentLength > 0) {
-          final progress = downloadedBytes / contentLength;
-          onProgress(progress);
+      try {
+        await for (final chunk in streamedResponse.stream) {
+          sink.add(chunk);
+          downloadedBytes += chunk.length;
+          
+          if (onProgress != null && contentLength > 0) {
+            final progress = downloadedBytes / contentLength;
+            if (kDebugMode && downloadedBytes % (1024 * 100) == 0) { // Log every 100KB
+              print('LocalAudioService: Download progress for $hymnId: ${(progress * 100).toInt()}%');
+            }
+            onProgress(progress);
+          }
         }
-      }
 
-      await file.writeAsBytes(bytes);
-      
-      if (kDebugMode) {
-        print('LocalAudioService: Successfully downloaded $hymnId to $filePath');
+        await sink.close();
+        
+        // Verify file size matches expected
+        final actualSize = await tempFile.length();
+        if (contentLength > 0 && actualSize != contentLength) {
+          await tempFile.delete();
+          client.close();
+          if (kDebugMode) {
+            print('LocalAudioService: Size mismatch for $hymnId: expected $contentLength, got $actualSize');
+          }
+          return false;
+        }
+
+        // Move temp file to final location
+        await tempFile.rename(filePath);
+        
+        if (kDebugMode) {
+          print('LocalAudioService: Successfully downloaded $hymnId to $filePath (${actualSize} bytes)');
+        }
+        
+        return true;
+      } catch (e) {
+        await sink.close();
+        if (await tempFile.exists()) {
+          await tempFile.delete();
+        }
+        
+        // Handle permission errors specifically
+        if (e.toString().contains('Operation not permitted') || 
+            e.toString().contains('Permission denied')) {
+          if (kDebugMode) {
+            print('LocalAudioService: Permission denied for $hymnId, trying fallback location');
+          }
+          // Try to reinitialize storage with fallback
+          await _storageManager.initialize();
+          return false;
+        }
+        
+        rethrow;
+      } finally {
+        client.close();
       }
-      
-      return true;
     } catch (e) {
       if (kDebugMode) {
         print('LocalAudioService: Error downloading $hymnId: $e');
@@ -142,7 +207,7 @@ class LocalAudioService {
     if (!_initialized) return 0;
     
     try {
-      final dir = Directory(_audioDir);
+      final dir = Directory(_storageManager.audioStorageDir);
       if (!await dir.exists()) return 0;
       
       int totalSize = 0;
@@ -166,7 +231,7 @@ class LocalAudioService {
     if (!_initialized) return 0;
     
     try {
-      final dir = Directory(_audioDir);
+      final dir = Directory(_storageManager.audioStorageDir);
       if (!await dir.exists()) return 0;
       
       final stream = dir.list();
@@ -215,7 +280,7 @@ class LocalAudioService {
     if (!_initialized) return;
     
     try {
-      final dir = Directory(_audioDir);
+      final dir = Directory(_storageManager.audioStorageDir);
       if (await dir.exists()) {
         await dir.delete(recursive: true);
         await dir.create();
@@ -235,7 +300,7 @@ class LocalAudioService {
     if (!_initialized) return <String>{};
     
     try {
-      final dir = Directory(_audioDir);
+      final dir = Directory(_storageManager.audioStorageDir);
       if (!await dir.exists()) return <String>{};
       
       final stream = dir.list();
@@ -263,11 +328,15 @@ class LocalAudioService {
 
   /// Get storage statistics
   Future<Map<String, dynamic>> getStorageStats() async {
+    final stats = await _storageManager.getStorageStats();
     return {
       'totalFiles': await getLocalAudioCount(),
       'totalSize': await getLocalAudioSize(),
-      'directory': _audioDir,
+      'directory': _storageManager.audioStorageDir,
+      'userFriendlyPath': _storageManager.getUserFriendlyPath(),
       'initialized': _initialized,
+      'availableSpace': stats['availableSpace'] ?? 0,
+      'formattedSize': _storageManager.formatBytes(await getLocalAudioSize()),
     };
   }
 }
