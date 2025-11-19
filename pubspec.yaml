@@ -70,6 +70,7 @@ flutter:
     - assets/fonts/
     - assets/json/
     - assets/baiboly/
+    - pubspec.yaml
 
   # Explicitly include common asset files to ensure they're not tree-shaken in release mode
   fonts:
