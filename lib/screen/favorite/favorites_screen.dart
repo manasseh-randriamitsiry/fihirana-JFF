@@ -21,6 +21,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   final ColorController colorController = Get.find<ColorController>();
   final AudioService _audioService = AudioService.instance;
   final Map<String, bool> _audioAvailability = {};
+  final Set<String> _checkedAudioHymns = <String>{};
 
   void _showAudioPlayerDialog(Hymn hymn) {
     showDialog(
@@ -70,11 +71,14 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   Future<void> _checkAudioAvailability(String hymnId) async {
-    if (!_audioAvailability.containsKey(hymnId)) {
+    if (!_checkedAudioHymns.contains(hymnId)) {
+      _checkedAudioHymns.add(hymnId);
       final hasAudio = await _audioService.checkAudioFileExists(hymnId);
-      setState(() {
-        _audioAvailability[hymnId] = hasAudio;
-      });
+      if (mounted) {
+        setState(() {
+          _audioAvailability[hymnId] = hasAudio;
+        });
+      }
     }
   }
 
@@ -105,7 +109,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
       body: StreamBuilder<List<Hymn>>(
         stream: _hymnService.getFavoriteHymnsStream(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
             return Center(
               child: CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(
@@ -136,9 +140,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 final hymn = favoriteHymns[index];
                 
                 // Check audio availability when item is built
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _checkAudioAvailability(hymn.id);
-                });
+                if (!_checkedAudioHymns.contains(hymn.id)) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _checkAudioAvailability(hymn.id);
+                  });
+                }
                 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12.0),
