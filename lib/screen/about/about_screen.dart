@@ -427,7 +427,8 @@ class _AboutScreenState extends State<AboutScreen> {
                 const SizedBox(height: 10),
                 Text(
                   '${l10n.developedBy} Randriamitsiry Valimbavaka Nandrasana Manassé',
-                  style: TextStyle(color: colorController.textColor.value),
+                  style: TextStyle(color: colorController.textColor.value,),
+                  textAlign: TextAlign.center,
                 ),
                 Text(
                   '${l10n.addressLabel} Ambalavao tsienimparihy',
