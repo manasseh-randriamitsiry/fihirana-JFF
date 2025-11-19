@@ -30,8 +30,21 @@ jobs:
       - name: Generate App Icons
         run: flutter pub run flutter_launcher_icons:main
 
+      # ----------------------
+      # Verify assets are included
+      # ----------------------
+      - name: Verify assets
+        run: |
+          echo "Checking assets directory..."
+          ls -la assets/json/ | head -10
+          echo "Total JSON files: $(ls assets/json/*.json | wc -l)"
+          flutter pub get
+
+      # ----------------------
+      # Build with verbose output for debugging
+      # ----------------------
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --verbose
 
       # Create GitHub Release
       - name: Create Release

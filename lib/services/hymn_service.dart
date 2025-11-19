@@ -218,19 +218,29 @@ class HymnService {
   }
 
   Stream<List<Hymn>> getFavoriteHymnsStream() {
-    return getFavoriteStatusStream().asyncMap((favoriteStatus) async {
-      if (favoriteStatus.isEmpty) return [];
+    return getFavoriteStatusStream().transform(
+      StreamTransformer.fromHandlers(
+        handleData: (favoriteStatus, sink) async {
+          if (favoriteStatus.isEmpty) {
+            sink.add([]);
+            return;
+          }
 
-      final List<Hymn> favoriteHymns = [];
-      for (final hymnId in favoriteStatus.keys) {
-        final hymn = await getHymnById(hymnId);
-        if (hymn != null) {
-          favoriteHymns.add(hymn);
-        }
-      }
-
-      return favoriteHymns;
-    });
+          try {
+            final List<Hymn> favoriteHymns = [];
+            for (final hymnId in favoriteStatus.keys) {
+              final hymn = await getHymnById(hymnId);
+              if (hymn != null) {
+                favoriteHymns.add(hymn);
+              }
+            }
+            sink.add(favoriteHymns);
+          } catch (e) {
+            sink.addError(e);
+          }
+        },
+      ),
+    );
   }
 
   Future<void> toggleFavorite(Hymn hymn) async {
