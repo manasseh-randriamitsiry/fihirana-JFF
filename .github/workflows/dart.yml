@@ -12,10 +12,29 @@ jobs:
     permissions:
       contents: write  # required to create releases
 
-    steps:
+steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for all branches
+
+      # ----------------------
+      # Set up Java (for Android build)
+      # ----------------------
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      # ----------------------
+      # Cache Gradle dependencies
+      # ----------------------
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -25,6 +44,9 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Disable Flutter Analytics
+        run: flutter config --no-analytics
 
       # ----------------------
       # Generate App Icons
@@ -56,10 +78,40 @@ jobs:
           ls assets/json/*.json | head -5
 
       # ----------------------
+      # Setup Google Services JSON (Firebase)
+      # ----------------------
+      - name: Setup Google Services JSON
+        shell: bash
+        run: |
+          echo "Decoding google-services.json..."
+          mkdir -p android/app android/app/src/release
+
+          # Decode the base64 secret safely into both paths
+          echo "${{ secrets.GOOGLE_JSON_BASE64 }}" | base64 --decode > android/app/google-services.json
+          cp android/app/google-services.json android/app/src/release/google-services.json
+
+          echo "✅ google-services.json created:"
+          ls -l android/app/google-services.json
+          ls -l android/app/src/release/google-services.json
+
+      # ----------------------
+      # Setup Keystore
+      # ----------------------
+      - name: Setup Keystore
+        run: |
+          echo "Setting up Keystore..."
+          python -c "import base64; open('android/app/fihirana.jks','wb').write(base64.b64decode('${{ secrets.KEYSTORE_BASE64 }}'))"
+          if [ ! -f "android/app/fihirana.jks" ]; then
+            echo '❌ Keystore file was not created'
+            exit 1
+          fi
+          echo "✅ Keystore created successfully"
+
+      # ----------------------
       # Build APK
       # ----------------------
       - name: Build APK
-        run: flutter build apk --release --verbose
+        run: flutter build apk --release
 
       # ----------------------
       # Verify APK contents
