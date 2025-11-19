@@ -8,15 +8,17 @@ import '../models/hymn.dart';
 import '../utility/snackbar_utility.dart';
 import '../services/firebase_sync_service.dart';
 import 'local_hymn_service.dart';
+import 'combined_hymn_service.dart';
 
 class HymnService {
+  final CombinedHymnService _combinedHymnService = CombinedHymnService();
   final LocalHymnService _localHymnService = LocalHymnService();
   final FirebaseSyncService _firebaseSyncService = FirebaseSyncService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Stream<List<Hymn>> getLocalHymnsStream() async* {
-    final hymns = await _localHymnService.getAllHymns();
+Stream<List<Hymn>> getLocalHymnsStream() async* {
+    final hymns = await _combinedHymnService.getAllHymns();
     yield hymns;
   }
 
@@ -42,12 +44,12 @@ class HymnService {
   }
 
   Future<List<Hymn>> getAllHymns() async {
-    return await _localHymnService.getAllHymns();
+    return await _combinedHymnService.getAllHymns();
   }
 
   Future<Hymn?> getHymnById(String hymnId) async {
 
-    var hymn = await _localHymnService.getHymnById(hymnId);
+    var hymn = await _combinedHymnService.getHymnById(hymnId);
     if (hymn != null) return hymn;
 
     try {
@@ -62,9 +64,9 @@ class HymnService {
     return null;
   }
 
-  Future<List<Hymn>> searchHymns(String query) async {
+Future<List<Hymn>> searchHymns(String query) async {
 
-    return await _localHymnService.searchHymns(query);
+    return await _combinedHymnService.searchHymns(query);
   }
 
   Future<bool> addHymn(Hymn hymn) async {

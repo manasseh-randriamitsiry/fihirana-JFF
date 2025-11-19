@@ -138,12 +138,49 @@ jobs:
           echo "CHANGELOG created:"
           cat CHANGELOG.md
 
-      # ----------------------
+# ----------------------
       # Build Flutter APKs
       # ----------------------
       - name: Build APKs
         working-directory: .
-        run: flutter build apk --release
+        run: |
+          echo "Building APKs for all architectures..."
+          
+          # Build APK for all architectures (arm64-v8a, armeabi-v7a, x86_64)
+          flutter build apk --release --split-per-abi
+          
+          # Build universal APK
+          flutter build apk --release
+          
+          echo "APKs built successfully"
+          ls -la build/app/outputs/flutter-apk/
+
+      # ----------------------
+      # Rename APKs to Fihirana-JFF
+      # ----------------------
+      - name: Rename APKs
+        run: |
+          echo "Renaming APKs to Fihirana-JFF..."
+          cd build/app/outputs/flutter-apk/
+          
+          # Rename architecture-specific APKs
+          if [ -f "app-arm64-v8a-release.apk" ]; then
+            mv "app-arm64-v8a-release.apk" "Fihirana-JFF-arm64-v8a.apk"
+          fi
+          if [ -f "app-armeabi-v7a-release.apk" ]; then
+            mv "app-armeabi-v7a-release.apk" "Fihirana-JFF-armeabi-v7a.apk"
+          fi
+          if [ -f "app-x86_64-release.apk" ]; then
+            mv "app-x86_64-release.apk" "Fihirana-JFF-x86_64.apk"
+          fi
+          
+          # Rename universal APK
+          if [ -f "app-release.apk" ]; then
+            mv "app-release.apk" "Fihirana-JFF-universal.apk"
+          fi
+          
+          echo "Renamed APKs:"
+          ls -la *.apk
 
       # ----------------------
       # Create GitHub Release
@@ -152,7 +189,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: build/app/outputs/flutter-apk/*.apk
+          files: build/app/outputs/flutter-apk/Fihirana-JFF*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
           name: Release ${{ github.ref_name }}
           body_path: CHANGELOG.md
