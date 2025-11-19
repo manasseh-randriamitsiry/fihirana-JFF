@@ -37,14 +37,37 @@ jobs:
         run: |
           echo "Checking assets directory..."
           ls -la assets/json/ | head -10
-          echo "Total JSON files: $(ls assets/json/*.json | wc -l)"
+          echo "Total JSON files: $(find assets/json -name "*.json" | wc -l)"
+          echo "Sample JSON files:"
+          ls assets/json/*.json | head -5
           flutter pub get
+          echo "Flutter assets check:"
+          flutter analyze --no-fatal-infos
+
+      # ----------------------
+      # Pre-build asset verification
+      # ----------------------
+      - name: Check asset inclusion
+        run: |
+          echo "Checking if assets will be included in build..."
+          flutter packages pub run build_runner build --delete-conflicting-outputs 2>/dev/null || true
+          echo "Asset manifest generation test:"
+          dart run tool/generate_assets.dart 2>/dev/null || echo "Asset generation tool not found"
 
       # ----------------------
       # Build with verbose output for debugging
       # ----------------------
       - name: Build APK
-        run: flutter build apk --release --verbose
+        run: flutter build apk --release --verbose --no-tree-shake-icons
+
+      # ----------------------
+      # Verify APK contents
+      # ----------------------
+      - name: Check APK contents
+        run: |
+          echo "Checking APK contents for assets..."
+          unzip -l build/app/outputs/flutter-apk/app-release.apk | grep -i "assets/json" | head -10
+          echo "Total JSON files in APK: $(unzip -l build/app/outputs/flutter-apk/app-release.apk | grep -c "assets/json.*\.json" || echo "0")"
 
       # Create GitHub Release
       - name: Create Release
