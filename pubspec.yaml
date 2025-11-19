@@ -71,6 +71,7 @@ flutter:
     - assets/json/
     - assets/baiboly/
     - assets/hymn_manifest.json
+    - assets/hymns_combined.json
     - pubspec.yaml
 
   # Explicitly include common asset files to ensure they're not tree-shaken in release mode
