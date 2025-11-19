@@ -350,67 +350,90 @@ class DrawerWidgetState extends State<DrawerWidget> {
             padding: EdgeInsets.zero,
             children: [
               if (_currentUser == null && _username != null)
-                UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: _colorController.drawerColor.value,
-                  ),
-                  accountName: Text(
-                    _username!,
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  accountEmail: null,
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: _colorController.primaryColor.value,
-                    child: Icon(
-                      Icons.person,
-                      color: _colorController.iconColor.value,
-                      size: 40,
-                    ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  color: _colorController.drawerColor.value,
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: _colorController.primaryColor.value,
+                        child: Icon(
+                          Icons.person,
+                          color: _colorController.iconColor.value,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _username!,
+                              style: TextStyle(
+                                color: _colorController.textColor.value,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               if (_isAuthenticated && _currentUser != null)
-                UserAccountsDrawerHeader(
-                  decoration: BoxDecoration(
-                    color: _colorController.drawerColor.value,
-                  ),
-                  accountName: Text(
-                    _currentUser?.displayName ?? 'User',
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  accountEmail: Text(
-                    _currentUser?.email ?? '',
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  currentAccountPicture: CircleAvatar(
-                    backgroundColor: _colorController.primaryColor.value,
-                    child: _currentUser?.photoUrl != null
-                        ? CachedNetworkImage(
-                            imageUrl: _currentUser!.photoUrl!,
-                            imageBuilder: (context, imageProvider) =>
-                                CircleAvatar(
-                              backgroundImage: imageProvider,
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  color: _colorController.drawerColor.value,
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: _colorController.primaryColor.value,
+                        child: _currentUser?.photoUrl != null
+                            ? CachedNetworkImage(
+                                imageUrl: _currentUser!.photoUrl!,
+                                imageBuilder: (context, imageProvider) =>
+                                    CircleAvatar(
+                                      backgroundImage: imageProvider,
+                                    ),
+                                placeholder: (context, url) =>
+                                    CircularProgressIndicator(
+                                      color: _colorController.primaryColor.value,
+                                    ),
+                                errorWidget: (context, url, error) => Icon(
+                                  Icons.person,
+                                  color: _colorController.iconColor.value,
+                                ),
+                              )
+                            : Icon(
+                                Icons.person,
+                                color: _colorController.iconColor.value,
+                              ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _currentUser?.displayName ?? 'User',
+                              style: TextStyle(
+                                color: _colorController.textColor.value,
+                              ),
                             ),
-                            placeholder: (context, url) =>
-                                CircularProgressIndicator(
-                              color: _colorController.primaryColor.value,
+                            const SizedBox(height: 4),
+                            Text(
+                              _currentUser?.email ?? '',
+                              style: TextStyle(
+                                color: _colorController.textColor.value.withOpacity(0.7),
+                                fontSize: 12,
+                              ),
                             ),
-                            errorWidget: (context, url, error) => Icon(
-                              Icons.person,
-                              color: _colorController.iconColor.value,
-                            ),
-                          )
-                        : Icon(
-                            Icons.person,
-                            color: _colorController.iconColor.value,
-                          ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               if (!_isAuthenticated)
