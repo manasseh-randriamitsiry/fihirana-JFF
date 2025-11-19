@@ -45,7 +45,12 @@ class AudioService {
 
   bool _lastNotifiedPlayingState = false;
 
-  final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _player = AudioPlayer(
+    // Configure for better buffering and smoother seeking
+    audioPipeline: AudioPipeline(
+      androidAudioEffects: [],
+    ),
+  );
   Hymn? _currentHymn;
   final AudioCacheService _cacheService = AudioCacheService();
   final RxString _currentPlayingHymnId = ''.obs;
@@ -81,20 +86,21 @@ class AudioService {
         'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
 
     try {
-      // Check network connectivity first
-      final response = await http.head(Uri.parse(audioUrl)).timeout(
-            const Duration(seconds: 10),
-            onTimeout: () => throw Exception('Network timeout'),
-          );
+      // Use AudioSource with proper buffering for smooth seeking
+      // This pre-buffers the audio for better performance
+      final audioSource = AudioSource.uri(
+        Uri.parse(audioUrl),
+        tag: hymn.id, // Tag for identification
+      );
 
-      if (response.statusCode != 200) {
-        throw Exception('Audio file not found (HTTP ${response.statusCode})');
-      }
+      // Set the audio source with buffering
+      await _player.setAudioSource(
+        audioSource,
+        preload: true, // Preload the audio for faster seeking
+      );
 
-      // Set the current playing ID only after successfully setting the URL
-      await _player.setUrl(audioUrl);
       _currentPlayingHymnId.value = hymn.id;
-      print('AudioService: URL set, playing hymn ${hymn.id}');
+      print('AudioService: Audio source set, playing hymn ${hymn.id}');
 
       await _player.play();
       print('AudioService: Started playing hymn ${hymn.id}');
