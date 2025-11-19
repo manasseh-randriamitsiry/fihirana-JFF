@@ -901,25 +901,31 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     if (highlightedVerse > 0) {
       // Wait for the verse widgets to be rendered
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        Future.delayed(const Duration(milliseconds: 400), () {
+        Future.delayed(const Duration(milliseconds: 500), () {
           if (_verseScrollController.hasClients) {
-            // More accurate calculation based on actual verse layout
-            final headerHeight = 120.0; // Chapter navigation + header
-            final verseHeight = 90.0; // Actual verse height (padding + content)
-            final verseSpacing = 8.0; // Margin between verses
+            // More precise calculation - account for all spacing
+            final appBarHeight = 80.0; // Top app bar
+            final chapterNavHeight = 80.0; // Chapter navigation
+            final contentPadding = 16.0; // Screen padding
+            final verseHeight = 85.0; // Actual verse container height
+            final verseMargin = 8.0; // Margin between verses
+            final headerHeight = appBarHeight + chapterNavHeight + contentPadding;
             
-            // Calculate target offset to center the verse in the viewport
+            // Calculate exact position of the target verse
             final targetOffset = headerHeight + 
-                (highlightedVerse - 1) * (verseHeight + verseSpacing) - 
-                100.0; // Offset to bring verse higher in viewport
+                (highlightedVerse - 1) * (verseHeight + verseMargin);
+            
+            // Position verse in upper third of screen for better visibility
+            final viewportHeight = _verseScrollController.position.viewportDimension;
+            final adjustedOffset = targetOffset - (viewportHeight * 0.2);
             
             final maxScroll = _verseScrollController.position.maxScrollExtent;
-            final clampedOffset = targetOffset.clamp(0.0, maxScroll);
+            final clampedOffset = adjustedOffset.clamp(0.0, maxScroll);
             
             _verseScrollController.animateTo(
               clampedOffset,
-              duration: const Duration(milliseconds: 700),
-              curve: Curves.easeOutCubic,
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeInOut,
             );
           }
         });
