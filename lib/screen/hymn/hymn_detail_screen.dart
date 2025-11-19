@@ -18,7 +18,7 @@ import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
 import '../../widgets/audio_player_widget.dart';
 import '../../widgets/compact_audio_player_widget.dart';
-import '../../widgets/optimized_audio_player_widget.dart';
+import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../services/audio_service.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -962,7 +962,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                OptimizedAudioPlayerWidget(
+                LightweightAudioPlayerWidget(
                   hymn: _hymn!,
                 ),
               ],
