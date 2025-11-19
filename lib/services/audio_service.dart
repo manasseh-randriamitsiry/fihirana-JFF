@@ -5,6 +5,7 @@ import '../models/hymn.dart';
 import 'audio_foreground_service.dart';
 import 'audio_cache_service.dart';
 import 'audio_file_mapping.dart';
+import 'local_audio_service.dart';
 
 class AudioService {
   static AudioService? _instance;
@@ -54,6 +55,7 @@ class AudioService {
   );
   Hymn? _currentHymn;
   final AudioCacheService _cacheService = AudioCacheService();
+  final LocalAudioService _localAudioService = LocalAudioService();
   final RxString _currentPlayingHymnId = ''.obs;
 
   AudioPlayer get player => _player;
@@ -83,30 +85,54 @@ class AudioService {
 
     _currentHymn = hymn;
 
-    // Get the correct audio URL using the mapping
-    final audioMapping = AudioFileMapping();
-    String? audioUrl = audioMapping.getAudioUrl(hymn.id);
-    
-    if (audioUrl == null) {
-      // If mapping is not available or expired, try to update it
+    // Initialize local audio service
+    await _localAudioService.initialize();
+
+    // Check if audio exists locally first
+    final localAudioPath = _localAudioService.getLocalAudioPath(hymn.id);
+    String audioUrl;
+    bool isLocalFile = false;
+
+    if (localAudioPath != null) {
+      // Use local file
+      audioUrl = localAudioPath;
+      isLocalFile = true;
+      print('AudioService: Using local audio file: $localAudioPath');
+    } else {
+      // Get the correct audio URL using the mapping
+      final audioMapping = AudioFileMapping();
+      audioUrl = audioMapping.getAudioUrl(hymn.id) ?? 
+          'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
+      
+      // If mapping is expired, try to update it
       if (audioMapping.isCacheExpired()) {
         await audioMapping.updateAudioFileMapping();
-        audioUrl = audioMapping.getAudioUrl(hymn.id);
+        audioUrl = audioMapping.getAudioUrl(hymn.id) ?? audioUrl;
       }
       
-      // If still null, try the old format as fallback
-      if (audioUrl == null) {
-        audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
-      }
+      print('AudioService: Using remote audio URL: $audioUrl');
     }
 
     try {
       // Use AudioSource with proper buffering for smooth seeking
       // This pre-buffers the audio for better performance
-      final audioSource = AudioSource.uri(
-        Uri.parse(audioUrl),
-        tag: hymn.id, // Tag for identification
-      );
+      AudioSource audioSource;
+      
+      if (isLocalFile) {
+        // Use local file
+        audioSource = AudioSource.uri(
+          Uri.file(audioUrl),
+          tag: hymn.id, // Tag for identification
+        );
+        print('AudioService: Created local audio source for ${hymn.id}');
+      } else {
+        // Use remote URL
+        audioSource = AudioSource.uri(
+          Uri.parse(audioUrl),
+          tag: hymn.id, // Tag for identification
+        );
+        print('AudioService: Created remote audio source for ${hymn.id}');
+      }
 
       // Set the audio source with buffering
       await _player.setAudioSource(
@@ -267,5 +293,50 @@ class AudioService {
 
   Future<Map<String, dynamic>> getCacheStats() async {
     return await _cacheService.getCacheStats();
+  }
+
+  // Local audio management methods
+  Future<bool> downloadAudioForHymn(Hymn hymn, {Function(double)? onProgress}) async {
+    // Get the correct audio URL
+    final audioMapping = AudioFileMapping();
+    String? audioUrl = audioMapping.getAudioUrl(hymn.id);
+    
+    if (audioUrl == null) {
+      if (audioMapping.isCacheExpired()) {
+        await audioMapping.updateAudioFileMapping();
+        audioUrl = audioMapping.getAudioUrl(hymn.id);
+      }
+      
+      if (audioUrl == null) {
+        audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
+      }
+    }
+
+    return await _localAudioService.downloadAudio(hymn.id, audioUrl, onProgress: onProgress);
+  }
+
+  bool hasLocalAudio(String hymnId) {
+    return _localAudioService.hasLocalAudio(hymnId);
+  }
+
+  Future<bool> isAudioAvailableLocally(String hymnId) async {
+    await _localAudioService.initialize();
+    return _localAudioService.hasLocalAudio(hymnId);
+  }
+
+  Future<Map<String, dynamic>> getLocalAudioStats() async {
+    return await _localAudioService.getStorageStats();
+  }
+
+  Future<void> deleteLocalAudio(String hymnId) async {
+    await _localAudioService.deleteLocalAudio(hymnId);
+  }
+
+  Future<void> clearAllLocalAudio() async {
+    await _localAudioService.clearAllLocalAudio();
+  }
+
+  Future<Set<String>> getLocalHymnIds() async {
+    return await _localAudioService.getLocalHymnIds();
   }
 }
