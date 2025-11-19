@@ -2,9 +2,15 @@ import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import '../models/hymn.dart';
-import 'notification_service.dart';
 import 'audio_foreground_service.dart';
 import 'audio_cache_service.dart';
+
+class AudioService {
+  static AudioService? _instance;
+  static AudioService get instance {
+    _instance ??= AudioService._internal();
+    return _instance!;
+  }
 
 class AudioService {
   static AudioService? _instance;
@@ -18,15 +24,18 @@ class AudioService {
     _initializePlayerStateListener();
   }
 
+  bool _lastNotifiedPlayingState = false;
+  
   void _initializePlayerStateListener() {
     // Listen to player state changes to properly manage playing state
     _player.playerStateStream.listen((state) {
       print('AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       
-      // Update notification through foreground service
-      if (_currentHymn != null) {
+      // Update notification only when playing state actually changes (not on every position update)
+      if (_currentHymn != null && state.playing != _lastNotifiedPlayingState) {
         final foregroundService = AudioForegroundService.instance;
         foregroundService.updateNotification(_currentHymn, state.playing);
+        _lastNotifiedPlayingState = state.playing;
       }
       
       // Only clear the current playing hymn when playback actually stops or completes
@@ -73,6 +82,16 @@ class AudioService {
     final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
     
     try {
+      // Check network connectivity first
+      final response = await http.head(Uri.parse(audioUrl)).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () => throw Exception('Network timeout'),
+      );
+      
+      if (response.statusCode != 200) {
+        throw Exception('Audio file not found (HTTP ${response.statusCode})');
+      }
+      
       // Set the current playing ID only after successfully setting the URL
       await _player.setUrl(audioUrl);
       _currentPlayingHymnId.value = hymn.id;
@@ -89,7 +108,16 @@ class AudioService {
       print('AudioService: Error playing hymn ${hymn.id}: $e');
       final foregroundService = AudioForegroundService.instance;
       foregroundService.updateNotification(null, false);
-      throw Exception('Failed to play audio: $e');
+      
+      // Provide more user-friendly error messages
+      String userMessage = 'Failed to play audio';
+      if (e.toString().contains('Network') || e.toString().contains('timeout')) {
+        userMessage = 'Network connection error. Please check your internet connection.';
+      } else if (e.toString().contains('not found')) {
+        userMessage = 'Audio file not found for hymn ${hymn.id}';
+      }
+      
+      throw Exception(userMessage);
     }
   }
 
@@ -124,7 +152,13 @@ class AudioService {
   }
 
   Future<void> seekTo(Duration position) async {
-    await _player.seek(position);
+    try {
+      print('AudioService: Seeking to ${position.inMilliseconds}ms');
+      await _player.seek(position);
+    } catch (e) {
+      print('AudioService: Seek error: $e');
+      throw Exception('Failed to seek audio: $e');
+    }
   }
 
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;

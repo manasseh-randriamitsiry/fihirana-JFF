@@ -162,11 +162,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           scrolledUnderElevation: 0,
           centerTitle: true,
           title: GestureDetector(
-            child: SizedBox(
-              width: getScreenWidth(context) / 4,
+            child: Flexible(
               child: Text(
                 _hymn?.hymnNumber ?? '',
                 textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
                 style: TextStyle(
                   color: colorController.iconColor.value,
                   fontWeight: FontWeight.bold,

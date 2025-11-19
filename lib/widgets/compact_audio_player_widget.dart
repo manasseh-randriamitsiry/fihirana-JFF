@@ -33,6 +33,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
   bool _isPlaying = false;
   bool _autoPlayNext = false;
   int _currentPlaylistIndex = 0;
+  bool _isSeeking = false;
 
   @override
   void initState() {
@@ -98,6 +99,29 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       if (mounted && _audioService.currentHymn?.id == widget.hymn.id) {
         // Validate position before setting state
         if (position != null && position >= Duration.zero) {
+          // ULTRA-AGGRESSIVE VALIDATION: Reject extremely large positions immediately
+          const absoluteMaxPosition = 600000000; // 10 minutes in milliseconds
+          if (position.inMilliseconds > absoluteMaxPosition) {
+            print('CompactAudioPlayerWidget: Rejecting extremely large position: ${position.inMilliseconds}ms (max: $absoluteMaxPosition)');
+            if (mounted) {
+              setState(() {
+                _position = Duration.zero;
+              });
+            }
+            return; // Completely ignore this position update
+          }
+          
+          // Additional validation: position should not be unreasonably large
+          if (_duration != null && position.inMilliseconds > _duration!.inMilliseconds * 2.0) {
+            print('CompactAudioPlayerWidget: Ignoring unreasonable position: ${position.inMilliseconds}ms vs duration: ${_duration!.inMilliseconds}ms');
+            if (mounted) {
+              setState(() {
+                _position = Duration.zero;
+              });
+            }
+            return; // Ignore this position update
+          }
+          
           setState(() {
             _position = position;
           });
@@ -197,6 +221,52 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     // Additional safety check for extreme values
     if (positionMs < 0) return 0.0;
     
+    // ULTRA-AGGRESSIVE FIX: Multiple validation layers
+    // 1. Basic sanity check
+    if (positionMs < 0 || durationMs <= 0) {
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
+    // 2. Reasonable position check (position should not exceed duration by more than 10 seconds)
+    final maxReasonablePosition = durationMs + 10000; // +10 seconds buffer
+    if (positionMs > maxReasonablePosition) {
+      print('CompactAudioPlayerWidget: Position ($positionMs) exceeds reasonable max ($maxReasonablePosition) - resetting to 0.0');
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
+    // 3. Absolute maximum cap (prevent any extremely large values)
+    const absoluteMaxPosition = 600000000; // 10 minutes in milliseconds
+    if (positionMs > absoluteMaxPosition) {
+      print('CompactAudioPlayerWidget: Position ($positionMs) exceeds absolute max ($absoluteMaxPosition) - resetting to 0.0');
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
+    // 4. Duration-based cap (position should not be more than 3x duration)
+    if (positionMs > durationMs * 3.0) {
+      print('CompactAudioPlayerWidget: Position ($positionMs) > 3x duration ($durationMs) - resetting to 0.0');
+      if (mounted) {
+        setState(() {
+          _position = Duration.zero;
+        });
+      }
+      return 0.0;
+    }
+    
     final value = positionMs / durationMs;
     final clampedValue = value.clamp(0.0, 1.0);
     
@@ -208,12 +278,38 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     return clampedValue;
   }
 
-  void _seekTo(double value) {
-    if (_duration == null) return;
+  double _getSafeSliderValue() {
+    try {
+      final calculatedValue = _calculateSliderValue();
+      // Final safety check - ensure value is within valid range
+      return calculatedValue.clamp(0.0, 1.0);
+    } catch (e) {
+      print('CompactAudioPlayerWidget: Error calculating slider value: $e, returning 0.0');
+      return 0.0;
+    }
+  }
+
+  Future<void> _seekTo(double value) async {
+    if (_duration == null || 
+        _audioService.currentHymn?.id != widget.hymn.id || 
+        _isSeeking || 
+        _isLoading) {
+      return;
+    }
     
-    final clampedValue = value.clamp(0.0, 1.0);
-    final position = Duration(milliseconds: (clampedValue * _duration!.inMilliseconds).round());
-    _audioService.seekTo(position);
+    _isSeeking = true;
+    
+    try {
+      final clampedValue = value.clamp(0.0, 1.0);
+      final position = Duration(milliseconds: (clampedValue * _duration!.inMilliseconds).round());
+      
+      print('CompactAudioPlayerWidget: Seeking to ${position.inSeconds}s (${(clampedValue * 100).toStringAsFixed(1)}%)');
+      await _audioService.seekTo(position);
+    } catch (e) {
+      print('CompactAudioPlayerWidget: Seek error: $e');
+    } finally {
+      _isSeeking = false;
+    }
   }
 
   Future<void> _playNext() async {
@@ -271,10 +367,9 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: colorController.primaryColor.value.withOpacity(0.3),
-          width: 1,
-        ),
+                      border: Border.all(
+                        color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                      ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -298,7 +393,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                 'Hymn ${widget.hymn.hymnNumber}',
                 style: TextStyle(
                   fontSize: 12,
-                  color: colorController.textColor.value.withOpacity(0.7),
+                  color: colorController.textColor.value.withValues(alpha: 0.7),
                 ),
               ),
               if (widget.playlist != null) ...[
@@ -309,11 +404,11 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: _autoPlayNext
-                          ? colorController.primaryColor.value.withOpacity(0.2)
+                          ? colorController.primaryColor.value.withValues(alpha: 0.2)
                           : colorController.backgroundColor.value,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: colorController.primaryColor.value.withOpacity(0.3),
+        color: colorController.primaryColor.value.withValues(alpha: 0.3),
                       ),
                     ),
                     child: Row(
@@ -324,7 +419,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                           size: 12,
                           color: _autoPlayNext
                               ? colorController.primaryColor.value
-                              : colorController.textColor.value.withOpacity(0.7),
+                              : colorController.textColor.value.withValues(alpha: 0.7),
                         ),
                         const SizedBox(width: 2),
                         Text(
@@ -333,7 +428,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                             fontSize: 10,
                             color: _autoPlayNext
                                 ? colorController.primaryColor.value
-                                : colorController.textColor.value.withOpacity(0.7),
+                                : colorController.textColor.value.withValues(alpha: 0.7),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -347,37 +442,37 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
           const SizedBox(height: 8),
           Row(
             children: [
-              Text(
-                _formatDuration(_position),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: colorController.textColor.value.withOpacity(0.7),
-                ),
-              ),
+               Text(
+                 _formatDuration(_position),
+                 style: TextStyle(
+                   fontSize: 10,
+                   color: colorController.textColor.value.withValues(alpha: 0.7),
+                 ),
+               ),
               Expanded(
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4),
                     trackHeight: 2,
                     activeTrackColor: colorController.primaryColor.value,
-                    inactiveTrackColor: colorController.primaryColor.value.withOpacity(0.3),
+                    inactiveTrackColor: colorController.primaryColor.value.withValues(alpha: 0.3),
                     thumbColor: colorController.primaryColor.value,
                   ),
                   child: Slider(
-                    value: _calculateSliderValue().clamp(0.0, 1.0),
-                    onChanged: _duration != null ? _seekTo : null,
+                    value: _getSafeSliderValue(),
+                    onChanged: (_duration != null && !_isLoading && !_isSeeking && _audioService.currentHymn?.id == widget.hymn.id) ? _seekTo : null,
                     min: 0.0,
                     max: 1.0,
                   ),
                 ),
               ),
-              Text(
-                _formatDuration(_duration),
-                style: TextStyle(
-                  fontSize: 10,
-                  color: colorController.textColor.value.withOpacity(0.7),
-                ),
-              ),
+               Text(
+                 _formatDuration(_duration),
+                 style: TextStyle(
+                   fontSize: 10,
+                   color: colorController.textColor.value.withValues(alpha: 0.7),
+                 ),
+               ),
             ],
           ),
           const SizedBox(height: 8),
@@ -390,7 +485,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                   icon: Icon(
                     Icons.skip_previous,
                     size: 24,
-                    color: colorController.textColor.value.withOpacity(0.6),
+                     color: colorController.textColor.value.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -417,7 +512,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                   icon: Icon(
                     Icons.skip_next,
                     size: 24,
-                    color: colorController.textColor.value.withOpacity(0.6),
+                     color: colorController.textColor.value.withValues(alpha: 0.6),
                   ),
                 ),
               ] else ...[
@@ -426,7 +521,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                   icon: Icon(
                     Icons.stop_circle,
                     size: 24,
-                    color: colorController.textColor.value.withOpacity(0.6),
+                     color: colorController.textColor.value.withValues(alpha: 0.6),
                   ),
                 ),
               ],
