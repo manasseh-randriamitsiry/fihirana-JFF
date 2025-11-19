@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../models/hymn.dart';
 import 'notification_service.dart';
 import 'audio_foreground_service.dart';
+import 'audio_cache_service.dart';
 
 class AudioService {
   static AudioService? _instance;
@@ -18,7 +19,7 @@ class AudioService {
   }
 
   void _initializePlayerStateListener() {
-    // Listen to player state changes to clear current playing hymn when playback stops
+    // Listen to player state changes to properly manage playing state
     _player.playerStateStream.listen((state) {
       print('AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       
@@ -28,8 +29,11 @@ class AudioService {
         foregroundService.updateNotification(_currentHymn, state.playing);
       }
       
+      // Only clear the current playing hymn when playback actually stops or completes
       if (state.processingState == ProcessingState.completed ||
-          (state.playing == false && _currentPlayingHymnId.value.isNotEmpty)) {
+          (state.playing == false && _currentPlayingHymnId.value.isNotEmpty && 
+           state.processingState != ProcessingState.loading && 
+           state.processingState != ProcessingState.buffering)) {
         print('AudioService: Clearing playing hymn ${_currentPlayingHymnId.value}');
         _currentPlayingHymnId.value = '';
       }
@@ -38,87 +42,45 @@ class AudioService {
 
   final AudioPlayer _player = AudioPlayer();
   Hymn? _currentHymn;
-  final Map<String, bool> _audioFileCache = {};
+  final AudioCacheService _cacheService = AudioCacheService();
   final RxString _currentPlayingHymnId = ''.obs;
 
   AudioPlayer get player => _player;
   Hymn? get currentHymn => _currentHymn;
 
   Future<bool> checkAudioFileExists(String hymnId) async {
-    // Check cache first
-    if (_audioFileCache.containsKey(hymnId)) {
-      return _audioFileCache[hymnId]!;
-    }
-
-    final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
-    
-    try {
-      final response = await http.head(Uri.parse(audioUrl)).timeout(
-        const Duration(seconds: 3), // Quick timeout
-      );
-      final exists = response.statusCode == 200;
-      _audioFileCache[hymnId] = exists;
-      return exists;
-    } catch (e) {
-      _audioFileCache[hymnId] = false;
-      return false;
-    }
+    // Use the new cache service
+    return await _cacheService.checkAudioExists(hymnId);
   }
 
-  // Batch check for multiple hymns (more efficient)
+  // Batch check for multiple hymns (much more efficient with cache)
   Future<Map<String, bool>> checkAudioFilesExist(List<String> hymnIds) async {
-    final Map<String, bool> results = {};
-    final List<Future<bool>> futures = [];
-    
-    for (final hymnId in hymnIds) {
-      if (_audioFileCache.containsKey(hymnId)) {
-        results[hymnId] = _audioFileCache[hymnId]!;
-      } else {
-        futures.add(_checkSingleAudioFile(hymnId));
-      }
-    }
-    
-    // Execute remaining checks in parallel
-    final remainingResults = await Future.wait(futures);
-    
-    // Combine results
-    int index = 0;
-    for (final hymnId in hymnIds) {
-      if (!_audioFileCache.containsKey(hymnId)) {
-        results[hymnId] = remainingResults[index++];
-      }
-    }
-    
-    return results;
-  }
-
-  Future<bool> _checkSingleAudioFile(String hymnId) async {
-    final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
-    
-    try {
-      final response = await http.head(Uri.parse(audioUrl)).timeout(
-        const Duration(seconds: 2), // Even faster for batch
-      );
-      final exists = response.statusCode == 200;
-      _audioFileCache[hymnId] = exists;
-      return exists;
-    } catch (e) {
-      _audioFileCache[hymnId] = false;
-      return false;
-    }
+    // Use the new cache service for efficient batch checking
+    return await _cacheService.checkMultipleAudioExists(hymnIds);
   }
 
   Future<void> playHymn(Hymn hymn) async {
+    print('AudioService: Starting to play hymn ${hymn.id}');
+    
+    // Stop current playback if different hymn is playing
+    if (_currentPlayingHymnId.value.isNotEmpty && _currentPlayingHymnId.value != hymn.id) {
+      await _player.stop();
+      await Future.delayed(const Duration(milliseconds: 100)); // Brief pause for cleanup
+    }
+    
     _currentHymn = hymn;
-    _currentPlayingHymnId.value = hymn.id;
-    print('AudioService: Setting playing hymn to ${hymn.id}');
     
     final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
     
     try {
+      // Set the current playing ID only after successfully setting the URL
       await _player.setUrl(audioUrl);
+      _currentPlayingHymnId.value = hymn.id;
+      print('AudioService: URL set, playing hymn ${hymn.id}');
+      
       await _player.play();
       print('AudioService: Started playing hymn ${hymn.id}');
+      
       // Let foreground service handle notification
       final foregroundService = AudioForegroundService.instance;
       foregroundService.updateNotification(hymn, true);
@@ -140,11 +102,25 @@ class AudioService {
   }
 
   Future<void> stop() async {
+    print('AudioService: Stopping playback');
     await _player.stop();
     _currentHymn = null;
     _currentPlayingHymnId.value = '';
     final foregroundService = AudioForegroundService.instance;
     foregroundService.updateNotification(null, false);
+  }
+
+  Future<void> stopCurrentAndPlayNew(Hymn newHymn) async {
+    print('AudioService: Stopping current and playing new hymn ${newHymn.id}');
+    
+    // Stop current playback if any
+    if (_currentPlayingHymnId.value.isNotEmpty) {
+      await _player.stop();
+      await Future.delayed(const Duration(milliseconds: 200)); // Allow for cleanup
+    }
+    
+    // Play new hymn
+    await playHymn(newHymn);
   }
 
   Future<void> seekTo(Duration position) async {
@@ -163,6 +139,7 @@ class AudioService {
   void dispose() {
     _player.dispose();
     _currentPlayingHymnId.value = '';
+    _cacheService.close();
   }
 
   // Getters for reactive state
@@ -170,9 +147,26 @@ class AudioService {
   RxString get currentPlayingHymnIdRx => _currentPlayingHymnId;
 
   bool isHymnPlaying(String hymnId) {
-    final result = _currentPlayingHymnId.value == hymnId && isPlaying;
-    print('AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isPlaying)');
+    final isCurrentHymn = _currentPlayingHymnId.value == hymnId;
+    final isActuallyPlaying = isPlaying;
+    final result = isCurrentHymn && isActuallyPlaying;
+    
+    print('AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isActuallyPlaying)');
     return result;
+  }
+
+  // Force refresh the current playing state (useful for UI synchronization)
+  void refreshPlayingState() {
+    final currentId = _currentPlayingHymnId.value;
+    final currentlyPlaying = isPlaying;
+    
+    print('AudioService: Refresh state - ID: $currentId, Playing: $currentlyPlaying');
+    
+    // If we think something is playing but it's not, clear the state
+    if (currentId.isNotEmpty && !currentlyPlaying) {
+      _currentPlayingHymnId.value = '';
+      _currentHymn = null;
+    }
   }
 
   static Future<void> handleNotificationAction(String action) async {
@@ -197,5 +191,22 @@ class AudioService {
         // TODO: Implement next hymn functionality
         break;
     }
+  }
+
+  // Cache management methods
+  Future<void> preloadCommonHymns(List<String> hymnIds) async {
+    await _cacheService.preloadCommonHymns(hymnIds);
+  }
+
+  Future<void> clearExpiredCache() async {
+    await _cacheService.clearExpiredCache();
+  }
+
+  Future<void> clearAllCache() async {
+    await _cacheService.clearAllCache();
+  }
+
+  Future<Map<String, dynamic>> getCacheStats() async {
+    return await _cacheService.getCacheStats();
   }
 }

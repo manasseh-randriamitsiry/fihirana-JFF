@@ -5,6 +5,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../widgets/hymn_list_item.dart';
 import '../../widgets/compact_audio_player_widget.dart';
+import '../../widgets/enhanced_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class FirebaseHymnsScreen extends StatefulWidget {
@@ -54,7 +55,9 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                CompactAudioPlayerWidget(hymn: hymn),
+                EnhancedAudioPlayerWidget(
+                  hymn: hymn,
+                ),
               ],
             ),
           ),
@@ -71,6 +74,8 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
         backgroundColor: colorController.backgroundColor.value,
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
+          elevation: 0,
+          scrolledUnderElevation: 0,
           title: Text(
             l10n.additionalHymns,
             style: TextStyle(

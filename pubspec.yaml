@@ -4,7 +4,7 @@ description: "A new Flutter project."
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
 
-version: 1.0.8
+version: 1.0.9
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -70,6 +70,7 @@ flutter:
     - assets/fonts/
     - assets/json/
     - assets/baiboly/
+    - pubspec.yaml
 
   # Explicitly include common asset files to ensure they're not tree-shaken in release mode
   fonts:

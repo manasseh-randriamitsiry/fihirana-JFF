@@ -15,7 +15,7 @@ class AboutScreen extends StatefulWidget {
 }
 
 class _AboutScreenState extends State<AboutScreen> {
-  String _appVersion = '1.0.8';
+  String _appVersion = '';
   String _appName = 'Fihirana';
   bool _checkingForUpdates = false;
   bool _updateAvailable = false;
@@ -25,6 +25,8 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
+    // Clear cache to ensure fresh version
+    PubspecService.clearCache();
     _getAppInfo();
 
     VersionCheckService.setOnUpdateAvailableCallback(() {
@@ -47,6 +49,7 @@ class _AboutScreenState extends State<AboutScreen> {
   Future<void> _getAppInfo() async {
     final appVersion = await PubspecService.getAppVersion();
     final appName = await PubspecService.getAppName();
+    print('About screen - App version: $appVersion'); // Debug print
     setState(() {
       _appVersion = appVersion;
       _appName = appName;
@@ -151,6 +154,7 @@ class _AboutScreenState extends State<AboutScreen> {
       appBar: AppBar(
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
+        scrolledUnderElevation: 0,
         centerTitle: true,
         title: Text(
           '?',
@@ -423,7 +427,8 @@ class _AboutScreenState extends State<AboutScreen> {
                 const SizedBox(height: 10),
                 Text(
                   '${l10n.developedBy} Randriamitsiry Valimbavaka Nandrasana Manassé',
-                  style: TextStyle(color: colorController.textColor.value),
+                  style: TextStyle(color: colorController.textColor.value,),
+                  textAlign: TextAlign.center,
                 ),
                 Text(
                   '${l10n.addressLabel} Ambalavao tsienimparihy',

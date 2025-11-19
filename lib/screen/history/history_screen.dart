@@ -20,6 +20,8 @@ class HistoryScreen extends StatelessWidget {
           backgroundColor: colorController.backgroundColor.value,
           appBar: AppBar(
             backgroundColor: colorController.primaryColor.value,
+            elevation: 0,
+            scrolledUnderElevation: 0,
             title: Text(
               historyController.isSelectionMode.value
                   ? '${historyController.selectedItems.length} voafidy'
