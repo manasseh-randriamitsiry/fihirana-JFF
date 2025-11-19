@@ -27,8 +27,8 @@ android {
         applicationId = "com.manasseh.fihirana_jff"
         minSdk = flutter.minSdkVersion
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 9
+        versionName = "1.0.9"
         multiDexEnabled = true
     }
 

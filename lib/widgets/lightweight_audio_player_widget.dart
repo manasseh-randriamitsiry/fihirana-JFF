@@ -25,20 +25,22 @@ class LightweightAudioPlayerWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<LightweightAudioPlayerWidget> createState() => _LightweightAudioPlayerWidgetState();
+  State<LightweightAudioPlayerWidget> createState() =>
+      _LightweightAudioPlayerWidgetState();
 }
 
-class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWidget> {
+class _LightweightAudioPlayerWidgetState
+    extends State<LightweightAudioPlayerWidget> {
   final AudioService _audioService = AudioService.instance;
   final ColorController _colorController = Get.find<ColorController>();
-  
+
   bool _isPlaying = false;
   bool _isLoading = false;
   Duration? _duration;
   Duration? _position;
   int _currentPlaylistIndex = 0;
   bool _autoPlayNext = false;
-  
+
   // Minimal subscriptions - only listen when absolutely necessary
   StreamSubscription? _playerStateSubscription;
   Timer? _positionUpdateTimer;
@@ -47,10 +49,10 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
   void initState() {
     super.initState();
     _autoPlayNext = widget.autoPlayNext;
-    
+
     // Only initialize what we absolutely need
     _initializeMinimalPlayer();
-    
+
     if (widget.playlist != null) {
       _currentPlaylistIndex = widget.playlist!.indexWhere(
         (hymn) => hymn.id == widget.hymn.id,
@@ -61,16 +63,16 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
   void _initializeMinimalPlayer() {
     // Update current state once
     _updateCurrentState();
-    
+
     // Only listen to player state changes - avoid position/duration streams for performance
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
-      
+
       if (_audioService.currentHymn?.id == widget.hymn.id) {
         final wasPlaying = _isPlaying;
         final isLoading = state.processingState == ProcessingState.loading ||
-                        state.processingState == ProcessingState.buffering;
-        
+            state.processingState == ProcessingState.buffering;
+
         // Only update state if something actually changed
         if (wasPlaying != state.playing || _isLoading != isLoading) {
           setState(() {
@@ -78,21 +80,24 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
             _isLoading = isLoading;
           });
         }
-        
+
         // Handle auto-play next when current track completes
-        if (state.processingState == ProcessingState.completed && _autoPlayNext && widget.playlist != null) {
+        if (state.processingState == ProcessingState.completed &&
+            _autoPlayNext &&
+            widget.playlist != null) {
           _updateCurrentPlaylistIndex();
           _playNext();
         }
       }
     });
-    
+
     // Use timer for position updates instead of stream (much lighter on CPU)
-    _positionUpdateTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    _positionUpdateTimer =
+        Timer.periodic(const Duration(milliseconds: 500), (timer) {
       if (!mounted || _audioService.currentHymn?.id != widget.hymn.id) {
         return;
       }
-      
+
       _updatePositionAndDuration();
     });
   }
@@ -101,19 +106,21 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
     try {
       final position = _audioService.player.position;
       final duration = _audioService.player.duration;
-      
+
       // Only update if values changed significantly
-      if (_position == null || 
-          (_position != null && (position - _position!).inMilliseconds.abs() > 500)) {
+      if (_position == null ||
+          (_position != null &&
+              (position - _position!).inMilliseconds.abs() > 500)) {
         if (mounted) {
           setState(() {
             _position = position;
           });
         }
       }
-      
-      if (_duration == null || 
-          (_duration != null && (duration! - _duration!).inMilliseconds.abs() > 500)) {
+
+      if (_duration == null ||
+          (_duration != null &&
+              (duration! - _duration!).inMilliseconds.abs() > 500)) {
         if (mounted) {
           setState(() {
             _duration = duration;
@@ -127,7 +134,7 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
 
   void _updateCurrentState() {
     if (!mounted) return;
-    
+
     final currentHymn = _audioService.currentHymn;
     if (currentHymn?.id == widget.hymn.id) {
       setState(() {
@@ -144,7 +151,7 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
 
   void _updateCurrentPlaylistIndex() {
     if (widget.playlist == null) return;
-    
+
     final currentIndex = widget.playlist!.indexWhere(
       (hymn) => hymn.id == widget.hymn.id,
     );
@@ -155,35 +162,35 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
 
   Future<void> _playNext() async {
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
-    
+
     final nextIndex = (_currentPlaylistIndex + 1) % widget.playlist!.length;
     final nextHymn = widget.playlist![nextIndex];
-    
+
     if (widget.onHymnChange != null) {
       widget.onHymnChange!(nextHymn);
     }
-    
+
     await _audioService.playHymn(nextHymn);
   }
 
   Future<void> _playPrevious() async {
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
-    
-    final prevIndex = _currentPlaylistIndex == 0 
-        ? widget.playlist!.length - 1 
+
+    final prevIndex = _currentPlaylistIndex == 0
+        ? widget.playlist!.length - 1
         : _currentPlaylistIndex - 1;
     final prevHymn = widget.playlist![prevIndex];
-    
+
     if (widget.onHymnChange != null) {
       widget.onHymnChange!(prevHymn);
     }
-    
+
     await _audioService.playHymn(prevHymn);
   }
 
   Future<void> _togglePlayPause() async {
     if (_isLoading) return;
-    
+
     if (_audioService.currentHymn?.id == widget.hymn.id) {
       if (_isPlaying) {
         await _audioService.pause();
@@ -215,7 +222,7 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
     if (widget.isCompact) {
       return _buildCompactPlayer();
     }
-    
+
     return GetBuilder<ColorController>(
       builder: (colorController) => NeumorphicTheme(
         themeMode: colorController.themeMode,
@@ -311,15 +318,22 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
   Widget _buildMinimalSlider(ColorController colorController) {
     return SliderTheme(
       data: SliderTheme.of(context).copyWith(
-        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 3), // Smaller thumb
+        thumbShape:
+            const RoundSliderThumbShape(enabledThumbRadius: 3), // Smaller thumb
         trackHeight: 1.5, // Thinner track
         activeTrackColor: colorController.primaryColor.value,
         inactiveTrackColor: colorController.textColor.value.withOpacity(0.2),
         thumbColor: colorController.primaryColor.value,
       ),
       child: Slider(
-        value: _position?.inMilliseconds.toDouble() ?? 0.0,
-        max: _duration?.inMilliseconds.toDouble() ?? 0.0,
+        value: (_duration != null &&
+                _position != null &&
+                _duration!.inMilliseconds > 0)
+            ? (_position!.inMilliseconds.toDouble() /
+                    _duration!.inMilliseconds.toDouble())
+                .clamp(0.0, 1.0)
+            : 0.0,
+        max: 1.0,
         onChanged: _isLoading ? null : _seekToPosition,
       ),
     );
@@ -388,12 +402,19 @@ class _LightweightAudioPlayerWidgetState extends State<LightweightAudioPlayerWid
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4),
             trackHeight: 2,
             activeTrackColor: _colorController.primaryColor.value,
-            inactiveTrackColor: _colorController.textColor.value.withOpacity(0.2),
+            inactiveTrackColor:
+                _colorController.textColor.value.withOpacity(0.2),
             thumbColor: _colorController.primaryColor.value,
           ),
           child: Slider(
-            value: _position?.inMilliseconds.toDouble() ?? 0.0,
-            max: _duration?.inMilliseconds.toDouble() ?? 0.0,
+            value: (_duration != null &&
+                    _position != null &&
+                    _duration!.inMilliseconds > 0)
+                ? (_position!.inMilliseconds.toDouble() /
+                        _duration!.inMilliseconds.toDouble())
+                    .clamp(0.0, 1.0)
+                : 0.0,
+            max: 1.0,
             onChanged: _isLoading ? null : _seekToPosition,
           ),
         ),
