@@ -45,8 +45,8 @@ class PubspecService {
     }
 
     // Method 3: Final fallback
-    print('Using fallback version: 1.0.8'); // Debug print
-    _cachedVersion = '1.0.8';
+    print('Using fallback version: 1.0.9'); // Debug print
+    _cachedVersion = '1.0.9';
     return _cachedVersion!;
   }
 
