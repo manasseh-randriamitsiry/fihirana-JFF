@@ -12,7 +12,7 @@ jobs:
     permissions:
       contents: write  # required to create releases
 
-steps:
+    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for all branches
