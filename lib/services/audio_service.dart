@@ -11,31 +11,21 @@ class AudioService {
     _instance ??= AudioService._internal();
     return _instance!;
   }
-
-class AudioService {
-  static AudioService? _instance;
-  static AudioService get instance {
-    _instance ??= AudioService._internal();
-    return _instance!;
-  }
   
   factory AudioService() => instance;
   AudioService._internal() {
     _initializePlayerStateListener();
   }
 
-  bool _lastNotifiedPlayingState = false;
-  
   void _initializePlayerStateListener() {
     // Listen to player state changes to properly manage playing state
     _player.playerStateStream.listen((state) {
       print('AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       
-      // Update notification only when playing state actually changes (not on every position update)
-      if (_currentHymn != null && state.playing != _lastNotifiedPlayingState) {
+      // Update notification through foreground service
+      if (_currentHymn != null) {
         final foregroundService = AudioForegroundService.instance;
         foregroundService.updateNotification(_currentHymn, state.playing);
-        _lastNotifiedPlayingState = state.playing;
       }
       
       // Only clear the current playing hymn when playback actually stops or completes
