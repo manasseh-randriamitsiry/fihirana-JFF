@@ -96,7 +96,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           _hymn!.hymnNumber,
         );
         if (kDebugMode) {}
-        
+
         // Check audio availability after hymn is loaded
         await _checkAudioAvailability();
       } else {
@@ -162,17 +162,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           scrolledUnderElevation: 0,
           centerTitle: true,
           title: GestureDetector(
-            child: Flexible(
-              child: Text(
-                _hymn?.hymnNumber ?? '',
-                textAlign: TextAlign.center,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: TextStyle(
-                  color: colorController.iconColor.value,
-                  fontWeight: FontWeight.bold,
-                  fontSize: _fontSize,
-                ),
+            child: Text(
+              _hymn?.hymnNumber ?? '',
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(
+                color: colorController.iconColor.value,
+                fontWeight: FontWeight.bold,
+                fontSize: _fontSize,
               ),
             ),
             onTap: () {
@@ -198,33 +196,33 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           actions: [
             if (_audioChecked && _hasAudio)
               Obx(() => IconButton(
-                icon: Stack(
-                  children: [
-                    Icon(
-                      Icons.music_note,
-                      color: _audioService.isHymnPlaying(_hymn?.id ?? '')
-                          ? Theme.of(context).colorScheme.primary
-                          : colorController.iconColor.value,
-                    ),
-                    if (_audioService.isHymnPlaying(_hymn?.id ?? ''))
-                      Positioned(
-                        right: 0,
-                        top: 0,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
+                    icon: Stack(
+                      children: [
+                        Icon(
+                          Icons.music_note,
+                          color: _audioService.isHymnPlaying(_hymn?.id ?? '')
+                              ? Theme.of(context).colorScheme.primary
+                              : colorController.iconColor.value,
                         ),
-                      ),
-                  ],
-                ),
-                onPressed: () {
-                  _showAudioPlayerDialog();
-                },
-              )),
+                        if (_audioService.isHymnPlaying(_hymn?.id ?? ''))
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    onPressed: () {
+                      _showAudioPlayerDialog();
+                    },
+                  )),
             StreamBuilder<Map<String, String>>(
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
@@ -479,14 +477,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           _showSlider = false;
                         });
                       },
-                  ),
-
+                    ),
                 ],
               ),
             ),
-Expanded(
+            Expanded(
               child: GestureDetector(
-onHorizontalDragEnd: (DragEndDetails details) {
+                onHorizontalDragEnd: (DragEndDetails details) {
                   if (details.primaryVelocity! < 0) {
                     // Swiped right (next hymn)
                     _navigateToNextHymn();
@@ -500,189 +497,192 @@ onHorizontalDragEnd: (DragEndDetails details) {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    if (_show &&
-                        (_hymn?.hymnHint?.trim().toLowerCase().isNotEmpty ??
-                            false)) ...[
-                      if (isUserAuthenticated())
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: colorController.primaryColor.value
-                                .withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${l10n.createdBy}: ${_hymn?.createdBy}',
-                                style: TextStyle(
-                                  fontSize: _fontSize * 0.8,
-                                  color: colorController.textColor.value,
-                                ),
-                              ),
-                              if (_hymn?.createdByEmail != null)
+                      if (_show &&
+                          (_hymn?.hymnHint?.trim().toLowerCase().isNotEmpty ??
+                              false)) ...[
+                        if (isUserAuthenticated())
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colorController.primaryColor.value
+                                  .withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  l10n.emailLabel(_hymn!.createdByEmail!),
+                                  '${l10n.createdBy}: ${_hymn?.createdBy}',
                                   style: TextStyle(
                                     fontSize: _fontSize * 0.8,
                                     color: colorController.textColor.value,
                                   ),
                                 ),
-                              Text(
-                                '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(_hymn?.createdAt ?? DateTime(2023))}',
-                                style: TextStyle(
-                                  fontSize: _fontSize * 0.8,
-                                  color: colorController.textColor.value,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 15),
-                        child: Text(
-                          _hymn?.hymnHint ?? '',
-                          style: TextStyle(
-                            fontSize: 2 * _fontSize / 3,
-                            color: colorController.textColor.value,
-                          ),
-                        ),
-                      ),
-                    ],
-                    if (isUserAuthenticated() && _hymn != null)
-                      StreamBuilder<List<Note>>(
-                        stream: _noteService.getPublicNotesStream(_hymn!.id),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasError) {
-                            return Center(child: Text(l10n.errorLoadingNotes));
-                          }
-
-                          if (!snapshot.hasData) {
-                            return const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-
-                          final notes = snapshot.data!;
-
-                          if (notes.isEmpty) {
-                            return const SizedBox.shrink();
-                          }
-
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: notes.length,
-                                itemBuilder: (context, index) {
-                                  final note = notes[index];
-                                  return FutureBuilder<bool>(
-                                    future: _noteService.canEditNote(note),
-                                    builder: (context, snapshot) {
-                                      final canEdit = snapshot.data ?? false;
-
-                                      return Container(
-                                        margin: const EdgeInsets.only(top: 8),
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: colorController
-                                              .backgroundColor.value
-                                              .withOpacity(0.3),
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  note.content,
-                                                  style: TextStyle(
-                                                    fontSize: _fontSize * 0.9,
-                                                    color: colorController
-                                                        .textColor.value,
-                                                  ),
-                                                ),
-                                                if (canEdit)
-                                                  IconButton(
-                                                    icon: Icon(
-                                                      Icons.edit,
-                                                      size: _fontSize,
-                                                      color: colorController
-                                                          .iconColor.value,
-                                                    ),
-                                                    onPressed: () =>
-                                                        _showNoteEditor(
-                                                            note: note),
-                                                  ),
-                                              ],
-                                            ),
-                                            const SizedBox(height: 4),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    for (int i = 0; i < (_hymn?.verses.length ?? 0); i++) ...[
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 10.0, horizontal: 30.0),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Positioned.fill(
-                              child: Opacity(
-                                opacity: 0.25,
-                                child: Align(
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${i + 1}',
+                                if (_hymn?.createdByEmail != null)
+                                  Text(
+                                    l10n.emailLabel(_hymn!.createdByEmail!),
                                     style: TextStyle(
-                                      fontSize: _countFontSize,
-                                      fontWeight: FontWeight.bold,
-                                      color: colorController.primaryColor.value,
+                                      fontSize: _fontSize * 0.8,
+                                      color: colorController.textColor.value,
+                                    ),
+                                  ),
+                                Text(
+                                  '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(_hymn?.createdAt ?? DateTime(2023))}',
+                                  style: TextStyle(
+                                    fontSize: _fontSize * 0.8,
+                                    color: colorController.textColor.value,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Text(
+                            _hymn?.hymnHint ?? '',
+                            style: TextStyle(
+                              fontSize: 2 * _fontSize / 3,
+                              color: colorController.textColor.value,
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (isUserAuthenticated() && _hymn != null)
+                        StreamBuilder<List<Note>>(
+                          stream: _noteService.getPublicNotesStream(_hymn!.id),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasError) {
+                              return Center(
+                                  child: Text(l10n.errorLoadingNotes));
+                            }
+
+                            if (!snapshot.hasData) {
+                              return const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child:
+                                    Center(child: CircularProgressIndicator()),
+                              );
+                            }
+
+                            final notes = snapshot.data!;
+
+                            if (notes.isEmpty) {
+                              return const SizedBox.shrink();
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: notes.length,
+                                  itemBuilder: (context, index) {
+                                    final note = notes[index];
+                                    return FutureBuilder<bool>(
+                                      future: _noteService.canEditNote(note),
+                                      builder: (context, snapshot) {
+                                        final canEdit = snapshot.data ?? false;
+
+                                        return Container(
+                                          margin: const EdgeInsets.only(top: 8),
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: colorController
+                                                .backgroundColor.value
+                                                .withOpacity(0.3),
+                                            borderRadius:
+                                                BorderRadius.circular(4),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    note.content,
+                                                    style: TextStyle(
+                                                      fontSize: _fontSize * 0.9,
+                                                      color: colorController
+                                                          .textColor.value,
+                                                    ),
+                                                  ),
+                                                  if (canEdit)
+                                                    IconButton(
+                                                      icon: Icon(
+                                                        Icons.edit,
+                                                        size: _fontSize,
+                                                        color: colorController
+                                                            .iconColor.value,
+                                                      ),
+                                                      onPressed: () =>
+                                                          _showNoteEditor(
+                                                              note: note),
+                                                    ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      for (int i = 0; i < (_hymn?.verses.length ?? 0); i++) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 30.0),
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Positioned.fill(
+                                child: Opacity(
+                                  opacity: 0.25,
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      '${i + 1}',
+                                      style: TextStyle(
+                                        fontSize: _countFontSize,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            colorController.primaryColor.value,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 30.0),
-                              child: Text(
-                                '${i + 1}. ${_hymn?.verses[i] ?? ''}',
-                                style: TextStyle(
-                                  fontSize: _fontSize,
-                                  color: colorController.textColor.value,
+                              Padding(
+                                padding: const EdgeInsets.only(left: 30.0),
+                                child: Text(
+                                  '${i + 1}. ${_hymn?.verses[i] ?? ''}',
+                                  style: TextStyle(
+                                    fontSize: _fontSize,
+                                    color: colorController.textColor.value,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
+                      ],
+                      SizedBox(
+                        height: getScreenHeight(context) / 3,
                       ),
                     ],
-                    SizedBox(
-                      height: getScreenHeight(context) / 3,
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-),
           ],
         ),
       ),
@@ -939,7 +939,7 @@ onHorizontalDragEnd: (DragEndDetails details) {
 
   void _showAudioPlayerDialog() {
     if (_hymn == null) return;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -986,7 +986,7 @@ onHorizontalDragEnd: (DragEndDetails details) {
     );
   }
 
-void _navigateToEditScreen(BuildContext context) {
+  void _navigateToEditScreen(BuildContext context) {
     if (_hymn == null) return;
     Navigator.push(
       context,
@@ -996,16 +996,16 @@ void _navigateToEditScreen(BuildContext context) {
     );
   }
 
-Future<void> _navigateToNextHymn() async {
+  Future<void> _navigateToNextHymn() async {
     if (_hymn == null) return;
-    
+
     try {
       final allHymns = await _hymnService.getAllHymns();
       final currentIndex = allHymns.indexWhere((h) => h.id == _hymn!.id);
-      
+
       if (currentIndex != -1 && currentIndex < allHymns.length - 1) {
         final nextHymn = allHymns[currentIndex + 1];
-        
+
         if (_isFromSearch) {
           // If coming from search, push new screen (don't replace search)
           Navigator.push(
@@ -1039,14 +1039,14 @@ Future<void> _navigateToNextHymn() async {
 
   Future<void> _navigateToPreviousHymn() async {
     if (_hymn == null) return;
-    
+
     try {
       final allHymns = await _hymnService.getAllHymns();
       final currentIndex = allHymns.indexWhere((h) => h.id == _hymn!.id);
-      
+
       if (currentIndex != -1 && currentIndex > 0) {
         final previousHymn = allHymns[currentIndex - 1];
-        
+
         if (_isFromSearch) {
           // If coming from search, push new screen (don't replace search)
           Navigator.push(
