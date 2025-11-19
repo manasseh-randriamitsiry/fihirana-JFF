@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
 import '../models/hymn.dart';
+import 'local_hymn_service.dart';
 
 class CombinedHymnService {
   static final CombinedHymnService _instance = CombinedHymnService._internal();
