@@ -53,6 +53,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   bool _isLoadingNote = true;
   bool _hasAudio = false;
   bool _audioChecked = false;
+  bool _isFromSearch = false; // Track if we came from search
 
   @override
   void initState() {
@@ -994,7 +995,7 @@ void _navigateToEditScreen(BuildContext context) {
     );
   }
 
-  Future<void> _navigateToNextHymn() async {
+Future<void> _navigateToNextHymn() async {
     if (_hymn == null) return;
     
     try {
@@ -1003,12 +1004,24 @@ void _navigateToEditScreen(BuildContext context) {
       
       if (currentIndex != -1 && currentIndex < allHymns.length - 1) {
         final nextHymn = allHymns[currentIndex + 1];
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HymnDetailScreen(hymnId: nextHymn.id),
-          ),
-        );
+        
+        if (_isFromSearch) {
+          // If coming from search, push new screen (don't replace search)
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HymnDetailScreen(hymnId: nextHymn.id),
+            ),
+          );
+        } else {
+          // If normal navigation, replace current screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HymnDetailScreen(hymnId: nextHymn.id),
+            ),
+          );
+        }
       }
     } catch (e) {
       // Handle error silently or show a message
@@ -1032,12 +1045,24 @@ void _navigateToEditScreen(BuildContext context) {
       
       if (currentIndex != -1 && currentIndex > 0) {
         final previousHymn = allHymns[currentIndex - 1];
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HymnDetailScreen(hymnId: previousHymn.id),
-          ),
-        );
+        
+        if (_isFromSearch) {
+          // If coming from search, push new screen (don't replace search)
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HymnDetailScreen(hymnId: previousHymn.id),
+            ),
+          );
+        } else {
+          // If normal navigation, replace current screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HymnDetailScreen(hymnId: previousHymn.id),
+            ),
+          );
+        }
       }
     } catch (e) {
       // Handle error silently or show a message

@@ -166,7 +166,7 @@ class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
             ),
             const SizedBox(height: 16),
              Container(
-               height: 300,
+               height: 500,
                child: ListView.builder(
                 itemCount: _playlist.length,
                 itemBuilder: (context, index) {

@@ -450,19 +450,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ),
                   onTap: _signInWithGoogle,
                 ),
-              ListTile(
-                leading: Icon(
-                  Icons.music_note,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.hymns,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => Get.back(),
-              ),
               if (_isAuthenticated)
                 ListTile(
                   leading: Icon(
