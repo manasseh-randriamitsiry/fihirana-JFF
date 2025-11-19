@@ -756,6 +756,7 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     fontSize: _fontSize,
                     height: 1.6,
                   ),
+                  textAlign: TextAlign.justify,
                 ),
               ),
             ],

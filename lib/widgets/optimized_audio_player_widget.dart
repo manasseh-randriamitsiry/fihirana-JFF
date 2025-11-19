@@ -25,14 +25,15 @@ class OptimizedAudioPlayerWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<OptimizedAudioPlayerWidget> createState() => _OptimizedAudioPlayerWidgetState();
+  State<OptimizedAudioPlayerWidget> createState() =>
+      _OptimizedAudioPlayerWidgetState();
 }
 
 class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
     with TickerProviderStateMixin {
   final AudioService _audioService = AudioService.instance;
   final ColorController _colorController = Get.find<ColorController>();
-  
+
   bool _isLoading = false;
   Duration? _duration;
   Duration? _position;
@@ -40,10 +41,10 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
   bool _showLyricsSection = false;
   int _currentPlaylistIndex = 0;
   bool _autoPlayNext = false;
-  
+
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  
+
   StreamSubscription? _playerStateSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
@@ -54,7 +55,7 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
     _autoPlayNext = widget.autoPlayNext;
     _initializeAnimations();
     _initializePlayer();
-    
+
     if (widget.playlist != null) {
       _currentPlaylistIndex = widget.playlist!.indexWhere(
         (hymn) => hymn.id == widget.hymn.id,
@@ -78,22 +79,22 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
 
   void _initializePlayer() {
     _updateCurrentState();
-    
+
     // Combine stream subscriptions to reduce rebuilds
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
-      
+
       if (_audioService.currentHymn?.id == widget.hymn.id) {
         final wasPlaying = _isPlaying;
         final isLoading = state.processingState == ProcessingState.loading ||
-                        state.processingState == ProcessingState.buffering;
-        
+            state.processingState == ProcessingState.buffering;
+
         if (wasPlaying != state.playing || _isLoading != isLoading) {
           setState(() {
             _isPlaying = state.playing;
             _isLoading = isLoading;
           });
-          
+
           if (_isPlaying && mounted) {
             _pulseController.repeat(reverse: true);
           } else {
@@ -101,9 +102,11 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
             _pulseController.reset();
           }
         }
-        
+
         // Handle auto-play next when current track completes
-        if (state.processingState == ProcessingState.completed && _autoPlayNext && widget.playlist != null) {
+        if (state.processingState == ProcessingState.completed &&
+            _autoPlayNext &&
+            widget.playlist != null) {
           _updateCurrentPlaylistIndex();
           _playNext();
         }
@@ -133,14 +136,14 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
 
   void _updateCurrentState() {
     if (!mounted) return;
-    
+
     final currentHymn = _audioService.currentHymn;
     if (currentHymn?.id == widget.hymn.id) {
       setState(() {
         _isPlaying = _audioService.isPlaying;
         _isLoading = false;
       });
-      
+
       if (_isPlaying && mounted) {
         _pulseController.repeat(reverse: true);
       } else {
@@ -159,7 +162,7 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
 
   void _updateCurrentPlaylistIndex() {
     if (widget.playlist == null) return;
-    
+
     final currentIndex = widget.playlist!.indexWhere(
       (hymn) => hymn.id == widget.hymn.id,
     );
@@ -170,35 +173,35 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
 
   Future<void> _playNext() async {
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
-    
+
     final nextIndex = (_currentPlaylistIndex + 1) % widget.playlist!.length;
     final nextHymn = widget.playlist![nextIndex];
-    
+
     if (widget.onHymnChange != null) {
       widget.onHymnChange!(nextHymn);
     }
-    
+
     await _audioService.playHymn(nextHymn);
   }
 
   Future<void> _playPrevious() async {
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
-    
-    final prevIndex = _currentPlaylistIndex == 0 
-        ? widget.playlist!.length - 1 
+
+    final prevIndex = _currentPlaylistIndex == 0
+        ? widget.playlist!.length - 1
         : _currentPlaylistIndex - 1;
     final prevHymn = widget.playlist![prevIndex];
-    
+
     if (widget.onHymnChange != null) {
       widget.onHymnChange!(prevHymn);
     }
-    
+
     await _audioService.playHymn(prevHymn);
   }
 
   Future<void> _togglePlayPause() async {
     if (_isLoading) return;
-    
+
     if (_audioService.currentHymn?.id == widget.hymn.id) {
       if (_isPlaying) {
         await _audioService.pause();
@@ -238,7 +241,7 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
     if (widget.isCompact) {
       return _buildCompactPlayer();
     }
-    
+
     return GetBuilder<ColorController>(
       builder: (colorController) => NeumorphicTheme(
         themeMode: colorController.themeMode,
@@ -325,15 +328,23 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
                 Expanded(
                   child: SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4),
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 4),
                       trackHeight: 2,
                       activeTrackColor: colorController.primaryColor.value,
-                      inactiveTrackColor: colorController.textColor.value.withOpacity(0.3),
+                      inactiveTrackColor:
+                          colorController.textColor.value.withOpacity(0.3),
                       thumbColor: colorController.primaryColor.value,
                     ),
                     child: Slider(
-                      value: _position?.inMilliseconds.toDouble() ?? 0.0,
-                      max: _duration?.inMilliseconds.toDouble() ?? 0.0,
+                      value: (_duration != null &&
+                              _position != null &&
+                              _duration!.inMilliseconds > 0)
+                          ? (_position!.inMilliseconds.toDouble() /
+                                  _duration!.inMilliseconds.toDouble())
+                              .clamp(0.0, 1.0)
+                          : 0.0,
+                      max: 1.0,
                       onChanged: _isLoading ? null : _seekToPosition,
                     ),
                   ),
@@ -417,12 +428,19 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
             trackHeight: 4,
             activeTrackColor: _colorController.primaryColor.value,
-            inactiveTrackColor: _colorController.textColor.value.withOpacity(0.3),
+            inactiveTrackColor:
+                _colorController.textColor.value.withOpacity(0.3),
             thumbColor: _colorController.primaryColor.value,
           ),
           child: Slider(
-            value: _position?.inMilliseconds.toDouble() ?? 0.0,
-            max: _duration?.inMilliseconds.toDouble() ?? 0.0,
+            value: (_duration != null &&
+                    _position != null &&
+                    _duration!.inMilliseconds > 0)
+                ? (_position!.inMilliseconds.toDouble() /
+                        _duration!.inMilliseconds.toDouble())
+                    .clamp(0.0, 1.0)
+                : 0.0,
+            max: 1.0,
             onChanged: _isLoading ? null : _seekToPosition,
           ),
         ),
