@@ -21,6 +21,7 @@ import '../../widgets/audio_player_widget.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../services/audio_service.dart';
+import '../../widgets/success_animation_dialog.dart';
 import '../../l10n/app_localizations.dart';
 
 class HymnDetailScreen extends StatefulWidget {
@@ -1032,17 +1033,17 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           if (context.mounted) {
                             Navigator.pop(context);
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  content.isEmpty
-                                      ? l10n.noteDeleted
-                                      : l10n.noteSaved,
+                            if (content.isNotEmpty) {
+                              SuccessAnimationDialog.show(context,
+                                  message: l10n.noteSaved);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l10n.noteDeleted),
+                                  backgroundColor: Colors.red,
                                 ),
-                                backgroundColor:
-                                    content.isEmpty ? Colors.red : Colors.green,
-                              ),
-                            );
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
