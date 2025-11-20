@@ -252,6 +252,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   Widget _buildHymnPage(Hymn hymn, AppLocalizations l10n) {
     return Container(
       key: ValueKey(hymn.id),
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height,
       color: colorController.backgroundColor.value,
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -799,11 +801,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           liquidController: _liquidController,
                           onPageChangeCallback: _onPageChangeCallback,
                           waveType: WaveType.liquidReveal,
-                          slideIconWidget: Icon(
-                            Icons.arrow_back_ios,
-                            color: colorController.iconColor.value,
-                          ),
-                          positionSlideIcon: 0.5,
+                          enableLoop: false,
                           enableSideReveal: false,
                           ignoreUserGestureWhileAnimating: true,
                           disableUserGesture: false,
