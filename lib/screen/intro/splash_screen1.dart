@@ -1,7 +1,9 @@
 import 'package:fihirana/screen/accueil/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:liquid_swipe/liquid_swipe.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/language_controller.dart';
 
@@ -12,7 +14,8 @@ class SplashScreen1 extends StatefulWidget {
   _SplashScreen1State createState() => _SplashScreen1State();
 }
 
-class _SplashScreen1State extends State<SplashScreen1> {
+class _SplashScreen1State extends State<SplashScreen1>
+    with TickerProviderStateMixin {
   final TextEditingController _usernameController = TextEditingController();
   bool _agreementAccepted = false;
   int _currentPage = 0;
@@ -20,6 +23,13 @@ class _SplashScreen1State extends State<SplashScreen1> {
   // Language selection state variables
   late final LanguageController languageController;
   Locale? selectedLocale;
+
+  // Liquid swipe controller
+  late LiquidController _liquidController;
+
+  // Animation controllers
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -29,11 +39,26 @@ class _SplashScreen1State extends State<SplashScreen1> {
     // Initialize language controller
     languageController = Get.find<LanguageController>();
     selectedLocale = languageController.currentLocaleValue;
+
+    // Initialize liquid swipe controller
+    _liquidController = LiquidController();
+
+    // Initialize fade animation
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
+    _fadeController.forward();
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
+    _fadeController.dispose();
     super.dispose();
   }
 
@@ -45,13 +70,13 @@ class _SplashScreen1State extends State<SplashScreen1> {
     return Container(
       padding: padding ?? const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: color ?? Colors.white,
+        color: color ?? Colors.white.withOpacity(0.95),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -60,22 +85,20 @@ class _SplashScreen1State extends State<SplashScreen1> {
   }
 
   Future<void> _saveAndProceed() async {
+    HapticFeedback.mediumImpact();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('hasSeenLanguageSelection', true);
-    // Move to the next page after language selection
-    setState(() {
-      _currentPage = 1;
-    });
+
+    // Animate to next page
+    await _liquidController.animateToPage(page: 1, duration: 600);
   }
 
   Future<void> _handleUsernameSubmit() async {
-    print('Button pressed! Agreement: $_agreementAccepted');
+    HapticFeedback.mediumImpact();
 
     final username = _usernameController.text.trim();
-    print('Username entered: "$username"');
 
     if (username.isEmpty) {
-      print('Username is empty, showing error');
       Get.snackbar(
         'Olana',
         'Mampidira anarana azafady',
@@ -88,16 +111,12 @@ class _SplashScreen1State extends State<SplashScreen1> {
     }
 
     try {
-      print('Saving preferences...');
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('username', username);
       await prefs.setBool('has_agreed_to_terms', true);
       await prefs.setBool('isFirstTime', false);
-      print('Preferences saved, navigating to HomeScreen...');
       Get.offAll(() => const HomeScreen());
-      print('Navigation called');
     } catch (e) {
-      print('Error saving preferences: $e');
       Get.snackbar(
         'Olana',
         'Tsy tafiditra ny anarana',
@@ -114,7 +133,6 @@ class _SplashScreen1State extends State<SplashScreen1> {
     final username = prefs.getString('username') ?? '';
     final hasSelectedLanguage = prefs.getString('selected_language') != null;
 
-    // If user has agreed to terms, entered username, and selected language, go directly to home
     if (hasAgreed && username.isNotEmpty && hasSelectedLanguage) {
       Get.offAll(() => const HomeScreen());
     }
@@ -122,7 +140,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
 
   Widget _buildLanguageOptions(AppLocalizations l10n) {
     return _buildCard(
-      color: Colors.white.withOpacity(0.9),
+      color: Colors.white.withOpacity(0.95),
       child: Column(
         children: [
           for (final locale in languageController.supportedLocales)
@@ -130,15 +148,17 @@ class _SplashScreen1State extends State<SplashScreen1> {
               padding: const EdgeInsets.only(bottom: 12),
               child: InkWell(
                 onTap: () async {
+                  HapticFeedback.selectionClick();
                   setState(() {
                     selectedLocale = locale;
                   });
                   languageController.changeLanguage(locale);
-                  // Automatically proceed to the next page after language selection
+                  await Future.delayed(const Duration(milliseconds: 300));
                   await _saveAndProceed();
                 },
                 borderRadius: BorderRadius.circular(20),
-                child: Container(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: selectedLocale?.languageCode == locale.languageCode
@@ -198,316 +218,195 @@ class _SplashScreen1State extends State<SplashScreen1> {
     );
   }
 
-  static const TextStyle boldStyle = TextStyle(
-    fontSize: 32.0,
-    color: Colors.black87,
-    fontWeight: FontWeight.w800,
-    letterSpacing: -0.5,
-  );
-
-  static const TextStyle titleStyle = TextStyle(
-    fontSize: 28.0,
-    color: Colors.white,
-    fontWeight: FontWeight.w700,
-    letterSpacing: 0.5,
-  );
-
-  static const TextStyle descriptionGreyStyle = TextStyle(
-    color: Colors.black54,
-    fontSize: 16.0,
-    height: 1.5,
-  );
-
-  static const TextStyle descriptionWhiteStyle = TextStyle(
-    color: Colors.white,
-    fontSize: 15.0,
-    height: 1.6,
-  );
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final isTablet = MediaQuery.of(context).size.shortestSide >= 600;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    final pages = [
-      // Simplified Page 1: Language Selection
-      Container(
-        height: screenHeight,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFFFF3E0),
-              Color(0xFFFFE0B2),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(25),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.3),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.language,
-                    size: 60,
-                    color: Colors.orange,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  l10n.chooseLanguage,
-                  style: const TextStyle(
-                    fontSize: 24.0,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-                _buildLanguageOptions(l10n),
-                const SizedBox(height: 20),
-              ],
+  Widget _buildPageIndicator() {
+    return Positioned(
+      bottom: 40,
+      left: 0,
+      right: 0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(3, (index) {
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: _currentPage == index ? 24 : 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: _currentPage == index
+                  ? Colors.white
+                  : Colors.white.withOpacity(0.4),
+              borderRadius: BorderRadius.circular(4),
             ),
-          ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildLanguagePage(AppLocalizations l10n) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFF6B35),
+            Color(0xFFF7931E),
+          ],
         ),
       ),
-      // Simplified Page 2: Welcome
-      Container(
-        height: screenHeight,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFE3F2FD),
-              Color(0xFFBBDEFB),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 30.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.music_note,
-                    size: 60,
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                _buildCard(
-                  child: Column(
-                    children: [
-                      Text(
-                        l10n.splashScreenTitle,
-                        style: const TextStyle(
-                          fontSize: 22,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16.0),
-                      Text(
-                        l10n.splashScreenSubtitle,
-                        style: const TextStyle(
-                          color: Colors.black54,
-                          fontSize: 16,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () => setState(() => _currentPage = 2),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                  child: const Text('Continue'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-      // Simplified Page 3: Terms
-      Container(
-        height: screenHeight,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFE8F5E9),
-              Color(0xFFC8E6C9),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(30.0),
-            child: Column(
-              children: <Widget>[
-                const SizedBox(height: 20),
-                Text(
-                  l10n.termsAndConditions,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 30),
-                _buildCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        l10n.agreement,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildAgreementItem(l10n.term1),
-                      const SizedBox(height: 12),
-                      _buildAgreementItem(l10n.term2),
-                      const SizedBox(height: 20),
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            _agreementAccepted = !_agreementAccepted;
-                          });
-                        },
-                        borderRadius: BorderRadius.circular(15),
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(15),
-                            border: Border.all(
-                              color: _agreementAccepted ? Colors.green : Colors.grey.shade300,
-                              width: 2,
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 600),
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Container(
+                            padding: const EdgeInsets.all(25),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.3),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.language,
+                              size: 60,
+                              color: Colors.white,
                             ),
                           ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 24,
-                                height: 24,
-                                decoration: BoxDecoration(
-                                  color: _agreementAccepted ? Colors.green : Colors.white,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: _agreementAccepted ? Colors.green : Colors.grey,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: _agreementAccepted
-                                    ? const Icon(
-                                        Icons.check,
-                                        color: Colors.white,
-                                        size: 18,
-                                      )
-                                    : null,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  l10n.acceptTerms,
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black87,
-                                  ),
-                                ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Text(
+                      l10n.chooseLanguage,
+                      style: const TextStyle(
+                        fontSize: 28.0,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: _buildLanguageOptions(l10n),
+                  ),
+                ],
+              ),
+            ),
+            _buildPageIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomePage(AppLocalizations l10n) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF4A90E2),
+            Color(0xFF357ABD),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: 1.0),
+                    duration: const Duration(milliseconds: 800),
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 20,
+                                offset: const Offset(0, 10),
                               ),
                             ],
                           ),
+                          child: const Icon(
+                            Icons.music_note,
+                            size: 60,
+                            color: Color(0xFF4A90E2),
+                          ),
                         ),
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                  child: TextField(
-                    controller: _usernameController,
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                    decoration: InputDecoration(
-                      labelText: l10n.enterYourName,
-                      labelStyle: const TextStyle(color: Colors.green, fontSize: 15),
-                      prefixIcon: const Icon(Icons.person_outline, color: Colors.green),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                  const SizedBox(height: 30),
+                  _buildCard(
+                    child: Column(
+                      children: [
+                        Text(
+                          l10n.splashScreenTitle,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16.0),
+                        Text(
+                          l10n.splashScreenSubtitle,
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontSize: 16,
+                            height: 1.5,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _agreementAccepted
-                        ? () async {
-                            await _handleUsernameSubmit();
-                          }
-                        : null,
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () {
+                      HapticFeedback.mediumImpact();
+                      _liquidController.animateToPage(page: 2, duration: 600);
+                    },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _agreementAccepted ? Colors.green : Colors.grey.shade300,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF4A90E2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 50, vertical: 18),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(25),
+                        borderRadius: BorderRadius.circular(30),
                       ),
+                      elevation: 8,
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           l10n.continueText,
@@ -521,17 +420,280 @@ class _SplashScreen1State extends State<SplashScreen1> {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 30),
-              ],
+                ],
+              ),
             ),
-          ),
+            _buildPageIndicator(),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildTermsPage(AppLocalizations l10n) {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF66BB6A),
+            Color(0xFF43A047),
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // Title
+                  Text(
+                    l10n.termsAndConditions,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Terms Card
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: _buildCard(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.agreement,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildAgreementItem(l10n.term1),
+                            const SizedBox(height: 8),
+                            _buildAgreementItem(l10n.term2),
+                            const SizedBox(height: 16),
+
+                            // Agreement Checkbox
+                            InkWell(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() {
+                                  _agreementAccepted = !_agreementAccepted;
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(12),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: _agreementAccepted
+                                      ? Colors.green.shade50
+                                      : Colors.grey.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: _agreementAccepted
+                                        ? Colors.green
+                                        : Colors.grey.shade300,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 300),
+                                      width: 22,
+                                      height: 22,
+                                      decoration: BoxDecoration(
+                                        color: _agreementAccepted
+                                            ? Colors.green
+                                            : Colors.white,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: _agreementAccepted
+                                              ? Colors.green
+                                              : Colors.grey,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: _agreementAccepted
+                                          ? const Icon(
+                                              Icons.check,
+                                              color: Colors.white,
+                                              size: 16,
+                                            )
+                                          : null,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.acceptTerms,
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Username Input
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 15,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    child: TextField(
+                      controller: _usernameController,
+                      style: const TextStyle(fontSize: 15, color: Colors.black),
+                      decoration: InputDecoration(
+                        labelText: l10n.enterYourName,
+                        labelStyle:
+                            const TextStyle(color: Colors.green, fontSize: 14),
+                        prefixIcon: const Icon(Icons.person_outline,
+                            color: Colors.green, size: 22),
+                        border: InputBorder.none,
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // Continue Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _agreementAccepted
+                          ? () async {
+                              await _handleUsernameSubmit();
+                            }
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _agreementAccepted
+                            ? Colors.white
+                            : Colors.grey.shade300,
+                        foregroundColor: _agreementAccepted
+                            ? Colors.green
+                            : Colors.grey.shade600,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        elevation: _agreementAccepted ? 8 : 0,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            l10n.continueText,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          const Icon(Icons.arrow_forward_rounded, size: 20),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 60), // Space for page indicator
+                ],
+              ),
+            ),
+            _buildPageIndicator(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
+    final pages = [
+      _buildLanguagePage(l10n),
+      _buildWelcomePage(l10n),
+      _buildTermsPage(l10n),
     ];
 
-    return Scaffold(
-      body: pages[_currentPage],
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent back button on first page, allow on other pages
+        if (_currentPage > 0) {
+          _liquidController.animateToPage(
+              page: _currentPage - 1, duration: 600);
+          return false;
+        }
+        return false; // Don't allow exiting the app from intro
+      },
+      child: Scaffold(
+        body: LiquidSwipe(
+          pages: pages,
+          liquidController: _liquidController,
+          onPageChangeCallback: (activePageIndex) {
+            setState(() {
+              _currentPage = activePageIndex;
+            });
+
+            // Prevent going forward from the last page (terms page)
+            if (activePageIndex >= 2) {
+              // User tried to swipe forward from last page, go back
+              Future.delayed(const Duration(milliseconds: 100), () {
+                if (_currentPage > 2) {
+                  _liquidController.jumpToPage(page: 2);
+                }
+              });
+            }
+          },
+          waveType: WaveType.liquidReveal,
+          enableLoop: false,
+          slideIconWidget: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
+          positionSlideIcon: 0.5,
+          enableSideReveal: true,
+          ignoreUserGestureWhileAnimating: true,
+          disableUserGesture: false,
+        ),
+      ),
     );
   }
 
