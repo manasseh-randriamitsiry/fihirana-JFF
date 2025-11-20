@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/language_controller.dart';
+import '../../widgets/rive_animation_widget.dart';
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -255,62 +256,64 @@ class _SplashScreen1State extends State<SplashScreen1>
           ],
         ),
       ),
-      child: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: 1.0),
-                      duration: const Duration(milliseconds: 600),
-                      builder: (context, value, child) {
-                        return Transform.scale(
-                          scale: value,
-                          child: Container(
-                            padding: const EdgeInsets.all(25),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.3),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(
-                              Icons.language,
-                              size: 60,
-                              color: Colors.white,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Text(
-                      l10n.chooseLanguage,
-                      style: const TextStyle(
-                        fontSize: 28.0,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: _buildLanguageOptions(l10n),
-                  ),
-                ],
+      child: Stack(
+        children: [
+          // Rive Background
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.6,
+              child: RiveAnimationWidget(
+                assetPath: 'assets/animations/earth.riv',
+                fit: BoxFit.cover,
+                fallback: Container(color: Colors.transparent),
               ),
             ),
-            _buildPageIndicator(),
-          ],
-        ),
+          ),
+
+          // Content
+          SafeArea(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      // Spacer to push content down slightly if needed, or just center it
+                      const SizedBox(height: 100),
+
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Text(
+                          l10n.chooseLanguage,
+                          style: const TextStyle(
+                            fontSize: 28.0,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 2),
+                                blurRadius: 4,
+                                color: Colors.black26,
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: _buildLanguageOptions(l10n),
+                      ),
+                    ],
+                  ),
+                ),
+                _buildPageIndicator(),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
