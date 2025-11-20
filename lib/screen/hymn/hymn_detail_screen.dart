@@ -17,12 +17,9 @@ import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
-import '../../widgets/audio_player_widget.dart';
-import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
-import '../../l10n/app_localizations.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -254,6 +251,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
 
   Widget _buildHymnPage(Hymn hymn, AppLocalizations l10n) {
     return Container(
+      key: ValueKey(hymn.id),
       color: colorController.backgroundColor.value,
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -793,9 +791,11 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           ),
                         )
                       : LiquidSwipe(
+                          key: ValueKey(_hymn?.id),
                           pages: _adjacentHymns
                               .map((hymn) => _buildHymnPage(hymn, l10n))
                               .toList(),
+                          initialPage: _currentPageIndex,
                           liquidController: _liquidController,
                           onPageChangeCallback: _onPageChangeCallback,
                           waveType: WaveType.liquidReveal,
@@ -804,10 +804,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                             color: colorController.iconColor.value,
                           ),
                           positionSlideIcon: 0.5,
-                          enableSideReveal: true,
+                          enableSideReveal: false,
                           ignoreUserGestureWhileAnimating: true,
                           disableUserGesture: false,
-                          initialPage: _currentPageIndex,
                         ),
             ),
           ],
