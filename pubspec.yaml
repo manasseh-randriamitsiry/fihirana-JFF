@@ -55,6 +55,7 @@ dependencies:
   just_audio: ^0.9.36
   simple_gesture_detector: ^0.2.1
   path: ^1.8.3
+  rive: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +72,7 @@ flutter:
     - assets/fonts/
     - assets/json/
     - assets/baiboly/
+    - assets/animations/
     - assets/hymn_manifest.json
     - assets/hymns_combined.json
     - pubspec.yaml
