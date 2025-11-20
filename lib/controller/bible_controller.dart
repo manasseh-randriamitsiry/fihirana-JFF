@@ -67,31 +67,41 @@ class BibleController extends GetxController {
       });
       // Get all book names and organize by testament
       final allBookNames = _bibleService.getAllBookNames();
-      
+
       // Translate book names to display names if needed
-      final translatedBookList = allBookNames.map((name) => BibleBookOrder.getDisplayName(name)).toList();
+      final translatedBookList = allBookNames
+          .map((name) => BibleBookOrder.getDisplayName(name))
+          .toList();
       bookList.value = translatedBookList;
-      
+
       // Get books by testament with translated names
       final booksByTestamentMap = _bibleService.getAllBooksByTestament();
       final translatedBooksByTestament = <String, List<String>>{};
       booksByTestamentMap.forEach((testament, books) {
-        translatedBooksByTestament[testament] = books.map((name) => BibleBookOrder.getDisplayName(name)).toList();
+        translatedBooksByTestament[testament] =
+            books.map((name) => BibleBookOrder.getDisplayName(name)).toList();
       });
       booksByTestament.value = translatedBooksByTestament;
-      
-      oldTestamentBooks.value = _bibleService.getOldTestamentBooks().map((name) => BibleBookOrder.getDisplayName(name)).toList();
-      newTestamentBooks.value = _bibleService.getNewTestamentBooks().map((name) => BibleBookOrder.getDisplayName(name)).toList();
-      
+
+      oldTestamentBooks.value = _bibleService
+          .getOldTestamentBooks()
+          .map((name) => BibleBookOrder.getDisplayName(name))
+          .toList();
+      newTestamentBooks.value = _bibleService
+          .getNewTestamentBooks()
+          .map((name) => BibleBookOrder.getDisplayName(name))
+          .toList();
+
       // Show books with actual content vs total
       final booksWithContent = _bibleService.getBooksWithContent();
       final totalBooks = _bibleService.getBookCount();
-      
+
       if (kDebugMode) {
         print('Bible initialization complete:');
         print('  Total books: $totalBooks');
         print('  Books with content: ${booksWithContent.length}');
-        print('  Books with placeholders: ${totalBooks - booksWithContent.length}');
+        print(
+            '  Books with placeholders: ${totalBooks - booksWithContent.length}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -216,20 +226,21 @@ class BibleController extends GetxController {
     if (kDebugMode) {
       print('Selecting book: $bookName');
     }
-    
+
     // We need to find the actual book name in the cache
     // The display name might be translated, so we need to find the original name
     String actualBookName = bookName;
     final allBooks = _bibleService.getAllBookNames();
-    
+
     // Try to find the book by display name or original name
     for (final cachedBookName in allBooks) {
-      if (BibleBookOrder.getDisplayName(cachedBookName) == bookName || cachedBookName == bookName) {
+      if (BibleBookOrder.getDisplayName(cachedBookName) == bookName ||
+          cachedBookName == bookName) {
         actualBookName = cachedBookName;
         break;
       }
     }
-    
+
     selectedBook.value = actualBookName;
     selectedChapter.value = 0;
     passageText.value = '';
@@ -256,7 +267,7 @@ class BibleController extends GetxController {
     startVerse.value = 0;
     endVerse.value = 0;
     isSelecting.value = false;
-    
+
     // Clear highlighted verse when changing chapters
     clearHighlightedVerse();
 
@@ -642,8 +653,14 @@ class BibleController extends GetxController {
         break;
       case BibleSearchResultType.verse:
         selectBook(result.bookName);
-        selectChapter(result.chapter);
-        // Set the verse to highlight for navigation
+        // Don't clear highlighted verse when selecting chapter
+        selectedChapter.value = result.chapter;
+        startVerse.value = 0;
+        endVerse.value = 0;
+        isSelecting.value = false;
+        loadPassage();
+
+        // Set the verse to highlight AFTER selecting chapter
         if (highlightVerse != null) {
           highlightedVerse.value = highlightVerse;
         }
@@ -660,8 +677,6 @@ class BibleController extends GetxController {
     }
     return null;
   }
-
-
 
   // Clear cache
   void clearCache() {

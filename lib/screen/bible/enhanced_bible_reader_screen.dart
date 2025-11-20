@@ -242,8 +242,6 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     return _buildVerseReadingView(colorController);
   }
 
-
-
   Widget _buildBookListView(ColorController colorController) {
     return Column(
       children: [
@@ -288,20 +286,19 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
   Map<String, List<String>> _getFilteredBooksByTestament() {
     final filteredBooks = bibleController.filteredBooks;
     final allBooksByTestament = bibleController.booksByTestament;
-    
+
     final result = <String, List<String>>{};
-    
+
     for (final testamentName in allBooksByTestament.keys) {
       final testamentBooks = allBooksByTestament[testamentName]!;
-      final filteredTestamentBooks = testamentBooks
-          .where((book) => filteredBooks.contains(book))
-          .toList();
-      
+      final filteredTestamentBooks =
+          testamentBooks.where((book) => filteredBooks.contains(book)).toList();
+
       if (filteredTestamentBooks.isNotEmpty) {
         result[testamentName] = filteredTestamentBooks;
       }
     }
-    
+
     return result;
   }
 
@@ -381,7 +378,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
           itemCount: books.length,
           itemBuilder: (context, index) {
             final bookName = books[index];
-            final chapterCount = bibleController.getChapterCountForBook(bookName);
+            final chapterCount =
+                bibleController.getChapterCountForBook(bookName);
 
             return _buildNeumorphicBookItem(
               bookName: bookName,
@@ -715,7 +713,8 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
     return Obx(() {
       final isSelected = bibleController.isVerseSelected(verseNumber);
       final isHighlighted = bibleController.isVerseHighlighted(verseNumber);
-      final isSearchHighlighted = bibleController.isVerseSearchHighlighted(verseNumber);
+      final isSearchHighlighted =
+          bibleController.isVerseSearchHighlighted(verseNumber);
 
       return Container(
         key: ValueKey('verse_$verseNumber'),
@@ -771,7 +770,9 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
                     color: colorController.textColor.value,
                     fontSize: _fontSize,
                     height: 1.6,
-                    fontWeight: isSearchHighlighted ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: isSearchHighlighted
+                        ? FontWeight.bold
+                        : FontWeight.normal,
                   ),
                   textAlign: TextAlign.justify,
                 ),
@@ -903,25 +904,16 @@ class _EnhancedBibleReaderScreenState extends State<EnhancedBibleReaderScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(const Duration(milliseconds: 500), () {
           if (_verseScrollController.hasClients) {
-            // More precise calculation - account for all spacing
-            final appBarHeight = 80.0; // Top app bar
-            final chapterNavHeight = 80.0; // Chapter navigation
-            final contentPadding = 16.0; // Screen padding
-            final verseHeight = 85.0; // Actual verse container height
-            final verseMargin = 8.0; // Margin between verses
-            final headerHeight = appBarHeight + chapterNavHeight + contentPadding;
-            
-            // Calculate exact position of the target verse
-            final targetOffset = headerHeight + 
-                (highlightedVerse - 1) * (verseHeight + verseMargin);
-            
-            // Position verse in upper third of screen for better visibility
-            final viewportHeight = _verseScrollController.position.viewportDimension;
-            final adjustedOffset = targetOffset - (viewportHeight * 0.2);
-            
+            // Simple calculation: each verse is approximately 93px (85px + 8px margin)
+            final verseHeight = 93.0;
+
+            // Calculate position - subtract 1 because verses are 1-indexed
+            // Subtract a bit more to ensure verse is near top, not at exact top
+            final targetOffset = (highlightedVerse - 1) * verseHeight;
+
             final maxScroll = _verseScrollController.position.maxScrollExtent;
-            final clampedOffset = adjustedOffset.clamp(0.0, maxScroll);
-            
+            final clampedOffset = targetOffset.clamp(0.0, maxScroll);
+
             _verseScrollController.animateTo(
               clampedOffset,
               duration: const Duration(milliseconds: 800),
