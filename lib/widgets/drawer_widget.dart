@@ -411,7 +411,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     children: [
                       Text(
                         _isAuthenticated
-                            ? (_currentUser?.displayName ?? 'User')
+                            ? (_currentUser?.displayName ?? _username ?? 'User')
                             : (_username ?? 'Guest'),
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.95),
