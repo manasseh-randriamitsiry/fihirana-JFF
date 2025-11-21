@@ -53,12 +53,8 @@
 
 ## 🏷️ Release Process
 
-Every time you push a new **Git tag**, the CI/CD pipeline automatically triggers a release build.
+Every time you push to Master or merge a PR, the CI/CD pipeline automatically triggers a release build.
 
-```bash
-git tag v1.0.5
-git push origin v1.0.5
-```
 
 > ✅ The CI/CD build succeeds in **release mode** only if the Firebase JSON and keystore files are correctly configured via secrets.
 
@@ -66,4 +62,3 @@ git push origin v1.0.5
 ```bash
 flutter gen-l10n
 ```
-sds
