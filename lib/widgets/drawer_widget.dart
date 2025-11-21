@@ -14,6 +14,7 @@ import '../screen/history/history_screen.dart';
 import '../screen/announcement/announcement_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/hymn/firebase_hymns_screen.dart';
+import '../screen/settings/daily_verse_settings_screen.dart';
 import '../services/audio_service.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
@@ -525,6 +526,11 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       child: FontPickerWidget(),
                     ),
                   ),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.auto_stories,
+                  title: 'Daily Bible Verse',
+                  onTap: () => Get.to(() => DailyVerseSettingsScreen()),
                 ),
                 _buildDrawerItem(
                   icon: Icons.storage_rounded,
