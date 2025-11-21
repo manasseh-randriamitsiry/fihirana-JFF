@@ -362,27 +362,25 @@ class DrawerWidgetState extends State<DrawerWidget> {
           // Profile Header
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 60, 24, 32),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.fromLTRB(24, 60, 24, 30),
+            child: Row(
               children: [
                 GestureDetector(
                   onTap: _isAuthenticated ? null : _signInWithGoogle,
                   child: Container(
-                    width: 100,
-                    height: 100,
+                    width: 80,
+                    height: 80,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: _colorController.primaryColor.value,
+                        color: Colors.white,
                         width: 3,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _colorController.primaryColor.value
-                              .withOpacity(0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
@@ -392,66 +390,83 @@ class DrawerWidgetState extends State<DrawerWidget> {
                               imageUrl: _currentUser!.photoUrl!,
                               fit: BoxFit.cover,
                               placeholder: (context, url) =>
-                                  CircularProgressIndicator(
-                                color: _colorController.primaryColor.value,
+                                  const CircularProgressIndicator(
+                                color: Colors.white,
                               ),
-                              errorWidget: (context, url, error) => Icon(
+                              errorWidget: (context, url, error) => const Icon(
                                 Icons.person,
-                                size: 50,
-                                color: _colorController.iconColor.value,
+                                size: 40,
+                                color: Colors.white,
                               ),
                             )
-                          : Icon(
+                          : const Icon(
                               Icons.person,
-                              size: 50,
-                              color: _colorController.iconColor.value,
+                              size: 40,
+                              color: Colors.white,
                             ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  _isAuthenticated
-                      ? (_currentUser?.displayName ?? 'User')
-                      : (_username ?? 'Guest'),
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                if (_isAuthenticated) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    _currentUser?.email ?? '',
-                    style: TextStyle(
-                      color: _colorController.textColor.value.withOpacity(0.7),
-                      fontSize: 14,
-                    ),
-                  ),
-                ] else ...[
-                  const SizedBox(height: 12),
-                  NeumorphicButton(
-                    onPressed: _signInWithGoogle,
-                    style: NeumorphicStyle(
-                      color: _colorController.primaryColor.value,
-                      boxShape: NeumorphicBoxShape.roundRect(
-                          BorderRadius.circular(20)),
-                      depth: 2,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 8),
-                      child: Text(
-                        l10n.signIn,
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _isAuthenticated
+                            ? (_currentUser?.displayName ?? 'User')
+                            : (_username ?? 'Guest'),
                         style: const TextStyle(
                           color: Colors.white,
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black26,
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                            ),
+                          ],
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
+                      if (_isAuthenticated) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          _currentUser?.email ?? '',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: _signInWithGoogle,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              l10n.signIn,
+                              style: TextStyle(
+                                color: _colorController.primaryColor.value,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
               ],
             ),
           ),
