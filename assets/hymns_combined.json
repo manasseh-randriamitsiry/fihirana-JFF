@@ -1182,7 +1182,7 @@
         "1": "Hiara-mandeha Aminao hatrizao\nJeso no iriko tokoa\nO! raiso ny tanako atsotra Aminao\nFa atolotro koa ny fo.",
         "2": "Hiara-miasa Aminao hatrizao\nHitady ireo 'zay very koa\nKa hanana fo antra toy ny Anao.\nHanarina ny efa voa.",
         "3": "Hiara-mitondra Aminao hatrizao\nNy hazofijaliana\nFa maivana izany raha anilanao\nKa hody fifaliana",
-        "4": "Raha avy indray tsy ho ela Hianao\nIzaho handao ny ety\nHiaraka amin'ireo navotanao\nHandova ny lanitra ery.\nFamaranana\nHo sambatra indrindra\nHo tretrika koa\nHanatrika ny tavanao\nKanefa izao no hafaliako tokoa\nHiara-mitoetra Aminao (in-2)"
+        "4": "Raha avy indray tsy ho ela Hianao\nIzaho handao ny ety\nHiaraka amin'ireo navotanao\nHandova ny lanitra ery.\n\n'FAMARANANA'\n\nHo sambatra indrindra\nHo tretrika koa\nHanatrika ny tavanao\nKanefa izao no hafaliako tokoa\nHiara-mitoetra Aminao (in-2)"
       },
       "chorus": "Handroso isan'andro na aiza aleha\nNa mora na sarotra atao\nTsy hiala tokoa na hivadika re\nAmbara-pahatonga Aminao (in-2)",
       "file_path": "193-HIARA-MANDEHA.json"
@@ -1228,7 +1228,7 @@
         "2": "Te-hahita fifaliana\nEo amin'ny fiainanao ve?\nIndro ny zava-miafina\nIzay azoanao raisina\nNy fanalahidy dia Jesosy,\nNy fifaliana ho anao dia Jeso.",
         "3": "Mavesatra ve ny fonao?\nManiry ny fiadanana?\nMikatsak'izany hianao\nKa indro atoroko anao,\nNy fanalahidy dia Jesosy,\nNy tena fiadanana dia Jeso.",
         "4": "Moa te-hamela heloka?\nNefa toa tsy hainao atao?\nManiry izany ny fonao\nKa indro atoroko anao\nNy fanalahidy dia Jesosy,\nNy famelan-keloka Aminy.",
-        "5": "Mikatsaka fitiavana,\nNefa tsy mahit'hatrizao\nAfa-tsy fahorian-tsaina\nKa toa mijaly fatratra\nNy fanalahidy dia Jesosy,\nNy tena Fitiavana dia Jeso.\nFamaranana\nNy fahasambarana, fifaliana\nNy famelan-keloka dia Jeso\nNy fiadanana, famelan-keloka\nNy tena Fitiavana dia Jeso"
+        "5": "Mikatsaka fitiavana,\nNefa tsy mahit'hatrizao\nAfa-tsy fahorian-tsaina\nKa toa mijaly fatratra\nNy fanalahidy dia Jesosy,\nNy tena Fitiavana dia Jeso.\n\n'FAMARANANA'\n\nNy fahasambarana, fifaliana\nNy famelan-keloka dia Jeso\nNy fiadanana, famelan-keloka\nNy tena Fitiavana dia Jeso"
       },
       "file_path": "197-JESOSY-NO-FANALAHIDINY.json"
     },
@@ -1824,7 +1824,7 @@
       "title": "TIAKO MIHOATRA NOHO NY ZAVA-DREHETRA JESOSY",
       "verses": {
         "1": "Jesosy no tiako mihotra noho ny\nZavatra rehetra\nFantatro fa Izy no hany mahafa-po\nEkeko ny fitarihany\n'Zay sarobidy eo amin'ny fiainako\nIlaiko Jesosy amin'ny androko",
-        "2": "Manan-kery tsy misy fetra avy\nAny an-danitra Jesosy\nKa manapaka an'izao tontolo izao\nNy làlan'ny fijaliany\nNo nahafatesany tao Kalvary\nNoho ny amiko no niaretany.\nFamaranana\nKoa tiako mihoatra ny zavatra\nRehetra\nMisy ety an-tany Jesosy."
+        "2": "Manan-kery tsy misy fetra avy\nAny an-danitra Jesosy\nKa manapaka an'izao tontolo izao\nNy làlan'ny fijaliany\nNo nahafatesany tao Kalvary\nNoho ny amiko no niaretany.\n\n'FAMARANANA'\n\nKoa tiako mihoatra ny zavatra\nRehetra\nMisy ety an-tany Jesosy."
       },
       "chorus": "Azo esorina avokoa ny laza 'zay\nMety ho ahy\nSy ny zavatra sarodidy 'zay eto\nAn-tany\nEkeko Jesosy ary izay fanapahany\nAhy\nAleoko manana an'i Jesosy toy 'zay\nZavatra hafa.",
       "file_path": "245-TIAKO-MIHOATRA-NOHO-NY-ZAVA-DREHETRA-JESOSY.json"
@@ -1967,7 +1967,7 @@
     },
     {
       "number": "257",
-      "title": "AKAIKINAO NY VARAVARANA",
+      "title": "AKAIKY ANAO NY VARAVARANA",
       "verses": {
         "1": "Ry mpanota ana, sasatra\nAkaikinao ny vavahady\nMiandry anao ny fiadanana\nAry koa ny fitsaharana.",
         "2": "Nanolo-tena Izy re,\nHamonjy ny fanahinao\nMaratra izany fony re,\nRaha any ivelany ianao.",
@@ -3056,7 +3056,7 @@
         "3": "Ny manetry tena ry mpino\nNisandratan'i Jesosy\nMba hianatra izany isika\nDia hisandratra koa.",
         "4": "Mba mazotoa ry mpino\nHampitoetra ny fiantsoana\nSy ny fifidianana antsika\nTsy ho isan'ny tsy mino.",
         "5": "Mba mibitaha ry mpino\nFa tia anao Jesosy\nTena hisy fifaliana any an-koatra\nKa mahaiza misaotra.",
-        "6": "Te-ho any koa ve ianao?\nTena azo atao izany\nFa vidiny mora dia mora\nNo takina aminao.\nFamaranana\nMibebaha, minoa\nMba ho isanay koa ianao\nHiditra ao malalaka isika\nSamy honina ao."
+        "6": "Te-ho any koa ve ianao?\nTena azo atao izany\nFa vidiny mora dia mora\nNo takina aminao.\n\n'FAMARANANA'\n\nMibebaha, minoa\nMba ho isanay koa ianao\nHiditra ao malalaka isika\nSamy honina ao."
       },
       "chorus": "Haleloia (in-2)\nHo any an-danitra isika\nHiditra ao malalaka isika\nDia honina ao.",
       "file_path": "343-HIDITRA-MALALAKA-NY-LANITRA.json"
@@ -3140,7 +3140,7 @@
       "verses": {
         "1": "Lion'ny Joda\nAmin'ny fiandrianany\nTonga mba hanjaka ety,\nMpanjakan'ny mpanjaka\nFiadanana\nNy fanjakany ho doria\nDeraina Hianao ry Mpanjaka (in-2)",
         "2": "Lion'ny Joda teraka\nTamin'ny kely sy mahantra\nNofantsihin'ireo izay masiaka\nFa nitsangana nandresy\nHaleloia (in-4)",
-        "3": "Lion'ny Joda ho avy indray\nHanangana fiainam-baovao\nKa velona indray ho falifaly\nIreo izay novonjena\nMaranatha (in-4)\nFamaranana\nLion'ny Joda amin'ny\nFiandrianany\nTonga mba hanjaka etỳ\nMpanjakan'ny mpanjaka\nFiadanana\nNy fanjakana ho doria\nHaleloia (in-4)\nMpanjaka Hianao\nHaleloia, Mpanjaka Hianao."
+        "3": "Lion'ny Joda ho avy indray\nHanangana fiainam-baovao\nKa velona indray ho falifaly\nIreo izay novonjena\nMaranatha (in-4)\n\n'FAMARANANA'\n\nLion'ny Joda amin'ny\nFiandrianany\nTonga mba hanjaka etỳ\nMpanjakan'ny mpanjaka\nFiadanana\nNy fanjakana ho doria\nHaleloia (in-4)\nMpanjaka Hianao\nHaleloia, Mpanjaka Hianao."
       },
       "file_path": "350-LIONNY-JODA.json"
     },
@@ -3201,7 +3201,7 @@
       "number": "356",
       "title": "HANKALAZA ANAO AHO RY RAY",
       "verses": {
-        "1": "Hanandratra Anao Tompo ô.\nAmin'ny firenena\nHankalaza ka hihira\nNy fandresenao\nFa ny fitiavanao\nMisandratra hatrany\nNy fahamarinanao,\nNy fahamarinanao an-danitra\nTompo ô misehoa Hianao\nEny amin'ny lanitra\nNy voninahitrao\nHameno ny tontolo.\nTompo ô misehoa Hianao\nEny amin'ny lanitra\nNy voninahitrao hameno ny tontolo.\nFamaranana\nNy voninahitrao, ny voninahitrao\nNy voninahitrao\nHameno ny tontolo."
+        "1": "Hanandratra Anao Tompo ô.\nAmin'ny firenena\nHankalaza ka hihira\nNy fandresenao\nFa ny fitiavanao\nMisandratra hatrany\nNy fahamarinanao,\nNy fahamarinanao an-danitra\nTompo ô misehoa Hianao\nEny amin'ny lanitra\nNy voninahitrao\nHameno ny tontolo.\nTompo ô misehoa Hianao\nEny amin'ny lanitra\nNy voninahitrao hameno ny tontolo.\n\n'FAMARANANA'\n\nNy voninahitrao, ny voninahitrao\nNy voninahitrao\nHameno ny tontolo."
       },
       "file_path": "356-HANKALAZA-ANAO-AHO-RY-RAY.json"
     },
@@ -4063,7 +4063,7 @@
       "verses": {
         "1": "Akanjo fotsy no hotafiantsika\nFitafiana soa no homena antsika\nIlay tànana soa sy masina\nNo honenan'ireo voavoatra.",
         "2": "Hiaraka mandeha Aminy isika\nTanteraka ao ireo izay ninoana\nMahita ny hatsaran'ny Mpamonjy\nHanandratra fiderana Azy.",
-        "3": "Nosasany tokoa ny akanjoko\nTamin'ny Ràn'ny Zanak'Ondry soa\nHiditra tsy ho ela ao re\nNy olom-boavonjy marobe. .\nFamaranana\nAkanjo fotsy no hotafiantsika\nFitafiana soa no homena antsika\nIlay tanàna soa sy masina\nNo honenan'ireo voavotra?"
+        "3": "Nosasany tokoa ny akanjoko\nTamin'ny Ràn'ny Zanak'Ondry soa\nHiditra tsy ho ela ao re\nNy olom-boavonjy marobe. \n\n'FAMARANANA'\n\nAkanjo fotsy no hotafiantsika\nFitafiana soa no homena antsika\nIlay tanàna soa sy masina\nNo honenan'ireo voavotra?"
       },
       "file_path": "428-AKANJO-FOTSY.json"
     },
@@ -4580,7 +4580,7 @@
         "2": "Tsy fantatra ny ho avin'ireo\nAnkizy madinika kamboty\nTiako ny hahafantarany\nFiadanana",
         "3": "Ao ireo ory sy mahantra\nNesorina avokoa izay azy\nMiandry izay manam-pitiavana\nHiantra azy",
         "4": "Raha afaka ny hifankatia\nKa samy hifandray tanana\nDia izay vao hiaina amim-\nPiadananana",
-        "5": "Ny fiankinana amin'i Jesosy\nAndrian'ny fiadanana\nNo hany fomba azo antoka\nHampiadana.\nFamaranana\nShalom (in-2)\nRahoviana no hanam-piadanana\nShalom (in-2)\nJeso manome fiadanana."
+        "5": "Ny fiankinana amin'i Jesosy\nAndrian'ny fiadanana\nNo hany fomba azo antoka\nHampiadana.\n\n'FAMARANANA'\n\nShalom (in-2)\nRahoviana no hanam-piadanana\nShalom (in-2)\nJeso manome fiadanana."
       },
       "chorus": "Shalom (in-2)\nRahoviana no hanam-piadanana\nShalom (in-2), ilaina ny fiadanana",
       "file_path": "470-AO-AMINNY-JESOSY-NY-TENA-FIADANA.json"
@@ -5006,7 +5006,7 @@
       "verses": {
         "1": "Ny fiainanao dia sambo\nMamakivaky ranomasina\nOmaly tsara ny andro\nAndroany tonga tafiotra\nOmaly sambatra hianao\nAnio malahelo ketraka\nTsy hitanao intsony izay haleha.",
         "2": "Ny fiainanao dia sambo\nMamakivaky ranomasina\nAo ny andro mibaliaka\nAo koa ny andro manjombona\nMisy fahoriana na dia ao\nAmin'i Jesosy\n'Nefa tony ianao anaty ady",
-        "3": "Tsy ho fitsapana lalandava ny\nFiainanao\nMisy fotoana izay anefena anao\nHo voadio hianao,\nHo amin'ny fahatsarana kokoa\nHo hitanao hiova ny fiainanao\nFamaranana\nAvelao Izy hitantana\nNy androm-piainanao\nNa tony na manonja\nNy ranomasina\nHo tody soa hianao,\nEry am-pita ery\nRaha ekenao Jesosy hanjaka\nEo aminao"
+        "3": "Tsy ho fitsapana lalandava ny\nFiainanao\nMisy fotoana izay anefena anao\nHo voadio hianao,\nHo amin'ny fahatsarana kokoa\nHo hitanao hiova ny fiainanao\n\n'FAMARANANA'\n\nAvelao Izy hitantana\nNy androm-piainanao\nNa tony na manonja\nNy ranomasina\nHo tody soa hianao,\nEry am-pita ery\nRaha ekenao Jesosy hanjaka\nEo aminao"
       },
       "chorus": "Manantona (in-2)\nIlay Tompon'ny ranomasina\nManantona (in-2)\nIlay nahary izao rehetra izao,\nIzy no hany (in-2)\nNampangina tafiotra\nOmeo Azy ny fiainanao\nHotantaniny",
       "file_path": "504-AVELAO-JESOSY-HITANTANA-NY-FIAINANAO.json"
@@ -5152,7 +5152,7 @@
       "verses": {
         "1": "Raiso ny fiainako Jesosy be fitia\nF'Aminao misy loharanom-\nPianinana\nOmeo finoana aho tsy hisalasala\nTariho amin'ny tànanao aho.",
         "2": "Raha sendra reraka, diso làlana\nAmiko Hianao, satria fitiavana\nNy fijaliana, alahelo mameno fo\nNoho Hianao mandresy tahotra.",
-        "3": "Ankehitriny kosa be zava-poana\nMaro ireo olona maty fanahy\nRehefa nifanena Taminao aho\nNiova ny fiainako, afaka aho\nFamaranana\nJesosy Sakaiza, Mpiaro mahatoky\nMpanjaka ho doria Hianao\nRehefa nifanena taminao aho\nNiova ny fiainako, afaka aho"
+        "3": "Ankehitriny kosa be zava-poana\nMaro ireo olona maty fanahy\nRehefa nifanena Taminao aho\nNiova ny fiainako, afaka aho\n\n'FAMARANANA'\n\nJesosy Sakaiza, Mpiaro mahatoky\nMpanjaka ho doria Hianao\nRehefa nifanena taminao aho\nNiova ny fiainako, afaka aho"
       },
       "chorus": "Jesosy Sakaiza\nMpiaro mahatoky\nMpanjaka ho doria Hianao\nOmeo finoana aho tsy hisalasala\nTariho amin'ny tànanao aho",
       "file_path": "517-JESOSY-O-INTY-AHO.json"
@@ -5183,7 +5183,7 @@
         "1": "Manafaka tokoa Jeso.\nAmin'ireo gadra marobe\nSarotra,\nNefa ao ny Tomponao (ny\nTomponao).",
         "2": "Vatolampy marobe,\nToa misakan-dalana\nSarotra.\nNefa ao ny Tomponao (ny\nTomponao).",
         "3": "Ny fizahan-toetranao,\nMety mahakivy fo\nSarotra,\nNefa ao ny Tomponao (ny\nTomponao).",
-        "4": "Eny zava-mahagaga.\nAmiko ny herinao\nKa tsy takatry ny saiko Jeso\n(Jeso)\nFamaranana\nHaleloia (im-balo),"
+        "4": "Eny zava-mahagaga.\nAmiko ny herinao\nKa tsy takatry ny saiko Jeso\n(Jeso)\n\n'FAMARANANA'\n\nHaleloia (im-balo),"
       },
       "chorus": "Jesosy irery no mahay\nManafaka tanteraka\nIreo ady sarotra\nAmiko (in-2):",
       "file_path": "52-MANAFAKA-TOKOA-JESO.json"
@@ -5278,7 +5278,7 @@
       "title": "MPANJAKA ANDRIAMANITRA",
       "verses": {
         "1": "Manjaka amin'ny fomba mahagaga\nNy Tompo\nMitsotra ny sandriny, mihorohoro\nNy tontolo\nNafahany tamin'ny aizin'ny helo\nNy tany\nOmeo voninahitra (in-2)",
-        "2": "Mahery Andriamanitra lehibe\nManan-kaja\nNy rany sarobidy nanokatra ny\nLanitra\nNy Mpanjakam-boninahitra\nAmin'ny fiandrianany\nTianay hobiana. (in-2)\nFamaranana\nHobio Ilay Mpandresy\n(Mpandresintsika)\nDerao ny Anarany, ny Anarany\nNanadio ny Lanitra\nManjaka ao am-pontsika\nAndriamanitra Mpandresy Izy\nTompo mahery'lay lion'i Joda (in-2)"
+        "2": "Mahery Andriamanitra lehibe\nManan-kaja\nNy rany sarobidy nanokatra ny\nLanitra\nNy Mpanjakam-boninahitra\nAmin'ny fiandrianany\nTianay hobiana. (in-2)\n\n'FAMARANANA'\n\nHobio Ilay Mpandresy\n(Mpandresintsika)\nDerao ny Anarany, ny Anarany\nNanadio ny Lanitra\nManjaka ao am-pontsika\nAndriamanitra Mpandresy Izy\nTompo mahery'lay lion'i Joda (in-2)"
       },
       "chorus": "Andriamanitra Mpandresy\nIzyTompo mahery\n'Lay Lion'i Joda",
       "file_path": "528-MPANJAKA-ANDRIAMANITRA.json"
@@ -5320,7 +5320,7 @@
       "number": "531",
       "title": "DERAO NY MPANJAKAN'NY MPANAJAKA",
       "verses": {
-        "1": "Miankohofa eo amin'ny\nMpanjaka\nDerao amin'ny fonao Izy\nAsandrato amin'ny voninahiny\nDerao ny Mpanjakan'ny\nMpanjaka.\nFamaranana\nAsandrato amin'ny voninahiny\nDerao ny Mpanjakan'ny\nMpanjaka. ."
+        "1": "Miankohofa eo amin'ny\nMpanjaka\nDerao amin'ny fonao Izy\nAsandrato amin'ny voninahiny\nDerao ny Mpanjakan'ny\nMpanjaka.\n\n'FAMARANANA'\n\nAsandrato amin'ny voninahiny\nDerao ny Mpanjakan'ny\nMpanjaka. ."
       },
       "file_path": "531-DERAO-NY-MPANJAKANNY-MPANAJAKA.json"
     },
@@ -5353,7 +5353,7 @@
         "1": "Manana Mpamonjy aho\nMpisolovava ahy\nMpamonjy tia na dia irery aza aho\nMiaro ahy am-pitiavana Izy\nEnga anie ka ho Mpamonjinao koa.",
         "2": "Manana Ray aho\nIzay nampanantena ahy\nFiainana mandrakizay sambatra\nTsy ho ela dia hantsoiny aho\nAndeha ré mba\nHo any an-danitra koa.",
         "3": "Manana fiadanana tanteraka aho\n'Zay tsy ananan'izao tontolo izao\nNy Mpamonjiko no manome azy\nEnga anie ka homeny anao koa.",
-        "4": "Rehefa an'i Jesosy ianao\nAmbarao ny hafa\nFa ny Mpamonjiko dia\nMpamonjinao koa\nDia mivavaha\nMba hamonjeny ny hafa\nHahazo valim-bavaka koa ianao.\nFamaranana\nMivavaha ho an'ny hafa (in-2)\nMba ho Mpamonjiny io\nMpamonjintsika io"
+        "4": "Rehefa an'i Jesosy ianao\nAmbarao ny hafa\nFa ny Mpamonjiko dia\nMpamonjinao koa\nDia mivavaha\nMba hamonjeny ny hafa\nHahazo valim-bavaka koa ianao.\n\n'FAMARANANA'\n\nMivavaha ho an'ny hafa (in-2)\nMba ho Mpamonjiny io\nMpamonjintsika io"
       },
       "chorus": "Mivavaka ho anao aho (in-2)\nMba ho Mpamonjinao\nIo Mpamojiko io.",
       "file_path": "534-MIVAVAKA-HO-ANAO.json"
@@ -5408,7 +5408,7 @@
       "verses": {
         "1": "Jeso, Zanak'Ondrin'\nAndriamanitra\nJeso, nidina tety an-tany\nJeso, 'lay fahasoavana\nJeso, ho an'izao tontolo izao.",
         "2": "Jeso notevatevaina\nJeso, nanaiky hamapahoriana\nJeso, nanaiky hohazonina\nJeso, nahafoy ny ainy tao Golgota.",
-        "3": "Jeso, tsy voatana tao am-pasana\nJeso, nitsangana tamin'ny maty\nJeso, velona mandrakizay\nJeso, anio miantso anao.\nFamaranana\nAtolory ny fiainanao\nRaiso Izy ao am-ponao\nIbebao ny fahotanao\nManeke mba hosasana\nDia omeny ho anao izao\nNy fiainam-baovao\nKa manomboka anio\nMatokia fa voadio\nHidera Anao aho\nJeso (in-3)"
+        "3": "Jeso, tsy voatana tao am-pasana\nJeso, nitsangana tamin'ny maty\nJeso, velona mandrakizay\nJeso, anio miantso anao.\n\n'FAMARANANA'\n\nAtolory ny fiainanao\nRaiso Izy ao am-ponao\nIbebao ny fahotanao\nManeke mba hosasana\nDia omeny ho anao izao\nNy fiainam-baovao\nKa manomboka anio\nMatokia fa voadio\nHidera Anao aho\nJeso (in-3)"
       },
       "chorus": "Hidera Anao aho\nHankalaza Anao aho\nHitory ny teninao\nAmin'izao tontolo izao\nHo vavolombelonao\nHitondra hazofijaliana\nMandrakizay aho hihira\nAnao Jeso famonjena.",
       "file_path": "539-HIDERA-ANAO-AHO.json"
@@ -5827,7 +5827,7 @@
       "verses": {
         "1": "Fitahiana, fahasoavana,\nHasambarana, fiadanana\nTsy haiko lazaina amin'ny vavako\nIzay vitan'ny Tompo.",
         "2": "Tena Mpamonjy azo antoka\nTsy mivadika no iankinako\nHany tokiko, fialofako\nKa tsy hatahotra aho",
-        "3": "Tsy mendrika aho raha novonjeny\nNoraisiny mba ho mpandova Azy\nInona ary no tokony\nMba ho nomeko ny Tompo?\nFamaranana\nLehibe ny fitiavan'i Jesosy ahy\nKoa manolotra ny fiainako mba ho\nAzy koa\nRaiso, raiso Jeso\nHo Anao manontolo\nF'izany no porofon'ny fitiavako Anao."
+        "3": "Tsy mendrika aho raha novonjeny\nNoraisiny mba ho mpandova Azy\nInona ary no tokony\nMba ho nomeko ny Tompo?\n\n'FAMARANANA'\n\nLehibe ny fitiavan'i Jesosy ahy\nKoa manolotra ny fiainako mba ho\nAzy koa\nRaiso, raiso Jeso\nHo Anao manontolo\nF'izany no porofon'ny fitiavako Anao."
       },
       "chorus": "Lehibe ny fitiavan'i Jesosy ahy\nNohomboana tamin'ny hazo\nTia ahy Jeso\nTena tiako Jeso (in-2)\nNijaly, maty ho ahy izy.\nMamiko Jesosy",
       "file_path": "574-INONA-NO-HOMEKO-AZY.json"
@@ -6155,7 +6155,7 @@
         "1": "Hihira fiderana ho Anao Aho\nTompo ô (in-3)\nHaleloia, deraina ny Tompo",
         "2": "Nitsangana tamin'ny\nMaty Jesosy (in-3)\nHaleloia deraina ny Tompo",
         "3": "Ny Anarany no\nMampandresy antsika (in-3)\nHaleloia deraina ny Tompo\nIray fo isika ho tia an'i Jesosy (in-3)\nHaleloia deraina ny Tompo.",
-        "4": "Iray fo isika ho tia an'i Jesosy\nIray fo isika ho tia an'i Jesosy\nHaleloia, deraina ny Tompo.\nFamaranana\nAnkalazaina Hianao\nRy Jesosy Mpanjakanay\nIza no hanameloka\nIzay voavela sy mandeha am-pahamasinana\nSy mandeha amim-pahamasinana"
+        "4": "Iray fo isika ho tia an'i Jesosy\nIray fo isika ho tia an'i Jesosy\nHaleloia, deraina ny Tompo.\n\n'FAMARANANA'\n\nAnkalazaina Hianao\nRy Jesosy Mpanjakanay\nIza no hanameloka\nIzay voavela sy mandeha am-pahamasinana\nSy mandeha amim-pahamasinana"
       },
       "chorus": "Haleloia (in-2) deraina\nHaleloia (in-2) deraina ny Tompo\nHaleloia (in-2) deraina\nHaleloia deraina ny Tompo",
       "file_path": "601-HALELOIA-DERAINA-NY-TOMPO.json"
@@ -6852,7 +6852,7 @@
       "verses": {
         "1": "Haleloia ho an'ny\nAndrian'ny fiadanana\nHaleloia, velona mandrakizay",
         "2": "Haleloia, Zanaky ny Ray izy\nHaleloia, Hovohany ny lanitra",
-        "3": "Haleloia, Ho an'ny Tompon'ny tompo\nHaleloia, Manjaka ao am-pontsika.\nFamaranana\nMihirà, ataovy antso avo\nMihirà, hobio ny Mpanjakanao\nMihirà ataovy antso avo\nHirao ny Mpanjakan'ny mpanjaka\nHaleloia, haleloia ho an'ny Mpanjaka."
+        "3": "Haleloia, Ho an'ny Tompon'ny tompo\nHaleloia, Manjaka ao am-pontsika.\n\n'FAMARANANA'\n\nMihirà, ataovy antso avo\nMihirà, hobio ny Mpanjakanao\nMihirà ataovy antso avo\nHirao ny Mpanjakan'ny mpanjaka\nHaleloia, haleloia ho an'ny Mpanjaka."
       },
       "chorus": "Mihirà, ataovy antso avo\nMihirà, hobio ny Mpanjakanao\nMihirà ataovy antso avo\nHirao ny Mpanjakan'ny mpanjaka",
       "file_path": "665-MIHIRA-ATAOVY-ANTSO-AVO.json"
@@ -6921,7 +6921,7 @@
       "title": "MIJERY ANAO AHO TOMPO O!",
       "verses": {
         "1": "Tsy noheveriko intsony\nIzay zavatra taloha\nFa ny ho aviko kosa\nNo hobanjiniko\nHanohy ny dia raha tarihinao\nIzay fahoriako tsy hampiato ahy.",
-        "2": "Nataoko tsinontsinona\nIzay rehetra manintona ahy\nFa te- handroso aho\nSatria Hianao manampy ahy\nHanohy ny dia raha tarihinao\nIzay fahoriako tsy hampiato ahy.\nFamaranana\nTsy hatahotra aho\nFa handeha ka hijery Anao\nTompo ô mijery Anao aho\nHanompo Anao\nHanaja Anao Tompo."
+        "2": "Nataoko tsinontsinona\nIzay rehetra manintona ahy\nFa te- handroso aho\nSatria Hianao manampy ahy\nHanohy ny dia raha tarihinao\nIzay fahoriako tsy hampiato ahy.\n\n'FAMARANANA'\n\nTsy hatahotra aho\nFa handeha ka hijery Anao\nTompo ô mijery Anao aho\nHanompo Anao\nHanaja Anao Tompo."
       },
       "chorus": "Tompo ô, mijery Anao aho\nHanompo Anao\nHanaja Anao Tompo.",
       "file_path": "671-MIJERY-ANAO-AHO-TOMPO-O.json"
@@ -7447,7 +7447,7 @@
       "verses": {
         "1": "Mpivahiny sy mpirenireny\nTao anatin'ny ota aho taloha,\nNony hitan'i Jesosy anefa,\nDia ny mody no mamin'ny fo.",
         "2": "Mamelombelona ny fanahiko\nMampahery ahy isan'andro,\nMitondra ahy eo amoron'ny rano\nIzay fialan-tsasatra Izy.",
-        "3": "Ary raha mamaky ny lohasaha\nAloky ny fahafatesana aho;\nDia ny tànany no hitondra ahy\nHo tody soa ao an-tranony.\nFamaranana\nDia hitoetra ao an-tranon'i\nJehovah aho\nAry hamelarany latabatr'aho,\nEny tokoa, fahasoavana sy\nFamindram-po\nNo hanaraka amin'ny androko (in-3)"
+        "3": "Ary raha mamaky ny lohasaha\nAloky ny fahafatesana aho;\nDia ny tànany no hitondra ahy\nHo tody soa ao an-tranony.\n\n'FAMARANANA'\n\nDia hitoetra ao an-tranon'i\nJehovah aho\nAry hamelarany latabatr'aho,\nEny tokoa, fahasoavana sy\nFamindram-po\nNo hanaraka amin'ny androko (in-3)"
       },
       "chorus": ";;; Eny tokoa, fahasoavana sy\nFamindram-po\nNo hanarak'amin'ny androko;;;",
       "file_path": "716-MPIVAHINY-SY-MPIRENIRENY.json"
@@ -7540,7 +7540,7 @@
       "verses": {
         "1": "Hevero ny làlan'alehanao\nRy zaza 'zay mpirenireny;\nLavitr'an'Andriamanitra ianao;\nEntin'onja, ka ho very.",
         "2": "Mba saino ny lalan'alehanao,\nFa tsy misy mpitarika ianao;\nMihevitra anao anie Jeso,\n'Lay nanolotra ny ainy.",
-        "3": "Diniho ny làlan'alehanao,\nFa tsy afaka handroso ianao;\nRaha tsy mino sy matoky Azy;\nKa Mankato ny didiny.\nFamaranana\nKa saino re ny làlanao;\nMoa mankany an-danitra\nVe ny dianao?"
+        "3": "Diniho ny làlan'alehanao,\nFa tsy afaka handroso ianao;\nRaha tsy mino sy matoky Azy;\nKa Mankato ny didiny.\n\n'FAMARANANA'\n\nKa saino re ny làlanao;\nMoa mankany an-danitra\nVe ny dianao?"
       },
       "file_path": "724-HEVERO-NY-LALANAO.json"
     },
