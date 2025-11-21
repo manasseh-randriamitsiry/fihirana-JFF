@@ -54,6 +54,78 @@ class ColorController extends GetxController {
       'drawer': const Color(0xFF1A237E), // Colors.indigo.shade900
       'icon': const Color(0xFFFF9800), // Colors.orange
     },
+    {
+      'name': 'AMOLED Black',
+      'primary': const Color(0xFF00E676), // Bright green
+      'accent': const Color(0xFF00BCD4), // Cyan
+      'text': const Color(0xFFFFFFFF), // White text
+      'background': const Color(0xFF000000), // Pure black for OLED
+      'drawer': const Color(0xFF000000), // Pure black
+      'icon': const Color(0xFF00E676), // Bright green
+    },
+    {
+      'name': 'Dark Mode',
+      'primary': const Color(0xFFBB86FC), // Light purple
+      'accent': const Color(0xFF03DAC6), // Teal
+      'text': const Color(0xFFE1E1E1), // Light gray text
+      'background': const Color(0xFF121212), // Dark gray (Material Design dark)
+      'drawer': const Color(0xFF1E1E1E), // Slightly lighter dark
+      'icon': const Color(0xFF03DAC6), // Teal
+    },
+    {
+      'name': 'Midnight Blue',
+      'primary': const Color(0xFF5E92F3), // Light blue
+      'accent': const Color(0xFF64FFDA), // Aqua
+      'text': const Color(0xFFE8EAF6), // Very light blue-gray
+      'background': const Color(0xFF0A1929), // Deep navy blue
+      'drawer': const Color(0xFF001E3C), // Darker navy
+      'icon': const Color(0xFF64FFDA), // Aqua
+    },
+    {
+      'name': 'Sunset Orange',
+      'primary': const Color(0xFFFF6F00), // Deep orange
+      'accent': const Color(0xFFFFD54F), // Amber
+      'text': const Color(0xFF212121), // Dark gray
+      'background': const Color(0xFFFFF3E0), // Light orange
+      'drawer': const Color(0xFFE65100), // Darker orange
+      'icon': const Color(0xFFFF6F00), // Deep orange
+    },
+    {
+      'name': 'Lavender Dream',
+      'primary': const Color(0xFF9575CD), // Medium purple
+      'accent': const Color(0xFFE91E63), // Pink
+      'text': const Color(0xFF4A148C), // Deep purple
+      'background': const Color(0xFFF3E5F5), // Very light purple
+      'drawer': const Color(0xFF7B1FA2), // Dark purple
+      'icon': const Color(0xFFE91E63), // Pink
+    },
+    {
+      'name': 'Emerald Green',
+      'primary': const Color(0xFF00C853), // Bright green
+      'accent': const Color(0xFFFFEB3B), // Yellow
+      'text': const Color(0xFF1B5E20), // Dark green
+      'background': const Color(0xFFE8F5E9), // Very light green
+      'drawer': const Color(0xFF2E7D32), // Medium green
+      'icon': const Color(0xFF00C853), // Bright green
+    },
+    {
+      'name': 'Rose Gold',
+      'primary': const Color(0xFFE91E63), // Pink
+      'accent': const Color(0xFFFFB74D), // Light orange/gold
+      'text': const Color(0xFF880E4F), // Deep pink
+      'background': const Color(0xFFFCE4EC), // Very light pink
+      'drawer': const Color(0xFFC2185B), // Dark pink
+      'icon': const Color(0xFFFFB74D), // Light orange/gold
+    },
+    {
+      'name': 'Crimson Red',
+      'primary': const Color(0xFFD32F2F), // Red
+      'accent': const Color(0xFFFF5252), // Light red
+      'text': const Color(0xFF212121), // Dark gray
+      'background': const Color(0xFFFFEBEE), // Very light red
+      'drawer': const Color(0xFFB71C1C), // Dark red
+      'icon': const Color(0xFFD32F2F), // Red
+    },
   ];
 
   MaterialColor getMaterialColor(Color color) {
