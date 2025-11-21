@@ -43,33 +43,44 @@ class AccueilScreenState extends State<AccueilScreen> {
   void _showCurrentPlayingDialog() async {
     final audioService = AudioService.instance;
     final currentHymnId = audioService.currentPlayingHymnId;
-    
+
     if (currentHymnId.isEmpty) return;
-    
+
     // Get hymn data
     final hymnService = HymnService();
     final hymn = await hymnService.getHymnById(currentHymnId);
-    
+
     if (hymn != null && context.mounted) {
       _showAudioPlayerDialog(hymn);
+    }
+  }
+
+  Future<void> _showAudioPlayerWithFirstHymn() async {
+    // Get the first hymn from the current filtered list
+    final hymns =
+        _hymnController.filterHymnList(await _hymnController.hymnsStream.first);
+
+    if (hymns.isNotEmpty && context.mounted) {
+      _showAudioPlayerDialog(hymns.first);
     }
   }
 
   void _batchCheckAudioFiles(List<Hymn> hymns) {
     final audioService = AudioService.instance;
     final List<String> uncheckedIds = [];
-    
+
     for (final hymn in hymns) {
       if (!_checkedHymnIds.contains(hymn.id)) {
         uncheckedIds.add(hymn.id);
       }
     }
-    
+
     if (uncheckedIds.isNotEmpty) {
       // Use new cache service for efficient batch checking
       audioService.checkAudioFilesExist(uncheckedIds).then((results) {
         _checkedHymnIds.addAll(results.keys);
-        print('AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
+        print(
+            'AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
       }).catchError((error) {
         // Silently handle errors to not affect UI
         print('Batch audio check error: $error');
@@ -159,15 +170,18 @@ class AccueilScreenState extends State<AccueilScreen> {
                 Obx(() {
                   final audioService = AudioService.instance;
                   final currentHymnId = audioService.currentPlayingHymnId;
-                  final isPlaying = currentHymnId.isNotEmpty && audioService.isPlaying;
-                  
+                  final isPlaying =
+                      currentHymnId.isNotEmpty && audioService.isPlaying;
+
                   return IconButton(
                     key: const ValueKey('now_playing_button'),
                     icon: Stack(
                       children: [
                         Icon(
                           Icons.play_circle,
-                          color: isPlaying ? Theme.of(context).colorScheme.primary : iconColor,
+                          color: isPlaying
+                              ? Theme.of(context).colorScheme.primary
+                              : iconColor,
                         ),
                         if (isPlaying)
                           Positioned(
@@ -188,7 +202,13 @@ class AccueilScreenState extends State<AccueilScreen> {
                           ),
                       ],
                     ),
-                    onPressed: isPlaying ? () => _showCurrentPlayingDialog() : null,
+                    onPressed: () async {
+                      if (isPlaying) {
+                        _showCurrentPlayingDialog();
+                      } else {
+                        await _showAudioPlayerWithFirstHymn();
+                      }
+                    },
                   );
                 }),
                 IconButton(
@@ -248,9 +268,10 @@ class AccueilScreenState extends State<AccueilScreen> {
 
                       // Initial batch check for first 10 items and preload common hymns
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        final List<Hymn> firstTen = hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
+                        final List<Hymn> firstTen =
+                            hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
                         _batchCheckAudioFiles(firstTen);
-                        
+
                         // Preload common hymns in background
                         _preloadCommonHymns(hymns);
                       });
@@ -269,7 +290,8 @@ class AccueilScreenState extends State<AccueilScreen> {
                                 backgroundColor: backgroundColor,
                                 onFavoritePressed: () =>
                                     _hymnController.toggleFavorite(hymn),
-                                onMusicPressed: () => _showAudioPlayerDialog(hymn),
+                                onMusicPressed: () =>
+                                    _showAudioPlayerDialog(hymn),
                               );
                             },
                           );

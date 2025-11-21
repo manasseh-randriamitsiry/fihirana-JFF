@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart';
+import 'audio_file_mapping.dart';
 
 class AudioCacheService {
   static final AudioCacheService _instance = AudioCacheService._internal();
@@ -185,16 +187,35 @@ class AudioCacheService {
 
   /// Check actual audio availability from network
   Future<bool> _checkActualAudioAvailability(String hymnId) async {
-    final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
+    final audioMapping = AudioFileMapping();
+    
+    // First try to get the correct URL from mapping
+    String? audioUrl = audioMapping.getAudioUrl(hymnId);
+    
+    if (audioUrl == null) {
+      // If mapping is not available or expired, try to update it
+      if (audioMapping.isCacheExpired()) {
+        await audioMapping.updateAudioFileMapping();
+        audioUrl = audioMapping.getAudioUrl(hymnId);
+      }
+      
+      // If still null, try the old format as fallback
+      if (audioUrl == null) {
+        audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
+      }
+    }
     
     try {
       final response = await http.head(
         Uri.parse(audioUrl),
-      ).timeout(const Duration(seconds: 3));
+        headers: {
+          'User-Agent': 'Fihirana-JFF-App/1.0', // Identify the app
+        },
+      ).timeout(const Duration(seconds: 5));
       
       return response.statusCode == 200;
     } catch (e) {
-      print('AudioCache: Network check failed for $hymnId: $e');
+      print('AudioCache: Network check failed for $hymnId ($audioUrl): $e');
       return false;
     }
   }
@@ -202,22 +223,44 @@ class AudioCacheService {
   /// Batch check multiple hymns from network
   Future<Map<String, bool>> _batchCheckNetworkAvailability(List<String> hymnIds) async {
     final Map<String, bool> results = {};
-    final List<Future<bool>> futures = [];
+    const batchSize = 10; // Process in smaller batches to avoid overwhelming the network
+    
+    for (int i = 0; i < hymnIds.length; i += batchSize) {
+      final end = (i + batchSize < hymnIds.length) ? i + batchSize : hymnIds.length;
+      final batch = hymnIds.sublist(i, end);
+      
+      print('AudioCache: Processing batch ${i ~/ batchSize + 1} of ${(hymnIds.length + batchSize - 1) ~/ batchSize} (${batch.length} hymns)');
+      
+      final List<Future<bool>> futures = [];
+      
+      // Create futures for this batch
+      for (final hymnId in batch) {
+        futures.add(_checkActualAudioAvailability(hymnId));
+      }
 
-    // Create futures for all checks
-    for (final hymnId in hymnIds) {
-      futures.add(_checkActualAudioAvailability(hymnId));
-    }
+      // Wait for this batch to complete
+      try {
+        final List<bool> networkResults = await Future.wait(
+          futures,
+          eagerError: false, // Don't fail all if one fails
+        ).timeout(const Duration(seconds: 30)); // Add timeout for the entire batch
 
-    // Wait for all checks to complete
-    final List<bool> networkResults = await Future.wait(
-      futures,
-      eagerError: false, // Don't fail all if one fails
-    );
-
-    // Combine results
-    for (int i = 0; i < hymnIds.length; i++) {
-      results[hymnIds[i]] = networkResults[i];
+        // Combine results for this batch
+        for (int j = 0; j < batch.length; j++) {
+          results[batch[j]] = networkResults[j];
+        }
+      } catch (e) {
+        print('AudioCache: Batch timeout or error, marking as failed: $e');
+        // Mark all in this batch as failed if timeout occurs
+        for (final hymnId in batch) {
+          results[hymnId] = false;
+        }
+      }
+      
+      // Small delay between batches to be respectful to the server
+      if (i + batchSize < hymnIds.length) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
     }
 
     return results;
@@ -281,43 +324,39 @@ class AudioCacheService {
   Future<Map<String, dynamic>> getCacheStats() async {
     try {
       final db = await database;
-      final List<Map<String, dynamic>> maps = await db.rawQuery('''
-        SELECT 
-          COUNT(*) as total_entries,
-          SUM(CASE WHEN has_audio = 1 THEN 1 ELSE 0 END) as with_audio,
-          SUM(CASE WHEN has_audio = 0 THEN 1 ELSE 0 END) as without_audio,
-          MAX(last_checked) as last_checked
-        FROM $_tableName
-      ''');
-
-      if (maps.isNotEmpty) {
-        return {
-          'totalEntries': maps.first['total_entries'] ?? 0,
-          'withAudio': maps.first['with_audio'] ?? 0,
-          'withoutAudio': maps.first['without_audio'] ?? 0,
-          'lastChecked': maps.first['last_checked'] != null 
-              ? DateTime.fromMillisecondsSinceEpoch(maps.first['last_checked'])
-              : null,
-          'memoryCacheSize': _memoryCache.length,
-        };
-      }
-
+      final List<Map<String, dynamic>> maps = await db.query(_tableName);
+      
+      int totalChecked = maps.length;
+      int withAudio = maps.where((map) => map['has_audio'] == 1).length;
+      int withoutAudio = totalChecked - withAudio;
+      
       return {
-        'totalEntries': 0,
-        'withAudio': 0,
-        'withoutAudio': 0,
-        'lastChecked': null,
-        'memoryCacheSize': _memoryCache.length,
+        'total_checked': totalChecked,
+        'with_audio': withAudio,
+        'without_audio': withoutAudio,
+        'memory_cache_size': _memoryCache.length,
       };
     } catch (e) {
-      print('AudioCache: Error getting cache stats: $e');
       return {
-        'totalEntries': 0,
-        'withAudio': 0,
-        'withoutAudio': 0,
-        'lastChecked': null,
-        'memoryCacheSize': _memoryCache.length,
+        'error': e.toString(),
+        'total_checked': 0,
+        'with_audio': 0,
+        'without_audio': 0,
+        'memory_cache_size': _memoryCache.length,
       };
+    }
+  }
+
+  /// Get count of hymns with audio from cache (faster than full check)
+  Future<int> getAudioCountFromCache() async {
+    try {
+      final db = await database;
+      final result = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM $_tableName WHERE has_audio = 1'
+      );
+      return result.first['count'] as int? ?? 0;
+    } catch (e) {
+      return 0;
     }
   }
 
