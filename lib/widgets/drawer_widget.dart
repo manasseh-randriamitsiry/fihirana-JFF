@@ -1,13 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../controller/theme_controller.dart';
 import '../controller/color_controller.dart';
+import '../screen/bible/bible_reader_screen.dart';
 import '../screen/favorite/favorites_screen.dart';
 import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
@@ -15,7 +14,6 @@ import '../screen/history/history_screen.dart';
 import '../screen/announcement/announcement_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/hymn/firebase_hymns_screen.dart';
-import '../screen/bible/enhanced_bible_reader_screen.dart';
 import '../services/audio_service.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
@@ -34,7 +32,6 @@ class DrawerWidget extends StatefulWidget {
 }
 
 class DrawerWidgetState extends State<DrawerWidget> {
-  final ThemeController _themeController = Get.find<ThemeController>();
   final ColorController _colorController = Get.find<ColorController>();
   bool _isAuthenticated = false;
   String? _username;
@@ -87,14 +84,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
         _currentUser = account;
       });
     }
-  }
-
-  void _setSystemUiOverlayStyle(bool isDarkMode) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
-      statusBarBrightness: isDarkMode ? Brightness.dark : Brightness.light,
-    ));
   }
 
   Future<void> _signInWithGoogle() async {
@@ -221,7 +210,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       await AudioService.instance.clearExpiredCache();
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Expired cache cleared'),
                           backgroundColor: Colors.green,
                         ),
@@ -233,9 +222,9 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           BorderRadius.circular(10)),
                       depth: 2,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Text(
                         'Clear Expired',
                         style: TextStyle(
@@ -289,7 +278,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         await AudioService.instance.clearAllCache();
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text('All cache cleared'),
                             backgroundColor: Colors.green,
                           ),
@@ -302,9 +291,9 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           BorderRadius.circular(10)),
                       depth: 2,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                    child: const Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Text(
                         'Clear All',
                         style: TextStyle(
@@ -323,304 +312,260 @@ class DrawerWidgetState extends State<DrawerWidget> {
     );
   }
 
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: _colorController.textColor.value.withOpacity(0.5),
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDrawerItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? color,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: color ?? _colorController.iconColor.value),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: color ?? _colorController.textColor.value,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      onTap: onTap,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
     return Material(
       color: _colorController.drawerColor.value,
-      child: SafeArea(
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            textTheme: Theme.of(context).textTheme.apply(
-                  bodyColor: _colorController.textColor.value,
-                  displayColor: _colorController.textColor.value,
-                ),
-          ),
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              if (_currentUser == null && _username != null)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: _colorController.drawerColor.value,
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: _colorController.primaryColor.value,
-                        child: Icon(
-                          Icons.person,
-                          color: _colorController.iconColor.value,
-                          size: 40,
-                        ),
+      child: Column(
+        children: [
+          // Profile Header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(24, 60, 24, 30),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: _isAuthenticated ? null : _signInWithGoogle,
+                  child: Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.9),
+                        width: 3,
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _username!,
-                              style: TextStyle(
-                                color: _colorController.textColor.value,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: _isAuthenticated && _currentUser?.photoUrl != null
+                          ? CachedNetworkImage(
+                              imageUrl: _currentUser!.photoUrl!,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) =>
+                                  CircularProgressIndicator(
+                                color: _colorController.accentColor.value,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (_isAuthenticated && _currentUser != null)
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  color: _colorController.drawerColor.value,
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: _colorController.primaryColor.value,
-                        child: _currentUser?.photoUrl != null
-                            ? CachedNetworkImage(
-                                imageUrl: _currentUser!.photoUrl!,
-                                imageBuilder: (context, imageProvider) =>
-                                    CircleAvatar(
-                                  backgroundImage: imageProvider,
-                                ),
-                                placeholder: (context, url) =>
-                                    CircularProgressIndicator(
-                                  color: _colorController.primaryColor.value,
-                                ),
-                                errorWidget: (context, url, error) => Icon(
-                                  Icons.person,
-                                  color: _colorController.iconColor.value,
-                                ),
-                              )
-                            : Icon(
+                              errorWidget: (context, url, error) => Icon(
                                 Icons.person,
-                                color: _colorController.iconColor.value,
+                                size: 40,
+                                color: _colorController.backgroundColor.value,
                               ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _currentUser?.displayName ?? 'User',
-                              style: TextStyle(
-                                color: _colorController.textColor.value,
-                              ),
+                            )
+                          : Icon(
+                              Icons.person,
+                              size: 40,
+                              color: _colorController.backgroundColor.value,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _currentUser?.email ?? '',
-                              style: TextStyle(
-                                color: _colorController.textColor.value
-                                    .withOpacity(0.7),
-                                fontSize: 12,
-                              ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _isAuthenticated
+                            ? (_currentUser?.displayName ?? 'User')
+                            : (_username ?? 'Guest'),
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.95),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              color: Colors.black.withOpacity(0.3),
+                              offset: const Offset(0, 2),
+                              blurRadius: 4,
                             ),
                           ],
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                      if (_isAuthenticated) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          _currentUser?.email ?? '',
+                          style: TextStyle(
+                            color: _colorController.backgroundColor.value
+                                .withOpacity(0.95),
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 8),
+                        GestureDetector(
+                          onTap: _signInWithGoogle,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _colorController.primaryColor.value,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Sign In',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
-              if (!_isAuthenticated)
-                ListTile(
-                  leading: Icon(
-                    Icons.login,
-                    color: _colorController.iconColor.value,
-                  ),
-                  title: Text(
-                    l10n.signIn,
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  onTap: _signInWithGoogle,
-                ),
-              if (_isAuthenticated)
-                ListTile(
-                  leading: Icon(
-                    Icons.add,
-                    color: _colorController.iconColor.value,
-                  ),
-                  title: Text(
-                    l10n.createHymn,
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  onTap: () => Get.to(() => const CreateHymnPage()),
-                ),
-              ListTile(
-                leading: Icon(
-                  Icons.library_add,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.additionalHymns,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => Get.to(() => const FirebaseHymnsScreen()),
-              ),
-              if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
-                ListTile(
-                  leading: Icon(
-                    Icons.admin_panel_settings,
-                    color: _colorController.iconColor.value,
-                  ),
-                  title: Text(
-                    'Admin Panel',
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  onTap: () => Get.to(() => const AdminPanelScreen()),
-                ),
-              ListTile(
-                leading: Icon(
-                  Icons.favorite,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.favoriteHymns,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => Get.to(() => FavoritesPage()),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.history,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.hymnHistory,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => Get.to(() => HistoryScreen()),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.color_lens,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.changeColor,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: _colorController.backgroundColor.value,
-                    child: ColorPickerWidget(),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.font_download,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.fontStyle,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: _colorController.backgroundColor.value,
-                    child: FontPickerWidget(),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.notifications,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.announcements,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => Get.to(() => const AnnouncementScreen()),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.menu_book,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.bible,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => Get.to(() => const EnhancedBibleReaderScreen()),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.storage,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  'Audio Cache',
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => _showAudioCacheDialog(),
-              ),
-              if (_isAuthenticated)
-                ListTile(
-                  leading: Icon(
-                    Icons.logout,
-                    color: _colorController.iconColor.value,
-                  ),
-                  title: Text(
-                    l10n.signOut,
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  onTap: () {
-                    FirebaseAuth.instance.signOut();
-                    setState(() {
-                      _isAuthenticated = false;
-                      _currentUser = null;
-                    });
-                  },
-                ),
-              ListTile(
-                leading: Icon(
-                  Icons.info,
-                  color: _colorController.iconColor.value,
-                ),
-                title: Text(
-                  l10n.aboutUs,
-                  style: TextStyle(
-                    color: _colorController.textColor.value,
-                  ),
-                ),
-                onTap: () => Get.to(() => const AboutScreen()),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+          // Menu Items
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                _buildSectionHeader('Library'),
+                if (_isAuthenticated)
+                  _buildDrawerItem(
+                    icon: Icons.add_circle_outline,
+                    title: l10n.createHymn,
+                    onTap: () => Get.to(() => const CreateHymnPage()),
+                  ),
+                _buildDrawerItem(
+                  icon: Icons.library_music_outlined,
+                  title: l10n.additionalHymns,
+                  onTap: () => Get.to(() => const FirebaseHymnsScreen()),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.menu_book_rounded,
+                  title: l10n.bible,
+                  onTap: () => Get.to(() => const BibleReaderScreen()),
+                ),
+                _buildSectionHeader('Personal'),
+                _buildDrawerItem(
+                  icon: Icons.favorite_border_rounded,
+                  title: l10n.favoriteHymns,
+                  onTap: () => Get.to(() => FavoritesPage()),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.history_rounded,
+                  title: l10n.hymnHistory,
+                  onTap: () => Get.to(() => HistoryScreen()),
+                ),
+                _buildSectionHeader('Settings'),
+                _buildDrawerItem(
+                  icon: Icons.color_lens_outlined,
+                  title: l10n.changeColor,
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (context) => Dialog(
+                      backgroundColor: _colorController.backgroundColor.value,
+                      child: ColorPickerWidget(),
+                    ),
+                  ),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.font_download_outlined,
+                  title: l10n.fontStyle,
+                  onTap: () => showDialog(
+                    context: context,
+                    builder: (context) => Dialog(
+                      backgroundColor: _colorController.backgroundColor.value,
+                      child: FontPickerWidget(),
+                    ),
+                  ),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.storage_rounded,
+                  title: 'Audio Cache',
+                  onTap: _showAudioCacheDialog,
+                ),
+                _buildSectionHeader('App'),
+                _buildDrawerItem(
+                  icon: Icons.notifications_none_rounded,
+                  title: l10n.announcements,
+                  onTap: () => Get.to(() => const AnnouncementScreen()),
+                ),
+                if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
+                  _buildDrawerItem(
+                    icon: Icons.admin_panel_settings_outlined,
+                    title: 'Admin Panel',
+                    onTap: () => Get.to(() => const AdminPanelScreen()),
+                  ),
+                _buildDrawerItem(
+                  icon: Icons.info_outline_rounded,
+                  title: l10n.aboutUs,
+                  onTap: () => Get.to(() => const AboutScreen()),
+                ),
+                if (_isAuthenticated)
+                  _buildDrawerItem(
+                    icon: Icons.logout_rounded,
+                    title: l10n.signOut,
+                    color: _colorController.iconColor.value,
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                      setState(() {
+                        _isAuthenticated = false;
+                        _currentUser = null;
+                      });
+                    },
+                  ),
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

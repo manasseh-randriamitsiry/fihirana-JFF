@@ -8,7 +8,8 @@ class ColorController extends GetxController {
   static ColorController get to => Get.find();
 
   final Rx<Color> primaryColor = const Color(0xFF9C27B0).obs; // Colors.purple
-  final Rx<Color> accentColor = const Color(0xFFFF5722).obs; // Colors.deepOrange
+  final Rx<Color> accentColor =
+      const Color(0xFFFF5722).obs; // Colors.deepOrange
   final Rx<Color> textColor = const Color(0xFF000000).obs; // Colors.black
   final Rx<Color> backgroundColor = const Color(0xFFFFFFFF).obs; // Colors.white
   final Rx<Color> drawerColor = const Color(0xFF9C27B0).obs; // Colors.purple
@@ -53,6 +54,78 @@ class ColorController extends GetxController {
       'drawer': const Color(0xFF1A237E), // Colors.indigo.shade900
       'icon': const Color(0xFFFF9800), // Colors.orange
     },
+    {
+      'name': 'AMOLED Black',
+      'primary': const Color(0xFF00E676), // Bright green
+      'accent': const Color(0xFF00BCD4), // Cyan
+      'text': const Color(0xFFFFFFFF), // White text
+      'background': const Color(0xFF000000), // Pure black for OLED
+      'drawer': const Color(0xFF000000), // Pure black
+      'icon': const Color(0xFF00E676), // Bright green
+    },
+    {
+      'name': 'Dark Mode',
+      'primary': const Color(0xFFBB86FC), // Light purple
+      'accent': const Color(0xFF03DAC6), // Teal
+      'text': const Color(0xFFE1E1E1), // Light gray text
+      'background': const Color(0xFF121212), // Dark gray (Material Design dark)
+      'drawer': const Color(0xFF1E1E1E), // Slightly lighter dark
+      'icon': const Color(0xFF03DAC6), // Teal
+    },
+    {
+      'name': 'Midnight Blue',
+      'primary': const Color(0xFF5E92F3), // Light blue
+      'accent': const Color(0xFF64FFDA), // Aqua
+      'text': const Color(0xFFE8EAF6), // Very light blue-gray
+      'background': const Color(0xFF0A1929), // Deep navy blue
+      'drawer': const Color(0xFF001E3C), // Darker navy
+      'icon': const Color(0xFF64FFDA), // Aqua
+    },
+    {
+      'name': 'Sunset Orange',
+      'primary': const Color(0xFFFF6F00), // Deep orange
+      'accent': const Color(0xFFFFD54F), // Amber
+      'text': const Color(0xFF212121), // Dark gray
+      'background': const Color(0xFFFFF3E0), // Light orange
+      'drawer': const Color(0xFFE65100), // Darker orange
+      'icon': const Color(0xFFFF6F00), // Deep orange
+    },
+    {
+      'name': 'Lavender Dream',
+      'primary': const Color(0xFF9575CD), // Medium purple
+      'accent': const Color(0xFFE91E63), // Pink
+      'text': const Color(0xFF4A148C), // Deep purple
+      'background': const Color(0xFFF3E5F5), // Very light purple
+      'drawer': const Color(0xFF7B1FA2), // Dark purple
+      'icon': const Color(0xFFE91E63), // Pink
+    },
+    {
+      'name': 'Emerald Green',
+      'primary': const Color(0xFF00C853), // Bright green
+      'accent': const Color(0xFFFFEB3B), // Yellow
+      'text': const Color(0xFF1B5E20), // Dark green
+      'background': const Color(0xFFE8F5E9), // Very light green
+      'drawer': const Color(0xFF2E7D32), // Medium green
+      'icon': const Color(0xFF00C853), // Bright green
+    },
+    {
+      'name': 'Rose Gold',
+      'primary': const Color(0xFFE91E63), // Pink
+      'accent': const Color(0xFFFFB74D), // Light orange/gold
+      'text': const Color(0xFF880E4F), // Deep pink
+      'background': const Color(0xFFFCE4EC), // Very light pink
+      'drawer': const Color(0xFFC2185B), // Dark pink
+      'icon': const Color(0xFFFFB74D), // Light orange/gold
+    },
+    {
+      'name': 'Crimson Red',
+      'primary': const Color(0xFFD32F2F), // Red
+      'accent': const Color(0xFFFF5252), // Light red
+      'text': const Color(0xFF212121), // Dark gray
+      'background': const Color(0xFFFFEBEE), // Very light red
+      'drawer': const Color(0xFFB71C1C), // Dark red
+      'icon': const Color(0xFFD32F2F), // Red
+    },
   ];
 
   MaterialColor getMaterialColor(Color color) {
@@ -86,14 +159,15 @@ class ColorController extends GetxController {
   Future<void> loadColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       currentSchemeIndex.value = prefs.getInt('currentSchemeIndex') ?? 0;
-      
+
       // Load colors with defaults if null
       primaryColor.value = Color(prefs.getInt('primaryColor') ?? 0xFF2196F3);
       accentColor.value = Color(prefs.getInt('accentColor') ?? 0xFFFF5722);
       textColor.value = Color(prefs.getInt('textColor') ?? 0xFF000000);
-      backgroundColor.value = Color(prefs.getInt('backgroundColor') ?? 0xFFFFFFFF);
+      backgroundColor.value =
+          Color(prefs.getInt('backgroundColor') ?? 0xFFFFFFFF);
       drawerColor.value = Color(prefs.getInt('drawerColor') ?? 0xFF9C27B0);
       iconColor.value = Color(prefs.getInt('iconColor') ?? 0xFF000000);
 
@@ -219,7 +293,7 @@ class ColorController extends GetxController {
     Color? icon,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     if (primary != null) {
       primaryColor.value = primary;
       await prefs.setInt('primaryColor', primaryColor.value.value);
@@ -249,13 +323,11 @@ class ColorController extends GetxController {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        statusBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
         systemNavigationBarColor: backgroundColor.value,
-        systemNavigationBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        systemNavigationBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
       ),
     );
 
@@ -287,13 +359,11 @@ class ColorController extends GetxController {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        statusBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
         systemNavigationBarColor: backgroundColor.value,
-        systemNavigationBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        systemNavigationBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
       ),
     );
 
@@ -393,12 +463,26 @@ class ColorController extends GetxController {
     );
   }
 
-NeumorphicThemeData getNeumorphicLightTheme() {
+  NeumorphicThemeData getNeumorphicLightTheme() {
     return _getNeumorphicTheme();
   }
 
   NeumorphicThemeData getNeumorphicDarkTheme() {
     return _getNeumorphicTheme();
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    if (mode == ThemeMode.dark) {
+      updateColors(
+        background: const Color(0xFF121212),
+        text: const Color(0xFFFFFFFF),
+      );
+    } else {
+      updateColors(
+        background: const Color(0xFFFFFFFF),
+        text: const Color(0xFF000000),
+      );
+    }
   }
 
   NeumorphicThemeData _getNeumorphicTheme() {
@@ -409,7 +493,7 @@ NeumorphicThemeData getNeumorphicLightTheme() {
       lightSource: LightSource.topLeft,
       depth: 4,
       intensity: 1.0,
-      shadowLightColor: isDarkBg 
+      shadowLightColor: isDarkBg
           ? Colors.white.withOpacity(0.25)
           : Colors.white.withOpacity(1.0),
       shadowDarkColor: isDarkBg

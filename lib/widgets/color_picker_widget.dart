@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
 import '../controller/color_controller.dart';
@@ -10,15 +9,14 @@ class ColorPickerWidget extends StatelessWidget {
 
   ColorPickerWidget({super.key});
 
-  // Method to show the color picker as a dialog
+  // Method to show the color picker as a bottom sheet
   static void showColorPickerDialog(BuildContext context) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          child: ColorPickerWidget(),
-        );
+        return ColorPickerWidget();
       },
     );
   }
@@ -31,12 +29,10 @@ class ColorPickerWidget extends StatelessWidget {
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          child: Neumorphic(
-            style: NeumorphicStyle(
-              color: colorController.backgroundColor.value,
-              boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-              depth: 6,
-              intensity: 0.8,
+          child: Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF1C1B1F),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -46,10 +42,10 @@ class ColorPickerWidget extends StatelessWidget {
                 children: [
                   Text(
                     l10n.chooseColorFor(colorType),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -64,20 +60,14 @@ class ColorPickerWidget extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      NeumorphicButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        style: NeumorphicStyle(
-                          color: colorController.backgroundColor.value,
-                          boxShape: NeumorphicBoxShape.roundRect(
-                              BorderRadius.circular(8)),
-                          depth: 2,
-                        ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
                         child: Text(
                           l10n.accept,
-                          style:
-                              TextStyle(color: colorController.textColor.value),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],
@@ -97,12 +87,10 @@ class ColorPickerWidget extends StatelessWidget {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: Neumorphic(
-          style: NeumorphicStyle(
-            color: controller.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-            depth: 6,
-            intensity: 0.8,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1C1B1F),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -112,10 +100,10 @@ class ColorPickerWidget extends StatelessWidget {
               children: [
                 Text(
                   l10n.chooseColor,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: controller.textColor.value,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -131,17 +119,14 @@ class ColorPickerWidget extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    NeumorphicButton(
+                    TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: NeumorphicStyle(
-                        color: controller.backgroundColor.value,
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                        depth: 2,
-                      ),
                       child: Text(
                         l10n.ok,
-                        style: TextStyle(color: controller.textColor.value),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -160,12 +145,10 @@ class ColorPickerWidget extends StatelessWidget {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: Neumorphic(
-          style: NeumorphicStyle(
-            color: controller.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-            depth: 6,
-            intensity: 0.8,
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1C1B1F),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -175,10 +158,10 @@ class ColorPickerWidget extends StatelessWidget {
               children: [
                 Text(
                   l10n.drawerColor,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: controller.textColor.value,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -194,17 +177,14 @@ class ColorPickerWidget extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    NeumorphicButton(
+                    TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      style: NeumorphicStyle(
-                        color: controller.backgroundColor.value,
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                        depth: 2,
-                      ),
                       child: Text(
                         l10n.ok,
-                        style: TextStyle(color: controller.textColor.value),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ],
@@ -222,37 +202,43 @@ class ColorPickerWidget extends StatelessWidget {
     Color color,
     VoidCallback onTap,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              color: colorController.textColor.value,
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
             ),
-          ),
-          NeumorphicButton(
-            onPressed: onTap,
-            style: NeumorphicStyle(
-              color: color,
-              boxShape: NeumorphicBoxShape.circle(),
-              depth: 2,
-              intensity: 0.8,
-            ),
-            child: Container(
-              width: 30,
-              height: 30,
+            Container(
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                border: Border.all(color: colorController.accentColor.value),
+                border: Border.all(
+                  color: Colors.white24,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: color.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -263,77 +249,93 @@ class ColorPickerWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
           child: Text(
             l10n.presetColors,
-            style: TextStyle(
-              fontSize: 16,
+            style: const TextStyle(
+              fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: colorController.textColor.value,
+              color: Colors.white,
             ),
           ),
         ),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: colorController.colorSchemes.asMap().entries.map((entry) {
-            final index = entry.key;
-            final scheme = entry.value;
-            return NeumorphicButton(
-              onPressed: () async =>
-                  await colorController.setColorScheme(index),
-              style: NeumorphicStyle(
-                color: (scheme['primary'] as Color).withOpacity(0.1),
-                boxShape:
-                    NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
-                depth: colorController.currentSchemeIndex == index ? 4 : 2,
-                intensity: 0.8,
-              ),
-              child: Container(
-                width: 80,
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  border: colorController.currentSchemeIndex == index
-                      ? Border.all(
-                          color: scheme['accent'] as Color,
-                          width: 2,
-                        )
-                      : null,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 30,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            scheme['primary'] as Color,
-                            scheme['accent'] as Color,
+        SizedBox(
+          height: 140,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            itemCount: colorController.colorSchemes.length,
+            itemBuilder: (context, index) {
+              final scheme = colorController.colorSchemes[index];
+              final isSelected = colorController.currentSchemeIndex == index;
+
+              return GestureDetector(
+                onTap: () async => await colorController.setColorScheme(index),
+                child: Container(
+                  width: 110,
+                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2A2A2E),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSelected ? Colors.white : Colors.white12,
+                      width: isSelected ? 3 : 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: isSelected
+                            ? Colors.white.withOpacity(0.2)
+                            : Colors.black.withOpacity(0.1),
+                        blurRadius: isSelected ? 12 : 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              scheme['primary'] as Color,
+                              scheme['accent'] as Color,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  (scheme['primary'] as Color).withOpacity(0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
                           ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
                         ),
-                        borderRadius: BorderRadius.circular(4),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      scheme['name'] as String,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: colorController.textColor.value,
+                      const SizedBox(height: 8),
+                      Text(
+                        scheme['name'] as String,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight:
+                              isSelected ? FontWeight.w600 : FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }).toList(),
+              );
+            },
+          ),
         ),
       ],
     );
@@ -342,65 +344,86 @@ class ColorPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    // Dark theme colors matching compact audio player
+    const backgroundColor = Color(0xFF1C1B1F);
+    const primaryTextColor = Colors.white;
+
     return GetBuilder<ColorController>(
-      builder: (colorController) => Neumorphic(
-        style: NeumorphicStyle(
-          color: colorController.backgroundColor.value,
-          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-          depth: 4,
-          intensity: 0.8,
+      builder: (colorController) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Neumorphic(
-                style: NeumorphicStyle(
-                  color: colorController.accentColor.value,
-                  boxShape:
-                      NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
-                  depth: 2,
-                  intensity: 0.8,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Drag handle
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    l10n.chooseColor,
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Choose Color',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
+                      color: primaryTextColor,
                     ),
                   ),
-                ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: primaryTextColor,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              _buildPresetSchemes(),
-              Neumorphic(
-                style: NeumorphicStyle(
-                  color: colorController.backgroundColor.value,
-                  boxShape:
-                      NeumorphicBoxShape.roundRect(BorderRadius.circular(2)),
-                  depth: 1,
-                  intensity: 0.5,
-                ),
-                child: const SizedBox(height: 32),
-              ),
-              Text(
-                l10n.customColors,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: colorController.textColor.value,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            ),
+            // Preset schemes (horizontal scroll)
+            _buildPresetSchemes(),
+            const SizedBox(height: 16),
+            // Divider
+            const Divider(
+              color: Colors.white12,
+              thickness: 1,
+              height: 1,
+            ),
+            const SizedBox(height: 8),
+            // Custom colors section
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 12.0),
+                      child: Text(
+                        'Custom Colors',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: primaryTextColor,
+                        ),
+                      ),
+                    ),
                     _buildColorButton(
                       l10n.primaryColor,
                       colorController.primaryColor.value,
@@ -434,83 +457,22 @@ class ColorPickerWidget extends StatelessWidget {
                             background: color),
                       ),
                     ),
-                    NeumorphicButton(
-                      onPressed: () =>
-                          _pickDrawerColor(context, colorController),
-                      style: NeumorphicStyle(
-                        color: colorController.backgroundColor.value,
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                        depth: 2,
-                        intensity: 0.8,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              l10n.drawerColor,
-                              style: TextStyle(
-                                  color: colorController.textColor.value),
-                            ),
-                            Neumorphic(
-                              style: NeumorphicStyle(
-                                color: colorController.drawerColor.value,
-                                boxShape: NeumorphicBoxShape.circle(),
-                                depth: 2,
-                              ),
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    _buildColorButton(
+                      l10n.drawerColor,
+                      colorController.drawerColor.value,
+                      () => _pickDrawerColor(context, colorController),
                     ),
-                    GetBuilder<ColorController>(
-                      id: 'iconColor',
-                      builder: (controller) => NeumorphicButton(
-                        onPressed: () => _pickIconColor(context, controller),
-                        style: NeumorphicStyle(
-                          color: colorController.backgroundColor.value,
-                          boxShape: NeumorphicBoxShape.roundRect(
-                              BorderRadius.circular(8)),
-                          depth: 2,
-                          intensity: 0.8,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                l10n.iconColor,
-                                style: TextStyle(
-                                    color: colorController.textColor.value),
-                              ),
-                              Neumorphic(
-                                style: NeumorphicStyle(
-                                  color: controller.iconColor.value,
-                                  boxShape: NeumorphicBoxShape.circle(),
-                                  depth: 2,
-                                ),
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    _buildColorButton(
+                      l10n.iconColor,
+                      colorController.iconColor.value,
+                      () => _pickIconColor(context, colorController),
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
