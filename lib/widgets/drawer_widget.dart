@@ -184,7 +184,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     return Column(
                       children: [
                         Text(
-                          'Total cached hymns: ${stats['totalEntries']}',
+                          'Total cached hymns: ${stats['total_checked']}',
                           style: TextStyle(
                             color: _colorController.textColor.value,
                             fontSize: 16,
@@ -192,7 +192,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'With audio: ${stats['withAudio']}',
+                          'With audio: ${stats['with_audio']}',
                           style: TextStyle(
                             color: Colors.green,
                             fontSize: 14,
@@ -200,22 +200,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Without audio: ${stats['withoutAudio']}',
+                          'Without audio: ${stats['without_audio']}',
                           style: TextStyle(
                             color: Colors.red,
                             fontSize: 14,
                           ),
                         ),
-                        if (stats['lastChecked'] != null) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            'Last checked: ${_formatDate(stats['lastChecked'])}',
-                            style: TextStyle(
-                              color: _colorController.textColor.value.withOpacity(0.7),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
                         const SizedBox(height: 20),
                       ],
                     );
@@ -239,11 +229,13 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     },
                     style: NeumorphicStyle(
                       color: Colors.orange.withOpacity(0.1),
-                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(10)),
+                      boxShape: NeumorphicBoxShape.roundRect(
+                          BorderRadius.circular(10)),
                       depth: 2,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Text(
                         'Clear Expired',
                         style: TextStyle(
@@ -258,7 +250,8 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       final confirmed = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          backgroundColor: _colorController.backgroundColor.value,
+                          backgroundColor:
+                              _colorController.backgroundColor.value,
                           title: Text(
                             'Clear All Cache',
                             style: TextStyle(
@@ -291,7 +284,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           ],
                         ),
                       );
-                      
+
                       if (confirmed == true) {
                         await AudioService.instance.clearAllCache();
                         Navigator.pop(context);
@@ -305,11 +298,13 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     },
                     style: NeumorphicStyle(
                       color: Colors.red.withOpacity(0.1),
-                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(10)),
+                      boxShape: NeumorphicBoxShape.roundRect(
+                          BorderRadius.circular(10)),
                       depth: 2,
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Text(
                         'Clear All',
                         style: TextStyle(
@@ -327,11 +322,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
       ),
     );
   }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -395,12 +385,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                                 imageUrl: _currentUser!.photoUrl!,
                                 imageBuilder: (context, imageProvider) =>
                                     CircleAvatar(
-                                      backgroundImage: imageProvider,
-                                    ),
+                                  backgroundImage: imageProvider,
+                                ),
                                 placeholder: (context, url) =>
                                     CircularProgressIndicator(
-                                      color: _colorController.primaryColor.value,
-                                    ),
+                                  color: _colorController.primaryColor.value,
+                                ),
                                 errorWidget: (context, url, error) => Icon(
                                   Icons.person,
                                   color: _colorController.iconColor.value,
@@ -426,7 +416,8 @@ class DrawerWidgetState extends State<DrawerWidget> {
                             Text(
                               _currentUser?.email ?? '',
                               style: TextStyle(
-                                color: _colorController.textColor.value.withOpacity(0.7),
+                                color: _colorController.textColor.value
+                                    .withOpacity(0.7),
                                 fontSize: 12,
                               ),
                             ),
