@@ -2,14 +2,12 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../../controller/auth_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
-import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -103,18 +101,16 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       Navigator.of(context).pop();
 
       if (success) {
-        // Check if audio exists for this hymn after creation
         await _checkAudioAvailability(hymnNumber);
-        
+
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
               l10n.hymnSavedSuccessfully,
-              style:
-                  TextStyle(color: Get.find<ColorController>().textColor.value),
+              style: TextStyle(color: Colors.white),
             ),
-            backgroundColor: Get.find<ColorController>().backgroundColor.value,
+            backgroundColor: Colors.green,
           ),
         );
         _clearForm();
@@ -128,10 +124,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         SnackBar(
           content: Text(
             l10n.errorSavingHymn(error.toString()),
-            style:
-                TextStyle(color: Get.find<ColorController>().textColor.value),
+            style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Get.find<ColorController>().backgroundColor.value,
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -149,11 +144,13 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   void _showAudioPlayerDialog() {
     if (_hymnNumberController.text.trim().isEmpty) return;
-    
+
     final hymn = Hymn(
       id: '',
       hymnNumber: _hymnNumberController.text.trim(),
-      title: _titleController.text.trim() ?? 'New Hymn',
+      title: _titleController.text.trim().isEmpty
+          ? 'New Hymn'
+          : _titleController.text.trim(),
       verses: [],
       createdAt: DateTime.now(),
       createdBy: '',
@@ -166,11 +163,11 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         return Dialog(
           backgroundColor: Get.find<ColorController>().backgroundColor.value,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -180,7 +177,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     Text(
                       'Audio Player',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Get.find<ColorController>().textColor.value,
                       ),
@@ -217,12 +214,21 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     void Function(String)? onChanged,
   }) {
     final colorController = Get.find<ColorController>();
-    return Neumorphic(
-      style: NeumorphicStyle(
+    return Container(
+      decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-        depth: 2,
-        intensity: 0.8,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorController.textColor.value.withOpacity(0.1),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: TextFormField(
         controller: controller,
@@ -231,15 +237,36 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         style: TextStyle(color: colorController.textColor.value),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(color: colorController.textColor.value),
+          labelStyle: TextStyle(
+              color: colorController.textColor.value.withOpacity(0.7)),
           prefixIcon: icon != null
-              ? NeumorphicIcon(icon,
-                  style:
-                      NeumorphicStyle(color: colorController.iconColor.value))
+              ? Icon(icon, color: colorController.iconColor.value, size: 20)
               : null,
-          border: InputBorder.none,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: colorController.primaryColor.value,
+              width: 2,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red, width: 1),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
         validator: validator,
         onChanged: onChanged,
@@ -250,17 +277,23 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   Widget _buildVerseField(int index) {
     final l10n = AppLocalizations.of(context)!;
     final colorController = Get.find<ColorController>();
-    return Neumorphic(
+    return Card(
       key: ValueKey(index),
-      style: NeumorphicStyle(
-        color: colorController.backgroundColor.value,
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-        depth: 3,
-        intensity: 0.8,
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: colorController.textColor.value.withOpacity(0.1),
+          width: 1,
+        ),
       ),
+      color: colorController.backgroundColor.value,
+      margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: TextFormField(
@@ -269,7 +302,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 style: TextStyle(color: colorController.textColor.value),
                 decoration: InputDecoration(
                   labelText: l10n.verseWithNumber(index + 1),
-                  labelStyle: TextStyle(color: colorController.textColor.value),
+                  labelStyle: TextStyle(
+                    color: colorController.textColor.value.withOpacity(0.7),
+                  ),
                   border: InputBorder.none,
                   contentPadding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -288,26 +323,23 @@ class CreateHymnPageState extends State<CreateHymnPage> {
               ),
             ),
             const SizedBox(width: 8),
-            NeumorphicButton(
-              style: NeumorphicStyle(
-                color: Colors.red.withOpacity(0.1),
-                boxShape: NeumorphicBoxShape.circle(),
-                depth: 2,
-              ),
-              child: const Icon(Icons.delete, color: Colors.red, size: 20),
+            IconButton(
+              icon:
+                  const Icon(Icons.delete_outline, color: Colors.red, size: 22),
               onPressed: () {
                 setState(() {
                   _verseControllers[index].dispose();
                   _verseControllers.removeAt(index);
                 });
               },
+              tooltip: 'Delete verse',
             ),
-            const SizedBox(width: 4),
             ReorderableDragStartListener(
               index: index,
-              child: NeumorphicIcon(
+              child: Icon(
                 Icons.drag_handle,
-                style: NeumorphicStyle(color: colorController.iconColor.value),
+                color: colorController.iconColor.value.withOpacity(0.5),
+                size: 24,
               ),
             ),
           ],
@@ -321,6 +353,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     final l10n = AppLocalizations.of(context)!;
     final authController = Get.find<AuthController>();
     final user = FirebaseAuth.instance.currentUser;
+
     if (!authController.isAdmin && !authController.canAddSongs) {
       return Scaffold(
         backgroundColor: Get.find<ColorController>().backgroundColor.value,
@@ -337,27 +370,42 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           ),
           leading: IconButton(
             icon: Icon(
-              Icons.arrow_back_ios_outlined,
+              Icons.arrow_back_ios_new_rounded,
               color: Get.find<ColorController>().iconColor.value,
             ),
             onPressed: () => Get.back(),
           ),
         ),
         body: Center(
-          child: Neumorphic(
-            style: NeumorphicStyle(
-              color: Get.find<ColorController>().backgroundColor.value,
-              boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-              depth: 4,
-              intensity: 0.8,
-            ),
+          child: Card(
+            margin: const EdgeInsets.all(24),
+            elevation: 4,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            color: Get.find<ColorController>().backgroundColor.value,
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                l10n.noPermissionToCreate(user?.email ?? ''),
-                style: TextStyle(
-                    color: Get.find<ColorController>().textColor.value),
-                textAlign: TextAlign.center,
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.lock_outline,
+                    size: 48,
+                    color: Get.find<ColorController>()
+                        .iconColor
+                        .value
+                        .withOpacity(0.5),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    l10n.noPermissionToCreate(user?.email ?? ''),
+                    style: TextStyle(
+                      color: Get.find<ColorController>().textColor.value,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ),
@@ -375,7 +423,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           leading: IconButton(
             onPressed: () => Get.back(),
             icon: Icon(
-              Icons.arrow_back_ios_outlined,
+              Icons.arrow_back_ios_new_rounded,
               color: colorController.iconColor.value,
             ),
           ),
@@ -384,6 +432,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
             style: TextStyle(
               color: colorController.textColor.value,
               fontWeight: FontWeight.bold,
+              fontSize: 22,
             ),
           ),
         ),
@@ -399,108 +448,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     controller: _hymnNumberController,
                     label: l10n.number,
                     keyboardType: TextInputType.number,
-                    icon: Icons.onetwothree_outlined,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.enterHymnNumber;
-                      }
-                      try {
-                        int? number = int.tryParse(value);
-                        if (number == null || number <= 0) {
-                          return l10n.invalidNumber;
-                        }
-                      } catch (e) {
-                        return l10n.invalidNumber;
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildTextField(
-                    controller: _titleController,
-                    label: l10n.title,
-                    icon: Icons.title,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.enterTitle;
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16.0),
-                  Neumorphic(
-                    style: NeumorphicStyle(
-                      color: colorController.backgroundColor.value,
-                      boxShape: NeumorphicBoxShape.roundRect(
-                          BorderRadius.circular(8)),
-                      depth: 2,
-                      intensity: 0.8,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12.0, horizontal: 16.0),
-                      child: Text(
-                        l10n.verses,
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                          color: colorController.textColor.value,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  ReorderableListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    onReorder: (oldIndex, newIndex) {
-                      setState(() {
-                        if (newIndex > oldIndex) {
-                          newIndex -= 1;
-                        }
-                        final item = _verseControllers.removeAt(oldIndex);
-                        _verseControllers.insert(newIndex, item);
-                      });
-                    },
-                    children: List.generate(_verseControllers.length, (index) {
-                      return _buildVerseField(index);
-                    }),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: NeumorphicButton(
-                      style: NeumorphicStyle(
-                        color:
-                            colorController.primaryColor.value.withOpacity(0.1),
-                        boxShape: NeumorphicBoxShape.circle(),
-                        depth: 3,
-                        intensity: 0.8,
-                      ),
-                      child: Icon(
-                        Icons.add_circle,
-                        color: colorController.primaryColor.value,
-                        size: 32,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _verseControllers.add(TextEditingController());
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildTextField(
-                    controller: _bridgeController,
-                    label: l10n.bridgeOptional,
-                    maxLines: 3,
-                    icon: Icons.repeat,
-                  ),
-                  const SizedBox(height: 16.0),
-                  _buildTextField(
-                    controller: _hymnNumberController,
-                    label: l10n.number,
-                    keyboardType: TextInputType.number,
-                    icon: Icons.onetwothree_outlined,
+                    icon: Icons.tag,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return l10n.enterHymnNumber;
@@ -523,88 +471,196 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       }
                     },
                   ),
+                  const SizedBox(height: 16.0),
+                  _buildTextField(
+                    controller: _titleController,
+                    label: l10n.title,
+                    icon: Icons.title,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.enterTitle;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 24.0),
+
+                  // Verses Section Header
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                    decoration: BoxDecoration(
+                      color:
+                          colorController.primaryColor.value.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.format_list_numbered,
+                          color: colorController.primaryColor.value,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          l10n.verses,
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: colorController.textColor.value,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  ReorderableListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onReorder: (oldIndex, newIndex) {
+                      setState(() {
+                        if (newIndex > oldIndex) {
+                          newIndex -= 1;
+                        }
+                        final item = _verseControllers.removeAt(oldIndex);
+                        _verseControllers.insert(newIndex, item);
+                      });
+                    },
+                    children: List.generate(_verseControllers.length, (index) {
+                      return _buildVerseField(index);
+                    }),
+                  ),
+
+                  // Add Verse Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _verseControllers.add(TextEditingController());
+                        });
+                      },
+                      icon: Icon(
+                        Icons.add_circle_outline,
+                        color: colorController.primaryColor.value,
+                      ),
+                      label: Text(
+                        'Add Verse',
+                        style: TextStyle(
+                          color: colorController.primaryColor.value,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(
+                          color: colorController.primaryColor.value
+                              .withOpacity(0.5),
+                          width: 2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+
+                  _buildTextField(
+                    controller: _bridgeController,
+                    label: l10n.bridgeOptional,
+                    maxLines: 3,
+                    icon: Icons.repeat,
+                  ),
+                  const SizedBox(height: 16.0),
+
+                  _buildTextField(
+                    controller: _hymnHintController,
+                    label: 'Hymn Hint (Optional)',
+                    maxLines: 2,
+                    icon: Icons.lightbulb_outline,
+                  ),
+
                   // Audio availability indicator
                   if (_audioChecked)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Neumorphic(
-                        style: NeumorphicStyle(
-                          color: _hasAudio 
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: _hasAudio
                               ? Colors.green.withOpacity(0.1)
                               : Colors.grey.withOpacity(0.1),
-                          boxShape: NeumorphicBoxShape.roundRect(
-                              BorderRadius.circular(12)),
-                          depth: 2,
-                          intensity: 0.8,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            children: [
-                              Icon(
-                                _hasAudio ? Icons.music_note : Icons.music_off,
-                                color: _hasAudio ? Colors.green : Colors.grey,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _hasAudio 
-                                      ? 'Audio available for this hymn number'
-                                      : 'No audio available for this hymn number',
-                                  style: TextStyle(
-                                    color: _hasAudio ? Colors.green : Colors.grey,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                              if (_hasAudio)
-                                NeumorphicButton(
-                                  onPressed: _showAudioPlayerDialog,
-                                  style: NeumorphicStyle(
-                                    color: colorController.primaryColor.value.withOpacity(0.1),
-                                    boxShape: NeumorphicBoxShape.circle(),
-                                    depth: 2,
-                                  ),
-                                  child: Icon(
-                                    Icons.play_arrow,
-                                    color: colorController.primaryColor.value,
-                                    size: 20,
-                                  ),
-                                ),
-                            ],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: _hasAudio ? Colors.green : Colors.grey,
+                            width: 1,
                           ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              _hasAudio ? Icons.music_note : Icons.music_off,
+                              color: _hasAudio ? Colors.green : Colors.grey,
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _hasAudio
+                                    ? 'Audio available for this hymn number'
+                                    : 'No audio available for this hymn number',
+                                style: TextStyle(
+                                  color: _hasAudio ? Colors.green : Colors.grey,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            if (_hasAudio)
+                              IconButton(
+                                onPressed: _showAudioPlayerDialog,
+                                icon: Icon(
+                                  Icons.play_circle_outline,
+                                  color: colorController.primaryColor.value,
+                                  size: 28,
+                                ),
+                                tooltip: 'Play audio',
+                              ),
+                          ],
                         ),
                       ),
                     ),
                   const SizedBox(height: 24.0),
-                  NeumorphicButton(
+
+                  // Submit Button
+                  ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
                         _createHymn();
                       }
                     },
-                    style: NeumorphicStyle(
-                      color: colorController.primaryColor.value,
-                      boxShape: NeumorphicBoxShape.roundRect(
-                          BorderRadius.circular(12)),
-                      depth: 4,
-                      intensity: 0.8,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorController.primaryColor.value,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      elevation: 4,
+                      shadowColor:
+                          colorController.primaryColor.value.withOpacity(0.4),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Text(
-                        l10n.submit,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: colorController.textColor.value,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: Text(
+                      l10n.submit,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
+                  const SizedBox(height: 16),
                 ],
               ),
             ),

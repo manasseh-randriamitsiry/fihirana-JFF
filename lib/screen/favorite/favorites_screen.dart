@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../hymn/hymn_detail_screen.dart';
-import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 
 class FavoritesPage extends StatefulWidget {
@@ -32,11 +30,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
         return Dialog(
           backgroundColor: colorController.backgroundColor.value,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
           ),
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -46,7 +44,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     Text(
                       'Audio Player',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: colorController.textColor.value,
                       ),
@@ -92,18 +90,18 @@ class _FavoritesPageState extends State<FavoritesPage> {
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: true,
         title: Text(
-          'Tiana', 
+          'Tiana',
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
+            fontSize: 24,
           ),
         ),
         leading: IconButton(
           onPressed: () => Get.back(),
           icon: Icon(
-            Icons.arrow_back_ios_outlined,
+            Icons.arrow_back_ios_new_rounded,
             color: colorController.iconColor.value,
           ),
         ),
@@ -113,12 +111,21 @@ class _FavoritesPageState extends State<FavoritesPage> {
           // Search bar
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Neumorphic(
-              style: NeumorphicStyle(
+            child: Container(
+              decoration: BoxDecoration(
                 color: colorController.backgroundColor.value,
-                boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-                depth: 4,
-                intensity: 0.8,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorController.textColor.value.withOpacity(0.1),
+                  width: 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: TextField(
                 controller: _searchController,
@@ -129,13 +136,33 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Karohy ny hira tiana...',
-                  hintStyle: TextStyle(color: colorController.iconColor.value.withOpacity(0.6)),
+                  hintStyle: TextStyle(
+                    color: colorController.iconColor.value.withOpacity(0.5),
+                  ),
                   prefixIcon: Icon(
                     Icons.search,
                     color: colorController.iconColor.value,
                   ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.clear,
+                            color: colorController.iconColor.value,
+                          ),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                        )
+                      : null,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
                 style: TextStyle(
                   color: colorController.textColor.value,
@@ -148,7 +175,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
             child: StreamBuilder<List<Hymn>>(
               stream: _hymnService.getFavoriteHymnsStream(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting && !snapshot.hasData) {
+                if (snapshot.connectionState == ConnectionState.waiting &&
+                    !snapshot.hasData) {
                   return Center(
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
@@ -158,16 +186,54 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   );
                 } else if (snapshot.hasError) {
                   return Center(
-                    child: Text(
-                      'Olana: ${snapshot.error}',
-                      style: TextStyle(color: colorController.textColor.value),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Olana: ${snapshot.error}',
+                          style:
+                              TextStyle(color: colorController.textColor.value),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   );
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   return Center(
-                    child: Text(
-                      'Mbola tsy misy hira tiana',
-                      style: TextStyle(color: colorController.textColor.value),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.favorite_border,
+                          size: 80,
+                          color:
+                              colorController.textColor.value.withOpacity(0.3),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Mbola tsy misy hira tiana',
+                          style: TextStyle(
+                            color: colorController.textColor.value,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tsindrio ny fo mba hanampiana hira',
+                          style: TextStyle(
+                            color: colorController.textColor.value
+                                .withOpacity(0.6),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 } else {
@@ -176,150 +242,191 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   final filteredHymns = _searchQuery.isEmpty
                       ? favoriteHymns
                       : favoriteHymns.where((hymn) {
-                          return hymn.title.toLowerCase().contains(_searchQuery) ||
-                                 hymn.hymnNumber.toLowerCase().contains(_searchQuery);
+                          return hymn.title
+                                  .toLowerCase()
+                                  .contains(_searchQuery) ||
+                              hymn.hymnNumber
+                                  .toLowerCase()
+                                  .contains(_searchQuery);
                         }).toList();
-                  
+
                   if (filteredHymns.isEmpty) {
                     return Center(
-                      child: Text(
-                        'Tsy misy hira tiana mitovy amin\'ny karohy',
-                        style: TextStyle(color: colorController.textColor.value),
-                      ),
-                    );
-                  }
-                  
-                  return ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: filteredHymns.length,
-              itemBuilder: (context, index) {
-                final hymn = filteredHymns[index];
-                
-                // Check audio availability when item is built
-                if (!_checkedAudioHymns.contains(hymn.id)) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _checkAudioAvailability(hymn.id);
-                  });
-                }
-                
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12.0),
-                  child: Neumorphic(
-                    style: NeumorphicStyle(
-                      color: colorController.backgroundColor.value,
-                      boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-                      depth: 4,
-                      intensity: 0.8,
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                      leading: Neumorphic(
-                        style: NeumorphicStyle(
-                          color: colorController.primaryColor.value,
-                          boxShape: NeumorphicBoxShape.circle(),
-                          depth: 2,
-                        ),
-                        child: CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          child: Text(
-                            hymn.hymnNumber,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: colorController.textColor.value
+                                .withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Tsy misy hira tiana mitovy amin\'ny karohy',
                             style: TextStyle(
                               color: colorController.textColor.value,
-                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
                             ),
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        hymn.title,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: colorController.textColor.value,
-                        ),
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Audio button
-                          if (_audioAvailability[hymn.id] == true)
-                            Obx(() {
-                              final isPlaying = _audioService.isHymnPlaying(hymn.id);
-                              return NeumorphicButton(
-                                style: NeumorphicStyle(
-                                  color: isPlaying 
-                                      ? colorController.primaryColor.value.withOpacity(0.2)
-                                      : colorController.backgroundColor.value,
-                                  boxShape: NeumorphicBoxShape.circle(),
-                                  depth: 2,
-                                ),
-                                child: Stack(
-                                  children: [
-                                    Icon(
-                                      Icons.music_note,
-                                      color: isPlaying 
-                                          ? colorController.primaryColor.value
-                                          : colorController.iconColor.value,
-                                      size: 20,
-                                    ),
-                                    if (isPlaying)
-                                      Positioned(
-                                        right: 0,
-                                        top: 0,
-                                        child: Container(
-                                          width: 8,
-                                          height: 8,
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            shape: BoxShape.circle,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                onPressed: () => _showAudioPlayerDialog(hymn),
-                              );
-                            }),
-                          const SizedBox(width: 8),
-                          // Favorite button
-                          StreamBuilder<List<String>>(
-                            stream: _hymnService.getFavoriteHymnIdsStream(),
-                            builder: (context, favoriteSnapshot) {
-                              final isFavorite =
-                                  favoriteSnapshot.data?.contains(hymn.id) ?? false;
-                              return NeumorphicButton(
-                                style: NeumorphicStyle(
-                                  color: colorController.backgroundColor.value,
-                                  boxShape: NeumorphicBoxShape.circle(),
-                                  depth: 2,
-                                ),
-                                child: Icon(
-                                  isFavorite
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: isFavorite ? Colors.red : colorController.iconColor.value,
-                                ),
-                                onPressed: () {
-                                  _hymnService.toggleFavorite(hymn);
-                                },
-                              );
-                            },
+                            textAlign: TextAlign.center,
                           ),
                         ],
                       ),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                HymnDetailScreen(hymnId: hymn.id),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0, vertical: 8),
+                    itemCount: filteredHymns.length,
+                    itemBuilder: (context, index) {
+                      final hymn = filteredHymns[index];
+
+                      // Check audio availability when item is built
+                      if (!_checkedAudioHymns.contains(hymn.id)) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _checkAudioAvailability(hymn.id);
+                        });
+                      }
+
+                      return Card(
+                        elevation: 2,
+                        shadowColor: Colors.black.withOpacity(0.1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: colorController.textColor.value
+                                .withOpacity(0.1),
+                            width: 1,
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                );
-              },
-            );
+                        ),
+                        color: colorController.backgroundColor.value,
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          leading: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: colorController.primaryColor.value
+                                  .withOpacity(0.15),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: colorController.primaryColor.value
+                                    .withOpacity(0.3),
+                                width: 2,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                hymn.hymnNumber,
+                                style: TextStyle(
+                                  color: colorController.primaryColor.value,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            hymn.title,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: colorController.textColor.value,
+                              fontSize: 16,
+                            ),
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Audio button
+                              if (_audioAvailability[hymn.id] == true)
+                                Obx(() {
+                                  final isPlaying =
+                                      _audioService.isHymnPlaying(hymn.id);
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: isPlaying
+                                          ? colorController.primaryColor.value
+                                              .withOpacity(0.15)
+                                          : Colors.transparent,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      icon: Stack(
+                                        children: [
+                                          Icon(
+                                            Icons.music_note,
+                                            color: isPlaying
+                                                ? colorController
+                                                    .primaryColor.value
+                                                : colorController
+                                                    .iconColor.value,
+                                            size: 22,
+                                          ),
+                                          if (isPlaying)
+                                            Positioned(
+                                              right: 0,
+                                              top: 0,
+                                              child: Container(
+                                                width: 8,
+                                                height: 8,
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.red,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                      onPressed: () =>
+                                          _showAudioPlayerDialog(hymn),
+                                      tooltip: 'Play audio',
+                                    ),
+                                  );
+                                }),
+                              // Favorite button
+                              StreamBuilder<List<String>>(
+                                stream: _hymnService.getFavoriteHymnIdsStream(),
+                                builder: (context, favoriteSnapshot) {
+                                  final isFavorite = favoriteSnapshot.data
+                                          ?.contains(hymn.id) ??
+                                      false;
+                                  return IconButton(
+                                    icon: Icon(
+                                      isFavorite
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      color: isFavorite
+                                          ? Colors.red
+                                          : colorController.iconColor.value,
+                                      size: 24,
+                                    ),
+                                    onPressed: () {
+                                      _hymnService.toggleFavorite(hymn);
+                                    },
+                                    tooltip: isFavorite
+                                        ? 'Remove from favorites'
+                                        : 'Add to favorites',
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    HymnDetailScreen(hymnId: hymn.id),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  );
                 }
               },
             ),
