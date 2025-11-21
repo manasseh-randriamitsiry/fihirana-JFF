@@ -35,7 +35,6 @@ dependencies:
   local_auth: ^2.1.7
   android_intent_plus: ^4.0.3
   path_provider: ^2.1.2
-  turn_page_transition: ^0.3.0
   dots_indicator: ^3.0.0
   flutter_svg: ^2.0.9
   flutter_colorpicker: ^1.0.3
@@ -55,6 +54,8 @@ dependencies:
   dio: ^5.4.3+1
   just_audio: ^0.9.36
   simple_gesture_detector: ^0.2.1
+  path: ^1.8.3
+  rive: ^0.13.1
 
 dev_dependencies:
   flutter_test:
@@ -71,6 +72,7 @@ flutter:
     - assets/fonts/
     - assets/json/
     - assets/baiboly/
+    - assets/animations/
     - assets/hymn_manifest.json
     - assets/hymns_combined.json
     - pubspec.yaml

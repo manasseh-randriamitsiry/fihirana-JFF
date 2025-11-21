@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:liquid_swipe/liquid_swipe.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../models/note.dart';
@@ -16,11 +17,9 @@ import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
-import '../../widgets/audio_player_widget.dart';
-import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../services/audio_service.dart';
-import '../../l10n/app_localizations.dart';
+import '../../widgets/success_animation_dialog.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -55,6 +54,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   bool _audioChecked = false;
   bool _isFromSearch = false; // Track if we came from search
 
+  // Liquid swipe variables
+  late LiquidController _liquidController;
+  List<Hymn> _allHymns = [];
+  List<Hymn> _adjacentHymns = []; // Will contain [previous, current, next]
+  int _currentPageIndex = 1; // Start at middle page (current hymn)
+  bool _isLoadingHymns = true;
+
   @override
   void initState() {
     super.initState();
@@ -63,8 +69,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
       Get.put(HistoryController());
     }
     historyController = Get.find<HistoryController>();
+
+    _liquidController = LiquidController();
     _loadFontSize();
-    _loadHymnData();
+    _loadAllHymnsAndSetupSwipe();
     _loadUserNote();
 
     _hymnService.checkPendingSyncs();
@@ -78,14 +86,62 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     });
   }
 
-  Future<void> _loadHymnData() async {
+  Future<void> _loadAllHymnsAndSetupSwipe() async {
     try {
-      final hymn = await _hymnService.getHymnById(widget.hymnId);
-      if (hymn != null) {
+      final allHymns = await _hymnService.getAllHymns();
+      if (mounted) {
         setState(() {
-          _hymn = hymn;
+          _allHymns = allHymns;
         });
+        await _loadAdjacentHymns();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error loading all hymns: $e');
+      }
+      setState(() {
+        _isLoadingHymns = false;
+      });
+    }
+  }
 
+  Future<void> _loadAdjacentHymns() async {
+    if (_allHymns.isEmpty) return;
+
+    final currentIndex = _allHymns.indexWhere((h) => h.id == widget.hymnId);
+    if (currentIndex == -1) {
+      if (kDebugMode) {
+        print('Current hymn not found in all hymns list');
+      }
+      return;
+    }
+
+    final List<Hymn> adjacent = [];
+
+    // Add previous hymn if exists
+    if (currentIndex > 0) {
+      adjacent.add(_allHymns[currentIndex - 1]);
+    }
+
+    // Add current hymn
+    adjacent.add(_allHymns[currentIndex]);
+
+    // Add next hymn if exists
+    if (currentIndex < _allHymns.length - 1) {
+      adjacent.add(_allHymns[currentIndex + 1]);
+    }
+
+    if (mounted) {
+      setState(() {
+        _adjacentHymns = adjacent;
+        _hymn = _allHymns[currentIndex];
+        // Set page index based on whether previous hymn exists
+        _currentPageIndex = currentIndex > 0 ? 1 : 0;
+        _isLoadingHymns = false;
+      });
+
+      // Add to history and check audio
+      if (_hymn != null) {
         if (kDebugMode) {
           print(
               'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
@@ -95,14 +151,65 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
           _hymn!.title,
           _hymn!.hymnNumber,
         );
-        if (kDebugMode) {}
-
-        // Check audio availability after hymn is loaded
         await _checkAudioAvailability();
-      } else {
-        if (kDebugMode) {}
       }
-    } catch (e) {}
+    }
+  }
+
+  void _onPageChangeCallback(int activePageIndex) async {
+    if (_adjacentHymns.isEmpty || activePageIndex == _currentPageIndex) return;
+
+    final currentHymnIndex = _allHymns.indexWhere((h) => h.id == _hymn!.id);
+    if (currentHymnIndex == -1) return;
+
+    int newHymnIndex;
+
+    // Determine which direction we swiped
+    if (activePageIndex > _currentPageIndex) {
+      // Swiped to next hymn
+      newHymnIndex = currentHymnIndex + 1;
+    } else {
+      // Swiped to previous hymn
+      newHymnIndex = currentHymnIndex - 1;
+    }
+
+    // Validate index
+    if (newHymnIndex < 0 || newHymnIndex >= _allHymns.length) return;
+
+    final newHymn = _allHymns[newHymnIndex];
+
+    // Update current hymn
+    setState(() {
+      _hymn = newHymn;
+      _currentPageIndex = activePageIndex;
+    });
+
+    // Reload adjacent hymns for the new current hymn
+    final List<Hymn> newAdjacent = [];
+
+    if (newHymnIndex > 0) {
+      newAdjacent.add(_allHymns[newHymnIndex - 1]);
+    }
+    newAdjacent.add(newHymn);
+    if (newHymnIndex < _allHymns.length - 1) {
+      newAdjacent.add(_allHymns[newHymnIndex + 1]);
+    }
+
+    setState(() {
+      _adjacentHymns = newAdjacent;
+      _currentPageIndex = newHymnIndex > 0 ? 1 : 0;
+    });
+
+    // Add to history and check audio for new hymn
+    await historyController.addToHistory(
+      newHymn.id,
+      newHymn.title,
+      newHymn.hymnNumber,
+    );
+    await _checkAudioAvailability();
+
+    // Reload user note for new hymn
+    await _loadUserNote();
   }
 
   Future<void> _checkAudioAvailability() async {
@@ -140,6 +247,194 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         _isLoadingNote = false;
       });
     }
+  }
+
+  Widget _buildHymnPage(Hymn hymn, AppLocalizations l10n) {
+    return Container(
+      key: ValueKey(hymn.id),
+      width: double.infinity,
+      height: MediaQuery.of(context).size.height,
+      color: colorController.backgroundColor.value,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (_show &&
+                (hymn.hymnHint?.trim().toLowerCase().isNotEmpty ?? false)) ...[
+              if (isUserAuthenticated())
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: colorController.primaryColor.value.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${l10n.createdBy}: ${hymn.createdBy}',
+                        style: TextStyle(
+                          fontSize: _fontSize * 0.8,
+                          color: colorController.textColor.value,
+                        ),
+                      ),
+                      if (hymn.createdByEmail != null)
+                        Text(
+                          l10n.emailLabel(hymn.createdByEmail!),
+                          style: TextStyle(
+                            fontSize: _fontSize * 0.8,
+                            color: colorController.textColor.value,
+                          ),
+                        ),
+                      Text(
+                        '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt ?? DateTime(2023))}',
+                        style: TextStyle(
+                          fontSize: _fontSize * 0.8,
+                          color: colorController.textColor.value,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: Text(
+                  hymn.hymnHint ?? '',
+                  style: TextStyle(
+                    fontSize: 2 * _fontSize / 3,
+                    color: colorController.textColor.value,
+                  ),
+                ),
+              ),
+            ],
+            if (isUserAuthenticated())
+              StreamBuilder<List<Note>>(
+                stream: _noteService.getPublicNotesStream(hymn.id),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text(l10n.errorLoadingNotes));
+                  }
+
+                  if (!snapshot.hasData) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  final notes = snapshot.data!;
+
+                  if (notes.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: notes.length,
+                        itemBuilder: (context, index) {
+                          final note = notes[index];
+                          return FutureBuilder<bool>(
+                            future: _noteService.canEditNote(note),
+                            builder: (context, snapshot) {
+                              final canEdit = snapshot.data ?? false;
+
+                              return Container(
+                                margin: const EdgeInsets.only(top: 8),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: colorController.backgroundColor.value
+                                      .withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          note.content,
+                                          style: TextStyle(
+                                            fontSize: _fontSize * 0.9,
+                                            color:
+                                                colorController.textColor.value,
+                                          ),
+                                        ),
+                                        if (canEdit)
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.edit,
+                                              size: _fontSize,
+                                              color: colorController
+                                                  .iconColor.value,
+                                            ),
+                                            onPressed: () =>
+                                                _showNoteEditor(note: note),
+                                          ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
+              ),
+            for (int i = 0; i < hymn.verses.length; i++) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10.0, horizontal: 30.0),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Positioned.fill(
+                      child: Opacity(
+                        opacity: 0.25,
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${i + 1}',
+                            style: TextStyle(
+                              fontSize: _countFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: colorController.primaryColor.value,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30.0),
+                      child: Text(
+                        '${i + 1}. ${hymn.verses[i]}',
+                        style: TextStyle(
+                          fontSize: _fontSize,
+                          color: colorController.textColor.value,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            SizedBox(
+              height: getScreenHeight(context) / 3,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -482,206 +777,35 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
               ),
             ),
             Expanded(
-              child: GestureDetector(
-                onHorizontalDragEnd: (DragEndDetails details) {
-                  if (details.primaryVelocity! < 0) {
-                    // Swiped right (next hymn)
-                    _navigateToNextHymn();
-                  } else if (details.primaryVelocity! > 0) {
-                    // Swiped left (previous hymn)
-                    _navigateToPreviousHymn();
-                  }
-                },
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (_show &&
-                          (_hymn?.hymnHint?.trim().toLowerCase().isNotEmpty ??
-                              false)) ...[
-                        if (isUserAuthenticated())
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: colorController.primaryColor.value
-                                  .withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${l10n.createdBy}: ${_hymn?.createdBy}',
-                                  style: TextStyle(
-                                    fontSize: _fontSize * 0.8,
-                                    color: colorController.textColor.value,
-                                  ),
-                                ),
-                                if (_hymn?.createdByEmail != null)
-                                  Text(
-                                    l10n.emailLabel(_hymn!.createdByEmail!),
-                                    style: TextStyle(
-                                      fontSize: _fontSize * 0.8,
-                                      color: colorController.textColor.value,
-                                    ),
-                                  ),
-                                Text(
-                                  '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(_hymn?.createdAt ?? DateTime(2023))}',
-                                  style: TextStyle(
-                                    fontSize: _fontSize * 0.8,
-                                    color: colorController.textColor.value,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: _isLoadingHymns
+                  ? Center(
+                      child: CircularProgressIndicator(
+                        color: colorController.primaryColor.value,
+                      ),
+                    )
+                  : _adjacentHymns.isEmpty
+                      ? Center(
                           child: Text(
-                            _hymn?.hymnHint ?? '',
+                            'No hymns available',
                             style: TextStyle(
-                              fontSize: 2 * _fontSize / 3,
                               color: colorController.textColor.value,
                             ),
                           ),
+                        )
+                      : LiquidSwipe(
+                          key: ValueKey(_hymn?.id),
+                          pages: _adjacentHymns
+                              .map((hymn) => _buildHymnPage(hymn, l10n))
+                              .toList(),
+                          initialPage: _currentPageIndex,
+                          liquidController: _liquidController,
+                          onPageChangeCallback: _onPageChangeCallback,
+                          waveType: WaveType.liquidReveal,
+                          enableLoop: false,
+                          enableSideReveal: false,
+                          ignoreUserGestureWhileAnimating: true,
+                          disableUserGesture: false,
                         ),
-                      ],
-                      if (isUserAuthenticated() && _hymn != null)
-                        StreamBuilder<List<Note>>(
-                          stream: _noteService.getPublicNotesStream(_hymn!.id),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Center(
-                                  child: Text(l10n.errorLoadingNotes));
-                            }
-
-                            if (!snapshot.hasData) {
-                              return const Padding(
-                                padding: EdgeInsets.all(8.0),
-                                child:
-                                    Center(child: CircularProgressIndicator()),
-                              );
-                            }
-
-                            final notes = snapshot.data!;
-
-                            if (notes.isEmpty) {
-                              return const SizedBox.shrink();
-                            }
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: notes.length,
-                                  itemBuilder: (context, index) {
-                                    final note = notes[index];
-                                    return FutureBuilder<bool>(
-                                      future: _noteService.canEditNote(note),
-                                      builder: (context, snapshot) {
-                                        final canEdit = snapshot.data ?? false;
-
-                                        return Container(
-                                          margin: const EdgeInsets.only(top: 8),
-                                          padding: const EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: colorController
-                                                .backgroundColor.value
-                                                .withOpacity(0.3),
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                          ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Text(
-                                                    note.content,
-                                                    style: TextStyle(
-                                                      fontSize: _fontSize * 0.9,
-                                                      color: colorController
-                                                          .textColor.value,
-                                                    ),
-                                                  ),
-                                                  if (canEdit)
-                                                    IconButton(
-                                                      icon: Icon(
-                                                        Icons.edit,
-                                                        size: _fontSize,
-                                                        color: colorController
-                                                            .iconColor.value,
-                                                      ),
-                                                      onPressed: () =>
-                                                          _showNoteEditor(
-                                                              note: note),
-                                                    ),
-                                                ],
-                                              ),
-                                              const SizedBox(height: 4),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      for (int i = 0; i < (_hymn?.verses.length ?? 0); i++) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 30.0),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Positioned.fill(
-                                child: Opacity(
-                                  opacity: 0.25,
-                                  child: Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      '${i + 1}',
-                                      style: TextStyle(
-                                        fontSize: _countFontSize,
-                                        fontWeight: FontWeight.bold,
-                                        color:
-                                            colorController.primaryColor.value,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 30.0),
-                                child: Text(
-                                  '${i + 1}. ${_hymn?.verses[i] ?? ''}',
-                                  style: TextStyle(
-                                    fontSize: _fontSize,
-                                    color: colorController.textColor.value,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                      SizedBox(
-                        height: getScreenHeight(context) / 3,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ),
           ],
         ),
@@ -906,17 +1030,17 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
                           if (context.mounted) {
                             Navigator.pop(context);
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  content.isEmpty
-                                      ? l10n.noteDeleted
-                                      : l10n.noteSaved,
+                            if (content.isNotEmpty) {
+                              SuccessAnimationDialog.show(context,
+                                  message: l10n.noteSaved);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(l10n.noteDeleted),
+                                  backgroundColor: Colors.red,
                                 ),
-                                backgroundColor:
-                                    content.isEmpty ? Colors.red : Colors.green,
-                              ),
-                            );
+                              );
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -994,88 +1118,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
         builder: (context) => EditHymnScreen(hymn: _hymn!),
       ),
     );
-  }
-
-  Future<void> _navigateToNextHymn() async {
-    if (_hymn == null) return;
-
-    try {
-      final allHymns = await _hymnService.getAllHymns();
-      final currentIndex = allHymns.indexWhere((h) => h.id == _hymn!.id);
-
-      if (currentIndex != -1 && currentIndex < allHymns.length - 1) {
-        final nextHymn = allHymns[currentIndex + 1];
-
-        if (_isFromSearch) {
-          // If coming from search, push new screen (don't replace search)
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HymnDetailScreen(hymnId: nextHymn.id),
-            ),
-          );
-        } else {
-          // If normal navigation, replace current screen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HymnDetailScreen(hymnId: nextHymn.id),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      // Handle error silently or show a message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not navigate to next hymn'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _navigateToPreviousHymn() async {
-    if (_hymn == null) return;
-
-    try {
-      final allHymns = await _hymnService.getAllHymns();
-      final currentIndex = allHymns.indexWhere((h) => h.id == _hymn!.id);
-
-      if (currentIndex != -1 && currentIndex > 0) {
-        final previousHymn = allHymns[currentIndex - 1];
-
-        if (_isFromSearch) {
-          // If coming from search, push new screen (don't replace search)
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HymnDetailScreen(hymnId: previousHymn.id),
-            ),
-          );
-        } else {
-          // If normal navigation, replace current screen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HymnDetailScreen(hymnId: previousHymn.id),
-            ),
-          );
-        }
-      }
-    } catch (e) {
-      // Handle error silently or show a message
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Could not navigate to previous hymn'),
-            duration: const Duration(seconds: 1),
-          ),
-        );
-      }
-    }
   }
 }
 

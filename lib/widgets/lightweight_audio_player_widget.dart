@@ -60,6 +60,21 @@ class _LightweightAudioPlayerWidgetState
     }
   }
 
+  @override
+  void didUpdateWidget(LightweightAudioPlayerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.autoPlayNext != oldWidget.autoPlayNext) {
+      setState(() {
+        _autoPlayNext = widget.autoPlayNext;
+      });
+    }
+    if (widget.playlist != oldWidget.playlist && widget.playlist != null) {
+      _currentPlaylistIndex = widget.playlist!.indexWhere(
+        (hymn) => hymn.id == widget.hymn.id,
+      );
+    }
+  }
+
   void _initializeMinimalPlayer() {
     // Update current state once
     _updateCurrentState();

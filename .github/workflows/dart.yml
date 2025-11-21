@@ -1,10 +1,14 @@
 name: Flutter CI/CD
 
+#on:
+#  push:
+#    branches: [ "master", "beta" ]
+#  pull_request:
+#    branches: [ "master", "beta" ]
+
 on:
   push:
-    branches: [ "master", "beta" ]
-  pull_request:
-    branches: [ "master", "beta" ]
+    branches: [ "master"]
 
 jobs:
   build:
