@@ -5,7 +5,7 @@ import '../../controller/hymn_controller.dart';
 import '../../widgets/hymn_list_item.dart';
 import '../../widgets/hymn_search_field.dart';
 import '../../widgets/language_picker_widget.dart';
-import '../player/enhanced_audio_player_screen.dart';
+import '../player/audio_player_screen.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/version_check_service.dart';
 import '../../services/audio_service.dart';

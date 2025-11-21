@@ -1,5 +1,6 @@
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../controller/bible_controller.dart';
 import '../controller/color_controller.dart';
 import '../models/bible_search.dart';
@@ -60,26 +61,26 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.zero,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
       child: Container(
-        width: MediaQuery.of(context).size.width * 0.95,
-        height: MediaQuery.of(context).size.height * 0.85,
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        child: Neumorphic(
-          style: NeumorphicStyle(
-            depth: 6,
-            intensity: 0.8,
-            color: colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(20)),
-          ),
-          child: Column(
-            children: [
-              _buildHeader(),
-              _buildSearchBar(),
-              _buildSearchContextSelector(),
-              Expanded(child: _buildSearchResults()),
-            ],
-          ),
+        decoration: BoxDecoration(
+          color: colorController.backgroundColor.value,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            _buildHeader(),
+            _buildSearchBar(),
+            _buildSearchContextSelector(),
+            Expanded(child: _buildSearchResults()),
+          ],
         ),
       ),
     );
@@ -89,16 +90,16 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorController.primaryColor.value.withOpacity(0.1),
+        color: colorController.primaryColor.value.withOpacity(0.05),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(24),
+          topRight: Radius.circular(24),
         ),
       ),
       child: Row(
         children: [
           Icon(
-            Icons.search,
+            Icons.search_rounded,
             color: colorController.primaryColor.value,
             size: 28,
           ),
@@ -106,24 +107,16 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           Expanded(
             child: Text(
               'Karoka Baiboly',
-              style: TextStyle(
-                color: colorController.primaryColor.value,
-                fontSize: _fontSize * 1.3,
+              style: GoogleFonts.inter(
+                color: colorController.textColor.value,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          NeumorphicButton(
-            style: NeumorphicStyle(
-              depth: 2,
-              color: colorController.backgroundColor.value,
-              boxShape: NeumorphicBoxShape.circle(),
-            ),
-            child: Icon(
-              Icons.close,
-              color: colorController.iconColor.value,
-              size: 20,
-            ),
+          IconButton(
+            icon: Icon(Icons.close_rounded,
+                color: colorController.iconColor.value),
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -134,63 +127,50 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   Widget _buildSearchBar() {
     return Container(
       margin: const EdgeInsets.all(20),
-      child: Neumorphic(
-        style: NeumorphicStyle(
-          depth: 3,
-          intensity: 0.8,
-          color: colorController.backgroundColor.value,
-          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
+      decoration: BoxDecoration(
+        color: colorController.primaryColor.value.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: colorController.primaryColor.value.withOpacity(0.1),
         ),
-        child: TextField(
-          controller: _searchController,
-          focusNode: _searchFocusNode,
-          style: TextStyle(
-            color: colorController.textColor.value,
-            fontSize: _fontSize,
-          ),
-          decoration: InputDecoration(
-            hintText: 'Karoka teny na andininy...',
-            hintStyle: TextStyle(
-              color: colorController.textColor.value.withOpacity(0.6),
-            ),
-            prefixIcon: Icon(
-              Icons.search,
-              color: colorController.iconColor.value,
-            ),
-            suffixIcon: Obx(() {
-              if (bibleController.searchQuery.value.isNotEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: NeumorphicButton(
-                    style: NeumorphicStyle(
-                      depth: 1,
-                      color: colorController.backgroundColor.value,
-                      boxShape: NeumorphicBoxShape.circle(),
-                    ),
-                    child: Icon(
-                      Icons.clear,
-                      color: colorController.iconColor.value,
-                      size: 16,
-                    ),
-                    onPressed: () {
-                      _searchController.clear();
-                      bibleController.performSearch('');
-                    },
-                  ),
-                );
-              }
-              return const SizedBox.shrink();
-            }),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          onChanged: (value) {
-            bibleController.performSearch(value);
-          },
-          onSubmitted: (value) {
-            // Handle search submission if needed
-          },
+      ),
+      child: TextField(
+        controller: _searchController,
+        focusNode: _searchFocusNode,
+        style: GoogleFonts.inter(
+          color: colorController.textColor.value,
+          fontSize: _fontSize,
         ),
+        decoration: InputDecoration(
+          hintText: 'Karoka teny na andininy...',
+          hintStyle: GoogleFonts.inter(
+            color: colorController.textColor.value.withOpacity(0.5),
+          ),
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: colorController.iconColor.value,
+          ),
+          suffixIcon: Obx(() {
+            if (bibleController.searchQuery.value.isNotEmpty) {
+              return IconButton(
+                icon: Icon(
+                  Icons.clear_rounded,
+                  color: colorController.iconColor.value,
+                ),
+                onPressed: () {
+                  _searchController.clear();
+                  bibleController.performSearch('');
+                },
+              );
+            }
+            return const SizedBox.shrink();
+          }),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(16),
+        ),
+        onChanged: (value) {
+          bibleController.performSearch(value);
+        },
       ),
     );
   }
@@ -198,31 +178,24 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   Widget _buildSearchContextSelector() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      child: Neumorphic(
-        style: NeumorphicStyle(
-          depth: 2,
-          intensity: 0.6,
-          color: colorController.backgroundColor.value,
-          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildContextButton(
-                context: BibleSearchContext.books,
-                icon: Icons.book,
-                label: 'Karoka Baiboly',
-              ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildContextButton(
+              context: BibleSearchContext.books,
+              icon: Icons.book_rounded,
+              label: 'Karoka Boky',
             ),
-            Expanded(
-              child: _buildContextButton(
-                context: BibleSearchContext.allBible,
-                icon: Icons.menu_book,
-                label: 'Karoka ao amin\'ny Baiboly manontolo',
-              ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _buildContextButton(
+              context: BibleSearchContext.allBible,
+              icon: Icons.menu_book_rounded,
+              label: 'Baiboly manontolo',
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -234,42 +207,52 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   }) {
     final isSelected = _currentSearchContext == context;
 
-    return NeumorphicButton(
-      style: NeumorphicStyle(
-        depth: isSelected ? 1 : 2,
-        color: isSelected
-            ? colorController.primaryColor.value
-            : colorController.backgroundColor.value,
-        boxShape: const NeumorphicBoxShape.stadium(),
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         setState(() {
           _currentSearchContext = context;
           bibleController.setSearchContext(context);
-          // Re-run search with new context
           bibleController.performSearch(_searchController.text);
         });
       },
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? Colors.white : colorController.textColor.value,
-            size: 20,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? colorController.primaryColor.value
+              : colorController.primaryColor.value.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? colorController.primaryColor.value
+                : colorController.primaryColor.value.withOpacity(0.1),
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               color:
                   isSelected ? Colors.white : colorController.textColor.value,
-              fontSize: _fontSize * 0.8,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              size: 18,
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                label,
+                style: GoogleFonts.inter(
+                  color: isSelected
+                      ? Colors.white
+                      : colorController.textColor.value,
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -300,25 +283,14 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Neumorphic(
-            style: NeumorphicStyle(
-              depth: 4,
-              intensity: 0.8,
-              color: colorController.backgroundColor.value,
-              boxShape: NeumorphicBoxShape.circle(),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: CircularProgressIndicator(
-                color: colorController.primaryColor.value,
-                strokeWidth: 3,
-              ),
-            ),
+          CircularProgressIndicator(
+            color: colorController.primaryColor.value,
+            strokeWidth: 3,
           ),
           const SizedBox(height: 20),
           Text(
             'Mikaroka...',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               color: colorController.textColor.value.withOpacity(0.7),
               fontSize: _fontSize,
             ),
@@ -334,14 +306,14 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.search,
+            Icons.search_rounded,
             size: 64,
             color: colorController.textColor.value.withOpacity(0.3),
           ),
           const SizedBox(height: 16),
           Text(
             'Soraty ny teny hikarohana',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               color: colorController.textColor.value.withOpacity(0.5),
               fontSize: _fontSize,
             ),
@@ -357,14 +329,14 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.search_off,
+            Icons.search_off_rounded,
             size: 64,
             color: colorController.textColor.value.withOpacity(0.5),
           ),
           const SizedBox(height: 16),
           Text(
             'Tsy misy valin\'ny karoka',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               color: colorController.textColor.value.withOpacity(0.7),
               fontSize: _fontSize,
             ),
@@ -372,7 +344,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           const SizedBox(height: 8),
           Text(
             'Mandeha manova ny teny karoka',
-            style: TextStyle(
+            style: GoogleFonts.inter(
               color: colorController.textColor.value.withOpacity(0.5),
               fontSize: _fontSize * 0.9,
             ),
@@ -396,60 +368,64 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   Widget _buildSearchResultItem(BibleSearchResult result) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: NeumorphicButton(
-        style: NeumorphicStyle(
-          depth: 2,
-          intensity: 0.8,
-          color: colorController.backgroundColor.value,
-          boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: colorController.primaryColor.value.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: colorController.primaryColor.value.withOpacity(0.1),
         ),
-        padding: const EdgeInsets.all(16),
-        onPressed: () {
-          Navigator.of(context).pop(); // Close dialog first
+      ),
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
           bibleController.navigateToSearchResult(result,
               highlightVerse: result.verse);
         },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  result.type == BibleSearchResultType.book
-                      ? Icons.book
-                      : Icons.article,
-                  color: colorController.primaryColor.value,
-                  size: 18,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    result.displayText,
-                    style: TextStyle(
-                      color: colorController.primaryColor.value,
-                      fontSize: _fontSize,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    result.type == BibleSearchResultType.book
+                        ? Icons.book_rounded
+                        : Icons.article_rounded,
+                    color: colorController.primaryColor.value,
+                    size: 18,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (result.type == BibleSearchResultType.verse)
-              _buildHighlightedVerseText(result)
-            else
-              Text(
-                result.subtitle,
-                style: TextStyle(
-                  color: colorController.textColor.value.withOpacity(0.7),
-                  fontSize: _fontSize * 0.9,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      result.displayText,
+                      style: GoogleFonts.inter(
+                        color: colorController.primaryColor.value,
+                        fontSize: _fontSize,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
               ),
-          ],
+              const SizedBox(height: 8),
+              if (result.type == BibleSearchResultType.verse)
+                _buildHighlightedVerseText(result)
+              else
+                Text(
+                  result.subtitle,
+                  style: GoogleFonts.inter(
+                    color: colorController.textColor.value.withOpacity(0.7),
+                    fontSize: _fontSize * 0.9,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -460,7 +436,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     if (query.isEmpty) {
       return Text(
         result.text,
-        style: TextStyle(
+        style: GoogleFonts.inter(
           color: colorController.textColor.value.withOpacity(0.7),
           fontSize: _fontSize * 0.9,
         ),
@@ -481,7 +457,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
       if (index > start) {
         spans.add(TextSpan(
           text: result.text.substring(start, index),
-          style: TextStyle(
+          style: GoogleFonts.inter(
             color: colorController.textColor.value.withOpacity(0.7),
             fontSize: _fontSize * 0.9,
           ),
@@ -491,7 +467,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
       // Add highlighted match
       spans.add(TextSpan(
         text: result.text.substring(index, index + query.length),
-        style: TextStyle(
+        style: GoogleFonts.inter(
           backgroundColor: colorController.primaryColor.value.withOpacity(0.3),
           color: colorController.primaryColor.value,
           fontSize: _fontSize * 0.9,
@@ -507,7 +483,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     if (start < result.text.length) {
       spans.add(TextSpan(
         text: result.text.substring(start),
-        style: TextStyle(
+        style: GoogleFonts.inter(
           color: colorController.textColor.value.withOpacity(0.7),
           fontSize: _fontSize * 0.9,
         ),

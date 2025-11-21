@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/theme_controller.dart';
 import '../controller/color_controller.dart';
+import '../screen/bible/bible_reader_screen.dart';
 import '../screen/favorite/favorites_screen.dart';
 import '../screen/admin/admin_panel_screen.dart';
 import '../screen/about/about_screen.dart';
@@ -15,7 +16,6 @@ import '../screen/history/history_screen.dart';
 import '../screen/announcement/announcement_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/hymn/firebase_hymns_screen.dart';
-import '../screen/bible/enhanced_bible_reader_screen.dart';
 import '../services/audio_service.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
@@ -373,7 +373,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white,
+                        color: Colors.white.withOpacity(0.9),
                         width: 3,
                       ),
                       boxShadow: [
@@ -390,19 +390,19 @@ class DrawerWidgetState extends State<DrawerWidget> {
                               imageUrl: _currentUser!.photoUrl!,
                               fit: BoxFit.cover,
                               placeholder: (context, url) =>
-                                  const CircularProgressIndicator(
-                                color: Colors.white,
+                                  CircularProgressIndicator(
+                                color: _colorController.accentColor.value,
                               ),
-                              errorWidget: (context, url, error) => const Icon(
+                              errorWidget: (context, url, error) => Icon(
                                 Icons.person,
                                 size: 40,
-                                color: Colors.white,
+                                color: _colorController.backgroundColor.value,
                               ),
                             )
-                          : const Icon(
+                          : Icon(
                               Icons.person,
                               size: 40,
-                              color: Colors.white,
+                              color: _colorController.backgroundColor.value,
                             ),
                     ),
                   ),
@@ -416,14 +416,14 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         _isAuthenticated
                             ? (_currentUser?.displayName ?? 'User')
                             : (_username ?? 'Guest'),
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.95),
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           shadows: [
                             Shadow(
-                              color: Colors.black26,
-                              offset: Offset(0, 2),
+                              color: Colors.black.withOpacity(0.3),
+                              offset: const Offset(0, 2),
                               blurRadius: 4,
                             ),
                           ],
@@ -436,7 +436,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         Text(
                           _currentUser?.email ?? '',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: _colorController.backgroundColor.value.withOpacity(0.95),
                             fontSize: 14,
                           ),
                           maxLines: 1,
@@ -448,34 +448,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           onTap: _signInWithGoogle,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              l10n.signIn,
-                              style: TextStyle(
-                                color: _colorController.primaryColor.value,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Menu Items
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              children: [
                 _buildSectionHeader('Library'),
                 if (_isAuthenticated)
                   _buildDrawerItem(
@@ -491,7 +463,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 _buildDrawerItem(
                   icon: Icons.menu_book_rounded,
                   title: l10n.bible,
-                  onTap: () => Get.to(() => const EnhancedBibleReaderScreen()),
+                  onTap: () => Get.to(() => const BibleReaderScreen()),
                 ),
                 _buildSectionHeader('Personal'),
                 _buildDrawerItem(
@@ -553,7 +525,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   _buildDrawerItem(
                     icon: Icons.logout_rounded,
                     title: l10n.signOut,
-                    color: Colors.red,
+                    color: _colorController.iconColor.value,
                     onTap: () {
                       FirebaseAuth.instance.signOut();
                       setState(() {

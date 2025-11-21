@@ -8,7 +8,8 @@ class ColorController extends GetxController {
   static ColorController get to => Get.find();
 
   final Rx<Color> primaryColor = const Color(0xFF9C27B0).obs; // Colors.purple
-  final Rx<Color> accentColor = const Color(0xFFFF5722).obs; // Colors.deepOrange
+  final Rx<Color> accentColor =
+      const Color(0xFFFF5722).obs; // Colors.deepOrange
   final Rx<Color> textColor = const Color(0xFF000000).obs; // Colors.black
   final Rx<Color> backgroundColor = const Color(0xFFFFFFFF).obs; // Colors.white
   final Rx<Color> drawerColor = const Color(0xFF9C27B0).obs; // Colors.purple
@@ -86,14 +87,15 @@ class ColorController extends GetxController {
   Future<void> loadColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       currentSchemeIndex.value = prefs.getInt('currentSchemeIndex') ?? 0;
-      
+
       // Load colors with defaults if null
       primaryColor.value = Color(prefs.getInt('primaryColor') ?? 0xFF2196F3);
       accentColor.value = Color(prefs.getInt('accentColor') ?? 0xFFFF5722);
       textColor.value = Color(prefs.getInt('textColor') ?? 0xFF000000);
-      backgroundColor.value = Color(prefs.getInt('backgroundColor') ?? 0xFFFFFFFF);
+      backgroundColor.value =
+          Color(prefs.getInt('backgroundColor') ?? 0xFFFFFFFF);
       drawerColor.value = Color(prefs.getInt('drawerColor') ?? 0xFF9C27B0);
       iconColor.value = Color(prefs.getInt('iconColor') ?? 0xFF000000);
 
@@ -219,7 +221,7 @@ class ColorController extends GetxController {
     Color? icon,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     if (primary != null) {
       primaryColor.value = primary;
       await prefs.setInt('primaryColor', primaryColor.value.value);
@@ -249,13 +251,11 @@ class ColorController extends GetxController {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        statusBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
         systemNavigationBarColor: backgroundColor.value,
-        systemNavigationBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        systemNavigationBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
       ),
     );
 
@@ -287,13 +287,11 @@ class ColorController extends GetxController {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        statusBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
         systemNavigationBarColor: backgroundColor.value,
-        systemNavigationBarIconBrightness: _isDark(backgroundColor.value)
-            ? Brightness.light
-            : Brightness.dark,
+        systemNavigationBarIconBrightness:
+            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
       ),
     );
 
@@ -393,12 +391,26 @@ class ColorController extends GetxController {
     );
   }
 
-NeumorphicThemeData getNeumorphicLightTheme() {
+  NeumorphicThemeData getNeumorphicLightTheme() {
     return _getNeumorphicTheme();
   }
 
   NeumorphicThemeData getNeumorphicDarkTheme() {
     return _getNeumorphicTheme();
+  }
+
+  void setThemeMode(ThemeMode mode) {
+    if (mode == ThemeMode.dark) {
+      updateColors(
+        background: const Color(0xFF121212),
+        text: const Color(0xFFFFFFFF),
+      );
+    } else {
+      updateColors(
+        background: const Color(0xFFFFFFFF),
+        text: const Color(0xFF000000),
+      );
+    }
   }
 
   NeumorphicThemeData _getNeumorphicTheme() {
@@ -409,7 +421,7 @@ NeumorphicThemeData getNeumorphicLightTheme() {
       lightSource: LightSource.topLeft,
       depth: 4,
       intensity: 1.0,
-      shadowLightColor: isDarkBg 
+      shadowLightColor: isDarkBg
           ? Colors.white.withOpacity(0.25)
           : Colors.white.withOpacity(1.0),
       shadowDarkColor: isDarkBg
