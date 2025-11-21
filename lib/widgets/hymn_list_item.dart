@@ -106,7 +106,7 @@ class _HymnListItemState extends State<HymnListItem> {
                       ),
                     ),
                     onSubmitted: (value) {
-                      if (value.toLowerCase() == 'eny') {
+                      if (value.toLowerCase() == 'eny' || value.toLowerCase() == 'oui' || value.toLowerCase() == 'yes') {
                         isConfirmed = true;
                         Navigator.of(context).pop();
                       } else {
