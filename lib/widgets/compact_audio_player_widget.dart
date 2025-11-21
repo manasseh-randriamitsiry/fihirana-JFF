@@ -58,6 +58,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       _currentPlaylistIndex = widget.playlist!.indexWhere(
         (hymn) => hymn.id == widget.hymn.id,
       );
+      _audioService.setPlaylist(widget.playlist!, _currentPlaylistIndex);
     }
     _initializePlayer();
   }
@@ -71,6 +72,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
         _currentPlaylistIndex = widget.playlist!.indexWhere(
           (hymn) => hymn.id == widget.hymn.id,
         );
+        _audioService.setPlaylist(widget.playlist!, _currentPlaylistIndex);
       }
     }
   }

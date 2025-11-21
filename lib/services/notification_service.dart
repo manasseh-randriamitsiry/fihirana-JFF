@@ -38,41 +38,56 @@ class NotificationService {
         id: audioPlayerNotificationId,
         channelKey: 'audio_player_channel',
         title: hymn.title,
-        body: 'Hymn ${hymn.hymnNumber}',
+        body: 'Hira ${hymn.hymnNumber}',
         category: NotificationCategory.Transport,
         notificationLayout: NotificationLayout.MediaPlayer,
         color: Colors.blue,
         autoDismissible: false,
         displayOnForeground: true,
         displayOnBackground: true,
-        wakeUpScreen: true,
+        wakeUpScreen: false, // Don't wake up screen on every update
         fullScreenIntent: false,
         locked: true,
         backgroundColor: Colors.black87,
-        summary: 'Fihirana Audio Player',
-        largeIcon: 'resource://mipmap/ic_launcher',
-        icon: 'resource://mipmap/ic_launcher',
+        summary: 'Fihirana Audio',
+        largeIcon:
+            'resource://mipmap/ic_launcher', // Use app icon as album art placeholder
+        roundedLargeIcon: true,
       ),
       actionButtons: [
         NotificationActionButton(
           key: 'prev',
           label: 'Previous',
           icon: 'resource://drawable/ic_skip_previous',
+          enabled: true,
+          autoDismissible: false,
+          showInCompactView: true,
         ),
         NotificationActionButton(
           key: isPlaying ? 'pause' : 'play',
           label: isPlaying ? 'Pause' : 'Play',
-          icon: isPlaying ? 'resource://drawable/ic_pause' : 'resource://drawable/ic_play',
+          icon: isPlaying
+              ? 'resource://drawable/ic_pause'
+              : 'resource://drawable/ic_play',
+          enabled: true,
+          autoDismissible: false,
+          showInCompactView: true,
         ),
         NotificationActionButton(
           key: 'next',
           label: 'Next',
           icon: 'resource://drawable/ic_skip_next',
+          enabled: true,
+          autoDismissible: false,
+          showInCompactView: true,
         ),
         NotificationActionButton(
           key: 'stop',
           label: 'Stop',
           icon: 'resource://drawable/ic_stop',
+          enabled: true,
+          autoDismissible: false,
+          showInCompactView: false,
         ),
       ],
     );
@@ -96,7 +111,7 @@ class NotificationService {
 
   static Future<void> initializeNotificationChannels() async {
     await AwesomeNotifications().initialize(
-      null,
+      'resource://mipmap/ic_launcher',
       [
         NotificationChannel(
           channelKey: 'basic_channel',
@@ -111,12 +126,53 @@ class NotificationService {
           channelName: 'Audio Player',
           channelDescription: 'Audio player controls and information',
           defaultColor: Colors.blue,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
+          importance: NotificationImportance.Low,
+          channelShowBadge: false,
           playSound: false,
           enableVibration: false,
-          onlyAlertOnce: false,
+          onlyAlertOnce: true,
           criticalAlerts: false,
+          locked: true,
+          defaultPrivacy: NotificationPrivacy.Public,
+        ),
+        NotificationChannel(
+          channelKey: 'announcement_channel',
+          channelName: 'Filazana',
+          channelDescription: 'Notifications for announcements',
+          defaultColor: const Color(0xFF9D50DD),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          enableVibration: true,
+          enableLights: true,
+          defaultPrivacy: NotificationPrivacy.Public,
+          playSound: true,
+          icon: 'resource://mipmap/ic_launcher',
+        ),
+        NotificationChannel(
+          channelKey: 'hymn_download_channel',
+          channelName: 'Maka Hira',
+          channelDescription: 'Notifications for hymn downloads and updates',
+          defaultColor: const Color(0xFF9D50DD),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          icon: 'resource://mipmap/ic_launcher',
+        ),
+        NotificationChannel(
+          channelKey: 'daily_verse_channel',
+          channelName: 'Daily Bible Verse',
+          channelDescription: 'Daily inspirational Bible verses',
+          defaultColor: const Color(0xFF4CAF50),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          enableVibration: true,
+          enableLights: true,
+          playSound: true,
+          icon: 'resource://mipmap/ic_launcher',
+          locked: false, // User can customize
+          defaultPrivacy: NotificationPrivacy.Public, // Show on lock screen
+          ledColor: const Color(0xFF4CAF50),
+          ledOnMs: 1000,
+          ledOffMs: 500,
         ),
       ],
     );

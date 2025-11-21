@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/color_controller.dart';
@@ -16,307 +15,208 @@ class HistoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Obx(() => Scaffold(
-          backgroundColor: colorController.backgroundColor.value,
-          appBar: AppBar(
-            backgroundColor: colorController.primaryColor.value,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            title: Text(
-              historyController.isSelectionMode.value
-                  ? '${historyController.selectedItems.length} voafidy'
-                  : 'Tantara',
-              style: const TextStyle(color: Colors.white),
+    return Obx(() {
+      final backgroundColor = colorController.backgroundColor.value;
+      final textColor = colorController.textColor.value;
+      final iconColor = colorController.iconColor.value;
+      final primaryColor = colorController.primaryColor.value;
+
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
+          backgroundColor: backgroundColor,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          title: Text(
+            historyController.isSelectionMode.value
+                ? '${historyController.selectedItems.length} voafidy'
+                : 'Tantara',
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
             ),
-            leading: historyController.isSelectionMode.value
-                ? IconButton(
-                    icon: Icon(
-                      Icons.close,
-                      color: colorController.iconColor.value,
-                    ),
-                    onPressed: historyController.toggleSelectionMode,
-                  )
-                : IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios_outlined,
-                      color: colorController.iconColor.value,
-                    ),
-                    onPressed: () => Get.back(),
-                  ),
-            actions: [
-              if (historyController.isSelectionMode.value) ...[
-                IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: colorController.iconColor.value,
-                  ),
-                  onPressed: () => _showDeleteSelectedDialog(context),
+          ),
+          centerTitle: true,
+          leading: historyController.isSelectionMode.value
+              ? IconButton(
+                  icon: Icon(Icons.close, color: iconColor),
+                  onPressed: historyController.toggleSelectionMode,
+                )
+              : IconButton(
+                  icon:
+                      Icon(Icons.arrow_back_ios_new_rounded, color: iconColor),
+                  onPressed: () => Get.back(),
                 ),
-              ] else ...[
+          actions: [
+            if (historyController.isSelectionMode.value) ...[
+              IconButton(
+                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                onPressed: () => _showDeleteSelectedDialog(context),
+              ),
+            ] else ...[
+              if (historyController.userHistory.isNotEmpty)
                 IconButton(
-                  icon: Icon(
-                    Icons.delete_outline,
-                    color: colorController.iconColor.value,
-                  ),
+                  icon: Icon(Icons.delete_outline, color: iconColor),
                   onPressed: () => _showClearHistoryDialog(context),
                 ),
-              ],
             ],
-          ),
-          body: historyController.isLoading.value
-              ? Center(
-                  child: CircularProgressIndicator(
-                    color: colorController.primaryColor.value,
-                  ),
-                )
-              : historyController.userHistory.isEmpty
-                  ? Center(
-                      child: Neumorphic(
-                        style: NeumorphicStyle(
-                          color: colorController.backgroundColor.value,
-                          boxShape: NeumorphicBoxShape.roundRect(
-                              BorderRadius.circular(15)),
-                          depth: 4,
-                          intensity: 0.8,
+          ],
+        ),
+        body: historyController.isLoading.value
+            ? Center(child: CircularProgressIndicator(color: primaryColor))
+            : historyController.userHistory.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.history,
+                            size: 64, color: textColor.withOpacity(0.3)),
+                        const SizedBox(height: 16),
+                        Text(
+                          l10n.noHistory,
+                          style: TextStyle(
+                              color: textColor.withOpacity(0.7), fontSize: 16),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Text(
-                            l10n.noHistory,
-                            style: TextStyle(
-                              color: colorController.textColor.value,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
-                      itemCount: historyController.userHistory.length,
-                      itemBuilder: (context, index) {
-                        final history = historyController.userHistory[index];
-                        final DateTime timestamp = history['timestamp'];
-                        final String formattedDate =
-                            DateFormat('dd/MM/yyyy HH:mm').format(timestamp);
+                      ],
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    itemCount: historyController.userHistory.length,
+                    itemBuilder: (context, index) {
+                      final history = historyController.userHistory[index];
+                      final DateTime timestamp = history['timestamp'];
+                      final String formattedDate =
+                          DateFormat('dd/MM/yyyy HH:mm').format(timestamp);
+                      final isSelected = historyController.selectedItems
+                          .contains(history['id']);
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12.0),
-                          child: Neumorphic(
-                            style: NeumorphicStyle(
-                              color: colorController.backgroundColor.value,
-                              boxShape: NeumorphicBoxShape.roundRect(
-                                  BorderRadius.circular(15)),
-                              depth: 4,
-                              intensity: 0.8,
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 8),
-                              leading: historyController.isSelectionMode.value
-                                  ? NeumorphicCheckbox(
-                                      value: historyController.selectedItems
-                                          .contains(history['id']),
-                                      onChanged: (_) => historyController
-                                          .toggleItemSelection(history['id']),
-                                      style: NeumorphicCheckboxStyle(
-                                        selectedColor:
-                                            colorController.primaryColor.value,
-                                      ),
-                                    )
-                                  : NeumorphicIcon(
-                                      Icons.history,
-                                      style: NeumorphicStyle(
-                                        color: colorController.iconColor.value,
-                                      ),
-                                    ),
-                              title: Text(
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Card(
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20)),
+                          color: backgroundColor,
+                          child: ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            leading: CircleAvatar(
+                              backgroundColor: primaryColor,
+                              radius: 25,
+                              child: Text(
                                 '${history['number']}',
                                 style: TextStyle(
-                                  color: colorController.textColor.value,
+                                  color: backgroundColor, // Assuming contrast
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              subtitle: Text(
-                                formattedDate,
-                                style: TextStyle(
-                                  color: colorController.textColor.value
-                                      .withOpacity(0.7),
-                                ),
-                              ),
-                              onTap: () {
-                                if (historyController.isSelectionMode.value) {
-                                  historyController
-                                      .toggleItemSelection(history['id']);
-                                } else {
-                                  Get.to(() => HymnDetailScreen(
-                                        hymnId: history['hymnId'],
-                                      ));
-                                }
-                              },
-                              onLongPress: () {
-                                if (!historyController.isSelectionMode.value) {
-                                  historyController.toggleSelectionMode();
-                                  historyController
-                                      .toggleItemSelection(history['id']);
-                                }
-                              },
                             ),
+                            title: Text(
+                              history['title'] ?? 'Hira ${history['number']}',
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            subtitle: Text(
+                              formattedDate,
+                              style:
+                                  TextStyle(color: textColor.withOpacity(0.6)),
+                            ),
+                            trailing: historyController.isSelectionMode.value
+                                ? Checkbox(
+                                    value: isSelected,
+                                    activeColor: primaryColor,
+                                    side: BorderSide(
+                                        color: textColor.withOpacity(0.5)),
+                                    onChanged: (_) => historyController
+                                        .toggleItemSelection(history['id']),
+                                  )
+                                : null,
+                            onTap: () {
+                              if (historyController.isSelectionMode.value) {
+                                historyController
+                                    .toggleItemSelection(history['id']);
+                              } else {
+                                Get.to(() => HymnDetailScreen(
+                                    hymnId: history['hymnId']));
+                              }
+                            },
+                            onLongPress: () {
+                              if (!historyController.isSelectionMode.value) {
+                                historyController.toggleSelectionMode();
+                                historyController
+                                    .toggleItemSelection(history['id']);
+                              }
+                            },
                           ),
-                        );
-                      },
-                    ),
-        ));
+                        ),
+                      );
+                    },
+                  ),
+      );
+    });
   }
 
   void _showClearHistoryDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final textColor = colorController.textColor.value;
+    final backgroundColor = colorController.backgroundColor.value;
+
     Get.dialog(
-      Dialog(
-        backgroundColor: Colors.transparent,
-        child: Neumorphic(
-          style: NeumorphicStyle(
-            color: colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-            depth: 6,
-            intensity: 0.8,
+      AlertDialog(
+        backgroundColor: backgroundColor,
+        title: Text(l10n.clearAllHistoryQuestion,
+            style: TextStyle(color: textColor)),
+        content: Text(l10n.historyCannotBeUndone,
+            style: TextStyle(color: textColor)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(l10n.no, style: TextStyle(color: textColor)),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.clearAllHistoryQuestion,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: colorController.textColor.value,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.historyCannotBeUndone,
-                  style: TextStyle(color: colorController.textColor.value),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    NeumorphicButton(
-                      onPressed: () => Get.back(),
-                      style: NeumorphicStyle(
-                        color: colorController.backgroundColor.value,
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                        depth: 2,
-                      ),
-                      child: Text(
-                        l10n.no,
-                        style: TextStyle(
-                            color: colorController.primaryColor.value),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    NeumorphicButton(
-                      onPressed: () {
-                        historyController.clearHistory();
-                        Get.back();
-                      },
-                      style: NeumorphicStyle(
-                        color: Colors.red.withOpacity(0.1),
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                        depth: 2,
-                      ),
-                      child: Text(
-                        l10n.yes,
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          TextButton(
+            onPressed: () {
+              historyController.clearHistory();
+              Get.back();
+            },
+            child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
           ),
-        ),
+        ],
       ),
     );
   }
 
   void _showDeleteSelectedDialog(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final textColor = colorController.textColor.value;
+    final backgroundColor = colorController.backgroundColor.value;
+
     Get.dialog(
-      Dialog(
-        backgroundColor: Colors.transparent,
-        child: Neumorphic(
-          style: NeumorphicStyle(
-            color: colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-            depth: 6,
-            intensity: 0.8,
+      AlertDialog(
+        backgroundColor: backgroundColor,
+        title: Text(l10n.deleteSelectedHistoryQuestion,
+            style: TextStyle(color: textColor)),
+        content: Text(l10n.historyCannotBeUndone,
+            style: TextStyle(color: textColor)),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(l10n.no, style: TextStyle(color: textColor)),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.deleteSelectedHistoryQuestion,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: colorController.textColor.value,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  l10n.historyCannotBeUndone,
-                  style: TextStyle(color: colorController.textColor.value),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    NeumorphicButton(
-                      onPressed: () => Get.back(),
-                      style: NeumorphicStyle(
-                        color: colorController.backgroundColor.value,
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                        depth: 2,
-                      ),
-                      child: Text(
-                        l10n.no,
-                        style: TextStyle(
-                            color: colorController.primaryColor.value),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    NeumorphicButton(
-                      onPressed: () {
-                        historyController.deleteSelectedItems();
-                        Get.back();
-                      },
-                      style: NeumorphicStyle(
-                        color: Colors.red.withOpacity(0.1),
-                        boxShape: NeumorphicBoxShape.roundRect(
-                            BorderRadius.circular(8)),
-                        depth: 2,
-                      ),
-                      child: Text(
-                        l10n.yes,
-                        style: TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          TextButton(
+            onPressed: () {
+              historyController.deleteSelectedItems();
+              Get.back();
+            },
+            child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
           ),
-        ),
+        ],
       ),
     );
   }

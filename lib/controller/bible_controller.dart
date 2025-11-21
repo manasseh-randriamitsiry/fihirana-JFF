@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,8 +22,7 @@ class BibleController extends GetxController {
   var chapterList = <int>[].obs;
 
   // Verse selection variables
-  var startVerse = 0.obs;
-  var endVerse = 0.obs;
+  var selectedVerses = <int>{}.obs;
   var isSelecting = false.obs;
 
   // Highlights
@@ -246,9 +246,7 @@ class BibleController extends GetxController {
     passageText.value = '';
 
     // Reset verse selection
-    startVerse.value = 0;
-    endVerse.value = 0;
-    isSelecting.value = false;
+    clearSelection();
 
     // Get chapters for the selected book
     chapterList.value = _bibleService.getChaptersForBook(actualBookName);
@@ -264,9 +262,7 @@ class BibleController extends GetxController {
     selectedChapter.value = chapter;
 
     // Reset verse selection
-    startVerse.value = 0;
-    endVerse.value = 0;
-    isSelecting.value = false;
+    clearSelection();
 
     // Clear highlighted verse when changing chapters
     clearHighlightedVerse();
@@ -318,78 +314,111 @@ class BibleController extends GetxController {
     return _bibleService.getChaptersForBook(bookName).length;
   }
 
+  // ... (existing code)
+
   // Verse selection methods
-  void startVerseSelection(int verse) {
-    startVerse.value = verse;
-    endVerse.value = verse;
-    isSelecting.value = true;
-  }
-
-  void updateVerseSelection(int verse) {
-    if (isSelecting.value) {
-      if (verse >= startVerse.value) {
-        endVerse.value = verse;
-      } else {
-        endVerse.value = startVerse.value;
-        startVerse.value = verse;
-      }
+  void toggleVerseSelection(int verse) {
+    if (selectedVerses.contains(verse)) {
+      selectedVerses.remove(verse);
+    } else {
+      selectedVerses.add(verse);
     }
+
+    isSelecting.value = selectedVerses.isNotEmpty;
   }
 
-  void endVerseSelection() {
+  void clearSelection() {
+    selectedVerses.clear();
     isSelecting.value = false;
   }
 
   bool isVerseSelected(int verse) {
-    return verse >= startVerse.value &&
-            verse <= endVerse.value &&
-            isSelecting.value ||
-        (verse == startVerse.value &&
-            startVerse.value == endVerse.value &&
-            isSelecting.value);
+    return selectedVerses.contains(verse);
   }
 
   String getSelectedVerseRange() {
-    if (startVerse.value == 0 || endVerse.value == 0) return '';
-    if (startVerse.value == endVerse.value) {
-      return '${selectedBook.value} ${selectedChapter.value}:${startVerse.value}';
-    } else {
-      return '${selectedBook.value} ${selectedChapter.value}:${startVerse.value}-${endVerse.value}';
-    }
+    if (selectedVerses.isEmpty) return '';
+
+    final sortedVerses = selectedVerses.toList()..sort();
+    if (sortedVerses.isEmpty) return '';
+
+    // Group into ranges for display
+    // This is a simple implementation, can be improved for multiple ranges
+    // e.g. "1, 3-5, 8"
+
+    StringBuffer buffer = StringBuffer();
+    buffer.write('${selectedBook.value} ${selectedChapter.value}:');
+
+    // Simple comma separated list for now or just the first/last if we want to keep it simple
+    // But for display purposes, let's show all selected numbers
+    buffer.write(sortedVerses.join(', '));
+
+    return buffer.toString();
   }
 
   // Highlight methods
   Future<void> saveHighlight() async {
-    if (startVerse.value == 0 || endVerse.value == 0) return;
+    if (selectedVerses.isEmpty) return;
 
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (user == null) {
+      Get.snackbar(
+        'Fanamarihana',
+        'Mila mampiasa compte Google.',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
 
-    final highlight = BibleHighlight(
-      id: '',
-      bookName: selectedBook.value,
-      chapter: selectedChapter.value,
-      startVerse: startVerse.value,
-      endVerse: endVerse.value,
-      userId: user.uid,
-      userName: user.displayName ?? user.email ?? 'Anonymous',
-      color: '#FF0000', // Default red color
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+    // Group selected verses into contiguous ranges
+    final sortedVerses = selectedVerses.toList()..sort();
+    List<List<int>> ranges = [];
 
-    final success = await _highlightService.saveHighlight(highlight);
-    if (success) {
+    if (sortedVerses.isNotEmpty) {
+      List<int> currentRange = [sortedVerses.first];
+
+      for (int i = 1; i < sortedVerses.length; i++) {
+        if (sortedVerses[i] == sortedVerses[i - 1] + 1) {
+          currentRange.add(sortedVerses[i]);
+        } else {
+          ranges.add(List.from(currentRange));
+          currentRange = [sortedVerses[i]];
+        }
+      }
+      ranges.add(currentRange);
+    }
+
+    bool allSuccess = true;
+
+    for (final range in ranges) {
+      final highlight = BibleHighlight(
+        id: '',
+        bookName: selectedBook.value,
+        chapter: selectedChapter.value,
+        startVerse: range.first,
+        endVerse: range.last,
+        userId: user.uid,
+        userName: user.displayName ?? user.email ?? 'Anonymous',
+        color: '#FF0000', // Default red color
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      final success = await _highlightService.saveHighlight(highlight);
+      if (!success) allSuccess = false;
+    }
+
+    if (allSuccess) {
       // Reset selection
-      startVerse.value = 0;
-      endVerse.value = 0;
-      isSelecting.value = false;
+      clearSelection();
 
       // Show success message
-      Get.snackbar('Fametrahana', 'Voatahiry soa aman-tsara ny famaritaka!');
+      Get.snackbar('Filazana', 'Voatahiry soa aman-tsara!');
     } else {
       Get.snackbar(
-          'Fametrahana', 'Nisy olana teo am-pametrahana ny famaritaka.');
+          'Filazana', 'Nisy olana teo am-pametrahana.');
     }
   }
 
@@ -409,46 +438,6 @@ class BibleController extends GetxController {
 
   void clearHighlightedVerse() {
     highlightedVerse.value = 0;
-  }
-
-  // New methods for enhanced screen
-  void toggleVerseSelection(int verse) {
-    if (startVerse.value == 0) {
-      // Start new selection
-      startVerse.value = verse;
-      endVerse.value = verse;
-      isSelecting.value = true;
-    } else if (verse == startVerse.value && verse == endVerse.value) {
-      // Deselect if clicking the same verse
-      startVerse.value = 0;
-      endVerse.value = 0;
-      isSelecting.value = false;
-    } else if (verse >= startVerse.value && verse <= endVerse.value) {
-      // Extend or shrink selection
-      if (verse == startVerse.value) {
-        startVerse.value = verse + 1;
-      } else if (verse == endVerse.value) {
-        endVerse.value = verse - 1;
-      } else {
-        // Select within range - shrink to this verse
-        startVerse.value = verse;
-        endVerse.value = verse;
-      }
-
-      // Reset if selection becomes invalid
-      if (startVerse.value > endVerse.value) {
-        startVerse.value = 0;
-        endVerse.value = 0;
-        isSelecting.value = false;
-      }
-    } else {
-      // Extend selection
-      if (verse < startVerse.value) {
-        startVerse.value = verse;
-      } else {
-        endVerse.value = verse;
-      }
-    }
   }
 
   List<String> getCurrentChapterVerses() {
@@ -655,9 +644,7 @@ class BibleController extends GetxController {
         selectBook(result.bookName);
         // Don't clear highlighted verse when selecting chapter
         selectedChapter.value = result.chapter;
-        startVerse.value = 0;
-        endVerse.value = 0;
-        isSelecting.value = false;
+        clearSelection();
         loadPassage();
 
         // Set the verse to highlight AFTER selecting chapter

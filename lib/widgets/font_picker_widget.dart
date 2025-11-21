@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../controller/font_controller.dart';
 import '../controller/color_controller.dart';
@@ -14,109 +13,198 @@ class FontPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Neumorphic(
-      style: NeumorphicStyle(
+    return Container(
+      decoration: BoxDecoration(
         color: _colorController.backgroundColor.value,
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-        depth: 4,
-        intensity: 0.8,
+        borderRadius: BorderRadius.circular(16),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Neumorphic(
-              style: NeumorphicStyle(
-                color: _colorController.primaryColor.value,
-                boxShape:
-                    NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
-                depth: 2,
-                intensity: 0.8,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  _colorController.primaryColor.value,
+                  _colorController.primaryColor.value.withOpacity(0.8),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Text(
-                  l10n.chooseFontStyle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: _colorController.textColor.value,
-                  ),
-                ),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
               ),
             ),
-            const SizedBox(height: 16),
-            Flexible(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.6,
-                child: ListView.builder(
-                  itemCount: _fontController.availableFonts.length,
-                  itemBuilder: (context, index) {
-                    final fontName = _fontController.availableFonts[index];
-                    return Obx(() => Neumorphic(
-                          style: NeumorphicStyle(
-                            color: _colorController.backgroundColor.value,
-                            boxShape: NeumorphicBoxShape.roundRect(
-                                BorderRadius.circular(8)),
-                            depth: 2,
-                            intensity: 0.8,
-                          ),
-                          child: RadioListTile<String>(
-                            title: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.font_download,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  l10n.chooseFontStyle,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Font List
+          Flexible(
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.6,
+              ),
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                shrinkWrap: true,
+                itemCount: _fontController.availableFonts.length,
+                itemBuilder: (context, index) {
+                  final fontName = _fontController.availableFonts[index];
+                  return Obx(() {
+                    final isSelected =
+                        _fontController.currentFont.value == fontName;
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? _colorController.primaryColor.value
+                                .withOpacity(0.1)
+                            : _colorController.backgroundColor.value,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? _colorController.primaryColor.value
+                              : _colorController.textColor.value
+                                  .withOpacity(0.1),
+                          width: isSelected ? 2 : 1,
+                        ),
+                        boxShadow: [
+                          if (isSelected)
+                            BoxShadow(
+                              color: _colorController.primaryColor.value
+                                  .withOpacity(0.2),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12),
+                          onTap: () {
+                            _fontController.changeFont(fontName);
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
                               children: [
-                                Text(
-                                  fontName,
-                                  style: TextStyle(
-                                    color: _colorController.textColor.value,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                Text(
-                                  l10n.sampleText,
-                                  style: _fontController.getFontStyle(
-                                    fontName,
-                                    TextStyle(
-                                      color: _colorController.textColor.value,
-                                      fontSize: 16,
+                                // Radio indicator
+                                Container(
+                                  width: 24,
+                                  height: 24,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? _colorController.primaryColor.value
+                                          : _colorController.textColor.value
+                                              .withOpacity(0.3),
+                                      width: 2,
                                     ),
+                                    color: isSelected
+                                        ? _colorController.primaryColor.value
+                                        : Colors.transparent,
+                                  ),
+                                  child: isSelected
+                                      ? const Icon(
+                                          Icons.check,
+                                          size: 16,
+                                          color: Colors.white,
+                                        )
+                                      : null,
+                                ),
+                                const SizedBox(width: 16),
+                                // Font info
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        fontName,
+                                        style: TextStyle(
+                                          color:
+                                              _colorController.textColor.value,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        l10n.sampleText,
+                                        style: _fontController.getFontStyle(
+                                          fontName,
+                                          TextStyle(
+                                            color: _colorController
+                                                .textColor.value
+                                                .withOpacity(0.8),
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            value: fontName,
-                            groupValue: _fontController.currentFont.value,
-                            onChanged: (value) {
-                              if (value != null) {
-                                _fontController.changeFont(value);
-                              }
-                            },
-                            activeColor: _colorController.primaryColor.value,
                           ),
-                        ));
-                  },
-                ),
+                        ),
+                      ),
+                    );
+                  });
+                },
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
+          ),
+
+          // Footer with action button
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                  ),
                   child: Text(
                     l10n.accept,
                     style: TextStyle(
                       color: _colorController.primaryColor.value,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
