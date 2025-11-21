@@ -9,7 +9,6 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
-import '../../widgets/audio_player_widget.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
