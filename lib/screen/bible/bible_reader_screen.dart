@@ -302,23 +302,91 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     final verses = bibleController.getCurrentChapterVerses();
 
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          child: ListView.builder(
-            controller: _verseScrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            itemCount: verses.length + 1, // +1 for bottom spacing/navigation
-            itemBuilder: (context, index) {
-              if (index == verses.length) {
-                return _buildChapterNavigation();
-              }
-              final verseNumber = index + 1;
-              final verseText = verses[index];
-              return _buildVerseItem(verseNumber, verseText);
-            },
-          ),
+        Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _verseScrollController,
+                padding: const EdgeInsets.fromLTRB(
+                    20, 16, 20, 100), // Add bottom padding for FAB
+                itemCount:
+                    verses.length + 1, // +1 for bottom spacing/navigation
+                itemBuilder: (context, index) {
+                  if (index == verses.length) {
+                    return _buildChapterNavigation();
+                  }
+                  final verseNumber = index + 1;
+                  final verseText = verses[index];
+                  return _buildVerseItem(verseNumber, verseText);
+                },
+              ),
+            ),
+          ],
         ),
+        // Selection Action Bar
+        Obx(() {
+          if (!bibleController.isSelecting.value)
+            return const SizedBox.shrink();
+
+          return Positioned(
+            bottom: 24,
+            left: 24,
+            right: 24,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: colorController.backgroundColor.value,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+                border: Border.all(
+                  color: colorController.primaryColor.value.withOpacity(0.1),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Clear Selection
+                  IconButton(
+                    onPressed: () => bibleController.clearSelection(),
+                    icon: Icon(Icons.close,
+                        color: colorController.textColor.value),
+                    tooltip: 'Manafoana',
+                  ),
+                  Container(
+                    width: 1,
+                    height: 24,
+                    color: colorController.textColor.value.withOpacity(0.2),
+                  ),
+                  // Highlight/Save
+                  IconButton(
+                    onPressed: () => bibleController.saveHighlight(),
+                    icon: const Icon(Icons.highlight_rounded,
+                        color: Colors.orange),
+                    tooltip: 'Marihina',
+                  ),
+                  // Copy (Optional, can be added later)
+                  /*
+                  IconButton(
+                    onPressed: () {
+                      // Implement copy functionality
+                    },
+                    icon: Icon(Icons.copy_rounded, color: colorController.primaryColor.value),
+                    tooltip: 'Adika',
+                  ),
+                  */
+                ],
+              ),
+            ),
+          );
+        }),
       ],
     );
   }
