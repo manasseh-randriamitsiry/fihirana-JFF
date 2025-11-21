@@ -4,18 +4,17 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
-
 import '../../services/audio_file_mapping.dart';
 import '../../services/local_audio_service.dart';
 import '../../widgets/modern_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
-class EnhancedAudioPlayerScreen extends StatefulWidget {
+class AudioPlayerScreen extends StatefulWidget {
   final Hymn hymn;
   final List<Hymn>? playlist;
   final int? initialIndex;
 
-  const EnhancedAudioPlayerScreen({
+  const AudioPlayerScreen({
     Key? key,
     required this.hymn,
     this.playlist,
@@ -23,11 +22,11 @@ class EnhancedAudioPlayerScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<EnhancedAudioPlayerScreen> createState() =>
-      _EnhancedAudioPlayerScreenState();
+  State<AudioPlayerScreen> createState() =>
+      _AudioPlayerScreenState();
 }
 
-class _EnhancedAudioPlayerScreenState extends State<EnhancedAudioPlayerScreen> {
+class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   final HymnService _hymnService = HymnService();
   final AudioService _audioService = AudioService.instance;
 
@@ -260,7 +259,7 @@ class AudioPlayerNavigator {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            EnhancedAudioPlayerScreen(
+            AudioPlayerScreen(
           hymn: hymn,
           playlist: playlist,
           initialIndex: initialIndex,
@@ -299,7 +298,7 @@ class AudioPlayerNavigator {
             maxHeight: MediaQuery.of(context).size.height * 0.9,
             maxWidth: MediaQuery.of(context).size.width * 0.95,
           ),
-          child: EnhancedAudioPlayerScreen(
+          child: AudioPlayerScreen(
             hymn: hymn,
             playlist: playlist,
             initialIndex: initialIndex,
