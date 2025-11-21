@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
+import '../../controller/font_controller.dart';
 import '../../widgets/bible_search_dialog.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -17,10 +18,11 @@ class BibleReaderScreen extends StatefulWidget {
 class _BibleReaderScreenState extends State<BibleReaderScreen> {
   final BibleController bibleController = Get.put(BibleController());
   final ColorController colorController = Get.find<ColorController>();
+  final FontController fontController = Get.find<FontController>();
 
   // Font settings
   double _fontSize = 18.0;
-  String _fontFamily = 'Serif'; // 'Serif' or 'Sans'
+  String _fontFamily = 'Lato'; // Use font names from FontController
 
   // Scroll controller
   final ScrollController _verseScrollController = ScrollController();
@@ -53,44 +55,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   TextStyle get _verseStyle {
     final color = colorController.textColor.value;
-    switch (_fontFamily) {
-      case 'Serif':
-        return GoogleFonts.merriweather(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.8,
-        );
-      case 'Sans':
-        return GoogleFonts.inter(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-      case 'Lora':
-        return GoogleFonts.lora(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.8,
-        );
-      case 'Roboto':
-        return GoogleFonts.roboto(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-      case 'Poppins':
-        return GoogleFonts.poppins(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-      default:
-        return GoogleFonts.inter(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-    }
+    return fontController.getFontStyle(
+      _fontFamily,
+      TextStyle(
+        fontSize: _fontSize,
+        color: color,
+        height: 1.7,
+      ),
+    );
   }
 
   @override
@@ -302,23 +274,91 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     final verses = bibleController.getCurrentChapterVerses();
 
-    return Column(
+    return Stack(
       children: [
-        Expanded(
-          child: ListView.builder(
-            controller: _verseScrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            itemCount: verses.length + 1, // +1 for bottom spacing/navigation
-            itemBuilder: (context, index) {
-              if (index == verses.length) {
-                return _buildChapterNavigation();
-              }
-              final verseNumber = index + 1;
-              final verseText = verses[index];
-              return _buildVerseItem(verseNumber, verseText);
-            },
-          ),
+        Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _verseScrollController,
+                padding: const EdgeInsets.fromLTRB(
+                    20, 16, 20, 100), // Add bottom padding for FAB
+                itemCount:
+                    verses.length + 1, // +1 for bottom spacing/navigation
+                itemBuilder: (context, index) {
+                  if (index == verses.length) {
+                    return _buildChapterNavigation();
+                  }
+                  final verseNumber = index + 1;
+                  final verseText = verses[index];
+                  return _buildVerseItem(verseNumber, verseText);
+                },
+              ),
+            ),
+          ],
         ),
+        // Selection Action Bar
+        Obx(() {
+          if (!bibleController.isSelecting.value)
+            return const SizedBox.shrink();
+
+          return Positioned(
+            bottom: 24,
+            left: 24,
+            right: 24,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: colorController.backgroundColor.value,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+                border: Border.all(
+                  color: colorController.primaryColor.value.withOpacity(0.1),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Clear Selection
+                  IconButton(
+                    onPressed: () => bibleController.clearSelection(),
+                    icon: Icon(Icons.close,
+                        color: colorController.textColor.value),
+                    tooltip: 'Manafoana',
+                  ),
+                  Container(
+                    width: 1,
+                    height: 24,
+                    color: colorController.textColor.value.withOpacity(0.2),
+                  ),
+                  // Highlight/Save
+                  IconButton(
+                    onPressed: () => bibleController.saveHighlight(),
+                    icon: const Icon(Icons.highlight_rounded,
+                        color: Colors.orange),
+                    tooltip: 'Marihina',
+                  ),
+                  // Copy (Optional, can be added later)
+                  /*
+                  IconButton(
+                    onPressed: () {
+                      // Implement copy functionality
+                    },
+                    icon: Icon(Icons.copy_rounded, color: colorController.primaryColor.value),
+                    tooltip: 'Adika',
+                  ),
+                  */
+                ],
+              ),
+            ),
+          );
+        }),
       ],
     );
   }
@@ -471,7 +511,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               const SizedBox(height: 24),
               // Font Family Selector
               Text(
-                'Font Family',
+                'Font Family (${fontController.availableFonts.length} fonts)',
                 style: GoogleFonts.inter(
                   color: colorController.textColor.value,
                   fontSize: 14,
@@ -481,22 +521,19 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 50,
-                child: ListView(
+                child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildHorizontalFontOption(
-                        'Serif', 'Merriweather', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption('Sans', 'Inter', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption('Lora', 'Lora', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption(
-                        'Roboto', 'Roboto', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption(
-                        'Poppins', 'Poppins', setModalState),
-                  ],
+                  itemCount: fontController.availableFonts.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final fontName = fontController.availableFonts[index];
+                    return _buildHorizontalFontOption(
+                      fontName,
+                      fontName,
+                      setModalState,
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 24),
@@ -543,11 +580,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ),
         child: Text(
           fontName,
-          style: GoogleFonts.getFont(
+          style: fontController.getFontStyle(
             fontName,
-            color: isSelected ? Colors.white : colorController.textColor.value,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+            TextStyle(
+              color:
+                  isSelected ? Colors.white : colorController.textColor.value,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
         ),
       ),

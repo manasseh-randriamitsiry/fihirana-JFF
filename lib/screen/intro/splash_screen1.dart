@@ -691,7 +691,7 @@ class _SplashScreen1State extends State<SplashScreen1>
             Icons.arrow_back_ios,
             color: Colors.white,
           ),
-          positionSlideIcon: 0.5,
+          positionSlideIcon: 0.2,
           enableSideReveal: true,
           ignoreUserGestureWhileAnimating: true,
           disableUserGesture: false,

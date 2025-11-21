@@ -107,12 +107,48 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
   }
 
   Future<void> _loadAdjacentHymns() async {
-    if (_allHymns.isEmpty) return;
+    // If all hymns list is empty, we still try to load the specific hymn
+    // if (_allHymns.isEmpty) return;
 
     final currentIndex = _allHymns.indexWhere((h) => h.id == widget.hymnId);
     if (currentIndex == -1) {
       if (kDebugMode) {
-        print('Current hymn not found in all hymns list');
+        print(
+            'Current hymn not found in all hymns list, trying to load individually');
+      }
+
+      // Try to load the hymn individually (e.g. from Firebase)
+      final hymn = await _hymnService.getHymnById(widget.hymnId);
+
+      if (mounted) {
+        if (hymn != null) {
+          setState(() {
+            _hymn = hymn;
+            _adjacentHymns = [hymn]; // Only this hymn available
+            _currentPageIndex = 0;
+            _isLoadingHymns = false;
+          });
+
+          // Add to history and check audio
+          if (kDebugMode) {
+            print(
+                'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
+          }
+          await historyController.addToHistory(
+            widget.hymnId,
+            _hymn!.title,
+            _hymn!.hymnNumber,
+          );
+          await _checkAudioAvailability();
+        } else {
+          // Hymn really not found
+          setState(() {
+            _isLoadingHymns = false;
+          });
+          if (kDebugMode) {
+            print('Hymn not found even individually');
+          }
+        }
       }
       return;
     }
@@ -235,7 +271,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
     }
 
     try {
-      final note = await _noteService.getNote(widget.hymnId);
+      final note = await _noteService.getNote(widget.hymnId).timeout(
+            const Duration(seconds: 5),
+            onTimeout: () => null,
+          );
       setState(() {
         _userNote = note;
         _isLoadingNote = false;
@@ -311,7 +350,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen> {
             ],
             if (isUserAuthenticated())
               StreamBuilder<List<Note>>(
-                stream: _noteService.getPublicNotesStream(hymn.id),
+                stream: _noteService.getPublicNotesStream(hymn.id).timeout(
+                      const Duration(seconds: 5),
+                      onTimeout: (sink) => sink.add([]),
+                    ),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(child: Text(l10n.errorLoadingNotes));

@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'dart:async';
 
 import '../utility/snackbar_utility.dart';
 
@@ -13,6 +14,7 @@ class AuthController extends GetxController {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
   final Rx<bool> _canAddSongs = false.obs;
   final Rx<bool> _isAdmin = false.obs;
+  StreamSubscription<DocumentSnapshot>? _permissionSubscription;
 
   bool get canAddSongs => _canAddSongs.value;
   bool get isAdmin => _isAdmin.value;
@@ -25,48 +27,66 @@ class AuthController extends GetxController {
       if (user != null) {
         _updateUserPermissions(user);
       } else {
+        _permissionSubscription?.cancel();
+        _permissionSubscription = null;
         _canAddSongs.value = false;
         _isAdmin.value = false;
       }
     });
   }
 
-  Future<void> _updateUserPermissions(User user) async {
+  @override
+  void onClose() {
+    _permissionSubscription?.cancel();
+    super.onClose();
+  }
 
+  void _updateUserPermissions(User user) {
+    // Cancel existing subscription if any
+    _permissionSubscription?.cancel();
+
+    // Admin check (hardcoded email)
     if (user.email == 'manassehrandriamitsiry@gmail.com') {
       _isAdmin.value = true;
       _canAddSongs.value = true;
       return;
     }
 
-    try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      _canAddSongs.value = userDoc.exists && (userDoc.data()?['canAddSongs'] ?? false);
-    } catch (e) {
-      _canAddSongs.value = false;
-    }
+    // Set up real-time listener for regular users
+    _permissionSubscription =
+        _firestore.collection('users').doc(user.uid).snapshots().listen(
+      (snapshot) {
+        if (snapshot.exists) {
+          final data = snapshot.data();
+          _canAddSongs.value = data?['canAddSongs'] ?? false;
+          if (kDebugMode) {
+            print('Permission updated: canAddSongs = ${_canAddSongs.value}');
+          }
+        } else {
+          _canAddSongs.value = false;
+        }
+      },
+      onError: (error) {
+        if (kDebugMode) {
+          print('Error listening to user permissions: $error');
+        }
+        _canAddSongs.value = false;
+      },
+    );
   }
 
   Future<void> refreshPermissions() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      await _updateUserPermissions(user);
+      _updateUserPermissions(user);
     }
   }
 
   Future<void> signOut() async {
     try {
-
       await _googleSignIn.signOut();
-
       await _auth.signOut();
-
       await _auth.setPersistence(Persistence.NONE);
-
       _canAddSongs.value = false;
     } catch (e) {
       SnackbarUtility.showError(
@@ -82,7 +102,6 @@ class AuthController extends GetxController {
       final docSnapshot = await userDoc.get();
 
       if (!docSnapshot.exists) {
-
         await userDoc.set({
           'email': user.email,
           'displayName': user.displayName,
@@ -92,7 +111,6 @@ class AuthController extends GetxController {
           'lastLogin': FieldValue.serverTimestamp(),
         });
       } else {
-
         await userDoc.update({
           'email': user.email,
           'displayName': user.displayName,
@@ -131,7 +149,6 @@ class AuthController extends GetxController {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null;
 
@@ -152,14 +169,12 @@ class AuthController extends GetxController {
 
         return userCredential;
       } catch (e) {
-
         if (_auth.currentUser != null) {
           return null;
         }
         rethrow;
       }
     } catch (e) {
-
       if (kDebugMode) {
         SnackbarUtility.showError(
           title: 'Error signing in',
