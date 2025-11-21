@@ -1,12 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../controller/theme_controller.dart';
 import '../controller/color_controller.dart';
 import '../screen/bible/bible_reader_screen.dart';
 import '../screen/favorite/favorites_screen.dart';
@@ -34,7 +32,6 @@ class DrawerWidget extends StatefulWidget {
 }
 
 class DrawerWidgetState extends State<DrawerWidget> {
-  final ThemeController _themeController = Get.find<ThemeController>();
   final ColorController _colorController = Get.find<ColorController>();
   bool _isAuthenticated = false;
   String? _username;
@@ -436,7 +433,8 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         Text(
                           _currentUser?.email ?? '',
                           style: TextStyle(
-                            color: _colorController.backgroundColor.value.withOpacity(0.95),
+                            color: _colorController.backgroundColor.value
+                                .withOpacity(0.95),
                             fontSize: 14,
                           ),
                           maxLines: 1,
@@ -448,6 +446,35 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           onTap: _signInWithGoogle,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _colorController.primaryColor.value,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Sign In',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Menu Items
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
                 _buildSectionHeader('Library'),
                 if (_isAuthenticated)
                   _buildDrawerItem(
