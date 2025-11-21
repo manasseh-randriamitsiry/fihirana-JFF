@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
+import '../../controller/font_controller.dart';
 import '../../widgets/bible_search_dialog.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -17,10 +18,11 @@ class BibleReaderScreen extends StatefulWidget {
 class _BibleReaderScreenState extends State<BibleReaderScreen> {
   final BibleController bibleController = Get.put(BibleController());
   final ColorController colorController = Get.find<ColorController>();
+  final FontController fontController = Get.find<FontController>();
 
   // Font settings
   double _fontSize = 18.0;
-  String _fontFamily = 'Serif'; // 'Serif' or 'Sans'
+  String _fontFamily = 'Lato'; // Use font names from FontController
 
   // Scroll controller
   final ScrollController _verseScrollController = ScrollController();
@@ -53,44 +55,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   TextStyle get _verseStyle {
     final color = colorController.textColor.value;
-    switch (_fontFamily) {
-      case 'Serif':
-        return GoogleFonts.merriweather(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.8,
-        );
-      case 'Sans':
-        return GoogleFonts.inter(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-      case 'Lora':
-        return GoogleFonts.lora(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.8,
-        );
-      case 'Roboto':
-        return GoogleFonts.roboto(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-      case 'Poppins':
-        return GoogleFonts.poppins(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-      default:
-        return GoogleFonts.inter(
-          fontSize: _fontSize,
-          color: color,
-          height: 1.6,
-        );
-    }
+    return fontController.getFontStyle(
+      _fontFamily,
+      TextStyle(
+        fontSize: _fontSize,
+        color: color,
+        height: 1.7,
+      ),
+    );
   }
 
   @override
@@ -539,7 +511,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               const SizedBox(height: 24),
               // Font Family Selector
               Text(
-                'Font Family',
+                'Font Family (${fontController.availableFonts.length} fonts)',
                 style: GoogleFonts.inter(
                   color: colorController.textColor.value,
                   fontSize: 14,
@@ -549,22 +521,19 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 50,
-                child: ListView(
+                child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  children: [
-                    _buildHorizontalFontOption(
-                        'Serif', 'Merriweather', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption('Sans', 'Inter', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption('Lora', 'Lora', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption(
-                        'Roboto', 'Roboto', setModalState),
-                    const SizedBox(width: 12),
-                    _buildHorizontalFontOption(
-                        'Poppins', 'Poppins', setModalState),
-                  ],
+                  itemCount: fontController.availableFonts.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 12),
+                  itemBuilder: (context, index) {
+                    final fontName = fontController.availableFonts[index];
+                    return _buildHorizontalFontOption(
+                      fontName,
+                      fontName,
+                      setModalState,
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 24),
@@ -611,11 +580,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ),
         child: Text(
           fontName,
-          style: GoogleFonts.getFont(
+          style: fontController.getFontStyle(
             fontName,
-            color: isSelected ? Colors.white : colorController.textColor.value,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+            TextStyle(
+              color:
+                  isSelected ? Colors.white : colorController.textColor.value,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
         ),
       ),
