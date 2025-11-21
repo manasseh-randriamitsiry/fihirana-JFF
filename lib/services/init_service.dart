@@ -1,5 +1,6 @@
 import 'package:fihirana/controller/auth_controller.dart';
 import 'package:fihirana/controller/color_controller.dart';
+import 'package:fihirana/controller/daily_verse_controller.dart';
 import 'package:fihirana/controller/font_controller.dart';
 import 'package:fihirana/controller/history_controller.dart';
 import 'package:fihirana/controller/language_controller.dart';
@@ -33,6 +34,7 @@ class InitService {
     Get.put(FontController());
     Get.put(AuthController());
     Get.put(LanguageController());
+    Get.put(DailyVerseController());
     Get.put(HymnService());
     Get.put(BackgroundService());
     Get.put(FirebaseSyncService());

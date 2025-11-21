@@ -157,6 +157,23 @@ class NotificationService {
           channelShowBadge: true,
           icon: 'resource://mipmap/ic_launcher',
         ),
+        NotificationChannel(
+          channelKey: 'daily_verse_channel',
+          channelName: 'Daily Bible Verse',
+          channelDescription: 'Daily inspirational Bible verses',
+          defaultColor: const Color(0xFF4CAF50),
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          enableVibration: true,
+          enableLights: true,
+          playSound: true,
+          icon: 'resource://mipmap/ic_launcher',
+          locked: false, // User can customize
+          defaultPrivacy: NotificationPrivacy.Public, // Show on lock screen
+          ledColor: const Color(0xFF4CAF50),
+          ledOnMs: 1000,
+          ledOffMs: 500,
+        ),
       ],
     );
   }
