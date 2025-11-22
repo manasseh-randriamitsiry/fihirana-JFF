@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/local_storage_service.dart';
-import '../../widgets/rive_animation_widget.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../accueil/home_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -164,14 +164,10 @@ class _LoadingScreenState extends State<LoadingScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Rive Loading Animation
-                RiveAnimationWidget(
-                  assetPath: 'assets/animations/loading.riv',
-                  width: 200,
-                  height: 200,
-                  fit: BoxFit.contain,
-                  stateMachineName:
-                      'State Machine 1', // Adjust this to match your Rive file's state machine name
-                  progress: _progress.value,
+                // Loading Animation
+                LoadingAnimationWidget.staggeredDotsWave(
+                  color: primaryColor,
+                  size: 100,
                 ),
 
                 const SizedBox(height: 40),

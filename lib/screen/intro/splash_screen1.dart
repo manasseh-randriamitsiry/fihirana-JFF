@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/language_controller.dart';
-import '../../widgets/rive_animation_widget.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -15,8 +15,7 @@ class SplashScreen1 extends StatefulWidget {
   _SplashScreen1State createState() => _SplashScreen1State();
 }
 
-class _SplashScreen1State extends State<SplashScreen1>
-    with TickerProviderStateMixin {
+class _SplashScreen1State extends State<SplashScreen1> {
   final TextEditingController _usernameController = TextEditingController();
   bool _agreementAccepted = false;
   int _currentPage = 0;
@@ -27,10 +26,6 @@ class _SplashScreen1State extends State<SplashScreen1>
 
   // Liquid swipe controller
   late LiquidController _liquidController;
-
-  // Animation controllers
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -43,23 +38,12 @@ class _SplashScreen1State extends State<SplashScreen1>
 
     // Initialize liquid swipe controller
     _liquidController = LiquidController();
-
-    // Initialize fade animation
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    );
-    _fadeController.forward();
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
-    _fadeController.dispose();
+
     super.dispose();
   }
 
@@ -258,16 +242,44 @@ class _SplashScreen1State extends State<SplashScreen1>
       ),
       child: Stack(
         children: [
-          // Rive Background
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.6,
-              child: RiveAnimationWidget(
-                assetPath: 'assets/animations/earth.riv',
-                fit: BoxFit.cover,
-                fallback: Container(color: Colors.transparent),
+          // Animated Background Elements
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
               ),
-            ),
+            )
+                .animate(
+                    onPlay: (controller) => controller.repeat(reverse: true))
+                .scale(
+                    duration: const Duration(seconds: 4),
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.2, 1.2),
+                    curve: Curves.easeInOut),
+          ),
+          Positioned(
+            bottom: -50,
+            left: -50,
+            child: Container(
+              width: 200,
+              height: 200,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
+              ),
+            )
+                .animate(
+                    onPlay: (controller) => controller.repeat(reverse: true))
+                .scale(
+                    duration: const Duration(seconds: 5),
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.5, 1.5),
+                    curve: Curves.easeInOut),
           ),
 
           // Content
@@ -279,33 +291,45 @@ class _SplashScreen1State extends State<SplashScreen1>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      // Spacer to push content down slightly if needed, or just center it
-                      const SizedBox(height: 100),
-
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Text(
-                          l10n.chooseLanguage,
-                          style: const TextStyle(
-                            fontSize: 28.0,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            shadows: [
-                              Shadow(
-                                offset: Offset(0, 2),
-                                blurRadius: 4,
-                                color: Colors.black26,
-                              ),
-                            ],
-                          ),
-                          textAlign: TextAlign.center,
+                      const SizedBox(height: 40),
+                      Icon(
+                        Icons.language,
+                        size: 80,
+                        color: Colors.white.withOpacity(0.9),
+                      )
+                          .animate()
+                          .fadeIn(duration: 600.ms)
+                          .scale(delay: 200.ms, duration: 400.ms),
+                      const SizedBox(height: 20),
+                      Text(
+                        l10n.chooseLanguage,
+                        style: const TextStyle(
+                          fontSize: 28.0,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              color: Colors.black26,
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 30),
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: _buildLanguageOptions(l10n),
-                      ),
+                        textAlign: TextAlign.center,
+                      ).animate().fadeIn(duration: 600.ms).slideY(
+                          begin: 0.3,
+                          end: 0,
+                          duration: 600.ms,
+                          curve: Curves.easeOut),
+                      const SizedBox(height: 40),
+                      _buildLanguageOptions(l10n)
+                          .animate()
+                          .fadeIn(delay: 300.ms, duration: 600.ms)
+                          .slideY(
+                              begin: 0.2,
+                              end: 0,
+                              duration: 600.ms,
+                              curve: Curves.easeOut),
                     ],
                   ),
                 ),
@@ -333,49 +357,83 @@ class _SplashScreen1State extends State<SplashScreen1>
       child: SafeArea(
         child: Stack(
           children: [
+            // Background elements
+            Positioned(
+              top: 50,
+              left: 20,
+              child: Icon(
+                Icons.music_note,
+                size: 40,
+                color: Colors.white.withOpacity(0.2),
+              )
+                  .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true))
+                  .moveY(
+                      begin: 0,
+                      end: -20,
+                      duration: const Duration(seconds: 2),
+                      curve: Curves.easeInOut),
+            ),
+            Positioned(
+              bottom: 100,
+              right: 30,
+              child: Icon(
+                Icons.library_music,
+                size: 60,
+                color: Colors.white.withOpacity(0.15),
+              )
+                  .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true))
+                  .moveY(
+                      begin: 0,
+                      end: 30,
+                      duration: const Duration(seconds: 3),
+                      curve: Curves.easeInOut),
+            ),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  TweenAnimationBuilder<double>(
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    duration: const Duration(milliseconds: 800),
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.music_note,
-                            size: 60,
-                            color: Color(0xFF4A90E2),
-                          ),
+                  Container(
+                    padding: const EdgeInsets.all(30),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 30,
+                          offset: const Offset(0, 15),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 30),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.music_note_rounded,
+                      size: 80,
+                      color: Color(0xFF4A90E2),
+                    ),
+                  )
+                      .animate()
+                      .scale(
+                          duration: 800.ms,
+                          curve: Curves.elasticOut,
+                          begin: const Offset(0, 0),
+                          end: const Offset(1, 1))
+                      .then(delay: 200.ms)
+                      .shimmer(duration: 1500.ms, color: Colors.blue.shade100),
+                  const SizedBox(height: 40),
                   _buildCard(
                     child: Column(
                       children: [
                         Text(
                           l10n.splashScreenTitle,
                           style: const TextStyle(
-                            fontSize: 24,
+                            fontSize: 26,
                             color: Colors.black87,
                             fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -391,8 +449,11 @@ class _SplashScreen1State extends State<SplashScreen1>
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 30),
+                  )
+                      .animate()
+                      .fadeIn(delay: 400.ms, duration: 600.ms)
+                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                  const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () {
                       HapticFeedback.mediumImpact();
@@ -407,6 +468,7 @@ class _SplashScreen1State extends State<SplashScreen1>
                         borderRadius: BorderRadius.circular(30),
                       ),
                       elevation: 8,
+                      shadowColor: Colors.black.withOpacity(0.3),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -422,7 +484,10 @@ class _SplashScreen1State extends State<SplashScreen1>
                         const Icon(Icons.arrow_forward_rounded),
                       ],
                     ),
-                  ),
+                  ).animate().fadeIn(delay: 800.ms, duration: 600.ms).scale(
+                      delay: 800.ms,
+                      duration: 400.ms,
+                      curve: Curves.easeOutBack),
                 ],
               ),
             ),
@@ -448,6 +513,27 @@ class _SplashScreen1State extends State<SplashScreen1>
       child: SafeArea(
         child: Stack(
           children: [
+            // Background elements
+            Positioned(
+              top: -50,
+              left: -50,
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withOpacity(0.1),
+                ),
+              )
+                  .animate(
+                      onPlay: (controller) => controller.repeat(reverse: true))
+                  .scale(
+                      duration: const Duration(seconds: 4),
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.3, 1.3),
+                      curve: Curves.easeInOut),
+            ),
+
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
@@ -461,9 +547,19 @@ class _SplashScreen1State extends State<SplashScreen1>
                       fontSize: 24,
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          offset: Offset(0, 2),
+                          blurRadius: 4,
+                          color: Colors.black26,
+                        ),
+                      ],
                     ),
                     textAlign: TextAlign.center,
-                  ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 600.ms)
+                      .slideY(begin: -0.2, end: 0, curve: Curves.easeOut),
                   const SizedBox(height: 24),
 
                   // Terms Card
@@ -559,7 +655,8 @@ class _SplashScreen1State extends State<SplashScreen1>
                         ),
                       ),
                     ),
-                  ),
+                  ).animate().fadeIn(delay: 200.ms, duration: 600.ms).scale(
+                      delay: 200.ms, duration: 400.ms, curve: Curves.easeOut),
 
                   const SizedBox(height: 20),
 
@@ -592,7 +689,10 @@ class _SplashScreen1State extends State<SplashScreen1>
                             const EdgeInsets.symmetric(vertical: 14),
                       ),
                     ),
-                  ),
+                  )
+                      .animate()
+                      .fadeIn(delay: 400.ms, duration: 600.ms)
+                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
 
                   const SizedBox(height: 16),
 
@@ -633,7 +733,15 @@ class _SplashScreen1State extends State<SplashScreen1>
                         ],
                       ),
                     ),
-                  ),
+                  )
+                      .animate(target: _agreementAccepted ? 1 : 0)
+                      .shimmer(duration: 1500.ms, color: Colors.green.shade100)
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 600.ms)
+                      .scale(
+                          delay: 600.ms,
+                          duration: 400.ms,
+                          curve: Curves.easeOutBack),
 
                   const SizedBox(height: 60), // Space for page indicator
                 ],

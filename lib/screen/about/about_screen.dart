@@ -1,4 +1,5 @@
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:fihirana/services/version_check_service.dart';
@@ -25,7 +26,6 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   void initState() {
     super.initState();
-    // Clear cache to ensure fresh version
     PubspecService.clearCache();
     _getAppInfo();
 
@@ -49,7 +49,6 @@ class _AboutScreenState extends State<AboutScreen> {
   Future<void> _getAppInfo() async {
     final appVersion = await PubspecService.getAppVersion();
     final appName = await PubspecService.getAppName();
-    print('About screen - App version: $appVersion'); // Debug print
     setState(() {
       _appVersion = appVersion;
       _appName = appName;
@@ -146,6 +145,82 @@ class _AboutScreenState extends State<AboutScreen> {
     }
   }
 
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: colorController.textColor.value.withOpacity(0.6),
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionCard({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    Color? iconColor,
+    Color? backgroundColor,
+  }) {
+    return Card(
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: colorController.textColor.value.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      color: backgroundColor ?? colorController.backgroundColor.value,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: (iconColor ?? colorController.primaryColor.value)
+                      .withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor ?? colorController.primaryColor.value,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: iconColor ?? colorController.textColor.value,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: colorController.textColor.value.withOpacity(0.3),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -157,287 +232,287 @@ class _AboutScreenState extends State<AboutScreen> {
         scrolledUnderElevation: 0,
         centerTitle: true,
         title: Text(
-          '?',
+          l10n.aboutUs,
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
         leading: IconButton(
           onPressed: () => Get.back(),
           icon: Icon(
-            Icons.arrow_back_ios_outlined,
+            Icons.arrow_back_ios_new_rounded,
             color: colorController.iconColor.value,
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 20),
-                Neumorphic(
-                  style: NeumorphicStyle(
-                    color: colorController.backgroundColor.value,
-                    boxShape:
-                        NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-                    depth: 4,
-                    intensity: 0.8,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.music_note,
-                          size: 60,
-                          color: colorController.primaryColor.value,
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          l10n.appVersion(_appVersion),
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: colorController.textColor.value,
-                          ),
-                        ),
-                      ],
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // App Info Card
+            Card(
+              elevation: 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              color: colorController.primaryColor.value.withOpacity(0.1),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color:
+                            colorController.primaryColor.value.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.music_note,
+                        size: 60,
+                        color: colorController.primaryColor.value,
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  '$_appName ${l10n.appNameSuffix}',
-                  style: TextStyle(
-                      fontSize: 18, color: colorController.textColor.value),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  '${l10n.headquarters} ${l10n.headquartersAddress}',
-                  style: TextStyle(
-                      fontSize: 18, color: colorController.textColor.value),
-                ),
-                const SizedBox(height: 20),
-                NeumorphicButton(
-                  onPressed: () => _makePhoneCall('+261342943971'),
-                  style: NeumorphicStyle(
-                    color: colorController.backgroundColor.value,
-                    boxShape:
-                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-                    depth: 4,
-                    intensity: 0.8,
-                  ),
-                  child: Container(
-                    width: 250,
-                    height: 45,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.phone,
-                            color: colorController.iconColor.value),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.phoneNumber,
-                          style:
-                              TextStyle(color: colorController.textColor.value),
-                        ),
-                      ],
+                    const SizedBox(height: 16),
+                    Text(
+                      '$_appName ${l10n.appNameSuffix}',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                NeumorphicButton(
-                  onPressed: () =>
-                      _sendEmail('manassehrandriamitsiry@gmail.com'),
-                  style: NeumorphicStyle(
-                    color: colorController.backgroundColor.value,
-                    boxShape:
-                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-                    depth: 4,
-                    intensity: 0.8,
-                  ),
-                  child: Container(
-                    width: 250,
-                    height: 45,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.email,
-                            color: colorController.iconColor.value),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.email,
-                          style:
-                              TextStyle(color: colorController.textColor.value),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      l10n.appVersion(_appVersion),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colorController.textColor.value.withOpacity(0.7),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                NeumorphicButton(
-                  onPressed: () =>
-                      _launchURL('https://github.com/manasseh-randriamitsiry'),
-                  style: NeumorphicStyle(
-                    color: colorController.backgroundColor.value,
-                    boxShape:
-                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-                    depth: 4,
-                    intensity: 0.8,
-                  ),
-                  child: Container(
-                    width: 250,
-                    height: 45,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.code,
-                            color: colorController.iconColor.value),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.github,
-                          style:
-                              TextStyle(color: colorController.textColor.value),
-                        ),
-                      ],
+                    const SizedBox(height: 8),
+                    Text(
+                      '${l10n.headquarters} ${l10n.headquartersAddress}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorController.textColor.value.withOpacity(0.6),
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                NeumorphicButton(
-                  onPressed: () => _makePhoneCall('*111*1*2*0342943971#'),
-                  style: NeumorphicStyle(
-                    color: Colors.green.withValues(alpha: 0.1),
-                    boxShape:
-                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-                    depth: 4,
-                    intensity: 0.8,
-                  ),
-                  child: Container(
-                    width: 250,
-                    height: 45,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.monetization_on, color: Colors.green),
-                        const SizedBox(width: 8),
-                        Text(
-                          l10n.support,
-                          style: const TextStyle(color: Colors.green),
+              ),
+            )
+                .animate()
+                .fadeIn(duration: const Duration(milliseconds: 400))
+                .slideY(begin: -0.1, end: 0, curve: Curves.easeOut),
+
+            // Contact Section
+            _buildSectionTitle('Contact')
+                .animate()
+                .fadeIn(delay: const Duration(milliseconds: 100)),
+
+            _buildActionCard(
+              icon: Icons.phone_rounded,
+              label: l10n.phoneNumber,
+              onTap: () => _makePhoneCall('+261342943971'),
+            )
+                .animate()
+                .fadeIn(
+                    delay: const Duration(milliseconds: 150),
+                    duration: const Duration(milliseconds: 300))
+                .slideX(begin: -0.1, end: 0),
+
+            const SizedBox(height: 12),
+
+            _buildActionCard(
+              icon: Icons.email_rounded,
+              label: l10n.email,
+              onTap: () => _sendEmail('manassehrandriamitsiry@gmail.com'),
+            )
+                .animate()
+                .fadeIn(
+                    delay: const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 300))
+                .slideX(begin: -0.1, end: 0),
+
+            const SizedBox(height: 12),
+
+            _buildActionCard(
+              icon: Icons.code_rounded,
+              label: l10n.github,
+              onTap: () =>
+                  _launchURL('https://github.com/manasseh-randriamitsiry'),
+            )
+                .animate()
+                .fadeIn(
+                    delay: const Duration(milliseconds: 250),
+                    duration: const Duration(milliseconds: 300))
+                .slideX(begin: -0.1, end: 0),
+
+            // Support Section
+            _buildSectionTitle('Support')
+                .animate()
+                .fadeIn(delay: const Duration(milliseconds: 300)),
+
+            _buildActionCard(
+              icon: Icons.monetization_on_rounded,
+              label: l10n.support,
+              onTap: () => _makePhoneCall('*111*1*2*0342943971#'),
+              iconColor: Colors.green,
+              backgroundColor: Colors.green.withOpacity(0.05),
+            )
+                .animate()
+                .fadeIn(
+                    delay: const Duration(milliseconds: 350),
+                    duration: const Duration(milliseconds: 300))
+                .slideX(begin: -0.1, end: 0),
+
+            // Updates Section
+            _buildSectionTitle('Updates')
+                .animate()
+                .fadeIn(delay: const Duration(milliseconds: 400)),
+
+            Card(
+              elevation: 2,
+              shadowColor: Colors.black.withOpacity(0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: colorController.textColor.value.withOpacity(0.1),
+                  width: 1,
+                ),
+              ),
+              color: colorController.backgroundColor.value,
+              child: InkWell(
+                onTap: _checkingForUpdates ? null : _checkForUpdates,
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorController.primaryColor.value
+                              .withOpacity(0.15),
+                          shape: BoxShape.circle,
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                NeumorphicButton(
-                  onPressed: _checkingForUpdates ? null : _checkForUpdates,
-                  style: NeumorphicStyle(
-                    color: colorController.backgroundColor.value,
-                    boxShape:
-                        NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-                    depth: 4,
-                    intensity: 0.8,
-                  ),
-                  child: Container(
-                    width: 250,
-                    height: 45,
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _checkingForUpdates
+                        child: _checkingForUpdates
                             ? SizedBox(
-                                width: 20,
-                                height: 20,
+                                width: 24,
+                                height: 24,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                                  strokeWidth: 2.5,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                       colorController.primaryColor.value),
                                 ),
                               )
-                            : Icon(Icons.system_update,
-                                color: colorController.iconColor.value),
-                        const SizedBox(width: 8),
-                        Text(
+                            : Icon(
+                                Icons.system_update_rounded,
+                                color: colorController.primaryColor.value,
+                                size: 24,
+                              ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
                           _checkingForUpdates
                               ? l10n.checkingForUpdates
                               : l10n.checkForUpdates,
-                          style:
-                              TextStyle(color: colorController.textColor.value),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                if (_updateAvailable) ...[
-                  NeumorphicButton(
-                    onPressed:
-                        _checkingForUpdates ? null : _downloadAndInstallUpdate,
-                    style: NeumorphicStyle(
-                      color: Colors.orange.withValues(alpha: 0.1),
-                      boxShape: NeumorphicBoxShape.roundRect(
-                          BorderRadius.circular(12)),
-                      depth: 4,
-                      intensity: 0.8,
-                    ),
-                    child: Container(
-                      width: 250,
-                      height: 45,
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _checkingForUpdates
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.orange),
-                                  ),
-                                )
-                              : Icon(Icons.download, color: Colors.orange),
-                          const SizedBox(width: 8),
-                          Text(
-                            _flexibleUpdateDownloaded
-                                ? l10n.downloadAndInstall
-                                : (_checkingForUpdates
-                                    ? l10n.downloading
-                                    : l10n.download),
-                            style: TextStyle(color: Colors.orange),
+                          style: TextStyle(
+                            color: colorController.textColor.value,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                      if (!_checkingForUpdates)
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color:
+                              colorController.textColor.value.withOpacity(0.3),
+                        ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
+                ),
+              ),
+            )
+                .animate()
+                .fadeIn(
+                    delay: const Duration(milliseconds: 450),
+                    duration: const Duration(milliseconds: 300))
+                .slideX(begin: -0.1, end: 0),
+
+            if (_updateAvailable) ...[
+              const SizedBox(height: 12),
+              _buildActionCard(
+                icon: Icons.download_rounded,
+                label: _flexibleUpdateDownloaded
+                    ? l10n.downloadAndInstall
+                    : (_checkingForUpdates ? l10n.downloading : l10n.download),
+                onTap: _checkingForUpdates ? () {} : _downloadAndInstallUpdate,
+                iconColor: Colors.orange,
+                backgroundColor: Colors.orange.withOpacity(0.05),
+              )
+                  .animate()
+                  .fadeIn(duration: const Duration(milliseconds: 300))
+                  .scale(curve: Curves.easeOutBack),
+            ],
+
+            const SizedBox(height: 32),
+
+            // Developer Info
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colorController.textColor.value.withOpacity(0.03),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    '${l10n.developedBy}',
+                    style: TextStyle(
+                      color: colorController.textColor.value.withOpacity(0.6),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Randriamitsiry Valimbavaka Nandrasana Manassé',
+                    style: TextStyle(
+                      color: colorController.textColor.value,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${l10n.addressLabel} Ambalavao tsienimparihy',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: colorController.textColor.value.withOpacity(0.7),
+                        fontSize: 13),
+                  ),
                 ],
-                const SizedBox(height: 10),
-                Text(
-                  '${l10n.developedBy} Randriamitsiry Valimbavaka Nandrasana Manassé',
-                  style: TextStyle(color: colorController.textColor.value,),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  '${l10n.addressLabel} Ambalavao tsienimparihy',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: colorController.textColor.value),
-                ),
-              ],
-            ),
-          ),
+              ),
+            ).animate().fadeIn(
+                delay: const Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 400)),
+
+            const SizedBox(height: 20),
+          ],
         ),
       ),
     );
