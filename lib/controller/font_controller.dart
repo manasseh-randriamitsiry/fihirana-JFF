@@ -28,6 +28,13 @@ class FontController extends GetxController {
 
     // Handwriting
     'Breathing': 'Breathing',
+
+    // Edu Fonts (Handwriting / School)
+    'Edu NSW ACT Foundation': 'EduNSWACTFoundation',
+    'Edu QLD Beginner': 'EduQLDBeginner',
+    'Edu SA Beginner': 'EduSABeginner',
+    'Edu TAS Beginner': 'EduTASBeginner',
+    'Edu VIC WANT Beginner': 'EduVICWANTBeginner',
   };
 
   List<String> get availableFonts => fontMap.keys.toList();

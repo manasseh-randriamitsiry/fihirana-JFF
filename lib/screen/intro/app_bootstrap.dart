@@ -5,7 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../widgets/rive_animation_widget.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key});
@@ -105,11 +105,10 @@ class _AppBootstrapState extends State<AppBootstrap> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Rive Loading Animation
-                const RiveAnimationWidget(
-                  assetPath: 'assets/animations/loading.riv',
-                  width: 250,
-                  height: 250,
-                  fit: BoxFit.contain,
+                // Loading Animation
+                LoadingAnimationWidget.staggeredDotsWave(
+                  color: Colors.blue,
+                  size: 100,
                 ),
 
                 const SizedBox(height: 40),

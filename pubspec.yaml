@@ -120,9 +120,6 @@ flutter:
         - asset: assets/fonts/Hack-Regular.ttf
         - asset: assets/fonts/Hack-Bold.ttf
           weight: 700
-    - family: Breathing
-      fonts:
-        - asset: assets/fonts/Breathing.ttf
     - family: GoBold
       fonts:
         - asset: assets/fonts/GoBold-Bold.otf
@@ -145,6 +142,51 @@ flutter:
     - family: SourceSerifPro
       fonts:
         - asset: assets/fonts/SourceSerifPro-Bold.ttf
+          weight: 700
+    - family: EduNSWACTFoundation
+      fonts:
+        - asset: assets/fonts/EduNSWACTFoundation-Regular.ttf
+        - asset: assets/fonts/EduNSWACTFoundation-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduNSWACTFoundation-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduNSWACTFoundation-Bold.ttf
+          weight: 700
+    - family: EduQLDBeginner
+      fonts:
+        - asset: assets/fonts/EduQLDBeginner-Regular.ttf
+        - asset: assets/fonts/EduQLDBeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduQLDBeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduQLDBeginner-Bold.ttf
+          weight: 700
+    - family: EduSABeginner
+      fonts:
+        - asset: assets/fonts/EduSABeginner-Regular.ttf
+        - asset: assets/fonts/EduSABeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduSABeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduSABeginner-Bold.ttf
+          weight: 700
+    - family: EduTASBeginner
+      fonts:
+        - asset: assets/fonts/EduTASBeginner-Regular.ttf
+        - asset: assets/fonts/EduTASBeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduTASBeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduTASBeginner-Bold.ttf
+          weight: 700
+    - family: EduVICWANTBeginner
+      fonts:
+        - asset: assets/fonts/EduVICWANTBeginner-Regular.ttf
+        - asset: assets/fonts/EduVICWANTBeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduVICWANTBeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduVICWANTBeginner-Bold.ttf
           weight: 700
 
 flutter_launcher_icons:
