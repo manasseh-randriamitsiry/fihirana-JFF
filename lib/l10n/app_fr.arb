@@ -475,7 +475,7 @@
   "headquarters": "Siège :",
   "headquartersAddress": "Antsororokavo Fianarantsoa 301",
   "phoneNumber": "+261 34 29 439 71",
-  "email": "Email",
+
   "github": "GitHub",
   "noHistory": "Aucun historique",
   "clearAllHistoryQuestion": "Effacer tout l'historique ?",
@@ -484,6 +484,16 @@
   "yes": "Oui",
   "no": "Non",
   "history": "Historique",
-  "selectedItems": "{count} sélectionné(s)"
-
+  "selectedItems": "{count} sélectionné(s)",
+  "dailyBibleVerse": "Verset Biblique Quotidien",
+  "dailyInspiration": "Inspiration Quotidienne",
+  "receiveVerseEveryDay": "Recevez un verset biblique chaque jour",
+  "enableDailyVerse": "Activer le Verset Quotidien",
+  "youWillReceiveDailyNotifications": "Vous recevrez des notifications quotidiennes",
+  "turnOnToReceiveDailyVerses": "Activez pour recevoir des versets quotidiens",
+  "notificationTime": "Heure de Notification",
+  "todaysVerse": "Verset du Jour",
+  "noVerseAvailable": "Aucun verset disponible",
+  "sendTestNotification": "Envoyer une Notification de Test",
+  "testNotificationSent": "Notification de test envoyée !"
 }
