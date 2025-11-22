@@ -12,7 +12,7 @@ class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
 
   @override
-  _SplashScreen1State createState() => _SplashScreen1State();
+  State<SplashScreen1> createState() => _SplashScreen1State();
 }
 
 class _SplashScreen1State extends State<SplashScreen1> {
@@ -55,11 +55,11 @@ class _SplashScreen1State extends State<SplashScreen1> {
     return Container(
       padding: padding ?? const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: color ?? Colors.white.withOpacity(0.95),
+        color: color ?? Colors.white.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -125,7 +125,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
 
   Widget _buildLanguageOptions(AppLocalizations l10n) {
     return _buildCard(
-      color: Colors.white.withOpacity(0.95),
+      color: Colors.white.withValues(alpha: 0.95),
       child: Column(
         children: [
           for (final locale in languageController.supportedLocales)
@@ -219,7 +219,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
             decoration: BoxDecoration(
               color: _currentPage == index
                   ? Colors.white
-                  : Colors.white.withOpacity(0.4),
+                  : Colors.white.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(4),
             ),
           );
@@ -251,7 +251,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
               ),
             )
                 .animate(
@@ -270,7 +270,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
               ),
             )
                 .animate(
@@ -295,7 +295,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
                       Icon(
                         Icons.language,
                         size: 80,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                       )
                           .animate()
                           .fadeIn(duration: 600.ms)
@@ -364,7 +364,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
               child: Icon(
                 Icons.music_note,
                 size: 40,
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
               )
                   .animate(
                       onPlay: (controller) => controller.repeat(reverse: true))
@@ -380,7 +380,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
               child: Icon(
                 Icons.library_music,
                 size: 60,
-                color: Colors.white.withOpacity(0.15),
+                color: Colors.white.withValues(alpha: 0.15),
               )
                   .animate(
                       onPlay: (controller) => controller.repeat(reverse: true))
@@ -403,7 +403,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 30,
                           offset: const Offset(0, 15),
                         ),
@@ -468,7 +468,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       elevation: 8,
-                      shadowColor: Colors.black.withOpacity(0.3),
+                      shadowColor: Colors.black.withValues(alpha: 0.3),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -522,7 +522,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
               )
                   .animate(
@@ -667,7 +667,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -764,15 +764,14 @@ class _SplashScreen1State extends State<SplashScreen1> {
       _buildTermsPage(l10n),
     ];
 
-    return WillPopScope(
-      onWillPop: () async {
-        // Prevent back button on first page, allow on other pages
-        if (_currentPage > 0) {
+    return PopScope(
+      canPop: false, // Don't allow exiting the app from intro
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _currentPage > 0) {
+          // Navigate to previous page if not on first page
           _liquidController.animateToPage(
               page: _currentPage - 1, duration: 600);
-          return false;
         }
-        return false; // Don't allow exiting the app from intro
       },
       child: Scaffold(
         body: LiquidSwipe(

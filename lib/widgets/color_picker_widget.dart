@@ -230,7 +230,7 @@ class ColorPickerWidget extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.3),
+                    color: color.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -267,7 +267,8 @@ class ColorPickerWidget extends StatelessWidget {
             itemCount: colorController.colorSchemes.length,
             itemBuilder: (context, index) {
               final scheme = colorController.colorSchemes[index];
-              final isSelected = colorController.currentSchemeIndex == index;
+              final isSelected = colorController.currentSchemeIndex.value == index;
+
 
               return GestureDetector(
                 onTap: () async => await colorController.setColorScheme(index),
@@ -284,8 +285,8 @@ class ColorPickerWidget extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: isSelected
-                            ? Colors.white.withOpacity(0.2)
-                            : Colors.black.withOpacity(0.1),
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Colors.black.withValues(alpha: 0.1),
                         blurRadius: isSelected ? 12 : 4,
                         offset: const Offset(0, 2),
                       ),
@@ -310,7 +311,7 @@ class ColorPickerWidget extends StatelessWidget {
                           boxShadow: [
                             BoxShadow(
                               color:
-                                  (scheme['primary'] as Color).withOpacity(0.3),
+                                  (scheme['primary'] as Color).withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),

@@ -7,17 +7,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/hymn.dart';
 import '../utility/snackbar_utility.dart';
 import '../services/firebase_sync_service.dart';
-import 'local_hymn_service.dart';
 import 'combined_hymn_service.dart';
 
 class HymnService {
   final CombinedHymnService _combinedHymnService = CombinedHymnService();
-  final LocalHymnService _localHymnService = LocalHymnService();
   final FirebaseSyncService _firebaseSyncService = FirebaseSyncService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-Stream<List<Hymn>> getLocalHymnsStream() async* {
+  Stream<List<Hymn>> getLocalHymnsStream() async* {
     final hymns = await _combinedHymnService.getAllHymns();
     yield hymns;
   }
@@ -31,24 +29,11 @@ Stream<List<Hymn>> getLocalHymnsStream() async* {
     });
   }
 
-  Future<List<Hymn>> _getFirebaseHymns() async {
-    try {
-      final snapshot = await _firestore.collection('hymns').get();
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        return Hymn.fromJson(data, doc.id);
-      }).toList();
-    } catch (e) {
-      return [];
-    }
-  }
-
   Future<List<Hymn>> getAllHymns() async {
     return await _combinedHymnService.getAllHymns();
   }
 
   Future<Hymn?> getHymnById(String hymnId) async {
-
     var hymn = await _combinedHymnService.getHymnById(hymnId);
     if (hymn != null) return hymn;
 
@@ -58,14 +43,13 @@ Stream<List<Hymn>> getLocalHymnsStream() async* {
         return Hymn.fromJson(doc.data()!, doc.id);
       }
     } catch (e) {
-
+      return null;
     }
 
     return null;
   }
 
-Future<List<Hymn>> searchHymns(String query) async {
-
+  Future<List<Hymn>> searchHymns(String query) async {
     return await _combinedHymnService.searchHymns(query);
   }
 
@@ -170,12 +154,10 @@ Future<List<Hymn>> searchHymns(String query) async {
 
     _auth.authStateChanges().listen((User? user) {
       if (user != null) {
-
         checkPendingSyncs();
 
         _updateFavoriteStatus();
       } else {
-
         _firebaseSyncService.resetSyncStatus();
 
         _updateFavoriteStatus();
@@ -184,7 +166,6 @@ Future<List<Hymn>> searchHymns(String query) async {
   }
 
   void _initFavoriteStream() {
-
     _updateFavoriteStatus();
   }
 
@@ -199,7 +180,8 @@ Future<List<Hymn>> searchHymns(String query) async {
 
       final user = _auth.currentUser;
       if (user != null) {
-        final firebaseFavorites = await _firebaseSyncService.loadFavoritesFromFirebase();
+        final firebaseFavorites =
+            await _firebaseSyncService.loadFavoritesFromFirebase();
         for (var hymnId in firebaseFavorites) {
           statuses[hymnId] = 'firebase';
         }
@@ -207,6 +189,7 @@ Future<List<Hymn>> searchHymns(String query) async {
 
       _favoritesController.add(statuses);
     } catch (e) {
+      return;
     }
   }
 
@@ -252,7 +235,6 @@ Future<List<Hymn>> searchHymns(String query) async {
       bool isCurrentlyFavorite = localFavorites.contains(hymn.id);
 
       if (isCurrentlyFavorite) {
-
         localFavorites.remove(hymn.id);
         await saveLocalFavorites(localFavorites);
 
@@ -260,7 +242,6 @@ Future<List<Hymn>> searchHymns(String query) async {
           await _firebaseSyncService.removeFavoriteFromFirebase(hymn.id);
         }
       } else {
-
         localFavorites.add(hymn.id);
         await saveLocalFavorites(localFavorites);
 
@@ -288,7 +269,8 @@ Future<List<Hymn>> searchHymns(String query) async {
     }
 
     if (user != null) {
-      final firebaseFavorites = await _firebaseSyncService.loadFavoritesFromFirebase();
+      final firebaseFavorites =
+          await _firebaseSyncService.loadFavoritesFromFirebase();
       return firebaseFavorites.contains(hymnId);
     }
 
@@ -308,8 +290,7 @@ Future<List<Hymn>> searchHymns(String query) async {
 
       return completer.future;
     } catch (e) {
-      if (kDebugMode) {
-      }
+      if (kDebugMode) {}
       return <String>{};
     }
   }
@@ -325,7 +306,6 @@ Future<List<Hymn>> searchHymns(String query) async {
       }, Priority.animation);
 
       return completer.future;
-    } catch (e) {
-    }
+    } catch (e) {return;}
   }
 }

@@ -66,7 +66,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     colorController.primaryColor.value,
-                    colorController.primaryColor.value.withOpacity(0.7),
+                    colorController.primaryColor.value.withValues(alpha: 0.7),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -78,7 +78,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -104,7 +104,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         Text(
                           'Receive a Bible verse every day',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
                           ),
                         ),
@@ -119,7 +119,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
             // Enable/Disable Toggle
             Card(
               elevation: 2,
-              shadowColor: Colors.black.withOpacity(0.1),
+              shadowColor: Colors.black.withValues(alpha: 0.1),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -138,20 +138,20 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                           ? 'You will receive daily notifications'
                           : 'Turn on to receive daily verses',
                       style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.6),
+                        color: colorController.textColor.value.withValues(alpha: 0.6),
                         fontSize: 14,
                       ),
                     ),
                     value: controller.isEnabled.value,
                     onChanged: (value) => controller.toggleDailyVerse(value),
-                    activeColor: colorController.primaryColor.value,
+                    activeThumbColor: colorController.primaryColor.value,
                     secondary: Icon(
                       controller.isEnabled.value
                           ? Icons.notifications_active
                           : Icons.notifications_off,
                       color: controller.isEnabled.value
                           ? colorController.primaryColor.value
-                          : colorController.iconColor.value.withOpacity(0.5),
+                          : colorController.iconColor.value.withValues(alpha: 0.5),
                     ),
                   )),
             ),
@@ -163,7 +163,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                   duration: const Duration(milliseconds: 300),
                   child: Card(
                     elevation: 2,
-                    shadowColor: Colors.black.withOpacity(0.1),
+                    shadowColor: Colors.black.withValues(alpha: 0.1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -174,7 +174,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         Icons.access_time,
                         color: controller.isEnabled.value
                             ? colorController.primaryColor.value
-                            : colorController.iconColor.value.withOpacity(0.5),
+                            : colorController.iconColor.value.withValues(alpha: 0.5),
                       ),
                       title: Text(
                         'Notification Time',
@@ -188,7 +188,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         controller.notificationTime.value.format(context),
                         style: TextStyle(
                           color:
-                              colorController.textColor.value.withOpacity(0.6),
+                              colorController.textColor.value.withValues(alpha: 0.6),
                           fontSize: 14,
                         ),
                       ),
@@ -242,7 +242,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         'No verse available',
                         style: TextStyle(
                           color:
-                              colorController.textColor.value.withOpacity(0.5),
+                              colorController.textColor.value.withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -253,11 +253,11 @@ class DailyVerseSettingsScreen extends StatelessWidget {
               return Card(
                 elevation: 4,
                 shadowColor:
-                    colorController.primaryColor.value.withOpacity(0.2),
+                    colorController.primaryColor.value.withValues(alpha: 0.2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color: colorController.primaryColor.value.withOpacity(0.2),
+                    color: colorController.primaryColor.value.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -329,7 +329,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         Icons.send,
                         color: controller.isEnabled.value
                             ? colorController.primaryColor.value
-                            : colorController.iconColor.value.withOpacity(0.5),
+                            : colorController.iconColor.value.withValues(alpha: 0.5),
                       ),
                       label: Text(
                         'Send Test Notification',
@@ -337,7 +337,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                           color: controller.isEnabled.value
                               ? colorController.primaryColor.value
                               : colorController.textColor.value
-                                  .withOpacity(0.5),
+                                  .withValues(alpha: 0.5),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -347,7 +347,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                           color: controller.isEnabled.value
                               ? colorController.primaryColor.value
                               : colorController.textColor.value
-                                  .withOpacity(0.2),
+                                  .withValues(alpha: 0.2),
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(

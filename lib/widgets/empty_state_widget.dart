@@ -30,13 +30,13 @@ class EmptyStateWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: colorController.primaryColor.value.withOpacity(0.1),
+                color: colorController.primaryColor.value.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 icon,
                 size: 64,
-                color: colorController.primaryColor.value.withOpacity(0.7),
+                color: colorController.primaryColor.value.withValues(alpha:0.7),
               ),
             )
                 .animate()
@@ -49,7 +49,7 @@ class EmptyStateWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: colorController.textColor.value.withOpacity(0.8),
+                color: colorController.textColor.value.withValues(alpha:0.8),
               ),
             )
                 .animate()

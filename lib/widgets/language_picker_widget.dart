@@ -19,7 +19,7 @@ class LanguagePickerWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Theme.of(context).shadowColor.withOpacity(0.1),
+                color: Theme.of(context).shadowColor.withValues(alpha:0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -69,12 +69,12 @@ class LanguagePickerWidget extends StatelessWidget {
                                 ? Theme.of(context).primaryColor
                                 : Theme.of(context)
                                     .dividerColor
-                                    .withOpacity(0.3),
+                                    .withValues(alpha:0.3),
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: isSelected
-                              ? Theme.of(context).primaryColor.withOpacity(0.1)
+                              ? Theme.of(context).primaryColor.withValues(alpha:0.1)
                               : Theme.of(context).cardColor,
                         ),
                         child: Row(
@@ -115,7 +115,7 @@ class LanguagePickerWidget extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
             ],
           ),
         ));
@@ -187,20 +187,20 @@ class LanguagePickerDialog extends StatelessWidget {
                     side: BorderSide(
                       color: isSelected
                           ? Theme.of(context).primaryColor
-                          : Theme.of(context).dividerColor.withOpacity(0.3),
+                          : Theme.of(context).dividerColor.withValues(alpha:0.3),
                       width: isSelected ? 2 : 1,
                     ),
                   ),
                 ),
               );
-            }).toList(),
+            }),
             const SizedBox(height: 16),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(l10n.cancel),
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
               ),
+              child: Text(l10n.cancel),
             ),
           ],
         ),
@@ -216,7 +216,6 @@ class LanguagePickerButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final LanguageController languageController =
         Get.find<LanguageController>();
-    final AppLocalizations l10n = AppLocalizations.of(context)!;
 
     return Obx(() {
       final currentLocale = languageController.currentLocaleValue;

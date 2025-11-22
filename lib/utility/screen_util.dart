@@ -117,7 +117,7 @@ void showSnackbarSuccessMessage(
   Get.snackbar(
     title,
     message,
-    backgroundColor: Colors.green.withOpacity(0.2),
+    backgroundColor: Colors.green.withValues(alpha: 0.2),
     colorText: Colors.white,
     icon: const Icon(Icons.check, color: Colors.green),
   );
@@ -128,7 +128,7 @@ void showSnackbarErrorMessage(
   Get.snackbar(
     title,
     message,
-    backgroundColor: Colors.red.withOpacity(0.2),
+    backgroundColor: Colors.red.withValues(alpha: 0.2),
     colorText: Colors.white,
     icon: const Icon(Icons.error_outline, color: Colors.red),
   );

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,7 +46,9 @@ class DailyVerseController extends GetxController {
       isLoading.value = true;
       todaysVerse.value = await _dailyVerseService.getVerseOfTheDay();
     } catch (e) {
-      print('Error loading today\'s verse: $e');
+      if (kDebugMode) {
+        print('Error loading today\'s verse: $e');
+      }
     } finally {
       isLoading.value = false;
     }

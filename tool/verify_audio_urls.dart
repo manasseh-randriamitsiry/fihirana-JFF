@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// Simple script to verify that audio URLs are accessible
 void main() async {
-  print('Verifying audio URL accessibility...\n');
+  if (kDebugMode) {
+    print('Verifying audio URL accessibility...\n');
+  }
   
   // Test a few sample hymn IDs (using actual format from database)
   final testHymnIds = [
@@ -21,29 +24,47 @@ void main() async {
     final audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
     
     try {
-      print('Checking $hymnId...');
+      if (kDebugMode) {
+        print('Checking $hymnId...');
+      }
       final response = await http.head(Uri.parse(audioUrl)).timeout(
         const Duration(seconds: 5),
       );
       
       if (response.statusCode == 200) {
-        print('  ✓ $hymnId - Audio available (${response.statusCode})');
+        if (kDebugMode) {
+          print('  ✓ $hymnId - Audio available (${response.statusCode})');
+        }
         successCount++;
       } else {
-        print('  ✗ $hymnId - Not found (${response.statusCode})');
+        if (kDebugMode) {
+          print('  ✗ $hymnId - Not found (${response.statusCode})');
+        }
         failureCount++;
       }
     } catch (e) {
-      print('  ✗ $hymnId - Error: $e');
+      if (kDebugMode) {
+        print('  ✗ $hymnId - Error: $e');
+      }
       failureCount++;
     }
   }
   
-  print('\n' + '=' * 50);
-  print('Summary:');
-  print('  Success: $successCount/${testHymnIds.length}');
-  print('  Failed: $failureCount/${testHymnIds.length}');
-  print('=' * 50);
+  if (kDebugMode) {
+    print('\n${'=' * 50}');
+  }
+  if (kDebugMode) {
+    print('Summary:');
+  }
+  if (kDebugMode) {
+    print('  Success: $successCount/${testHymnIds.length}');
+  }
+  if (kDebugMode) {
+    print('  Failed: $failureCount/${testHymnIds.length}');
+  }
+  if (kDebugMode) {
+    print('=' * 50);
+  }
   
   exit(failureCount > 0 ? 1 : 0);
 }

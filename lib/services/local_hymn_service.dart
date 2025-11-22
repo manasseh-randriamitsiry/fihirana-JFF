@@ -148,12 +148,16 @@ class LocalHymnService {
           successCount++;
           
           if (kDebugMode && successCount <= 5) {
-            print('Loaded hymn $hymnId from $assetPath: ${hymn.title}');
+            if (kDebugMode) {
+              print('Loaded hymn $hymnId from $assetPath: ${hymn.title}');
+            }
           }
         } catch (e) {
           failureCount++;
           if (kDebugMode && failureCount <= 5) {
-            print('Failed to load hymn ${entry.key}: $e');
+            if (kDebugMode) {
+              print('Failed to load hymn ${entry.key}: $e');
+            }
           }
         }
         
@@ -232,7 +236,9 @@ class LocalHymnService {
             successCount++;
             
             if (kDebugMode && successCount <= 5) {
-              print('Loaded hymn $i from $successfulPath: ${hymn.title}');
+              if (kDebugMode) {
+                print('Loaded hymn $i from $successfulPath: ${hymn.title}');
+              }
             }
           } else {
             failureCount++;

@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter/services.dart' show rootBundle;
@@ -17,35 +16,45 @@ class PubspecService {
       // Method 1: Try reading from pubspec.yaml in assets
       final content = await rootBundle.loadString('pubspec.yaml');
       final lines = content.split('\n');
-      
+
       for (final line in lines) {
         final trimmedLine = line.trim();
         if (trimmedLine.startsWith('version:')) {
           final version = trimmedLine.substring(8).trim();
-          print('Pubspec.yaml version: $version'); // Debug print
+          if (kDebugMode) {
+            print('Pubspec.yaml version: $version');
+          } // Debug print
           _cachedVersion = version;
           return _cachedVersion!;
         }
       }
     } catch (e) {
-      print('Pubspec.yaml error: $e'); // Debug print
+      if (kDebugMode) {
+        print('Pubspec.yaml error: $e');
+      } // Debug print
     }
 
     try {
       // Method 2: Fallback to package_info_plus
       final packageInfo = await PackageInfo.fromPlatform();
       final version = packageInfo.version;
-      print('PackageInfo version: $version'); // Debug print
-      if (version != null && version.isNotEmpty) {
+      if (kDebugMode) {
+        print('PackageInfo version: $version');
+      } // Debug print
+      if (version.isNotEmpty) {
         _cachedVersion = version;
         return _cachedVersion!;
       }
     } catch (e) {
-      print('PackageInfo error: $e'); // Debug print
+      if (kDebugMode) {
+        print('PackageInfo error: $e');
+      } // Debug print
     }
 
     // Method 3: Final fallback
-    print('Using fallback version: 1.0.9'); // Debug print
+    if (kDebugMode) {
+      print('Using fallback version: 1.0.9');
+    } // Debug print
     _cachedVersion = '1.0.9';
     return _cachedVersion!;
   }
@@ -57,22 +66,22 @@ class PubspecService {
 
     try {
       final content = await rootBundle.loadString('pubspec.yaml');
-      
+
       // Simple YAML parser for basic structure
       final Map<String, dynamic> pubspecData = {};
       final lines = content.split('\n');
       String? currentKey;
       List<String> currentList = [];
       bool inList = false;
-      
+
       for (final line in lines) {
         final trimmedLine = line.trim();
-        
+
         // Skip comments and empty lines
         if (trimmedLine.isEmpty || trimmedLine.startsWith('#')) {
           continue;
         }
-        
+
         // Check for key-value pairs
         if (trimmedLine.contains(':') && !trimmedLine.startsWith(' ')) {
           // Save previous list if exists
@@ -80,20 +89,22 @@ class PubspecService {
             pubspecData[currentKey] = currentList;
             currentList.clear();
           }
-          
+
           final parts = trimmedLine.split(':');
           currentKey = parts[0].trim();
           final value = parts.length > 1 ? parts[1].trim() : '';
-          
+
           if (value.isEmpty) {
             inList = true;
           } else {
             pubspecData[currentKey] = value;
             inList = false;
           }
-        } else if (trimmedLine.startsWith(' ') && inList && currentKey != null) {
+        } else if (trimmedLine.startsWith(' ') &&
+            inList &&
+            currentKey != null) {
           // List item
-          final listItem = trimmedLine.trim().startsWith('-') 
+          final listItem = trimmedLine.trim().startsWith('-')
               ? trimmedLine.substring(1).trim()
               : trimmedLine.trim();
           if (listItem.isNotEmpty) {
@@ -101,12 +112,12 @@ class PubspecService {
           }
         }
       }
-      
+
       // Save final list if exists
       if (inList && currentKey != null && currentList.isNotEmpty) {
         pubspecData[currentKey] = currentList;
       }
-      
+
       _cachedPubspec = pubspecData;
       return pubspecData;
     } catch (e) {

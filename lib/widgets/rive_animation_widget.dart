@@ -67,7 +67,6 @@ class RiveAnimationWidget extends StatefulWidget {
 
 class _RiveAnimationWidgetState extends State<RiveAnimationWidget> {
   Artboard? _artboard;
-  StateMachineController? _stateMachineController;
   SMINumber? _progressInput;
   bool _hasError = false;
 
@@ -106,8 +105,6 @@ class _RiveAnimationWidgetState extends State<RiveAnimationWidget> {
         );
         if (controller != null) {
           artboard.addController(controller);
-          _stateMachineController = controller;
-
           // Try to find the progress input
           _progressInput = controller
               .findInput<double>(widget.progressInputName) as SMINumber?;

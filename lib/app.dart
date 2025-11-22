@@ -140,14 +140,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         locale: currentLocale,
-        localizationsDelegates: [
+        localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
           // Add fallback delegates for unsupported locales
-          const _FallbackMaterialLocalizationsDelegate(),
-          const _FallbackCupertinoLocalizationsDelegate(),
+          _FallbackMaterialLocalizationsDelegate(),
+          _FallbackCupertinoLocalizationsDelegate(),
         ],
         supportedLocales: const [
           Locale('mg'), // Malagasy

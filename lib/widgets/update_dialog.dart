@@ -35,15 +35,13 @@ class _UpdateDialogState extends State<UpdateDialog> {
           _isDownloading = false;
         });
 
-        if (context.mounted) {
-          final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.errorDownloadingUpdate2),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        final l10n = AppLocalizations.of(context)!;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(l10n.errorDownloadingUpdate2),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -52,7 +50,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
     try {
       await VersionCheckService.completeFlexibleUpdate();
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -68,7 +66,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
     try {
       await VersionCheckService.triggerImmediateUpdate();
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

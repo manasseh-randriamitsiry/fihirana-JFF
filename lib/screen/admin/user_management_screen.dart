@@ -237,7 +237,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 email,
                                 style: TextStyle(
                                   color: colorController.textColor.value
-                                      .withOpacity(0.7),
+                                      .withValues(alpha: 0.7),
                                 ),
                               ),
                               if (lastLogin != null)
@@ -245,7 +245,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   '${l10n.lastLogin}: ${DateFormat('dd/MM/yyyy HH:mm').format(lastLogin.toDate())}',
                                   style: TextStyle(
                                     color: colorController.textColor.value
-                                        .withOpacity(0.5),
+                                        .withValues(alpha: 0.5),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -254,7 +254,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   '${l10n.registered}: ${DateFormat('dd/MM/yyyy').format(createdAt.toDate())}',
                                   style: TextStyle(
                                     color: colorController.textColor.value
-                                        .withOpacity(0.5),
+                                        .withValues(alpha: 0.5),
                                     fontSize: 12,
                                   ),
                                 ),

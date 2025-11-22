@@ -30,7 +30,7 @@ class FontPickerWidget extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   _colorController.primaryColor.value,
-                  _colorController.primaryColor.value.withOpacity(0.8),
+                  _colorController.primaryColor.value.withValues(alpha:0.8),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -42,7 +42,7 @@ class FontPickerWidget extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.font_download,
                   color: Colors.white,
                   size: 24,
@@ -80,21 +80,21 @@ class FontPickerWidget extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _colorController.primaryColor.value
-                                .withOpacity(0.1)
+                                .withValues(alpha:0.1)
                             : _colorController.backgroundColor.value,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? _colorController.primaryColor.value
                               : _colorController.textColor.value
-                                  .withOpacity(0.1),
+                                  .withValues(alpha:0.1),
                           width: isSelected ? 2 : 1,
                         ),
                         boxShadow: [
                           if (isSelected)
                             BoxShadow(
                               color: _colorController.primaryColor.value
-                                  .withOpacity(0.2),
+                                  .withValues(alpha:0.2),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -121,7 +121,7 @@ class FontPickerWidget extends StatelessWidget {
                                       color: isSelected
                                           ? _colorController.primaryColor.value
                                           : _colorController.textColor.value
-                                              .withOpacity(0.3),
+                                              .withValues(alpha:0.3),
                                       width: 2,
                                     ),
                                     color: isSelected
@@ -160,7 +160,7 @@ class FontPickerWidget extends StatelessWidget {
                                           TextStyle(
                                             color: _colorController
                                                 .textColor.value
-                                                .withOpacity(0.8),
+                                                .withValues(alpha:0.8),
                                             fontSize: 16,
                                           ),
                                         ),
