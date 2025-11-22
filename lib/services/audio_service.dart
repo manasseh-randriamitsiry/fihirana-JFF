@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import '../models/hymn.dart';
 import 'audio_cache_service.dart';
@@ -21,8 +21,10 @@ class AudioService {
   void _initializePlayerStateListener() {
     // Listen to player state changes to properly manage playing state
     _player.playerStateStream.listen((state) {
-      print(
+      if (kDebugMode) {
+        print(
           'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
+      }
     });
   }
 
@@ -47,8 +49,10 @@ class AudioService {
   void setPlaylist(List<Hymn> playlist, int initialIndex) {
     _playlist = playlist;
     _currentPlaylistIndex = initialIndex;
-    print(
+    if (kDebugMode) {
+      print(
         'AudioService: Playlist set with ${_playlist.length} hymns, starting at $initialIndex');
+    }
   }
 
   Future<void> playNext() async {
@@ -83,7 +87,9 @@ class AudioService {
   }
 
   Future<void> playHymn(Hymn hymn) async {
-    print('AudioService: Starting to play hymn ${hymn.id}');
+    if (kDebugMode) {
+      print('AudioService: Starting to play hymn ${hymn.id}');
+    }
 
     // Stop current playback if different hymn is playing
     if (_currentPlayingHymnId.value.isNotEmpty &&
@@ -115,7 +121,9 @@ class AudioService {
       // Use local file
       audioUrl = localAudioPath;
       isLocalFile = true;
-      print('AudioService: Using local audio file: $localAudioPath');
+      if (kDebugMode) {
+        print('AudioService: Using local audio file: $localAudioPath');
+      }
     } else {
       // Get the correct audio URL using the mapping
       final audioMapping = AudioFileMapping();
@@ -128,7 +136,9 @@ class AudioService {
         audioUrl = audioMapping.getAudioUrl(hymn.id) ?? audioUrl;
       }
 
-      print('AudioService: Using remote audio URL: $audioUrl');
+      if (kDebugMode) {
+        print('AudioService: Using remote audio URL: $audioUrl');
+      }
     }
 
     try {
@@ -142,14 +152,18 @@ class AudioService {
           Uri.file(audioUrl),
           tag: hymn.id, // Tag for identification
         );
-        print('AudioService: Created local audio source for ${hymn.id}');
+        if (kDebugMode) {
+          print('AudioService: Created local audio source for ${hymn.id}');
+        }
       } else {
         // Use remote URL
         audioSource = AudioSource.uri(
           Uri.parse(audioUrl),
           tag: hymn.id, // Tag for identification
         );
-        print('AudioService: Created remote audio source for ${hymn.id}');
+        if (kDebugMode) {
+          print('AudioService: Created remote audio source for ${hymn.id}');
+        }
       }
 
       // Set the audio source with buffering
@@ -159,13 +173,19 @@ class AudioService {
       );
 
       _currentPlayingHymnId.value = hymn.id;
-      print('AudioService: Audio source set, playing hymn ${hymn.id}');
+      if (kDebugMode) {
+        print('AudioService: Audio source set, playing hymn ${hymn.id}');
+      }
 
       await _player.play();
-      print('AudioService: Started playing hymn ${hymn.id}');
+      if (kDebugMode) {
+        print('AudioService: Started playing hymn ${hymn.id}');
+      }
     } catch (e) {
       _currentPlayingHymnId.value = '';
-      print('AudioService: Error playing hymn ${hymn.id}: $e');
+      if (kDebugMode) {
+        print('AudioService: Error playing hymn ${hymn.id}: $e');
+      }
 
       // Provide more user-friendly error messages
       String userMessage = 'Failed to play audio';
@@ -190,14 +210,18 @@ class AudioService {
   }
 
   Future<void> stop() async {
-    print('AudioService: Stopping playback');
+    if (kDebugMode) {
+      print('AudioService: Stopping playback');
+    }
     await _player.stop();
     _currentHymn = null;
     _currentPlayingHymnId.value = '';
   }
 
   Future<void> stopCurrentAndPlayNew(Hymn newHymn) async {
-    print('AudioService: Stopping current and playing new hymn ${newHymn.id}');
+    if (kDebugMode) {
+      print('AudioService: Stopping current and playing new hymn ${newHymn.id}');
+    }
 
     // Stop current playback if any
     if (_currentPlayingHymnId.value.isNotEmpty) {
@@ -212,10 +236,14 @@ class AudioService {
 
   Future<void> seekTo(Duration position) async {
     try {
-      print('AudioService: Seeking to ${position.inMilliseconds}ms');
+      if (kDebugMode) {
+        print('AudioService: Seeking to ${position.inMilliseconds}ms');
+      }
       await _player.seek(position);
     } catch (e) {
-      print('AudioService: Seek error: $e');
+      if (kDebugMode) {
+        print('AudioService: Seek error: $e');
+      }
       throw Exception('Failed to seek audio: $e');
     }
   }
@@ -244,8 +272,10 @@ class AudioService {
     final isActuallyPlaying = isPlaying;
     final result = isCurrentHymn && isActuallyPlaying;
 
-    print(
+    if (kDebugMode) {
+      print(
         'AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isActuallyPlaying)');
+    }
     return result;
   }
 
@@ -254,8 +284,10 @@ class AudioService {
     final currentId = _currentPlayingHymnId.value;
     final currentlyPlaying = isPlaying;
 
-    print(
+    if (kDebugMode) {
+      print(
         'AudioService: Refresh state - ID: $currentId, Playing: $currentlyPlaying');
+    }
 
     // If we think something is playing but it's not, clear the state
     if (currentId.isNotEmpty && !currentlyPlaying) {
@@ -293,11 +325,7 @@ class AudioService {
         await audioMapping.updateAudioFileMapping();
         audioUrl = audioMapping.getAudioUrl(hymn.id);
       }
-
-      if (audioUrl == null) {
-        audioUrl =
-            'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
-      }
+      audioUrl ??= 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
     }
 
     return await _localAudioService.downloadAudio(hymn.id, audioUrl,

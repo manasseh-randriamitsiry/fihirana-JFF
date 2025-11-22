@@ -15,7 +15,7 @@ class FirebaseAuthService {
       if (e.code == 'email-already-in-use') {
         Get.snackbar('The email address is already in use.',
             'Try another email address.',
-            backgroundColor: Colors.red.withOpacity(0.2),
+            backgroundColor: Colors.red.withValues(alpha: 0.2),
             colorText: Colors.black,
             icon: const Icon(Icons.warning_amber, color: Colors.black));
       } else {
@@ -34,7 +34,7 @@ class FirebaseAuthService {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         Get.snackbar('The email address is already in use.',
             'Try another email address.',
-            backgroundColor: Colors.red.withOpacity(0.2),
+            backgroundColor: Colors.red.withValues(alpha: 0.2),
             colorText: Colors.black,
             icon: const Icon(Icons.warning_amber, color: Colors.black));
       } else {

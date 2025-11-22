@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/services/version_check_service.dart';
-import 'package:fihirana/services/apk_download_service.dart';
 import '../l10n/app_localizations.dart';
 
 class UpdateCheckerWidget extends StatefulWidget {
@@ -38,40 +37,6 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
     });
   }
 
-  Future<void> _checkForUpdates() async {
-    setState(() {
-      _checkingForUpdates = true;
-    });
-
-    try {
-      final updateAvailable =
-          await VersionCheckService.checkForUpdateManually();
-      if (mounted) {
-        setState(() {
-          _updateAvailable = updateAvailable;
-          _checkingForUpdates = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _updateAvailable = false;
-          _checkingForUpdates = false;
-        });
-      }
-
-      if (context.mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.errorCheckingUpdates),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    }
-  }
-
   Future<void> _downloadAndUpdate() async {
     setState(() {
       _checkingForUpdates = true;
@@ -80,7 +45,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
     try {
       await VersionCheckService.downloadAndInstallLatestVersion();
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

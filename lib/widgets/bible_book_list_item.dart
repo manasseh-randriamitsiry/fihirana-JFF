@@ -35,7 +35,7 @@ class BibleBookListItem extends StatelessWidget {
         subtitle: Text(
           l10n.chaptersCount(chapterCount),
           style: TextStyle(
-            color: textColor.withOpacity(0.7),
+            color: textColor.withValues(alpha: 0.7),
           ),
         ),
         leading: CircleAvatar(
@@ -50,7 +50,7 @@ class BibleBookListItem extends StatelessWidget {
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,
-          color: textColor.withOpacity(0.5),
+          color: textColor.withValues(alpha: 0.5),
           size: 16,
         ),
         onTap: onTap,

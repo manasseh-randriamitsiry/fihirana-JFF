@@ -84,6 +84,7 @@ class AnnouncementService {
         }
       }
     } catch (e) {
+      return;
     }
   }
 

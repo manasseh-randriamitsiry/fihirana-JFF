@@ -38,7 +38,7 @@ class HymnSearchField extends StatelessWidget {
             decoration: InputDecoration(
               labelText: l10n.searchHymnsHint,
               labelStyle: defaultTextStyle.copyWith(
-                color: textColor.withOpacity(0.7),
+                color: textColor.withValues(alpha:0.7),
               ),
               prefixIcon: Icon(
                 Icons.search,

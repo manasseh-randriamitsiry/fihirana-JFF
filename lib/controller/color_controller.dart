@@ -129,25 +129,25 @@ class ColorController extends GetxController {
   ];
 
   MaterialColor getMaterialColor(Color color) {
-    final int red = color.red;
-    final int green = color.green;
-    final int blue = color.blue;
-    final int alpha = color.alpha;
+    final int red = (color.r * 255.0).round() & 0xff;
+    final int green = (color.g * 255.0).round() & 0xff;
+    final int blue = (color.b * 255.0).round() & 0xff;
+    final int alpha = (color.a * 255.0).round() & 0xff;
 
     final Map<int, Color> shades = {
-      50: Color.fromARGB(alpha, red, green, blue).withOpacity(0.1),
-      100: Color.fromARGB(alpha, red, green, blue).withOpacity(0.2),
-      200: Color.fromARGB(alpha, red, green, blue).withOpacity(0.3),
-      300: Color.fromARGB(alpha, red, green, blue).withOpacity(0.4),
-      400: Color.fromARGB(alpha, red, green, blue).withOpacity(0.5),
-      500: Color.fromARGB(alpha, red, green, blue).withOpacity(0.6),
-      600: Color.fromARGB(alpha, red, green, blue).withOpacity(0.7),
-      700: Color.fromARGB(alpha, red, green, blue).withOpacity(0.8),
-      800: Color.fromARGB(alpha, red, green, blue).withOpacity(0.9),
-      900: Color.fromARGB(alpha, red, green, blue).withOpacity(1.0),
+      50: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.1),
+      100: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.2),
+      200: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.3),
+      300: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.4),
+      400: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.5),
+      500: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.6),
+      600: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.7),
+      700: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.8),
+      800: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 0.9),
+      900: Color.fromARGB(alpha, red, green, blue).withValues(alpha: 1.0),
     };
 
-    return MaterialColor(color.value, shades);
+    return MaterialColor(color.toARGB32(), shades);
   }
 
   @override
@@ -206,12 +206,12 @@ class ColorController extends GetxController {
 
         final prefs = await SharedPreferences.getInstance();
         await Future.wait([
-          prefs.setInt('primaryColor', primaryColor.value.value),
-          prefs.setInt('accentColor', accentColor.value.value),
-          prefs.setInt('textColor', textColor.value.value),
-          prefs.setInt('backgroundColor', backgroundColor.value.value),
-          prefs.setInt('drawerColor', drawerColor.value.value),
-          prefs.setInt('iconColor', iconColor.value.value),
+          prefs.setInt('primaryColor', primaryColor.value.toARGB32()),
+          prefs.setInt('accentColor', accentColor.value.toARGB32()),
+          prefs.setInt('textColor', textColor.value.toARGB32()),
+          prefs.setInt('backgroundColor', backgroundColor.value.toARGB32()),
+          prefs.setInt('drawerColor', drawerColor.value.toARGB32()),
+          prefs.setInt('iconColor', iconColor.value.toARGB32()),
           prefs.setInt('currentSchemeIndex', currentSchemeIndex.value),
         ]);
 
@@ -262,7 +262,7 @@ class ColorController extends GetxController {
     try {
       iconColor.value = newColor;
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('iconColor', newColor.value);
+      await prefs.setInt('iconColor', newColor.toARGB32());
       update(['iconColor']);
     } catch (e) {
       if (kDebugMode) {
@@ -275,7 +275,7 @@ class ColorController extends GetxController {
     try {
       drawerColor.value = newColor;
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('drawerColor', newColor.value);
+      await prefs.setInt('drawerColor', newColor.toARGB32());
       update();
     } catch (e) {
       if (kDebugMode) {
@@ -296,27 +296,27 @@ class ColorController extends GetxController {
 
     if (primary != null) {
       primaryColor.value = primary;
-      await prefs.setInt('primaryColor', primaryColor.value.value);
+      await prefs.setInt('primaryColor', primaryColor.value.toARGB32());
     }
     if (accent != null) {
       accentColor.value = accent;
-      await prefs.setInt('accentColor', accentColor.value.value);
+      await prefs.setInt('accentColor', accentColor.value.toARGB32());
     }
     if (text != null) {
       textColor.value = text;
-      await prefs.setInt('textColor', textColor.value.value);
+      await prefs.setInt('textColor', textColor.value.toARGB32());
     }
     if (background != null) {
       backgroundColor.value = background;
-      await prefs.setInt('backgroundColor', backgroundColor.value.value);
+      await prefs.setInt('backgroundColor', backgroundColor.value.toARGB32());
     }
     if (drawer != null) {
       drawerColor.value = drawer;
-      await prefs.setInt('drawerColor', drawerColor.value.value);
+      await prefs.setInt('drawerColor', drawerColor.value.toARGB32());
     }
     if (icon != null) {
       iconColor.value = icon;
-      await prefs.setInt('iconColor', iconColor.value.value);
+      await prefs.setInt('iconColor', iconColor.value.toARGB32());
     }
 
     // Apply system UI overlay style after color changes
@@ -336,23 +336,23 @@ class ColorController extends GetxController {
 
     if (accent != null) {
       accentColor.value = accent;
-      await prefs.setInt('accentColor', accentColor.value.value);
+      await prefs.setInt('accentColor', accentColor.value.toARGB32());
     }
     if (text != null) {
       textColor.value = text;
-      await prefs.setInt('textColor', textColor.value.value);
+      await prefs.setInt('textColor', textColor.value.toARGB32());
     }
     if (background != null) {
       backgroundColor.value = background;
-      await prefs.setInt('backgroundColor', backgroundColor.value.value);
+      await prefs.setInt('backgroundColor', backgroundColor.value.toARGB32());
     }
     if (drawer != null) {
       drawerColor.value = drawer;
-      await prefs.setInt('drawerColor', drawerColor.value.value);
+      await prefs.setInt('drawerColor', drawerColor.value.toARGB32());
     }
     if (icon != null) {
       iconColor.value = icon;
-      await prefs.setInt('iconColor', iconColor.value.value);
+      await prefs.setInt('iconColor', iconColor.value.toARGB32());
     }
 
     // Apply system UI overlay style after color changes
@@ -374,12 +374,12 @@ class ColorController extends GetxController {
   Future<void> saveAllColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('primaryColor', primaryColor.value.value);
-      await prefs.setInt('accentColor', accentColor.value.value);
-      await prefs.setInt('textColor', textColor.value.value);
-      await prefs.setInt('backgroundColor', backgroundColor.value.value);
-      await prefs.setInt('drawerColor', drawerColor.value.value);
-      await prefs.setInt('iconColor', iconColor.value.value);
+      await prefs.setInt('primaryColor', primaryColor.value.toARGB32());
+      await prefs.setInt('accentColor', accentColor.value.toARGB32());
+      await prefs.setInt('textColor', textColor.value.toARGB32());
+      await prefs.setInt('backgroundColor', backgroundColor.value.toARGB32());
+      await prefs.setInt('drawerColor', drawerColor.value.toARGB32());
+      await prefs.setInt('iconColor', iconColor.value.toARGB32());
       await prefs.setInt('currentSchemeIndex', currentSchemeIndex.value);
     } catch (e) {
       if (kDebugMode) {
@@ -391,7 +391,7 @@ class ColorController extends GetxController {
   Future<void> saveColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('iconColor', iconColor.value.value);
+      await prefs.setInt('iconColor', iconColor.value.toARGB32());
     } catch (e) {
       if (kDebugMode) {
         print('Error saving colors: $e');
@@ -494,11 +494,11 @@ class ColorController extends GetxController {
       depth: 4,
       intensity: 1.0,
       shadowLightColor: isDarkBg
-          ? Colors.white.withOpacity(0.25)
-          : Colors.white.withOpacity(1.0),
+          ? Colors.white.withValues(alpha: 0.25)
+          : Colors.white.withValues(alpha: 1.0),
       shadowDarkColor: isDarkBg
-          ? Colors.black.withOpacity(0.8)
-          : Colors.black.withOpacity(0.3),
+          ? Colors.black.withValues(alpha: 0.8)
+          : Colors.black.withValues(alpha: 0.3),
       textTheme: TextTheme(
         bodyLarge: TextStyle(color: textColor.value),
         bodyMedium: TextStyle(color: textColor.value),

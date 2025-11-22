@@ -19,7 +19,6 @@ class BtnWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final inputBorderColor = theme.hintColor;
     final textColor = theme.dividerColor;
     final backgroundColor = theme.scaffoldBackgroundColor;
 

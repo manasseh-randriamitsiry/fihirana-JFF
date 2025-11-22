@@ -15,14 +15,14 @@ class LightweightAudioPlayerWidget extends StatefulWidget {
   final Function(bool)? onAutoPlayNextChange;
 
   const LightweightAudioPlayerWidget({
-    Key? key,
+    super.key,
     required this.hymn,
     this.isCompact = false,
     this.playlist,
     this.onHymnChange,
     this.autoPlayNext = false,
     this.onAutoPlayNextChange,
-  }) : super(key: key);
+  });
 
   @override
   State<LightweightAudioPlayerWidget> createState() =>
@@ -304,8 +304,9 @@ class _LightweightAudioPlayerWidgetState
       style: NeumorphicStyle(
         depth: 1, // Minimal depth
         color: colorController.backgroundColor.value,
-        boxShape: NeumorphicBoxShape.circle(),
+        boxShape: const NeumorphicBoxShape.circle(),
       ),
+      onPressed: _isLoading ? null : _togglePlayPause,
       child: SizedBox(
         width: 32,
         height: 32,
@@ -326,7 +327,6 @@ class _LightweightAudioPlayerWidgetState
                 color: colorController.primaryColor.value,
               ),
       ),
-      onPressed: _isLoading ? null : _togglePlayPause,
     );
   }
 
@@ -337,7 +337,7 @@ class _LightweightAudioPlayerWidgetState
             const RoundSliderThumbShape(enabledThumbRadius: 3), // Smaller thumb
         trackHeight: 1.5, // Thinner track
         activeTrackColor: colorController.primaryColor.value,
-        inactiveTrackColor: colorController.textColor.value.withOpacity(0.2),
+        inactiveTrackColor: colorController.textColor.value.withValues(alpha:0.2),
         thumbColor: colorController.primaryColor.value,
       ),
       child: Slider(
@@ -377,7 +377,7 @@ class _LightweightAudioPlayerWidgetState
                 'Hymn ${widget.hymn.hymnNumber}',
                 style: TextStyle(
                   fontSize: 12,
-                  color: _colorController.textColor.value.withOpacity(0.6),
+                  color: _colorController.textColor.value.withValues(alpha:0.6),
                 ),
               ),
             ],
@@ -398,14 +398,14 @@ class _LightweightAudioPlayerWidgetState
       style: NeumorphicStyle(
         depth: 1,
         color: _colorController.backgroundColor.value,
-        boxShape: NeumorphicBoxShape.circle(),
+        boxShape: const NeumorphicBoxShape.circle(),
       ),
+      onPressed: _isLoading ? null : onPressed,
       child: Icon(
         icon,
         size: 18, // Smaller icons
         color: _colorController.primaryColor.value,
       ),
-      onPressed: _isLoading ? null : onPressed,
     );
   }
 
@@ -418,7 +418,7 @@ class _LightweightAudioPlayerWidgetState
             trackHeight: 2,
             activeTrackColor: _colorController.primaryColor.value,
             inactiveTrackColor:
-                _colorController.textColor.value.withOpacity(0.2),
+                _colorController.textColor.value.withValues(alpha:0.2),
             thumbColor: _colorController.primaryColor.value,
           ),
           child: Slider(
@@ -441,14 +441,14 @@ class _LightweightAudioPlayerWidgetState
               _formatDuration(_position ?? Duration.zero),
               style: TextStyle(
                 fontSize: 10, // Smaller font
-                color: _colorController.textColor.value.withOpacity(0.6),
+                color: _colorController.textColor.value.withValues(alpha:0.6),
               ),
             ),
             Text(
               _formatDuration(_duration ?? Duration.zero),
               style: TextStyle(
                 fontSize: 10,
-                color: _colorController.textColor.value.withOpacity(0.6),
+                color: _colorController.textColor.value.withValues(alpha:0.6),
               ),
             ),
           ],
@@ -466,9 +466,10 @@ class _LightweightAudioPlayerWidgetState
             depth: 2, // Reduced depth
             intensity: 0.6,
             color: _colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.circle(),
+            boxShape: const NeumorphicBoxShape.circle(),
           ),
-          child: Container(
+          onPressed: _isLoading ? null : _togglePlayPause,
+          child: SizedBox(
             width: 48, // Smaller button
             height: 48,
             child: _isLoading
@@ -488,7 +489,6 @@ class _LightweightAudioPlayerWidgetState
                     color: _colorController.primaryColor.value,
                   ),
           ),
-          onPressed: _isLoading ? null : _togglePlayPause,
         ),
       ],
     );

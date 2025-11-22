@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:fihirana/services/version_check_service.dart';
 import 'package:fihirana/services/pubspec_service.dart';
 import 'package:get/get.dart';
@@ -151,7 +150,7 @@ class _AboutScreenState extends State<AboutScreen> {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: colorController.textColor.value.withOpacity(0.6),
+          color: colorController.textColor.value.withValues(alpha: 0.6),
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -169,11 +168,11 @@ class _AboutScreenState extends State<AboutScreen> {
   }) {
     return Card(
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
-          color: colorController.textColor.value.withOpacity(0.1),
+          color: colorController.textColor.value.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -189,7 +188,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: (iconColor ?? colorController.primaryColor.value)
-                      .withOpacity(0.15),
+                      .withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -212,7 +211,7 @@ class _AboutScreenState extends State<AboutScreen> {
               Icon(
                 Icons.arrow_forward_ios,
                 size: 16,
-                color: colorController.textColor.value.withOpacity(0.3),
+                color: colorController.textColor.value.withValues(alpha: 0.3),
               ),
             ],
           ),
@@ -258,7 +257,7 @@ class _AboutScreenState extends State<AboutScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              color: colorController.primaryColor.value.withOpacity(0.1),
+              color: colorController.primaryColor.value.withValues(alpha: 0.1),
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -267,7 +266,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color:
-                            colorController.primaryColor.value.withOpacity(0.2),
+                            colorController.primaryColor.value.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -291,7 +290,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       l10n.appVersion(_appVersion),
                       style: TextStyle(
                         fontSize: 16,
-                        color: colorController.textColor.value.withOpacity(0.7),
+                        color: colorController.textColor.value.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -299,7 +298,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       '${l10n.headquarters} ${l10n.headquartersAddress}',
                       style: TextStyle(
                         fontSize: 14,
-                        color: colorController.textColor.value.withOpacity(0.6),
+                        color: colorController.textColor.value.withValues(alpha: 0.6),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -364,7 +363,7 @@ class _AboutScreenState extends State<AboutScreen> {
               label: l10n.support,
               onTap: () => _makePhoneCall('*111*1*2*0342943971#'),
               iconColor: Colors.green,
-              backgroundColor: Colors.green.withOpacity(0.05),
+              backgroundColor: Colors.green.withValues(alpha: 0.05),
             )
                 .animate()
                 .fadeIn(
@@ -379,11 +378,11 @@ class _AboutScreenState extends State<AboutScreen> {
 
             Card(
               elevation: 2,
-              shadowColor: Colors.black.withOpacity(0.1),
+              shadowColor: Colors.black.withValues(alpha: 0.1),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
                 side: BorderSide(
-                  color: colorController.textColor.value.withOpacity(0.1),
+                  color: colorController.textColor.value.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -400,7 +399,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: colorController.primaryColor.value
-                              .withOpacity(0.15),
+                              .withValues(alpha: 0.15),
                           shape: BoxShape.circle,
                         ),
                         child: _checkingForUpdates
@@ -437,7 +436,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           Icons.arrow_forward_ios,
                           size: 16,
                           color:
-                              colorController.textColor.value.withOpacity(0.3),
+                              colorController.textColor.value.withValues(alpha: 0.3),
                         ),
                     ],
                   ),
@@ -459,7 +458,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     : (_checkingForUpdates ? l10n.downloading : l10n.download),
                 onTap: _checkingForUpdates ? () {} : _downloadAndInstallUpdate,
                 iconColor: Colors.orange,
-                backgroundColor: Colors.orange.withOpacity(0.05),
+                backgroundColor: Colors.orange.withValues(alpha: 0.05),
               )
                   .animate()
                   .fadeIn(duration: const Duration(milliseconds: 300))
@@ -472,15 +471,15 @@ class _AboutScreenState extends State<AboutScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorController.textColor.value.withOpacity(0.03),
+                color: colorController.textColor.value.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
                   Text(
-                    '${l10n.developedBy}',
+                    l10n.developedBy,
                     style: TextStyle(
-                      color: colorController.textColor.value.withOpacity(0.6),
+                      color: colorController.textColor.value.withValues(alpha: 0.6),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -502,7 +501,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     '${l10n.addressLabel} Ambalavao tsienimparihy',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.7),
+                        color: colorController.textColor.value.withValues(alpha: 0.7),
                         fontSize: 13),
                   ),
                 ],
