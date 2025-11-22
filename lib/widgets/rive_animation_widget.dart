@@ -36,6 +36,14 @@ class RiveAnimationWidget extends StatefulWidget {
   /// Height of the animation container
   final double? height;
 
+  /// Progress value (0.0 to 1.0) to control animation progress
+  /// This will look for a number input named 'progress' in the state machine
+  final double? progress;
+
+  /// Name of the number input in the Rive file to control with progress
+  /// Defaults to 'progress'
+  final String progressInputName;
+
   const RiveAnimationWidget({
     super.key,
     required this.assetPath,
@@ -49,6 +57,8 @@ class RiveAnimationWidget extends StatefulWidget {
     this.onInit,
     this.width,
     this.height,
+    this.progress,
+    this.progressInputName = 'progress',
   });
 
   @override
@@ -57,12 +67,30 @@ class RiveAnimationWidget extends StatefulWidget {
 
 class _RiveAnimationWidgetState extends State<RiveAnimationWidget> {
   Artboard? _artboard;
+  StateMachineController? _stateMachineController;
+  SMINumber? _progressInput;
   bool _hasError = false;
 
   @override
   void initState() {
     super.initState();
     _loadRiveFile();
+  }
+
+  @override
+  void didUpdateWidget(RiveAnimationWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update progress when it changes
+    if (widget.progress != oldWidget.progress && widget.progress != null) {
+      _updateProgress(widget.progress!);
+    }
+  }
+
+  void _updateProgress(double progress) {
+    if (_progressInput != null) {
+      // Convert 0.0-1.0 to 0-100 for the Rive animation
+      _progressInput!.value = progress * 100;
+    }
   }
 
   Future<void> _loadRiveFile() async {
@@ -78,6 +106,16 @@ class _RiveAnimationWidgetState extends State<RiveAnimationWidget> {
         );
         if (controller != null) {
           artboard.addController(controller);
+          _stateMachineController = controller;
+
+          // Try to find the progress input
+          _progressInput = controller
+              .findInput<double>(widget.progressInputName) as SMINumber?;
+
+          // Set initial progress if provided
+          if (widget.progress != null && _progressInput != null) {
+            _updateProgress(widget.progress!);
+          }
         }
       } else if (widget.animationName != null) {
         final controller = SimpleAnimation(
