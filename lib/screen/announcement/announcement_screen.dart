@@ -62,7 +62,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
@@ -119,55 +120,55 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                 ),
                 style: TextStyle(color: colorController.textColor.value),
                 maxLines: 4,
-              ),
-              const SizedBox(height: 16),
-              InkWell(
-                onTap: () => _selectExpirationDate(context),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color:
-                            colorController.textColor.value.withValues(alpha: 0.3)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_today,
-                          color: colorController.iconColor.value, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.expirationDate,
-                              style: TextStyle(
-                                color: colorController.textColor.value
-                                    .withValues(alpha: 0.7),
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _selectedExpirationDate != null
-                                  ? DateFormat('dd/MM/yyyy')
-                                      .format(_selectedExpirationDate!)
-                                  : l10n.noDate,
-                              style: TextStyle(
-                                color: colorController.textColor.value,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+               ),
+               const SizedBox(height: 16),
+               InkWell(
+                 onTap: () => _selectExpirationDate(context, setState),
+                 borderRadius: BorderRadius.circular(12),
+                 child: Container(
+                   padding: const EdgeInsets.all(16),
+                   decoration: BoxDecoration(
+                     border: Border.all(
+                         color:
+                             colorController.textColor.value.withValues(alpha: 0.3)),
+                     borderRadius: BorderRadius.circular(12),
+                   ),
+                   child: Row(
+                     children: [
+                       Icon(Icons.calendar_today,
+                           color: colorController.iconColor.value, size: 20),
+                       const SizedBox(width: 12),
+                       Expanded(
+                         child: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             Text(
+                               l10n.expirationDate,
+                               style: TextStyle(
+                                 color: colorController.textColor.value
+                                     .withValues(alpha: 0.7),
+                                 fontSize: 12,
+                               ),
+                             ),
+                             const SizedBox(height: 4),
+                             Text(
+                               _selectedExpirationDate != null
+                                   ? DateFormat('dd/MM/yyyy')
+                                       .format(_selectedExpirationDate!)
+                                   : l10n.noDate,
+                               style: TextStyle(
+                                 color: colorController.textColor.value,
+                                 fontSize: 14,
+                                 fontWeight: FontWeight.w500,
+                               ),
+                             ),
+                           ],
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+               ),
             ],
           ),
         ),
@@ -206,7 +207,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           ),
         ],
       ),
-    );
+    ),
+      );
   }
 
   void _showEditAnnouncementDialog(Announcement announcement) {
@@ -217,7 +219,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
@@ -272,57 +275,57 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                         color: colorController.primaryColor.value, width: 2),
                   ),
                 ),
-                style: TextStyle(color: colorController.textColor.value),
-                maxLines: 4,
-              ),
-              const SizedBox(height: 16),
-              InkWell(
-                onTap: () => _selectExpirationDate(context),
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                        color:
-                            colorController.textColor.value.withValues(alpha: 0.3)),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_today,
-                          color: colorController.iconColor.value, size: 20),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.expirationDate,
-                              style: TextStyle(
-                                color: colorController.textColor.value
-                                    .withValues(alpha: 0.7),
-                                fontSize: 12,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _selectedExpirationDate != null
-                                  ? DateFormat('dd/MM/yyyy')
-                                      .format(_selectedExpirationDate!)
-                                  : l10n.noExpirationDate,
-                              style: TextStyle(
-                                color: colorController.textColor.value,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                 style: TextStyle(color: colorController.textColor.value),
+                 maxLines: 4,
+               ),
+               const SizedBox(height: 16),
+               InkWell(
+                 onTap: () => _selectExpirationDate(context, setState),
+                 borderRadius: BorderRadius.circular(12),
+                 child: Container(
+                   padding: const EdgeInsets.all(16),
+                   decoration: BoxDecoration(
+                     border: Border.all(
+                         color:
+                             colorController.textColor.value.withValues(alpha: 0.3)),
+                     borderRadius: BorderRadius.circular(12),
+                   ),
+                   child: Row(
+                     children: [
+                       Icon(Icons.calendar_today,
+                           color: colorController.iconColor.value, size: 20),
+                       const SizedBox(width: 12),
+                       Expanded(
+                         child: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           children: [
+                             Text(
+                               l10n.expirationDate,
+                               style: TextStyle(
+                                 color: colorController.textColor.value
+                                     .withValues(alpha: 0.7),
+                                 fontSize: 12,
+                               ),
+                             ),
+                             const SizedBox(height: 4),
+                             Text(
+                               _selectedExpirationDate != null
+                                   ? DateFormat('dd/MM/yyyy')
+                                       .format(_selectedExpirationDate!)
+                                   : l10n.noExpirationDate,
+                               style: TextStyle(
+                                 color: colorController.textColor.value,
+                                 fontSize: 14,
+                                 fontWeight: FontWeight.w500,
+                               ),
+                             ),
+                           ],
+                         ),
+                       ),
+                     ],
+                   ),
+                 ),
+               ),
             ],
           ),
         ),
@@ -362,10 +365,11 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           ),
         ],
       ),
-    );
+    ),
+      );
   }
 
-  Future<void> _selectExpirationDate(BuildContext context) async {
+  Future<void> _selectExpirationDate(BuildContext context, StateSetter setState) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedExpirationDate ?? DateTime.now(),
@@ -374,14 +378,23 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: colorController.primaryColor.value,
-              onPrimary: Colors.white,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: colorController.primaryColor.value,
+              brightness: Theme.of(context).brightness,
+            ).copyWith(
+              surface: colorController.backgroundColor.value,
               onSurface: colorController.textColor.value,
-            ), dialogTheme: DialogThemeData(backgroundColor: colorController.backgroundColor.value),
+              primary: colorController.primaryColor.value,
+              onPrimary: colorController.primaryColor.value,
+            ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: colorController.backgroundColor.value,
+              surfaceTintColor: Colors.transparent,
+            ),
           ),
           child: child!,
         );
+
       },
     );
 
