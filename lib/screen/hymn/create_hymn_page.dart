@@ -108,7 +108,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
           SnackBar(
             content: Text(
               l10n.hymnSavedSuccessfully,
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
             backgroundColor: Colors.green,
           ),
@@ -124,7 +124,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         SnackBar(
           content: Text(
             l10n.errorSavingHymn(error.toString()),
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.red,
         ),
@@ -219,12 +219,12 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         color: colorController.backgroundColor.value,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: colorController.textColor.value.withOpacity(0.1),
+          color: colorController.textColor.value.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -238,7 +238,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         decoration: InputDecoration(
           labelText: label,
           labelStyle: TextStyle(
-              color: colorController.textColor.value.withOpacity(0.7)),
+              color: colorController.textColor.value.withValues(alpha: 0.7)),
           prefixIcon: icon != null
               ? Icon(icon, color: colorController.iconColor.value, size: 20)
               : null,
@@ -280,11 +280,11 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     return Card(
       key: ValueKey(index),
       elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: colorController.textColor.value.withOpacity(0.1),
+          color: colorController.textColor.value.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -303,7 +303,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 decoration: InputDecoration(
                   labelText: l10n.verseWithNumber(index + 1),
                   labelStyle: TextStyle(
-                    color: colorController.textColor.value.withOpacity(0.7),
+                    color: colorController.textColor.value.withValues(alpha: 0.7),
                   ),
                   border: InputBorder.none,
                   contentPadding:
@@ -338,7 +338,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
               index: index,
               child: Icon(
                 Icons.drag_handle,
-                color: colorController.iconColor.value.withOpacity(0.5),
+                color: colorController.iconColor.value.withValues(alpha: 0.5),
                 size: 24,
               ),
             ),
@@ -394,7 +394,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     color: Get.find<ColorController>()
                         .iconColor
                         .value
-                        .withOpacity(0.5),
+                        .withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -491,7 +491,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
                       color:
-                          colorController.primaryColor.value.withOpacity(0.1),
+                          colorController.primaryColor.value.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -556,7 +556,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(
                           color: colorController.primaryColor.value
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                           width: 2,
                         ),
                         shape: RoundedRectangleBorder(
@@ -590,8 +590,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: _hasAudio
-                              ? Colors.green.withOpacity(0.1)
-                              : Colors.grey.withOpacity(0.1),
+                              ? Colors.green.withValues(alpha: 0.1)
+                              : Colors.grey.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: _hasAudio ? Colors.green : Colors.grey,
@@ -647,7 +647,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       elevation: 4,
                       shadowColor:
-                          colorController.primaryColor.value.withOpacity(0.4),
+                          colorController.primaryColor.value.withValues(alpha: 0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

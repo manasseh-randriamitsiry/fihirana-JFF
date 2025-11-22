@@ -91,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final user = FirebaseAuth.instance.currentUser;
             if (user != null) {
               return Card(
-                color: colorController.primaryColor.value.withOpacity(0.5),
+                color: colorController.primaryColor.value.withValues(alpha: 0.5),
                 margin: const EdgeInsets.all(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -130,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             } else {
               return Card(
-                color: colorController.primaryColor.value.withOpacity(0.5),
+                color: colorController.primaryColor.value.withValues(alpha: 0.5),
                 margin: const EdgeInsets.all(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -158,7 +158,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           }),
 
           Card(
-            color: colorController.primaryColor.value.withOpacity(0.5),
+            color: colorController.primaryColor.value.withValues(alpha: 0.5),
             margin: const EdgeInsets.all(16),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -183,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: Text(
                       'Remove all your history',
                       style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.7),
+                        color: colorController.textColor.value.withValues(alpha: 0.7),
                       ),
                     ),
                     trailing: Icon(
@@ -201,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final user = FirebaseAuth.instance.currentUser;
             if (user != null) {
               return Card(
-                color: colorController.primaryColor.value.withOpacity(0.5),
+                color: colorController.primaryColor.value.withValues(alpha: 0.5),
                 margin: const EdgeInsets.all(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),

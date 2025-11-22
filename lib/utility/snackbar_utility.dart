@@ -10,7 +10,7 @@ class SnackbarUtility {
     Get.snackbar(
       title,
       message,
-      backgroundColor: Colors.red.withOpacity(0.2),
+      backgroundColor: Colors.red.withValues(alpha: 0.2),
       colorText: Colors.black,
       snackPosition: SnackPosition.BOTTOM,
       duration: duration ?? const Duration(seconds: 3),
@@ -26,7 +26,7 @@ class SnackbarUtility {
     Get.snackbar(
       title,
       message,
-      backgroundColor: Colors.green.withOpacity(0.2),
+      backgroundColor: Colors.green.withValues(alpha: 0.2),
       colorText: Colors.black,
       snackPosition: SnackPosition.BOTTOM,
       duration: duration ?? const Duration(seconds: 3),
@@ -42,7 +42,7 @@ class SnackbarUtility {
     Get.snackbar(
       title,
       message,
-      backgroundColor: Colors.blue.withOpacity(0.2),
+      backgroundColor: Colors.blue.withValues(alpha: 0.2),
       colorText: Colors.black,
       snackPosition: SnackPosition.BOTTOM,
       duration: duration ?? const Duration(seconds: 3),

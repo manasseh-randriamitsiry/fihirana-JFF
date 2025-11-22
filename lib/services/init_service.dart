@@ -13,6 +13,7 @@ import 'package:fihirana/services/firebase_sync_service.dart';
 import 'package:fihirana/services/hymn_service.dart';
 import 'package:fihirana/services/local_audio_service.dart';
 import 'package:fihirana/services/notification_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
@@ -69,12 +70,18 @@ class InitService {
         // Initialize Bible service data (can be slow on first load)
         final bibleService = Get.find<BibleService>();
         await bibleService.initialize((message) {
-          print('Bible service: $message');
+          if (kDebugMode) {
+            print('Bible service: $message');
+          }
         });
 
-        print('Background initialization complete');
+        if (kDebugMode) {
+          print('Background initialization complete');
+        }
       } catch (e) {
-        print('Error in background initialization: $e');
+        if (kDebugMode) {
+          print('Error in background initialization: $e');
+        }
       }
     });
   }

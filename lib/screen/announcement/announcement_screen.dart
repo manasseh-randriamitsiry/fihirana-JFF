@@ -87,7 +87,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
                         color:
-                            colorController.textColor.value.withOpacity(0.3)),
+                            colorController.textColor.value.withValues(alpha: 0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -109,7 +109,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
                         color:
-                            colorController.textColor.value.withOpacity(0.3)),
+                            colorController.textColor.value.withValues(alpha: 0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -129,7 +129,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                   decoration: BoxDecoration(
                     border: Border.all(
                         color:
-                            colorController.textColor.value.withOpacity(0.3)),
+                            colorController.textColor.value.withValues(alpha: 0.3)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -145,7 +145,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                               l10n.expirationDate,
                               style: TextStyle(
                                 color: colorController.textColor.value
-                                    .withOpacity(0.7),
+                                    .withValues(alpha: 0.7),
                                 fontSize: 12,
                               ),
                             ),
@@ -242,7 +242,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
                         color:
-                            colorController.textColor.value.withOpacity(0.3)),
+                            colorController.textColor.value.withValues(alpha: 0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -264,7 +264,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
                         color:
-                            colorController.textColor.value.withOpacity(0.3)),
+                            colorController.textColor.value.withValues(alpha: 0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -284,7 +284,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                   decoration: BoxDecoration(
                     border: Border.all(
                         color:
-                            colorController.textColor.value.withOpacity(0.3)),
+                            colorController.textColor.value.withValues(alpha: 0.3)),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -300,7 +300,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                               l10n.expirationDate,
                               style: TextStyle(
                                 color: colorController.textColor.value
-                                    .withOpacity(0.7),
+                                    .withValues(alpha: 0.7),
                                 fontSize: 12,
                               ),
                             ),
@@ -378,8 +378,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
               primary: colorController.primaryColor.value,
               onPrimary: Colors.white,
               onSurface: colorController.textColor.value,
-            ),
-            dialogBackgroundColor: colorController.backgroundColor.value,
+            ), dialogTheme: DialogThemeData(backgroundColor: colorController.backgroundColor.value),
           ),
           child: child!,
         );
@@ -442,7 +441,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                 FloatingActionButton(
                   heroTag: 'refresh_announcements',
                   backgroundColor:
-                      colorController.primaryColor.value.withOpacity(0.8),
+                      colorController.primaryColor.value.withValues(alpha: 0.8),
                   elevation: 4,
                   onPressed: _resetSeenAnnouncements,
                   child: const Icon(Icons.refresh, color: Colors.white),
@@ -464,7 +463,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.error_outline,
-                        size: 64, color: Colors.red.withOpacity(0.5)),
+                        size: 64, color: Colors.red.withValues(alpha: 0.5)),
                     const SizedBox(height: 16),
                     Text(
                       'Nisy hadisoana',
@@ -478,7 +477,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     Text(
                       '${snapshot.error}',
                       style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.7),
+                        color: colorController.textColor.value.withValues(alpha: 0.7),
                         fontSize: 14,
                       ),
                       textAlign: TextAlign.center,
@@ -510,7 +509,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     Icon(
                       Icons.notifications_none_rounded,
                       size: 80,
-                      color: colorController.textColor.value.withOpacity(0.3),
+                      color: colorController.textColor.value.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: 16),
                     Text(
@@ -525,7 +524,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     Text(
                       'Hiverina rehefa misy vaovao',
                       style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.6),
+                        color: colorController.textColor.value.withValues(alpha: 0.6),
                         fontSize: 14,
                       ),
                     ),
@@ -554,15 +553,15 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            colorController.primaryColor.value.withOpacity(0.15),
-            colorController.primaryColor.value.withOpacity(0.05),
+            colorController.primaryColor.value.withValues(alpha: 0.15),
+            colorController.primaryColor.value.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: colorController.primaryColor.value.withOpacity(0.2),
+          color: colorController.primaryColor.value.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -584,7 +583,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color:
-                            colorController.primaryColor.value.withOpacity(0.2),
+                            colorController.primaryColor.value.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -659,7 +658,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                 Text(
                   announcement.message,
                   style: TextStyle(
-                    color: colorController.textColor.value.withOpacity(0.9),
+                    color: colorController.textColor.value.withValues(alpha: 0.9),
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -670,13 +669,13 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     Icon(
                       Icons.access_time_rounded,
                       size: 14,
-                      color: colorController.textColor.value.withOpacity(0.6),
+                      color: colorController.textColor.value.withValues(alpha: 0.6),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       _getRelativeTime(announcement.createdAt),
                       style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.6),
+                        color: colorController.textColor.value.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                     ),
@@ -684,7 +683,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     Text(
                       '•',
                       style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.6),
+                        color: colorController.textColor.value.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -692,7 +691,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                       DateFormat('dd/MM/yyyy HH:mm')
                           .format(announcement.createdAt),
                       style: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.6),
+                        color: colorController.textColor.value.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                     ),
@@ -705,8 +704,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: announcement.isExpired()
-                          ? Colors.red.withOpacity(0.1)
-                          : colorController.primaryColor.value.withOpacity(0.1),
+                          ? Colors.red.withValues(alpha: 0.1)
+                          : colorController.primaryColor.value.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
@@ -726,7 +725,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                             color: announcement.isExpired()
                                 ? Colors.red
                                 : colorController.textColor.value
-                                    .withOpacity(0.8),
+                                    .withValues(alpha: 0.8),
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),

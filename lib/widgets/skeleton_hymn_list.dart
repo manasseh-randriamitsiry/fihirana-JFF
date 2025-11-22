@@ -28,7 +28,7 @@ class SkeletonHymnList extends StatelessWidget {
                   color: colorController.backgroundColor.value,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: colorController.textColor.value.withOpacity(0.05),
+                    color: colorController.textColor.value.withValues(alpha: 0.05),
                   ),
                 ),
                 child: Row(
@@ -38,7 +38,7 @@ class SkeletonHymnList extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: colorController.textColor.value.withOpacity(0.1),
+                        color: colorController.textColor.value.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -54,7 +54,7 @@ class SkeletonHymnList extends StatelessWidget {
                             height: 16,
                             decoration: BoxDecoration(
                               color: colorController.textColor.value
-                                  .withOpacity(0.1),
+                                  .withValues(alpha:0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -65,7 +65,7 @@ class SkeletonHymnList extends StatelessWidget {
                             height: 12,
                             decoration: BoxDecoration(
                               color: colorController.textColor.value
-                                  .withOpacity(0.1),
+                                  .withValues(alpha:0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -78,7 +78,7 @@ class SkeletonHymnList extends StatelessWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: colorController.textColor.value.withOpacity(0.1),
+                        color: colorController.textColor.value.withValues(alpha:0.1),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -89,7 +89,7 @@ class SkeletonHymnList extends StatelessWidget {
                 .animate(onPlay: (controller) => controller.repeat())
                 .shimmer(
                     duration: 1200.ms,
-                    color: colorController.textColor.value.withOpacity(0.05))
+                    color: colorController.textColor.value.withValues(alpha:0.05))
                 .animate() // Separate animation for fade in
                 .fadeIn(duration: 600.ms, curve: Curves.easeOut),
           );

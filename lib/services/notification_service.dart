@@ -1,8 +1,6 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import '../models/hymn.dart';
-import '../services/audio_service.dart';
-import 'package:get/get.dart';
 
 class NotificationService {
   static const int audioPlayerNotificationId = 1001;

@@ -15,14 +15,14 @@ class OptimizedAudioPlayerWidget extends StatefulWidget {
   final Function(bool)? onAutoPlayNextChange;
 
   const OptimizedAudioPlayerWidget({
-    Key? key,
+    super.key,
     required this.hymn,
     this.isCompact = false,
     this.playlist,
     this.onHymnChange,
     this.autoPlayNext = false,
     this.onAutoPlayNextChange,
-  }) : super(key: key);
+  });
 
   @override
   State<OptimizedAudioPlayerWidget> createState() =>
@@ -298,8 +298,9 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
                   style: NeumorphicStyle(
                     depth: 2,
                     color: colorController.backgroundColor.value,
-                    boxShape: NeumorphicBoxShape.circle(),
+                    boxShape: const NeumorphicBoxShape.circle(),
                   ),
+                  onPressed: _isLoading ? null : _togglePlayPause,
                   child: _isLoading
                       ? SizedBox(
                           width: 20,
@@ -322,7 +323,6 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
                             );
                           },
                         ),
-                  onPressed: _isLoading ? null : _togglePlayPause,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -333,7 +333,7 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
                       trackHeight: 2,
                       activeTrackColor: colorController.primaryColor.value,
                       inactiveTrackColor:
-                          colorController.textColor.value.withOpacity(0.3),
+                          colorController.textColor.value.withValues(alpha:0.3),
                       thumbColor: colorController.primaryColor.value,
                     ),
                     child: Slider(
@@ -380,7 +380,7 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
                 'Hymn ${widget.hymn.hymnNumber}',
                 style: TextStyle(
                   fontSize: 14,
-                  color: _colorController.textColor.value.withOpacity(0.7),
+                  color: _colorController.textColor.value.withValues(alpha:0.7),
                 ),
               ),
             ],
@@ -392,28 +392,28 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
             style: NeumorphicStyle(
               depth: 2,
               color: _colorController.backgroundColor.value,
-              boxShape: NeumorphicBoxShape.circle(),
+              boxShape: const NeumorphicBoxShape.circle(),
             ),
+            onPressed: _isLoading ? null : _playPrevious,
             child: Icon(
               Icons.skip_previous,
               size: 24,
               color: _colorController.primaryColor.value,
             ),
-            onPressed: _isLoading ? null : _playPrevious,
           ),
           const SizedBox(width: 8),
           NeumorphicButton(
             style: NeumorphicStyle(
               depth: 2,
               color: _colorController.backgroundColor.value,
-              boxShape: NeumorphicBoxShape.circle(),
+              boxShape: const NeumorphicBoxShape.circle(),
             ),
+            onPressed: _isLoading ? null : _playNext,
             child: Icon(
               Icons.skip_next,
               size: 24,
               color: _colorController.primaryColor.value,
             ),
-            onPressed: _isLoading ? null : _playNext,
           ),
         ],
       ],
@@ -429,7 +429,7 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
             trackHeight: 4,
             activeTrackColor: _colorController.primaryColor.value,
             inactiveTrackColor:
-                _colorController.textColor.value.withOpacity(0.3),
+                _colorController.textColor.value.withValues(alpha:0.3),
             thumbColor: _colorController.primaryColor.value,
           ),
           child: Slider(
@@ -452,14 +452,14 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
               _formatDuration(_position ?? Duration.zero),
               style: TextStyle(
                 fontSize: 12,
-                color: _colorController.textColor.value.withOpacity(0.7),
+                color: _colorController.textColor.value.withValues(alpha:0.7),
               ),
             ),
             Text(
               _formatDuration(_duration ?? Duration.zero),
               style: TextStyle(
                 fontSize: 12,
-                color: _colorController.textColor.value.withOpacity(0.7),
+                color: _colorController.textColor.value.withValues(alpha:0.7),
               ),
             ),
           ],
@@ -476,9 +476,10 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
           style: NeumorphicStyle(
             depth: 3,
             color: _colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.circle(),
+            boxShape: const NeumorphicBoxShape.circle(),
           ),
-          child: Container(
+          onPressed: _isLoading ? null : _togglePlayPause,
+          child: SizedBox(
             width: 56,
             height: 56,
             child: _isLoading
@@ -502,7 +503,6 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
                     },
                   ),
           ),
-          onPressed: _isLoading ? null : _togglePlayPause,
         ),
       ],
     );
@@ -515,6 +515,7 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
         color: _colorController.backgroundColor.value,
         boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(8)),
       ),
+      onPressed: _toggleLyricsSection,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
@@ -536,7 +537,6 @@ class _OptimizedAudioPlayerWidgetState extends State<OptimizedAudioPlayerWidget>
           ],
         ),
       ),
-      onPressed: _toggleLyricsSection,
     );
   }
 

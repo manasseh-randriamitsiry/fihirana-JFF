@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
@@ -13,13 +12,13 @@ import 'apk_download_service.dart';
 import 'pubspec_service.dart';
 
 class VersionCheckService {
-  static const String GITHUB_API_URL =
+  static const String githubApiUrl =
       'https://api.github.com/repos/manasseh-randriamitsiry/fihirana-JFF/releases/latest';
-  static const String LAST_CHECK_KEY = 'last_version_check';
-  static const String DISMISSED_VERSION_KEY = 'dismissed_update_version';
-  static const String INSTALLED_VERSION_KEY = 'installed_update_version';
-  static const Duration CHECK_INTERVAL = Duration(hours: 1);
-  static const int UPDATE_NOTIFICATION_ID = 1;
+  static const String lastCheckKey = 'last_version_check';
+  static const String dismissedVersionKey = 'dismissed_update_version';
+  static const String installedVersionKey = 'installed_update_version';
+  static const Duration checkInterval = Duration(hours: 1);
+  static const int updateNotificationId = 1;
   static Timer? _notificationTimer;
   static String? _cachedDownloadUrl;
   static String? _cachedVersion;
@@ -65,7 +64,7 @@ class VersionCheckService {
 
   static void startPeriodicCheck() {
     _notificationTimer?.cancel();
-    _notificationTimer = Timer.periodic(CHECK_INTERVAL, (timer) {
+    _notificationTimer = Timer.periodic(checkInterval, (timer) {
       checkForUpdate();
     });
   }
@@ -78,9 +77,7 @@ class VersionCheckService {
 static Future<void> checkForUpdate() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
-      final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
-
+      final dismissedVersion = prefs.getString(dismissedVersionKey);
       final currentVersion = await PubspecService.getAppVersion();
       
       // First check GitHub for the latest version
@@ -128,7 +125,7 @@ static Future<void> checkForUpdate() async {
   static Future<void> _showInAppUpdateNotification() async {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: UPDATE_NOTIFICATION_ID,
+        id: updateNotificationId,
         channelKey: 'basic_channel',
         title: 'Misy rindrambaiko vaovao',
         body: 'Version vaovao dia efa azo ampiasaina! Tsindrio haka azy.',
@@ -173,7 +170,7 @@ static Future<void> checkForUpdate() async {
       // Save the current version as dismissed to prevent future notifications
       final prefs = await SharedPreferences.getInstance();
       final currentVersion = await PubspecService.getAppVersion();
-      await prefs.setString(DISMISSED_VERSION_KEY, currentVersion);
+      await prefs.setString(dismissedVersionKey, currentVersion);
       
       stopPeriodicCheck();
     } else if (receivedAction.buttonKeyPressed == 'CANCEL_DOWNLOAD') {
@@ -198,7 +195,7 @@ static Future<void> checkForUpdate() async {
     } catch (e) {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
-          id: UPDATE_NOTIFICATION_ID + 1,
+          id: updateNotificationId + 1,
           channelKey: 'basic_channel',
           title: 'Tsy afaka nalaina',
           body:
@@ -217,7 +214,7 @@ static Future<void> checkForUpdate() async {
 
         await AwesomeNotifications().createNotification(
           content: NotificationContent(
-            id: UPDATE_NOTIFICATION_ID + 2,
+            id: updateNotificationId + 2,
             channelKey: 'basic_channel',
             title: 'Fakàna rindrambaiko',
             body: 'Ny rindrambaiko vaovao dia amim-pakàna. Hahazo fampahalalam-baovao ianao rehefa vita ny fakàna.',
@@ -227,6 +224,9 @@ static Future<void> checkForUpdate() async {
         );
       }
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -237,13 +237,16 @@ static Future<void> checkForUpdate() async {
         _flexibleUpdateAvailable = false;
       }
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
 static Future<bool> checkForUpdateManually() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
+      final dismissedVersion = prefs.getString(dismissedVersionKey);
       
       // Check GitHub for accurate version info
       final currentVersion = await PubspecService.getAppVersion();
@@ -258,7 +261,7 @@ static Future<bool> checkForUpdateManually() async {
       // }
 
       final response = await http.get(
-        Uri.parse(GITHUB_API_URL),
+        Uri.parse(githubApiUrl),
         headers: {
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'Fihirana-App',
@@ -354,7 +357,7 @@ static Future<bool> checkForUpdateManually() async {
       // }
 
       final response = await http.get(
-        Uri.parse(GITHUB_API_URL),
+        Uri.parse(githubApiUrl),
         headers: {
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'Fihirana-App',
@@ -397,13 +400,11 @@ static Future<bool> checkForUpdateManually() async {
   static Future<void> _checkForUpdateFromGitHub() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final dismissedVersion = prefs.getString(DISMISSED_VERSION_KEY);
-      final installedVersion = prefs.getString(INSTALLED_VERSION_KEY);
-
+      final dismissedVersion = prefs.getString(dismissedVersionKey);
       final currentVersion = await PubspecService.getAppVersion();
 
       final response = await http.get(
-        Uri.parse(GITHUB_API_URL),
+        Uri.parse(githubApiUrl),
         headers: {
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'Fihirana-App',
@@ -467,7 +468,7 @@ static Future<bool> checkForUpdateManually() async {
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: UPDATE_NOTIFICATION_ID,
+        id: updateNotificationId,
         channelKey: 'basic_channel',
         title: 'Misy rindrambaiko vaovao',
         body:
@@ -524,7 +525,7 @@ static Future<bool> checkForUpdateManually() async {
     } catch (e) {
       await AwesomeNotifications().createNotification(
         content: NotificationContent(
-          id: UPDATE_NOTIFICATION_ID + 1,
+          id: updateNotificationId + 1,
           channelKey: 'basic_channel',
           title: 'Tsy afaka nalaina',
           body:
@@ -572,13 +573,13 @@ static bool _isNewerVersion(String currentVersion, String latestVersion) {
 
   static Future<void> clearDismissedVersion() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(DISMISSED_VERSION_KEY);
+    await prefs.remove(dismissedVersionKey);
   }
 
   static Future<void> clearUpdateState() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(DISMISSED_VERSION_KEY);
-    await prefs.remove(INSTALLED_VERSION_KEY);
+    await prefs.remove(dismissedVersionKey);
+    await prefs.remove(installedVersionKey);
     _updateInfo = null;
     _cachedDownloadUrl = null;
     _cachedVersion = null;

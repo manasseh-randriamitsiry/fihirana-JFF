@@ -15,7 +15,6 @@ import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
-import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
 
 import '../../services/audio_service.dart';
@@ -45,16 +44,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   bool _showNote = true;
   final HymnService _hymnService = HymnService();
   final NoteService _noteService = NoteService();
-  final AuthController _authController = Get.find<AuthController>();
   final ColorController colorController = Get.find<ColorController>();
   final AudioService _audioService = AudioService.instance;
   late final HistoryController historyController;
   Hymn? _hymn;
   Note? _userNote;
-  bool _isLoadingNote = true;
   bool _hasAudio = false;
   bool _audioChecked = false;
-  bool _isFromSearch = false; // Track if we came from search
 
   // Liquid swipe variables
   late LiquidController _liquidController;
@@ -307,9 +303,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
   Future<void> _loadUserNote() async {
     if (!isUserAuthenticated()) {
-      setState(() {
-        _isLoadingNote = false;
-      });
       return;
     }
 
@@ -320,15 +313,11 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           );
       setState(() {
         _userNote = note;
-        _isLoadingNote = false;
       });
     } catch (e) {
       if (kDebugMode) {
         print('Error loading user note: $e');
       }
-      setState(() {
-        _isLoadingNote = false;
-      });
     }
   }
 
@@ -352,8 +341,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color:
-                          colorController.primaryColor.value.withOpacity(0.5),
+                      color: colorController.primaryColor.value
+                          .withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(
@@ -375,7 +364,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                             ),
                           ),
                         Text(
-                          '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt ?? DateTime(2023))}',
+                          '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}',
                           style: TextStyle(
                             fontSize: _fontSize * 0.8,
                             color: colorController.textColor.value,
@@ -438,7 +427,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
                                     color: colorController.backgroundColor.value
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Column(
@@ -604,7 +593,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                             child: Container(
                               width: 8,
                               height: 8,
-                              decoration: BoxDecoration(
+                              decoration: const BoxDecoration(
                                 color: Colors.red,
                                 shape: BoxShape.circle,
                               ),
@@ -872,9 +861,11 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                       onChangeEnd: (double value) async {
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setDouble('fontSize', value);
-                        setState(() {
-                          _showSlider = false;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            _showSlider = false;
+                          });
+                        }
                       },
                     ),
                 ],
@@ -923,7 +914,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                                       scale: _heartScaleAnimation.value,
                                       child: Icon(
                                         Icons.favorite,
-                                        color: Colors.red.withOpacity(0.8),
+                                        color:
+                                            Colors.red.withValues(alpha: 0.8),
                                         size: 100,
                                       ),
                                     ),
@@ -951,8 +943,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   }
 
   bool canEditHymn() {
-    if (!isUserAuthenticated() || !isFirebaseHymn() || _hymn == null)
+    if (!isUserAuthenticated() || !isFirebaseHymn() || _hymn == null) {
       return false;
+    }
 
     final user = FirebaseAuth.instance.currentUser;
     final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
@@ -1011,7 +1004,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                     l10n.noteInstructions,
                     style: TextStyle(
                       fontSize: 14,
-                      color: colorController.textColor.value.withOpacity(0.8),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -1021,20 +1015,21 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                     decoration: InputDecoration(
                       hintText: l10n.enterYourNote,
                       hintStyle: TextStyle(
-                        color: colorController.textColor.value.withOpacity(0.5),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.5),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
-                          color:
-                              colorController.textColor.value.withOpacity(0.3),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(
-                          color:
-                              colorController.textColor.value.withOpacity(0.3),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -1086,7 +1081,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                                         Navigator.pop(context, true),
                                     child: Text(
                                       l10n.yes,
-                                      style: TextStyle(color: Colors.red),
+                                      style: const TextStyle(color: Colors.red),
                                     ),
                                   ),
                                 ],
@@ -1105,13 +1100,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
                               if (context.mounted) {
                                 Navigator.pop(context);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(l10n.noteDeleted),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
                               }
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(l10n.noteDeleted),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
                             }
                           },
                           child: Text(
@@ -1193,9 +1188,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       builder: (context) => StreamBuilder<Map<String, String>>(
         stream: _hymnService.getFavoriteStatusStream(),
         builder: (context, snapshot) {
-          final favoriteStatus = snapshot.data ?? {};
-          final isFavorite = favoriteStatus.containsKey(_hymn!.id);
-
           return CompactAudioPlayerWidget(
             hymn: _hymn!,
             playlist: _allHymns,
@@ -1305,8 +1297,8 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
               decoration: InputDecoration(
                 hintText: l10n.searchHymns,
                 hintStyle: TextStyle(
-                  color:
-                      widget.colorController.textColor.value.withOpacity(0.7),
+                  color: widget.colorController.textColor.value
+                      .withValues(alpha: 0.7),
                 ),
                 prefixIcon: Icon(
                   Icons.search,

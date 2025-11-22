@@ -3,12 +3,18 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+
 void main() async {
-  print('Combining hymn JSON files into a single file...');
+  if (kDebugMode) {
+    print('Combining hymn JSON files into a single file...');
+  }
   
   final jsonDir = Directory('assets/json');
   if (!await jsonDir.exists()) {
-    print('Error: assets/json directory not found');
+    if (kDebugMode) {
+      print('Error: assets/json directory not found');
+    }
     exit(1);
   }
   
@@ -18,7 +24,9 @@ void main() async {
       .cast<File>()
       .toList();
   
-  print('Found ${jsonFiles.length} JSON files');
+  if (kDebugMode) {
+    print('Found ${jsonFiles.length} JSON files');
+  }
   
   final Map<String, dynamic> combinedHymns = {
     'hymns': <Map<String, dynamic>>[],
@@ -41,24 +49,36 @@ void main() async {
       successCount++;
       
       if (successCount <= 5) {
-        print('Processed: ${file.path.split(Platform.pathSeparator).last}');
+        if (kDebugMode) {
+          print('Processed: ${file.path.split(Platform.pathSeparator).last}');
+        }
       }
     } catch (e) {
       failureCount++;
-      print('Failed to process ${file.path}: $e');
+      if (kDebugMode) {
+        print('Failed to process ${file.path}: $e');
+      }
     }
   }
   
   // Write combined file
   final combinedFile = File('assets/hymns_combined.json');
   await combinedFile.writeAsString(
-    JsonEncoder.withIndent('  ').convert(combinedHymns)
+    const JsonEncoder.withIndent('  ').convert(combinedHymns)
   );
   
-  print('Combined hymn data saved to: ${combinedFile.path}');
-  print('Successfully combined: $successCount hymns');
-  print('Failed: $failureCount hymns');
-  print('Total hymns in combined file: ${combinedHymns['hymns'].length}');
+  if (kDebugMode) {
+    print('Combined hymn data saved to: ${combinedFile.path}');
+  }
+  if (kDebugMode) {
+    print('Successfully combined: $successCount hymns');
+  }
+  if (kDebugMode) {
+    print('Failed: $failureCount hymns');
+  }
+  if (kDebugMode) {
+    print('Total hymns in combined file: ${combinedHymns['hymns'].length}');
+  }
   
   // Update pubspec.yaml to include the combined file
   final pubspecFile = File('pubspec.yaml');
@@ -71,9 +91,13 @@ void main() async {
         '    - assets/hymn_manifest.json\n    - assets/hymns_combined.json',
       );
       await pubspecFile.writeAsString(content);
-      print('Updated pubspec.yaml to include combined hymn file');
+      if (kDebugMode) {
+        print('Updated pubspec.yaml to include combined hymn file');
+      }
     }
   }
   
-  print('Hymn combination completed successfully');
+  if (kDebugMode) {
+    print('Hymn combination completed successfully');
+  }
 }

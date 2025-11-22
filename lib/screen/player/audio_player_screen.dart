@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
@@ -7,7 +8,6 @@ import '../../services/audio_service.dart';
 import '../../services/audio_file_mapping.dart';
 import '../../services/local_audio_service.dart';
 import '../../widgets/modern_audio_player_widget.dart';
-import '../../l10n/app_localizations.dart';
 
 class AudioPlayerScreen extends StatefulWidget {
   final Hymn hymn;
@@ -15,15 +15,14 @@ class AudioPlayerScreen extends StatefulWidget {
   final int? initialIndex;
 
   const AudioPlayerScreen({
-    Key? key,
+    super.key,
     required this.hymn,
     this.playlist,
     this.initialIndex,
-  }) : super(key: key);
+  });
 
   @override
-  State<AudioPlayerScreen> createState() =>
-      _AudioPlayerScreenState();
+  State<AudioPlayerScreen> createState() => _AudioPlayerScreenState();
 }
 
 class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
@@ -61,6 +60,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       await _hymnService.toggleFavorite(_currentHymn);
       _checkFavoriteStatus();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error updating favorites: $e')),
       );
@@ -75,21 +75,29 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       // Load all hymns as playlist
       try {
         initialList = await _hymnService.getAllHymns();
-        print('EnhancedAudioPlayer: Loaded ${initialList.length} total hymns');
+        if (kDebugMode) {
+          print('EnhancedAudioPlayer: Loaded ${initialList.length} total hymns');
+        }
       } catch (e) {
-        print('Error loading hymns: $e');
+        if (kDebugMode) {
+          print('Error loading hymns: $e');
+        }
         initialList = [];
       }
     }
 
     // Create playlist of hymns that have audio (local or remote)
-    print('EnhancedAudioPlayer: Creating playlist of hymns with audio');
+    if (kDebugMode) {
+      print('EnhancedAudioPlayer: Creating playlist of hymns with audio');
+    }
 
     final audioMapping = AudioFileMapping();
 
     // Ensure mapping is up to date
     if (audioMapping.isCacheExpired()) {
-      print('EnhancedAudioPlayer: Audio mapping expired, updating...');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayer: Audio mapping expired, updating...');
+      }
       await audioMapping.updateAudioFileMapping();
     }
 
@@ -104,17 +112,27 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
     allAvailableHymnIds.addAll(remoteAudioFiles.keys);
 
     final audioCount = allAvailableHymnIds.length;
-    print(
+    if (kDebugMode) {
+      print(
         'EnhancedAudioPlayer: Found $audioCount hymns with audio (${localHymnIds.length} local, ${remoteAudioFiles.length} remote)');
+    }
 
     // Debug: Print sample info
-    print(
+    if (kDebugMode) {
+      print(
         'EnhancedAudioPlayer: Sample local hymn IDs: ${localHymnIds.take(5).toList()}');
-    print(
+    }
+    if (kDebugMode) {
+      print(
         'EnhancedAudioPlayer: Sample remote audio files: ${remoteAudioFiles.entries.take(5).toList()}');
-    print('EnhancedAudioPlayer: Current hymn ID: ${widget.hymn.id}');
-    print(
+    }
+    if (kDebugMode) {
+      print('EnhancedAudioPlayer: Current hymn ID: ${widget.hymn.id}');
+    }
+    if (kDebugMode) {
+      print(
         'EnhancedAudioPlayer: Current hymn has local audio: ${localHymnIds.contains(widget.hymn.id)}');
+    }
 
     // Create playlist by matching hymns with available audio files
     final filteredList = <Hymn>[];
@@ -122,19 +140,25 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
     for (final hymn in initialList) {
       if (allAvailableHymnIds.contains(hymn.id)) {
         filteredList.add(hymn);
-        print('EnhancedAudioPlayer: Added hymn ${hymn.id} to playlist');
+        if (kDebugMode) {
+          print('EnhancedAudioPlayer: Added hymn ${hymn.id} to playlist');
+        }
       }
     }
 
     // Always include current hymn even if not in audio files (to avoid empty screen)
     if (!filteredList.any((h) => h.id == widget.hymn.id)) {
       filteredList.insert(0, widget.hymn);
-      print(
+      if (kDebugMode) {
+        print(
           'EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
+      }
     }
 
-    print(
+    if (kDebugMode) {
+      print(
         'EnhancedAudioPlayer: Final playlist has ${filteredList.length} hymns');
+    }
 
     if (mounted) {
       setState(() {
@@ -171,6 +195,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
 
   Future<void> _downloadAudioForHymn(Hymn hymn) async {
     if (_hasLocalAudio(hymn)) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('This hymn is already downloaded!')),
       );
@@ -202,6 +227,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
         if (success) {
           await _initializePlaylist();
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Download failed.')),
           );
@@ -226,8 +252,6 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         body: ModernAudioPlayerWidget(

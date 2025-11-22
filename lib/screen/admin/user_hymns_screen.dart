@@ -130,7 +130,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
             Text(
               widget.userEmail,
               style: TextStyle(
-                color: colorController.textColor.value.withOpacity(0.7),
+                color: colorController.textColor.value.withValues(alpha: 0.7),
                 fontSize: 12,
               ),
             ),
@@ -236,7 +236,7 @@ class _UserHymnsScreenState extends State<UserHymnsScreen> {
                   subtitle: Text(
                     DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt),
                     style: TextStyle(
-                      color: colorController.textColor.value.withOpacity(0.7),
+                      color: colorController.textColor.value.withValues(alpha: 0.7),
                       fontSize: 12,
                     ),
                   ),

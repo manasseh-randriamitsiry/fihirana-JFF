@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -82,11 +83,15 @@ class AccueilScreenState extends State<AccueilScreen> {
       // Use new cache service for efficient batch checking
       audioService.checkAudioFilesExist(uncheckedIds).then((results) {
         _checkedHymnIds.addAll(results.keys);
-        print(
-            'AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
+        if (kDebugMode) {
+          print(
+              'AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
+        }
       }).catchError((error) {
         // Silently handle errors to not affect UI
-        print('Batch audio check error: $error');
+        if (kDebugMode) {
+          print('Batch audio check error: $error');
+        }
       });
     }
   }
@@ -120,7 +125,7 @@ class AccueilScreenState extends State<AccueilScreen> {
         });
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!.checkUpdateError),
@@ -136,7 +141,6 @@ class AccueilScreenState extends State<AccueilScreen> {
     return GetBuilder<ColorController>(
       builder: (colorController) => Obx(() {
         final textColor = colorController.textColor.value;
-        final accentColor = colorController.accentColor.value;
         final backgroundColor = colorController.backgroundColor.value;
         final iconColor = colorController.iconColor.value;
         final defaultTextStyle = TextStyle(color: textColor, inherit: true);
