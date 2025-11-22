@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
@@ -93,7 +93,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           ),
           title: Text(
             _getAppBarTitle(),
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Roboto',
               color: textColor,
               fontWeight: FontWeight.w600,
               fontSize: 18,
@@ -162,7 +163,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
               child: Text(
                 testamentName.toUpperCase(),
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   color: colorController.textColor.value.withOpacity(0.6),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -189,7 +191,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         onTap: () => bibleController.selectBook(bookName),
         title: Text(
           bookName,
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Roboto',
             color: colorController.textColor.value,
             fontWeight: FontWeight.w600,
             fontSize: 16,
@@ -250,7 +253,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             child: Center(
               child: Text(
                 '$chapter',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   color: colorController.primaryColor.value,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -393,7 +397,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               children: [
                 TextSpan(
                   text: '$verseNumber ',
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
                     color: colorController.primaryColor.value,
                     fontSize: _fontSize * 0.7,
                     fontWeight: FontWeight.bold,
@@ -476,7 +481,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               const SizedBox(height: 24),
               Text(
                 'Appearance',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   color: colorController.textColor.value,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -512,7 +518,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               // Font Family Selector
               Text(
                 'Font Family (${fontController.availableFonts.length} fonts)',
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   color: colorController.textColor.value,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
