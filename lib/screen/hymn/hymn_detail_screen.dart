@@ -685,7 +685,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                         children: [
                           Icon(
                             Icons.edit,
-                            color: colorController.iconColor.value,
+                            color: colorController.textColor.value,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -703,7 +703,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                             _userNote != null
                                 ? Icons.edit_note
                                 : Icons.note_add,
-                            color: colorController.iconColor.value,
+                            color: colorController.textColor.value,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -718,7 +718,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                       children: [
                         Icon(
                           Icons.text_fields,
-                          color: colorController.iconColor.value,
+                          color: colorController.textColor.value,
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -733,7 +733,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                       children: [
                         Icon(
                           Icons.color_lens,
-                          color: colorController.iconColor.value,
+                          color: colorController.textColor.value,
                         ),
                         const SizedBox(width: 8),
                         Text(

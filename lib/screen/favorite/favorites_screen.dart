@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
@@ -214,7 +215,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           size: 80,
                           color:
                               colorController.textColor.value.withOpacity(0.3),
-                        ),
+                        )
+                            .animate(
+                                onPlay: (controller) =>
+                                    controller.repeat(reverse: true))
+                            .scale(
+                                duration: const Duration(seconds: 2),
+                                begin: const Offset(1, 1),
+                                end: const Offset(1.1, 1.1),
+                                curve: Curves.easeInOut),
                         const SizedBox(height: 16),
                         Text(
                           'Mbola tsy misy hira tiana',
@@ -424,7 +433,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
                             );
                           },
                         ),
-                      );
+                      )
+                          .animate()
+                          .fadeIn(duration: 300.ms, delay: (50 * index).ms)
+                          .slideY(
+                              begin: 0.1,
+                              end: 0,
+                              duration: 300.ms,
+                              delay: (50 * index).ms,
+                              curve: Curves.easeOut);
                     },
                   );
                 }
