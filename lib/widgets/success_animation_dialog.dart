@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'rive_animation_widget.dart';
+import 'success_check_animation.dart';
 
 class SuccessAnimationDialog extends StatelessWidget {
   final String message;
@@ -53,11 +53,9 @@ class SuccessAnimationDialog extends StatelessWidget {
             const SizedBox(
               height: 100,
               width: 100,
-              child: RiveAnimationWidget(
-                assetPath: 'assets/animations/success.riv',
-                fit: BoxFit.contain,
-                autoplay: true,
-                loop: false,
+              child: SuccessCheckAnimation(
+                size: 100,
+                color: Colors.green,
               ),
             ),
             const SizedBox(height: 16),

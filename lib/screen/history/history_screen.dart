@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/color_controller.dart';
 import '../hymn/hymn_detail_screen.dart';
@@ -71,7 +72,15 @@ class HistoryScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.history,
-                            size: 64, color: textColor.withOpacity(0.3)),
+                                size: 64, color: textColor.withOpacity(0.3))
+                            .animate(
+                                onPlay: (controller) =>
+                                    controller.repeat(reverse: true))
+                            .scale(
+                                duration: const Duration(seconds: 2),
+                                begin: const Offset(1, 1),
+                                end: const Offset(1.1, 1.1),
+                                curve: Curves.easeInOut),
                         const SizedBox(height: 16),
                         Text(
                           l10n.noHistory,
@@ -156,7 +165,17 @@ class HistoryScreen extends StatelessWidget {
                             },
                           ),
                         ),
-                      );
+                      )
+                          .animate()
+                          .fadeIn(
+                              duration: const Duration(milliseconds: 300),
+                              delay: Duration(milliseconds: 50 * index))
+                          .slideY(
+                              begin: 0.1,
+                              end: 0,
+                              duration: const Duration(milliseconds: 300),
+                              delay: Duration(milliseconds: 50 * index),
+                              curve: Curves.easeOut);
                     },
                   ),
       );
