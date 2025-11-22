@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import '../models/hymn.dart';
 import '../services/hymn_service.dart';
+import '../l10n/app_localizations.dart';
 
 class HymnController extends GetxController {
   final searchController = TextEditingController();
@@ -21,6 +22,19 @@ class HymnController extends GetxController {
         debugPrint('Error in favorite status stream: $e');
       },
     );
+  }
+
+  Future<bool> createHymn(String hymnNumber, String title, List<String> verses,
+      String? bridge, String? hymnHint) async {
+    final l10n = AppLocalizations.of(Get.context!)!;
+    Get.snackbar(
+      l10n.noPermission,
+      l10n.cannotAddHymns,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+    return false;
   }
 
   @override

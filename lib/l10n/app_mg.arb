@@ -1,4 +1,4 @@
-{
+﻿{
   "@@locale": "mg",
   "appTitle": "Fihirana",
   "home": "Fandraisana",
@@ -135,8 +135,8 @@
   "appDescription": "Fampiharana hira amin’ny fiteny maro",
   "developedBy": "Namboarina",
   "rightsReserved": "Zony rehetra voatokana",
-  "copyright": "Copyright",
-  "license": "Licence",
+  "copyright": "Zo mpamorona",
+  "license": "Lisansa",
   "openSource": "Lo­harano misokatra",
   "contactUs": "Mifandraisa amin’ny ekipa",
   "support": "Fanohanana",
@@ -196,7 +196,7 @@
   "backgroundColor": "Loko ambadika",
   "drawerColor": "Loko fampisintonana",
   "iconColor": "Loko kisary",
-  "chooseFontStyle": "Safidio nyendr i-tsoratra",
+  "chooseFontStyle": "Safidio ny endri-tsoratra",
   "sampleText": "Jesosy Famonjena Fahamarinantsika",
   "confirmDeleteHymn": "Tena te hamafa ny hira \"{title}\" ve ianao?",
   "copyHymnContent": "Adikao ny votoatin’ny hira",
@@ -310,7 +310,7 @@
   "errorCheckingUpdate": "Tsy afaka mijery fanavaozana",
   "errorDownloadingUpdate2": "Tsy afaka mandefa ny fampidinana",
   "installUpdateTitle": "Hampiditra fanavaozana",
-  "installUpdateContent": "hanao mise a jour ?",
+  "installUpdateContent": "Hanao fanavaozana ve?",
   "newest": "Vaovao indrindra",
   "oldest": "Taloha indrindra",
   "delete": "Hamafa",
@@ -377,5 +377,16 @@
   "noHistory": "Tsy misy tantara",
   "clearAllHistoryQuestion": "Hamafa ve ny tantara rehetra?",
   "historyCannotBeUndone": "Tsy azo averina ny tantara rehefa voafafa.",
-  "deleteSelectedHistoryQuestion": "Hamafa ve ny tantara voafidy?"
+  "deleteSelectedHistoryQuestion": "Hamafa ve ny tantara voafidy?",
+  "dailyBibleVerse": "Andininy Baiboly Isan'andro",
+  "dailyInspiration": "Fanentanana Isan'andro",
+  "receiveVerseEveryDay": "Mandray andininy Baiboly isan'andro",
+  "enableDailyVerse": "Alefaso ny Andininy Isan'andro",
+  "youWillReceiveDailyNotifications": "Hahazo fampandrenesana isan'andro ianao",
+  "turnOnToReceiveDailyVerses": "Alefaso mba hahazo andininy isan'andro",
+  "notificationTime": "Ora Fampandrenesana",
+  "todaysVerse": "Andininy Androany",
+  "noVerseAvailable": "Tsy misy andininy",
+  "sendTestNotification": "Alefaso Fampandrenesana Fitsapana",
+  "testNotificationSent": "Fampandrenesana fitsapana nalefa!"
 }

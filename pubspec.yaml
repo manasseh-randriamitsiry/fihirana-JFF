@@ -69,7 +69,7 @@ flutter:
   assets:
     # Add assets from images directory to the application.
     - assets/images/
-    - assets/fonts/
+
     - assets/json/
     - assets/baiboly/
     - assets/animations/
@@ -88,6 +88,63 @@ flutter:
       fonts:
         - asset: assets/fonts/Poppins-Regular.ttf
         - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+    - family: OpenSans
+      fonts:
+        - asset: assets/fonts/OpenSans-Regular.ttf
+        - asset: assets/fonts/OpenSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/OpenSans-Italic.ttf
+          style: italic
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto-Italic.ttf
+          style: italic
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Montserrat-Italic.ttf
+          style: italic
+    - family: Raleway
+      fonts:
+        - asset: assets/fonts/Raleway-Regular.ttf
+        - asset: assets/fonts/Raleway-Bold.ttf
+          weight: 700
+    - family: Hack
+      fonts:
+        - asset: assets/fonts/Hack-Regular.ttf
+        - asset: assets/fonts/Hack-Bold.ttf
+          weight: 700
+    - family: Breathing
+      fonts:
+        - asset: assets/fonts/Breathing.ttf
+    - family: GoBold
+      fonts:
+        - asset: assets/fonts/GoBold-Bold.otf
+          weight: 700
+        - asset: assets/fonts/GoBold-Light.otf
+          weight: 300
+    - family: SodaFountain
+      fonts:
+        - asset: assets/fonts/SodaFountain-Regular.otf
+    - family: MuseoSansRounded
+      fonts:
+        - asset: assets/fonts/MuseoSansRounded-500.otf
+        - asset: assets/fonts/MuseoSansRounded-700.otf
+          weight: 700
+    - family: TitilliumWeb
+      fonts:
+        - asset: assets/fonts/TitilliumWeb-Regular.ttf
+        - asset: assets/fonts/TitilliumWeb-Bold.ttf
+          weight: 700
+    - family: SourceSerifPro
+      fonts:
+        - asset: assets/fonts/SourceSerifPro-Bold.ttf
           weight: 700
 
 flutter_launcher_icons:

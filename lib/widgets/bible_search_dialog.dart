@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import '../controller/bible_controller.dart';
 import '../controller/color_controller.dart';
 import '../models/bible_search.dart';
@@ -107,7 +107,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           Expanded(
             child: Text(
               'Karoka Baiboly',
-              style: GoogleFonts.inter(
+              style: TextStyle(
+                fontFamily: 'Roboto',
                 color: colorController.textColor.value,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -137,13 +138,15 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
       child: TextField(
         controller: _searchController,
         focusNode: _searchFocusNode,
-        style: GoogleFonts.inter(
+        style: TextStyle(
+          fontFamily: 'Roboto',
           color: colorController.textColor.value,
           fontSize: _fontSize,
         ),
         decoration: InputDecoration(
           hintText: 'Karoka teny na andininy...',
-          hintStyle: GoogleFonts.inter(
+          hintStyle: TextStyle(
+            fontFamily: 'Roboto',
             color: colorController.textColor.value.withOpacity(0.5),
           ),
           prefixIcon: Icon(
@@ -241,7 +244,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.inter(
+                style: TextStyle(
+                  fontFamily: 'Roboto',
                   color: isSelected
                       ? Colors.white
                       : colorController.textColor.value,
@@ -290,7 +294,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           const SizedBox(height: 20),
           Text(
             'Mikaroka...',
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Roboto',
               color: colorController.textColor.value.withOpacity(0.7),
               fontSize: _fontSize,
             ),
@@ -313,7 +318,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           const SizedBox(height: 16),
           Text(
             'Soraty ny teny hikarohana',
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Roboto',
               color: colorController.textColor.value.withOpacity(0.5),
               fontSize: _fontSize,
             ),
@@ -336,7 +342,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           const SizedBox(height: 16),
           Text(
             'Tsy misy valin\'ny karoka',
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Roboto',
               color: colorController.textColor.value.withOpacity(0.7),
               fontSize: _fontSize,
             ),
@@ -344,7 +351,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           const SizedBox(height: 8),
           Text(
             'Mandeha manova ny teny karoka',
-            style: GoogleFonts.inter(
+            style: TextStyle(
+              fontFamily: 'Roboto',
               color: colorController.textColor.value.withOpacity(0.5),
               fontSize: _fontSize * 0.9,
             ),
@@ -400,7 +408,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
                   Expanded(
                     child: Text(
                       result.displayText,
-                      style: GoogleFonts.inter(
+                      style: TextStyle(
+                        fontFamily: 'Roboto',
                         color: colorController.primaryColor.value,
                         fontSize: _fontSize,
                         fontWeight: FontWeight.w600,
@@ -417,7 +426,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
               else
                 Text(
                   result.subtitle,
-                  style: GoogleFonts.inter(
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
                     color: colorController.textColor.value.withOpacity(0.7),
                     fontSize: _fontSize * 0.9,
                   ),
@@ -436,7 +446,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     if (query.isEmpty) {
       return Text(
         result.text,
-        style: GoogleFonts.inter(
+        style: TextStyle(
+          fontFamily: 'Roboto',
           color: colorController.textColor.value.withOpacity(0.7),
           fontSize: _fontSize * 0.9,
         ),
@@ -457,7 +468,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
       if (index > start) {
         spans.add(TextSpan(
           text: result.text.substring(start, index),
-          style: GoogleFonts.inter(
+          style: TextStyle(
+            fontFamily: 'Roboto',
             color: colorController.textColor.value.withOpacity(0.7),
             fontSize: _fontSize * 0.9,
           ),
@@ -467,7 +479,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
       // Add highlighted match
       spans.add(TextSpan(
         text: result.text.substring(index, index + query.length),
-        style: GoogleFonts.inter(
+        style: TextStyle(
+          fontFamily: 'Roboto',
           backgroundColor: colorController.primaryColor.value.withOpacity(0.3),
           color: colorController.primaryColor.value,
           fontSize: _fontSize * 0.9,
@@ -483,7 +496,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     if (start < result.text.length) {
       spans.add(TextSpan(
         text: result.text.substring(start),
-        style: GoogleFonts.inter(
+        style: TextStyle(
+          fontFamily: 'Roboto',
           color: colorController.textColor.value.withOpacity(0.7),
           fontSize: _fontSize * 0.9,
         ),

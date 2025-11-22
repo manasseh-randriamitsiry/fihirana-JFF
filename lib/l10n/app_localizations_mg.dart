@@ -416,10 +416,10 @@ class AppLocalizationsMg extends AppLocalizations {
   String get rightsReserved => 'Zony rehetra voatokana';
 
   @override
-  String get copyright => 'Copyright';
+  String get copyright => 'Zo mpamorona';
 
   @override
-  String get license => 'Licence';
+  String get license => 'Lisansa';
 
   @override
   String get openSource => 'Lo­harano misokatra';
@@ -509,7 +509,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get chooseLanguage => 'Safidio ny fiteny';
 
   @override
-  String get searchHymnsHint => 'Karohy hira…';
+  String get searchHymnsHint => 'Hikaroka hira…';
 
   @override
   String chaptersCount(Object count) {
@@ -549,7 +549,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get iconColor => 'Loko kisary';
 
   @override
-  String get chooseFontStyle => 'Safidio nyendr i-tsoratra';
+  String get chooseFontStyle => 'Safidio ny endri-tsoratra';
 
   @override
   String get sampleText => 'Jesosy Famonjena Fahamarinantsika';
@@ -990,7 +990,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get installUpdateTitle => 'Hampiditra fanavaozana';
 
   @override
-  String get installUpdateContent => 'hanao mise a jour ?';
+  String get installUpdateContent => 'Hanao fanavaozana ve?';
 
   @override
   String get install => 'Apetraka';
@@ -1175,4 +1175,37 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get acceptTerms => 'Ekeko ireo fepetra ireo';
+
+  @override
+  String get dailyBibleVerse => 'Andininy Baiboly Isan\'andro';
+
+  @override
+  String get dailyInspiration => 'Fanentanana Isan\'andro';
+
+  @override
+  String get receiveVerseEveryDay => 'Mandray andininy Baiboly isan\'andro';
+
+  @override
+  String get enableDailyVerse => 'Alefaso ny Andininy Isan\'andro';
+
+  @override
+  String get youWillReceiveDailyNotifications => 'Hahazo fampandrenesana isan\'andro ianao';
+
+  @override
+  String get turnOnToReceiveDailyVerses => 'Alefaso mba hahazo andininy isan\'andro';
+
+  @override
+  String get notificationTime => 'Ora Fampandrenesana';
+
+  @override
+  String get todaysVerse => 'Andininy Androany';
+
+  @override
+  String get noVerseAvailable => 'Tsy misy andininy';
+
+  @override
+  String get sendTestNotification => 'Alefaso Fampandrenesana Fitsapana';
+
+  @override
+  String get testNotificationSent => 'Fampandrenesana fitsapana nalefa!';
 }
