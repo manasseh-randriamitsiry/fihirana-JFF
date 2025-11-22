@@ -117,12 +117,12 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 color: colorController.backgroundColor.value,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: colorController.textColor.value.withOpacity(0.1),
+                  color: colorController.textColor.value.withValues(alpha: 0.1),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -138,7 +138,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 decoration: InputDecoration(
                   hintText: 'Karohy ny hira tiana...',
                   hintStyle: TextStyle(
-                    color: colorController.iconColor.value.withOpacity(0.5),
+                    color: colorController.iconColor.value.withValues(alpha: 0.5),
                   ),
                   prefixIcon: Icon(
                     Icons.search,
@@ -193,7 +193,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         Icon(
                           Icons.error_outline,
                           size: 64,
-                          color: Colors.red.withOpacity(0.5),
+                          color: Colors.red.withValues(alpha: 0.5),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -214,7 +214,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           Icons.favorite_border,
                           size: 80,
                           color:
-                              colorController.textColor.value.withOpacity(0.3),
+                              colorController.textColor.value.withValues(alpha: 0.3),
                         )
                             .animate(
                                 onPlay: (controller) =>
@@ -238,7 +238,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           'Tsindrio ny fo mba hanampiana hira',
                           style: TextStyle(
                             color: colorController.textColor.value
-                                .withOpacity(0.6),
+                                .withValues(alpha: 0.6),
                             fontSize: 14,
                           ),
                         ),
@@ -268,7 +268,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                             Icons.search_off,
                             size: 64,
                             color: colorController.textColor.value
-                                .withOpacity(0.3),
+                                .withValues(alpha: 0.3),
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -300,12 +300,12 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
                       return Card(
                         elevation: 2,
-                        shadowColor: Colors.black.withOpacity(0.1),
+                        shadowColor: Colors.black.withValues(alpha: 0.1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
                             color: colorController.textColor.value
-                                .withOpacity(0.1),
+                                .withValues(alpha: 0.1),
                             width: 1,
                           ),
                         ),
@@ -319,11 +319,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                             height: 48,
                             decoration: BoxDecoration(
                               color: colorController.primaryColor.value
-                                  .withOpacity(0.15),
+                                  .withValues(alpha: 0.15),
                               shape: BoxShape.circle,
                               border: Border.all(
                                 color: colorController.primaryColor.value
-                                    .withOpacity(0.3),
+                                    .withValues(alpha: 0.3),
                                 width: 2,
                               ),
                             ),
@@ -358,7 +358,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                     decoration: BoxDecoration(
                                       color: isPlaying
                                           ? colorController.primaryColor.value
-                                              .withOpacity(0.15)
+                                              .withValues(alpha: 0.15)
                                           : Colors.transparent,
                                       shape: BoxShape.circle,
                                     ),

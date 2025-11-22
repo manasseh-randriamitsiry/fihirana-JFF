@@ -11,7 +11,7 @@ class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
 
   @override
-  _AdminPanelScreenState createState() => _AdminPanelScreenState();
+  State<AdminPanelScreen> createState() => _AdminPanelScreenState();
 }
 
 class _AdminPanelScreenState extends State<AdminPanelScreen> {
@@ -28,6 +28,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
   Future<void> _checkAdminAccess() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user?.email != 'manassehrandriamitsiry@gmail.com') {
+      if (!mounted) return;
       final l10n = AppLocalizations.of(context)!;
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
@@ -48,6 +49,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
       for (String hymnId in selectedHymns) {
         await _hymnService.deleteHymn(hymnId);
       }
+      if (!mounted) return;
+
       selectedHymns.clear();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -56,6 +59,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         ),
       );
     } catch (e) {
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
@@ -63,7 +68,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
         ),
       );
     }
-    setState(() => isLoading = false);
+    if (mounted) {
+      setState(() => isLoading = false);
+    }
   }
 
   @override

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -20,7 +19,7 @@ class ModernAudioPlayerWidget extends StatefulWidget {
   final VoidCallback? onToggleFavorite;
 
   const ModernAudioPlayerWidget({
-    Key? key,
+    super.key,
     required this.hymn,
     this.playlist,
     this.onHymnChange,
@@ -32,7 +31,7 @@ class ModernAudioPlayerWidget extends StatefulWidget {
     this.getDownloadProgress,
     this.isFavorite = false,
     this.onToggleFavorite,
-  }) : super(key: key);
+  });
 
   @override
   State<ModernAudioPlayerWidget> createState() =>
@@ -234,7 +233,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                       Text(
                         'Now Playing',
                         style: TextStyle(
-                          color: primaryTextColor.withOpacity(0.9),
+                          color: primaryTextColor.withValues(alpha:0.9),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1,
@@ -261,7 +260,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.3),
+                            color: Colors.black.withValues(alpha:0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -274,7 +273,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                             child: Icon(
                               Icons.music_note,
                               size: 120,
-                              color: Colors.brown.withOpacity(0.3),
+                              color: Colors.brown.withValues(alpha:0.3),
                             ),
                           ),
                           // Hymn Number Overlay
@@ -285,7 +284,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.1),
+                                color: Colors.black.withValues(alpha:0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -497,7 +496,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                                 Switch(
                                   value: widget.autoPlayNext,
                                   onChanged: widget.onAutoPlayNextChange,
-                                  activeColor: Colors.white,
+                                  activeThumbColor: Colors.white,
                                   activeTrackColor: Colors.white24,
                                   inactiveThumbColor: Colors.white54,
                                   inactiveTrackColor: Colors.white10,
@@ -612,7 +611,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                                 ),
                                 subtitle: Text(
                                   'Hymn ${hymn.hymnNumber}',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white54,
                                     fontSize: 12,
                                   ),

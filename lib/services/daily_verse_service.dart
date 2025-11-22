@@ -86,8 +86,9 @@ class DailyVerseService {
 
         final book = await _bibleService.getBook(bookName);
         if (book == null) {
-          if (kDebugMode)
+          if (kDebugMode) {
             print('Book not found: $bookName (English: $englishBook)');
+          }
           continue;
         }
 
@@ -99,8 +100,9 @@ class DailyVerseService {
 
         final verseText = chapter.verses[verseNum];
         if (verseText == null || verseText.isEmpty) {
-          if (kDebugMode)
+          if (kDebugMode) {
             print('Verse not found: $verseNum in $bookName $chapterNum');
+          }
           continue;
         }
 

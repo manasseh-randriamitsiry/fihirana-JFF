@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/favorite.dart';
@@ -77,6 +78,9 @@ class FirebaseSyncService {
 
       await prefs.setBool(_favoritesSyncedKey, true);
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -151,6 +155,9 @@ class FirebaseSyncService {
 
       await prefs.setBool(_historySyncedKey, true);
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -244,6 +251,9 @@ class FirebaseSyncService {
 
       await favoriteRef.set(favorite.toFirestore());
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -264,6 +274,9 @@ class FirebaseSyncService {
         await snapshot.docs.first.reference.delete();
       }
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -286,6 +299,9 @@ class FirebaseSyncService {
       });
 
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
@@ -307,6 +323,9 @@ class FirebaseSyncService {
 
       await batch.commit();
     } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 

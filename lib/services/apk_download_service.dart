@@ -10,7 +10,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class ApkDownloadService {
-  static const int DOWNLOAD_NOTIFICATION_ID = 1001;
+  static const int downloadNotificationd = 1001;
   static Dio? _dio;
   static CancelToken? _cancelToken;
 
@@ -96,7 +96,7 @@ class ApkDownloadService {
         
         // Use file provider URI for installation
         final file = File(filePath);
-        final uri = 'content://${packageName}.fileprovider/external_files/${file.path.split('/').last}';
+        final uri = 'content://$packageName.fileprovider/external_files/${file.path.split('/').last}';
         
         final intent = AndroidIntent(
           action: 'android.intent.action.INSTALL_PACKAGE',
@@ -132,7 +132,7 @@ class ApkDownloadService {
   static Future<void> _showNotification(String title, String body) async {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: DOWNLOAD_NOTIFICATION_ID,
+        id: downloadNotificationd,
         channelKey: 'hymn_download_channel',
         title: title,
         body: body,
@@ -145,7 +145,7 @@ class ApkDownloadService {
   static Future<void> _showDownloadNotification(String body, int progress) async {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
-        id: DOWNLOAD_NOTIFICATION_ID,
+        id: downloadNotificationd,
         channelKey: 'hymn_download_channel',
         title: 'Fandefasana rindrambaiko',
         body: body,

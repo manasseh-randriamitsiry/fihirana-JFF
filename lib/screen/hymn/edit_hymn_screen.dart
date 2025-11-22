@@ -54,7 +54,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     return FirebaseAuth.instance.currentUser != null;
   }
 
-  void _saveChanges() {
+  Future<void> _saveChanges() async {
     final l10n = AppLocalizations.of(context)!;
     if (!isUserAuthenticated()) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -80,7 +80,10 @@ class EditHymnScreenState extends State<EditHymnScreen> {
       createdByEmail: widget.hymn.createdByEmail,
     );
 
-    _hymnService.updateHymn(updatedHymn.id, updatedHymn).then((_) {
+    try {
+      await _hymnService.updateHymn(updatedHymn.id, updatedHymn);
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.hymnUpdatedSuccessfully),
@@ -88,15 +91,17 @@ class EditHymnScreenState extends State<EditHymnScreen> {
         ),
       );
       Navigator.pop(context);
-    }).catchError((error) {
+    } catch (error) {
       if (kDebugMode) {}
+      if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.errorUpdating(error.toString())),
           backgroundColor: colorController.backgroundColor.value,
         ),
       );
-    });
+    }
   }
 
   @override
@@ -237,7 +242,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
           borderRadius: BorderRadius.circular(10.0),
           borderSide: BorderSide(color: colorController.primaryColor.value),
         ),
-        fillColor: colorController.backgroundColor.value.withOpacity(0.1),
+        fillColor: colorController.backgroundColor.value.withValues(alpha: 0.1),
         filled: true,
       ),
     );

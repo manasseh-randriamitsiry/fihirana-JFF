@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
@@ -116,13 +117,19 @@ class DrawerWidgetState extends State<DrawerWidget> {
         Get.snackbar(
           l10n.welcome,
           l10n.signedInSuccessfully,
-          backgroundColor: Colors.green.withOpacity(0.2),
+          backgroundColor: Colors.green.withValues(alpha: 0.2),
           colorText: _colorController.textColor.value,
         );
 
-        Phoenix.rebirth(context);
+        if (mounted) {
+          Phoenix.rebirth(context);
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
   }
 
   void _loadUsername() async {
@@ -183,7 +190,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         const SizedBox(height: 8),
                         Text(
                           'With audio: ${stats['with_audio']}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.green,
                             fontSize: 14,
                           ),
@@ -191,7 +198,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         const SizedBox(height: 4),
                         Text(
                           'Without audio: ${stats['without_audio']}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.red,
                             fontSize: 14,
                           ),
@@ -209,6 +216,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   NeumorphicButton(
                     onPressed: () async {
                       await AudioService.instance.clearExpiredCache();
+                      if (!context.mounted) return;
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -218,7 +226,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       );
                     },
                     style: NeumorphicStyle(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha: 0.1),
                       boxShape: NeumorphicBoxShape.roundRect(
                           BorderRadius.circular(10)),
                       depth: 2,
@@ -277,6 +285,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
                       if (confirmed == true) {
                         await AudioService.instance.clearAllCache();
+                        if (!context.mounted) return;
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -287,7 +296,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       }
                     },
                     style: NeumorphicStyle(
-                      color: Colors.red.withOpacity(0.1),
+                      color: Colors.red.withValues(alpha: 0.1),
                       boxShape: NeumorphicBoxShape.roundRect(
                           BorderRadius.circular(10)),
                       depth: 2,
@@ -319,7 +328,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: _colorController.textColor.value.withOpacity(0.5),
+          color: _colorController.textColor.value.withValues(alpha: 0.5),
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -371,12 +380,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         width: 3,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.2),
+                          color: Colors.black.withValues(alpha: 0.2),
                           blurRadius: 10,
                           offset: const Offset(0, 5),
                         ),
@@ -421,12 +430,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                                 'User')
                             : (_username ?? 'Guest'),
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.95),
+                          color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                           shadows: [
                             Shadow(
-                              color: Colors.black.withOpacity(0.3),
+                              color: Colors.black.withValues(alpha: 0.3),
                               offset: const Offset(0, 2),
                               blurRadius: 4,
                             ),
@@ -443,7 +452,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                               '',
                           style: TextStyle(
                             color: _colorController.backgroundColor.value
-                                .withOpacity(0.95),
+                                .withValues(alpha: .95),
                             fontSize: 14,
                           ),
                           maxLines: 1,
@@ -462,7 +471,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                               color: _colorController.primaryColor.value,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Text(
+                            child: const Text(
                               'Sign In',
                               style: TextStyle(
                                 color: Colors.white,
@@ -505,7 +514,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 _buildDrawerItem(
                   icon: Icons.favorite_border_rounded,
                   title: l10n.favoriteHymns,
-                  onTap: () => Get.to(() => FavoritesPage()),
+                  onTap: () => Get.to(() => const FavoritesPage()),
                 ),
                 _buildDrawerItem(
                   icon: Icons.history_rounded,

@@ -2,6 +2,7 @@ import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/services/init_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -76,7 +77,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
         );
       }
     } catch (e) {
-      print('Error during bootstrap: $e');
+      if (kDebugMode) {
+        print('Error during bootstrap: $e');
+      }
       _updateProgress(1.0, 'Nisy olana, fa mandeha ihany...');
       await Future.delayed(const Duration(milliseconds: 300));
 
@@ -121,7 +124,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                     width: double.infinity,
                     child: LinearProgressIndicator(
                       value: _progress,
-                      backgroundColor: Colors.blue.withOpacity(0.2),
+                      backgroundColor: Colors.blue.withValues(alpha: 0.2),
                       valueColor:
                           const AlwaysStoppedAnimation<Color>(Colors.blue),
                     ),

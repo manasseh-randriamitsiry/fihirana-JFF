@@ -18,7 +18,7 @@ class CompactAudioPlayerWidget extends StatefulWidget {
   final VoidCallback? onToggleFavorite;
 
   const CompactAudioPlayerWidget({
-    Key? key,
+    super.key,
     required this.hymn,
     this.playlist,
     this.onHymnChange,
@@ -29,7 +29,7 @@ class CompactAudioPlayerWidget extends StatefulWidget {
     this.isDownloaded,
     this.getDownloadProgress,
     this.onToggleFavorite,
-  }) : super(key: key);
+  });
 
   @override
   State<CompactAudioPlayerWidget> createState() =>

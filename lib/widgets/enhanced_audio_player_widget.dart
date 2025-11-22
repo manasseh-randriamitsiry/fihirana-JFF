@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/hymn.dart';
@@ -136,7 +137,9 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
           // ULTRA-AGGRESSIVE VALIDATION: Reject extremely large positions immediately
           const absoluteMaxPosition = 600000000; // 10 minutes in milliseconds
           if (position.inMilliseconds > absoluteMaxPosition) {
-            print('EnhancedAudioPlayerWidget: Rejecting extremely large position: ${position.inMilliseconds}ms (max: $absoluteMaxPosition)');
+            if (kDebugMode) {
+              print('EnhancedAudioPlayerWidget: Rejecting extremely large position: ${position.inMilliseconds}ms (max: $absoluteMaxPosition)');
+            }
             if (mounted) {
               setState(() {
                 _position = Duration.zero;
@@ -147,7 +150,9 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
           
           // Additional validation: position should not be unreasonably large
           if (_duration != null && position.inMilliseconds > _duration!.inMilliseconds * 2.0) {
-            print('EnhancedAudioPlayerWidget: Ignoring unreasonable position: ${position.inMilliseconds}ms vs duration: ${_duration!.inMilliseconds}ms');
+            if (kDebugMode) {
+              print('EnhancedAudioPlayerWidget: Ignoring unreasonable position: ${position.inMilliseconds}ms vs duration: ${_duration!.inMilliseconds}ms');
+            }
             if (mounted) {
               setState(() {
                 _position = Duration.zero;
@@ -233,14 +238,6 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
     }
   }
 
-  Future<void> _stop() async {
-    try {
-      await _audioService.stop();
-    } catch (e) {
-      _showErrorSnackBar('Failed to stop audio: $e');
-    }
-  }
-
   double _calculateSliderValue() {
     if (_duration == null || _position == null) return 0.0;
     
@@ -266,7 +263,9 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
     // 2. Reasonable position check (position should not exceed duration by more than 10 seconds)
     final maxReasonablePosition = durationMs + 10000; // +10 seconds buffer
     if (positionMs > maxReasonablePosition) {
-      print('EnhancedAudioPlayerWidget: Position ($positionMs) exceeds reasonable max ($maxReasonablePosition) - resetting to 0.0');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayerWidget: Position ($positionMs) exceeds reasonable max ($maxReasonablePosition) - resetting to 0.0');
+      }
       if (mounted) {
         setState(() {
           _position = Duration.zero;
@@ -278,7 +277,9 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
     // 3. Absolute maximum cap (prevent any extremely large values)
     const absoluteMaxPosition = 600000000; // 10 minutes in milliseconds
     if (positionMs > absoluteMaxPosition) {
-      print('EnhancedAudioPlayerWidget: Position ($positionMs) exceeds absolute max ($absoluteMaxPosition) - resetting to 0.0');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayerWidget: Position ($positionMs) exceeds absolute max ($absoluteMaxPosition) - resetting to 0.0');
+      }
       if (mounted) {
         setState(() {
           _position = Duration.zero;
@@ -289,7 +290,9 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
     
     // 4. Duration-based cap (position should not be more than 3x duration)
     if (positionMs > durationMs * 3.0) {
-      print('EnhancedAudioPlayerWidget: Position ($positionMs) > 3x duration ($durationMs) - resetting to 0.0');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayerWidget: Position ($positionMs) > 3x duration ($durationMs) - resetting to 0.0');
+      }
       if (mounted) {
         setState(() {
           _position = Duration.zero;
@@ -303,7 +306,9 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
     
     // Debug logging for troubleshooting
     if (clampedValue != value) {
-      print('EnhancedAudioPlayerWidget: Clamped slider value from $value to $clampedValue (pos: $positionMs, dur: $durationMs)');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayerWidget: Clamped slider value from $value to $clampedValue (pos: $positionMs, dur: $durationMs)');
+      }
     }
     
     return clampedValue;
@@ -315,7 +320,9 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
       // Final safety check - ensure value is within valid range
       return calculatedValue.clamp(0.0, 1.0);
     } catch (e) {
-      print('EnhancedAudioPlayerWidget: Error calculating slider value: $e, returning 0.0');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayerWidget: Error calculating slider value: $e, returning 0.0');
+      }
       return 0.0;
     }
   }
@@ -336,10 +343,14 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
         milliseconds: (clampedValue * _duration!.inMilliseconds).round(),
       );
       
-      print('EnhancedAudioPlayerWidget: Seeking to ${position.inSeconds}s (${(clampedValue * 100).toStringAsFixed(1)}%)');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayerWidget: Seeking to ${position.inSeconds}s (${(clampedValue * 100).toStringAsFixed(1)}%)');
+      }
       await _audioService.seekTo(position);
     } catch (e) {
-      print('EnhancedAudioPlayerWidget: Seek error: $e');
+      if (kDebugMode) {
+        print('EnhancedAudioPlayerWidget: Seek error: $e');
+      }
     } finally {
       _isSeeking = false;
     }
@@ -758,7 +769,7 @@ class _EnhancedAudioPlayerWidgetState extends State<EnhancedAudioPlayerWidget>
                             ],
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                     if (widget.hymn.bridge != null && widget.hymn.bridge!.isNotEmpty) ...[
                       Padding(

@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 import 'audio_file_mapping.dart';
 
 class AudioCacheService {
@@ -45,19 +45,24 @@ class AudioCacheService {
   Future<bool> checkAudioExists(String hymnId) async {
     // Check memory cache first
     if (_memoryCache.containsKey(hymnId)) {
-      print('AudioCache: Found $hymnId in memory cache: ${_memoryCache[hymnId]}');
+      if (kDebugMode) {
+        print(
+          'AudioCache: Found $hymnId in memory cache: ${_memoryCache[hymnId]}');
+      }
       return _memoryCache[hymnId]!;
     }
 
     // Check if we're already checking this hymn
     if (_pendingChecks.contains(hymnId)) {
-      print('AudioCache: Already checking $hymnId, waiting...');
-      
+      if (kDebugMode) {
+        print('AudioCache: Already checking $hymnId, waiting...');
+      }
+
       // Wait for the check to complete
       while (_pendingChecks.contains(hymnId)) {
         await Future.delayed(const Duration(milliseconds: 100));
       }
-      
+
       return _memoryCache[hymnId] ?? false;
     }
 
@@ -72,16 +77,21 @@ class AudioCacheService {
       );
 
       if (maps.isNotEmpty) {
-        final lastChecked = DateTime.fromMillisecondsSinceEpoch(maps.first['last_checked']);
+        final lastChecked =
+            DateTime.fromMillisecondsSinceEpoch(maps.first['last_checked']);
         final hasAudio = maps.first['has_audio'] == 1;
-        
+
         // Check if cache is still valid
         if (DateTime.now().difference(lastChecked) < _cacheExpiry) {
-          print('AudioCache: Found $hymnId in database cache: $hasAudio');
+          if (kDebugMode) {
+            print('AudioCache: Found $hymnId in database cache: $hasAudio');
+          }
           _memoryCache[hymnId] = hasAudio;
           return hasAudio;
         } else {
-          print('AudioCache: Cache expired for $hymnId, refreshing...');
+          if (kDebugMode) {
+            print('AudioCache: Cache expired for $hymnId, refreshing...');
+          }
           // Remove expired entry
           await db.delete(
             _tableName,
@@ -93,15 +103,19 @@ class AudioCacheService {
 
       // Cache miss or expired, check actual availability
       final hasAudio = await _checkActualAudioAvailability(hymnId);
-      
+
       // Cache the result
       await _cacheAudioAvailability(hymnId, hasAudio);
       _memoryCache[hymnId] = hasAudio;
-      
-      print('AudioCache: Checked $hymnId from network: $hasAudio');
+
+      if (kDebugMode) {
+        print('AudioCache: Checked $hymnId from network: $hasAudio');
+      }
       return hasAudio;
     } catch (e) {
-      print('AudioCache: Error checking $hymnId: $e');
+      if (kDebugMode) {
+        print('AudioCache: Error checking $hymnId: $e');
+      }
       return false;
     } finally {
       _pendingChecks.remove(hymnId);
@@ -109,7 +123,8 @@ class AudioCacheService {
   }
 
   /// Check multiple hymns at once (batch operation)
-  Future<Map<String, bool>> checkMultipleAudioExists(List<String> hymnIds) async {
+  Future<Map<String, bool>> checkMultipleAudioExists(
+      List<String> hymnIds) async {
     final Map<String, bool> results = {};
     final List<String> uncachedIds = [];
 
@@ -123,7 +138,9 @@ class AudioCacheService {
     }
 
     if (uncachedIds.isEmpty) {
-      print('AudioCache: All hymns found in memory cache');
+      if (kDebugMode) {
+        print('AudioCache: All hymns found in memory cache');
+      }
       return results;
     }
 
@@ -141,7 +158,8 @@ class AudioCacheService {
 
     for (final map in maps) {
       final hymnId = map['hymn_id'] as String;
-      final lastChecked = DateTime.fromMillisecondsSinceEpoch(map['last_checked']);
+      final lastChecked =
+          DateTime.fromMillisecondsSinceEpoch(map['last_checked']);
       final hasAudio = map['has_audio'] == 1;
 
       if (now.difference(lastChecked) < _cacheExpiry) {
@@ -171,9 +189,13 @@ class AudioCacheService {
 
     // Batch check network availability
     if (networkCheckIds.isNotEmpty) {
-      print('AudioCache: Checking ${networkCheckIds.length} hymns from network');
-      final networkResults = await _batchCheckNetworkAvailability(networkCheckIds);
-      
+      if (kDebugMode) {
+        print(
+          'AudioCache: Checking ${networkCheckIds.length} hymns from network');
+      }
+      final networkResults =
+          await _batchCheckNetworkAvailability(networkCheckIds);
+
       // Cache network results
       for (final entry in networkResults.entries) {
         await _cacheAudioAvailability(entry.key, entry.value);
@@ -188,23 +210,22 @@ class AudioCacheService {
   /// Check actual audio availability from network
   Future<bool> _checkActualAudioAvailability(String hymnId) async {
     final audioMapping = AudioFileMapping();
-    
+
     // First try to get the correct URL from mapping
     String? audioUrl = audioMapping.getAudioUrl(hymnId);
-    
+
     if (audioUrl == null) {
       // If mapping is not available or expired, try to update it
       if (audioMapping.isCacheExpired()) {
         await audioMapping.updateAudioFileMapping();
         audioUrl = audioMapping.getAudioUrl(hymnId);
       }
-      
+
       // If still null, try the old format as fallback
-      if (audioUrl == null) {
-        audioUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
-      }
+      audioUrl ??=
+          'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
     }
-    
+
     try {
       final response = await http.head(
         Uri.parse(audioUrl),
@@ -212,27 +233,35 @@ class AudioCacheService {
           'User-Agent': 'Fihirana-JFF-App/1.0', // Identify the app
         },
       ).timeout(const Duration(seconds: 5));
-      
+
       return response.statusCode == 200;
     } catch (e) {
-      print('AudioCache: Network check failed for $hymnId ($audioUrl): $e');
+      if (kDebugMode) {
+        print('AudioCache: Network check failed for $hymnId ($audioUrl): $e');
+      }
       return false;
     }
   }
 
   /// Batch check multiple hymns from network
-  Future<Map<String, bool>> _batchCheckNetworkAvailability(List<String> hymnIds) async {
+  Future<Map<String, bool>> _batchCheckNetworkAvailability(
+      List<String> hymnIds) async {
     final Map<String, bool> results = {};
-    const batchSize = 10; // Process in smaller batches to avoid overwhelming the network
-    
+    const batchSize =
+        10; // Process in smaller batches to avoid overwhelming the network
+
     for (int i = 0; i < hymnIds.length; i += batchSize) {
-      final end = (i + batchSize < hymnIds.length) ? i + batchSize : hymnIds.length;
+      final end =
+          (i + batchSize < hymnIds.length) ? i + batchSize : hymnIds.length;
       final batch = hymnIds.sublist(i, end);
-      
-      print('AudioCache: Processing batch ${i ~/ batchSize + 1} of ${(hymnIds.length + batchSize - 1) ~/ batchSize} (${batch.length} hymns)');
-      
+
+      if (kDebugMode) {
+        print(
+          'AudioCache: Processing batch ${i ~/ batchSize + 1} of ${(hymnIds.length + batchSize - 1) ~/ batchSize} (${batch.length} hymns)');
+      }
+
       final List<Future<bool>> futures = [];
-      
+
       // Create futures for this batch
       for (final hymnId in batch) {
         futures.add(_checkActualAudioAvailability(hymnId));
@@ -243,20 +272,23 @@ class AudioCacheService {
         final List<bool> networkResults = await Future.wait(
           futures,
           eagerError: false, // Don't fail all if one fails
-        ).timeout(const Duration(seconds: 30)); // Add timeout for the entire batch
+        ).timeout(
+            const Duration(seconds: 30)); // Add timeout for the entire batch
 
         // Combine results for this batch
         for (int j = 0; j < batch.length; j++) {
           results[batch[j]] = networkResults[j];
         }
       } catch (e) {
-        print('AudioCache: Batch timeout or error, marking as failed: $e');
+        if (kDebugMode) {
+          print('AudioCache: Batch timeout or error, marking as failed: $e');
+        }
         // Mark all in this batch as failed if timeout occurs
         for (final hymnId in batch) {
           results[hymnId] = false;
         }
       }
-      
+
       // Small delay between batches to be respectful to the server
       if (i + batchSize < hymnIds.length) {
         await Future.delayed(const Duration(milliseconds: 100));
@@ -280,13 +312,17 @@ class AudioCacheService {
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
     } catch (e) {
-      print('AudioCache: Error caching $hymnId: $e');
+      if (kDebugMode) {
+        print('AudioCache: Error caching $hymnId: $e');
+      }
     }
   }
 
   /// Preload audio availability for common hymns
   Future<void> preloadCommonHymns(List<String> hymnIds) async {
-    print('AudioCache: Preloading ${hymnIds.length} common hymns');
+    if (kDebugMode) {
+      print('AudioCache: Preloading ${hymnIds.length} common hymns');
+    }
     await checkMultipleAudioExists(hymnIds);
   }
 
@@ -294,17 +330,22 @@ class AudioCacheService {
   Future<void> clearExpiredCache() async {
     try {
       final db = await database;
-      final expiryTime = DateTime.now().subtract(_cacheExpiry).millisecondsSinceEpoch;
-      
+      final expiryTime =
+          DateTime.now().subtract(_cacheExpiry).millisecondsSinceEpoch;
+
       await db.delete(
         _tableName,
         where: 'last_checked < ?',
         whereArgs: [expiryTime],
       );
-      
-      print('AudioCache: Cleared expired cache entries');
+
+      if (kDebugMode) {
+        print('AudioCache: Cleared expired cache entries');
+      }
     } catch (e) {
-      print('AudioCache: Error clearing expired cache: $e');
+      if (kDebugMode) {
+        print('AudioCache: Error clearing expired cache: $e');
+      }
     }
   }
 
@@ -314,9 +355,13 @@ class AudioCacheService {
       final db = await database;
       await db.delete(_tableName);
       _memoryCache.clear();
-      print('AudioCache: Cleared all cache');
+      if (kDebugMode) {
+        print('AudioCache: Cleared all cache');
+      }
     } catch (e) {
-      print('AudioCache: Error clearing cache: $e');
+      if (kDebugMode) {
+        print('AudioCache: Error clearing cache: $e');
+      }
     }
   }
 
@@ -325,11 +370,11 @@ class AudioCacheService {
     try {
       final db = await database;
       final List<Map<String, dynamic>> maps = await db.query(_tableName);
-      
+
       int totalChecked = maps.length;
       int withAudio = maps.where((map) => map['has_audio'] == 1).length;
       int withoutAudio = totalChecked - withAudio;
-      
+
       return {
         'total_checked': totalChecked,
         'with_audio': withAudio,
@@ -352,8 +397,7 @@ class AudioCacheService {
     try {
       final db = await database;
       final result = await db.rawQuery(
-        'SELECT COUNT(*) as count FROM $_tableName WHERE has_audio = 1'
-      );
+          'SELECT COUNT(*) as count FROM $_tableName WHERE has_audio = 1');
       return result.first['count'] as int? ?? 0;
     } catch (e) {
       return 0;

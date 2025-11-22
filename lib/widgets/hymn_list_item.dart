@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -125,7 +126,7 @@ class _HymnListItemState extends State<HymnListItem>
                     decoration: InputDecoration(
                       hintText: l10n.yesLowercase,
                       hintStyle:
-                          TextStyle(color: widget.textColor.withOpacity(0.5)),
+                          TextStyle(color: widget.textColor.withValues(alpha:0.5)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide(color: widget.textColor),
@@ -218,12 +219,19 @@ class _HymnListItemState extends State<HymnListItem>
             TextButton(
               child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
               onPressed: () async {
-                Navigator.of(context).pop();
+                // Capture the context before any async operations
+                final navigator = Navigator.of(context);
+                final scaffoldMessenger = ScaffoldMessenger.of(context);
+
+                navigator.pop();
 
                 final confirmed = await _confirmDeletion(context);
 
+                // Check if widget is still mounted after async gap
+                if (!mounted) return;
+
                 if (!confirmed) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text(l10n.deleteHymnFailed),
                       backgroundColor: Colors.red,
@@ -234,14 +242,21 @@ class _HymnListItemState extends State<HymnListItem>
 
                 try {
                   await _hymnService.deleteHymn(widget.hymn.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
+
+                  // Check if widget is still mounted after async operation
+                  if (!mounted) return;
+
+                  scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text(l10n.hymnDeletedSuccess),
                       backgroundColor: Colors.green,
                     ),
                   );
                 } catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  // Check if widget is still mounted before showing error
+                  if (!mounted) return;
+
+                  scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text('${l10n.error}: $e'),
                       backgroundColor: Colors.red,
@@ -258,7 +273,9 @@ class _HymnListItemState extends State<HymnListItem>
 
   Future<void> _playHymnAudio() async {
     try {
-      print('HymnListItem: Playing audio for ${widget.hymn.id}');
+      if (kDebugMode) {
+        print('HymnListItem: Playing audio for ${widget.hymn.id}');
+      }
 
       // If this hymn is already playing, just pause/resume
       if (_audioService.isHymnPlaying(widget.hymn.id)) {
@@ -333,7 +350,7 @@ class _HymnListItemState extends State<HymnListItem>
                     Text(
                       widget.hymn.verses[0],
                       style: TextStyle(
-                        color: widget.textColor.withOpacity(0.7),
+                        color: widget.textColor.withValues(alpha:0.7),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -346,7 +363,7 @@ class _HymnListItemState extends State<HymnListItem>
                               ? ' (${widget.hymn.createdByEmail})'
                               : ''),
                       style: TextStyle(
-                        color: widget.textColor.withOpacity(0.5),
+                        color: widget.textColor.withValues(alpha:0.5),
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
                       ),
@@ -377,8 +394,10 @@ class _HymnListItemState extends State<HymnListItem>
                       Obx(() {
                         final isPlaying =
                             _audioService.isHymnPlaying(widget.hymn.id);
-                        print(
+                        if (kDebugMode) {
+                          print(
                             'Hymn ${widget.hymn.id} playing status: $isPlaying');
+                        }
                         return IconButton(
                           onPressed: widget.onMusicPressed ??
                               () {
@@ -387,7 +406,7 @@ class _HymnListItemState extends State<HymnListItem>
                               },
                           style: IconButton.styleFrom(
                             backgroundColor: isPlaying
-                                ? widget.textColor.withOpacity(0.2)
+                                ? widget.textColor.withValues(alpha:0.2)
                                 : widget.backgroundColor,
                             padding: const EdgeInsets.all(8),
                             minimumSize: const Size(32, 32),
@@ -408,7 +427,7 @@ class _HymnListItemState extends State<HymnListItem>
                                   child: Container(
                                     width: 6,
                                     height: 6,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.red,
                                       shape: BoxShape.circle,
                                     ),

@@ -25,6 +25,6 @@ class NavigationUtility {
   }
 
   static void navigateToFavorites() {
-    Get.to(() => FavoritesPage());
+    Get.to(() => const FavoritesPage());
   }
 }

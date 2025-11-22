@@ -165,7 +165,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 testamentName.toUpperCase(),
                 style: TextStyle(
                   fontFamily: 'Roboto',
-                  color: colorController.textColor.value.withOpacity(0.6),
+                  color: colorController.textColor.value.withValues(alpha: 0.6),
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -184,7 +184,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: colorController.primaryColor.value.withOpacity(0.05),
+        color: colorController.primaryColor.value.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -201,7 +201,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: colorController.primaryColor.value.withOpacity(0.1),
+            color: colorController.primaryColor.value.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
@@ -244,10 +244,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           borderRadius: BorderRadius.circular(12),
           child: Container(
             decoration: BoxDecoration(
-              color: colorController.primaryColor.value.withOpacity(0.1),
+              color: colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: colorController.primaryColor.value.withOpacity(0.2),
+                color: colorController.primaryColor.value.withValues(alpha: 0.2),
               ),
             ),
             child: Center(
@@ -303,8 +303,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ),
         // Selection Action Bar
         Obx(() {
-          if (!bibleController.isSelecting.value)
+          if (!bibleController.isSelecting.value) {
             return const SizedBox.shrink();
+          }
 
           return Positioned(
             bottom: 24,
@@ -317,13 +318,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 15,
                     offset: const Offset(0, 5),
                   ),
                 ],
                 border: Border.all(
-                  color: colorController.primaryColor.value.withOpacity(0.1),
+                  color: colorController.primaryColor.value.withValues(alpha: 0.1),
                 ),
               ),
               child: Row(
@@ -339,7 +340,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   Container(
                     width: 1,
                     height: 24,
-                    color: colorController.textColor.value.withOpacity(0.2),
+                    color: colorController.textColor.value.withValues(alpha: 0.2),
                   ),
                   // Highlight/Save
                   IconButton(
@@ -348,16 +349,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         color: Colors.orange),
                     tooltip: 'Marihina',
                   ),
-                  // Copy (Optional, can be added later)
-                  /*
-                  IconButton(
-                    onPressed: () {
-                      // Implement copy functionality
-                    },
-                    icon: Icon(Icons.copy_rounded, color: colorController.primaryColor.value),
-                    tooltip: 'Adika',
-                  ),
-                  */
                 ],
               ),
             ),
@@ -376,11 +367,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
       Color backgroundColor = Colors.transparent;
       if (isSearchHighlighted) {
-        backgroundColor = Colors.yellow.withOpacity(0.3);
+        backgroundColor = Colors.yellow.withValues(alpha: 0.3);
       } else if (isSelected) {
-        backgroundColor = colorController.primaryColor.value.withOpacity(0.15);
+        backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
       } else if (isHighlighted) {
-        backgroundColor = colorController.primaryColor.value.withOpacity(0.05);
+        backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.05);
       }
 
       return GestureDetector(
@@ -402,7 +393,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     color: colorController.primaryColor.value,
                     fontSize: _fontSize * 0.7,
                     fontWeight: FontWeight.bold,
-                    fontFeatures: [const FontFeature.superscripts()],
+                    fontFeatures: const [FontFeature.superscripts()],
                   ),
                 ),
                 TextSpan(
@@ -457,7 +448,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, -5),
               ),
@@ -473,7 +464,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.3),
+                    color: Colors.grey.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -576,12 +567,12 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? colorController.primaryColor.value
-              : colorController.primaryColor.value.withOpacity(0.1),
+              : colorController.primaryColor.value.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
             color: isSelected
                 ? colorController.primaryColor.value
-                : colorController.textColor.value.withOpacity(0.2),
+                : colorController.textColor.value.withValues(alpha: 0.2),
             width: 1.5,
           ),
         ),
@@ -614,7 +605,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 shape: BoxShape.circle,
                 color: isSelected
                     ? colorController.primaryColor.value
-                    : colorController.textColor.value.withOpacity(0.1),
+                    : colorController.textColor.value.withValues(alpha: 0.1),
               ),
               child: Icon(
                 icon,
