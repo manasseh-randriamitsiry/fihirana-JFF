@@ -383,9 +383,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       ],
                     ),
                     child: ClipOval(
-                      child: _isAuthenticated && _currentUser?.photoUrl != null
+                      child: _isAuthenticated &&
+                              (_currentUser?.photoUrl != null ||
+                                  _firebaseAuth.currentUser?.photoURL != null)
                           ? CachedNetworkImage(
-                              imageUrl: _currentUser!.photoUrl!,
+                              imageUrl: _currentUser?.photoUrl ??
+                                  _firebaseAuth.currentUser!.photoURL!,
                               fit: BoxFit.cover,
                               placeholder: (context, url) =>
                                   CircularProgressIndicator(
@@ -412,7 +415,10 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     children: [
                       Text(
                         _isAuthenticated
-                            ? (_currentUser?.displayName ?? _username ?? 'User')
+                            ? (_currentUser?.displayName ??
+                                _firebaseAuth.currentUser?.displayName ??
+                                _username ??
+                                'User')
                             : (_username ?? 'Guest'),
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.95),
@@ -432,7 +438,9 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       if (_isAuthenticated) ...[
                         const SizedBox(height: 4),
                         Text(
-                          _currentUser?.email ?? '',
+                          _currentUser?.email ??
+                              _firebaseAuth.currentUser?.email ??
+                              '',
                           style: TextStyle(
                             color: _colorController.backgroundColor.value
                                 .withOpacity(0.95),
