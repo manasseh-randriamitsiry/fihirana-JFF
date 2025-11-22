@@ -42,12 +42,12 @@ class NotificationService {
         category: NotificationCategory.Transport,
         notificationLayout: NotificationLayout.MediaPlayer,
         color: Colors.blue,
-        autoDismissible: false,
+        autoDismissible: !isPlaying, // Allow dismissal when paused
         displayOnForeground: true,
         displayOnBackground: true,
         wakeUpScreen: false, // Don't wake up screen on every update
         fullScreenIntent: false,
-        locked: true,
+        locked: isPlaying, // Only lock notification when playing
         backgroundColor: Colors.black87,
         summary: 'Fihirana Audio',
         largeIcon:

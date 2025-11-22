@@ -10,7 +10,7 @@ class AudioForegroundService extends GetxService {
     _instance ??= AudioForegroundService._internal();
     return _instance!;
   }
-  
+
   factory AudioForegroundService() => instance;
   AudioForegroundService._internal();
 
@@ -19,14 +19,33 @@ class AudioForegroundService extends GetxService {
   @override
   void onInit() {
     super.onInit();
-    
+
     // Listen to audio service state changes
     final audioService = AudioService.instance;
+
+    // Listen to current hymn changes
     ever(audioService.currentPlayingHymnIdRx, (String hymnId) {
-      if (hymnId.isNotEmpty && !_isForeground) {
-        _startForegroundService();
-      } else if (hymnId.isEmpty && _isForeground) {
-        _stopForegroundService();
+      if (hymnId.isNotEmpty) {
+        if (!_isForeground) {
+          _startForegroundService();
+        }
+      } else {
+        if (_isForeground) {
+          _stopForegroundService();
+        }
+      }
+    });
+
+    // Listen to player state changes (playing/paused)
+    audioService.playerStateStream.listen((state) {
+      if (_isForeground) {
+        final currentHymn = audioService.currentHymn;
+        if (currentHymn != null) {
+          // Update notification with new playing state
+          // This will toggle the locked/dismissible status
+          NotificationService.updateAudioPlayerNotification(
+              currentHymn, state.playing);
+        }
       }
     });
   }
@@ -38,7 +57,8 @@ class AudioForegroundService extends GetxService {
       final audioService = AudioService.instance;
       final currentHymn = audioService.currentHymn;
       if (currentHymn != null) {
-        NotificationService.showAudioPlayerNotification(currentHymn!, audioService.isPlaying);
+        NotificationService.showAudioPlayerNotification(
+            currentHymn, audioService.isPlaying);
       }
     }
   }

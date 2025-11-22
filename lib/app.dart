@@ -11,7 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Fallback localization delegate for unsupported locales
@@ -97,67 +97,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {}
   }
 
-  ThemeData _getThemeWithFont(ThemeData baseTheme, String fontFamily) {
-    final TextTheme textTheme = TextTheme(
-      displayLarge: GoogleFonts.getFont(
-        fontFamily,
-        textStyle: baseTheme.textTheme.displayLarge?.copyWith(
-          fontSize: 57.0,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.25,
-          height: 1.12,
-        ),
-      ),
-      displayMedium: GoogleFonts.getFont(
-        fontFamily,
-        textStyle: baseTheme.textTheme.displayMedium?.copyWith(
-          fontSize: 45.0,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.25,
-          height: 1.16,
-        ),
-      ),
-      displaySmall: GoogleFonts.getFont(
-        fontFamily,
-        textStyle: baseTheme.textTheme.displaySmall?.copyWith(
-          fontSize: 36.0,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.25,
-          height: 1.22,
-        ),
-      ),
-      bodyLarge: GoogleFonts.getFont(
-        fontFamily,
-        textStyle: baseTheme.textTheme.bodyLarge?.copyWith(
-          fontSize: 16.0,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 0.5,
-          height: 1.5,
-        ),
-      ),
-      bodyMedium: GoogleFonts.getFont(
-        fontFamily,
-        textStyle: baseTheme.textTheme.bodyMedium?.copyWith(
-          fontSize: 14.0,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 0.25,
-          height: 1.43,
-        ),
-      ),
-      titleLarge: GoogleFonts.getFont(
-        fontFamily,
-        textStyle: baseTheme.textTheme.titleLarge?.copyWith(
-          fontSize: 22.0,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 0,
-          height: 1.27,
-        ),
-      ),
-    );
+  ThemeData _getThemeWithFont(ThemeData baseTheme, String fontName) {
+    // Get the actual font family name from the controller's map
+    // If not found, default to 'Lato'
+    final String fontFamily = fontController.fontMap[fontName] ?? 'Lato';
 
     return baseTheme.copyWith(
-      textTheme: textTheme,
-      primaryTextTheme: textTheme,
+      textTheme: baseTheme.textTheme.apply(fontFamily: fontFamily),
+      primaryTextTheme:
+          baseTheme.primaryTextTheme.apply(fontFamily: fontFamily),
     );
   }
 
