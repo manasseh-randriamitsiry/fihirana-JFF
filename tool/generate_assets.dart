@@ -3,18 +3,11 @@
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 
 void main() async {
-  if (kDebugMode) {
-    print('Generating asset manifest for JSON files...');
-  }
   
   final jsonDir = Directory('assets/json');
   if (!await jsonDir.exists()) {
-    if (kDebugMode) {
-      print('Error: assets/json directory not found');
-    }
     exit(1);
   }
   
@@ -23,10 +16,6 @@ void main() async {
       .where((entity) => entity is File && entity.path.endsWith('.json'))
       .cast<File>()
       .toList();
-  
-  if (kDebugMode) {
-    print('Found ${jsonFiles.length} JSON files');
-  }
   
   // Create a manifest file that can be used at runtime
   final manifest = <String, String>{};
@@ -41,13 +30,6 @@ void main() async {
   final manifestFile = File('assets/hymn_manifest.json');
   await manifestFile.writeAsString(json.encode(manifest));
   
-  if (kDebugMode) {
-    print('Generated hymn manifest with ${manifest.length} entries');
-  }
-  if (kDebugMode) {
-    print('Manifest saved to: ${manifestFile.path}');
-  }
-  
   // Update pubspec.yaml to include the manifest
   final pubspecFile = File('pubspec.yaml');
   if (await pubspecFile.exists()) {
@@ -59,13 +41,6 @@ void main() async {
         '  assets:\n    # Add assets from images directory to the application.\n    - assets/hymn_manifest.json',
       );
       await pubspecFile.writeAsString(content);
-      if (kDebugMode) {
-        print('Updated pubspec.yaml to include hymn manifest');
-      }
     }
-  }
-  
-  if (kDebugMode) {
-    print('Asset generation completed successfully');
   }
 }
