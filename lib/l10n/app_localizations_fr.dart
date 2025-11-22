@@ -1175,4 +1175,37 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get acceptTerms => 'Accepter les conditions';
+
+  @override
+  String get dailyBibleVerse => 'Verset Biblique Quotidien';
+
+  @override
+  String get dailyInspiration => 'Inspiration Quotidienne';
+
+  @override
+  String get receiveVerseEveryDay => 'Recevez un verset biblique chaque jour';
+
+  @override
+  String get enableDailyVerse => 'Activer le Verset Quotidien';
+
+  @override
+  String get youWillReceiveDailyNotifications => 'Vous recevrez des notifications quotidiennes';
+
+  @override
+  String get turnOnToReceiveDailyVerses => 'Activez pour recevoir des versets quotidiens';
+
+  @override
+  String get notificationTime => 'Heure de Notification';
+
+  @override
+  String get todaysVerse => 'Verset du Jour';
+
+  @override
+  String get noVerseAvailable => 'Aucun verset disponible';
+
+  @override
+  String get sendTestNotification => 'Envoyer une Notification de Test';
+
+  @override
+  String get testNotificationSent => 'Notification de test envoyée !';
 }

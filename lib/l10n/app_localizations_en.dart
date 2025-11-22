@@ -1175,4 +1175,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get acceptTerms => 'Accept terms';
+
+  @override
+  String get dailyBibleVerse => 'Daily Bible Verse';
+
+  @override
+  String get dailyInspiration => 'Daily Inspiration';
+
+  @override
+  String get receiveVerseEveryDay => 'Receive a Bible verse every day';
+
+  @override
+  String get enableDailyVerse => 'Enable Daily Verse';
+
+  @override
+  String get youWillReceiveDailyNotifications => 'You will receive daily notifications';
+
+  @override
+  String get turnOnToReceiveDailyVerses => 'Turn on to receive daily verses';
+
+  @override
+  String get notificationTime => 'Notification Time';
+
+  @override
+  String get todaysVerse => 'Today\'s Verse';
+
+  @override
+  String get noVerseAvailable => 'No verse available';
+
+  @override
+  String get sendTestNotification => 'Send Test Notification';
+
+  @override
+  String get testNotificationSent => 'Test notification sent!';
 }

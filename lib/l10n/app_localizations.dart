@@ -2340,6 +2340,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Accept terms'**
   String get acceptTerms;
+
+  /// No description provided for @dailyBibleVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Bible Verse'**
+  String get dailyBibleVerse;
+
+  /// No description provided for @dailyInspiration.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Inspiration'**
+  String get dailyInspiration;
+
+  /// No description provided for @receiveVerseEveryDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive a Bible verse every day'**
+  String get receiveVerseEveryDay;
+
+  /// No description provided for @enableDailyVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Daily Verse'**
+  String get enableDailyVerse;
+
+  /// No description provided for @youWillReceiveDailyNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'You will receive daily notifications'**
+  String get youWillReceiveDailyNotifications;
+
+  /// No description provided for @turnOnToReceiveDailyVerses.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on to receive daily verses'**
+  String get turnOnToReceiveDailyVerses;
+
+  /// No description provided for @notificationTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification Time'**
+  String get notificationTime;
+
+  /// No description provided for @todaysVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s Verse'**
+  String get todaysVerse;
+
+  /// No description provided for @noVerseAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No verse available'**
+  String get noVerseAvailable;
+
+  /// No description provided for @sendTestNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Test Notification'**
+  String get sendTestNotification;
+
+  /// No description provided for @testNotificationSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Test notification sent!'**
+  String get testNotificationSent;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
