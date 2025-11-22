@@ -28,33 +28,54 @@ class InitService {
   }
 
   static Future<void> initControllers() async {
+    // Initialize critical controllers first (needed for UI)
     final themeController = Get.put(ThemeController());
-    Get.put(HistoryController());
     final colorController = Get.put(ColorController());
     Get.put(FontController());
-    Get.put(AuthController());
     Get.put(LanguageController());
+
+    // Load theme and colors (fast, from local storage)
+    await colorController.loadColors();
+    await themeController.loadThemeFromPrefs();
+
+    // Initialize other controllers (these are fast)
+    Get.put(HistoryController());
+    Get.put(AuthController());
     Get.put(DailyVerseController());
     Get.put(HymnService());
     Get.put(BackgroundService());
     Get.put(FirebaseSyncService());
     Get.put(AudioForegroundService());
-    // Initialize Bible service
+
+    // Initialize Bible service (but don't load data yet)
     Get.put(BibleService());
 
-    // Initialize audio file mapping
-    final audioMapping = AudioFileMapping();
-    await audioMapping.updateAudioFileMapping();
-
-    // Initialize local audio service
+    // Initialize local audio service (fast, just setup)
     final localAudioService = LocalAudioService();
     await localAudioService.initialize();
 
-    await colorController.loadColors();
-    await themeController.loadThemeFromPrefs();
+    // Move slow tasks to background
+    _initializeBackgroundTasks();
+  }
 
-    // Initialize Bible service
-    final bibleService = Get.find<BibleService>();
-    await bibleService.initialize();
+  /// Initialize slow tasks in the background after app has loaded
+  static void _initializeBackgroundTasks() {
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      try {
+        // Update audio file mapping (GitHub API call - can be slow)
+        final audioMapping = AudioFileMapping();
+        await audioMapping.updateAudioFileMapping();
+
+        // Initialize Bible service data (can be slow on first load)
+        final bibleService = Get.find<BibleService>();
+        await bibleService.initialize((message) {
+          print('Bible service: $message');
+        });
+
+        print('Background initialization complete');
+      } catch (e) {
+        print('Error in background initialization: $e');
+      }
+    });
   }
 }

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/local_storage_service.dart';
+import '../../widgets/rive_animation_widget.dart';
 import '../accueil/home_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -21,8 +21,8 @@ class _LoadingScreenState extends State<LoadingScreen> {
   final LocalStorageService _storageService = LocalStorageService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  double _progress = 0.0;
-  String _currentTask = 'Manomboka...';
+  final RxDouble _progress = 0.0.obs;
+  final RxString _currentTask = 'Manomboka...'.obs;
 
   @override
   void initState() {
@@ -31,20 +31,18 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   void _updateProgress(double progress, String task) {
-    if (mounted) {
-      setState(() {
-        _progress = progress;
-        _currentTask = task;
-      });
-    }
+    _progress.value = progress;
+    _currentTask.value = task;
+    print('Progress: ${(progress * 100).toInt()}% - $task');
   }
 
   Future<void> _initializeApp() async {
     try {
       // Step 1: Initialize storage (0% -> 30%)
       _updateProgress(0.0, 'Manomana ny fitahirizana...');
-      print('Initializing storage service...');
+      await Future.delayed(const Duration(milliseconds: 200));
 
+      print('Initializing storage service...');
       await _storageService.init().timeout(
         const Duration(seconds: 10),
         onTimeout: () {
@@ -54,17 +52,21 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
       _updateProgress(0.3, 'Fitahirizana vonona');
       print('Storage initialized');
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 400));
 
       // Step 2: Download Firebase hymns (30% -> 90%)
-      _updateProgress(0.3, 'Maka ny hira avy amin\'ny Firebase...');
+      _updateProgress(0.35, 'Maka ny hira avy amin\'ny Firebase...');
+      await Future.delayed(const Duration(milliseconds: 200));
       print('Downloading Firebase hymns...');
 
       await _downloadFirebaseHymns(
         onProgress: (progress) {
-          // Map 0.0-1.0 to 0.3-0.9
-          _updateProgress(0.3 + (progress * 0.6),
-              'Maka ny hira: ${(progress * 100).toInt()}%');
+          // Map 0.0-1.0 to 0.35-0.9
+          final mappedProgress = 0.35 + (progress * 0.55);
+          _updateProgress(
+            mappedProgress,
+            'Maka ny hira: ${(progress * 100).toInt()}%',
+          );
         },
       ).timeout(
         const Duration(seconds: 15),
@@ -75,22 +77,26 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
       _updateProgress(0.9, 'Hira vita');
       print('Firebase hymns downloaded');
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 400));
 
       // Step 3: Finalize (90% -> 100%)
       _updateProgress(0.95, 'Mamita...');
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 400));
 
       _updateProgress(1.0, 'Vita!');
       print('Navigating to HomeScreen...');
-      await Future.delayed(const Duration(milliseconds: 300));
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      Get.off(() => const HomeScreen());
+      if (mounted) {
+        Get.off(() => const HomeScreen());
+      }
     } catch (e) {
       print('Error during initialization: $e');
       _updateProgress(1.0, 'Nisy olana, fa mandeha ihany...');
       await Future.delayed(const Duration(milliseconds: 500));
-      Get.off(() => const HomeScreen());
+      if (mounted) {
+        Get.off(() => const HomeScreen());
+      }
     }
   }
 
@@ -101,7 +107,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
         print('No user logged in, skipping Firebase hymns download');
-        onProgress(1.0);
+        // Simulate progress for better UX
+        for (int i = 0; i <= 10; i++) {
+          onProgress(i / 10);
+          await Future.delayed(const Duration(milliseconds: 50));
+        }
         return;
       }
 
@@ -140,70 +150,78 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              LoadingAnimationWidget.staggeredDotsWave(
-                color: colorController.primaryColor.value,
-                size: 60,
-              ),
-              const SizedBox(height: 40),
+          child: Obx(() {
+            final colorController = Get.find<ColorController>();
+            final primaryColor = colorController.primaryColor.value;
+            final textColor = colorController.textColor.value;
 
-              // Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: SizedBox(
-                  height: 8,
-                  width: double.infinity,
-                  child: LinearProgressIndicator(
-                    value: _progress,
-                    backgroundColor:
-                        colorController.primaryColor.value.withOpacity(0.2),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      colorController.primaryColor.value,
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Rive Loading Animation
+                RiveAnimationWidget(
+                  assetPath: 'assets/animations/loading.riv',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
+                  stateMachineName:
+                      'State Machine 1', // Adjust this to match your Rive file's state machine name
+                  progress: _progress.value,
+                ),
+
+                const SizedBox(height: 40),
+
+                // Progress bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: SizedBox(
+                    height: 8,
+                    width: double.infinity,
+                    child: LinearProgressIndicator(
+                      value: _progress.value,
+                      backgroundColor: primaryColor.withOpacity(0.2),
+                      valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Percentage text
-              Text(
-                '${(_progress * 100).toInt()}%',
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorController.primaryColor.value,
-                    ),
-              ),
+                // Percentage text
+                Text(
+                  '${(_progress.value * 100).toInt()}%',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: primaryColor,
+                      ),
+                ),
 
-              const SizedBox(height: 10),
+                const SizedBox(height: 10),
 
-              // Current task text
-              Text(
-                _currentTask,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: colorController.textColor.value.withOpacity(0.7),
-                    ),
-              ),
+                // Current task text
+                Text(
+                  _currentTask.value,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: textColor.withOpacity(0.7),
+                      ),
+                ),
 
-              const SizedBox(height: 40),
+                const SizedBox(height: 40),
 
-              Text(
-                'Jesosy famonjena Fahamarinantsika',
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ],
-          ),
+                Text(
+                  'Jesosy famonjena Fahamarinantsika',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            );
+          }),
         ),
       ),
     );
