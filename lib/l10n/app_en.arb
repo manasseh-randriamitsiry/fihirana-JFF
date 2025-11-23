@@ -968,6 +968,19 @@
       }
     }
   },
-  "noChaptersFound":"No chapters found"
-
+  "noChaptersFound":"No chapters found",
+  "yourProfile": "Your Profile",
+  "usernameLabel": "Username: {username}",
+  "emailLabel": "Email: {email}",
+  "userIdLabel": "ID: {userId}",
+  "notLoggedIn": "Not Logged In",
+  "notLoggedInMessage": "You are not logged in. Sign in to your account to access all features.",
+  "clearAllHistory": "Clear all history",
+  "removeAllHistory": "Remove all your history",
+  "syncInformation": "Sync Information",
+  "syncInfoMessage1": "Your favorite hymns and history are saved to your Google account.",
+  "syncInfoMessage2": "This will not be lost if you change accounts.",
+  "todaysVerse": "Today's Verse",
+  "unknownUser": "Unknown",
+  "noEmail": "No email"
 }
