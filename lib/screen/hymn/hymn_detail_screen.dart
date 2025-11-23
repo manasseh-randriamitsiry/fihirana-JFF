@@ -16,12 +16,13 @@ import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
-import '../../controller/playlist_controller.dart';
+
 import '../../widgets/color_picker_widget.dart';
 
 import '../../services/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/compact_audio_player_widget.dart';
+import '../../widgets/add_to_playlist_sheet.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -1251,68 +1252,17 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   }
 
   void _showAddToPlaylistDialog() {
-    final PlaylistController playlistController = Get.find();
+    if (_hymn == null) return;
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colorController.backgroundColor.value,
-        title: Text(
-          'Add to Playlist',
-          style: TextStyle(color: colorController.textColor.value),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          child: Obx(() {
-            if (playlistController.isLoading.value) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: colorController.primaryColor.value,
-                ),
-              );
-            }
-
-            if (playlistController.playlists.isEmpty) {
-              return Text(
-                'No playlists found. Create one first.',
-                style: TextStyle(color: colorController.textColor.value),
-              );
-            }
-
-            return ListView.builder(
-              shrinkWrap: true,
-              itemCount: playlistController.playlists.length,
-              itemBuilder: (context, index) {
-                final playlist = playlistController.playlists[index];
-                return ListTile(
-                  title: Text(
-                    playlist.title,
-                    style: TextStyle(color: colorController.textColor.value),
-                  ),
-                  subtitle: Text(
-                    DateFormat('MMM d, yyyy').format(playlist.date),
-                    style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.6),
-                    ),
-                  ),
-                  onTap: () {
-                    playlistController.addHymnToPlaylist(
-                        playlist.id, _hymn?.id ?? widget.hymnId);
-                    Navigator.pop(context);
-                  },
-                );
-              },
-            );
-          }),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel',
-                style: TextStyle(color: colorController.textColor.value)),
-          ),
-        ],
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddToPlaylistSheet(
+        hymnId: _hymn!.id,
+        onHymnAdded: () {
+          // Optional: Show success feedback if needed, though the controller handles snackbars
+        },
       ),
     );
   }
