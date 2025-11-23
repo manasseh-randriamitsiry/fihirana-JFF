@@ -6,6 +6,7 @@ import '../../controller/playlist_controller.dart';
 import '../../services/hymn_service.dart';
 import '../../models/hymn.dart';
 import '../hymn/hymn_detail_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class PlaylistDetailScreen extends StatelessWidget {
   final String playlistId;
@@ -17,6 +18,7 @@ class PlaylistDetailScreen extends StatelessWidget {
     final ColorController colorController = Get.find();
     final PlaylistController playlistController = Get.find();
     final HymnService hymnService = Get.find();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
@@ -32,7 +34,7 @@ class PlaylistDetailScreen extends StatelessWidget {
               title: const Text('Playlist not found'),
               backgroundColor: colorController.backgroundColor.value,
             ),
-            body: const Center(child: Text('Playlist not found')),
+            body: Center(child: Text(l10n.playlistNotFound)),
           );
         }
 

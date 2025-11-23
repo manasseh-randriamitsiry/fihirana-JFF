@@ -247,7 +247,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               color: colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: colorController.primaryColor.value.withValues(alpha: 0.2),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.2),
               ),
             ),
             child: Center(
@@ -324,7 +325,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   ),
                 ],
                 border: Border.all(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.1),
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.1),
                 ),
               ),
               child: Row(
@@ -340,7 +342,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   Container(
                     width: 1,
                     height: 24,
-                    color: colorController.textColor.value.withValues(alpha: 0.2),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.2),
                   ),
                   // Highlight/Save
                   IconButton(
@@ -369,9 +372,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       if (isSearchHighlighted) {
         backgroundColor = Colors.yellow.withValues(alpha: 0.3);
       } else if (isSelected) {
-        backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
+        backgroundColor =
+            colorController.primaryColor.value.withValues(alpha: 0.15);
       } else if (isHighlighted) {
-        backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.05);
+        backgroundColor =
+            colorController.primaryColor.value.withValues(alpha: 0.05);
       }
 
       return GestureDetector(
@@ -409,6 +414,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   Widget _buildChapterNavigation() {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: Row(
@@ -417,7 +423,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           TextButton.icon(
             onPressed: () => _navigateChapter(-1),
             icon: const Icon(Icons.arrow_back_rounded),
-            label: const Text('Previous'),
+            label: Text(l10n.previous),
             style: TextButton.styleFrom(
               foregroundColor: colorController.textColor.value,
             ),
@@ -425,7 +431,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           TextButton.icon(
             onPressed: () => _navigateChapter(1),
             icon: const Icon(Icons.arrow_forward_rounded),
-            label: const Text('Next'),
+            label: Text(l10n.next),
             style: TextButton.styleFrom(
               foregroundColor: colorController.textColor.value,
             ),
