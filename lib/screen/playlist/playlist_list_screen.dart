@@ -5,6 +5,7 @@ import '../../controller/color_controller.dart';
 import '../../controller/playlist_controller.dart';
 import '../../models/playlist.dart';
 import 'playlist_detail_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class PlaylistListScreen extends StatelessWidget {
   const PlaylistListScreen({super.key});
@@ -13,12 +14,13 @@ class PlaylistListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorController colorController = Get.find();
     final PlaylistController playlistController = Get.find();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
         title: Text(
-          'My Playlists',
+          l10n.myPlaylists,
           style: TextStyle(color: colorController.textColor.value),
         ),
         backgroundColor: colorController.backgroundColor.value,
@@ -52,7 +54,7 @@ class PlaylistListScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'No playlists yet',
+                  l10n.noPlaylistsYet,
                   style: TextStyle(
                     fontSize: 18,
                     color:
@@ -63,7 +65,7 @@ class PlaylistListScreen extends StatelessWidget {
                 TextButton(
                   onPressed: () => _showCreatePlaylistDialog(context),
                   child: Text(
-                    'Create your first playlist',
+                    l10n.createFirstPlaylist,
                     style: TextStyle(
                       color: colorController.primaryColor.value,
                     ),
@@ -79,7 +81,7 @@ class PlaylistListScreen extends StatelessWidget {
           itemCount: playlistController.playlists.length,
           itemBuilder: (context, index) {
             final playlist = playlistController.playlists[index];
-            return _buildPlaylistItem(context, playlist, colorController);
+            return _buildPlaylistItem(context, playlist, colorController, l10n);
           },
         );
       }),
@@ -87,7 +89,7 @@ class PlaylistListScreen extends StatelessWidget {
   }
 
   Widget _buildPlaylistItem(BuildContext context, Playlist playlist,
-      ColorController colorController) {
+      ColorController colorController, AppLocalizations l10n) {
     final dateFormat = DateFormat('EEE, MMM d, yyyy');
 
     return Container(
@@ -165,23 +167,23 @@ class PlaylistListScreen extends StatelessWidget {
             }
           },
           itemBuilder: (context) => [
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'share',
               child: Row(
                 children: [
-                  Icon(Icons.share, size: 20),
-                  SizedBox(width: 12),
-                  Text('Share'),
+                  const Icon(Icons.share, size: 20),
+                  const SizedBox(width: 12),
+                  Text(l10n.share),
                 ],
               ),
             ),
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Icons.delete, color: Colors.red, size: 20),
-                  SizedBox(width: 12),
-                  Text('Delete', style: TextStyle(color: Colors.red)),
+                  const Icon(Icons.delete, color: Colors.red, size: 20),
+                  const SizedBox(width: 12),
+                  Text(l10n.delete, style: const TextStyle(color: Colors.red)),
                 ],
               ),
             ),
@@ -195,6 +197,7 @@ class PlaylistListScreen extends StatelessWidget {
     final titleController = TextEditingController();
     DateTime selectedDate = DateTime.now();
     final ColorController colorController = Get.find();
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
@@ -203,7 +206,7 @@ class PlaylistListScreen extends StatelessWidget {
           return AlertDialog(
             backgroundColor: colorController.backgroundColor.value,
             title: Text(
-              'New Playlist',
+              l10n.newPlaylist,
               style: TextStyle(color: colorController.textColor.value),
             ),
             content: Column(
@@ -213,8 +216,8 @@ class PlaylistListScreen extends StatelessWidget {
                   controller: titleController,
                   style: TextStyle(color: colorController.textColor.value),
                   decoration: InputDecoration(
-                    labelText: 'Title',
-                    hintText: 'e.g., Sunday Service',
+                    labelText: l10n.title,
+                    hintText: l10n.playlistExampleHint,
                     labelStyle: TextStyle(
                         color: colorController.textColor.value
                             .withValues(alpha: 0.7)),
@@ -279,7 +282,7 @@ class PlaylistListScreen extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Cancel',
+                child: Text(l10n.cancel,
                     style: TextStyle(color: colorController.textColor.value)),
               ),
               ElevatedButton(
@@ -294,7 +297,7 @@ class PlaylistListScreen extends StatelessWidget {
                   backgroundColor: colorController.primaryColor.value,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Create'),
+                child: Text(l10n.create),
               ),
             ],
           );
@@ -305,22 +308,23 @@ class PlaylistListScreen extends StatelessWidget {
 
   void _confirmDelete(BuildContext context, Playlist playlist) {
     final ColorController colorController = Get.find();
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
         title: Text(
-          'Delete Playlist',
+          l10n.deletePlaylist,
           style: TextStyle(color: colorController.textColor.value),
         ),
         content: Text(
-          'Are you sure you want to delete "${playlist.title}"?',
+          l10n.confirmDeletePlaylist(playlist.title),
           style: TextStyle(color: colorController.textColor.value),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cancel',
+            child: Text(l10n.cancel,
                 style: TextStyle(color: colorController.textColor.value)),
           ),
           TextButton(
@@ -328,7 +332,7 @@ class PlaylistListScreen extends StatelessWidget {
               Get.find<PlaylistController>().deletePlaylist(playlist.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            child: Text(l10n.delete, style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

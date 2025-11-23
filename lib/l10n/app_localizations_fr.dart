@@ -165,6 +165,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get error => 'Erreur';
 
   @override
+  String get errorUpdatingFavorites => 'Erreur lors de la mise à jour des favoris';
+
+  @override
   String get success => 'Succès';
 
   @override
@@ -175,6 +178,18 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get confirm => 'Confirmer';
+
+  @override
+  String get newHymn => 'Nouveau cantique';
+
+  @override
+  String get deleteVerse => 'Supprimer le verset';
+
+  @override
+  String get addVerse => 'Ajouter un verset';
+
+  @override
+  String get hymnHint => 'Indice du cantique';
 
   @override
   String get confirmDelete => 'Êtes-vous sûr de vouloir supprimer cet élément?';
@@ -192,6 +207,27 @@ class AppLocalizationsFr extends AppLocalizations {
   String hymnNumber(int number) {
     return 'Cantique $number';
   }
+
+  @override
+  String get hymnAlreadyDownloaded => 'Cantique déjà téléchargé';
+
+  @override
+  String get playlistNotFound => 'Liste de lecture non trouvée';
+
+  @override
+  String get share => 'Partager';
+
+  @override
+  String get copy => 'Copier';
+
+  @override
+  String get view => 'Voir';
+
+  @override
+  String get download => 'Télécharger';
+
+  @override
+  String get hymnNotDownloaded => 'Cantique non téléchargé';
 
   @override
   String get addToFavorites => 'Ajouter aux favoris';
@@ -434,7 +470,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contactUs => 'Nous contacter';
 
   @override
-  String get support => 'Soutien';
+  String get support => 'Support';
 
   @override
   String get feedbackMessage => 'Vos commentaires sont importants pour nous';
@@ -564,7 +600,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String confirmDeleteHymn(String title) {
-    return 'Êtes-vous sûr de vouloir supprimer le cantique \"$title\"?';
+    return 'Êtes-vous sûr de vouloir supprimer le cantique \"$title\" ?';
   }
 
   @override
@@ -589,7 +625,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorLoadingNotes => 'Erreur lors du chargement des notes';
 
   @override
-  String get errorOccurred => 'Une erreur s\'est produite';
+  String get errorOccurred => 'Une erreur est survenue';
 
   @override
   String get exitWithoutSaving => 'Quitter sans sauvegarder?';
@@ -646,7 +682,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get selectHymnFirst => 'Veuillez sélectionner un cantique d\'abord';
 
   @override
-  String get updateAvailableContent => 'Il y a une nouvelle version disponible. Souhaitez-vous la télécharger ?';
+  String get updateAvailableContent => 'Une nouvelle mise à jour est disponible. Souhaitez-vous l\'installer?';
 
   @override
   String get updateAvailableTitle => 'Mise à jour disponible';
@@ -698,7 +734,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get bridge => 'Refrain';
+  String get bridge => 'Pont';
 
   @override
   String get enterHymnNumber => 'Entrez le numéro du cantique';
@@ -713,7 +749,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get verses => 'Versets';
 
   @override
-  String get bridgeOptional => 'Refrain (Optionnel)';
+  String get bridgeOptional => 'Pont (Optionnel)';
 
   @override
   String get notes => 'Notes';
@@ -876,7 +912,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String deleteFailed(String error) {
-    return 'Échec de la suppression';
+    return 'Échec de la suppression: $error';
   }
 
   @override
@@ -899,9 +935,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get downloading => 'Téléchargement...';
-
-  @override
-  String get download => 'Télécharger';
 
   @override
   String get deleteHymnQuestion => 'Supprimer le cantique?';
@@ -937,22 +970,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get errorLabel => 'Erreur';
 
   @override
-  String get newest => 'Plus récent';
+  String get newest => 'Nouveau';
 
   @override
-  String get oldest => 'Plus ancien';
+  String get oldest => 'Ancien';
 
   @override
-  String get noPermission => 'Aucune permission';
+  String get noPermission => 'Vous n\'avez pas la permission';
 
   @override
   String get userManagement => 'Gestion des utilisateurs';
 
   @override
-  String get noEmail => 'Aucun e-mail';
+  String get noEmail => 'Pas d\'email';
 
   @override
-  String get unknownUser => 'Utilisateur inconnu';
+  String get unknownUser => 'Inconnu';
 
   @override
   String get noUsers => 'Aucun utilisateur';
@@ -969,7 +1002,7 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get sortBySongs => 'Par nombre de chansons';
+  String get sortBySongs => 'Par nombre de cantiques';
 
   @override
   String get typeYesToConfirm => 'Tapez \"oui\" pour confirmer la suppression';
@@ -990,7 +1023,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get installUpdateTitle => 'Installer la mise à jour';
 
   @override
-  String get installUpdateContent => 'Voulez-vous vraiment installer la nouvelle version ? Cela téléchargera le fichier et l\'installera automatiquement.';
+  String get installUpdateContent => 'Voulez-vous vraiment installer la nouvelle version? Cela téléchargera le fichier et l\'installera automatiquement.';
 
   @override
   String get install => 'Installer';
@@ -1014,7 +1047,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get expirationDate => 'Date d\'expiration';
 
   @override
-  String get noDate => 'Aucune date';
+  String get noDate => 'Pas de date';
 
   @override
   String get create => 'Créer';
@@ -1026,7 +1059,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get update => 'Mettre à jour';
 
   @override
-  String get noExpirationDate => 'Aucune date d\'expiration';
+  String get noExpirationDate => 'Pas de date d\'expiration';
 
   @override
   String get loadingBooks => 'Chargement des livres...';
@@ -1058,7 +1091,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get cannotAddHymns => 'Impossible d\'ajouter des cantiques pour le moment';
 
   @override
-  String get searchBooks => 'Rechercher des livres...';
+  String get searchBooks => 'Rechercher des livres';
 
   @override
   String searchCurrentChapter(Object chapter) {
@@ -1075,15 +1108,15 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bibleReader => 'Lecteur de Bible';
 
   @override
-  String emailLabel(Object email) {
-    return 'Email : $email';
+  String emailLabel(String email) {
+    return 'Email: $email';
   }
 
   @override
-  String get addressLabel => 'Adresse :';
+  String get addressLabel => 'Adresse:';
 
   @override
-  String appVersion(Object version) {
+  String appVersion(String version) {
     return 'Version $version';
   }
 
@@ -1091,7 +1124,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appNameSuffix => 'JFF';
 
   @override
-  String get headquarters => 'Siège :';
+  String get headquarters => 'Siège:';
 
   @override
   String get headquartersAddress => 'Antsororokavo Fianarantsoa 301';
@@ -1103,30 +1136,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get github => 'GitHub';
 
   @override
-  String get noHistory => 'Aucun historique';
+  String get noHistory => 'Pas d\'historique';
 
   @override
-  String get clearAllHistoryQuestion => 'Effacer tout l\'historique ?';
+  String get clearAllHistoryQuestion => 'Effacer tout l\'historique?';
 
   @override
   String get historyCannotBeUndone => 'L\'historique ne peut pas être annulé une fois supprimé.';
 
   @override
-  String get deleteSelectedHistoryQuestion => 'Supprimer l\'historique sélectionné ?';
+  String get deleteSelectedHistoryQuestion => 'Supprimer l\'historique sélectionné?';
 
   @override
-  String selectedItems(Object count) {
+  String selectedItems(int count) {
     return '$count sélectionné(s)';
   }
-
-  @override
-  String get welcomeToHymnsApp => 'Bienvenue dans l\'application de cantiques';
-
-  @override
-  String get praiseTheLord => 'Louez le Seigneur car il est bon';
-
-  @override
-  String get hymnsApp => 'Cantiques';
 
   @override
   String get aboutTheApp => 'À propos de l\'application';
@@ -1171,22 +1195,22 @@ class AppLocalizationsFr extends AppLocalizations {
   String get splashScreenSubtitle => 'Louez le Seigneur car il est bon';
 
   @override
-  String get termsAndConditions => 'Conditions d\'utilisation';
+  String get termsAndConditions => 'Conditions et modalités';
 
   @override
   String get acceptTerms => 'Accepter les conditions';
 
   @override
-  String get dailyBibleVerse => 'Verset Biblique Quotidien';
+  String get dailyBibleVerse => 'Verset biblique quotidien';
 
   @override
-  String get dailyInspiration => 'Inspiration Quotidienne';
+  String get dailyInspiration => 'Inspiration quotidienne';
 
   @override
-  String get receiveVerseEveryDay => 'Recevez un verset biblique chaque jour';
+  String get receiveVerseEveryDay => 'Recevoir un verset biblique chaque jour';
 
   @override
-  String get enableDailyVerse => 'Activer le Verset Quotidien';
+  String get enableDailyVerse => 'Activer le verset quotidien';
 
   @override
   String get youWillReceiveDailyNotifications => 'Vous recevrez des notifications quotidiennes';
@@ -1195,17 +1219,198 @@ class AppLocalizationsFr extends AppLocalizations {
   String get turnOnToReceiveDailyVerses => 'Activez pour recevoir des versets quotidiens';
 
   @override
-  String get notificationTime => 'Heure de Notification';
+  String get notificationTime => 'Heure de notification';
 
   @override
-  String get todaysVerse => 'Verset du Jour';
+  String get todaysVerse => 'Verset du jour';
 
   @override
   String get noVerseAvailable => 'Aucun verset disponible';
 
   @override
-  String get sendTestNotification => 'Envoyer une Notification de Test';
+  String get sendTestNotification => 'Envoyer une notification de test';
 
   @override
-  String get testNotificationSent => 'Notification de test envoyée !';
+  String get testNotificationSent => 'Notification de test envoyée!';
+
+  @override
+  String get myPlaylists => 'Mes listes de lecture';
+
+  @override
+  String get noPlaylistsYet => 'Pas encore de listes de lecture';
+
+  @override
+  String get createFirstPlaylist => 'Créez votre première liste de lecture';
+
+  @override
+  String get newPlaylist => 'Nouvelle liste de lecture';
+
+  @override
+  String get deletePlaylist => 'Supprimer la liste de lecture';
+
+  @override
+  String get addToPlaylist => 'Ajouter à la liste de lecture';
+
+  @override
+  String get createNewPlaylist => 'Créer une nouvelle liste de lecture';
+
+  @override
+  String get playlistName => 'Nom de la liste de lecture';
+
+  @override
+  String get clearExpired => 'Effacer les expirés';
+
+  @override
+  String get clearAllCache => 'Effacer tout le cache';
+
+  @override
+  String get clearCacheWarning => 'Cela supprimera toutes les données de disponibilité audio mises en cache. L\'application devra vérifier à nouveau la disponibilité audio.';
+
+  @override
+  String get allCacheCleared => 'Tout le cache a été effacé';
+
+  @override
+  String get expiredCacheCleared => 'Cache expiré effacé';
+
+  @override
+  String get couldNotLaunchGoogleFonts => 'Impossible de lancer Google Fonts';
+
+  @override
+  String get getFonts => 'Obtenir des polices';
+
+  @override
+  String errorPlayingAudio(String error) {
+    return 'Erreur lors de la lecture audio: $error';
+  }
+
+  @override
+  String get playlistExampleHint => 'ex: Service du dimanche';
+
+  @override
+  String confirmDeletePlaylist(String playlistTitle) {
+    return 'Êtes-vous sûr de vouloir supprimer \"$playlistTitle\"?';
+  }
+
+  @override
+  String get searchFavoriteSongsHint => 'Rechercher vos chants favoris...';
+
+  @override
+  String get searchWordsOrVersesHint => 'Rechercher des mots ou des versets...';
+
+  @override
+  String get wholeBible => 'Bible entière';
+
+  @override
+  String get audioPlayer => 'Lecteur audio';
+
+  @override
+  String get playAudio => 'Lire l\'audio';
+
+  @override
+  String get audioCacheManagement => 'Gestion du cache audio';
+
+  @override
+  String get clearAll => 'Tout effacer';
+
+  @override
+  String get guest => 'Invité';
+
+  @override
+  String get library => 'Bibliothèque';
+
+  @override
+  String get personal => 'Personnel';
+
+  @override
+  String get playlists => 'Listes de lecture';
+
+  @override
+  String get audioCache => 'Cache audio';
+
+  @override
+  String get added => 'Ajouté';
+
+  @override
+  String get noHymnsAddedYet => 'Aucun cantique ajouté pour le moment';
+
+  @override
+  String get errorLoadingHymns => 'Erreur lors du chargement des cantiques';
+
+  @override
+  String get audioAvailable => 'Audio disponible';
+
+  @override
+  String get noAudioAvailable => 'Pas d\'audio disponible';
+
+  @override
+  String get searchBible => 'Recherche biblique';
+
+  @override
+  String get enterWordToSearch => 'Entrez le mot à rechercher';
+
+  @override
+  String get noSearchResults => 'Aucun résultat de recherche';
+
+  @override
+  String get changeWordToSearch => 'Changer le mot à rechercher';
+
+  @override
+  String hymnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cantiques',
+      one: '1 cantique',
+      zero: 'Aucun cantique',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noChaptersFound => 'Aucun chapitre trouvé';
+
+  @override
+  String get yourProfile => 'Votre profil';
+
+  @override
+  String usernameLabel(String username) {
+    return 'Nom d\'utilisateur: $username';
+  }
+
+  @override
+  String userIdLabel(String userId) {
+    return 'ID: $userId';
+  }
+
+  @override
+  String get syncInfoMessage1 => 'Vos cantiques favoris et votre historique sont enregistrés sur votre compte Google.';
+
+  @override
+  String get syncInfoMessage2 => 'Cela ne sera pas perdu si vous changez de compte.';
+
+  @override
+  String errorOccurredWithDetails(String error) {
+    return 'Une erreur s\'est produite: $error';
+  }
+
+  @override
+  String get clearSearch => 'Effacer la recherche';
+
+  @override
+  String get appSection => 'Application';
+
+  @override
+  String totalCachedHymns(int count) {
+    return 'Total des cantiques mis en cache: $count';
+  }
+
+  @override
+  String withAudio(int count) {
+    return 'Avec audio: $count';
+  }
+
+  @override
+  String withoutAudio(int count) {
+    return 'Sans audio: $count';
+  }
 }

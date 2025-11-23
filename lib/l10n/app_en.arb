@@ -52,10 +52,15 @@
   "unavailable": "Unavailable",
   "loading": "Loading...",
   "error": "Error",
+  "errorUpdatingFavorites": "Error updating favorites",
   "success": "Success",
   "warning": "Warning",
   "info": "Information",
   "confirm": "Confirm",
+  "newHymn": "New Hymn",
+  "deleteVerse":"Delete verse",
+  "addVerse": "Add Verse",
+  "hymnHint":"Hymn hint",
   "confirmDelete": "Are you sure you want to delete this item?",
   "confirmLogout": "Are you sure you want to logout?",
   "noResults": "No results found",
@@ -69,6 +74,13 @@
       }
     }
   },
+  "hymnAlreadyDownloaded": "Hymn already downloaded",
+  "playlistNotFound": "Playlist not found",
+  "share": "Share",
+  "copy": "Copy",
+  "view": "View",
+  "download": "Download",
+  "hymnNotDownloaded": "Hymn not downloaded",
   "addToFavorites": "Add to favorites",
   "removeFromFavorites": "Remove from favorites",
   "shareHymn": "Share hymn",
@@ -183,7 +195,6 @@
     }
   },
   "chooseColor": "Choose color",
-  "ok": "OK",
   "accept": "Accept",
   "presetColors": "Preset colors",
   "customColors": "Custom colors",
@@ -194,7 +205,6 @@
   "iconColor": "Icon color",
   "chooseFontStyle": "Choose font style",
   "sampleText": "Jesus Saves Our Souls",
-  "confirm": "Confirm",
   "yesLowercase": "yes",
   "createdByLabel": "Created by: {name}{email}",
   "@createdByLabel": {
@@ -339,7 +349,6 @@
       "name": {"type": "String"}
     }
   },
-  "success": "Success",
   "deleteFailed": "Delete failed: {error}",
   "@deleteFailed": {
     "placeholders": {
@@ -350,12 +359,9 @@
   "sortByOldest": "Oldest",
   "sortByNumber": "Number",
   "everyVerseChorus": "Chorus:",
-  "support": "Support",
   "checkingForUpdates": "Checking for updates...",
-  "checkForUpdates": "Check for updates",
   "downloadAndInstall": "Download & Install",
   "downloading": "Download...",
-  "download": "Download",
   "deleteHymnQuestion": "Delete hymn?",
   "deleteHymnFailed": "Failed to delete.",
   "hymnDeletedSuccess": "Hymn deleted",
@@ -363,25 +369,13 @@
   "errorDownloadingUpdate": "Failed to download update",
   "noAdminPermission": "You do not have permission to access the admin panel",
   "selectedHymnsDeleted": "Selected hymns have been deleted",
-  "error": "Error",
   "noHymns": "No hymns",
   "adminPanel": "Admin Panel",
   "createdBy": "Created by",
   "date": "Date",
-  "success": "Success",
   "errorLabel": "Error",
-  "deleteFailed": "Delete failed",
-  "confirmDeleteHymn": "Are you sure you want to delete the hymn \"{title}\"?",
-  "@confirmDeleteHymn": {
-    "placeholders": {
-      "title": {"type": "String"}
-    }
-  },
-  "yes": "Yes",
-  "no": "No",
   "newest": "Newest",
   "oldest": "Oldest",
-  "errorOccurred": "An error occurred",
   "noPermission": "You do not have permission",
   "userManagement": "User Management",
   "noEmail": "No email",
@@ -396,42 +390,25 @@
     }
   },
   "sortBySongs": "By number of songs",
-  "cancel": "Cancel",
-  "delete": "Delete",
   "typeYesToConfirm": "Type \"yes\" to confirm deletion",
-  "noteDeleted": "Note deleted",
-  "updateAvailable": "Update available",
-  "updateNow": "Update now",
   "downloading2": "Downloading...",
   "errorCheckingUpdates": "Failed to check for updates",
   "errorDownloadingUpdate2": "Failed to download",
   "errorInstallingUpdate": "Failed to install update",
   "installUpdateTitle": "Install update",
   "installUpdateContent": "Do you really want to install the new version? This will download the file and install it automatically.",
-  "no": "No",
-  "yes": "Yes",
-  "updateAvailableTitle": "Update available",
-  "updateAvailableContent": "There is a new version available. Would you like to download it?",
-  "download": "Download",
   "install": "Install",
   "downloading3": "Downloading...",
   "deleteNote": "Delete note",
   "cancel2": "Cancel",
-  "save": "Save",
-  "searchHymns": "Search hymns...",
-  "noHymnsFound": "No hymns found",
   "createAnnouncement": "Create announcement",
-  "title": "Title",
   "message": "Message",
   "expirationDate": "Expiration date",
   "noDate": "No date",
-  "cancel2": "Cancel",
   "create": "Create",
   "editAnnouncement": "Edit announcement",
   "update": "Update",
   "noExpirationDate": "No expiration date",
-  "chooseFont": "Choose a Font",
-  "chooseLanguage": "Choose language",
   "loadingBooks": "Loading books...",
   "loadingChapter": "Loading chapter {chapter} from {book}...",
   "settingsSaved": "Settings saved successfully",
@@ -440,7 +417,6 @@
   "deleteHistoryError": "Error deleting history",
   "clearHistorySuccess": "History cleared",
   "clearHistoryError": "Error clearing history",
-  "noPermission": "No permission",
   "cannotAddHymns": "Cannot add hymns at this time",
   "searchBooks": "Search books...",
   "searchCurrentChapter": "Search in chapter {chapter}",
@@ -448,222 +424,33 @@
   "change": "Change",
   "bibleReader": "Bible Reader",
   "emailLabel": "Email: {email}",
-  "developedBy": "Developed by",
+  "@emailLabel": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
   "addressLabel": "Address:",
   "appVersion": "Version {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
   "appNameSuffix": "JFF",
   "headquarters": "Headquarters:",
   "headquartersAddress": "Antsororokavo Fianarantsoa 301",
   "phoneNumber": "+261 34 29 439 71",
-  "email": "Email",
   "github": "GitHub",
   "noHistory": "No history",
   "clearAllHistoryQuestion": "Clear all history?",
   "historyCannotBeUndone": "History cannot be undone once deleted.",
   "deleteSelectedHistoryQuestion": "Delete selected history?",
-  "yes": "Yes",
-  "no": "No",
-  "history": "History",
   "selectedItems": "{count} selected",
-  "welcomeToHymnsApp": "Welcome to Hymns App",
-  "praiseTheLord": "Praise the Lord for He is good",
-  "hymnsApp": "Hymns App",
-  "welcome": "Welcome",
-  "aboutTheApp": "About the App",
-  "features": "Features",
-  "feature1": "Hymns created for JFF church",
-  "feature2": "Makes worship to God easier",
-  "feature3": "You can add new hymns",
-  "feature4": "Need Google account for additional features",
-  "termsOfUse": "Terms of Use",
-  "errorUpdating": "Error: {error}",
-  "@errorUpdating": {
-    "placeholders": {
-      "error": {"type": "String"}
-    }
-  },
-  "editNote": "Edit Note",
-  "myPersonalNote": "My Personal Note",
-  "noteInstructions": "Enter your note about the hymn, such as chords, prayer reminders, or other information.",
-  "enterYourNote": "Write your note here...",
-  "noteDeleted": "Note deleted",
-  "noteSaved": "Note saved",
-  "deleteNoteConfirm": "Delete note?",
-  "deleteNoteMessage": "Are you really sure you want to delete the note?",
-  "leave": "Leave",
-  "signIn": "Sign In",
-  "additionalHymns": "Additional Hymns",
-  "errorOccurredColon": "Error occurred: {error}",
-  "@errorOccurredColon": {
-    "placeholders": {
-      "error": {"type": "String"}
-    }
-  },
-  "noAdditionalHymns": "No additional hymns",
-  "welcome": "Welcome",
-  "signedInSuccessfully": "You have signed in successfully.",
-  "favoriteHymns": "Favorite Hymns",
-  "hymnHistory": "Hymn History",
-  "changeColor": "Change Color",
-  "fontStyle": "Font Style",
-  "announcements": "Announcements",
-  "bible": "Bible",
-  "signOut": "Sign Out",
-  "aboutUs": "About Us",
-  "cannotUpdate": "Cannot update",
-  "cannotDownload": "Cannot download: {error}",
-  "@cannotDownload": {
-    "placeholders": {
-      "error": {"type": "String"}
-    }
-  },
-  "noPermissionAdmin": "You do not have permission to access the admin panel",
-  "allSelectedHymnsDeleted": "All selected hymns have been deleted",
-  "problem": "Problem",
-  "enterNamePlease": "Please enter a name",
-  "nameNotSaved": "Name not saved",
-  "searchHymns": "Search hymns...",
-  "syncInformation": "Sync Information",
-  "notLoggedIn": "Not Logged In",
-  "notLoggedInMessage": "You are not logged in. Sign in to your account to access all features.",
-  "clearAllHistory": "Clear all history",
-  "removeAllHistory": "Remove all your history",
-  "createdBy": "Created by: {name}",
-  "@createdBy": {
-    "placeholders": {
-      "name": {"type": "String"}
-    }
-  },
-  "success": "Success",
-  "deleteFailed": "Delete failed: {error}",
-  "@deleteFailed": {
-    "placeholders": {
-      "error": {"type": "String"}
-    }
-  },
-  "sortByRecent": "Recent",
-  "sortByOldest": "Oldest",
-  "sortByNumber": "Number",
-  "everyVerseChorus": "Chorus:",
-  "support": "Support",
-  "checkingForUpdates": "Checking for updates...",
-  "checkForUpdates": "Check for updates",
-  "downloadAndInstall": "Download & Install",
-  "downloading": "Download...",
-  "download": "Download",
-  "deleteHymnQuestion": "Delete hymn?",
-  "deleteHymnFailed": "Failed to delete.",
-  "hymnDeletedSuccess": "Hymn deleted",
-  "errorCheckingUpdate": "Failed to check for updates",
-  "errorDownloadingUpdate": "Failed to download update",
-  "noAdminPermission": "You do not have permission to access the admin panel",
-  "selectedHymnsDeleted": "Selected hymns have been deleted",
-  "error": "Error",
-  "noHymns": "No hymns",
-  "adminPanel": "Admin Panel",
-  "createdBy": "Created by",
-  "date": "Date",
-  "success": "Success",
-  "errorLabel": "Error",
-  "deleteFailed": "Delete failed",
-  "confirmDeleteHymn": "Are you sure you want to delete the hymn \"{title}\"?",
-  "@confirmDeleteHymn": {
-    "placeholders": {
-      "title": {"type": "String"}
-    }
-  },
-  "yes": "Yes",
-  "no": "No",
-  "newest": "Newest",
-  "oldest": "Oldest",
-  "errorOccurred": "An error occurred",
-  "noPermission": "You do not have permission",
-  "userManagement": "User Management",
-  "noEmail": "No email",
-  "unknownUser": "Unknown User",
-  "noUsers": "No users",
-  "lastLogin": "Last login",
-  "registered": "Registered",
-  "hymnCount": "{count} hymns",
-  "@hymnCount": {
+  "@selectedItems": {
     "placeholders": {
       "count": {"type": "int"}
     }
   },
-  "sortBySongs": "By number of songs",
-  "cancel": "Cancel",
-  "delete": "Delete",
-  "typeYesToConfirm": "Type \"yes\" to confirm deletion",
-  "noteDeleted": "Note deleted",
-  "updateAvailable": "Update available",
-  "updateNow": "Update now",
-  "downloading2": "Downloading...",
-  "errorCheckingUpdates": "Failed to check for updates",
-  "errorDownloadingUpdate2": "Failed to download",
-  "errorInstallingUpdate": "Failed to install update",
-  "installUpdateTitle": "Install update",
-  "installUpdateContent": "Do you really want to install the new version? This will download the file and install it automatically.",
-  "no": "No",
-  "yes": "Yes",
-  "updateAvailableTitle": "Update available",
-  "updateAvailableContent": "There is a new version available. Would you like to download it?",
-  "download": "Download",
-  "install": "Install",
-  "downloading3": "Downloading...",
-  "deleteNote": "Delete note",
-  "cancel2": "Cancel",
-  "save": "Save",
-  "searchHymns": "Search hymns...",
-  "noHymnsFound": "No hymns found",
-  "createAnnouncement": "Create announcement",
-  "title": "Title",
-  "message": "Message",
-  "expirationDate": "Expiration date",
-  "noDate": "No date",
-  "cancel2": "Cancel",
-  "create": "Create",
-  "editAnnouncement": "Edit announcement",
-  "update": "Update",
-  "noExpirationDate": "No expiration date",
-  "chooseFont": "Choose a Font",
-  "chooseLanguage": "Choose language",
-  "loadingBooks": "Loading books...",
-  "loadingChapter": "Loading chapter {chapter} from {book}...",
-  "settingsSaved": "Settings saved successfully",
-  "errorSavingSettings": "Error saving settings",
-  "deleteHistorySuccess": "Selected history deleted",
-  "deleteHistoryError": "Error deleting history",
-  "clearHistorySuccess": "History cleared",
-  "clearHistoryError": "Error clearing history",
-  "noPermission": "No permission",
-  "cannotAddHymns": "Cannot add hymns at this time",
-  "searchBooks": "Search books...",
-  "searchCurrentChapter": "Search in chapter {chapter}",
-  "searchEntireBible": "Search entire Bible",
-  "change": "Change",
-  "bibleReader": "Bible Reader",
-  "emailLabel": "Email: {email}",
-  "developedBy": "Developed by",
-  "addressLabel": "Address:",
-  "appVersion": "Version {version}",
-  "appNameSuffix": "JFF",
-  "headquarters": "Headquarters:",
-  "headquartersAddress": "Antsororokavo Fianarantsoa 301",
-  "phoneNumber": "+261 34 29 439 71",
-  "email": "Email",
-  "github": "GitHub",
-  "noHistory": "No history",
-  "clearAllHistoryQuestion": "Clear all history?",
-  "historyCannotBeUndone": "History cannot be undone once deleted.",
-  "deleteSelectedHistoryQuestion": "Delete selected history?",
-  "yes": "Yes",
-  "no": "No",
-  "history": "History",
-  "selectedItems": "{count} selected",
-  "welcomeToHymnsApp": "Welcome to Hymns App",
-  "praiseTheLord": "Praise the Lord for He is good",
-  "hymnsApp": "Hymns App",
-  "welcome": "Welcome",
   "aboutTheApp": "About the App",
   "features": "Features",
   "feature1": "Hymns created for JFF church",
@@ -690,6 +477,107 @@
   "todaysVerse": "Today's Verse",
   "noVerseAvailable": "No verse available",
   "sendTestNotification": "Send Test Notification",
-  "testNotificationSent": "Test notification sent!"
-
+  "testNotificationSent": "Test notification sent!",
+  "myPlaylists": "My Playlists",
+  "noPlaylistsYet": "No playlists yet",
+  "createFirstPlaylist": "Create your first playlist",
+  "newPlaylist": "New Playlist",
+  "deletePlaylist": "Delete Playlist",
+  "addToPlaylist": "Add to Playlist",
+  "createNewPlaylist": "Create New Playlist",
+  "playlistName": "Playlist Name",
+  "clearExpired": "Clear Expired",
+  "clearAllCache": "Clear All Cache",
+  "clearCacheWarning": "This will remove all cached audio availability data. The app will need to check audio availability again.",
+  "allCacheCleared": "All cache cleared",
+  "expiredCacheCleared": "Expired cache cleared",
+  "couldNotLaunchGoogleFonts": "Could not launch Google Fonts",
+  "getFonts": "Get Fonts",
+  "errorPlayingAudio": "Error playing audio: {error}",
+  "@errorPlayingAudio": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "playlistExampleHint": "e.g., Sunday Service",
+  "confirmDeletePlaylist": "Are you sure you want to delete \"{playlistTitle}\"?",
+  "@confirmDeletePlaylist": {
+    "placeholders": {
+      "playlistTitle": {"type": "String"}
+    }
+  },
+  "searchFavoriteSongsHint": "Search for favorite songs...",
+  "searchWordsOrVersesHint": "Search for words or verses...",
+  "searchBooks": "Search Books",
+  "wholeBible": "Whole Bible",
+  "audioPlayer": "Audio Player",
+  "playAudio": "Play audio",
+  "audioCacheManagement": "Audio Cache Management",
+  "clearAll": "Clear All",
+  "guest": "Guest",
+  "library": "Library",
+  "personal": "Personal",
+  "playlists": "Playlists",
+  "audioCache": "Audio Cache",
+  "added": "Added",
+  "noHymnsAddedYet": "No hymns added yet",
+  "errorLoadingHymns": "Error loading hymns",
+  "audioAvailable":"Audio available",
+  "noAudioAvailable":"No audio available",
+  "searchBible":"Bible search",
+  "enterWordToSearch":"Enter word to search",
+  "noSearchResults":"No search results",
+  "changeWordToSearch":"Change word to search",
+  "hymnsCount": "{count,plural, =0{No hymns} =1{1 hymn} other{{count} hymns}}",
+  "@hymnsCount": {
+    "description": "A message that shows the number of hymns in a playlist",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noChaptersFound":"No chapters found",
+  "yourProfile": "Your Profile",
+  "usernameLabel": "Username: {username}",
+  "@usernameLabel": {
+    "placeholders": {
+      "username": {"type": "String"}
+    }
+  },
+  "userIdLabel": "ID: {userId}",
+  "@userIdLabel": {
+    "placeholders": {
+      "userId": {"type": "String"}
+    }
+  },
+  "syncInfoMessage1": "Your favorite hymns and history are saved to your Google account.",
+  "syncInfoMessage2": "This will not be lost if you change accounts.",
+  "unknownUser": "Unknown",
+  "errorOccurredWithDetails": "An error occurred: {error}",
+  "@errorOccurredWithDetails": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "clearSearch": "Clear search",
+  "appSection": "App",
+  "totalCachedHymns": "Total cached hymns: {count}",
+  "@totalCachedHymns": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "withAudio": "With audio: {count}",
+  "@withAudio": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "withoutAudio": "Without audio: {count}",
+  "@withoutAudio": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

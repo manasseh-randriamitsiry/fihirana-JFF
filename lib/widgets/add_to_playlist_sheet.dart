@@ -4,6 +4,7 @@ import 'package:fihirana/controller/playlist_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_localizations.dart';
 
 class AddToPlaylistSheet extends StatefulWidget {
   final String hymnId;
@@ -50,6 +51,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DraggableScrollableSheet(
       initialChildSize: 0.6,
       minChildSize: 0.4,
@@ -96,7 +98,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Add to Playlist',
+                        l10n.addToPlaylist,
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -152,7 +154,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                               ),
                               const SizedBox(width: 12),
                               Text(
-                                'Create New Playlist',
+                                l10n.createNewPlaylist,
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -179,7 +181,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                             controller: _newPlaylistController,
                                             style: TextStyle(color: textColor),
                                             decoration: InputDecoration(
-                                              hintText: 'Playlist Name',
+                                              hintText: l10n.playlistName,
                                               hintStyle: TextStyle(
                                                 color: textColor.withValues(
                                                     alpha: 0.5),
@@ -284,7 +286,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                               vertical: 12,
                                             ),
                                           ),
-                                          child: const Text('Create'),
+                                          child: Text(l10n.create),
                                         ),
                                       ],
                                     ),
@@ -305,7 +307,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                       : _playlistController.playlists.isEmpty
                           ? Center(
                               child: Text(
-                                'No playlists yet',
+                                l10n.noPlaylistsYet,
                                 style: TextStyle(
                                   color: textColor.withValues(alpha: 0.5),
                                 ),
@@ -376,9 +378,9 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                       ),
                                     ),
                                     trailing: isAdded
-                                        ? const Text(
-                                            'Added',
-                                            style: TextStyle(
+                                        ? Text(
+                                            l10n.added,
+                                            style: const TextStyle(
                                               color: Colors.green,
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,

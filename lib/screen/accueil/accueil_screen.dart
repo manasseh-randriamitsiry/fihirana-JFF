@@ -258,7 +258,9 @@ class AccueilScreenState extends State<AccueilScreen> {
                       return SliverFillRemaining(
                         child: Center(
                           child: Text(
-                            'Nisy olana: ${snapshot.error}',
+                            AppLocalizations.of(context)!
+                                .errorOccurredWithDetails(
+                                    snapshot.error.toString()),
                             style: defaultTextStyle,
                           ),
                         ),
@@ -274,9 +276,10 @@ class AccueilScreenState extends State<AccueilScreen> {
                     if (hymns.isEmpty) {
                       return SliverFillRemaining(
                         child: EmptyStateWidget(
-                          message: 'Tsy misy hira hita',
+                          message: AppLocalizations.of(context)!.noHymnsFound,
                           icon: Icons.music_off_rounded,
-                          actionLabel: 'Hamafa ny fikarohana',
+                          actionLabel:
+                              AppLocalizations.of(context)!.clearSearch,
                           onActionPressed: () {
                             _hymnController.searchController.clear();
                             // Trigger rebuild/search update if needed, though controller listener should handle it
