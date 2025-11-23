@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../accueil/home_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 class SplashScreenAuthenticated extends StatefulWidget {
   const SplashScreenAuthenticated({super.key});
@@ -24,6 +25,7 @@ class SplashScreenAuthenticatedState extends State<SplashScreenAuthenticated> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -43,9 +45,9 @@ class SplashScreenAuthenticatedState extends State<SplashScreenAuthenticated> {
             Container(
               padding: EdgeInsets.only(top: screenHeight / 4),
               alignment: Alignment.topCenter,
-              child: const Text(
-                "JFF",
-                style: TextStyle(
+              child: Text(
+                l10n.appTitleShort,
+                style: const TextStyle(
                     fontSize: 70.0,
                     color: Colors.black,
                     fontWeight: FontWeight.bold),

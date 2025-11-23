@@ -143,13 +143,14 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   void _showAudioPlayerDialog() {
+    final l10n = AppLocalizations.of(context)!;
     if (_hymnNumberController.text.trim().isEmpty) return;
 
     final hymn = Hymn(
       id: '',
       hymnNumber: _hymnNumberController.text.trim(),
       title: _titleController.text.trim().isEmpty
-          ? 'New Hymn'
+          ? l10n.newHymn
           : _titleController.text.trim(),
       verses: [],
       createdAt: DateTime.now(),
@@ -175,7 +176,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Audio Player',
+                      l10n.audioPlayer,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -303,7 +304,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 decoration: InputDecoration(
                   labelText: l10n.verseWithNumber(index + 1),
                   labelStyle: TextStyle(
-                    color: colorController.textColor.value.withValues(alpha: 0.7),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.7),
                   ),
                   border: InputBorder.none,
                   contentPadding:
@@ -332,7 +334,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   _verseControllers.removeAt(index);
                 });
               },
-              tooltip: 'Delete verse',
+              tooltip: l10n.deleteVerse,
             ),
             ReorderableDragStartListener(
               index: index,
@@ -490,8 +492,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     padding: const EdgeInsets.symmetric(
                         vertical: 12, horizontal: 16),
                     decoration: BoxDecoration(
-                      color:
-                          colorController.primaryColor.value.withValues(alpha: 0.1),
+                      color: colorController.primaryColor.value
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -546,7 +548,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         color: colorController.primaryColor.value,
                       ),
                       label: Text(
-                        'Add Verse',
+                        l10n.addVerse,
                         style: TextStyle(
                           color: colorController.primaryColor.value,
                           fontWeight: FontWeight.w600,
@@ -577,7 +579,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
                   _buildTextField(
                     controller: _hymnHintController,
-                    label: 'Hymn Hint (Optional)',
+                    label: l10n.hymnHint,
                     maxLines: 2,
                     icon: Icons.lightbulb_outline,
                   ),
@@ -609,8 +611,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                             Expanded(
                               child: Text(
                                 _hasAudio
-                                    ? 'Audio available for this hymn number'
-                                    : 'No audio available for this hymn number',
+                                    ? l10n.audioAvailable
+                                    : l10n.noAudioAvailable,
                                 style: TextStyle(
                                   color: _hasAudio ? Colors.green : Colors.grey,
                                   fontSize: 14,
@@ -626,7 +628,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                                   color: colorController.primaryColor.value,
                                   size: 28,
                                 ),
-                                tooltip: 'Play audio',
+                                tooltip: l10n.playAudio,
                               ),
                           ],
                         ),
@@ -646,8 +648,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 18),
                       elevation: 4,
-                      shadowColor:
-                          colorController.primaryColor.value.withValues(alpha: 0.4),
+                      shadowColor: colorController.primaryColor.value
+                          .withValues(alpha: 0.4),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

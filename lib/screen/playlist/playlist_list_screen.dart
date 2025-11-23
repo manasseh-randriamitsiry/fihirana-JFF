@@ -217,7 +217,7 @@ class PlaylistListScreen extends StatelessWidget {
                   style: TextStyle(color: colorController.textColor.value),
                   decoration: InputDecoration(
                     labelText: l10n.title,
-                    hintText: 'e.g., Sunday Service',
+                    hintText: l10n.playlistExampleHint,
                     labelStyle: TextStyle(
                         color: colorController.textColor.value
                             .withValues(alpha: 0.7)),
@@ -297,7 +297,7 @@ class PlaylistListScreen extends StatelessWidget {
                   backgroundColor: colorController.primaryColor.value,
                   foregroundColor: Colors.white,
                 ),
-                child: const Text('Create'),
+                child: Text(l10n.create),
               ),
             ],
           );
@@ -318,7 +318,7 @@ class PlaylistListScreen extends StatelessWidget {
           style: TextStyle(color: colorController.textColor.value),
         ),
         content: Text(
-          'Are you sure you want to delete "${playlist.title}"?',
+          l10n.confirmDeletePlaylist(playlist.title),
           style: TextStyle(color: colorController.textColor.value),
         ),
         actions: [

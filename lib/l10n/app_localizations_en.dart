@@ -180,6 +180,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirm => 'Confirm';
 
   @override
+  String get newHymn => 'New Hymn';
+
+  @override
+  String get deleteVerse => 'Delete verse';
+
+  @override
+  String get addVerse => 'Add Verse';
+
+  @override
+  String get hymnHint => 'Hymn hint';
+
+  @override
   String get confirmDelete => 'Are you sure you want to delete this item?';
 
   @override
@@ -1079,7 +1091,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cannotAddHymns => 'Cannot add hymns at this time';
 
   @override
-  String get searchBooks => 'Search books...';
+  String get searchBooks => 'Search Books';
 
   @override
   String searchCurrentChapter(Object chapter) {
@@ -1253,4 +1265,116 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get playlistName => 'Playlist Name';
+
+  @override
+  String get clearExpired => 'Clear Expired';
+
+  @override
+  String get clearAllCache => 'Clear All Cache';
+
+  @override
+  String get clearCacheWarning => 'This will remove all cached audio availability data. The app will need to check audio availability again.';
+
+  @override
+  String get allCacheCleared => 'All cache cleared';
+
+  @override
+  String get expiredCacheCleared => 'Expired cache cleared';
+
+  @override
+  String get couldNotLaunchGoogleFonts => 'Could not launch Google Fonts';
+
+  @override
+  String get getFonts => 'Get Fonts';
+
+  @override
+  String errorPlayingAudio(String error) {
+    return 'Error playing audio: $error';
+  }
+
+  @override
+  String get playlistExampleHint => 'e.g., Sunday Service';
+
+  @override
+  String confirmDeletePlaylist(String playlistTitle) {
+    return 'Are you sure you want to delete \"$playlistTitle\"?';
+  }
+
+  @override
+  String get searchFavoriteSongsHint => 'Search for favorite songs...';
+
+  @override
+  String get searchWordsOrVersesHint => 'Search for words or verses...';
+
+  @override
+  String get wholeBible => 'Whole Bible';
+
+  @override
+  String get audioPlayer => 'Audio Player';
+
+  @override
+  String get playAudio => 'Play audio';
+
+  @override
+  String get audioCacheManagement => 'Audio Cache Management';
+
+  @override
+  String get clearAll => 'Clear All';
+
+  @override
+  String get guest => 'Guest';
+
+  @override
+  String get library => 'Library';
+
+  @override
+  String get personal => 'Personal';
+
+  @override
+  String get playlists => 'Playlists';
+
+  @override
+  String get audioCache => 'Audio Cache';
+
+  @override
+  String get added => 'Added';
+
+  @override
+  String get noHymnsAddedYet => 'No hymns added yet';
+
+  @override
+  String get errorLoadingHymns => 'Error loading hymns';
+
+  @override
+  String get audioAvailable => 'Audio available';
+
+  @override
+  String get noAudioAvailable => 'No audio available';
+
+  @override
+  String get searchBible => 'Bible search';
+
+  @override
+  String get enterWordToSearch => 'Enter word to search';
+
+  @override
+  String get noSearchResults => 'No search results';
+
+  @override
+  String get changeWordToSearch => 'Change word to search';
+
+  @override
+  String hymnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hymns',
+      one: '1 hymn',
+      zero: 'No hymns',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noChaptersFound => 'No chapters found';
 }

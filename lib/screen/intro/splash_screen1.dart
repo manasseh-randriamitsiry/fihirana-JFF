@@ -82,11 +82,12 @@ class _SplashScreen1State extends State<SplashScreen1> {
     HapticFeedback.mediumImpact();
 
     final username = _usernameController.text.trim();
+    final l10n = AppLocalizations.of(context)!;
 
     if (username.isEmpty) {
       Get.snackbar(
-        'Olana',
-        'Mampidira anarana azafady',
+        l10n.errorOccurred,
+        l10n.enterYourName,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -103,8 +104,8 @@ class _SplashScreen1State extends State<SplashScreen1> {
       Get.offAll(() => const HomeScreen());
     } catch (e) {
       Get.snackbar(
-        'Olana',
-        'Tsy tafiditra ny anarana',
+        l10n.errorOccurred,
+        l10n.nameNotSaved,
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

@@ -7,6 +7,7 @@ import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -24,7 +25,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  void _showAudioPlayerDialog(Hymn hymn) {
+  void _showAudioPlayerDialog(AppLocalizations l10n, Hymn hymn) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -43,7 +44,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Audio Player',
+                      l10n.audioPlayer,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -85,6 +86,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
@@ -92,7 +94,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
-          'Tiana',
+          l10n.favorites,
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
@@ -136,9 +138,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
                   });
                 },
                 decoration: InputDecoration(
-                  hintText: 'Karohy ny hira tiana...',
+                  hintText: l10n.searchFavoriteSongsHint,
                   hintStyle: TextStyle(
-                    color: colorController.iconColor.value.withValues(alpha: 0.5),
+                    color:
+                        colorController.iconColor.value.withValues(alpha: 0.5),
                   ),
                   prefixIcon: Icon(
                     Icons.search,
@@ -197,7 +200,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Olana: ${snapshot.error}',
+                          '${l10n.error}: ${snapshot.error}',
                           style:
                               TextStyle(color: colorController.textColor.value),
                           textAlign: TextAlign.center,
@@ -213,8 +216,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         Icon(
                           Icons.favorite_border,
                           size: 80,
-                          color:
-                              colorController.textColor.value.withValues(alpha: 0.3),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3),
                         )
                             .animate(
                                 onPlay: (controller) =>
@@ -226,7 +229,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                 curve: Curves.easeInOut),
                         const SizedBox(height: 16),
                         Text(
-                          'Mbola tsy misy hira tiana',
+                          l10n.noHymnsAddedYet,
                           style: TextStyle(
                             color: colorController.textColor.value,
                             fontSize: 18,
@@ -235,7 +238,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tsindrio ny fo mba hanampiana hira',
+                          l10n.createFirstPlaylist,
                           style: TextStyle(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.6),
@@ -272,7 +275,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Tsy misy hira tiana mitovy amin\'ny karohy',
+                            l10n.noResults,
                             style: TextStyle(
                               color: colorController.textColor.value,
                               fontSize: 16,
@@ -390,8 +393,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                         ],
                                       ),
                                       onPressed: () =>
-                                          _showAudioPlayerDialog(hymn),
-                                      tooltip: 'Play audio',
+                                          _showAudioPlayerDialog(l10n, hymn),
+                                      tooltip: l10n.playAudio,
                                     ),
                                   );
                                 }),
@@ -416,8 +419,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                       _hymnService.toggleFavorite(hymn);
                                     },
                                     tooltip: isFavorite
-                                        ? 'Remove from favorites'
-                                        : 'Add to favorites',
+                                        ? l10n.removeFromFavorites
+                                        : l10n.addToFavorites,
                                   );
                                 },
                               ),

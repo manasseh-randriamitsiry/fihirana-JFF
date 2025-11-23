@@ -755,8 +755,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                           color: colorController.textColor.value,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Add to Playlist',
+                        Text(
+                          l10n.addToPlaylist,
                         ),
                       ],
                     ),
@@ -911,7 +911,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   : _adjacentHymns.isEmpty
                       ? Center(
                           child: Text(
-                            'No hymns available',
+                            l10n.noHymnsAvailable,
                             style: TextStyle(
                               color: colorController.textColor.value,
                             ),

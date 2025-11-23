@@ -8,6 +8,8 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../../l10n/app_localizations.dart';
+
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key});
 
@@ -35,39 +37,40 @@ class _AppBootstrapState extends State<AppBootstrap> {
   }
 
   Future<void> _initialize() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       // Step 1: Initialize Firebase (0% -> 40%)
-      _updateProgress(0.0, 'Firebase...');
+      _updateProgress(0.0, '0');
 
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      _updateProgress(0.4, 'Firebase vonona');
+      _updateProgress(0.4, '40');
 
       // Step 2: Initialize Notifications (40% -> 60%)
-      _updateProgress(0.4, 'Notification ...');
+      _updateProgress(0.4, '41');
 
       await InitService.initializeNotifications();
 
-      _updateProgress(0.6, 'Notification vonona');
+      _updateProgress(0.6, '60');
 
       // Step 3: Initialize Controllers (60% -> 90%)
-      _updateProgress(0.6, 'Controllers...');
+      _updateProgress(0.6, '61');
 
       await InitService.initControllers();
 
-      _updateProgress(0.9, 'Controllers vonona');
+      _updateProgress(0.9, '90');
 
       // Initialize deep links for playlist sharing
       await InitService.initDeepLinks();
 
       // Step 4: Get SharedPreferences (90% -> 100%)
-      _updateProgress(0.9, 'Mamarana...');
+      _updateProgress(0.9, '91');
 
       final prefs = await SharedPreferences.getInstance();
 
-      _updateProgress(1.0, '');
+      _updateProgress(1.0, '100');
 
       // Small delay to show completion
       await Future.delayed(const Duration(milliseconds: 300));
@@ -83,7 +86,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       if (kDebugMode) {
         print('Error during bootstrap: $e');
       }
-      _updateProgress(1.0, 'Nisy olana, fa mandeha ihany...');
+      _updateProgress(1.0, l10n.errorOccurred);
       await Future.delayed(const Duration(milliseconds: 300));
 
       // Try to continue anyway
