@@ -16,11 +16,13 @@ import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
+
 import '../../widgets/color_picker_widget.dart';
 
 import '../../services/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/compact_audio_player_widget.dart';
+import '../../widgets/add_to_playlist_sheet.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -673,6 +675,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   case 'audio_player':
                     _showAudioPlayerDialog();
                     break;
+                  case 'add_to_playlist':
+                    _showAddToPlaylistDialog();
+                    break;
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -737,6 +742,21 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                         const SizedBox(width: 8),
                         Text(
                           l10n.color,
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'add_to_playlist',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.playlist_add,
+                          color: colorController.textColor.value,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Add to Playlist',
                         ),
                       ],
                     ),
@@ -1227,6 +1247,22 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       context,
       MaterialPageRoute(
         builder: (context) => EditHymnScreen(hymn: _hymn!),
+      ),
+    );
+  }
+
+  void _showAddToPlaylistDialog() {
+    if (_hymn == null) return;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => AddToPlaylistSheet(
+        hymnId: _hymn!.id,
+        onHymnAdded: () {
+          // Optional: Show success feedback if needed, though the controller handles snackbars
+        },
       ),
     );
   }
