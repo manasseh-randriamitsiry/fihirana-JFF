@@ -2766,6 +2766,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Without audio: {count}'**
   String withoutAudio(int count);
+
+  /// No description provided for @currentVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Version'**
+  String get currentVersion;
+
+  /// No description provided for @latestVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest Version'**
+  String get latestVersion;
+
+  /// No description provided for @whatsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s New'**
+  String get whatsNew;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1413,4 +1413,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String withoutAudio(int count) {
     return 'Sans audio: $count';
   }
+
+  @override
+  String get currentVersion => 'Current Version';
+
+  @override
+  String get latestVersion => 'Latest Version';
+
+  @override
+  String get whatsNew => 'What\'s New';
 }
