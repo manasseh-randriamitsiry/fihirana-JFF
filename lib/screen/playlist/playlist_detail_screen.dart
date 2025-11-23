@@ -65,11 +65,59 @@ class PlaylistDetailScreen extends StatelessWidget {
                     Icon(Icons.calendar_today,
                         size: 16, color: colorController.primaryColor.value),
                     const SizedBox(width: 8),
-                    Text(
-                      DateFormat('EEEE, MMMM d, yyyy').format(playlist.date),
-                      style: TextStyle(
-                        color: colorController.textColor.value,
-                        fontWeight: FontWeight.w500,
+                    InkWell(
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: playlist.date,
+                          firstDate: DateTime(2000),
+                          lastDate:
+                              DateTime.now().add(const Duration(days: 365)),
+                          builder: (context, child) {
+                            return Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: ColorScheme.light(
+                                  primary: colorController.primaryColor.value,
+                                  onPrimary: Colors.white,
+                                  surface:
+                                      colorController.backgroundColor.value,
+                                  onSurface: colorController.textColor.value,
+                                ),
+                              ),
+                              child: child!,
+                            );
+                          },
+                        );
+                        if (picked != null) {
+                          playlistController.updatePlaylistDate(
+                              playlist.id, picked);
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(4),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 2),
+                        child: Row(
+                          children: [
+                            Text(
+                              DateFormat('EEEE, MMMM d, yyyy')
+                                  .format(playlist.date),
+                              style: TextStyle(
+                                color: colorController.textColor.value,
+                                fontWeight: FontWeight.w500,
+                                decoration: TextDecoration.underline,
+                                decorationStyle: TextDecorationStyle.dotted,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.edit,
+                              size: 14,
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.5),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                     const Spacer(),
