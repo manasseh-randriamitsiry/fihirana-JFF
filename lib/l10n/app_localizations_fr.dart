@@ -862,7 +862,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get signOut => 'Se déconnecter';
 
   @override
-  String get aboutUs => 'À propos de nous';
+  String get aboutUs => 'À propos';
 
   @override
   String get cannotUpdate => 'Impossible de mettre à jour';
@@ -1249,7 +1249,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deletePlaylist => 'Supprimer la liste de lecture';
 
   @override
-  String get addToPlaylist => 'Ajouter à la liste de lecture';
+  String get addToPlaylist => 'playlist';
 
   @override
   String get createNewPlaylist => 'Créer une nouvelle liste de lecture';
