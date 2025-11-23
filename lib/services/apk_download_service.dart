@@ -38,8 +38,8 @@ class ApkDownloadService {
       // Request install permission
       final hasPermission = await _requestInstallPermission();
       if (!hasPermission) {
-        await _showNotification('Tsy afaka mankafy',
-            'Tsy manana alalana ianao hampidirana rakitra');
+        await _showNotification(
+            'Tsy afaka naka', 'Tsy manana alalana ianao hampiditra apk');
         return;
       }
 
@@ -70,7 +70,7 @@ class ApkDownloadService {
       }
 
       // Show download started notification
-      await _showDownloadNotification('Mandefa anaty rakitra...', 0);
+      await _showDownloadNotification('Maka fanavaozana...', 0);
 
       _cancelToken = CancelToken();
 
@@ -82,15 +82,14 @@ class ApkDownloadService {
         onReceiveProgress: (received, total) {
           if (total != -1) {
             final progress = (received / total * 100).round();
-            _showDownloadNotification(
-                'Mandefa anaty rakitra... $progress%', progress);
+            _showDownloadNotification('Fangalana... $progress%', progress);
           }
         },
       );
 
       // Download completed
       await _showNotification(
-          'Vita ny fandefasana', 'Voara ny rakitra $fileName');
+          'Vita ny fangalana', 'Voaray ny fanavaozana $fileName');
 
       // Install the APK
       await _installApk(savePath);
@@ -98,8 +97,8 @@ class ApkDownloadService {
       if (kDebugMode) {
         print('❌ Download failed: $e');
       }
-      await _showNotification(
-          'Tsy voafafa', 'Tsy afaka mandefa anaty rakitra: ${e.toString()}');
+      await _showNotification('Tsy nety',
+          'Nisy olana teo ampanaovana fanavaozana: ${e.toString()}');
     }
   }
 
@@ -150,8 +149,8 @@ class ApkDownloadService {
       if (kDebugMode) {
         print('❌ Install failed: $e');
       }
-      await _showNotification('Tsy voafafa',
-          'Tsy afaka mametraka ny rindrambaiko: ${e.toString()}');
+      await _showNotification(
+          'Tsy nety', 'Tsy afaka mametraka ny fanavaozana: ${e.toString()}');
     }
   }
 
@@ -180,7 +179,7 @@ class ApkDownloadService {
       content: NotificationContent(
         id: downloadNotificationd,
         channelKey: 'hymn_download_channel',
-        title: 'Fandefasana rindrambaiko',
+        title: 'Fangalana fanavaozana',
         body: body,
         notificationLayout: NotificationLayout.ProgressBar,
         progress: progress.toDouble(),
@@ -192,7 +191,7 @@ class ApkDownloadService {
           ? [
               NotificationActionButton(
                 key: 'CANCEL_DOWNLOAD',
-                label: 'Ajanony',
+                label: 'Ajanona',
                 actionType: ActionType.Default,
               ),
             ]
@@ -203,7 +202,7 @@ class ApkDownloadService {
   static Future<void> handleDownloadAction(String action) async {
     if (action == 'CANCEL_DOWNLOAD') {
       cancelDownload();
-      await _showNotification('Ajanony', 'Najanony ny fandefasana');
+      await _showNotification('Ajanona', 'Najanony ny fanavaozana');
     }
   }
 }
