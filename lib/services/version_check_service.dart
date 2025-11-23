@@ -74,19 +74,19 @@ class VersionCheckService {
     _notificationTimer = null;
   }
 
-static Future<void> checkForUpdate() async {
+  static Future<void> checkForUpdate() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final dismissedVersion = prefs.getString(dismissedVersionKey);
       final currentVersion = await PubspecService.getAppVersion();
-      
+
       // First check GitHub for the latest version
       final githubHasUpdate = await _checkGitHubVersionOnly();
-      
+
       if (kDebugMode) {
         print('🔍 GitHub check result: $githubHasUpdate');
       }
-      
+
       // Only proceed with InAppUpdate if GitHub shows there's an update
       if (!githubHasUpdate) {
         if (kDebugMode) {
@@ -95,7 +95,7 @@ static Future<void> checkForUpdate() async {
         stopPeriodicCheck();
         return;
       }
-      
+
       // Check InAppUpdate as fallback
       final updateInfo = await InAppUpdate.checkForUpdate();
       _updateInfo = updateInfo;
@@ -115,7 +115,17 @@ static Future<void> checkForUpdate() async {
           await _showInAppUpdateNotification();
         }
       } else {
-        stopPeriodicCheck();
+        // InAppUpdate says no update, but GitHub said yes.
+        // This means the Play Store is behind. Fallback to GitHub update.
+        if (githubHasUpdate) {
+          if (kDebugMode) {
+            print(
+                '⚠️ InAppUpdate found nothing, but GitHub has update. Falling back to GitHub.');
+          }
+          await _checkForUpdateFromGitHub();
+        } else {
+          stopPeriodicCheck();
+        }
       }
     } catch (e) {
       await _checkForUpdateFromGitHub();
@@ -146,23 +156,19 @@ static Future<void> checkForUpdate() async {
     );
   }
 
-@pragma('vm:entry-point')
+  @pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
       ReceivedAction receivedAction) async {
     if (receivedAction.buttonKeyPressed == 'UPDATE') {
       final type = receivedAction.payload?['type'];
       if (type == 'in_app_update' && _updateInfo != null) {
-
         if (_flexibleUpdateAvailable) {
-
           await _completeFlexibleUpdate();
         } else {
-
           await _performImmediateUpdate();
         }
         stopPeriodicCheck();
       } else if (_cachedDownloadUrl != null) {
-
         await _downloadAndInstallUpdate(_cachedDownloadUrl!);
         stopPeriodicCheck();
       }
@@ -171,7 +177,7 @@ static Future<void> checkForUpdate() async {
       final prefs = await SharedPreferences.getInstance();
       final currentVersion = await PubspecService.getAppVersion();
       await prefs.setString(dismissedVersionKey, currentVersion);
-      
+
       stopPeriodicCheck();
     } else if (receivedAction.buttonKeyPressed == 'CANCEL_DOWNLOAD') {
       await ApkDownloadService.handleDownloadAction('CANCEL_DOWNLOAD');
@@ -180,17 +186,16 @@ static Future<void> checkForUpdate() async {
 
   static Future<void> _performImmediateUpdate() async {
     try {
-      if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
+      if (_updateInfo?.updateAvailability ==
+          UpdateAvailability.updateAvailable) {
         final result = await InAppUpdate.performImmediateUpdate();
 
         if (result == AppUpdateResult.userDeniedUpdate) {
         } else if (result == AppUpdateResult.inAppUpdateFailed) {
-
           if (_cachedDownloadUrl != null) {
             await _downloadAndInstallUpdate(_cachedDownloadUrl!);
           }
-        } else if (result == AppUpdateResult.success) {
-        }
+        } else if (result == AppUpdateResult.success) {}
       }
     } catch (e) {
       await AwesomeNotifications().createNotification(
@@ -208,7 +213,8 @@ static Future<void> checkForUpdate() async {
 
   static Future<void> startFlexibleUpdate() async {
     try {
-      if (_updateInfo?.updateAvailability == UpdateAvailability.updateAvailable) {
+      if (_updateInfo?.updateAvailability ==
+          UpdateAvailability.updateAvailable) {
         await InAppUpdate.startFlexibleUpdate();
         _flexibleUpdateAvailable = true;
 
@@ -217,7 +223,8 @@ static Future<void> checkForUpdate() async {
             id: updateNotificationId + 2,
             channelKey: 'basic_channel',
             title: 'Fakàna rindrambaiko',
-            body: 'Ny rindrambaiko vaovao dia amim-pakàna. Hahazo fampahalalam-baovao ianao rehefa vita ny fakàna.',
+            body:
+                'Ny rindrambaiko vaovao dia amim-pakàna. Hahazo fampahalalam-baovao ianao rehefa vita ny fakàna.',
             payload: {'type': 'flexible_update_complete'},
             color: const Color(0xFF9D50DD),
           ),
@@ -243,11 +250,11 @@ static Future<void> checkForUpdate() async {
     }
   }
 
-static Future<bool> checkForUpdateManually() async {
+  static Future<bool> checkForUpdateManually() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final dismissedVersion = prefs.getString(dismissedVersionKey);
-      
+
       // Check GitHub for accurate version info
       final currentVersion = await PubspecService.getAppVersion();
 
@@ -271,31 +278,32 @@ static Future<bool> checkForUpdateManually() async {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         String latestVersion = data['tag_name'].toString().replaceAll('v', '');
-        
+
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
-        
+
         if (kDebugMode) {
-          print('🔄 Manual check: current=$currentVersion, latest=$latestVersion, newer=$isNewer');
+          print(
+              '🔄 Manual check: current=$currentVersion, latest=$latestVersion, newer=$isNewer');
         }
-        
+
         // Only return true if there's actually a newer version and not dismissed
         if (isNewer && dismissedVersion != currentVersion) {
           _onUpdateAvailable?.call();
           return true;
         }
-        
+
         // If we're up to date, clear any dismissed version
         if (!isNewer && dismissedVersion != null) {
           await clearDismissedVersion();
         }
-        
+
         return false;
       }
-      
+
       if (kDebugMode) {
         print('❌ GitHub API failed, falling back to InAppUpdate');
       }
-      
+
       // Fallback to InAppUpdate if GitHub fails
       final updateInfo = await InAppUpdate.checkForUpdate();
       _updateInfo = updateInfo;
@@ -369,19 +377,20 @@ static Future<bool> checkForUpdateManually() async {
         String latestVersion = data['tag_name'].toString().replaceAll('v', '');
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
-        final bool isSameVersion = currentVersion == latestVersion || 
-                                  currentVersion == latestVersion.replaceAll('v', '');
-        
+        final bool isSameVersion = currentVersion == latestVersion ||
+            currentVersion == latestVersion.replaceAll('v', '');
+
         if (kDebugMode) {
-          print('🔍 GitHub version check: current="$currentVersion", latest="$latestVersion", newer=$isNewer, same=$isSameVersion');
+          print(
+              '🔍 GitHub version check: current="$currentVersion", latest="$latestVersion", newer=$isNewer, same=$isSameVersion');
         }
-        
+
         // If versions are the same, clear any dismissed version and stop checking
         if (isSameVersion) {
           await clearUpdateState();
           return false;
         }
-        
+
         return isNewer;
       } else {
         if (kDebugMode) {
@@ -416,18 +425,26 @@ static Future<bool> checkForUpdateManually() async {
         String latestVersion = data['tag_name'].toString().replaceAll('v', '');
         final releaseUrl = data['html_url'];
         final releaseNotes = data['body'] ?? 'No release notes available';
+
+        // Prioritize universal APK, then fallback to any APK
         final apkAsset = data['assets']?.firstWhere(
-          (asset) => asset['name'].toString().endsWith('.apk'),
-          orElse: () => null,
+          (asset) =>
+              asset['name'].toString().toLowerCase().contains('universal') &&
+              asset['name'].toString().endsWith('.apk'),
+          orElse: () => data['assets']?.firstWhere(
+            (asset) => asset['name'].toString().endsWith('.apk'),
+            orElse: () => null,
+          ),
         );
+
         final downloadUrl = apkAsset?['browser_download_url'] ?? releaseUrl;
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         final bool isSameVersion = currentVersion == latestVersion;
-        
+
         if (kDebugMode) {
           print(
-            '🔄 Version comparison: $currentVersion -> $latestVersion = ${isNewer ? "update available" : isSameVersion ? "up to date" : "up to date"}');
+              '🔄 Version comparison: $currentVersion -> $latestVersion = ${isNewer ? "update available" : isSameVersion ? "up to date" : "up to date"}');
         }
 
         // Clear dismissed version if we're up to date
@@ -438,10 +455,11 @@ static Future<bool> checkForUpdateManually() async {
         // Only show notification if there's actually a newer version
         if (isNewer && dismissedVersion != currentVersion) {
           // Clear dismissed version if this is a newer version than what was dismissed
-          if (dismissedVersion != null && _isNewerVersion(dismissedVersion, latestVersion)) {
+          if (dismissedVersion != null &&
+              _isNewerVersion(dismissedVersion, latestVersion)) {
             await clearDismissedVersion();
           }
-          
+
           _cachedDownloadUrl = downloadUrl;
           _cachedVersion = latestVersion;
           _cachedReleaseNotes = releaseNotes;
@@ -536,18 +554,21 @@ static Future<bool> checkForUpdateManually() async {
     }
   }
 
-static bool _isNewerVersion(String currentVersion, String latestVersion) {
+  static bool _isNewerVersion(String currentVersion, String latestVersion) {
     try {
       // Clean version strings (remove 'v' prefix and any other non-numeric characters except dots)
       String cleanCurrent = currentVersion.replaceAll(RegExp(r'[^0-9.]'), '');
       String cleanLatest = latestVersion.replaceAll(RegExp(r'[^0-9.]'), '');
-      
+
       if (kDebugMode) {
-        print('🔍 Version cleaning: "$currentVersion" -> "$cleanCurrent", "$latestVersion" -> "$cleanLatest"');
+        print(
+            '🔍 Version cleaning: "$currentVersion" -> "$cleanCurrent", "$latestVersion" -> "$cleanLatest"');
       }
-      
-      List<int> current = cleanCurrent.split('.').map((s) => int.tryParse(s) ?? 0).toList();
-      List<int> latest = cleanLatest.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+
+      List<int> current =
+          cleanCurrent.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+      List<int> latest =
+          cleanLatest.split('.').map((s) => int.tryParse(s) ?? 0).toList();
 
       // Pad shorter version with zeros
       while (current.length < latest.length) {
@@ -590,7 +611,8 @@ static bool _isNewerVersion(String currentVersion, String latestVersion) {
 
   static Future<void> downloadAndInstallLatestVersion() async {
     if (_cachedDownloadUrl != null && _cachedVersion != null) {
-      await ApkDownloadService.downloadAndInstallApk(_cachedDownloadUrl!, _cachedVersion!);
+      await ApkDownloadService.downloadAndInstallApk(
+          _cachedDownloadUrl!, _cachedVersion!);
     }
   }
 }
