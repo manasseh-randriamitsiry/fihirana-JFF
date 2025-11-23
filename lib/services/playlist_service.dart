@@ -73,6 +73,9 @@ class PlaylistService {
       localPlaylists.add(playlist);
       await saveLocalPlaylists(localPlaylists);
 
+      // Notify listeners
+      notifyPlaylistsChanged();
+
       // Sync to Firebase if authenticated
       if (user != null) {
         try {
@@ -89,6 +92,7 @@ class PlaylistService {
           if (index != -1) {
             localPlaylists[index] = updatedPlaylist;
             await saveLocalPlaylists(localPlaylists);
+            notifyPlaylistsChanged();
           }
 
           return docRef.id;
@@ -108,45 +112,108 @@ class PlaylistService {
     }
   }
 
+  // Stream controller for manual updates
+  final _playlistsController = StreamController<List<Playlist>>.broadcast();
+
   // Get playlists for the current user (combines local + Firebase)
   Stream<List<Playlist>> getUserPlaylistsStream() {
-    final controller = StreamController<List<Playlist>>();
     final user = _auth.currentUser;
 
-    // Start with local playlists
-    getLocalPlaylists().then((localPlaylists) {
-      controller.add(localPlaylists);
-    });
+    // Function to load and emit playlists
+    Future<void> emitPlaylists() async {
+      final localPlaylists = await getLocalPlaylists();
 
-    // If authenticated, also listen to Firebase
+      if (user == null) {
+        // No user, just return local playlists
+        _playlistsController.add(localPlaylists);
+      } else {
+        // User authenticated, merge with Firebase
+        try {
+          final firebaseSnapshot = await _firestore
+              .collection('playlists')
+              .where('createdBy', isEqualTo: user.uid)
+              .orderBy('date', descending: true)
+              .get();
+
+          final firebasePlaylists = firebaseSnapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            data['isLocal'] = false;
+            return Playlist.fromJson(data);
+          }).toList();
+
+          // Merge: Firebase playlists + local-only playlists
+          final firebaseIds = firebasePlaylists.map((p) => p.id).toSet();
+          final uniqueLocal =
+              localPlaylists.where((p) => !firebaseIds.contains(p.id)).toList();
+
+          final combined = [...firebasePlaylists, ...uniqueLocal];
+          combined.sort((a, b) => b.date.compareTo(a.date));
+
+          _playlistsController.add(combined);
+        } catch (e) {
+          if (kDebugMode) {
+            print('Error loading Firebase playlists, using local only: $e');
+          }
+          _playlistsController.add(localPlaylists);
+        }
+      }
+    }
+
+    // Emit initial playlists
+    emitPlaylists();
+
+    // Listen to Firebase changes if authenticated
     if (user != null) {
       _firestore
           .collection('playlists')
           .where('createdBy', isEqualTo: user.uid)
           .orderBy('date', descending: true)
           .snapshots()
-          .listen((snapshot) async {
-        final firebasePlaylists = snapshot.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          data['isLocal'] = false;
-          return Playlist.fromJson(data);
-        }).toList();
-
-        // Merge with local playlists (avoid duplicates)
-        final localPlaylists = await getLocalPlaylists();
-        final firebaseIds = firebasePlaylists.map((p) => p.id).toSet();
-        final uniqueLocal =
-            localPlaylists.where((p) => !firebaseIds.contains(p.id)).toList();
-
-        final combined = [...firebasePlaylists, ...uniqueLocal];
-        combined.sort((a, b) => b.date.compareTo(a.date));
-
-        controller.add(combined);
-      });
+          .listen((_) => emitPlaylists());
     }
 
-    return controller.stream;
+    return _playlistsController.stream;
+  }
+
+  // Call this after any local playlist modification
+  void notifyPlaylistsChanged() {
+    // Re-emit playlists
+    final user = _auth.currentUser;
+    getLocalPlaylists().then((localPlaylists) {
+      if (user == null) {
+        _playlistsController.add(localPlaylists);
+      } else {
+        // Reload everything
+        _firestore
+            .collection('playlists')
+            .where('createdBy', isEqualTo: user.uid)
+            .orderBy('date', descending: true)
+            .get()
+            .then((snapshot) {
+          final firebasePlaylists = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            data['isLocal'] = false;
+            return Playlist.fromJson(data);
+          }).toList();
+
+          final firebaseIds = firebasePlaylists.map((p) => p.id).toSet();
+          final uniqueLocal =
+              localPlaylists.where((p) => !firebaseIds.contains(p.id)).toList();
+
+          final combined = [...firebasePlaylists, ...uniqueLocal];
+          combined.sort((a, b) => b.date.compareTo(a.date));
+
+          _playlistsController.add(combined);
+        }).catchError((e) {
+          if (kDebugMode) {
+            print('Error reloading playlists: $e');
+          }
+          _playlistsController.add(localPlaylists);
+        });
+      }
+    });
   }
 
   // Get a specific playlist by ID
@@ -190,6 +257,7 @@ class PlaylistService {
             updatedAt: DateTime.now(),
           );
           await saveLocalPlaylists(localPlaylists);
+          notifyPlaylistsChanged();
         }
       }
 
@@ -227,6 +295,7 @@ class PlaylistService {
           updatedAt: DateTime.now(),
         );
         await saveLocalPlaylists(localPlaylists);
+        notifyPlaylistsChanged();
       }
 
       // Sync to Firebase if not local
@@ -254,6 +323,7 @@ class PlaylistService {
       final localPlaylists = await getLocalPlaylists();
       localPlaylists.removeWhere((p) => p.id == playlistId);
       await saveLocalPlaylists(localPlaylists);
+      notifyPlaylistsChanged();
 
       // Delete from Firebase if not local
       final user = _auth.currentUser;
