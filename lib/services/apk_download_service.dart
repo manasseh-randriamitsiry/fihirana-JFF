@@ -30,11 +30,12 @@ class ApkDownloadService {
   static Future<void> downloadAndInstallApk(String url, String version) async {
     try {
       _initializeDio();
-      
+
       // Request storage permission
       final hasPermission = await _requestStoragePermission();
       if (!hasPermission) {
-        await _showNotification('Tsy afaka mankafy', 'Tsy manana alalana ianao hampidirana rakitra');
+        await _showNotification('Tsy afaka mankafy',
+            'Tsy manana alalana ianao hampidirana rakitra');
         return;
       }
 
@@ -43,7 +44,8 @@ class ApkDownloadService {
       if (Platform.isAndroid) {
         directory = Directory('/storage/emulated/0/Download');
         if (!await directory.exists()) {
-          directory = await getExternalStorageDirectory() ?? await getApplicationDocumentsDirectory();
+          directory = await getExternalStorageDirectory() ??
+              await getApplicationDocumentsDirectory();
         }
       } else {
         directory = await getApplicationDocumentsDirectory();
@@ -60,7 +62,7 @@ class ApkDownloadService {
       await _showDownloadNotification('Mandefa anaty rakitra...', 0);
 
       _cancelToken = CancelToken();
-      
+
       // Download the file
       await _dio!.download(
         url,
@@ -69,22 +71,24 @@ class ApkDownloadService {
         onReceiveProgress: (received, total) {
           if (total != -1) {
             final progress = (received / total * 100).round();
-            _showDownloadNotification('Mandefa anaty rakitra... $progress%', progress);
+            _showDownloadNotification(
+                'Mandefa anaty rakitra... $progress%', progress);
           }
         },
       );
 
       // Download completed
-      await _showNotification('Vita ny fandefasana', 'Voara ny rakitra $fileName');
+      await _showNotification(
+          'Vita ny fandefasana', 'Voara ny rakitra $fileName');
 
       // Install the APK
       await _installApk(savePath);
-
     } catch (e) {
       if (kDebugMode) {
         print('❌ Download failed: $e');
       }
-      await _showNotification('Tsy voafafa', 'Tsy afaka mandefa anaty rakitra: ${e.toString()}');
+      await _showNotification(
+          'Tsy voafafa', 'Tsy afaka mandefa anaty rakitra: ${e.toString()}');
     }
   }
 
@@ -93,11 +97,12 @@ class ApkDownloadService {
       if (Platform.isAndroid) {
         final packageInfo = await PackageInfo.fromPlatform();
         final packageName = packageInfo.packageName;
-        
+
         // Use file provider URI for installation
         final file = File(filePath);
-        final uri = 'content://$packageName.fileprovider/external_files/${file.path.split('/').last}';
-        
+        final uri =
+            'content://$packageName.fileprovider/external_files/${file.path.split('/').last}';
+
         final intent = AndroidIntent(
           action: 'android.intent.action.INSTALL_PACKAGE',
           data: uri,
@@ -119,7 +124,8 @@ class ApkDownloadService {
       if (kDebugMode) {
         print('❌ Install failed: $e');
       }
-      await _showNotification('Tsy voafafa', 'Tsy afaka mametraka ny rindrambaiko: ${e.toString()}');
+      await _showNotification('Tsy voafafa',
+          'Tsy afaka mametraka ny rindrambaiko: ${e.toString()}');
     }
   }
 
@@ -142,7 +148,8 @@ class ApkDownloadService {
     );
   }
 
-  static Future<void> _showDownloadNotification(String body, int progress) async {
+  static Future<void> _showDownloadNotification(
+      String body, int progress) async {
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: downloadNotificationd,
@@ -155,13 +162,15 @@ class ApkDownloadService {
         autoDismissible: false,
         color: const Color(0xFF9D50DD),
       ),
-      actionButtons: progress < 100 ? [
-        NotificationActionButton(
-          key: 'CANCEL_DOWNLOAD',
-          label: 'Ajanony',
-          actionType: ActionType.Default,
-        ),
-      ] : null,
+      actionButtons: progress < 100
+          ? [
+              NotificationActionButton(
+                key: 'CANCEL_DOWNLOAD',
+                label: 'Ajanony',
+                actionType: ActionType.Default,
+              ),
+            ]
+          : null,
     );
   }
 
