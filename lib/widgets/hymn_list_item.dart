@@ -125,8 +125,8 @@ class _HymnListItemState extends State<HymnListItem>
                     style: TextStyle(color: widget.textColor),
                     decoration: InputDecoration(
                       hintText: l10n.yesLowercase,
-                      hintStyle:
-                          TextStyle(color: widget.textColor.withValues(alpha:0.5)),
+                      hintStyle: TextStyle(
+                          color: widget.textColor.withValues(alpha: 0.5)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                         borderSide: BorderSide(color: widget.textColor),
@@ -271,7 +271,7 @@ class _HymnListItemState extends State<HymnListItem>
     );
   }
 
-  Future<void> _playHymnAudio() async {
+  Future<void> _playHymnAudio(AppLocalizations l10n) async {
     try {
       if (kDebugMode) {
         print('HymnListItem: Playing audio for ${widget.hymn.id}');
@@ -296,7 +296,7 @@ class _HymnListItemState extends State<HymnListItem>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error playing audio: $e'),
+            content: Text(l10n.errorPlayingAudio(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -350,7 +350,7 @@ class _HymnListItemState extends State<HymnListItem>
                     Text(
                       widget.hymn.verses[0],
                       style: TextStyle(
-                        color: widget.textColor.withValues(alpha:0.7),
+                        color: widget.textColor.withValues(alpha: 0.7),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -363,7 +363,7 @@ class _HymnListItemState extends State<HymnListItem>
                               ? ' (${widget.hymn.createdByEmail})'
                               : ''),
                       style: TextStyle(
-                        color: widget.textColor.withValues(alpha:0.5),
+                        color: widget.textColor.withValues(alpha: 0.5),
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
                       ),
@@ -396,17 +396,17 @@ class _HymnListItemState extends State<HymnListItem>
                             _audioService.isHymnPlaying(widget.hymn.id);
                         if (kDebugMode) {
                           print(
-                            'Hymn ${widget.hymn.id} playing status: $isPlaying');
+                              'Hymn ${widget.hymn.id} playing status: $isPlaying');
                         }
                         return IconButton(
                           onPressed: widget.onMusicPressed ??
                               () {
                                 // Default audio play behavior if no callback provided
-                                _playHymnAudio();
+                                _playHymnAudio(l10n);
                               },
                           style: IconButton.styleFrom(
                             backgroundColor: isPlaying
-                                ? widget.textColor.withValues(alpha:0.2)
+                                ? widget.textColor.withValues(alpha: 0.2)
                                 : widget.backgroundColor,
                             padding: const EdgeInsets.all(8),
                             minimumSize: const Size(32, 32),

@@ -18,6 +18,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
   final HymnService _hymnService = Get.find<HymnService>();
 
   void _showAudioPlayerDialog(Hymn hymn) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -37,7 +38,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Audio Player',
+                      l10n.audioPlayer,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

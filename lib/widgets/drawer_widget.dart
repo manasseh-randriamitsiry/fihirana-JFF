@@ -140,7 +140,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
     });
   }
 
-  void _showAudioCacheDialog() {
+  void _showAudioCacheDialog(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -157,7 +157,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Audio Cache Management',
+                    l10n.audioCacheManagement,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -182,7 +182,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     return Column(
                       children: [
                         Text(
-                          'Total cached hymns: ${stats['total_checked']}',
+                          l10n.totalCachedHymns(stats['total_checked']),
                           style: TextStyle(
                             color: _colorController.textColor.value,
                             fontSize: 16,
@@ -190,7 +190,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'With audio: ${stats['with_audio']}',
+                          l10n.withAudio(stats['with_audio']),
                           style: const TextStyle(
                             color: Colors.green,
                             fontSize: 14,
@@ -198,7 +198,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Without audio: ${stats['without_audio']}',
+                          l10n.withoutAudio(stats['without_audio']),
                           style: const TextStyle(
                             color: Colors.red,
                             fontSize: 14,
@@ -220,8 +220,8 @@ class DrawerWidgetState extends State<DrawerWidget> {
                       if (!context.mounted) return;
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Expired cache cleared'),
+                        SnackBar(
+                          content: Text(l10n.expiredCacheCleared),
                           backgroundColor: Colors.green,
                         ),
                       );
@@ -232,12 +232,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           BorderRadius.circular(10)),
                       depth: 2,
                     ),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Text(
-                        'Clear Expired',
-                        style: TextStyle(
+                        l10n.clearExpired,
+                        style: const TextStyle(
                           color: Colors.orange,
                           fontWeight: FontWeight.w600,
                         ),
@@ -252,13 +252,13 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           backgroundColor:
                               _colorController.backgroundColor.value,
                           title: Text(
-                            'Clear All Cache',
+                            l10n.clearAllCache,
                             style: TextStyle(
                               color: _colorController.textColor.value,
                             ),
                           ),
                           content: Text(
-                            'This will remove all cached audio availability data. The app will need to check audio availability again.',
+                            l10n.clearCacheWarning,
                             style: TextStyle(
                               color: _colorController.textColor.value,
                             ),
@@ -267,7 +267,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
                               child: Text(
-                                'Cancel',
+                                l10n.cancel,
                                 style: TextStyle(
                                   color: _colorController.textColor.value,
                                 ),
@@ -275,9 +275,9 @@ class DrawerWidgetState extends State<DrawerWidget> {
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
-                              child: const Text(
-                                'Clear All',
-                                style: TextStyle(color: Colors.red),
+                              child: Text(
+                                l10n.clearAll,
+                                style: const TextStyle(color: Colors.red),
                               ),
                             ),
                           ],
@@ -289,8 +289,8 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         if (!context.mounted) return;
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('All cache cleared'),
+                          SnackBar(
+                            content: Text(l10n.allCacheCleared),
                             backgroundColor: Colors.green,
                           ),
                         );
@@ -302,12 +302,12 @@ class DrawerWidgetState extends State<DrawerWidget> {
                           BorderRadius.circular(10)),
                       depth: 2,
                     ),
-                    child: const Padding(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
                       child: Text(
-                        'Clear All',
-                        style: TextStyle(
+                        l10n.clearAll,
+                        style: const TextStyle(
                           color: Colors.red,
                           fontWeight: FontWeight.w600,
                         ),
@@ -429,7 +429,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                                 _firebaseAuth.currentUser?.displayName ??
                                 _username ??
                                 'User')
-                            : (_username ?? 'Guest'),
+                            : (_username ?? l10n.guest),
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 22,
@@ -472,9 +472,9 @@ class DrawerWidgetState extends State<DrawerWidget> {
                               color: _colorController.primaryColor.value,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: const Text(
-                              'Sign In',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.signIn,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -494,7 +494,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
-                _buildSectionHeader('Library'),
+                _buildSectionHeader(l10n.library),
                 if (_isAuthenticated)
                   _buildDrawerItem(
                     icon: Icons.add_circle_outline,
@@ -511,7 +511,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   title: l10n.bible,
                   onTap: () => Get.to(() => const BibleReaderScreen()),
                 ),
-                _buildSectionHeader('Personal'),
+                _buildSectionHeader(l10n.personal),
                 _buildDrawerItem(
                   icon: Icons.favorite_border_rounded,
                   title: l10n.favoriteHymns,
@@ -524,10 +524,10 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 ),
                 _buildDrawerItem(
                   icon: Icons.playlist_play_rounded,
-                  title: 'Playlists',
+                  title: l10n.playlists,
                   onTap: () => Get.to(() => const PlaylistListScreen()),
                 ),
-                _buildSectionHeader('Settings'),
+                _buildSectionHeader(l10n.settings),
                 _buildDrawerItem(
                   icon: Icons.color_lens_outlined,
                   title: l10n.changeColor,
@@ -552,15 +552,15 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 ),
                 _buildDrawerItem(
                   icon: Icons.auto_stories,
-                  title: 'Daily Bible Verse',
+                  title: l10n.dailyBibleVerse,
                   onTap: () => Get.to(() => DailyVerseSettingsScreen()),
                 ),
                 _buildDrawerItem(
                   icon: Icons.storage_rounded,
-                  title: 'Audio Cache',
-                  onTap: _showAudioCacheDialog,
+                  title: l10n.audioCache,
+                  onTap: () => _showAudioCacheDialog(l10n),
                 ),
-                _buildSectionHeader('App'),
+                _buildSectionHeader(l10n.appSection),
                 _buildDrawerItem(
                   icon: Icons.notifications_none_rounded,
                   title: l10n.announcements,
@@ -569,7 +569,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
                   _buildDrawerItem(
                     icon: Icons.admin_panel_settings_outlined,
-                    title: 'Admin Panel',
+                    title: l10n.adminPanel,
                     onTap: () => Get.to(() => const AdminPanelScreen()),
                   ),
                 _buildDrawerItem(

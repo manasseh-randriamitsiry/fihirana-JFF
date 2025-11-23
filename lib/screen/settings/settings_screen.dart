@@ -84,14 +84,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           // Language Picker Section
           const LanguagePickerWidget(),
-          
+
           const SizedBox(height: 16),
 
           Obx(() {
             final user = FirebaseAuth.instance.currentUser;
             if (user != null) {
               return Card(
-                color: colorController.primaryColor.value.withValues(alpha: 0.5),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.5),
                 margin: const EdgeInsets.all(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -99,7 +100,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Your Profile',
+                        l10n.yourProfile,
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontSize: 18,
@@ -108,17 +109,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Username: ${user.displayName ?? 'Unknown'}',
-                        style: TextStyle(color: colorController.textColor.value),
+                        l10n.usernameLabel(
+                            user.displayName ?? l10n.unknownUser),
+                        style:
+                            TextStyle(color: colorController.textColor.value),
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'Email: ${user.email ?? 'No email'}',
-                        style: TextStyle(color: colorController.textColor.value),
+                        l10n.emailLabel(user.email ?? l10n.noEmail),
+                        style:
+                            TextStyle(color: colorController.textColor.value),
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'ID: ${user.uid}',
+                        l10n.userIdLabel(user.uid),
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontSize: 12,
@@ -130,7 +134,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             } else {
               return Card(
-                color: colorController.primaryColor.value.withValues(alpha: 0.5),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.5),
                 margin: const EdgeInsets.all(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -138,7 +143,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Not Logged In',
+                        l10n.notLoggedIn,
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontSize: 18,
@@ -147,8 +152,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'You are not logged in. Sign in to your account to access all features.',
-                        style: TextStyle(color: colorController.textColor.value),
+                        l10n.notLoggedInMessage,
+                        style:
+                            TextStyle(color: colorController.textColor.value),
                       ),
                     ],
                   ),
@@ -177,13 +183,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(
-                      'Clear all history',
+                      l10n.clearAllHistory,
                       style: TextStyle(color: colorController.textColor.value),
                     ),
                     subtitle: Text(
-                      'Remove all your history',
+                      l10n.removeAllHistory,
                       style: TextStyle(
-                        color: colorController.textColor.value.withValues(alpha: 0.7),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                     trailing: Icon(
@@ -201,7 +208,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final user = FirebaseAuth.instance.currentUser;
             if (user != null) {
               return Card(
-                color: colorController.primaryColor.value.withValues(alpha: 0.5),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.5),
                 margin: const EdgeInsets.all(16),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -209,7 +217,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Sync Information',
+                        l10n.syncInformation,
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontSize: 18,
@@ -218,13 +226,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        'Your favorite hymns and history are saved to your Google account.',
-                        style: TextStyle(color: colorController.textColor.value),
+                        l10n.syncInfoMessage1,
+                        style:
+                            TextStyle(color: colorController.textColor.value),
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'This will not be lost if you change accounts.',
-                        style: TextStyle(color: colorController.textColor.value),
+                        l10n.syncInfoMessage2,
+                        style:
+                            TextStyle(color: colorController.textColor.value),
                       ),
                     ],
                   ),

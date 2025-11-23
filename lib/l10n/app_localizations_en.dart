@@ -165,6 +165,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error => 'Error';
 
   @override
+  String get errorUpdatingFavorites => 'Error updating favorites';
+
+  @override
   String get success => 'Success';
 
   @override
@@ -175,6 +178,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get confirm => 'Confirm';
+
+  @override
+  String get newHymn => 'New Hymn';
+
+  @override
+  String get deleteVerse => 'Delete verse';
+
+  @override
+  String get addVerse => 'Add Verse';
+
+  @override
+  String get hymnHint => 'Hymn hint';
 
   @override
   String get confirmDelete => 'Are you sure you want to delete this item?';
@@ -192,6 +207,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String hymnNumber(int number) {
     return 'Hymn $number';
   }
+
+  @override
+  String get hymnAlreadyDownloaded => 'Hymn already downloaded';
+
+  @override
+  String get playlistNotFound => 'Playlist not found';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get view => 'View';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get hymnNotDownloaded => 'Hymn not downloaded';
 
   @override
   String get addToFavorites => 'Add to favorites';
@@ -646,10 +682,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectHymnFirst => 'Please select a hymn first';
 
   @override
-  String get updateAvailableContent => 'There is a new version available. Would you like to download it?';
+  String get updateAvailableContent => 'A new update is available. Would you like to install it?';
 
   @override
-  String get updateAvailableTitle => 'Update available';
+  String get updateAvailableTitle => 'Update Available';
 
   @override
   String get updateFailed => 'Failed to update';
@@ -876,7 +912,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String deleteFailed(String error) {
-    return 'Delete failed';
+    return 'Delete failed: $error';
   }
 
   @override
@@ -899,9 +935,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get downloading => 'Download...';
-
-  @override
-  String get download => 'Download';
 
   @override
   String get deleteHymnQuestion => 'Delete hymn?';
@@ -943,7 +976,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get oldest => 'Oldest';
 
   @override
-  String get noPermission => 'No permission';
+  String get noPermission => 'You do not have permission';
 
   @override
   String get userManagement => 'User Management';
@@ -952,7 +985,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noEmail => 'No email';
 
   @override
-  String get unknownUser => 'Unknown User';
+  String get unknownUser => 'Unknown';
 
   @override
   String get noUsers => 'No users';
@@ -1058,7 +1091,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cannotAddHymns => 'Cannot add hymns at this time';
 
   @override
-  String get searchBooks => 'Search books...';
+  String get searchBooks => 'Search Books';
 
   @override
   String searchCurrentChapter(Object chapter) {
@@ -1075,7 +1108,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bibleReader => 'Bible Reader';
 
   @override
-  String emailLabel(Object email) {
+  String emailLabel(String email) {
     return 'Email: $email';
   }
 
@@ -1083,7 +1116,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addressLabel => 'Address:';
 
   @override
-  String appVersion(Object version) {
+  String appVersion(String version) {
     return 'Version $version';
   }
 
@@ -1115,18 +1148,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteSelectedHistoryQuestion => 'Delete selected history?';
 
   @override
-  String selectedItems(Object count) {
+  String selectedItems(int count) {
     return '$count selected';
   }
-
-  @override
-  String get welcomeToHymnsApp => 'Welcome to Hymns App';
-
-  @override
-  String get praiseTheLord => 'Praise the Lord for He is good';
-
-  @override
-  String get hymnsApp => 'Hymns App';
 
   @override
   String get aboutTheApp => 'About the App';
@@ -1208,4 +1232,185 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'Test notification sent!';
+
+  @override
+  String get myPlaylists => 'My Playlists';
+
+  @override
+  String get noPlaylistsYet => 'No playlists yet';
+
+  @override
+  String get createFirstPlaylist => 'Create your first playlist';
+
+  @override
+  String get newPlaylist => 'New Playlist';
+
+  @override
+  String get deletePlaylist => 'Delete Playlist';
+
+  @override
+  String get addToPlaylist => 'Add to Playlist';
+
+  @override
+  String get createNewPlaylist => 'Create New Playlist';
+
+  @override
+  String get playlistName => 'Playlist Name';
+
+  @override
+  String get clearExpired => 'Clear Expired';
+
+  @override
+  String get clearAllCache => 'Clear All Cache';
+
+  @override
+  String get clearCacheWarning => 'This will remove all cached audio availability data. The app will need to check audio availability again.';
+
+  @override
+  String get allCacheCleared => 'All cache cleared';
+
+  @override
+  String get expiredCacheCleared => 'Expired cache cleared';
+
+  @override
+  String get couldNotLaunchGoogleFonts => 'Could not launch Google Fonts';
+
+  @override
+  String get getFonts => 'Get Fonts';
+
+  @override
+  String errorPlayingAudio(String error) {
+    return 'Error playing audio: $error';
+  }
+
+  @override
+  String get playlistExampleHint => 'e.g., Sunday Service';
+
+  @override
+  String confirmDeletePlaylist(String playlistTitle) {
+    return 'Are you sure you want to delete \"$playlistTitle\"?';
+  }
+
+  @override
+  String get searchFavoriteSongsHint => 'Search for favorite songs...';
+
+  @override
+  String get searchWordsOrVersesHint => 'Search for words or verses...';
+
+  @override
+  String get wholeBible => 'Whole Bible';
+
+  @override
+  String get audioPlayer => 'Audio Player';
+
+  @override
+  String get playAudio => 'Play audio';
+
+  @override
+  String get audioCacheManagement => 'Audio Cache Management';
+
+  @override
+  String get clearAll => 'Clear All';
+
+  @override
+  String get guest => 'Guest';
+
+  @override
+  String get library => 'Library';
+
+  @override
+  String get personal => 'Personal';
+
+  @override
+  String get playlists => 'Playlists';
+
+  @override
+  String get audioCache => 'Audio Cache';
+
+  @override
+  String get added => 'Added';
+
+  @override
+  String get noHymnsAddedYet => 'No hymns added yet';
+
+  @override
+  String get errorLoadingHymns => 'Error loading hymns';
+
+  @override
+  String get audioAvailable => 'Audio available';
+
+  @override
+  String get noAudioAvailable => 'No audio available';
+
+  @override
+  String get searchBible => 'Bible search';
+
+  @override
+  String get enterWordToSearch => 'Enter word to search';
+
+  @override
+  String get noSearchResults => 'No search results';
+
+  @override
+  String get changeWordToSearch => 'Change word to search';
+
+  @override
+  String hymnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hymns',
+      one: '1 hymn',
+      zero: 'No hymns',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noChaptersFound => 'No chapters found';
+
+  @override
+  String get yourProfile => 'Your Profile';
+
+  @override
+  String usernameLabel(String username) {
+    return 'Username: $username';
+  }
+
+  @override
+  String userIdLabel(String userId) {
+    return 'ID: $userId';
+  }
+
+  @override
+  String get syncInfoMessage1 => 'Your favorite hymns and history are saved to your Google account.';
+
+  @override
+  String get syncInfoMessage2 => 'This will not be lost if you change accounts.';
+
+  @override
+  String errorOccurredWithDetails(String error) {
+    return 'An error occurred: $error';
+  }
+
+  @override
+  String get clearSearch => 'Clear search';
+
+  @override
+  String get appSection => 'App';
+
+  @override
+  String totalCachedHymns(int count) {
+    return 'Total cached hymns: $count';
+  }
+
+  @override
+  String withAudio(int count) {
+    return 'With audio: $count';
+  }
+
+  @override
+  String withoutAudio(int count) {
+    return 'Without audio: $count';
+  }
 }

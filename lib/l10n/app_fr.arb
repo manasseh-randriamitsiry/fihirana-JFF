@@ -52,10 +52,15 @@
   "unavailable": "Indisponible",
   "loading": "Chargement...",
   "error": "Erreur",
+  "errorUpdatingFavorites": "Erreur lors de la mise à jour des favoris",
   "success": "Succès",
   "warning": "Avertissement",
   "info": "Information",
   "confirm": "Confirmer",
+  "newHymn": "Nouveau cantique",
+  "deleteVerse":"Supprimer le verset",
+  "addVerse": "Ajouter un verset",
+  "hymnHint":"Indice du cantique",
   "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet élément?",
   "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter?",
   "noResults": "Aucun résultat trouvé",
@@ -69,6 +74,13 @@
       }
     }
   },
+  "hymnAlreadyDownloaded": "Cantique déjà téléchargé",
+  "playlistNotFound": "Liste de lecture non trouvée",
+  "share": "Partager",
+  "copy": "Copier",
+  "view": "Voir",
+  "download": "Télécharger",
+  "hymnNotDownloaded": "Cantique non téléchargé",
   "addToFavorites": "Ajouter aux favoris",
   "removeFromFavorites": "Retirer des favoris",
   "shareHymn": "Partager le cantique",
@@ -174,26 +186,6 @@
   "cannotSave": "Impossible de sauvegarder",
   "chooseFont": "Choisir une police",
   "chooseLanguage": "Choisir la langue",
-  "welcomeToHymnsApp": "Bienvenue dans l'application de cantiques",
-  "praiseTheLord": "Louez le Seigneur car il est bon",
-  "hymnsApp": "Cantiques",
-  "welcome": "Bienvenue",
-  "aboutTheApp": "À propos de l'application",
-  "features": "Fonctionnalités",
-  "feature1": "Cantiques créés pour l'église JFF",
-  "feature2": "Facilite l'adoration de Dieu",
-  "feature3": "Vous pouvez ajouter de nouveaux cantiques",
-  "feature4": "Nécessite un compte Google pour les fonctionnalités supplémentaires",
-  "termsOfUse": "Conditions d'utilisation",
-  "term1": "Je n'utiliserai pas l'application de manière inappropriée",
-  "term2": "Je n'ajouterai pas de cantiques qui ne correspondent pas à l'adoration JFF",
-  "agreement": "J'accepte les conditions ci-dessus",
-  "enterYourName": "Entrez votre nom",
-  "continueText": "Continuer",
-  "splashScreenTitle": "Cantiques de Jésus Sauveur de Nos Âmes",
-  "splashScreenSubtitle": "Louez le Seigneur car il est bon",
-  "termsAndConditions": "Conditions d'utilisation",
-  "acceptTerms": "Accepter les conditions",
   "searchHymnsHint": "Rechercher des cantiques",
   "chaptersCount": "{count} chapitres",
   "chooseColorFor": "Choisir la couleur pour {colorType}",
@@ -203,7 +195,6 @@
     }
   },
   "chooseColor": "Choisir la couleur",
-  "ok": "OK",
   "accept": "Accepter",
   "presetColors": "Couleurs prédéfinies",
   "customColors": "Couleurs personnalisées",
@@ -214,7 +205,6 @@
   "iconColor": "Couleur de l'icône",
   "chooseFontStyle": "Choisir le style de police",
   "sampleText": "Jésus Sauve Nos Âmes",
-  "confirm": "Confirmer",
   "yesLowercase": "oui",
   "createdByLabel": "Créé par : {name}{email}",
   "@createdByLabel": {
@@ -274,12 +264,12 @@
       "number": {"type": "int"}
     }
   },
-  "bridge": "Refrain",
+  "bridge": "Pont",
   "enterHymnNumber": "Entrez le numéro du cantique",
   "invalidNumber": "Numéro invalide",
   "enterTitle": "Entrez le titre",
   "verses": "Versets",
-  "bridgeOptional": "Refrain (Optionnel)",
+  "bridgeOptional": "Pont (Optionnel)",
   "notes": "Notes",
   "submit": "Soumettre",
   "hymnSavedSuccessfully": "Cantique enregistré avec succès",
@@ -359,7 +349,6 @@
       "name": {"type": "String"}
     }
   },
-  "success": "Succès",
   "deleteFailed": "Échec de la suppression: {error}",
   "@deleteFailed": {
     "placeholders": {
@@ -370,12 +359,9 @@
   "sortByOldest": "Ancien",
   "sortByNumber": "Numéro",
   "everyVerseChorus": "Refrain:",
-  "support": "Soutien",
   "checkingForUpdates": "Vérification des mises à jour...",
-  "checkForUpdates": "Vérifier les mises à jour",
   "downloadAndInstall": "Télécharger & Installer",
   "downloading": "Téléchargement...",
-  "download": "Télécharger",
   "deleteHymnQuestion": "Supprimer le cantique?",
   "deleteHymnFailed": "Échec de la suppression.",
   "hymnDeletedSuccess": "Cantique supprimé",
@@ -383,28 +369,16 @@
   "errorDownloadingUpdate": "Échec du téléchargement de la mise à jour",
   "noAdminPermission": "Vous n'avez pas la permission d'accéder au panneau d'administration",
   "selectedHymnsDeleted": "Les cantiques sélectionnés ont été supprimés",
-  "error": "Erreur",
   "noHymns": "Aucun cantique",
   "adminPanel": "Panneau d'administration",
   "createdBy": "Créé par",
   "date": "Date",
-  "success": "Succès",
   "errorLabel": "Erreur",
-  "deleteFailed": "Échec de la suppression",
-  "confirmDeleteHymn": "Êtes-vous sûr de vouloir supprimer le cantique \"{title}\"?",
-  "@confirmDeleteHymn": {
-    "placeholders": {
-      "title": {"type": "String"}
-    }
-  },
-  "yes": "Oui",
-  "no": "Non",
-  "newest": "Plus récent",
-  "oldest": "Plus ancien",
-  "errorOccurred": "Une erreur s'est produite",
+  "newest": "Nouveau",
+  "oldest": "Ancien",
   "noPermission": "Vous n'avez pas la permission",
   "userManagement": "Gestion des utilisateurs",
-  "noEmail": "Aucun e-mail",
+  "noEmail": "Pas d'email",
   "unknownUser": "Utilisateur inconnu",
   "noUsers": "Aucun utilisateur",
   "lastLogin": "Dernière connexion",
@@ -415,43 +389,26 @@
       "count": {"type": "int"}
     }
   },
-  "sortBySongs": "Par nombre de chansons",
-  "cancel": "Annuler",
-  "delete": "Supprimer",
+  "sortBySongs": "Par nombre de cantiques",
   "typeYesToConfirm": "Tapez \"oui\" pour confirmer la suppression",
-  "noteDeleted": "Note supprimée",
-  "updateAvailable": "Mise à jour disponible",
-  "updateNow": "Mettre à jour maintenant",
   "downloading2": "Téléchargement...",
   "errorCheckingUpdates": "Échec de la vérification des mises à jour",
   "errorDownloadingUpdate2": "Échec du téléchargement",
   "errorInstallingUpdate": "Échec de l'installation de la mise à jour",
   "installUpdateTitle": "Installer la mise à jour",
-  "installUpdateContent": "Voulez-vous vraiment installer la nouvelle version ? Cela téléchargera le fichier et l'installera automatiquement.",
-  "no": "Non",
-  "yes": "Oui",
-  "updateAvailableTitle": "Mise à jour disponible",
-  "updateAvailableContent": "Il y a une nouvelle version disponible. Souhaitez-vous la télécharger ?",
-  "download": "Télécharger",
+  "installUpdateContent": "Voulez-vous vraiment installer la nouvelle version? Cela téléchargera le fichier et l'installera automatiquement.",
   "install": "Installer",
   "downloading3": "Téléchargement...",
   "deleteNote": "Supprimer la note",
   "cancel2": "Annuler",
-  "save": "Sauvegarder",
-  "searchHymns": "Rechercher des cantiques...",
-  "noHymnsFound": "Aucun cantique trouvé",
   "createAnnouncement": "Créer une annonce",
-  "title": "Titre",
   "message": "Message",
   "expirationDate": "Date d'expiration",
-  "noDate": "Aucune date",
-  "cancel2": "Annuler",
+  "noDate": "Pas de date",
   "create": "Créer",
   "editAnnouncement": "Modifier l'annonce",
   "update": "Mettre à jour",
-  "noExpirationDate": "Aucune date d'expiration",
-  "chooseFont": "Choisir une police",
-  "chooseLanguage": "Choisir la langue",
+  "noExpirationDate": "Pas de date d'expiration",
   "loadingBooks": "Chargement des livres...",
   "loadingChapter": "Chargement du chapitre {chapter} de {book}...",
   "settingsSaved": "Paramètres enregistrés avec succès",
@@ -460,40 +417,167 @@
   "deleteHistoryError": "Erreur lors de la suppression de l'historique",
   "clearHistorySuccess": "Historique effacé",
   "clearHistoryError": "Erreur lors de l'effacement de l'historique",
-  "noPermission": "Aucune permission",
   "cannotAddHymns": "Impossible d'ajouter des cantiques pour le moment",
   "searchBooks": "Rechercher des livres...",
   "searchCurrentChapter": "Rechercher dans le chapitre {chapter}",
   "searchEntireBible": "Rechercher dans toute la Bible",
   "change": "Changer",
   "bibleReader": "Lecteur de Bible",
-  "emailLabel": "Email : {email}",
-  "developedBy": "Développé par",
-  "addressLabel": "Adresse :",
+  "emailLabel": "Email: {email}",
+  "@emailLabel": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "addressLabel": "Adresse:",
   "appVersion": "Version {version}",
+  "@appVersion": {
+    "placeholders": {
+      "version": {"type": "String"}
+    }
+  },
   "appNameSuffix": "JFF",
-  "headquarters": "Siège :",
+  "headquarters": "Siège:",
   "headquartersAddress": "Antsororokavo Fianarantsoa 301",
   "phoneNumber": "+261 34 29 439 71",
-
   "github": "GitHub",
-  "noHistory": "Aucun historique",
-  "clearAllHistoryQuestion": "Effacer tout l'historique ?",
+  "noHistory": "Pas d'historique",
+  "clearAllHistoryQuestion": "Effacer tout l'historique?",
   "historyCannotBeUndone": "L'historique ne peut pas être annulé une fois supprimé.",
-  "deleteSelectedHistoryQuestion": "Supprimer l'historique sélectionné ?",
-  "yes": "Oui",
-  "no": "Non",
-  "history": "Historique",
+  "deleteSelectedHistoryQuestion": "Supprimer l'historique sélectionné?",
   "selectedItems": "{count} sélectionné(s)",
-  "dailyBibleVerse": "Verset Biblique Quotidien",
-  "dailyInspiration": "Inspiration Quotidienne",
-  "receiveVerseEveryDay": "Recevez un verset biblique chaque jour",
-  "enableDailyVerse": "Activer le Verset Quotidien",
+  "@selectedItems": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "aboutTheApp": "À propos de l'application",
+  "features": "Fonctionnalités",
+  "feature1": "Cantiques créés pour l'église JFF",
+  "feature2": "Facilite l'adoration de Dieu",
+  "feature3": "Vous pouvez ajouter de nouveaux cantiques",
+  "feature4": "Nécessite un compte Google pour les fonctionnalités supplémentaires",
+  "termsOfUse": "Conditions d'utilisation",
+  "term1": "Je n'utiliserai pas l'application de manière inappropriée",
+  "term2": "Je n'ajouterai pas de cantiques qui ne correspondent pas à l'adoration JFF",
+  "agreement": "J'accepte les conditions ci-dessus",
+  "enterYourName": "Entrez votre nom",
+  "continueText": "Continuer",
+  "splashScreenTitle": "Cantiques de Jésus Sauveur de Nos Âmes",
+  "splashScreenSubtitle": "Louez le Seigneur car il est bon",
+  "termsAndConditions": "Conditions et modalités",
+  "acceptTerms": "Accepter les conditions",
+  "dailyBibleVerse": "Verset biblique quotidien",
+  "dailyInspiration": "Inspiration quotidienne",
+  "receiveVerseEveryDay": "Recevoir un verset biblique chaque jour",
+  "enableDailyVerse": "Activer le verset quotidien",
   "youWillReceiveDailyNotifications": "Vous recevrez des notifications quotidiennes",
   "turnOnToReceiveDailyVerses": "Activez pour recevoir des versets quotidiens",
-  "notificationTime": "Heure de Notification",
-  "todaysVerse": "Verset du Jour",
+  "notificationTime": "Heure de notification",
+  "todaysVerse": "Verset du jour",
   "noVerseAvailable": "Aucun verset disponible",
-  "sendTestNotification": "Envoyer une Notification de Test",
-  "testNotificationSent": "Notification de test envoyée !"
+  "sendTestNotification": "Envoyer une notification de test",
+  "testNotificationSent": "Notification de test envoyée!",
+  "myPlaylists": "Mes listes de lecture",
+  "noPlaylistsYet": "Pas encore de listes de lecture",
+  "createFirstPlaylist": "Créez votre première liste de lecture",
+  "newPlaylist": "Nouvelle liste de lecture",
+  "deletePlaylist": "Supprimer la liste de lecture",
+  "addToPlaylist": "Ajouter à la liste de lecture",
+  "createNewPlaylist": "Créer une nouvelle liste de lecture",
+  "playlistName": "Nom de la liste de lecture",
+  "clearExpired": "Effacer les expirés",
+  "clearAllCache": "Effacer tout le cache",
+  "clearCacheWarning": "Cela supprimera toutes les données de disponibilité audio mises en cache. L'application devra vérifier à nouveau la disponibilité audio.",
+  "allCacheCleared": "Tout le cache a été effacé",
+  "expiredCacheCleared": "Cache expiré effacé",
+  "couldNotLaunchGoogleFonts": "Impossible de lancer Google Fonts",
+  "getFonts": "Obtenir des polices",
+  "errorPlayingAudio": "Erreur lors de la lecture audio: {error}",
+  "@errorPlayingAudio": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "playlistExampleHint": "ex: Service du dimanche",
+  "confirmDeletePlaylist": "Êtes-vous sûr de vouloir supprimer \"{playlistTitle}\"?",
+  "@confirmDeletePlaylist": {
+    "placeholders": {
+      "playlistTitle": {"type": "String"}
+    }
+  },
+  "searchFavoriteSongsHint": "Rechercher vos chants favoris...",
+  "searchWordsOrVersesHint": "Rechercher des mots ou des versets...",
+  "searchBooks": "Rechercher des livres",
+  "wholeBible": "Bible entière",
+  "audioPlayer": "Lecteur audio",
+  "playAudio": "Lire l'audio",
+  "audioCacheManagement": "Gestion du cache audio",
+  "clearAll": "Tout effacer",
+  "guest": "Invité",
+  "library": "Bibliothèque",
+  "personal": "Personnel",
+  "playlists": "Listes de lecture",
+  "audioCache": "Cache audio",
+  "added": "Ajouté",
+  "noHymnsAddedYet": "Aucun cantique ajouté pour le moment",
+  "errorLoadingHymns": "Erreur lors du chargement des cantiques",
+  "audioAvailable":"Audio disponible",
+  "noAudioAvailable":"Pas d'audio disponible",
+  "searchBible":"Recherche biblique",
+  "enterWordToSearch":"Entrez le mot à rechercher",
+  "noSearchResults":"Aucun résultat de recherche",
+  "changeWordToSearch":"Changer le mot à rechercher",
+  "hymnsCount": "{count,plural, =0{Aucun cantique} =1{1 cantique} other{{count} cantiques}}",
+  "@hymnsCount": {
+    "description": "Un message qui affiche le nombre de cantiques dans une liste de lecture",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noChaptersFound":"Aucun chapitre trouvé",
+  "yourProfile": "Votre profil",
+  "usernameLabel": "Nom d'utilisateur: {username}",
+  "@usernameLabel": {
+    "placeholders": {
+      "username": {"type": "String"}
+    }
+  },
+  "userIdLabel": "ID: {userId}",
+  "@userIdLabel": {
+    "placeholders": {
+      "userId": {"type": "String"}
+    }
+  },
+  "syncInfoMessage1": "Vos cantiques favoris et votre historique sont enregistrés sur votre compte Google.",
+  "syncInfoMessage2": "Cela ne sera pas perdu si vous changez de compte.",
+  "unknownUser": "Inconnu",
+  "errorOccurredWithDetails": "Une erreur s'est produite: {error}",
+  "@errorOccurredWithDetails": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "clearSearch": "Effacer la recherche",
+  "appSection": "Application",
+  "totalCachedHymns": "Total des cantiques mis en cache: {count}",
+  "@totalCachedHymns": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "withAudio": "Avec audio: {count}",
+  "@withAudio": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "withoutAudio": "Sans audio: {count}",
+  "@withoutAudio": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/daily_verse_controller.dart';
 import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {
   DailyVerseSettingsScreen({super.key});
@@ -32,6 +33,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
@@ -46,7 +48,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
           ),
         ),
         title: Text(
-          'Daily Bible Verse',
+          l10n.dailyBibleVerse,
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
@@ -92,9 +94,9 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Daily Inspiration',
-                          style: TextStyle(
+                        Text(
+                          l10n.dailyInspiration,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -102,7 +104,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Receive a Bible verse every day',
+                          l10n.receiveVerseEveryDay,
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 14,
@@ -126,7 +128,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
               color: colorController.backgroundColor.value,
               child: Obx(() => SwitchListTile(
                     title: Text(
-                      'Enable Daily Verse',
+                      l10n.enableDailyVerse,
                       style: TextStyle(
                         color: colorController.textColor.value,
                         fontWeight: FontWeight.w600,
@@ -135,10 +137,11 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                     ),
                     subtitle: Text(
                       controller.isEnabled.value
-                          ? 'You will receive daily notifications'
-                          : 'Turn on to receive daily verses',
+                          ? l10n.youWillReceiveDailyNotifications
+                          : l10n.turnOnToReceiveDailyVerses,
                       style: TextStyle(
-                        color: colorController.textColor.value.withValues(alpha: 0.6),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.6),
                         fontSize: 14,
                       ),
                     ),
@@ -151,7 +154,8 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                           : Icons.notifications_off,
                       color: controller.isEnabled.value
                           ? colorController.primaryColor.value
-                          : colorController.iconColor.value.withValues(alpha: 0.5),
+                          : colorController.iconColor.value
+                              .withValues(alpha: 0.5),
                     ),
                   )),
             ),
@@ -174,10 +178,11 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         Icons.access_time,
                         color: controller.isEnabled.value
                             ? colorController.primaryColor.value
-                            : colorController.iconColor.value.withValues(alpha: 0.5),
+                            : colorController.iconColor.value
+                                .withValues(alpha: 0.5),
                       ),
                       title: Text(
-                        'Notification Time',
+                        l10n.notificationTime,
                         style: TextStyle(
                           color: colorController.textColor.value,
                           fontWeight: FontWeight.w600,
@@ -187,8 +192,8 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                       subtitle: Text(
                         controller.notificationTime.value.format(context),
                         style: TextStyle(
-                          color:
-                              colorController.textColor.value.withValues(alpha: 0.6),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.6),
                           fontSize: 14,
                         ),
                       ),
@@ -207,7 +212,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
 
             // Today's Verse Preview
             Text(
-              'Today\'s Verse',
+              l10n.todaysVerse,
               style: TextStyle(
                 color: colorController.textColor.value,
                 fontSize: 18,
@@ -239,10 +244,10 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     child: Center(
                       child: Text(
-                        'No verse available',
+                        l10n.noVerseAvailable,
                         style: TextStyle(
-                          color:
-                              colorController.textColor.value.withValues(alpha: 0.5),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.5),
                         ),
                       ),
                     ),
@@ -257,7 +262,8 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                   side: BorderSide(
-                    color: colorController.primaryColor.value.withValues(alpha: 0.2),
+                    color: colorController.primaryColor.value
+                        .withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),
@@ -316,8 +322,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content:
-                                        const Text('Test notification sent!'),
+                                    content: Text(l10n.testNotificationSent),
                                     backgroundColor:
                                         colorController.primaryColor.value,
                                   ),
@@ -329,10 +334,11 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         Icons.send,
                         color: controller.isEnabled.value
                             ? colorController.primaryColor.value
-                            : colorController.iconColor.value.withValues(alpha: 0.5),
+                            : colorController.iconColor.value
+                                .withValues(alpha: 0.5),
                       ),
                       label: Text(
-                        'Send Test Notification',
+                        l10n.sendTestNotification,
                         style: TextStyle(
                           color: controller.isEnabled.value
                               ? colorController.primaryColor.value

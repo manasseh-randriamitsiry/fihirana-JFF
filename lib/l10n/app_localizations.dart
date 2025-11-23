@@ -409,6 +409,12 @@ abstract class AppLocalizations {
   /// **'Error'**
   String get error;
 
+  /// No description provided for @errorUpdatingFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating favorites'**
+  String get errorUpdatingFavorites;
+
   /// No description provided for @success.
   ///
   /// In en, this message translates to:
@@ -432,6 +438,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm'**
   String get confirm;
+
+  /// No description provided for @newHymn.
+  ///
+  /// In en, this message translates to:
+  /// **'New Hymn'**
+  String get newHymn;
+
+  /// No description provided for @deleteVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete verse'**
+  String get deleteVerse;
+
+  /// No description provided for @addVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Verse'**
+  String get addVerse;
+
+  /// No description provided for @hymnHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymn hint'**
+  String get hymnHint;
 
   /// No description provided for @confirmDelete.
   ///
@@ -462,6 +492,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hymn {number}'**
   String hymnNumber(int number);
+
+  /// No description provided for @hymnAlreadyDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymn already downloaded'**
+  String get hymnAlreadyDownloaded;
+
+  /// No description provided for @playlistNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist not found'**
+  String get playlistNotFound;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @view.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get view;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @hymnNotDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymn not downloaded'**
+  String get hymnNotDownloaded;
 
   /// No description provided for @addToFavorites.
   ///
@@ -1342,13 +1414,13 @@ abstract class AppLocalizations {
   /// No description provided for @updateAvailableContent.
   ///
   /// In en, this message translates to:
-  /// **'There is a new version available. Would you like to download it?'**
+  /// **'A new update is available. Would you like to install it?'**
   String get updateAvailableContent;
 
   /// No description provided for @updateAvailableTitle.
   ///
   /// In en, this message translates to:
-  /// **'Update available'**
+  /// **'Update Available'**
   String get updateAvailableTitle;
 
   /// No description provided for @updateFailed.
@@ -1768,7 +1840,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteFailed.
   ///
   /// In en, this message translates to:
-  /// **'Delete failed'**
+  /// **'Delete failed: {error}'**
   String deleteFailed(String error);
 
   /// No description provided for @sortByRecent.
@@ -1812,12 +1884,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download...'**
   String get downloading;
-
-  /// No description provided for @download.
-  ///
-  /// In en, this message translates to:
-  /// **'Download'**
-  String get download;
 
   /// No description provided for @deleteHymnQuestion.
   ///
@@ -1900,7 +1966,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPermission.
   ///
   /// In en, this message translates to:
-  /// **'No permission'**
+  /// **'You do not have permission'**
   String get noPermission;
 
   /// No description provided for @userManagement.
@@ -1918,7 +1984,7 @@ abstract class AppLocalizations {
   /// No description provided for @unknownUser.
   ///
   /// In en, this message translates to:
-  /// **'Unknown User'**
+  /// **'Unknown'**
   String get unknownUser;
 
   /// No description provided for @noUsers.
@@ -2122,7 +2188,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchBooks.
   ///
   /// In en, this message translates to:
-  /// **'Search books...'**
+  /// **'Search Books'**
   String get searchBooks;
 
   /// No description provided for @searchCurrentChapter.
@@ -2153,7 +2219,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Email: {email}'**
-  String emailLabel(Object email);
+  String emailLabel(String email);
 
   /// No description provided for @addressLabel.
   ///
@@ -2165,7 +2231,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Version {version}'**
-  String appVersion(Object version);
+  String appVersion(String version);
 
   /// No description provided for @appNameSuffix.
   ///
@@ -2225,25 +2291,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} selected'**
-  String selectedItems(Object count);
-
-  /// No description provided for @welcomeToHymnsApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to Hymns App'**
-  String get welcomeToHymnsApp;
-
-  /// No description provided for @praiseTheLord.
-  ///
-  /// In en, this message translates to:
-  /// **'Praise the Lord for He is good'**
-  String get praiseTheLord;
-
-  /// No description provided for @hymnsApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Hymns App'**
-  String get hymnsApp;
+  String selectedItems(int count);
 
   /// No description provided for @aboutTheApp.
   ///
@@ -2406,6 +2454,318 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Test notification sent!'**
   String get testNotificationSent;
+
+  /// No description provided for @myPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'My Playlists'**
+  String get myPlaylists;
+
+  /// No description provided for @noPlaylistsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No playlists yet'**
+  String get noPlaylistsYet;
+
+  /// No description provided for @createFirstPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first playlist'**
+  String get createFirstPlaylist;
+
+  /// No description provided for @newPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'New Playlist'**
+  String get newPlaylist;
+
+  /// No description provided for @deletePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Playlist'**
+  String get deletePlaylist;
+
+  /// No description provided for @addToPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Playlist'**
+  String get addToPlaylist;
+
+  /// No description provided for @createNewPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Playlist'**
+  String get createNewPlaylist;
+
+  /// No description provided for @playlistName.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist Name'**
+  String get playlistName;
+
+  /// No description provided for @clearExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Expired'**
+  String get clearExpired;
+
+  /// No description provided for @clearAllCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All Cache'**
+  String get clearAllCache;
+
+  /// No description provided for @clearCacheWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This will remove all cached audio availability data. The app will need to check audio availability again.'**
+  String get clearCacheWarning;
+
+  /// No description provided for @allCacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'All cache cleared'**
+  String get allCacheCleared;
+
+  /// No description provided for @expiredCacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired cache cleared'**
+  String get expiredCacheCleared;
+
+  /// No description provided for @couldNotLaunchGoogleFonts.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not launch Google Fonts'**
+  String get couldNotLaunchGoogleFonts;
+
+  /// No description provided for @getFonts.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Fonts'**
+  String get getFonts;
+
+  /// No description provided for @errorPlayingAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Error playing audio: {error}'**
+  String errorPlayingAudio(String error);
+
+  /// No description provided for @playlistExampleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., Sunday Service'**
+  String get playlistExampleHint;
+
+  /// No description provided for @confirmDeletePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{playlistTitle}\"?'**
+  String confirmDeletePlaylist(String playlistTitle);
+
+  /// No description provided for @searchFavoriteSongsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for favorite songs...'**
+  String get searchFavoriteSongsHint;
+
+  /// No description provided for @searchWordsOrVersesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for words or verses...'**
+  String get searchWordsOrVersesHint;
+
+  /// No description provided for @wholeBible.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole Bible'**
+  String get wholeBible;
+
+  /// No description provided for @audioPlayer.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio Player'**
+  String get audioPlayer;
+
+  /// No description provided for @playAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Play audio'**
+  String get playAudio;
+
+  /// No description provided for @audioCacheManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio Cache Management'**
+  String get audioCacheManagement;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAll;
+
+  /// No description provided for @guest.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest'**
+  String get guest;
+
+  /// No description provided for @library.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get library;
+
+  /// No description provided for @personal.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal'**
+  String get personal;
+
+  /// No description provided for @playlists.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlists'**
+  String get playlists;
+
+  /// No description provided for @audioCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio Cache'**
+  String get audioCache;
+
+  /// No description provided for @added.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get added;
+
+  /// No description provided for @noHymnsAddedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No hymns added yet'**
+  String get noHymnsAddedYet;
+
+  /// No description provided for @errorLoadingHymns.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading hymns'**
+  String get errorLoadingHymns;
+
+  /// No description provided for @audioAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio available'**
+  String get audioAvailable;
+
+  /// No description provided for @noAudioAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No audio available'**
+  String get noAudioAvailable;
+
+  /// No description provided for @searchBible.
+  ///
+  /// In en, this message translates to:
+  /// **'Bible search'**
+  String get searchBible;
+
+  /// No description provided for @enterWordToSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter word to search'**
+  String get enterWordToSearch;
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No search results'**
+  String get noSearchResults;
+
+  /// No description provided for @changeWordToSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Change word to search'**
+  String get changeWordToSearch;
+
+  /// A message that shows the number of hymns in a playlist
+  ///
+  /// In en, this message translates to:
+  /// **'{count,plural, =0{No hymns} =1{1 hymn} other{{count} hymns}}'**
+  String hymnsCount(int count);
+
+  /// No description provided for @noChaptersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters found'**
+  String get noChaptersFound;
+
+  /// No description provided for @yourProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Profile'**
+  String get yourProfile;
+
+  /// No description provided for @usernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username: {username}'**
+  String usernameLabel(String username);
+
+  /// No description provided for @userIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ID: {userId}'**
+  String userIdLabel(String userId);
+
+  /// No description provided for @syncInfoMessage1.
+  ///
+  /// In en, this message translates to:
+  /// **'Your favorite hymns and history are saved to your Google account.'**
+  String get syncInfoMessage1;
+
+  /// No description provided for @syncInfoMessage2.
+  ///
+  /// In en, this message translates to:
+  /// **'This will not be lost if you change accounts.'**
+  String get syncInfoMessage2;
+
+  /// No description provided for @errorOccurredWithDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred: {error}'**
+  String errorOccurredWithDetails(String error);
+
+  /// No description provided for @clearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get clearSearch;
+
+  /// No description provided for @appSection.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get appSection;
+
+  /// No description provided for @totalCachedHymns.
+  ///
+  /// In en, this message translates to:
+  /// **'Total cached hymns: {count}'**
+  String totalCachedHymns(int count);
+
+  /// No description provided for @withAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'With audio: {count}'**
+  String withAudio(int count);
+
+  /// No description provided for @withoutAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Without audio: {count}'**
+  String withoutAudio(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
