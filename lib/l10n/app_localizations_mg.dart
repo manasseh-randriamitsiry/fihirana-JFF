@@ -1108,7 +1108,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get bibleReader => 'Baiboly';
 
   @override
-  String emailLabel(Object email) {
+  String emailLabel(String email) {
     return 'Adiresy mailaka: $email';
   }
 
@@ -1116,7 +1116,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get addressLabel => 'Adiresy:';
 
   @override
-  String appVersion(Object version) {
+  String appVersion(String version) {
     return 'Kinova $version';
   }
 
@@ -1148,18 +1148,9 @@ class AppLocalizationsMg extends AppLocalizations {
   String get deleteSelectedHistoryQuestion => 'Hamafa ve ny tantara voafidy?';
 
   @override
-  String selectedItems(Object count) {
+  String selectedItems(int count) {
     return '$count voafidy';
   }
-
-  @override
-  String get welcomeToHymnsApp => 'Tongasoa eto amin\'ny Fihirana';
-
-  @override
-  String get praiseTheLord => 'Miderà an\'i Jehovah fa tsara Izy';
-
-  @override
-  String get hymnsApp => 'Fihirana';
 
   @override
   String get aboutTheApp => 'Mombamomba ny fampiharana';
@@ -1382,12 +1373,12 @@ class AppLocalizationsMg extends AppLocalizations {
   String get yourProfile => 'Your Profile';
 
   @override
-  String usernameLabel(Object username) {
+  String usernameLabel(String username) {
     return 'Username: $username';
   }
 
   @override
-  String userIdLabel(Object userId) {
+  String userIdLabel(String userId) {
     return 'ID: $userId';
   }
 
@@ -1396,4 +1387,30 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get syncInfoMessage2 => 'This will not be lost if you change accounts.';
+
+  @override
+  String errorOccurredWithDetails(String error) {
+    return 'An error occurred: $error';
+  }
+
+  @override
+  String get clearSearch => 'Clear search';
+
+  @override
+  String get appSection => 'App';
+
+  @override
+  String totalCachedHymns(int count) {
+    return 'Total cached hymns: $count';
+  }
+
+  @override
+  String withAudio(int count) {
+    return 'With audio: $count';
+  }
+
+  @override
+  String withoutAudio(int count) {
+    return 'Without audio: $count';
+  }
 }

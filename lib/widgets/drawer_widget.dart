@@ -182,7 +182,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     return Column(
                       children: [
                         Text(
-                          'Total cached hymns: ${stats['total_checked']}',
+                          l10n.totalCachedHymns(stats['total_checked']),
                           style: TextStyle(
                             color: _colorController.textColor.value,
                             fontSize: 16,
@@ -190,7 +190,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'With audio: ${stats['with_audio']}',
+                          l10n.withAudio(stats['with_audio']),
                           style: const TextStyle(
                             color: Colors.green,
                             fontSize: 14,
@@ -198,7 +198,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Without audio: ${stats['without_audio']}',
+                          l10n.withoutAudio(stats['without_audio']),
                           style: const TextStyle(
                             color: Colors.red,
                             fontSize: 14,
@@ -560,7 +560,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   title: l10n.audioCache,
                   onTap: () => _showAudioCacheDialog(l10n),
                 ),
-                _buildSectionHeader('App'),
+                _buildSectionHeader(l10n.appSection),
                 _buildDrawerItem(
                   icon: Icons.notifications_none_rounded,
                   title: l10n.announcements,
