@@ -2,8 +2,8 @@ name: Create Release
 
 on:
   push:
-    tags:
-      - 'v*.*.*'  # Runs on tag pushes like v1.0.0, v2.5.3
+    branches:
+      - 'master'
 
 permissions:
   contents: write
@@ -65,6 +65,18 @@ jobs:
 
       - name: Disable Flutter Analytics
         run: flutter config --no-analytics
+
+      # ----------------------
+      # Check & Update Version
+      # ----------------------
+      - name: Check & Update Version
+        run: |
+          dart tool/update_version.dart check-update
+          
+          # Extract version for release name
+          VERSION=$(grep '^version:' pubspec.yaml | awk '{print $2}')
+          echo "APP_VERSION=$VERSION" >> $GITHUB_ENV
+          echo "App Version: $VERSION"
 
       # ----------------------
       # Generate App Icons
@@ -187,14 +199,32 @@ jobs:
       # ----------------------
       - name: Create Release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: build/app/outputs/flutter-apk/Fihirana-JFF*.apk
           token: ${{ secrets.GITHUB_TOKEN }}
-          name: Release ${{ github.ref_name }}
+          tag_name: v${{ env.APP_VERSION }}
+          name: fihirana+${{ env.APP_VERSION }}
           body_path: CHANGELOG.md
           draft: false
           prerelease: false
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ----------------------
+      # Commit Version Changes
+      # ----------------------
+      - name: Commit Version Changes
+        if: success()
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          
+          # Check if files changed
+          if [[ -n $(git status -s) ]]; then
+            git add pubspec.yaml android/app/build.gradle.kts lib/services/pubspec_service.dart
+            git commit -m "chore: bump version to ${{ env.APP_VERSION }} [skip ci]"
+            git push
+          else
+            echo "No version changes to commit."
+          fi
