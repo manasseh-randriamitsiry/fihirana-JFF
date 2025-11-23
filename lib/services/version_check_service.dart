@@ -138,7 +138,7 @@ class VersionCheckService {
         id: updateNotificationId,
         channelKey: 'basic_channel',
         title: 'Misy rindrambaiko vaovao',
-        body: 'Version vaovao dia efa azo ampiasaina! Tsindrio haka azy.',
+        body: 'Misy Version vaovao efa azo ampiasaina! Tsindrio raha haka azy.',
         payload: {'type': 'in_app_update'},
         color: const Color(0xFF9D50DD),
       ),
@@ -202,9 +202,9 @@ class VersionCheckService {
         content: NotificationContent(
           id: updateNotificationId + 1,
           channelKey: 'basic_channel',
-          title: 'Tsy afaka nalaina',
+          title: 'Tsy afaka naka',
           body:
-              'Tsy afaka nalaina ny rindrambaiko vaovao. Avereno afaka kelikely azafady.',
+              'Tsy afaka naka ny rindrambaiko vaovao. Avereno alaina rehefa afaka kelikely.',
           color: const Color(0xFF9D50DD),
         ),
       );
@@ -224,7 +224,7 @@ class VersionCheckService {
             channelKey: 'basic_channel',
             title: 'Fakàna rindrambaiko',
             body:
-                'Ny rindrambaiko vaovao dia amim-pakàna. Hahazo fampahalalam-baovao ianao rehefa vita ny fakàna.',
+                'Eo apangalana vaovao. Hahazo fampahalalana ianao rehefa vita ny fakàna.',
             payload: {'type': 'flexible_update_complete'},
             color: const Color(0xFF9D50DD),
           ),
@@ -545,9 +545,9 @@ class VersionCheckService {
         content: NotificationContent(
           id: updateNotificationId + 1,
           channelKey: 'basic_channel',
-          title: 'Tsy afaka nalaina',
+          title: 'Tsy afaka naka',
           body:
-              'Tsy afaka nalaina ny rindrambaiko vaovao. Avereno afaka kelikely azafady.',
+              'Tsy afaka naka ny rindrambaiko vaovao. Avereno alaina rehefa afaka kelikely azafady.',
           color: const Color(0xFF9D50DD),
         ),
       );
