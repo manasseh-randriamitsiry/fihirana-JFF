@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -6,6 +7,7 @@ import '../services/playlist_service.dart';
 
 class PlaylistController extends GetxController {
   final PlaylistService _playlistService = PlaylistService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   final RxList<Playlist> playlists = <Playlist>[].obs;
   final RxBool isLoading = false.obs;
@@ -14,6 +16,21 @@ class PlaylistController extends GetxController {
   void onInit() {
     super.onInit();
     bindPlaylists();
+    _listenToAuthChanges();
+  }
+
+  void _listenToAuthChanges() {
+    _auth.authStateChanges().listen((User? user) {
+      if (user != null) {
+        // User logged in, sync local playlists to Firebase
+        _playlistService.syncPlaylistsToFirebase();
+      } else {
+        // User logged out, reset sync status
+        _playlistService.resetSyncStatus();
+      }
+      // Rebind to refresh the stream
+      bindPlaylists();
+    });
   }
 
   void bindPlaylists() {

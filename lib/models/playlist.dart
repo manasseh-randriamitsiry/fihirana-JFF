@@ -7,6 +7,7 @@ class Playlist {
   final List<String> hymnIds;
   final String createdBy;
   final bool isPublic;
+  final bool isLocal; // New field to distinguish local vs Firebase playlists
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -17,6 +18,7 @@ class Playlist {
     required this.hymnIds,
     required this.createdBy,
     this.isPublic = false,
+    this.isLocal = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -25,16 +27,37 @@ class Playlist {
     return Playlist(
       id: json['id'] as String,
       title: json['title'] as String,
-      date: (json['date'] as Timestamp).toDate(),
+      date: json['date'] is Timestamp
+          ? (json['date'] as Timestamp).toDate()
+          : DateTime.parse(json['date'] as String),
       hymnIds: List<String>.from(json['hymnIds'] ?? []),
-      createdBy: json['createdBy'] as String,
-      isPublic: json['isPublic'] ?? false,
-      createdAt: (json['createdAt'] as Timestamp).toDate(),
-      updatedAt: (json['updatedAt'] as Timestamp).toDate(),
+      createdBy: json['createdBy'] as String? ?? '',
+      isPublic: json['isPublic'] as bool? ?? false,
+      isLocal: json['isLocal'] as bool? ?? false,
+      createdAt: json['createdAt'] is Timestamp
+          ? (json['createdAt'] as Timestamp).toDate()
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] is Timestamp
+          ? (json['updatedAt'] as Timestamp).toDate()
+          : DateTime.parse(json['updatedAt'] as String),
     );
   }
 
   Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'date': date.toIso8601String(),
+      'hymnIds': hymnIds,
+      'createdBy': createdBy,
+      'isPublic': isPublic,
+      'isLocal': isLocal,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> toFirestore() {
     return {
       'title': title,
       'date': Timestamp.fromDate(date),
@@ -53,6 +76,7 @@ class Playlist {
     List<String>? hymnIds,
     String? createdBy,
     bool? isPublic,
+    bool? isLocal,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -63,6 +87,7 @@ class Playlist {
       hymnIds: hymnIds ?? this.hymnIds,
       createdBy: createdBy ?? this.createdBy,
       isPublic: isPublic ?? this.isPublic,
+      isLocal: isLocal ?? this.isLocal,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
