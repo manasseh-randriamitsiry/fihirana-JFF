@@ -233,17 +233,55 @@ class PlaylistService {
         return local;
       }
 
-      // Check Firebase using collectionGroup (works without authentication)
-      // This searches across all users' playlists
+      // Try direct document access first (for playlists in root collection)
       if (kDebugMode) {
-        print('📋 PlaylistService: Searching Firebase for playlist...');
+        print('📋 PlaylistService: Trying direct document access for ID: $id');
+      }
+
+      try {
+        final doc = await _firestore.collection('playlists').doc(id).get();
+        if (doc.exists && doc.data() != null) {
+          final data = doc.data()!;
+          data['id'] = doc.id;
+          data['isLocal'] = false;
+
+          if (kDebugMode) {
+            print(
+                '📋 PlaylistService: Found playlist via direct access with ${data['hymnIds']?.length ?? 0} hymns');
+          }
+
+          return Playlist.fromJson(data);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('📋 PlaylistService: Direct access failed: $e');
+        }
+      }
+
+      // Fallback: Try collectionGroup query (searches across all users)
+      if (kDebugMode) {
+        print('📋 PlaylistService: Trying collectionGroup query...');
       }
 
       final querySnapshot = await _firestore
           .collectionGroup('playlists')
           .where('id', isEqualTo: id)
           .limit(1)
-          .get();
+          .get()
+          .timeout(
+        const Duration(seconds: 5),
+        onTimeout: () {
+          if (kDebugMode) {
+            print('📋 PlaylistService: Query timed out after 5 seconds');
+          }
+          throw TimeoutException('Playlist query timed out');
+        },
+      );
+
+      if (kDebugMode) {
+        print(
+            '📋 PlaylistService: Query completed, found ${querySnapshot.docs.length} documents');
+      }
 
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
@@ -254,6 +292,7 @@ class PlaylistService {
         if (kDebugMode) {
           print(
               '📋 PlaylistService: Found playlist in Firebase with ${data['hymnIds']?.length ?? 0} hymns');
+          print('📋 PlaylistService: Playlist data: ${data.keys.toList()}');
         }
 
         return Playlist.fromJson(data);
@@ -267,6 +306,7 @@ class PlaylistService {
     } catch (e) {
       if (kDebugMode) {
         print('📋 PlaylistService: Error getting playlist: $e');
+        print('📋 PlaylistService: Error type: ${e.runtimeType}');
       }
       return null;
     }

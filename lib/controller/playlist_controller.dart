@@ -109,6 +109,31 @@ class PlaylistController extends GetxController {
       final playlist = await _playlistService.getPlaylistById(playlistId);
 
       if (playlist != null) {
+        // Check for duplicates
+        final isDuplicate = playlists.any((p) {
+          // Check if title matches (either original or imported version)
+          final titleMatches = p.title == playlist.title ||
+              p.title == '${playlist.title} (Imported)';
+
+          // Check if content matches (same hymns)
+          final contentMatches = p.hymnIds.length == playlist.hymnIds.length &&
+              p.hymnIds.toSet().containsAll(playlist.hymnIds);
+
+          return titleMatches && contentMatches;
+        });
+
+        if (isDuplicate) {
+          Get.snackbar(
+            'Info',
+            'Playlist "${playlist.title}" already exists',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.blue,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+          return;
+        }
+
         // Create a new playlist with the imported title
         final newPlaylistId = await _playlistService.createPlaylist(
           '${playlist.title} (Imported)',
