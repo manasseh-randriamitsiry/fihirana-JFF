@@ -34,12 +34,15 @@ class InitService {
     // Initialize critical controllers first (needed for UI)
     final themeController = Get.put(ThemeController());
     final colorController = Get.put(ColorController());
-    Get.put(FontController());
+    final fontController = Get.put(FontController());
     Get.put(LanguageController());
 
     // Load theme and colors (fast, from local storage)
     await colorController.loadColors();
     await themeController.loadThemeFromPrefs();
+
+    // Initialize custom fonts before app starts using them
+    await fontController.initializeCustomFonts();
 
     // Initialize other controllers (these are fast)
     Get.put(HistoryController());
