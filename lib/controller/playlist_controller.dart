@@ -37,10 +37,10 @@ class PlaylistController extends GetxController {
     playlists.bindStream(_playlistService.getUserPlaylistsStream());
   }
 
-  Future<void> createPlaylist(String title, DateTime date) async {
+  Future<String?> createPlaylist(String title, DateTime date) async {
     try {
       isLoading.value = true;
-      await _playlistService.createPlaylist(title, date);
+      final id = await _playlistService.createPlaylist(title, date);
       Get.snackbar(
         'Success',
         'Playlist created successfully',
@@ -48,6 +48,7 @@ class PlaylistController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
+      return id;
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -56,6 +57,7 @@ class PlaylistController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+      return null;
     } finally {
       isLoading.value = false;
     }
