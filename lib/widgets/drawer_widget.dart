@@ -15,6 +15,7 @@ import '../screen/history/history_screen.dart';
 import '../screen/announcement/announcement_screen.dart';
 import '../screen/hymn/create_hymn_page.dart';
 import '../screen/hymn/firebase_hymns_screen.dart';
+import '../screen/playlist/playlist_list_screen.dart';
 import '../screen/settings/daily_verse_settings_screen.dart';
 import '../services/audio_service.dart';
 import 'color_picker_widget.dart';
@@ -520,6 +521,11 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   icon: Icons.history_rounded,
                   title: l10n.hymnHistory,
                   onTap: () => Get.to(() => HistoryScreen()),
+                ),
+                _buildDrawerItem(
+                  icon: Icons.playlist_play_rounded,
+                  title: 'Playlists',
+                  onTap: () => Get.to(() => const PlaylistListScreen()),
                 ),
                 _buildSectionHeader('Settings'),
                 _buildDrawerItem(

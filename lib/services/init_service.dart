@@ -4,6 +4,7 @@ import 'package:fihirana/controller/daily_verse_controller.dart';
 import 'package:fihirana/controller/font_controller.dart';
 import 'package:fihirana/controller/history_controller.dart';
 import 'package:fihirana/controller/language_controller.dart';
+import 'package:fihirana/controller/playlist_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/services/audio_file_mapping.dart';
 import 'package:fihirana/services/audio_foreground_service.dart';
@@ -13,6 +14,7 @@ import 'package:fihirana/services/firebase_sync_service.dart';
 import 'package:fihirana/services/hymn_service.dart';
 import 'package:fihirana/services/local_audio_service.dart';
 import 'package:fihirana/services/notification_service.dart';
+import 'package:fihirana/services/deep_link_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -46,7 +48,9 @@ class InitService {
     Get.put(HymnService());
     Get.put(BackgroundService());
     Get.put(FirebaseSyncService());
+    Get.put(FirebaseSyncService());
     Get.put(AudioForegroundService());
+    Get.put(PlaylistController());
 
     // Initialize Bible service (but don't load data yet)
     Get.put(BibleService());
@@ -84,5 +88,16 @@ class InitService {
         }
       }
     });
+  }
+
+  static Future<void> initDeepLinks() async {
+    try {
+      final deepLinkService = DeepLinkService();
+      await deepLinkService.init();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error initializing deep links: $e');
+      }
+    }
   }
 }

@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  app_links
   awesome_notifications
   cloud_firestore
   firebase_auth
@@ -11,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   local_auth_windows
   permission_handler_windows
   rive_common
+  share_plus
   url_launcher_windows
 )
 

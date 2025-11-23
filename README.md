@@ -18,6 +18,8 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 *   **⚙️ Customization**: Adjust font sizes and settings for a comfortable reading experience.
 *   **🌈 Themes**: Support for Light and Dark modes with customizable color themes.
 *   **🅰️ Fonts**: Choose from a variety of fonts and adjust text size for optimal readability.
+*   **📂 Smart Playlists**: Create, manage, and share playlists with deep linking support.
+*   **☁️ Cloud Sync**: Automatically syncs playlists across devices with smart merging to prevent duplicates.
 
 ---
 
