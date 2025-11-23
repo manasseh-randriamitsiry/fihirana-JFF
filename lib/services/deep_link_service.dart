@@ -35,7 +35,8 @@ class DeepLinkService {
 
   void _handleDeepLink(Uri uri) {
     if (kDebugMode) {
-      print('Received deep link: $uri');
+      print('🔗 DeepLinkService: Received deep link: $uri');
+      print('🔗 DeepLinkService: Scheme: ${uri.scheme}, Host: ${uri.host}');
     }
 
     // Handle playlist deep links: fihirana://playlist/{playlistId}
@@ -44,24 +45,40 @@ class DeepLinkService {
           ? uri.pathSegments.first
           : uri.path.replaceAll('/', '');
 
+      if (kDebugMode) {
+        print('🔗 DeepLinkService: Extracted playlist ID: $playlistId');
+      }
+
       if (playlistId.isNotEmpty) {
         _importPlaylist(playlistId);
+      } else {
+        if (kDebugMode) {
+          print('🔗 DeepLinkService: ERROR - Playlist ID is empty!');
+        }
+      }
+    } else {
+      if (kDebugMode) {
+        print('🔗 DeepLinkService: Not a playlist deep link, ignoring');
       }
     }
   }
 
   void _importPlaylist(String playlistId) {
     if (kDebugMode) {
-      print('Importing playlist: $playlistId');
+      print('🔗 DeepLinkService: Importing playlist: $playlistId');
     }
 
     // Get the playlist controller and import the playlist
     try {
       final playlistController = Get.find<PlaylistController>();
+      if (kDebugMode) {
+        print(
+            '🔗 DeepLinkService: Found PlaylistController, calling importPlaylist');
+      }
       playlistController.importPlaylist(playlistId);
     } catch (e) {
       if (kDebugMode) {
-        print('Error importing playlist: $e');
+        print('🔗 DeepLinkService: Error importing playlist: $e');
       }
     }
   }

@@ -59,8 +59,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
       _updateProgress(0.9, 'Controllers vonona');
 
-      // Initialize Firebase Dynamic Links for playlist sharing
-      await InitService.initDynamicLinks();
+      // Initialize deep links for playlist sharing
+      await InitService.initDeepLinks();
 
       // Step 4: Get SharedPreferences (90% -> 100%)
       _updateProgress(0.9, 'Mamarana...');

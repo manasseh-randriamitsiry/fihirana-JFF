@@ -109,21 +109,26 @@ class PlaylistController extends GetxController {
       final playlist = await _playlistService.getPlaylistById(playlistId);
 
       if (playlist != null) {
-        // Clone the playlist for the current user
-        await _playlistService.createPlaylist(
+        // Create a new playlist with the imported title
+        final newPlaylistId = await _playlistService.createPlaylist(
           '${playlist.title} (Imported)',
           playlist.date,
         );
 
-        // We would need to add the hymns too, but createPlaylist currently initializes empty.
-        // I should update createPlaylist or add a clone method.
-        // For now, let's just notify success.
+        // Add all hymns from the original playlist to the new one
+        if (newPlaylistId != null && playlist.hymnIds.isNotEmpty) {
+          for (final hymnId in playlist.hymnIds) {
+            await _playlistService.addHymnToPlaylist(newPlaylistId, hymnId);
+          }
+        }
+
         Get.snackbar(
           'Success',
-          'Playlist imported successfully',
+          'Playlist "${playlist.title}" imported with ${playlist.hymnIds.length} hymns',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
+          duration: const Duration(seconds: 3),
         );
       } else {
         Get.snackbar(
@@ -137,7 +142,7 @@ class PlaylistController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to import playlist',
+        'Failed to import playlist: $e',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

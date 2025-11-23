@@ -216,26 +216,57 @@ class PlaylistService {
     });
   }
 
-  // Get a specific playlist by ID
+  // Get a specific playlist by ID (works without authentication for sharing)
   Future<Playlist?> getPlaylistById(String id) async {
     try {
+      if (kDebugMode) {
+        print('📋 PlaylistService: Looking for playlist ID: $id');
+      }
+
       // Check local first
       final localPlaylists = await getLocalPlaylists();
       final local = localPlaylists.where((p) => p.id == id).firstOrNull;
-      if (local != null) return local;
+      if (local != null) {
+        if (kDebugMode) {
+          print('📋 PlaylistService: Found playlist locally');
+        }
+        return local;
+      }
 
-      // Check Firebase
-      final doc = await _firestore.collection('playlists').doc(id).get();
-      if (doc.exists && doc.data() != null) {
-        final data = doc.data()!;
+      // Check Firebase using collectionGroup (works without authentication)
+      // This searches across all users' playlists
+      if (kDebugMode) {
+        print('📋 PlaylistService: Searching Firebase for playlist...');
+      }
+
+      final querySnapshot = await _firestore
+          .collectionGroup('playlists')
+          .where('id', isEqualTo: id)
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final doc = querySnapshot.docs.first;
+        final data = doc.data();
         data['id'] = doc.id;
         data['isLocal'] = false;
+
+        if (kDebugMode) {
+          print(
+              '📋 PlaylistService: Found playlist in Firebase with ${data['hymnIds']?.length ?? 0} hymns');
+        }
+
         return Playlist.fromJson(data);
       }
+
+      if (kDebugMode) {
+        print('📋 PlaylistService: Playlist not found in Firebase');
+      }
+
       return null;
     } catch (e) {
       if (kDebugMode) {
-        print('Error getting playlist: $e');
+        print('📋 PlaylistService: Error getting playlist: $e');
       }
       return null;
     }
