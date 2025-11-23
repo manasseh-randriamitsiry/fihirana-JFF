@@ -92,12 +92,12 @@ class PlaylistController extends GetxController {
   }
 
   Future<void> sharePlaylist(Playlist playlist) async {
-    // Simple sharing for now - share the ID or a deep link if we had one
-    // For now, we'll just share a text description
+    // Create a deep link for easy sharing
+    final deepLink = 'fihirana://playlist/${playlist.id}';
     final String text =
-        'Check out my playlist "${playlist.title}" for ${playlist.date.toString().split(' ')[0]}.\n\n'
-        'Playlist ID: ${playlist.id}\n'
-        '(Use this ID to import the playlist in the Fihirana app)';
+        'Check out my playlist "${playlist.title}" for ${playlist.date.toString().split(' ')[0]}!\n\n'
+        'Tap to open in Fihirana app:\n$deepLink\n\n'
+        'Or manually import using ID: ${playlist.id}';
 
     await Share.share(text);
   }
