@@ -63,6 +63,28 @@ class PlaylistController extends GetxController {
     }
   }
 
+  Future<void> updatePlaylistDate(String playlistId, DateTime newDate) async {
+    final success =
+        await _playlistService.updatePlaylist(playlistId, date: newDate);
+    if (success) {
+      Get.snackbar(
+        'Success',
+        'Playlist date updated',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+    } else {
+      Get.snackbar(
+        'Error',
+        'Failed to update playlist date',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   Future<void> addHymnToPlaylist(String playlistId, String hymnId) async {
     final success =
         await _playlistService.addHymnToPlaylist(playlistId, hymnId);

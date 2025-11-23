@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:collection/collection.dart';
 import '../models/playlist.dart';
 
 class PlaylistService {
@@ -475,39 +476,98 @@ class PlaylistService {
         return;
       }
 
+      // Fetch existing Firebase playlists for this user
+      final firebaseSnapshot = await _firestore
+          .collection('playlists')
+          .where('createdBy', isEqualTo: user.uid)
+          .get();
+
+      final firebasePlaylists = firebaseSnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        data['isLocal'] = false;
+        return Playlist.fromJson(data);
+      }).toList();
+
       final batch = _firestore.batch();
       final updatedPlaylists = <Playlist>[];
 
       for (var playlist in localOnlyPlaylists) {
-        final docRef = _firestore.collection('playlists').doc();
-        final playlistData = playlist
-            .copyWith(
-              id: docRef.id,
-              createdBy: user.uid,
-              isLocal: false,
-            )
-            .toFirestore();
+        // Check if a matching playlist exists in Firebase
+        final existingMatch = firebasePlaylists.firstWhereOrNull(
+          (fp) =>
+              fp.title == playlist.title &&
+              fp.date.year == playlist.date.year &&
+              fp.date.month == playlist.date.month &&
+              fp.date.day == playlist.date.day,
+        );
 
-        batch.set(docRef, playlistData);
-        updatedPlaylists.add(playlist.copyWith(
-          id: docRef.id,
-          createdBy: user.uid,
-          isLocal: false,
-        ));
+        if (existingMatch != null) {
+          // Match found: Merge local hymns into Firebase playlist
+          final missingHymns = playlist.hymnIds
+              .where((id) => !existingMatch.hymnIds.contains(id))
+              .toList();
+
+          if (missingHymns.isNotEmpty) {
+            final docRef =
+                _firestore.collection('playlists').doc(existingMatch.id);
+            batch.update(docRef, {
+              'hymnIds': FieldValue.arrayUnion(missingHymns),
+              'updatedAt': Timestamp.now(),
+            });
+          }
+
+          // Update local playlist to point to existing Firebase playlist
+          // We combine hymn IDs locally too so the UI reflects the merge immediately
+          final mergedHymnIds =
+              {...existingMatch.hymnIds, ...playlist.hymnIds}.toList();
+
+          updatedPlaylists.add(playlist.copyWith(
+            id: existingMatch.id,
+            createdBy: user.uid,
+            isLocal: false,
+            hymnIds: mergedHymnIds,
+          ));
+        } else {
+          // No match: Create new playlist
+          final docRef = _firestore.collection('playlists').doc();
+          final playlistData = playlist
+              .copyWith(
+                id: docRef.id,
+                createdBy: user.uid,
+                isLocal: false,
+              )
+              .toFirestore();
+
+          batch.set(docRef, playlistData);
+          updatedPlaylists.add(playlist.copyWith(
+            id: docRef.id,
+            createdBy: user.uid,
+            isLocal: false,
+          ));
+        }
       }
 
       await batch.commit();
 
-      // Update local storage with new IDs
+      // Update local storage with new IDs and merged data
       final allPlaylists = await getLocalPlaylists();
       for (var updated in updatedPlaylists) {
+        // Find the original local playlist to replace
+        // We match by title and date (ignoring ID since it was local)
         final index = allPlaylists.indexWhere((p) =>
-            p.title == updated.title && p.date == updated.date && p.isLocal);
+            p.title == updated.title &&
+            p.date.year == updated.date.year &&
+            p.date.month == updated.date.month &&
+            p.date.day == updated.date.day &&
+            p.isLocal);
+
         if (index != -1) {
           allPlaylists[index] = updated;
         }
       }
       await saveLocalPlaylists(allPlaylists);
+      notifyPlaylistsChanged();
 
       await prefs.setBool(_playlistsSyncedKey, true);
     } catch (e) {
