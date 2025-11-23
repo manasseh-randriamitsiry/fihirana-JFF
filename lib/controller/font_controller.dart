@@ -44,6 +44,7 @@ class FontController extends GetxController {
   };
 
   final RxList<String> customFonts = <String>[].obs;
+  final RxBool customFontsLoaded = false.obs;
 
   List<String> get availableFonts => [...fontMap.keys, ...customFonts];
 
@@ -61,11 +62,13 @@ class FontController extends GetxController {
     return baseStyle.copyWith(fontFamily: fontFamily);
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadCustomFonts();
-    loadFont();
+  /// Initialize custom fonts - must be called and awaited before using custom fonts
+  Future<void> initializeCustomFonts() async {
+    await loadCustomFonts();
+    customFontsLoaded.value = true;
+    // Load the selected font AFTER custom fonts are loaded
+    // This ensures custom fonts are in the list when we check if saved font is valid
+    await loadFont();
   }
 
   Future<void> loadFont() async {
