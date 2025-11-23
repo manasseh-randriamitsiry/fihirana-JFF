@@ -148,3 +148,4 @@ To update translations or add a new language:
     ```bash
     flutter gen-l10n
     ```
+.
