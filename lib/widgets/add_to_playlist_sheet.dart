@@ -24,6 +24,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
   final ColorController _colorController = Get.find();
   final TextEditingController _newPlaylistController = TextEditingController();
   final RxBool _isCreating = false.obs;
+  final Rx<DateTime> _selectedDate = DateTime.now().obs;
 
   @override
   void dispose() {
@@ -37,7 +38,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
 
     final playlistId = await _playlistController.createPlaylist(
       title,
-      DateTime.now(),
+      _selectedDate.value,
     );
 
     if (playlistId != null) {
@@ -169,51 +170,123 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                         child: _isCreating.value
                             ? Padding(
                                 padding: const EdgeInsets.only(top: 16),
-                                child: Row(
+                                child: Column(
                                   children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _newPlaylistController,
-                                        style: TextStyle(color: textColor),
-                                        decoration: InputDecoration(
-                                          hintText: 'Playlist Name',
-                                          hintStyle: TextStyle(
-                                            color: textColor.withValues(
-                                                alpha: 0.5),
-                                          ),
-                                          filled: true,
-                                          fillColor:
-                                              textColor.withValues(alpha: 0.05),
-                                          border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            borderSide: BorderSide.none,
-                                          ),
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 12,
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                            controller: _newPlaylistController,
+                                            style: TextStyle(color: textColor),
+                                            decoration: InputDecoration(
+                                              hintText: 'Playlist Name',
+                                              hintStyle: TextStyle(
+                                                color: textColor.withValues(
+                                                    alpha: 0.5),
+                                              ),
+                                              filled: true,
+                                              fillColor: textColor.withValues(
+                                                  alpha: 0.05),
+                                              border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(12),
+                                                borderSide: BorderSide.none,
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                horizontal: 16,
+                                                vertical: 12,
+                                              ),
+                                            ),
+                                            onSubmitted: (_) => _createAndAdd(),
                                           ),
                                         ),
-                                        onSubmitted: (_) => _createAndAdd(),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    ElevatedButton(
-                                      onPressed: _createAndAdd,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: primaryColor,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
+                                        const SizedBox(width: 8),
+                                        InkWell(
+                                          onTap: () async {
+                                            final picked = await showDatePicker(
+                                              context: context,
+                                              initialDate: _selectedDate.value,
+                                              firstDate: DateTime.now(),
+                                              lastDate: DateTime.now().add(
+                                                  const Duration(days: 365)),
+                                              builder: (context, child) {
+                                                return Theme(
+                                                  data: Theme.of(context)
+                                                      .copyWith(
+                                                    colorScheme:
+                                                        ColorScheme.light(
+                                                      primary: primaryColor,
+                                                      onPrimary: Colors.white,
+                                                      surface: backgroundColor,
+                                                      onSurface: textColor,
+                                                    ),
+                                                  ),
+                                                  child: child!,
+                                                );
+                                              },
+                                            );
+                                            if (picked != null) {
+                                              _selectedDate.value = picked;
+                                            }
+                                          },
                                           borderRadius:
                                               BorderRadius.circular(12),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: textColor.withValues(
+                                                  alpha: 0.05),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: Obx(() => Icon(
+                                                  Icons.calendar_today,
+                                                  color: _selectedDate.value
+                                                          .isAfter(DateTime
+                                                                  .now()
+                                                              .subtract(
+                                                                  const Duration(
+                                                                      days: 1)))
+                                                      ? primaryColor
+                                                      : textColor.withValues(
+                                                          alpha: 0.5),
+                                                )),
+                                          ),
                                         ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                          vertical: 12,
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Obx(() => Text(
+                                              DateFormat('MMM d, yyyy')
+                                                  .format(_selectedDate.value),
+                                              style: TextStyle(
+                                                color: textColor.withValues(
+                                                    alpha: 0.7),
+                                                fontSize: 14,
+                                              ),
+                                            )),
+                                        const SizedBox(width: 12),
+                                        ElevatedButton(
+                                          onPressed: _createAndAdd,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: primaryColor,
+                                            foregroundColor: Colors.white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 20,
+                                              vertical: 12,
+                                            ),
+                                          ),
+                                          child: const Text('Create'),
                                         ),
-                                      ),
-                                      child: const Text('Create'),
+                                      ],
                                     ),
                                   ],
                                 ),
