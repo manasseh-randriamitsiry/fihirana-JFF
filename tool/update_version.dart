@@ -66,9 +66,17 @@ void checkUpdate() {
 
 String? getLatestTag() {
   try {
-    final result = Process.runSync('git', ['describe', '--tags', '--abbrev=0']);
+    // Get all tags matching v*.*.*, sorted by version (descending), take the first one
+    final result = Process.runSync(
+        'git', ['tag', '--list', 'v[0-9]*.[0-9]*.[0-9]*', '--sort=-v:refname']);
+
     if (result.exitCode == 0) {
-      return result.stdout.toString().trim().replaceAll('v', '');
+      final output = result.stdout.toString().trim();
+      if (output.isEmpty) return null;
+
+      // The output might contain multiple lines, take the first one
+      final latest = output.split('\n').first.trim();
+      return latest.replaceAll('v', '');
     }
   } catch (e) {
     print('Error getting latest tag: $e');
