@@ -494,9 +494,11 @@ class PlaylistService {
 
       for (var playlist in localOnlyPlaylists) {
         // Check if a matching playlist exists in Firebase
+        // Match if titles are identical OR if local title is "{FirebaseTitle} (Imported)"
         final existingMatch = firebasePlaylists.firstWhereOrNull(
           (fp) =>
-              fp.title == playlist.title &&
+              (fp.title == playlist.title ||
+                  playlist.title == '${fp.title} (Imported)') &&
               fp.date.year == playlist.date.year &&
               fp.date.month == playlist.date.month &&
               fp.date.day == playlist.date.day,
@@ -524,6 +526,7 @@ class PlaylistService {
 
           updatedPlaylists.add(playlist.copyWith(
             id: existingMatch.id,
+            title: existingMatch.title, // Use the original (clean) title
             createdBy: user.uid,
             isLocal: false,
             hymnIds: mergedHymnIds,
@@ -555,8 +558,10 @@ class PlaylistService {
       for (var updated in updatedPlaylists) {
         // Find the original local playlist to replace
         // We match by title and date (ignoring ID since it was local)
+        // Also check for the imported title variation
         final index = allPlaylists.indexWhere((p) =>
-            p.title == updated.title &&
+            (p.title == updated.title ||
+                p.title == '${updated.title} (Imported)') &&
             p.date.year == updated.date.year &&
             p.date.month == updated.date.month &&
             p.date.day == updated.date.day &&
