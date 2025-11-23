@@ -37,37 +37,37 @@ class _AppBootstrapState extends State<AppBootstrap> {
   Future<void> _initialize() async {
     try {
       // Step 1: Initialize Firebase (0% -> 40%)
-      _updateProgress(0.0, '10');
+      _updateProgress(0.0, 'Start');
 
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      _updateProgress(0.4, '40');
+      _updateProgress(0.4, 'wait');
 
       // Step 2: Initialize Notifications (40% -> 60%)
-      _updateProgress(0.4, '45');
+      _updateProgress(0.4, 'wait...');
 
       await InitService.initializeNotifications();
 
-      _updateProgress(0.6, '60');
+      _updateProgress(0.6, 'Halfway');
 
       // Step 3: Initialize Controllers (60% -> 90%)
-      _updateProgress(0.6, '65');
+      _updateProgress(0.6, 'Halfway...');
 
       await InitService.initControllers();
 
-      _updateProgress(0.9, '90');
+      _updateProgress(0.9, 'Almost there');
 
       // Initialize deep links for playlist sharing
       await InitService.initDeepLinks();
 
       // Step 4: Get SharedPreferences (90% -> 100%)
-      _updateProgress(0.9, '95');
+      _updateProgress(0.9, 'Almost there ...');
 
       final prefs = await SharedPreferences.getInstance();
 
-      _updateProgress(1.0, '100');
+      _updateProgress(1.0, 'Done');
 
       // Small delay to show completion
       await Future.delayed(const Duration(milliseconds: 300));
