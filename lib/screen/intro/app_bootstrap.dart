@@ -8,8 +8,6 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
-import '../../l10n/app_localizations.dart';
-
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key});
 
@@ -37,10 +35,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
   }
 
   Future<void> _initialize() async {
-    final l10n = AppLocalizations.of(context)!;
     try {
       // Step 1: Initialize Firebase (0% -> 40%)
-      _updateProgress(0.0, '0');
+      _updateProgress(0.0, '10');
 
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
@@ -49,14 +46,14 @@ class _AppBootstrapState extends State<AppBootstrap> {
       _updateProgress(0.4, '40');
 
       // Step 2: Initialize Notifications (40% -> 60%)
-      _updateProgress(0.4, '41');
+      _updateProgress(0.4, '45');
 
       await InitService.initializeNotifications();
 
       _updateProgress(0.6, '60');
 
       // Step 3: Initialize Controllers (60% -> 90%)
-      _updateProgress(0.6, '61');
+      _updateProgress(0.6, '65');
 
       await InitService.initControllers();
 
@@ -66,7 +63,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       await InitService.initDeepLinks();
 
       // Step 4: Get SharedPreferences (90% -> 100%)
-      _updateProgress(0.9, '91');
+      _updateProgress(0.9, '95');
 
       final prefs = await SharedPreferences.getInstance();
 
@@ -86,7 +83,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       if (kDebugMode) {
         print('Error during bootstrap: $e');
       }
-      _updateProgress(1.0, l10n.errorOccurred);
+      _updateProgress(1.0, 'Nisy olana');
       await Future.delayed(const Duration(milliseconds: 300));
 
       // Try to continue anyway
