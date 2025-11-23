@@ -53,6 +53,17 @@ class HymnService {
     return await _combinedHymnService.searchHymns(query);
   }
 
+  Future<List<Hymn>> getHymnsByIds(List<String> ids) async {
+    final List<Hymn> hymns = [];
+    for (final id in ids) {
+      final hymn = await getHymnById(id);
+      if (hymn != null) {
+        hymns.add(hymn);
+      }
+    }
+    return hymns;
+  }
+
   Future<bool> addHymn(Hymn hymn) async {
     try {
       final user = _auth.currentUser;
@@ -306,6 +317,8 @@ class HymnService {
       }, Priority.animation);
 
       return completer.future;
-    } catch (e) {return;}
+    } catch (e) {
+      return;
+    }
   }
 }

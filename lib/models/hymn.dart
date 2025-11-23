@@ -9,7 +9,10 @@ class Hymn {
   String createdBy;
   String? createdByEmail;
 
-  String get audioUrl => 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$id.mp3';
+  String get audioUrl =>
+      'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$id.mp3';
+
+  int get number => int.tryParse(hymnNumber) ?? 0;
 
   Hymn({
     required this.id,
@@ -48,7 +51,7 @@ class Hymn {
       // If no bridge but chorus exists, use chorus as bridge
       bridge = json['chorus'].toString();
     }
-    
+
     // Also check if chorus is in the verses map (for malformed data)
     if (bridge == null && json['verses'] is Map<String, dynamic>) {
       final versesMap = json['verses'] as Map<String, dynamic>;
