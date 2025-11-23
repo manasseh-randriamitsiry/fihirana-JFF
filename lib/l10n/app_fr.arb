@@ -324,7 +324,7 @@
   "announcements": "Annonces",
   "bible": "Bible",
   "signOut": "Se déconnecter",
-  "aboutUs": "À propos de nous",
+  "aboutUs": "À propos",
   "cannotUpdate": "Impossible de mettre à jour",
   "cannotDownload": "Impossible de télécharger: {error}",
   "@cannotDownload": {
@@ -483,7 +483,7 @@
   "createFirstPlaylist": "Créez votre première liste de lecture",
   "newPlaylist": "Nouvelle liste de lecture",
   "deletePlaylist": "Supprimer la liste de lecture",
-  "addToPlaylist": "Ajouter à la liste de lecture",
+  "addToPlaylist": "playlist",
   "createNewPlaylist": "Créer une nouvelle liste de lecture",
   "playlistName": "Nom de la liste de lecture",
   "clearExpired": "Effacer les expirés",
