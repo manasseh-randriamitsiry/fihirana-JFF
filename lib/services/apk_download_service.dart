@@ -18,11 +18,15 @@ class ApkDownloadService {
     _dio ??= Dio();
   }
 
-  static Future<bool> _requestStoragePermission() async {
+  static Future<bool> _requestInstallPermission() async {
     if (Platform.isAndroid) {
-      final status = await Permission.storage.request();
-      final status2 = await Permission.manageExternalStorage.request();
-      return status.isGranted || status2.isGranted;
+      // Check if we can request install packages
+      final status = await Permission.requestInstallPackages.status;
+      if (!status.isGranted) {
+        final result = await Permission.requestInstallPackages.request();
+        return result.isGranted;
+      }
+      return true;
     }
     return true;
   }
@@ -31,21 +35,28 @@ class ApkDownloadService {
     try {
       _initializeDio();
 
-      // Request storage permission
-      final hasPermission = await _requestStoragePermission();
+      // Request install permission
+      final hasPermission = await _requestInstallPermission();
       if (!hasPermission) {
-        await _showNotification('Tsy afaka mankafy',
-            'Tsy manana alalana ianao hampidirana rakitra');
+        await _showNotification(
+            'Tsy afaka naka', 'Tsy manana alalana ianao hampiditra apk');
         return;
       }
 
-      // Get download directory
+      // Get download directory - use external cache directory (no permission needed on Android 10+)
       Directory directory;
       if (Platform.isAndroid) {
-        directory = Directory('/storage/emulated/0/Download');
-        if (!await directory.exists()) {
-          directory = await getExternalStorageDirectory() ??
-              await getApplicationDocumentsDirectory();
+        // Use external cache directory which doesn't require storage permissions
+        final externalDir = await getExternalStorageDirectory();
+        if (externalDir != null) {
+          // Create a Downloads subfolder in the external cache
+          directory = Directory('${externalDir.path}/Downloads');
+          if (!await directory.exists()) {
+            await directory.create(recursive: true);
+          }
+        } else {
+          // Fallback to app documents directory
+          directory = await getApplicationDocumentsDirectory();
         }
       } else {
         directory = await getApplicationDocumentsDirectory();
@@ -59,7 +70,7 @@ class ApkDownloadService {
       }
 
       // Show download started notification
-      await _showDownloadNotification('Mandefa anaty rakitra...', 0);
+      await _showDownloadNotification('Maka fanavaozana...', 0);
 
       _cancelToken = CancelToken();
 
@@ -71,15 +82,14 @@ class ApkDownloadService {
         onReceiveProgress: (received, total) {
           if (total != -1) {
             final progress = (received / total * 100).round();
-            _showDownloadNotification(
-                'Mandefa anaty rakitra... $progress%', progress);
+            _showDownloadNotification('Fangalana... $progress%', progress);
           }
         },
       );
 
       // Download completed
       await _showNotification(
-          'Vita ny fandefasana', 'Voara ny rakitra $fileName');
+          'Vita ny fangalana', 'Voaray ny fanavaozana $fileName');
 
       // Install the APK
       await _installApk(savePath);
@@ -87,8 +97,8 @@ class ApkDownloadService {
       if (kDebugMode) {
         print('❌ Download failed: $e');
       }
-      await _showNotification(
-          'Tsy voafafa', 'Tsy afaka mandefa anaty rakitra: ${e.toString()}');
+      await _showNotification('Tsy nety',
+          'Nisy olana teo ampanaovana fanavaozana: ${e.toString()}');
     }
   }
 
@@ -98,10 +108,25 @@ class ApkDownloadService {
         final packageInfo = await PackageInfo.fromPlatform();
         final packageName = packageInfo.packageName;
 
-        // Use file provider URI for installation
+        // Get the file name
         final file = File(filePath);
+        final fileName = file.path.split('/').last;
+
+        // Determine the correct path name based on file location
+        String pathName = 'external_cache';
+        if (filePath.contains('/Android/data/')) {
+          // File is in external storage
+          pathName = 'external_files';
+        }
+
+        // Use file provider URI for installation
         final uri =
-            'content://$packageName.fileprovider/external_files/${file.path.split('/').last}';
+            'content://$packageName.fileprovider/$pathName/Downloads/$fileName';
+
+        if (kDebugMode) {
+          print('📦 Installing APK from URI: $uri');
+          print('📂 File path: $filePath');
+        }
 
         final intent = AndroidIntent(
           action: 'android.intent.action.INSTALL_PACKAGE',
@@ -124,8 +149,8 @@ class ApkDownloadService {
       if (kDebugMode) {
         print('❌ Install failed: $e');
       }
-      await _showNotification('Tsy voafafa',
-          'Tsy afaka mametraka ny rindrambaiko: ${e.toString()}');
+      await _showNotification(
+          'Tsy nety', 'Tsy afaka mametraka ny fanavaozana: ${e.toString()}');
     }
   }
 
@@ -154,7 +179,7 @@ class ApkDownloadService {
       content: NotificationContent(
         id: downloadNotificationd,
         channelKey: 'hymn_download_channel',
-        title: 'Fandefasana rindrambaiko',
+        title: 'Fangalana fanavaozana',
         body: body,
         notificationLayout: NotificationLayout.ProgressBar,
         progress: progress.toDouble(),
@@ -166,7 +191,7 @@ class ApkDownloadService {
           ? [
               NotificationActionButton(
                 key: 'CANCEL_DOWNLOAD',
-                label: 'Ajanony',
+                label: 'Ajanona',
                 actionType: ActionType.Default,
               ),
             ]
@@ -177,7 +202,7 @@ class ApkDownloadService {
   static Future<void> handleDownloadAction(String action) async {
     if (action == 'CANCEL_DOWNLOAD') {
       cancelDownload();
-      await _showNotification('Ajanony', 'Najanony ny fandefasana');
+      await _showNotification('Ajanona', 'Najanony ny fanavaozana');
     }
   }
 }
