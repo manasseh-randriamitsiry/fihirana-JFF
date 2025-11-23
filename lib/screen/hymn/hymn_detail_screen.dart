@@ -16,6 +16,7 @@ import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
+import '../../controller/playlist_controller.dart';
 import '../../widgets/color_picker_widget.dart';
 
 import '../../services/audio_service.dart';
@@ -673,6 +674,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   case 'audio_player':
                     _showAudioPlayerDialog();
                     break;
+                  case 'add_to_playlist':
+                    _showAddToPlaylistDialog();
+                    break;
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -737,6 +741,21 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                         const SizedBox(width: 8),
                         Text(
                           l10n.color,
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'add_to_playlist',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.playlist_add,
+                          color: colorController.textColor.value,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Add to Playlist',
                         ),
                       ],
                     ),
@@ -1227,6 +1246,73 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       context,
       MaterialPageRoute(
         builder: (context) => EditHymnScreen(hymn: _hymn!),
+      ),
+    );
+  }
+
+  void _showAddToPlaylistDialog() {
+    final PlaylistController playlistController = Get.find();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: colorController.backgroundColor.value,
+        title: Text(
+          'Add to Playlist',
+          style: TextStyle(color: colorController.textColor.value),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Obx(() {
+            if (playlistController.isLoading.value) {
+              return Center(
+                child: CircularProgressIndicator(
+                  color: colorController.primaryColor.value,
+                ),
+              );
+            }
+
+            if (playlistController.playlists.isEmpty) {
+              return Text(
+                'No playlists found. Create one first.',
+                style: TextStyle(color: colorController.textColor.value),
+              );
+            }
+
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: playlistController.playlists.length,
+              itemBuilder: (context, index) {
+                final playlist = playlistController.playlists[index];
+                return ListTile(
+                  title: Text(
+                    playlist.title,
+                    style: TextStyle(color: colorController.textColor.value),
+                  ),
+                  subtitle: Text(
+                    DateFormat('MMM d, yyyy').format(playlist.date),
+                    style: TextStyle(
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.6),
+                    ),
+                  ),
+                  onTap: () {
+                    playlistController.addHymnToPlaylist(
+                        playlist.id, _hymn?.id ?? widget.hymnId);
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            );
+          }),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancel',
+                style: TextStyle(color: colorController.textColor.value)),
+          ),
+        ],
       ),
     );
   }

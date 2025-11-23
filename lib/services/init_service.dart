@@ -4,6 +4,7 @@ import 'package:fihirana/controller/daily_verse_controller.dart';
 import 'package:fihirana/controller/font_controller.dart';
 import 'package:fihirana/controller/history_controller.dart';
 import 'package:fihirana/controller/language_controller.dart';
+import 'package:fihirana/controller/playlist_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/services/audio_file_mapping.dart';
 import 'package:fihirana/services/audio_foreground_service.dart';
@@ -46,7 +47,9 @@ class InitService {
     Get.put(HymnService());
     Get.put(BackgroundService());
     Get.put(FirebaseSyncService());
+    Get.put(FirebaseSyncService());
     Get.put(AudioForegroundService());
+    Get.put(PlaylistController());
 
     // Initialize Bible service (but don't load data yet)
     Get.put(BibleService());

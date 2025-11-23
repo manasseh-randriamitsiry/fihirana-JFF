@@ -55,8 +55,10 @@ dependencies:
   just_audio: ^0.9.36
   simple_gesture_detector: ^0.2.1
   path: ^1.8.3
+  share_plus: ^7.2.1
   rive: ^0.13.1
   flutter_animate: ^4.5.0
+  file_picker: ^10.3.7
 
 dev_dependencies:
   flutter_test:

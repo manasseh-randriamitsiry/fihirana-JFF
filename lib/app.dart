@@ -98,9 +98,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   ThemeData _getThemeWithFont(ThemeData baseTheme, String fontName) {
-    // Get the actual font family name from the controller's map
-    // If not found, default to 'Lato'
-    final String fontFamily = fontController.fontMap[fontName] ?? 'Lato';
+    // Check if it's a custom font first
+    String fontFamily;
+    if (fontController.customFonts.contains(fontName)) {
+      // For custom fonts, use the font name directly as the family name
+      fontFamily = fontName;
+    } else {
+      // For predefined fonts, get from the map or default to 'Lato'
+      fontFamily = fontController.fontMap[fontName] ?? 'Lato';
+    }
 
     return baseTheme.copyWith(
       textTheme: baseTheme.textTheme.apply(fontFamily: fontFamily),
