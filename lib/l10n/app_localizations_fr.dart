@@ -1108,7 +1108,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bibleReader => 'Lecteur de Bible';
 
   @override
-  String emailLabel(Object email) {
+  String emailLabel(String email) {
     return 'Email : $email';
   }
 
@@ -1116,7 +1116,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get addressLabel => 'Adresse :';
 
   @override
-  String appVersion(Object version) {
+  String appVersion(String version) {
     return 'Version $version';
   }
 
@@ -1148,18 +1148,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deleteSelectedHistoryQuestion => 'Supprimer l\'historique sélectionné ?';
 
   @override
-  String selectedItems(Object count) {
+  String selectedItems(int count) {
     return '$count sélectionné(s)';
   }
-
-  @override
-  String get welcomeToHymnsApp => 'Bienvenue dans l\'application de cantiques';
-
-  @override
-  String get praiseTheLord => 'Louez le Seigneur car il est bon';
-
-  @override
-  String get hymnsApp => 'Cantiques';
 
   @override
   String get aboutTheApp => 'À propos de l\'application';
@@ -1382,12 +1373,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get yourProfile => 'Your Profile';
 
   @override
-  String usernameLabel(Object username) {
+  String usernameLabel(String username) {
     return 'Username: $username';
   }
 
   @override
-  String userIdLabel(Object userId) {
+  String userIdLabel(String userId) {
     return 'ID: $userId';
   }
 
@@ -1396,4 +1387,30 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get syncInfoMessage2 => 'This will not be lost if you change accounts.';
+
+  @override
+  String errorOccurredWithDetails(String error) {
+    return 'An error occurred: $error';
+  }
+
+  @override
+  String get clearSearch => 'Clear search';
+
+  @override
+  String get appSection => 'App';
+
+  @override
+  String totalCachedHymns(int count) {
+    return 'Total cached hymns: $count';
+  }
+
+  @override
+  String withAudio(int count) {
+    return 'With audio: $count';
+  }
+
+  @override
+  String withoutAudio(int count) {
+    return 'Without audio: $count';
+  }
 }

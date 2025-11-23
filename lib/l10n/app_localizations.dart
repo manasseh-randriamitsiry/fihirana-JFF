@@ -1414,13 +1414,13 @@ abstract class AppLocalizations {
   /// No description provided for @updateAvailableContent.
   ///
   /// In en, this message translates to:
-  /// **'There is a new version available. Would you like to download it?'**
+  /// **'A new update is available. Would you like to install it?'**
   String get updateAvailableContent;
 
   /// No description provided for @updateAvailableTitle.
   ///
   /// In en, this message translates to:
-  /// **'Update available'**
+  /// **'Update Available'**
   String get updateAvailableTitle;
 
   /// No description provided for @updateFailed.
@@ -1840,7 +1840,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteFailed.
   ///
   /// In en, this message translates to:
-  /// **'Delete failed'**
+  /// **'Delete failed: {error}'**
   String deleteFailed(String error);
 
   /// No description provided for @sortByRecent.
@@ -1966,7 +1966,7 @@ abstract class AppLocalizations {
   /// No description provided for @noPermission.
   ///
   /// In en, this message translates to:
-  /// **'No permission'**
+  /// **'You do not have permission'**
   String get noPermission;
 
   /// No description provided for @userManagement.
@@ -2219,7 +2219,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Email: {email}'**
-  String emailLabel(Object email);
+  String emailLabel(String email);
 
   /// No description provided for @addressLabel.
   ///
@@ -2231,7 +2231,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Version {version}'**
-  String appVersion(Object version);
+  String appVersion(String version);
 
   /// No description provided for @appNameSuffix.
   ///
@@ -2291,25 +2291,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'{count} selected'**
-  String selectedItems(Object count);
-
-  /// No description provided for @welcomeToHymnsApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Welcome to Hymns App'**
-  String get welcomeToHymnsApp;
-
-  /// No description provided for @praiseTheLord.
-  ///
-  /// In en, this message translates to:
-  /// **'Praise the Lord for He is good'**
-  String get praiseTheLord;
-
-  /// No description provided for @hymnsApp.
-  ///
-  /// In en, this message translates to:
-  /// **'Hymns App'**
-  String get hymnsApp;
+  String selectedItems(int count);
 
   /// No description provided for @aboutTheApp.
   ///
@@ -2729,13 +2711,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Username: {username}'**
-  String usernameLabel(Object username);
+  String usernameLabel(String username);
 
   /// No description provided for @userIdLabel.
   ///
   /// In en, this message translates to:
   /// **'ID: {userId}'**
-  String userIdLabel(Object userId);
+  String userIdLabel(String userId);
 
   /// No description provided for @syncInfoMessage1.
   ///
@@ -2748,6 +2730,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This will not be lost if you change accounts.'**
   String get syncInfoMessage2;
+
+  /// No description provided for @errorOccurredWithDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred: {error}'**
+  String errorOccurredWithDetails(String error);
+
+  /// No description provided for @clearSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get clearSearch;
+
+  /// No description provided for @appSection.
+  ///
+  /// In en, this message translates to:
+  /// **'App'**
+  String get appSection;
+
+  /// No description provided for @totalCachedHymns.
+  ///
+  /// In en, this message translates to:
+  /// **'Total cached hymns: {count}'**
+  String totalCachedHymns(int count);
+
+  /// No description provided for @withAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'With audio: {count}'**
+  String withAudio(int count);
+
+  /// No description provided for @withoutAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Without audio: {count}'**
+  String withoutAudio(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
