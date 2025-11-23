@@ -278,12 +278,34 @@ class VersionCheckService {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         String latestVersion = data['tag_name'].toString().replaceAll('v', '');
+        final releaseNotes = data['body'] ?? 'No release notes available';
+
+        // Prioritize universal APK, then fallback to any APK
+        final apkAsset = data['assets']?.firstWhere(
+          (asset) =>
+              asset['name'].toString().toLowerCase().contains('universal') &&
+              asset['name'].toString().endsWith('.apk'),
+          orElse: () => data['assets']?.firstWhere(
+            (asset) => asset['name'].toString().endsWith('.apk'),
+            orElse: () => null,
+          ),
+        );
+
+        final downloadUrl =
+            apkAsset?['browser_download_url'] ?? data['html_url'];
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
 
         if (kDebugMode) {
           print(
               '🔄 Manual check: current=$currentVersion, latest=$latestVersion, newer=$isNewer');
+        }
+
+        // Cache version info for download
+        if (isNewer) {
+          _cachedVersion = latestVersion;
+          _cachedDownloadUrl = downloadUrl;
+          _cachedReleaseNotes = releaseNotes;
         }
 
         // Only return true if there's actually a newer version and not dismissed
@@ -613,6 +635,21 @@ class VersionCheckService {
     if (_cachedDownloadUrl != null && _cachedVersion != null) {
       await ApkDownloadService.downloadAndInstallApk(
           _cachedDownloadUrl!, _cachedVersion!);
+    } else {
+      throw Exception(
+          'No update information available. Please check for updates first.');
     }
+  }
+
+  static String? getCachedVersion() {
+    return _cachedVersion;
+  }
+
+  static String? getCachedReleaseNotes() {
+    return _cachedReleaseNotes;
+  }
+
+  static bool hasUpdateCached() {
+    return _cachedVersion != null && _cachedDownloadUrl != null;
   }
 }

@@ -20,6 +20,8 @@ class _AboutScreenState extends State<AboutScreen> {
   bool _checkingForUpdates = false;
   bool _updateAvailable = false;
   bool _flexibleUpdateDownloaded = false;
+  String? _latestVersion;
+  String? _releaseNotes;
   final ColorController colorController = Get.find<ColorController>();
 
   @override
@@ -91,6 +93,12 @@ class _AboutScreenState extends State<AboutScreen> {
         setState(() {
           _updateAvailable = updateAvailable;
           _checkingForUpdates = false;
+
+          // Get cached version info if update is available
+          if (updateAvailable) {
+            _latestVersion = VersionCheckService.getCachedVersion();
+            _releaseNotes = VersionCheckService.getCachedReleaseNotes();
+          }
         });
       }
     } catch (e) {
@@ -265,8 +273,8 @@ class _AboutScreenState extends State<AboutScreen> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color:
-                            colorController.primaryColor.value.withValues(alpha: 0.2),
+                        color: colorController.primaryColor.value
+                            .withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -290,7 +298,8 @@ class _AboutScreenState extends State<AboutScreen> {
                       l10n.appVersion(_appVersion),
                       style: TextStyle(
                         fontSize: 16,
-                        color: colorController.textColor.value.withValues(alpha: 0.7),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -298,7 +307,8 @@ class _AboutScreenState extends State<AboutScreen> {
                       '${l10n.headquarters} ${l10n.headquartersAddress}',
                       style: TextStyle(
                         fontSize: 14,
-                        color: colorController.textColor.value.withValues(alpha: 0.6),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.6),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -435,8 +445,8 @@ class _AboutScreenState extends State<AboutScreen> {
                         Icon(
                           Icons.arrow_forward_ios,
                           size: 16,
-                          color:
-                              colorController.textColor.value.withValues(alpha: 0.3),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3),
                         ),
                     ],
                   ),
@@ -451,6 +461,138 @@ class _AboutScreenState extends State<AboutScreen> {
 
             if (_updateAvailable) ...[
               const SizedBox(height: 12),
+
+              // Version info card
+              Card(
+                elevation: 1,
+                shadowColor: Colors.black.withValues(alpha: 0.05),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                color: Colors.orange.withValues(alpha: 0.05),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.orange,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            l10n.updateAvailableTitle,
+                            style: TextStyle(
+                              color: colorController.textColor.value,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.currentVersion,
+                                style: TextStyle(
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.6),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _appVersion,
+                                style: TextStyle(
+                                  color: colorController.textColor.value,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Icon(
+                            Icons.arrow_forward,
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.4),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                l10n.latestVersion,
+                                style: TextStyle(
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.6),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _latestVersion ?? 'Unknown',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      if (_releaseNotes != null &&
+                          _releaseNotes!.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Divider(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.1),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          l10n.whatsNew,
+                          style: TextStyle(
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.6),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _releaseNotes!.length > 200
+                              ? '${_releaseNotes!.substring(0, 200)}...'
+                              : _releaseNotes!,
+                          style: TextStyle(
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.8),
+                            fontSize: 13,
+                          ),
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              )
+                  .animate()
+                  .fadeIn(duration: const Duration(milliseconds: 300))
+                  .slideY(begin: -0.1, end: 0),
+
+              const SizedBox(height: 12),
+
               _buildActionCard(
                 icon: Icons.download_rounded,
                 label: _flexibleUpdateDownloaded
@@ -479,7 +621,8 @@ class _AboutScreenState extends State<AboutScreen> {
                   Text(
                     l10n.developedBy,
                     style: TextStyle(
-                      color: colorController.textColor.value.withValues(alpha: 0.6),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.6),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -501,7 +644,8 @@ class _AboutScreenState extends State<AboutScreen> {
                     '${l10n.addressLabel} Ambalavao tsienimparihy',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        color: colorController.textColor.value.withValues(alpha: 0.7),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.7),
                         fontSize: 13),
                   ),
                 ],
