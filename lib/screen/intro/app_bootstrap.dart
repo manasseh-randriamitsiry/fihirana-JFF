@@ -25,11 +25,10 @@ class _AppBootstrapState extends State<AppBootstrap> {
     _initialize();
   }
 
-  void _updateProgress(double progress, String task) {
+  void _updateProgress(double progress) {
     if (mounted) {
       setState(() {
         _progress = progress;
-        _currentTask = task;
       });
     }
   }
@@ -37,37 +36,37 @@ class _AppBootstrapState extends State<AppBootstrap> {
   Future<void> _initialize() async {
     try {
       // Step 1: Initialize Firebase (0% -> 40%)
-      _updateProgress(0.0, 'Start');
+      _updateProgress(0.0);
 
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      _updateProgress(0.4, 'wait');
+      _updateProgress(0.4);
 
       // Step 2: Initialize Notifications (40% -> 60%)
-      _updateProgress(0.4, 'wait...');
+      _updateProgress(0.4);
 
       await InitService.initializeNotifications();
 
-      _updateProgress(0.6, 'Halfway');
+      _updateProgress(0.6);
 
       // Step 3: Initialize Controllers (60% -> 90%)
-      _updateProgress(0.6, 'Halfway...');
+      _updateProgress(0.6);
 
       await InitService.initControllers();
 
-      _updateProgress(0.9, 'Almost there');
+      _updateProgress(0.9);
 
       // Initialize deep links for playlist sharing
       await InitService.initDeepLinks();
 
       // Step 4: Get SharedPreferences (90% -> 100%)
-      _updateProgress(0.9, 'Almost there ...');
+      _updateProgress(0.9);
 
       final prefs = await SharedPreferences.getInstance();
 
-      _updateProgress(1.0, 'Done');
+      _updateProgress(1.0);
 
       // Small delay to show completion
       await Future.delayed(const Duration(milliseconds: 300));
@@ -83,7 +82,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       if (kDebugMode) {
         print('Error during bootstrap: $e');
       }
-      _updateProgress(1.0, 'Nisy olana');
+      _updateProgress(1.0);
       await Future.delayed(const Duration(milliseconds: 300));
 
       // Try to continue anyway
