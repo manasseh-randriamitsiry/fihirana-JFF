@@ -8,6 +8,7 @@ import '../../services/audio_service.dart';
 import '../../services/audio_file_mapping.dart';
 import '../../services/local_audio_service.dart';
 import '../../widgets/modern_audio_player_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 class AudioPlayerScreen extends StatefulWidget {
   final Hymn hymn;
@@ -56,13 +57,14 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   }
 
   Future<void> _toggleFavorite() async {
+    final l10n = AppLocalizations.of(context)!;
     try {
       await _hymnService.toggleFavorite(_currentHymn);
       _checkFavoriteStatus();
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating favorites: $e')),
+        SnackBar(content: Text(l10n.errorUpdatingFavorites)),
       );
     }
   }
@@ -76,7 +78,8 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       try {
         initialList = await _hymnService.getAllHymns();
         if (kDebugMode) {
-          print('EnhancedAudioPlayer: Loaded ${initialList.length} total hymns');
+          print(
+              'EnhancedAudioPlayer: Loaded ${initialList.length} total hymns');
         }
       } catch (e) {
         if (kDebugMode) {
@@ -114,24 +117,24 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
     final audioCount = allAvailableHymnIds.length;
     if (kDebugMode) {
       print(
-        'EnhancedAudioPlayer: Found $audioCount hymns with audio (${localHymnIds.length} local, ${remoteAudioFiles.length} remote)');
+          'EnhancedAudioPlayer: Found $audioCount hymns with audio (${localHymnIds.length} local, ${remoteAudioFiles.length} remote)');
     }
 
     // Debug: Print sample info
     if (kDebugMode) {
       print(
-        'EnhancedAudioPlayer: Sample local hymn IDs: ${localHymnIds.take(5).toList()}');
+          'EnhancedAudioPlayer: Sample local hymn IDs: ${localHymnIds.take(5).toList()}');
     }
     if (kDebugMode) {
       print(
-        'EnhancedAudioPlayer: Sample remote audio files: ${remoteAudioFiles.entries.take(5).toList()}');
+          'EnhancedAudioPlayer: Sample remote audio files: ${remoteAudioFiles.entries.take(5).toList()}');
     }
     if (kDebugMode) {
       print('EnhancedAudioPlayer: Current hymn ID: ${widget.hymn.id}');
     }
     if (kDebugMode) {
       print(
-        'EnhancedAudioPlayer: Current hymn has local audio: ${localHymnIds.contains(widget.hymn.id)}');
+          'EnhancedAudioPlayer: Current hymn has local audio: ${localHymnIds.contains(widget.hymn.id)}');
     }
 
     // Create playlist by matching hymns with available audio files
@@ -151,13 +154,13 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       filteredList.insert(0, widget.hymn);
       if (kDebugMode) {
         print(
-          'EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
+            'EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
       }
     }
 
     if (kDebugMode) {
       print(
-        'EnhancedAudioPlayer: Final playlist has ${filteredList.length} hymns');
+          'EnhancedAudioPlayer: Final playlist has ${filteredList.length} hymns');
     }
 
     if (mounted) {
@@ -194,10 +197,11 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   }
 
   Future<void> _downloadAudioForHymn(Hymn hymn) async {
+    final l10n = AppLocalizations.of(context)!;
     if (_hasLocalAudio(hymn)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This hymn is already downloaded!')),
+        SnackBar(content: Text(l10n.hymnAlreadyDownloaded)),
       );
       return;
     }
@@ -229,7 +233,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
         } else {
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Download failed.')),
+            SnackBar(content: Text(l10n.downloadFailed)),
           );
         }
       }

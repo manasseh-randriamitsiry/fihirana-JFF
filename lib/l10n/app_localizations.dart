@@ -409,6 +409,12 @@ abstract class AppLocalizations {
   /// **'Error'**
   String get error;
 
+  /// No description provided for @errorUpdatingFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating favorites'**
+  String get errorUpdatingFavorites;
+
   /// No description provided for @success.
   ///
   /// In en, this message translates to:
@@ -462,6 +468,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hymn {number}'**
   String hymnNumber(int number);
+
+  /// No description provided for @hymnAlreadyDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymn already downloaded'**
+  String get hymnAlreadyDownloaded;
+
+  /// No description provided for @playlistNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist not found'**
+  String get playlistNotFound;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @view.
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get view;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @hymnNotDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymn not downloaded'**
+  String get hymnNotDownloaded;
 
   /// No description provided for @addToFavorites.
   ///
@@ -1813,12 +1861,6 @@ abstract class AppLocalizations {
   /// **'Download...'**
   String get downloading;
 
-  /// No description provided for @download.
-  ///
-  /// In en, this message translates to:
-  /// **'Download'**
-  String get download;
-
   /// No description provided for @deleteHymnQuestion.
   ///
   /// In en, this message translates to:
@@ -2406,6 +2448,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Test notification sent!'**
   String get testNotificationSent;
+
+  /// No description provided for @myPlaylists.
+  ///
+  /// In en, this message translates to:
+  /// **'My Playlists'**
+  String get myPlaylists;
+
+  /// No description provided for @noPlaylistsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No playlists yet'**
+  String get noPlaylistsYet;
+
+  /// No description provided for @createFirstPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Create your first playlist'**
+  String get createFirstPlaylist;
+
+  /// No description provided for @newPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'New Playlist'**
+  String get newPlaylist;
+
+  /// No description provided for @deletePlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Playlist'**
+  String get deletePlaylist;
+
+  /// No description provided for @addToPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to Playlist'**
+  String get addToPlaylist;
+
+  /// No description provided for @createNewPlaylist.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Playlist'**
+  String get createNewPlaylist;
+
+  /// No description provided for @playlistName.
+  ///
+  /// In en, this message translates to:
+  /// **'Playlist Name'**
+  String get playlistName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

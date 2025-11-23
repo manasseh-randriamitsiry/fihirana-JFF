@@ -165,6 +165,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error => 'Error';
 
   @override
+  String get errorUpdatingFavorites => 'Error updating favorites';
+
+  @override
   String get success => 'Success';
 
   @override
@@ -192,6 +195,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String hymnNumber(int number) {
     return 'Hymn $number';
   }
+
+  @override
+  String get hymnAlreadyDownloaded => 'Hymn already downloaded';
+
+  @override
+  String get playlistNotFound => 'Playlist not found';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get view => 'View';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get hymnNotDownloaded => 'Hymn not downloaded';
 
   @override
   String get addToFavorites => 'Add to favorites';
@@ -901,9 +925,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get downloading => 'Download...';
 
   @override
-  String get download => 'Download';
-
-  @override
   String get deleteHymnQuestion => 'Delete hymn?';
 
   @override
@@ -1208,4 +1229,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get testNotificationSent => 'Test notification sent!';
+
+  @override
+  String get myPlaylists => 'My Playlists';
+
+  @override
+  String get noPlaylistsYet => 'No playlists yet';
+
+  @override
+  String get createFirstPlaylist => 'Create your first playlist';
+
+  @override
+  String get newPlaylist => 'New Playlist';
+
+  @override
+  String get deletePlaylist => 'Delete Playlist';
+
+  @override
+  String get addToPlaylist => 'Add to Playlist';
+
+  @override
+  String get createNewPlaylist => 'Create New Playlist';
+
+  @override
+  String get playlistName => 'Playlist Name';
 }
