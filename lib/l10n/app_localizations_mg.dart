@@ -1377,4 +1377,23 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get noChaptersFound => 'No chapters found';
+
+  @override
+  String get yourProfile => 'Your Profile';
+
+  @override
+  String usernameLabel(Object username) {
+    return 'Username: $username';
+  }
+
+  @override
+  String userIdLabel(Object userId) {
+    return 'ID: $userId';
+  }
+
+  @override
+  String get syncInfoMessage1 => 'Your favorite hymns and history are saved to your Google account.';
+
+  @override
+  String get syncInfoMessage2 => 'This will not be lost if you change accounts.';
 }

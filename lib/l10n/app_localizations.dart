@@ -1984,7 +1984,7 @@ abstract class AppLocalizations {
   /// No description provided for @unknownUser.
   ///
   /// In en, this message translates to:
-  /// **'Unknown User'**
+  /// **'Unknown'**
   String get unknownUser;
 
   /// No description provided for @noUsers.
@@ -2718,6 +2718,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No chapters found'**
   String get noChaptersFound;
+
+  /// No description provided for @yourProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Profile'**
+  String get yourProfile;
+
+  /// No description provided for @usernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username: {username}'**
+  String usernameLabel(Object username);
+
+  /// No description provided for @userIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ID: {userId}'**
+  String userIdLabel(Object userId);
+
+  /// No description provided for @syncInfoMessage1.
+  ///
+  /// In en, this message translates to:
+  /// **'Your favorite hymns and history are saved to your Google account.'**
+  String get syncInfoMessage1;
+
+  /// No description provided for @syncInfoMessage2.
+  ///
+  /// In en, this message translates to:
+  /// **'This will not be lost if you change accounts.'**
+  String get syncInfoMessage2;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
