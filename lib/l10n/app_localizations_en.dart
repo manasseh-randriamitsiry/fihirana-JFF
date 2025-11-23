@@ -862,7 +862,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOut => 'Sign Out';
 
   @override
-  String get aboutUs => 'About Us';
+  String get aboutUs => 'About';
 
   @override
   String get cannotUpdate => 'Cannot update';
@@ -1249,7 +1249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deletePlaylist => 'Delete Playlist';
 
   @override
-  String get addToPlaylist => 'Add to Playlist';
+  String get addToPlaylist => 'Playlist';
 
   @override
   String get createNewPlaylist => 'Create New Playlist';

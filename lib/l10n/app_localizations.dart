@@ -1750,7 +1750,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutUs.
   ///
   /// In en, this message translates to:
-  /// **'About Us'**
+  /// **'About'**
   String get aboutUs;
 
   /// No description provided for @cannotUpdate.
@@ -2488,7 +2488,7 @@ abstract class AppLocalizations {
   /// No description provided for @addToPlaylist.
   ///
   /// In en, this message translates to:
-  /// **'Add to Playlist'**
+  /// **'Playlist'**
   String get addToPlaylist;
 
   /// No description provided for @createNewPlaylist.
