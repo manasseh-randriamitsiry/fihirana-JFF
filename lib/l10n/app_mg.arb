@@ -1,4 +1,4 @@
-﻿{
+{
   "@@locale": "mg",
   "appTitle": "Fihirana",
   "home": "Fandraisana",
@@ -388,5 +388,68 @@
   "todaysVerse": "Andininy Androany",
   "noVerseAvailable": "Tsy misy andininy",
   "sendTestNotification": "Alefaso Fampandrenesana Fitsapana",
-  "testNotificationSent": "Fampandrenesana fitsapana nalefa!"
+  "testNotificationSent": "Fampandrenesana fitsapana nalefa!",
+  "clearExpired": "Hanasa ny cache nihavaozina",
+  "clearAllCache": "Hanasa ny cache rehetra",
+  "clearCacheWarning": "Ho fafana ny angona momba ny fahampian'ny sound rehetra. Hiverina adinon'ny application ny hijery ny fahampian'ny sound indray.",
+  "allCacheCleared": "Voasasa ny cache rehetra",
+  "expiredCacheCleared": "Voasasa ny cache nihavaozina",
+  "couldNotLaunchGoogleFonts": "Tsy afaka nanokatra Google Fonts",
+  "getFonts": "Haka fonts",
+  "errorPlayingAudio": "Nisy olana tamin'ny fampahafantarana sound: {error}",
+  "@errorPlayingAudio": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "playlistExampleHint": "oh: Service Alahady",
+  "confirmDeletePlaylist": "Tena te hamafa ny \"{playlistTitle}\" ve ianao?",
+  "@confirmDeletePlaylist": {
+    "placeholders": {
+      "playlistTitle": {"type": "String"}
+    }
+  },
+  "searchFavoriteSongsHint": "Karohy ny hira tiana...",
+  "searchWordsOrVersesHint": "Karohy teny na andininy...",
+  "searchBooks": "Karohy boky",
+  "wholeBible": "Baiboly manontolo",
+  "audioPlayer": "Mpamaky audio",
+  "playAudio": "Alefaso ny audio",
+  "audioCacheManagement": "Fitantanana cache audio",
+  "clearAll": "Hanasa rehetra",
+  "guest": "Vahiny",
+  "signIn": "Hiditra",
+  "library": "Biblioteka",
+  "personal": "Manokana",
+  "playlists": "Playlists",
+  "dailyBibleVerse": "Andininy Baiboly isan'andro",
+  "audioCache": "Cache audio",
+  "adminPanel": "Panel admin",
+  "dailyInspiration": "Fanentanana isan'andro",
+  "receiveVerseEveryDay": "Mandray andininy Baiboly isan'andro",
+  "enableDailyVerse": "Alefaso ny andininy isan'andro",
+  "youWillReceiveDailyNotifications": "Hahazo fampandrenesana isan'andro ianao",
+  "turnOnToReceiveDailyVerses": "Alefaso mba hahazo andininy isan'andro",
+  "notificationTime": "Ora fampandrenesana",
+  "noVerseAvailable": "Tsy misy andininy",
+  "createNewPlaylist": "Hamorona playlist vaovao",
+  "added": "Nampiana",
+  "noHymnsAddedYet": "Tsy mbola nampidira hira",
+  "errorLoadingHymns": "Nisy olana tamin'ny fakirana hira",
+  "myPlaylists": "Ny playlists-ko",
+  "noPlaylistsYet": "Tsy mbola misy playlist",
+  "createFirstPlaylist": "Hamorona ny playlist voalohanyo",
+  "newPlaylist": "Playlist vaovao",
+  "deletePlaylist": "Fafao ny playlist",
+  "addToPlaylist": "Ampidiro amin'ny playlist",
+  "playlistName": "Anaran'ny playlist",
+  "hymnsCount": "{count,plural, =0{Tsy misy hira} =1{1 hira} other{{count} hira}}",
+  "@hymnsCount": {
+    "description": "Hafatra izay mampiseho ny isan'ny hira ao amin'ny playlist iray",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -495,5 +495,68 @@
   "todaysVerse": "Verset du Jour",
   "noVerseAvailable": "Aucun verset disponible",
   "sendTestNotification": "Envoyer une Notification de Test",
-  "testNotificationSent": "Notification de test envoyée !"
+  "testNotificationSent": "Notification de test envoyée !",
+  "clearExpired": "Effacer expiré",
+  "clearAllCache": "Effacer tout le cache",
+  "clearCacheWarning": "Cela supprimera toutes les données de disponibilité audio en cache. L'application devra vérifier à nouveau la disponibilité audio.",
+  "allCacheCleared": "Tout le cache a été effacé",
+  "expiredCacheCleared": "Cache expiré effacé",
+  "couldNotLaunchGoogleFonts": "Impossible de lancer Google Fonts",
+  "getFonts": "Obtenir les polices",
+  "errorPlayingAudio": "Erreur de lecture audio: {error}",
+  "@errorPlayingAudio": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "playlistExampleHint": "ex: Service du dimanche",
+  "confirmDeletePlaylist": "Êtes-vous sûr de vouloir supprimer \"{playlistTitle}\" ?",
+  "@confirmDeletePlaylist": {
+    "placeholders": {
+      "playlistTitle": {"type": "String"}
+    }
+  },
+  "searchFavoriteSongsHint": "Rechercher des chansons favorites...",
+  "searchWordsOrVersesHint": "Rechercher des mots ou des versets...",
+  "searchBooks": "Rechercher des livres",
+  "wholeBible": "Bible entière",
+  "audioPlayer": "Lecteur audio",
+  "playAudio": "Lire l'audio",
+  "audioCacheManagement": "Gestion du cache audio",
+  "clearAll": "Tout effacer",
+  "guest": "Invité",
+  "signIn": "Se connecter",
+  "library": "Bibliothèque",
+  "personal": "Personnel",
+  "playlists": "Playlists",
+  "dailyBibleVerse": "Verset biblique quotidien",
+  "audioCache": "Cache audio",
+  "adminPanel": "Panneau d'administration",
+  "dailyInspiration": "Inspiration quotidienne",
+  "receiveVerseEveryDay": "Recevez un verset biblique chaque jour",
+  "enableDailyVerse": "Activer le verset quotidien",
+  "youWillReceiveDailyNotifications": "Vous recevrez des notifications quotidiennes",
+  "turnOnToReceiveDailyVerses": "Activez pour recevoir des versets quotidiens",
+  "notificationTime": "Heure de notification",
+  "noVerseAvailable": "Aucun verset disponible",
+  "createNewPlaylist": "Créer une nouvelle playlist",
+  "added": "Ajouté",
+  "noHymnsAddedYet": "Aucun cantique ajouté encore",
+  "errorLoadingHymns": "Erreur lors du chargement des cantiques",
+  "myPlaylists": "Mes playlists",
+  "noPlaylistsYet": "Aucune playlist encore",
+  "createFirstPlaylist": "Créez votre première playlist",
+  "newPlaylist": "Nouvelle playlist",
+  "deletePlaylist": "Supprimer la playlist",
+  "addToPlaylist": "Ajouter à la playlist",
+  "playlistName": "Nom de la playlist",
+  "hymnsCount": "{count,plural, =0{Aucun cantique} =1{1 cantique} other{{count} cantiques}}",
+  "@hymnsCount": {
+    "description": "Un message qui affiche le nombre de cantiques dans une liste de lecture",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

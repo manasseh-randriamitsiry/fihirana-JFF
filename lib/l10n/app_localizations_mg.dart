@@ -180,6 +180,18 @@ class AppLocalizationsMg extends AppLocalizations {
   String get confirm => 'Hamafiso';
 
   @override
+  String get newHymn => 'New Hymn';
+
+  @override
+  String get deleteVerse => 'Delete verse';
+
+  @override
+  String get addVerse => 'Add Verse';
+
+  @override
+  String get hymnHint => 'Hymn hint';
+
+  @override
   String get confirmDelete => 'Tena hamafa?';
 
   @override
@@ -809,7 +821,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get leave => 'Ajanony';
 
   @override
-  String get signIn => 'Midira';
+  String get signIn => 'Hiditra';
 
   @override
   String get additionalHymns => 'Fihirana fanampiny';
@@ -949,7 +961,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get noHymns => 'Tsy misy hira';
 
   @override
-  String get adminPanel => 'Panel-n’ny Admin';
+  String get adminPanel => 'Panel admin';
 
   @override
   String get date => 'Daty';
@@ -1079,7 +1091,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get cannotAddHymns => 'Tsy afaka manampy hira amin’izao fotoana izao';
 
   @override
-  String get searchBooks => 'Hikaroka boky...';
+  String get searchBooks => 'Karohy boky';
 
   @override
   String searchCurrentChapter(Object chapter) {
@@ -1198,16 +1210,16 @@ class AppLocalizationsMg extends AppLocalizations {
   String get acceptTerms => 'Ekeko ireo fepetra ireo';
 
   @override
-  String get dailyBibleVerse => 'Andininy Baiboly Isan\'andro';
+  String get dailyBibleVerse => 'Andininy Baiboly isan\'andro';
 
   @override
-  String get dailyInspiration => 'Fanentanana Isan\'andro';
+  String get dailyInspiration => 'Fanentanana isan\'andro';
 
   @override
   String get receiveVerseEveryDay => 'Mandray andininy Baiboly isan\'andro';
 
   @override
-  String get enableDailyVerse => 'Alefaso ny Andininy Isan\'andro';
+  String get enableDailyVerse => 'Alefaso ny andininy isan\'andro';
 
   @override
   String get youWillReceiveDailyNotifications => 'Hahazo fampandrenesana isan\'andro ianao';
@@ -1216,7 +1228,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get turnOnToReceiveDailyVerses => 'Alefaso mba hahazo andininy isan\'andro';
 
   @override
-  String get notificationTime => 'Ora Fampandrenesana';
+  String get notificationTime => 'Ora fampandrenesana';
 
   @override
   String get todaysVerse => 'Andininy Androany';
@@ -1231,26 +1243,138 @@ class AppLocalizationsMg extends AppLocalizations {
   String get testNotificationSent => 'Fampandrenesana fitsapana nalefa!';
 
   @override
-  String get myPlaylists => 'My Playlists';
+  String get myPlaylists => 'Ny playlists-ko';
 
   @override
-  String get noPlaylistsYet => 'No playlists yet';
+  String get noPlaylistsYet => 'Tsy mbola misy playlist';
 
   @override
-  String get createFirstPlaylist => 'Create your first playlist';
+  String get createFirstPlaylist => 'Hamorona ny playlist voalohanyo';
 
   @override
-  String get newPlaylist => 'New Playlist';
+  String get newPlaylist => 'Playlist vaovao';
 
   @override
-  String get deletePlaylist => 'Delete Playlist';
+  String get deletePlaylist => 'Fafao ny playlist';
 
   @override
-  String get addToPlaylist => 'Add to Playlist';
+  String get addToPlaylist => 'Ampidiro amin\'ny playlist';
 
   @override
-  String get createNewPlaylist => 'Create New Playlist';
+  String get createNewPlaylist => 'Hamorona playlist vaovao';
 
   @override
-  String get playlistName => 'Playlist Name';
+  String get playlistName => 'Anaran\'ny playlist';
+
+  @override
+  String get clearExpired => 'Hanasa ny cache nihavaozina';
+
+  @override
+  String get clearAllCache => 'Hanasa ny cache rehetra';
+
+  @override
+  String get clearCacheWarning => 'Ho fafana ny angona momba ny fahampian\'ny sound rehetra. Hiverina adinon\'ny application ny hijery ny fahampian\'ny sound indray.';
+
+  @override
+  String get allCacheCleared => 'Voasasa ny cache rehetra';
+
+  @override
+  String get expiredCacheCleared => 'Voasasa ny cache nihavaozina';
+
+  @override
+  String get couldNotLaunchGoogleFonts => 'Tsy afaka nanokatra Google Fonts';
+
+  @override
+  String get getFonts => 'Haka fonts';
+
+  @override
+  String errorPlayingAudio(String error) {
+    return 'Nisy olana tamin\'ny fampahafantarana sound: $error';
+  }
+
+  @override
+  String get playlistExampleHint => 'oh: Service Alahady';
+
+  @override
+  String confirmDeletePlaylist(String playlistTitle) {
+    return 'Tena te hamafa ny \"$playlistTitle\" ve ianao?';
+  }
+
+  @override
+  String get searchFavoriteSongsHint => 'Karohy ny hira tiana...';
+
+  @override
+  String get searchWordsOrVersesHint => 'Karohy teny na andininy...';
+
+  @override
+  String get wholeBible => 'Baiboly manontolo';
+
+  @override
+  String get audioPlayer => 'Mpamaky audio';
+
+  @override
+  String get playAudio => 'Alefaso ny audio';
+
+  @override
+  String get audioCacheManagement => 'Fitantanana cache audio';
+
+  @override
+  String get clearAll => 'Hanasa rehetra';
+
+  @override
+  String get guest => 'Vahiny';
+
+  @override
+  String get library => 'Biblioteka';
+
+  @override
+  String get personal => 'Manokana';
+
+  @override
+  String get playlists => 'Playlists';
+
+  @override
+  String get audioCache => 'Cache audio';
+
+  @override
+  String get added => 'Nampiana';
+
+  @override
+  String get noHymnsAddedYet => 'Tsy mbola nampidira hira';
+
+  @override
+  String get errorLoadingHymns => 'Nisy olana tamin\'ny fakirana hira';
+
+  @override
+  String get audioAvailable => 'Audio available';
+
+  @override
+  String get noAudioAvailable => 'No audio available';
+
+  @override
+  String get searchBible => 'Bible search';
+
+  @override
+  String get enterWordToSearch => 'Enter word to search';
+
+  @override
+  String get noSearchResults => 'No search results';
+
+  @override
+  String get changeWordToSearch => 'Change word to search';
+
+  @override
+  String hymnsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hira',
+      one: '1 hira',
+      zero: 'Tsy misy hira',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noChaptersFound => 'No chapters found';
 }

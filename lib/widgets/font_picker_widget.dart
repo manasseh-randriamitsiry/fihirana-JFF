@@ -217,9 +217,9 @@ class FontPickerWidget extends StatelessWidget {
                             mode: LaunchMode.externalApplication)) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                   content:
-                                      Text('Could not launch Google Fonts')),
+                                      Text(l10n.couldNotLaunchGoogleFonts)),
                             );
                           }
                         }
@@ -229,7 +229,7 @@ class FontPickerWidget extends StatelessWidget {
                             horizontal: 12, vertical: 8),
                       ),
                       child: Text(
-                        'Get Fonts',
+                        l10n.getFonts,
                         style: TextStyle(
                           color: _colorController.textColor.value
                               .withValues(alpha: 0.7),

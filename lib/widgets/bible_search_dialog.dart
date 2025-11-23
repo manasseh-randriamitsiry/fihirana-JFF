@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../controller/bible_controller.dart';
 import '../controller/color_controller.dart';
 import '../models/bible_search.dart';
+import '../l10n/app_localizations.dart';
 
 class BibleSearchDialog extends StatefulWidget {
   const BibleSearchDialog({super.key});
@@ -59,6 +60,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
@@ -77,8 +79,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
         child: Column(
           children: [
             _buildHeader(),
-            _buildSearchBar(),
-            _buildSearchContextSelector(),
+            _buildSearchBar(l10n),
+            _buildSearchContextSelector(l10n),
             Expanded(child: _buildSearchResults()),
           ],
         ),
@@ -87,6 +89,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   }
 
   Widget _buildHeader() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -106,7 +109,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Karoka Baiboly',
+              l10n.searchBible,
               style: TextStyle(
                 fontFamily: 'Roboto',
                 color: colorController.textColor.value,
@@ -125,7 +128,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -144,7 +147,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           fontSize: _fontSize,
         ),
         decoration: InputDecoration(
-          hintText: 'Karoka teny na andininy...',
+          hintText: l10n.searchWordsOrVersesHint,
           hintStyle: TextStyle(
             fontFamily: 'Roboto',
             color: colorController.textColor.value.withValues(alpha: 0.5),
@@ -178,7 +181,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
     );
   }
 
-  Widget _buildSearchContextSelector() {
+  Widget _buildSearchContextSelector(AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -187,7 +190,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
             child: _buildContextButton(
               context: BibleSearchContext.books,
               icon: Icons.book_rounded,
-              label: 'Karoka Boky',
+              label: l10n.searchBooks,
             ),
           ),
           const SizedBox(width: 12),
@@ -195,7 +198,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
             child: _buildContextButton(
               context: BibleSearchContext.allBible,
               icon: Icons.menu_book_rounded,
-              label: 'Baiboly manontolo',
+              label: l10n.wholeBible,
             ),
           ),
         ],
@@ -283,6 +286,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   }
 
   Widget _buildLoadingWidget() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -293,7 +297,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           ),
           const SizedBox(height: 20),
           Text(
-            'Mikaroka...',
+            l10n.search,
             style: TextStyle(
               fontFamily: 'Roboto',
               color: colorController.textColor.value.withValues(alpha: 0.7),
@@ -306,6 +310,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   }
 
   Widget _buildEmptySearchWidget() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -317,7 +322,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Soraty ny teny hikarohana',
+            l10n.enterWordToSearch,
             style: TextStyle(
               fontFamily: 'Roboto',
               color: colorController.textColor.value.withValues(alpha: 0.5),
@@ -330,6 +335,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   }
 
   Widget _buildNoResultsWidget() {
+    final l10n = AppLocalizations.of(context)!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -341,7 +347,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Tsy misy valin\'ny karoka',
+            l10n.noSearchResults,
             style: TextStyle(
               fontFamily: 'Roboto',
               color: colorController.textColor.value.withValues(alpha: 0.7),
@@ -350,7 +356,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Mandeha manova ny teny karoka',
+            l10n.changeWordToSearch,
             style: TextStyle(
               fontFamily: 'Roboto',
               color: colorController.textColor.value.withValues(alpha: 0.5),
@@ -428,7 +434,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
                   result.subtitle,
                   style: TextStyle(
                     fontFamily: 'Roboto',
-                    color: colorController.textColor.value.withValues(alpha: 0.7),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.7),
                     fontSize: _fontSize * 0.9,
                   ),
                   maxLines: 3,
@@ -481,7 +488,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
         text: result.text.substring(index, index + query.length),
         style: TextStyle(
           fontFamily: 'Roboto',
-          backgroundColor: colorController.primaryColor.value.withValues(alpha: 0.3),
+          backgroundColor:
+              colorController.primaryColor.value.withValues(alpha: 0.3),
           color: colorController.primaryColor.value,
           fontSize: _fontSize * 0.9,
           fontWeight: FontWeight.bold,

@@ -57,6 +57,10 @@
   "warning": "Warning",
   "info": "Information",
   "confirm": "Confirm",
+  "newHymn": "New Hymn",
+  "deleteVerse":"Delete verse",
+  "addVerse": "Add Verse",
+  "hymnHint":"Hymn hint",
   "confirmDelete": "Are you sure you want to delete this item?",
   "confirmLogout": "Are you sure you want to logout?",
   "noResults": "No results found",
@@ -901,5 +905,69 @@
   "deletePlaylist": "Delete Playlist",
   "addToPlaylist": "Add to Playlist",
   "createNewPlaylist": "Create New Playlist",
-  "playlistName": "Playlist Name"
+  "playlistName": "Playlist Name",
+  "clearExpired": "Clear Expired",
+  "clearAllCache": "Clear All Cache",
+  "clearCacheWarning": "This will remove all cached audio availability data. The app will need to check audio availability again.",
+  "allCacheCleared": "All cache cleared",
+  "expiredCacheCleared": "Expired cache cleared",
+  "couldNotLaunchGoogleFonts": "Could not launch Google Fonts",
+  "getFonts": "Get Fonts",
+  "errorPlayingAudio": "Error playing audio: {error}",
+  "@errorPlayingAudio": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "playlistExampleHint": "e.g., Sunday Service",
+  "confirmDeletePlaylist": "Are you sure you want to delete \"{playlistTitle}\"?",
+  "@confirmDeletePlaylist": {
+    "placeholders": {
+      "playlistTitle": {"type": "String"}
+    }
+  },
+  "searchFavoriteSongsHint": "Search for favorite songs...",
+  "searchWordsOrVersesHint": "Search for words or verses...",
+  "searchBooks": "Search Books",
+  "wholeBible": "Whole Bible",
+  "audioPlayer": "Audio Player",
+  "playAudio": "Play audio",
+  "audioCacheManagement": "Audio Cache Management",
+  "clearAll": "Clear All",
+  "guest": "Guest",
+  "signIn": "Sign In",
+  "library": "Library",
+  "personal": "Personal",
+  "playlists": "Playlists",
+  "dailyBibleVerse": "Daily Bible Verse",
+  "audioCache": "Audio Cache",
+  "adminPanel": "Admin Panel",
+  "dailyInspiration": "Daily Inspiration",
+  "receiveVerseEveryDay": "Receive a Bible verse every day",
+  "enableDailyVerse": "Enable Daily Verse",
+  "youWillReceiveDailyNotifications": "You will receive daily notifications",
+  "turnOnToReceiveDailyVerses": "Turn on to receive daily verses",
+  "notificationTime": "Notification Time",
+  "noVerseAvailable": "No verse available",
+  "createNewPlaylist": "Create New Playlist",
+  "added": "Added",
+  "noHymnsAddedYet": "No hymns added yet",
+  "errorLoadingHymns": "Error loading hymns",
+  "audioAvailable":"Audio available",
+  "noAudioAvailable":"No audio available",
+  "searchBible":"Bible search",
+  "enterWordToSearch":"Enter word to search",
+  "noSearchResults":"No search results",
+  "changeWordToSearch":"Change word to search",
+  "hymnsCount": "{count,plural, =0{No hymns} =1{1 hymn} other{{count} hymns}}",
+  "@hymnsCount": {
+    "description": "A message that shows the number of hymns in a playlist",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noChaptersFound":"No chapters found"
+
 }

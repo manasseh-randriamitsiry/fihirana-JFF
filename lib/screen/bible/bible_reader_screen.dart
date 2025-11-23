@@ -220,10 +220,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   Widget _buildChapterSelectionView() {
     final chapters = bibleController.chapterList;
+    final l10n = AppLocalizations.of(context)!;
     if (chapters.isEmpty) {
       return Center(
         child: Text(
-          'No chapters found',
+          l10n.noChaptersFound,
           style: TextStyle(color: colorController.textColor.value),
         ),
       );
@@ -278,7 +279,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     });
 
     final verses = bibleController.getCurrentChapterVerses();
-
+    final l10n = AppLocalizations.of(context)!;
     return Stack(
       children: [
         Column(
@@ -337,7 +338,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     onPressed: () => bibleController.clearSelection(),
                     icon: Icon(Icons.close,
                         color: colorController.textColor.value),
-                    tooltip: 'Manafoana',
+                    tooltip: l10n.clear,
                   ),
                   Container(
                     width: 1,
@@ -350,7 +351,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     onPressed: () => bibleController.saveHighlight(),
                     icon: const Icon(Icons.highlight_rounded,
                         color: Colors.orange),
-                    tooltip: 'Marihina',
+                    tooltip: l10n.saveChanges,
                   ),
                 ],
               ),

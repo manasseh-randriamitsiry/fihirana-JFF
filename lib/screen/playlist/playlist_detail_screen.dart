@@ -31,7 +31,7 @@ class PlaylistDetailScreen extends StatelessWidget {
           return Scaffold(
             backgroundColor: colorController.backgroundColor.value,
             appBar: AppBar(
-              title: const Text('Playlist not found'),
+              title: Text(l10n.playlistNotFound),
               backgroundColor: colorController.backgroundColor.value,
             ),
             body: Center(child: Text(l10n.playlistNotFound)),
@@ -124,7 +124,7 @@ class PlaylistDetailScreen extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '${playlist.hymnIds.length} hymns',
+                      l10n.hymnsCount(playlist.hymnIds.length),
                       style: TextStyle(
                         color: colorController.textColor.value
                             .withValues(alpha: 0.6),
@@ -139,7 +139,7 @@ class PlaylistDetailScreen extends StatelessWidget {
                 child: playlist.hymnIds.isEmpty
                     ? Center(
                         child: Text(
-                          'No hymns added yet',
+                          l10n.noHymnsAddedYet,
                           style: TextStyle(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.5),
@@ -162,10 +162,10 @@ class PlaylistDetailScreen extends StatelessWidget {
                           }
 
                           if (snapshot.hasError) {
-                            return const Center(
+                            return Center(
                               child: Text(
-                                'Error loading hymns',
-                                style: TextStyle(color: Colors.red),
+                                l10n.errorLoadingHymns,
+                                style: const TextStyle(color: Colors.red),
                               ),
                             );
                           }
