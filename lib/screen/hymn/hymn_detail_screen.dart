@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:fihirana/utility/screen_util.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -385,89 +386,98 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 ),
               ],
               if (isUserAuthenticated())
-                StreamBuilder<List<Note>>(
-                  stream: _noteService.getPublicNotesStream(hymn.id).timeout(
-                        const Duration(seconds: 5),
-                        onTimeout: (sink) => sink.add([]),
-                      ),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return Center(child: Text(l10n.errorLoadingNotes));
-                    }
-
-                    if (!snapshot.hasData) {
-                      return const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Center(child: CircularProgressIndicator()),
-                      );
-                    }
-
-                    final notes = snapshot.data!;
-
-                    if (notes.isEmpty) {
+                FutureBuilder<bool>(
+                  future: _checkInternetConnection(),
+                  builder: (context, connectivitySnapshot) {
+                    if (!connectivitySnapshot.hasData ||
+                        !connectivitySnapshot.data!) {
                       return const SizedBox.shrink();
                     }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: notes.length,
-                          itemBuilder: (context, index) {
-                            final note = notes[index];
-                            return FutureBuilder<bool>(
-                              future: _noteService.canEditNote(note),
-                              builder: (context, snapshot) {
-                                final canEdit = snapshot.data ?? false;
+                    return StreamBuilder<List<Note>>(
+                      stream: _noteService.getPublicNotesStream(hymn.id),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(child: Text(l10n.errorLoadingNotes));
+                        }
 
-                                return Container(
-                                  margin: const EdgeInsets.only(top: 8),
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: colorController.backgroundColor.value
-                                        .withValues(alpha: 0.3),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                        if (!snapshot.hasData) {
+                          return const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        }
+
+                        final notes = snapshot.data!;
+
+                        if (notes.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: notes.length,
+                              itemBuilder: (context, index) {
+                                final note = notes[index];
+                                return FutureBuilder<bool>(
+                                  future: _noteService.canEditNote(note),
+                                  builder: (context, snapshot) {
+                                    final canEdit = snapshot.data ?? false;
+
+                                    return Container(
+                                      margin: const EdgeInsets.only(top: 8),
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: colorController
+                                            .backgroundColor.value
+                                            .withValues(alpha: 0.3),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            note.content,
-                                            style: TextStyle(
-                                              fontSize: _fontSize * 0.9,
-                                              color: colorController
-                                                  .textColor.value,
-                                            ),
-                                          ),
-                                          if (canEdit)
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.edit,
-                                                size: _fontSize,
-                                                color: colorController
-                                                    .iconColor.value,
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                note.content,
+                                                style: TextStyle(
+                                                  fontSize: _fontSize * 0.9,
+                                                  color: colorController
+                                                      .textColor.value,
+                                                ),
                                               ),
-                                              onPressed: () =>
-                                                  _showNoteEditor(note: note),
-                                            ),
+                                              if (canEdit)
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.edit,
+                                                    size: _fontSize,
+                                                    color: colorController
+                                                        .iconColor.value,
+                                                  ),
+                                                  onPressed: () =>
+                                                      _showNoteEditor(
+                                                          note: note),
+                                                ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
                                         ],
                                       ),
-                                      const SizedBox(height: 4),
-                                    ],
-                                  ),
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                        ),
-                      ],
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                 ),
@@ -1219,6 +1229,18 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         builder: (context) => EditHymnScreen(hymn: _hymn!),
       ),
     );
+  }
+
+  Future<bool> _checkInternetConnection() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } on SocketException catch (_) {
+      return false;
+    }
+    return false;
   }
 }
 
