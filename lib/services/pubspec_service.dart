@@ -153,4 +153,9 @@ class PubspecService {
     clearCache();
     return await getAppVersion();
   }
+
+  @visibleForTesting
+  static void setVersion(String version) {
+    _cachedVersion = version;
+  }
 }
