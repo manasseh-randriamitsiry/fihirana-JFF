@@ -184,70 +184,77 @@ class FontPickerWidget extends StatelessWidget {
           // Footer with action button
           Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                TextButton.icon(
-                  onPressed: () => _fontController.importFont(),
-                  icon: Icon(
-                    Icons.add,
-                    color: _colorController.primaryColor.value,
-                  ),
-                  label: Text(
-                    '+',
-                    style: TextStyle(
-                      color: _colorController.primaryColor.value,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () => _fontController.importFont(),
+                      icon: Icon(
+                        Icons.add,
+                        color: _colorController.primaryColor.value,
+                        size: 20,
+                      ),
+                      label: Text(
+                        '+',
+                        style: TextStyle(
+                          color: _colorController.primaryColor.value,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                      ),
                     ),
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                  ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () async {
-                    final Uri url = Uri.parse('https://fonts.google.com');
-                    if (!await launchUrl(url,
-                        mode: LaunchMode.externalApplication)) {
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Could not launch Google Fonts')),
-                        );
-                      }
-                    }
-                  },
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                  ),
-                  child: Text(
-                    'Get Fonts',
-                    style: TextStyle(
-                      color: _colorController.textColor.value
-                          .withValues(alpha: 0.7),
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: () async {
+                        final Uri url = Uri.parse('https://fonts.google.com');
+                        if (!await launchUrl(url,
+                            mode: LaunchMode.externalApplication)) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content:
+                                      Text('Could not launch Google Fonts')),
+                            );
+                          }
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                      ),
+                      child: Text(
+                        'Get Fonts',
+                        style: TextStyle(
+                          color: _colorController.textColor.value
+                              .withValues(alpha: 0.7),
+                          fontSize: 14,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24, vertical: 12),
-                  ),
-                  child: Text(
-                    l10n.accept,
-                    style: TextStyle(
-                      color: _colorController.primaryColor.value,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                      ),
+                      child: Text(
+                        l10n.accept,
+                        style: TextStyle(
+                          color: _colorController.primaryColor.value,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
