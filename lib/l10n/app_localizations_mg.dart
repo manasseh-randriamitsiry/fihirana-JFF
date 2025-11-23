@@ -99,7 +99,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get send => 'Alefaso';
 
   @override
-  String get cancel => 'Ajanony';
+  String get cancel => 'Ajanona';
 
   @override
   String get ok => 'OK';
@@ -108,7 +108,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get save => 'Tehirizo';
 
   @override
-  String get delete => 'Fafao';
+  String get delete => 'Hamafa';
 
   @override
   String get edit => 'Hanova';
@@ -862,7 +862,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get signOut => 'Hivoaka';
 
   @override
-  String get aboutUs => 'Momba anay';
+  String get aboutUs => 'Mombamomba';
 
   @override
   String get cannotUpdate => 'Tsy afaka nanavao';
@@ -1249,7 +1249,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get deletePlaylist => 'hamafa ny playlist';
 
   @override
-  String get addToPlaylist => 'Hampiditra amin\'ny playlist';
+  String get addToPlaylist => 'playlist';
 
   @override
   String get createNewPlaylist => 'Hamorona playlist vaovao';
@@ -1258,10 +1258,10 @@ class AppLocalizationsMg extends AppLocalizations {
   String get playlistName => 'Anaran\'ny playlist';
 
   @override
-  String get clearExpired => 'Hamafa ny cache nihavaozina';
+  String get clearExpired => 'Hmf cache';
 
   @override
-  String get clearAllCache => 'Hamafa ny cache rehetra';
+  String get clearAllCache => 'Hmf cache';
 
   @override
   String get clearCacheWarning => 'Hanao fanadiovana momban\'ny hira audio ?';
@@ -1310,7 +1310,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get audioCacheManagement => 'Fitantanana cache hira';
 
   @override
-  String get clearAll => 'Hanasa rehetra';
+  String get clearAll => 'Hmf rhtra';
 
   @override
   String get guest => 'Vahiny';
