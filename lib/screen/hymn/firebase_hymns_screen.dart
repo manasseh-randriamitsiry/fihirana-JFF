@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../widgets/hymn_list_item.dart';
@@ -84,9 +85,9 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
             ),
           ),
           leading: IconButton(
-            icon:
-                Icon(Icons.arrow_back, color: colorController.iconColor.value),
-            onPressed: () => Get.back(),
+            icon: Icon(Icons.menu_rounded,
+                color: colorController.iconColor.value),
+            onPressed: () => Get.find<ShellController>().toggleDrawer(),
           ),
         ),
         body: StreamBuilder<List<Hymn>>(
