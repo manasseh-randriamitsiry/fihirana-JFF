@@ -1431,4 +1431,239 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get appIsUpToDate => 'Your app is up to date';
+
+  @override
+  String get recordings => 'Recordings';
+
+  @override
+  String get refreshRecordings => 'Refresh recordings';
+
+  @override
+  String get syncFromGoogleDrive => 'Sync from Google Drive';
+
+  @override
+  String signedInAs(String email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get signInToGoogleDrive => 'Sign in to Google Drive';
+
+  @override
+  String get noRecordingsYet => 'No recordings yet';
+
+  @override
+  String get startRecordingYourFavoriteHymns => 'Start recording your favorite hymns';
+
+  @override
+  String get personalRecordings => 'Personal Recordings';
+
+  @override
+  String get publicRecordings => 'Public Recordings';
+
+  @override
+  String recordingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count recording$_temp0';
+  }
+
+  @override
+  String get googleDrive => 'Google Drive';
+
+  @override
+  String get signedInAsLabel => 'Signed in as:';
+
+  @override
+  String get sync => 'Sync';
+
+  @override
+  String hymnDuration(String hymnId, String duration) {
+    return 'Hymn $hymnId • $duration';
+  }
+
+  @override
+  String get public => 'Public';
+
+  @override
+  String get uploadToDrive => 'Upload to Drive';
+
+  @override
+  String uploadFailedTapToRetry(String error) {
+    return 'Upload failed. Tap to retry.\nError: $error';
+  }
+
+  @override
+  String get deleteRecording => 'Delete Recording';
+
+  @override
+  String deleteRecordingConfirmation(String title) {
+    return 'Are you sure you want to delete \"$title\"? This action cannot be undone.';
+  }
+
+  @override
+  String get deleted => 'Deleted';
+
+  @override
+  String get recordingDeletedSuccessfully => 'Recording deleted successfully';
+
+  @override
+  String get downloadStarted => 'Download started';
+
+  @override
+  String get recordingInProgressDialog => 'Recording in progress';
+
+  @override
+  String get pleaseStopRecordingBeforePlaying => 'Please stop recording before playing.';
+
+  @override
+  String get recordingSessionActive => 'Recording session active';
+
+  @override
+  String get pleaseCloseRecordingOverlayFirst => 'Please close the recording overlay first.';
+
+  @override
+  String get recordingInProgress => 'Recording in progress...';
+
+  @override
+  String get recordingCompleted => 'Recording completed';
+
+  @override
+  String get recordingSaved => 'Recording saved successfully';
+
+  @override
+  String failedToSaveRecording(String error) {
+    return 'Failed to save recording: $error';
+  }
+
+  @override
+  String get failedToPlayRecording => 'Failed to play recording';
+
+  @override
+  String get recordingUploadSuccess => 'Recording uploaded to Drive successfully';
+
+  @override
+  String get recordingUploadFailed => 'Upload Failed';
+
+  @override
+  String failedToUploadRecording(String error) {
+    return 'Failed to upload recording: $error';
+  }
+
+  @override
+  String get syncFailed => 'Sync Failed';
+
+  @override
+  String failedToSyncFromDrive(String error) {
+    return 'Failed to sync recordings from Drive: $error';
+  }
+
+  @override
+  String get driveSyncCompleted => 'Drive sync completed';
+
+  @override
+  String driveSignInFailed(Object error) {
+    return 'Drive sign-in failed: $error';
+  }
+
+  @override
+  String get driveFileNotFound => 'Recording file not found';
+
+  @override
+  String get uploadInProgress => 'Upload in progress...';
+
+  @override
+  String get storageUsage => 'Storage Usage';
+
+  @override
+  String totalStorageUsed(String size) {
+    return 'Total storage used: $size';
+  }
+
+  @override
+  String recordingOverlayTitle(String hymnId) {
+    return 'Recording Hymn $hymnId';
+  }
+
+  @override
+  String get minimize => 'Minimize';
+
+  @override
+  String get recordingPaused => 'Recording paused';
+
+  @override
+  String get recordingResumed => 'Recording resumed';
+
+  @override
+  String get recordingStopped => 'Recording stopped';
+
+  @override
+  String get playbackSpeed => 'Playback Speed';
+
+  @override
+  String get normalSpeed => 'Normal Speed';
+
+  @override
+  String get renameRecording => 'Rename Recording';
+
+  @override
+  String get enterNewTitle => 'Enter new title';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
+  String get recordingRenamed => 'Recording renamed successfully';
+
+  @override
+  String failedToRenameRecording(String error) {
+    return 'Failed to rename recording: $error';
+  }
+
+  @override
+  String get recordingManager => 'Recording Manager';
+
+  @override
+  String get createNewRecording => 'Create New Recording';
+
+  @override
+  String get viewRecordings => 'View Recordings';
+
+  @override
+  String get recordingPermissionRequired => 'Recording permission required';
+
+  @override
+  String get pleaseGrantMicrophonePermission => 'Please grant microphone permission to record hymns.';
+
+  @override
+  String get grantPermission => 'Grant Permission';
+
+  @override
+  String get recordingNotAllowed => 'Recording not allowed';
+
+  @override
+  String get microphoneAccessDenied => 'Microphone access denied. Please enable it in settings to record hymns.';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get recordingError => 'Recording Error';
+
+  @override
+  String anErrorOccurredDuringRecording(String error) {
+    return 'An error occurred during recording: $error';
+  }
+
+  @override
+  String get playbackError => 'Playback Error';
+
+  @override
+  String anErrorOccurredDuringPlayback(String error) {
+    return 'An error occurred during playback: $error';
+  }
 }

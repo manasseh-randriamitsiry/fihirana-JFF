@@ -7,6 +7,7 @@ import 'package:fihirana/controller/language_controller.dart';
 import 'package:fihirana/controller/playlist_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/controller/shell_controller.dart';
+import 'package:fihirana/controller/recording_controller.dart';
 import 'package:fihirana/services/audio_file_mapping.dart';
 import 'package:fihirana/services/audio_foreground_service.dart';
 import 'package:fihirana/services/background_service.dart';
@@ -57,6 +58,7 @@ class InitService {
     Get.put(FirebaseSyncService());
     Get.put(AudioForegroundService());
     Get.put(PlaylistController());
+    Get.put(RecordingController());
 
     // Initialize Bible service (but don't load data yet)
     Get.put(BibleService());

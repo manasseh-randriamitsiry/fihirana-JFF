@@ -9,6 +9,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
+import '../../widgets/drawer_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class CreateHymnPage extends StatefulWidget {
@@ -417,16 +418,19 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
+        drawer: DrawerWidget(openDrawer: () {}),
         backgroundColor: colorController.backgroundColor.value,
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: colorController.iconColor.value,
+          leading: Builder(
+            builder: (context) => IconButton(
+              icon: Icon(
+                Icons.menu,
+                color: colorController.iconColor.value,
+              ),
+              onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
           title: Text(

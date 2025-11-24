@@ -2802,6 +2802,408 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your app is up to date'**
   String get appIsUpToDate;
+
+  /// No description provided for @recordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Recordings'**
+  String get recordings;
+
+  /// No description provided for @refreshRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh recordings'**
+  String get refreshRecordings;
+
+  /// No description provided for @syncFromGoogleDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync from Google Drive'**
+  String get syncFromGoogleDrive;
+
+  /// No description provided for @signedInAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as {email}'**
+  String signedInAs(String email);
+
+  /// No description provided for @signInToGoogleDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to Google Drive'**
+  String get signInToGoogleDrive;
+
+  /// No description provided for @noRecordingsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No recordings yet'**
+  String get noRecordingsYet;
+
+  /// No description provided for @startRecordingYourFavoriteHymns.
+  ///
+  /// In en, this message translates to:
+  /// **'Start recording your favorite hymns'**
+  String get startRecordingYourFavoriteHymns;
+
+  /// No description provided for @personalRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Recordings'**
+  String get personalRecordings;
+
+  /// No description provided for @publicRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Public Recordings'**
+  String get publicRecordings;
+
+  /// No description provided for @recordingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} recording{count,plural, =1{} other{s}}'**
+  String recordingCount(int count);
+
+  /// No description provided for @googleDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive'**
+  String get googleDrive;
+
+  /// No description provided for @signedInAsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in as:'**
+  String get signedInAsLabel;
+
+  /// No description provided for @sync.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync'**
+  String get sync;
+
+  /// No description provided for @hymnDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymn {hymnId} • {duration}'**
+  String hymnDuration(String hymnId, String duration);
+
+  /// No description provided for @public.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get public;
+
+  /// No description provided for @uploadToDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload to Drive'**
+  String get uploadToDrive;
+
+  /// No description provided for @uploadFailedTapToRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload failed. Tap to retry.\nError: {error}'**
+  String uploadFailedTapToRetry(String error);
+
+  /// No description provided for @deleteRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Recording'**
+  String get deleteRecording;
+
+  /// No description provided for @deleteRecordingConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{title}\"? This action cannot be undone.'**
+  String deleteRecordingConfirmation(String title);
+
+  /// No description provided for @deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get deleted;
+
+  /// No description provided for @recordingDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording deleted successfully'**
+  String get recordingDeletedSuccessfully;
+
+  /// No description provided for @downloadStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Download started'**
+  String get downloadStarted;
+
+  /// No description provided for @recordingInProgressDialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording in progress'**
+  String get recordingInProgressDialog;
+
+  /// No description provided for @pleaseStopRecordingBeforePlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Please stop recording before playing.'**
+  String get pleaseStopRecordingBeforePlaying;
+
+  /// No description provided for @recordingSessionActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording session active'**
+  String get recordingSessionActive;
+
+  /// No description provided for @pleaseCloseRecordingOverlayFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Please close the recording overlay first.'**
+  String get pleaseCloseRecordingOverlayFirst;
+
+  /// No description provided for @recordingInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording in progress...'**
+  String get recordingInProgress;
+
+  /// No description provided for @recordingCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording completed'**
+  String get recordingCompleted;
+
+  /// No description provided for @recordingSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording saved successfully'**
+  String get recordingSaved;
+
+  /// No description provided for @failedToSaveRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save recording: {error}'**
+  String failedToSaveRecording(String error);
+
+  /// No description provided for @failedToPlayRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to play recording'**
+  String get failedToPlayRecording;
+
+  /// No description provided for @recordingUploadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording uploaded to Drive successfully'**
+  String get recordingUploadSuccess;
+
+  /// No description provided for @recordingUploadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Failed'**
+  String get recordingUploadFailed;
+
+  /// No description provided for @failedToUploadRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to upload recording: {error}'**
+  String failedToUploadRecording(String error);
+
+  /// No description provided for @syncFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync Failed'**
+  String get syncFailed;
+
+  /// No description provided for @failedToSyncFromDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sync recordings from Drive: {error}'**
+  String failedToSyncFromDrive(String error);
+
+  /// No description provided for @driveSyncCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Drive sync completed'**
+  String get driveSyncCompleted;
+
+  /// No description provided for @driveSignInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Drive sign-in failed: {error}'**
+  String driveSignInFailed(Object error);
+
+  /// No description provided for @driveFileNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording file not found'**
+  String get driveFileNotFound;
+
+  /// No description provided for @uploadInProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload in progress...'**
+  String get uploadInProgress;
+
+  /// No description provided for @storageUsage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage Usage'**
+  String get storageUsage;
+
+  /// No description provided for @totalStorageUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'Total storage used: {size}'**
+  String totalStorageUsed(String size);
+
+  /// No description provided for @recordingOverlayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording Hymn {hymnId}'**
+  String recordingOverlayTitle(String hymnId);
+
+  /// No description provided for @minimize.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimize'**
+  String get minimize;
+
+  /// No description provided for @recordingPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording paused'**
+  String get recordingPaused;
+
+  /// No description provided for @recordingResumed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording resumed'**
+  String get recordingResumed;
+
+  /// No description provided for @recordingStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording stopped'**
+  String get recordingStopped;
+
+  /// No description provided for @playbackSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback Speed'**
+  String get playbackSpeed;
+
+  /// No description provided for @normalSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'Normal Speed'**
+  String get normalSpeed;
+
+  /// No description provided for @renameRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Recording'**
+  String get renameRecording;
+
+  /// No description provided for @enterNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new title'**
+  String get enterNewTitle;
+
+  /// No description provided for @rename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get rename;
+
+  /// No description provided for @recordingRenamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording renamed successfully'**
+  String get recordingRenamed;
+
+  /// No description provided for @failedToRenameRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to rename recording: {error}'**
+  String failedToRenameRecording(String error);
+
+  /// No description provided for @recordingManager.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording Manager'**
+  String get recordingManager;
+
+  /// No description provided for @createNewRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Create New Recording'**
+  String get createNewRecording;
+
+  /// No description provided for @viewRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'View Recordings'**
+  String get viewRecordings;
+
+  /// No description provided for @recordingPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording permission required'**
+  String get recordingPermissionRequired;
+
+  /// No description provided for @pleaseGrantMicrophonePermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Please grant microphone permission to record hymns.'**
+  String get pleaseGrantMicrophonePermission;
+
+  /// No description provided for @grantPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant Permission'**
+  String get grantPermission;
+
+  /// No description provided for @recordingNotAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording not allowed'**
+  String get recordingNotAllowed;
+
+  /// No description provided for @microphoneAccessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone access denied. Please enable it in settings to record hymns.'**
+  String get microphoneAccessDenied;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get openSettings;
+
+  /// No description provided for @recordingError.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording Error'**
+  String get recordingError;
+
+  /// No description provided for @anErrorOccurredDuringRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during recording: {error}'**
+  String anErrorOccurredDuringRecording(String error);
+
+  /// No description provided for @playbackError.
+  ///
+  /// In en, this message translates to:
+  /// **'Playback Error'**
+  String get playbackError;
+
+  /// No description provided for @anErrorOccurredDuringPlayback.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred during playback: {error}'**
+  String anErrorOccurredDuringPlayback(String error);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -780,5 +780,150 @@
   "latestVersion": "Latest Version",
   "whatsNew": "What's New",
   "upToDate": "Up to date",
-  "appIsUpToDate": "Your app is up to date"
+  "appIsUpToDate": "Your app is up to date",
+  
+  "recordings": "Recordings",
+  "refreshRecordings": "Refresh recordings",
+  "syncFromGoogleDrive": "Sync from Google Drive",
+  "signedInAs": "Signed in as {email}",
+  "signInToGoogleDrive": "Sign in to Google Drive",
+  "noRecordingsYet": "No recordings yet",
+  "startRecordingYourFavoriteHymns": "Start recording your favorite hymns",
+  "personalRecordings": "Personal Recordings",
+  "publicRecordings": "Public Recordings",
+  "recordingCount": "{count} recording{count,plural, =1{} other{s}}",
+  "googleDrive": "Google Drive",
+  "signedInAsLabel": "Signed in as:",
+  "close": "Close",
+  "sync": "Sync",
+  "signOut": "Sign Out",
+  "hymnDuration": "Hymn {hymnId} • {duration}",
+  "public": "Public",
+  "uploadToDrive": "Upload to Drive",
+  "uploadFailedTapToRetry": "Upload failed. Tap to retry.\nError: {error}",
+  "share": "Share",
+  "download": "Download",
+  "delete": "Delete",
+  "deleteRecording": "Delete Recording",
+  "deleteRecordingConfirmation": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+  "cancel": "Cancel",
+  "deleted": "Deleted",
+  "recordingDeletedSuccessfully": "Recording deleted successfully",
+  "downloadStarted": "Download started",
+  "recordingInProgressDialog": "Recording in progress",
+  "pleaseStopRecordingBeforePlaying": "Please stop recording before playing.",
+  "recordingSessionActive": "Recording session active",
+  "pleaseCloseRecordingOverlayFirst": "Please close the recording overlay first.",
+  "recordingInProgress": "Recording in progress...",
+  "pause": "Pause",
+  "resume": "Resume",
+  "stop": "Stop",
+  "recordingCompleted": "Recording completed",
+  "recordingSaved": "Recording saved successfully",
+  "failedToSaveRecording": "Failed to save recording: {error}",
+  "failedToPlayRecording": "Failed to play recording",
+  "recordingUploadSuccess": "Recording uploaded to Drive successfully",
+  "recordingUploadFailed": "Upload Failed",
+  "failedToUploadRecording": "Failed to upload recording: {error}",
+  "syncFailed": "Sync Failed",
+  "failedToSyncFromDrive": "Failed to sync recordings from Drive: {error}",
+  "driveSyncCompleted": "Drive sync completed",
+  "driveSignInFailed": "Drive sign-in failed: {error}",
+  "driveFileNotFound": "Recording file not found",
+  "uploadInProgress": "Upload in progress...",
+  "retry": "Retry",
+  "storageUsage": "Storage Usage",
+  "totalStorageUsed": "Total storage used: {size}",
+  "recordingOverlayTitle": "Recording Hymn {hymnId}",
+  "minimize": "Minimize",
+  "recordingPaused": "Recording paused",
+  "recordingResumed": "Recording resumed",
+  "recordingStopped": "Recording stopped",
+  "playbackSpeed": "Playback Speed",
+  "normalSpeed": "Normal Speed",
+  "renameRecording": "Rename Recording",
+  "enterNewTitle": "Enter new title",
+  "rename": "Rename",
+  "recordingRenamed": "Recording renamed successfully",
+  "failedToRenameRecording": "Failed to rename recording: {error}",
+  "recordingManager": "Recording Manager",
+  "createNewRecording": "Create New Recording",
+  "viewRecordings": "View Recordings",
+  "recordingPermissionRequired": "Recording permission required",
+  "pleaseGrantMicrophonePermission": "Please grant microphone permission to record hymns.",
+  "grantPermission": "Grant Permission",
+  "recordingNotAllowed": "Recording not allowed",
+  "microphoneAccessDenied": "Microphone access denied. Please enable it in settings to record hymns.",
+  "openSettings": "Open Settings",
+  "recordingError": "Recording Error",
+  "anErrorOccurredDuringRecording": "An error occurred during recording: {error}",
+  "playbackError": "Playback Error",
+  "anErrorOccurredDuringPlayback": "An error occurred during playback: {error}",
+
+  "@signedInAs": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "@recordingCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@hymnDuration": {
+    "placeholders": {
+      "hymnId": {"type": "String"},
+      "duration": {"type": "String"}
+    }
+  },
+  "@uploadFailedTapToRetry": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@deleteRecordingConfirmation": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "@failedToSaveRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@failedToUploadRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@failedToSyncFromDrive": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@totalStorageUsed": {
+    "placeholders": {
+      "size": {"type": "String"}
+    }
+  },
+  "@recordingOverlayTitle": {
+    "placeholders": {
+      "hymnId": {"type": "String"}
+    }
+  },
+  "@failedToRenameRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@anErrorOccurredDuringRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@anErrorOccurredDuringPlayback": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  }
 }
