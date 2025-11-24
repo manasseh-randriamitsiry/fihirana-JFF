@@ -32,13 +32,16 @@ class _RecordingPlayerOverlayState extends State<RecordingPlayerOverlay>
       return Positioned(
         bottom: 20,
         right: 20,
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          alignment: Alignment.bottomRight,
-          child: isMinimized
-              ? _buildFab(recording)
-              : _buildExpandedCard(recording),
+        child: Material(
+          color: Colors.transparent,
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            alignment: Alignment.bottomRight,
+            child: isMinimized
+                ? _buildFab(recording)
+                : _buildExpandedCard(recording),
+          ),
         ),
       );
     });
@@ -187,28 +190,32 @@ class _RecordingPlayerOverlayState extends State<RecordingPlayerOverlay>
 
             return Column(
               children: [
-                SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: _colorController.primaryColor.value,
-                    inactiveTrackColor:
-                        _colorController.iconColor.value.withValues(alpha: 0.2),
-                    thumbColor: _colorController.primaryColor.value,
-                    overlayColor: _colorController.primaryColor.value
-                        .withValues(alpha: 0.2),
-                    thumbShape:
-                        const RoundSliderThumbShape(enabledThumbRadius: 6),
-                    trackHeight: 2,
-                  ),
-                  child: Slider(
-                    value: position.inSeconds
-                        .toDouble()
-                        .clamp(0.0, duration.inSeconds.toDouble()),
-                    max: duration.inSeconds.toDouble() > 0
-                        ? duration.inSeconds.toDouble()
-                        : 1.0,
-                    onChanged: (val) {
-                      _controller.seekTo(Duration(seconds: val.toInt()));
-                    },
+                GestureDetector(
+                  onPanUpdate: (details) {
+                    final box = context.findRenderObject() as RenderBox;
+                    final tapPos = box.globalToLocal(details.globalPosition);
+                    final tapValue = (tapPos.dx / box.size.width) * duration.inSeconds;
+                    _controller.seekTo(Duration(seconds: tapValue.round().clamp(0, duration.inSeconds)));
+                  },
+                  onTapUp: (details) {
+                    final box = context.findRenderObject() as RenderBox;
+                    final tapPos = box.globalToLocal(details.globalPosition);
+                    final tapValue = (tapPos.dx / box.size.width) * duration.inSeconds;
+                    _controller.seekTo(Duration(seconds: tapValue.round().clamp(0, duration.inSeconds)));
+                  },
+                  child: Container(
+                    height: 40,
+                    width: double.infinity,
+                    child: CustomPaint(
+                      painter: _CustomSliderPainter(
+                        progress: duration.inSeconds > 0 
+                            ? position.inSeconds / duration.inSeconds 
+                            : 0.0,
+                        primaryColor: _colorController.primaryColor.value,
+                        inactiveColor: _colorController.iconColor.value.withValues(alpha: 0.2),
+                      ),
+                      child: Container(),
+                    ),
                   ),
                 ),
                 Padding(
@@ -333,5 +340,67 @@ class _RecordingPlayerOverlayState extends State<RecordingPlayerOverlay>
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+}
+
+class _CustomSliderPainter extends CustomPainter {
+  final double progress;
+  final Color primaryColor;
+  final Color inactiveColor;
+
+  _CustomSliderPainter({
+    required this.progress,
+    required this.primaryColor,
+    required this.inactiveColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final trackHeight = 2.0;
+    final thumbRadius = 6.0;
+    final trackY = size.height / 2;
+
+    // Draw inactive track
+    final inactivePaint = Paint()
+      ..color = inactiveColor
+      ..strokeWidth = trackHeight
+      ..strokeCap = StrokeCap.round;
+    
+    canvas.drawLine(
+      Offset(0, trackY),
+      Offset(size.width, trackY),
+      inactivePaint,
+    );
+
+    // Draw active track
+    final activePaint = Paint()
+      ..color = primaryColor
+      ..strokeWidth = trackHeight
+      ..strokeCap = StrokeCap.round;
+    
+    final activeWidth = size.width * progress;
+    canvas.drawLine(
+      Offset(0, trackY),
+      Offset(activeWidth, trackY),
+      activePaint,
+    );
+
+    // Draw thumb
+    final thumbPaint = Paint()
+      ..color = primaryColor
+      ..style = PaintingStyle.fill;
+    
+    canvas.drawCircle(
+      Offset(activeWidth, trackY),
+      thumbRadius,
+      thumbPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_CustomSliderPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+           oldDelegate.primaryColor != primaryColor ||
+           oldDelegate.inactiveColor != inactiveColor;
   }
 }
