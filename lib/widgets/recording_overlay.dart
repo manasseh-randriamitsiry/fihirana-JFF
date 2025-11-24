@@ -37,6 +37,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   final TextEditingController _nameController = TextEditingController();
   bool _uploadToDrive = false;
+  bool _isPublic = false; // Privacy setting: false = private, true = public
 
   @override
   void initState() {
@@ -346,7 +347,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.check_circle,
             size: 80,
             color: Colors.green,
@@ -382,6 +383,41 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
           const SizedBox(height: 24),
 
+          // Privacy toggle
+          Card(
+            color: _colorController.primaryColor.value.withValues(alpha: 0.1),
+            child: SwitchListTile(
+              title: Text(
+                _isPublic ? 'Public Recording' : 'Private Recording',
+                style: TextStyle(
+                  color: _colorController.textColor.value,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              subtitle: Text(
+                _isPublic
+                    ? 'Anyone can listen to this recording'
+                    : 'Only you can listen to this recording',
+                style: TextStyle(
+                  color:
+                      _colorController.textColor.value.withValues(alpha: 0.7),
+                  fontSize: 12,
+                ),
+              ),
+              value: _isPublic,
+              onChanged: (value) {
+                setState(() => _isPublic = value);
+              },
+
+              secondary: Icon(
+                _isPublic ? Icons.public : Icons.lock,
+                color: _colorController.iconColor.value,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
           // Upload to Drive checkbox
           Obx(() => CheckboxListTile(
                 title: Text(
@@ -407,7 +443,6 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                 onChanged: (value) {
                   setState(() => _uploadToDrive = value ?? false);
                 },
-                activeColor: _colorController.primaryColor.value,
               )),
 
           const SizedBox(height: 40),

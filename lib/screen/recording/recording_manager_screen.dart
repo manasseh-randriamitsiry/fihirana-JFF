@@ -99,8 +99,8 @@ class _RecordingTile extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        leading: CircleAvatar(
-          child: const Icon(Icons.music_note),
+        leading: const CircleAvatar(
+          child: Icon(Icons.music_note),
         ),
         title: Text(recording.title),
         subtitle: Column(

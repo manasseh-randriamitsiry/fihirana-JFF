@@ -100,6 +100,13 @@ class RecordingController extends GetxController {
     });
   }
 
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      recordDuration.value++;
+    });
+  }
+
   // Recording Actions
   Future<void> startRecording(String hymnId) async {
     await _recordingService.startRecording(hymnId);
@@ -107,6 +114,24 @@ class RecordingController extends GetxController {
     isPaused.value = false;
     recordDuration.value = 0;
     _startTimer();
+  }
+
+  Future<UserRecording?> stopRecording(String hymnId, String title) async {
+    final filePath = await _recordingService.stopRecording();
+    isRecording.value = false;
+    isPaused.value = false;
+    _timer?.cancel();
+    
+    if (filePath != null) {
+      final recording = await _recordingService.saveRecording(
+        filePath: filePath,
+        hymnId: hymnId,
+        title: title,
+        durationSeconds: recordDuration.value,
+      );
+      return recording;
+    }
+    return null;
   }
 
   Future<void> pauseRecording() async {
@@ -121,41 +146,14 @@ class RecordingController extends GetxController {
     _startTimer();
   }
 
-  Future<UserRecording?> stopRecording(
-      String hymnId, String defaultTitle) async {
-    final path = await _recordingService.stopRecording();
-    isRecording.value = false;
-    isPaused.value = false;
-    _timer?.cancel();
-
-    if (path != null) {
-      return await _recordingService.saveRecording(
-        filePath: path,
-        hymnId: hymnId,
-        title: defaultTitle,
-        durationSeconds: recordDuration.value,
-      );
-    }
-    return null;
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      recordDuration.value++;
-    });
-  }
-
   // Playback Actions
   Future<void> playRecording(UserRecording recording) async {
-    if (currentPlayingId.value == recording.id && isPlaying.value) {
-      await _audioPlayer.pause();
-    } else {
-      if (currentPlayingId.value != recording.id) {
-        await _audioPlayer.setFilePath(recording.filePath);
-        currentPlayingId.value = recording.id;
-      }
+    try {
+      currentPlayingId.value = recording.id;
+      await _audioPlayer.setFilePath(recording.filePath);
       await _audioPlayer.play();
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to play recording');
     }
   }
 

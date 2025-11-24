@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:http/http.dart' as http;
+import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
 
 class GoogleDriveService {
   static final GoogleDriveService _instance = GoogleDriveService._internal();
@@ -46,10 +46,11 @@ class GoogleDriveService {
     if (_currentUser == null) return;
 
     try {
-      final authHeaders = await _currentUser!.authHeaders;
-      final authenticatedClient = _GoogleAuthClient(authHeaders);
-      _driveApi = drive.DriveApi(authenticatedClient);
-      await _ensureFolderExists();
+      final httpClient = await _googleSignIn.authenticatedClient();
+      if (httpClient != null) {
+        _driveApi = drive.DriveApi(httpClient);
+        await _ensureFolderExists();
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Error initializing Drive API: $e');
@@ -145,17 +146,4 @@ class GoogleDriveService {
 
   bool get isSignedIn => _currentUser != null;
   GoogleSignInAccount? get currentUser => _currentUser;
-}
-
-// Custom HTTP client for Google API authentication
-class _GoogleAuthClient extends http.BaseClient {
-  final Map<String, String> _headers;
-  final http.Client _client = http.Client();
-
-  _GoogleAuthClient(this._headers);
-
-  @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) {
-    return _client.send(request..headers.addAll(_headers));
-  }
 }
