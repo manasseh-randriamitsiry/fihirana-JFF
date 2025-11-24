@@ -24,7 +24,6 @@ import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../recording/recording_manager_screen.dart';
-import '../../widgets/recording_overlay.dart';
 import '../../controller/recording_controller.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -73,7 +72,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   // Recording overlay state
   final RecordingController _recordingController =
       Get.put(RecordingController(), permanent: true);
-  bool _isRecordingOverlayVisible = false;
 
   @override
   void initState() {
@@ -991,30 +989,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 ),
               ],
             ),
-            // Recording overlay
-            if (_isRecordingOverlayVisible)
-              Positioned.fill(
-                child: RecordingOverlay(
-                  hymnId: _hymn?.id ?? widget.hymnId,
-                  hymnTitle: _hymn?.title ?? '',
-                  onClose: () {
-                    setState(() {
-                      _isRecordingOverlayVisible = false;
-                    });
-                  },
-                  onMinimize: () {
-                    setState(() {
-                      _isRecordingOverlayVisible = false;
-                    });
-                  },
-                ),
-              ),
+
           ],
         ),
         floatingActionButton: Obx(() {
           final isRecording = _recordingController.isRecording.value;
-
-          if (_isRecordingOverlayVisible) return const SizedBox.shrink();
+          final isOverlayVisible = _recordingController.shouldShowOverlay();
 
           return FloatingActionButton(
             mini: true,
@@ -1025,18 +1005,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                     .shimmer(duration: 1000.ms)
                 : const Icon(Icons.mic, color: Colors.white),
             onPressed: () {
-              if (isRecording) {
-                // Restore overlay
-                setState(() {
-                  _isRecordingOverlayVisible = true;
-                });
-              } else {
+              if (isRecording && isOverlayVisible) {
+                // Restore overlay if minimized
+                _recordingController.restoreOverlay();
+              } else if (!isRecording && _hymn != null) {
                 // Start new recording
-                if (_hymn != null) {
-                  setState(() {
-                    _isRecordingOverlayVisible = true;
-                  });
-                }
+                _recordingController.startRecording(_hymn!.id);
               }
             },
           );

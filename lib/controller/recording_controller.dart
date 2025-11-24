@@ -43,6 +43,12 @@ class RecordingController extends GetxController {
   // Upload state tracking
   final RxSet<String> uploadingRecordingIds = <String>{}.obs;
   final RxMap<String, String> uploadErrors = <String, String>{}.obs;
+  
+  // Overlay state management
+  final RxBool isOverlayMinimized = false.obs;
+  final RxString currentHymnId = ''.obs;
+  final RxString currentHymnTitle = ''.obs;
+  final RxBool overlayVisible = false.obs;
 
   @override
   void onInit() {
@@ -223,6 +229,9 @@ class RecordingController extends GetxController {
     isPaused.value = false;
     recordDuration.value = 0;
     _startTimer();
+    
+    // Show overlay when recording starts
+    showOverlay(hymnId, 'Hymn $hymnId'); // You might want to pass actual title
   }
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
@@ -238,6 +247,10 @@ class RecordingController extends GetxController {
         title: title,
         durationSeconds: recordDuration.value,
       );
+      
+      // Update overlay title with actual title
+      currentHymnTitle.value = title;
+      
       return recording;
     }
     return null;
@@ -419,5 +432,32 @@ class RecordingController extends GetxController {
   Future<void> retryUpload(UserRecording recording) async {
     uploadErrors.remove(recording.id);
     await uploadToDrive(recording);
+  }
+  
+  // Overlay state management methods
+  void showOverlay(String hymnId, String hymnTitle) {
+    currentHymnId.value = hymnId;
+    currentHymnTitle.value = hymnTitle;
+    overlayVisible.value = true;
+    isOverlayMinimized.value = false;
+  }
+  
+  void minimizeOverlay() {
+    isOverlayMinimized.value = true;
+  }
+  
+  void restoreOverlay() {
+    isOverlayMinimized.value = false;
+  }
+  
+  void hideOverlay() {
+    overlayVisible.value = false;
+    isOverlayMinimized.value = false;
+    currentHymnId.value = '';
+    currentHymnTitle.value = '';
+  }
+  
+  bool shouldShowOverlay() {
+    return overlayVisible.value && (isRecording.value || recordDuration.value > 0);
   }
 }

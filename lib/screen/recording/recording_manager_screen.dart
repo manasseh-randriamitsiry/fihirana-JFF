@@ -421,7 +421,7 @@ class _RecordingTile extends StatelessWidget {
                       color: Colors.white,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.public,
                       color: Colors.orange,
                       size: 10,
@@ -506,7 +506,7 @@ class _RecordingTile extends StatelessWidget {
                     color: Colors.orange.withValues(alpha: 0.3),
                   ),
                 ),
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -514,7 +514,7 @@ class _RecordingTile extends StatelessWidget {
                       size: 14,
                       color: Colors.orange,
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(
                       'Public',
                       style: TextStyle(
@@ -551,7 +551,7 @@ class _RecordingTile extends StatelessWidget {
                       color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: SizedBox(
+                    child: const SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
@@ -564,7 +564,7 @@ class _RecordingTile extends StatelessWidget {
                   );
                 } else if (uploadError != null) {
                   return IconButton(
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.cloud_off,
                       color: Colors.red,
                     ),
@@ -660,16 +660,16 @@ class _RecordingTile extends StatelessWidget {
                     ),
                   ),
                 if (!isPublic)
-                  PopupMenuItem(
+                  const PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.delete_outline,
                           color: Colors.red,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Text(
                           'Delete',
                           style: TextStyle(

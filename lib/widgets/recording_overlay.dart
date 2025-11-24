@@ -57,6 +57,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     // Auto-generate recording name
     _nameController.text =
         '${widget.hymnTitle} - ${DateTime.now().toString().substring(0, 16)}';
+    
+    // Update controller state
+    _controller.showOverlay(widget.hymnId, widget.hymnTitle);
   }
 
   @override
@@ -64,6 +67,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     _countdownController.dispose();
     _pulseController.dispose();
     _nameController.dispose();
+    // Only hide overlay if not minimized (recording continues in background)
+    if (!_controller.isOverlayMinimized.value) {
+      _controller.hideOverlay();
+    }
     super.dispose();
   }
 
@@ -103,15 +110,16 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       final recording = _controller.recordings.last;
       // TODO: Implement rename functionality
 
-      if (_uploadToDrive) {
-        // Show upload progress in dialog
-        setState(() => _showSaveDialog = false);
-        
-        // Show upload progress dialog
-        _showUploadProgressDialog(recording);
-      } else {
-        widget.onClose();
-      }
+    if (_uploadToDrive) {
+      // Show upload progress in dialog
+      setState(() => _showSaveDialog = false);
+      
+      // Show upload progress dialog
+      _showUploadProgressDialog(recording);
+    } else {
+      _controller.hideOverlay();
+      widget.onClose();
+    }
     } else {
       widget.onClose();
     }
@@ -365,7 +373,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
             IconButton(
               icon:
                   Icon(Icons.minimize, color: _colorController.iconColor.value),
-              onPressed: widget.onMinimize,
+              onPressed: () {
+                _controller.minimizeOverlay();
+                widget.onMinimize?.call();
+              },
             )
           else
             const SizedBox(width: 48),
@@ -675,6 +686,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
               await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
               if (mounted) {
                 Navigator.pop(context);
+                _controller.hideOverlay();
                 widget.onClose();
               }
             },
