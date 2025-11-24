@@ -4,6 +4,7 @@ import 'package:fihirana/controller/language_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/screen/accueil/home_screen.dart';
+import 'package:fihirana/widgets/responsive_shell.dart';
 import 'package:fihirana/screen/intro/splash_screen1.dart';
 import 'package:fihirana/screen/loading/loading_screen.dart';
 import 'package:fihirana/services/version_check_service.dart';
@@ -163,6 +164,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
         theme: themeWithFont,
         darkTheme: themeWithFont,
+        builder: (context, child) {
+          final width = MediaQuery.of(context).size.width;
+          if (width > 800) {
+            return ResponsiveShell(child: child!);
+          }
+          return child!;
+        },
         initialRoute:
             shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading'),
         getPages: [
