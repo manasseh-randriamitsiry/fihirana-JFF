@@ -24,6 +24,9 @@ import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../recording/recording_manager_screen.dart';
+import '../../widgets/recording_overlay.dart';
+import '../../controller/recording_controller.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -66,6 +69,11 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   late AnimationController _heartAnimationController;
   late Animation<double> _heartScaleAnimation;
   late Animation<double> _heartOpacityAnimation;
+
+  // Recording overlay state
+  final RecordingController _recordingController =
+      Get.put(RecordingController(), permanent: true);
+  bool _isRecordingOverlayVisible = false;
 
   @override
   void initState() {
@@ -785,198 +793,254 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             ),
           ],
         ),
-        body: Column(
+        body: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  Center(
-                    child: Hero(
-                      tag: 'hymn_title_${_hymn?.id ?? widget.hymnId}',
-                      child: Material(
-                        color: Colors.transparent,
-                        child: Text(
-                          _hymn?.title ?? '',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: _fontSize * 1.2,
-                            fontWeight: FontWeight.bold,
-                            color: colorController.textColor.value,
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Center(
+                        child: Hero(
+                          tag: 'hymn_title_${_hymn?.id ?? widget.hymnId}',
+                          child: Material(
+                            color: Colors.transparent,
+                            child: Text(
+                              _hymn?.title ?? '',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: _fontSize * 1.2,
+                                fontWeight: FontWeight.bold,
+                                color: colorController.textColor.value,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  if (isFirebaseHymn() && _hymn != null)
-                    StreamBuilder(
-                      stream: FirebaseAuth.instance.authStateChanges(),
-                      builder: (context, snapshot) {
-                        final user = FirebaseAuth.instance.currentUser;
-                        final isAdmin =
-                            user?.email == 'manassehrandriamitsiry@gmail.com';
+                      if (isFirebaseHymn() && _hymn != null)
+                        StreamBuilder(
+                          stream: FirebaseAuth.instance.authStateChanges(),
+                          builder: (context, snapshot) {
+                            final user = FirebaseAuth.instance.currentUser;
+                            final isAdmin = user?.email ==
+                                'manassehrandriamitsiry@gmail.com';
 
-                        if (isAdmin) {
-                          return Text(
-                            '${l10n.createdBy}: ${_hymn?.createdBy}',
-                            style: TextStyle(
-                              fontSize: _fontSize * 0.8,
-                              color: colorController.textColor.value,
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                  const SizedBox(height: 8),
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    child: Card(
-                      color: colorController.backgroundColor.value,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (_hymn?.bridge != null &&
-                              (_hymn?.bridge?.trim().toLowerCase().isNotEmpty ??
-                                  false))
-                            InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _show = !_show;
-                                });
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
+                            if (isAdmin) {
+                              return Text(
+                                '${l10n.createdBy}: ${_hymn?.createdBy}',
+                                style: TextStyle(
+                                  fontSize: _fontSize * 0.8,
+                                  color: colorController.textColor.value,
+                                ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                      const SizedBox(height: 8),
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        child: Card(
+                          color: colorController.backgroundColor.value,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (_hymn?.bridge != null &&
+                                  (_hymn?.bridge
+                                          ?.trim()
+                                          .toLowerCase()
+                                          .isNotEmpty ??
+                                      false))
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _show = !_show;
+                                    });
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          l10n.everyVerseChorus,
-                                          style: TextStyle(
-                                            fontSize: _fontSize + 2,
-                                            fontWeight: FontWeight.bold,
-                                            color:
-                                                colorController.textColor.value,
+                                        Row(
+                                          children: [
+                                            Text(
+                                              l10n.everyVerseChorus,
+                                              style: TextStyle(
+                                                fontSize: _fontSize + 2,
+                                                fontWeight: FontWeight.bold,
+                                                color: colorController
+                                                    .textColor.value,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Icon(
+                                              _show
+                                                  ? Icons.expand_less
+                                                  : Icons.expand_more,
+                                              color: colorController
+                                                  .iconColor.value,
+                                            ),
+                                          ],
+                                        ),
+                                        if (_show)
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: Text(
+                                              _hymn?.bridge ?? '',
+                                              style: TextStyle(
+                                                fontSize: _fontSize,
+                                                color: colorController
+                                                    .textColor.value,
+                                                fontStyle: FontStyle.italic,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Icon(
-                                          _show
-                                              ? Icons.expand_less
-                                              : Icons.expand_more,
-                                          color:
-                                              colorController.iconColor.value,
-                                        ),
                                       ],
                                     ),
-                                    if (_show)
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(top: 8.0),
-                                        child: Text(
-                                          _hymn?.bridge ?? '',
-                                          style: TextStyle(
-                                            fontSize: _fontSize,
-                                            color:
-                                                colorController.textColor.value,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
-                        ],
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
+                      if (_showSlider)
+                        Slider(
+                          value: _fontSize,
+                          min: 12,
+                          max: 40,
+                          divisions: 28,
+                          label: _fontSize.round().toString(),
+                          onChanged: (double value) {
+                            setState(() {
+                              _fontSize = value;
+                              _countFontSize =
+                                  value * (_baseCountFontSize / _baseFontSize);
+                            });
+                          },
+                          onChangeEnd: (double value) async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setDouble('fontSize', value);
+                            if (mounted) {
+                              setState(() {
+                                _showSlider = false;
+                              });
+                            }
+                          },
+                        ),
+                    ],
                   ),
-                  if (_showSlider)
-                    Slider(
-                      value: _fontSize,
-                      min: 12,
-                      max: 40,
-                      divisions: 28,
-                      label: _fontSize.round().toString(),
-                      onChanged: (double value) {
-                        setState(() {
-                          _fontSize = value;
-                          _countFontSize =
-                              value * (_baseCountFontSize / _baseFontSize);
-                        });
-                      },
-                      onChangeEnd: (double value) async {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setDouble('fontSize', value);
-                        if (mounted) {
-                          setState(() {
-                            _showSlider = false;
-                          });
-                        }
-                      },
-                    ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: _isLoadingHymns
-                  ? Center(
-                      child: CircularProgressIndicator(
-                        color: colorController.primaryColor.value,
-                      ),
-                    )
-                  : _adjacentHymns.isEmpty
+                ),
+                Expanded(
+                  child: _isLoadingHymns
                       ? Center(
-                          child: Text(
-                            l10n.noHymnsAvailable,
-                            style: TextStyle(
-                              color: colorController.textColor.value,
-                            ),
+                          child: CircularProgressIndicator(
+                            color: colorController.primaryColor.value,
                           ),
                         )
-                      : Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            LiquidSwipe(
-                              key: ValueKey(_hymn?.id),
-                              pages: _adjacentHymns
-                                  .map((hymn) => _buildHymnPage(hymn, l10n))
-                                  .toList(),
-                              initialPage: _currentPageIndex,
-                              liquidController: _liquidController,
-                              onPageChangeCallback: _onPageChangeCallback,
-                              waveType: WaveType.liquidReveal,
-                              enableLoop: false,
-                              enableSideReveal: false,
-                              ignoreUserGestureWhileAnimating: true,
-                              disableUserGesture: false,
-                            ),
-                            IgnorePointer(
-                              child: AnimatedBuilder(
-                                animation: _heartAnimationController,
-                                builder: (context, child) {
-                                  return Opacity(
-                                    opacity: _heartOpacityAnimation.value,
-                                    child: Transform.scale(
-                                      scale: _heartScaleAnimation.value,
-                                      child: Icon(
-                                        Icons.favorite,
-                                        color:
-                                            Colors.red.withValues(alpha: 0.8),
-                                        size: 100,
-                                      ),
-                                    ),
-                                  );
-                                },
+                      : _adjacentHymns.isEmpty
+                          ? Center(
+                              child: Text(
+                                l10n.noHymnsAvailable,
+                                style: TextStyle(
+                                  color: colorController.textColor.value,
+                                ),
                               ),
+                            )
+                          : Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                LiquidSwipe(
+                                  key: ValueKey(_hymn?.id),
+                                  pages: _adjacentHymns
+                                      .map((hymn) => _buildHymnPage(hymn, l10n))
+                                      .toList(),
+                                  initialPage: _currentPageIndex,
+                                  liquidController: _liquidController,
+                                  onPageChangeCallback: _onPageChangeCallback,
+                                  waveType: WaveType.liquidReveal,
+                                  enableLoop: false,
+                                  enableSideReveal: false,
+                                  ignoreUserGestureWhileAnimating: true,
+                                  disableUserGesture: false,
+                                ),
+                                IgnorePointer(
+                                  child: AnimatedBuilder(
+                                    animation: _heartAnimationController,
+                                    builder: (context, child) {
+                                      return Opacity(
+                                        opacity: _heartOpacityAnimation.value,
+                                        child: Transform.scale(
+                                          scale: _heartScaleAnimation.value,
+                                          child: Icon(
+                                            Icons.favorite,
+                                            color: Colors.red
+                                                .withValues(alpha: 0.8),
+                                            size: 100,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                ),
+              ],
             ),
+            // Recording overlay
+            if (_isRecordingOverlayVisible)
+              Positioned.fill(
+                child: RecordingOverlay(
+                  hymnId: _hymn?.id ?? widget.hymnId,
+                  hymnTitle: _hymn?.title ?? '',
+                  onClose: () {
+                    setState(() {
+                      _isRecordingOverlayVisible = false;
+                    });
+                  },
+                  onMinimize: () {
+                    setState(() {
+                      _isRecordingOverlayVisible = false;
+                    });
+                  },
+                ),
+              ),
           ],
         ),
+        floatingActionButton: Obx(() {
+          final isRecording = _recordingController.isRecording.value;
+
+          if (_isRecordingOverlayVisible) return const SizedBox.shrink();
+
+          return FloatingActionButton(
+            mini: true,
+            backgroundColor: isRecording ? Colors.red : Colors.redAccent,
+            child: isRecording
+                ? const Icon(Icons.mic, color: Colors.white)
+                    .animate(onPlay: (controller) => controller.repeat())
+                    .shimmer(duration: 1000.ms)
+                : const Icon(Icons.mic, color: Colors.white),
+            onPressed: () {
+              if (isRecording) {
+                // Restore overlay
+                setState(() {
+                  _isRecordingOverlayVisible = true;
+                });
+              } else {
+                // Start new recording
+                if (_hymn != null) {
+                  setState(() {
+                    _isRecordingOverlayVisible = true;
+                  });
+                }
+              }
+            },
+          );
+        }),
       ),
     );
   }
