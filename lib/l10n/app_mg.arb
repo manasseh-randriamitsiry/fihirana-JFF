@@ -580,5 +580,10 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "currentVersion": "Kinova ankehitriny",
+  "latestVersion": "Kinova farany",
+  "whatsNew": "Vaovao",
+  "upToDate": "Efa vaovao",
+  "appIsUpToDate": "Efa vaovao ny rindrambaiko"
 }

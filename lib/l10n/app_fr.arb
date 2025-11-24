@@ -580,5 +580,10 @@
     "placeholders": {
       "count": {"type": "int"}
     }
-  }
+  },
+  "currentVersion": "Version actuelle",
+  "latestVersion": "Dernière version",
+  "whatsNew": "Quoi de neuf",
+  "upToDate": "À jour",
+  "appIsUpToDate": "Votre application est à jour"
 }

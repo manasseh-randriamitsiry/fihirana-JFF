@@ -778,5 +778,7 @@
   },
   "currentVersion": "Current Version",
   "latestVersion": "Latest Version",
-  "whatsNew": "What's New"
+  "whatsNew": "What's New",
+  "upToDate": "Up to date",
+  "appIsUpToDate": "Your app is up to date"
 }
