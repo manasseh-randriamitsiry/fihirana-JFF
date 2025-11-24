@@ -118,6 +118,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   @override
   void dispose() {
     _heartAnimationController.dispose();
+    // Hide overlay when leaving screen, unless recording is in progress
+    if (!_recordingController.isRecording.value) {
+      _recordingController.hideOverlay();
+    }
     super.dispose();
   }
 
@@ -189,6 +193,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             _hymn!.hymnNumber,
           );
           await _checkAudioAvailability();
+          // Show persistent recording overlay
+          _recordingController.showOverlay(_hymn!.id, _hymn!.title);
         } else {
           // Hymn really not found
           setState(() {
@@ -238,6 +244,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           _hymn!.hymnNumber,
         );
         await _checkAudioAvailability();
+        // Show persistent recording overlay
+        _recordingController.showOverlay(_hymn!.id, _hymn!.title);
       }
     }
   }
@@ -293,6 +301,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       newHymn.hymnNumber,
     );
     await _checkAudioAvailability();
+
+    // Update persistent recording overlay
+    _recordingController.showOverlay(newHymn.id, newHymn.title);
 
     // Reload user note for new hymn
     await _loadUserNote();
@@ -989,32 +1000,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 ),
               ],
             ),
-
           ],
         ),
-        floatingActionButton: Obx(() {
-          final isRecording = _recordingController.isRecording.value;
-          final isOverlayVisible = _recordingController.shouldShowOverlay();
-
-          return FloatingActionButton(
-            mini: true,
-            backgroundColor: isRecording ? Colors.red : Colors.redAccent,
-            child: isRecording
-                ? const Icon(Icons.mic, color: Colors.white)
-                    .animate(onPlay: (controller) => controller.repeat())
-                    .shimmer(duration: 1000.ms)
-                : const Icon(Icons.mic, color: Colors.white),
-            onPressed: () {
-              if (isRecording && isOverlayVisible) {
-                // Restore overlay if minimized
-                _recordingController.restoreOverlay();
-              } else if (!isRecording && _hymn != null) {
-                // Start new recording
-                _recordingController.startRecording(_hymn!.id);
-              }
-            },
-          );
-        }),
+        floatingActionButton: null,
       ),
     );
   }
