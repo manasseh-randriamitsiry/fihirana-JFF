@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import '../controller/color_controller.dart';
 import '../controller/shell_controller.dart';
 import 'drawer_widget.dart';
+import 'recording_overlay_manager.dart';
 
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
@@ -47,22 +48,28 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
             }
           },
           child: NeumorphicBackground(
-            child: ZoomDrawer(
-              controller: shellController.zoomDrawerController,
-              style: DrawerStyle.defaultStyle,
-              menuScreen: DrawerWidget(
-                key: const ValueKey('zoom_drawer'),
-                openDrawer: shellController.toggleDrawer,
-              ),
-              mainScreen: widget.child,
-              borderRadius: 24.0,
-              showShadow: true,
-              angle: -12.0,
-              menuBackgroundColor: _colorController.drawerColor.value,
-              slideWidth: width * 0.85,
-              mainScreenTapClose: true,
-              openCurve: Curves.fastOutSlowIn,
-              closeCurve: Curves.bounceIn,
+            child: Stack(
+              children: [
+                ZoomDrawer(
+                  controller: shellController.zoomDrawerController,
+                  style: DrawerStyle.defaultStyle,
+                  menuScreen: DrawerWidget(
+                    key: const ValueKey('zoom_drawer'),
+                    openDrawer: shellController.toggleDrawer,
+                  ),
+                  mainScreen: widget.child,
+                  borderRadius: 24.0,
+                  showShadow: true,
+                  angle: -12.0,
+                  menuBackgroundColor: _colorController.drawerColor.value,
+                  slideWidth: width * 0.85,
+                  mainScreenTapClose: true,
+                  openCurve: Curves.fastOutSlowIn,
+                  closeCurve: Curves.bounceIn,
+                ),
+                // Recording overlay manager for mobile
+                const RecordingOverlayManager(),
+              ],
             ),
           ),
         );
@@ -133,6 +140,8 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                         ),
                       ),
                     ),
+                  // Recording overlay manager for desktop/tablet
+                  const RecordingOverlayManager(),
                 ],
               ),
             ),
