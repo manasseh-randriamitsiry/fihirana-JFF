@@ -23,6 +23,7 @@ import '../../services/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
+import '../recording/recording_manager_screen.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -678,6 +679,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   case 'add_to_playlist':
                     _showAddToPlaylistDialog();
                     break;
+                  case 'my_recordings':
+                    Get.to(() => const RecordingManagerScreen());
+                    break;
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -757,6 +761,21 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                         const SizedBox(width: 8),
                         Text(
                           l10n.addToPlaylist,
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem<String>(
+                    value: 'my_recordings',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.mic,
+                          color: colorController.textColor.value,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'My Recordings',
                         ),
                       ],
                     ),
