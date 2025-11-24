@@ -323,7 +323,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                   value: canAddSongs,
                                   onChanged: (value) => _authController
                                       .updateUserPermission(userId, value),
-                                  activeColor: Colors.green,
+                                  activeThumbColor: Colors.green,
                                   activeTrackColor:
                                       Colors.green.withValues(alpha: 0.2),
                                   inactiveThumbColor: Colors.grey,
