@@ -443,37 +443,27 @@ class _RecordingTile extends StatelessWidget {
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox(height: 4),
             Row(
               children: [
                 Icon(
                   Icons.music_video,
-                  size: 14,
+                  size: 12,
                   color: colorController.iconColor.value.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 4),
-                Text(
-                  'Hymn ${recording.hymnId}',
-                  style: TextStyle(
-                    color: colorController.textColor.value.withValues(alpha: 0.7),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Icon(
-                  Icons.schedule,
-                  size: 14,
-                  color: colorController.iconColor.value.withValues(alpha: 0.6),
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  _formatDuration(recording.durationSeconds),
-                  style: TextStyle(
-                    color: colorController.textColor.value.withValues(alpha: 0.7),
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
+                Flexible(
+                  child: Text(
+                    'Hymn ${recording.hymnId} • ${_formatDuration(recording.durationSeconds)}',
+                    style: TextStyle(
+                      color: colorController.textColor.value.withValues(alpha: 0.7),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],
@@ -483,15 +473,19 @@ class _RecordingTile extends StatelessWidget {
               children: [
                 Icon(
                   Icons.calendar_today,
-                  size: 14,
+                  size: 12,
                   color: colorController.iconColor.value.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 4),
-                Text(
-                  DateFormat.yMMMd().add_jm().format(recording.createdAt),
-                  style: TextStyle(
-                    color: colorController.textColor.value.withValues(alpha: 0.5),
-                    fontSize: 12,
+                Flexible(
+                  child: Text(
+                    DateFormat.yMMMd().add_jm().format(recording.createdAt),
+                    style: TextStyle(
+                      color: colorController.textColor.value.withValues(alpha: 0.5),
+                      fontSize: 11,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],
@@ -956,8 +950,8 @@ class _RecordingTile extends StatelessWidget {
                         color: colorController.primaryColor.value.withValues(alpha: 0.1),
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Playback Speed',
@@ -966,34 +960,34 @@ class _RecordingTile extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        Obx(() => Row(
+                        const SizedBox(height: 12),
+                        Obx(() => Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) {
                             final isSelected = controller.playbackSpeed.value == speed;
-                            return Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: InkWell(
-                                onTap: () => controller.setPlaybackSpeed(speed),
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                    color: isSelected 
-                                        ? colorController.primaryColor.value 
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: colorController.primaryColor.value,
-                                    ),
+                            return InkWell(
+                              onTap: () => controller.setPlaybackSpeed(speed),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: isSelected 
+                                      ? colorController.primaryColor.value 
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: colorController.primaryColor.value,
                                   ),
-                                  child: Text(
-                                    '${speed}x',
-                                    style: TextStyle(
-                                      color: isSelected 
-                                          ? Colors.white 
-                                          : colorController.primaryColor.value,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 12,
-                                    ),
+                                ),
+                                child: Text(
+                                  '${speed}x',
+                                  style: TextStyle(
+                                    color: isSelected 
+                                        ? Colors.white 
+                                        : colorController.primaryColor.value,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 12,
                                   ),
                                 ),
                               ),
