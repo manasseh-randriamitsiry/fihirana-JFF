@@ -581,9 +581,9 @@
       "count": {"type": "int"}
     }
   },
-  "currentVersion": "Kinova ankehitriny",
-  "latestVersion": "Kinova farany",
+  "currentVersion": "version ankehitriny",
+  "latestVersion": "version farany",
   "whatsNew": "Vaovao",
-  "upToDate": "Efa vaovao",
-  "appIsUpToDate": "Efa vaovao ny rindrambaiko"
+  "upToDate": "Efa version farany",
+  "appIsUpToDate": "Efa version farany ny rindrambaiko"
 }

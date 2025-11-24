@@ -1418,17 +1418,17 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get currentVersion => 'Kinova ankehitriny';
+  String get currentVersion => 'version ankehitriny';
 
   @override
-  String get latestVersion => 'Kinova farany';
+  String get latestVersion => 'version farany';
 
   @override
   String get whatsNew => 'Vaovao';
 
   @override
-  String get upToDate => 'Efa vaovao';
+  String get upToDate => 'Efa version farany';
 
   @override
-  String get appIsUpToDate => 'Efa vaovao ny rindrambaiko';
+  String get appIsUpToDate => 'Efa version farany ny rindrambaiko';
 }
