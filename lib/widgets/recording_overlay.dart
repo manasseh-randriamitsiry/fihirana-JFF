@@ -40,6 +40,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   final TextEditingController _nameController = TextEditingController();
   bool _uploadToDrive = false;
   bool _isPublic = false;
+  UserRecording? _currentRecording;
 
   @override
   void initState() {
@@ -55,9 +56,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
 
-    // Auto-generate recording name
-    _nameController.text =
-        '${widget.hymnTitle} - ${DateTime.now().toString().substring(0, 16)}';
+    // Auto-generate recording name with better format
+    final now = DateTime.now();
+    final timestamp = '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    _nameController.text = '${widget.hymnTitle} - $timestamp';
 
     // Update controller state
     _controller.showOverlay(widget.hymnId, widget.hymnTitle);
@@ -98,6 +100,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     final recording =
         await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
     if (recording != null) {
+      // Store the current recording for later reference
+      _currentRecording = recording;
       setState(() => _showSaveDialog = true);
     }
   }
@@ -110,15 +114,14 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     }
 
     // Update recording name
-    if (_controller.recordings.isNotEmpty) {
-      final recording = _controller.recordings.last;
-      // In a real app, you'd update the recording name in the DB/File here
-      // For now we just proceed
-
+    if (_currentRecording != null) {
+      // Update the recording with the user's custom name
+      await _controller.renameRecording(_currentRecording!, name);
+      
       if (_uploadToDrive) {
         // Show upload progress in dialog
         setState(() => _showSaveDialog = false);
-        _showUploadProgressDialog(recording);
+        _showUploadProgressDialog(_currentRecording!);
       } else {
         _controller.hideOverlay();
         widget.onClose();
@@ -711,6 +714,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   void _showUploadProgressDialog(UserRecording recording) {
+    // Trigger the upload when dialog is shown
+    _controller.uploadToDrive(recording);
+    
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -815,17 +821,36 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                              _controller.hideOverlay();
-                              widget.onClose();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white,
-                              foregroundColor: Colors.red,
-                            ),
-                            child: const Text('Close'),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    _controller.retryUpload(recording);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white,
+                                    foregroundColor: _colorController.primaryColor.value,
+                                  ),
+                                  child: const Text('Retry'),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    _controller.hideOverlay();
+                                    widget.onClose();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Skip'),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       );
