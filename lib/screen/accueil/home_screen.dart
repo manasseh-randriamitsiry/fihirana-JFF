@@ -71,22 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth > 800) {
-            return Scaffold(
-              backgroundColor: _colorController.drawerColor.value,
-              body: Row(
-                children: [
-                  SizedBox(
-                    width: 300,
-                    child: DrawerWidget(openDrawer: () {}),
-                  ),
-                  Expanded(
-                    child: AccueilScreen(
-                      openDrawer: () {},
-                      showMenuButton: false,
-                    ),
-                  ),
-                ],
-              ),
+            return AccueilScreen(
+              openDrawer: () {},
+              showMenuButton: false,
             );
           } else {
             return Obx(() => NeumorphicBackground(
