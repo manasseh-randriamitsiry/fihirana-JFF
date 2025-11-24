@@ -31,7 +31,7 @@ class RecordingController extends GetxController {
   final RxList<UserRecording> recordings = <UserRecording>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isUploading = false.obs;
-  
+
   // Timer for periodic refresh
   Timer? _periodicRefreshTimer;
 
@@ -39,11 +39,11 @@ class RecordingController extends GetxController {
   final RxBool isDriveSignedIn = false.obs;
   final Rxn<String> userEmail = Rxn<String>();
   final RxString guestName = ''.obs;
-  
+
   // Upload state tracking
   final RxSet<String> uploadingRecordingIds = <String>{}.obs;
   final RxMap<String, String> uploadErrors = <String, String>{}.obs;
-  
+
   // Overlay state management
   final RxBool isOverlayMinimized = false.obs;
   final RxString currentHymnId = ''.obs;
@@ -56,10 +56,10 @@ class RecordingController extends GetxController {
     _initServices();
     _loadGuestName();
     _setupAudioPlayerListeners();
-    
+
     // Auto-refresh recordings when page is accessed
     _autoRefreshRecordings();
-    
+
     // Start periodic refresh to keep recordings in sync
     _startPeriodicRefresh();
   }
@@ -95,11 +95,11 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('RecordingController: Auto-refreshing recordings...');
       }
-      
+
       // Small delay to ensure UI is ready
       await Future.delayed(const Duration(milliseconds: 100));
       await _recordingService.loadRecordings();
-      
+
       if (kDebugMode) {
         print('RecordingController: Auto-refresh complete');
       }
@@ -113,7 +113,8 @@ class RecordingController extends GetxController {
   // Periodic refresh to keep recordings in sync
   void _startPeriodicRefresh() {
     // Refresh every 30 seconds
-    _periodicRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    _periodicRefreshTimer =
+        Timer.periodic(const Duration(seconds: 30), (timer) {
       if (kDebugMode) {
         print('RecordingController: Periodic refresh triggered');
       }
@@ -132,7 +133,8 @@ class RecordingController extends GetxController {
   // Call this when recording page becomes visible
   void onPageVisible() {
     if (kDebugMode) {
-      print('RecordingController: Page became visible, refreshing recordings...');
+      print(
+          'RecordingController: Page became visible, refreshing recordings...');
     }
     _autoRefreshRecordings();
   }
@@ -142,40 +144,42 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('RecordingController: Starting initialization...');
       }
-      
+
       await _recordingService.initialize();
-      
+
       // Bind to stream BEFORE checking Drive status
       recordings.bindStream(_recordingService.recordingsStream);
-      
+
       if (kDebugMode) {
         print('RecordingController: Service initialized, stream bound');
       }
-      
+
       // Listen to stream for debugging
       recordings.listen((recordingsList) {
         if (kDebugMode) {
-          print('RecordingController: Stream updated with ${recordingsList.length} recordings');
+          print(
+              'RecordingController: Stream updated with ${recordingsList.length} recordings');
         }
       });
-      
+
       // Small delay to ensure stream is ready
       await Future.delayed(const Duration(milliseconds: 200));
-      
+
       // Check Drive sign-in status by checking if user is already signed in
       try {
         final isSignedIn = _driveService.isSignedIn;
         if (kDebugMode) {
           print('RecordingController: Drive signed in status: $isSignedIn');
         }
-        
+
         if (isSignedIn) {
           final currentUser = _driveService.currentUser;
           if (currentUser != null) {
             isDriveSignedIn.value = true;
             userEmail.value = currentUser.email;
             if (kDebugMode) {
-              print('RecordingController: Drive user found: ${currentUser.email}');
+              print(
+                  'RecordingController: Drive user found: ${currentUser.email}');
             }
           }
         }
@@ -185,7 +189,7 @@ class RecordingController extends GetxController {
           print('Drive sign-in check failed: $e');
         }
       }
-      
+
       if (kDebugMode) {
         print('RecordingController: Initialization complete');
       }
@@ -229,7 +233,7 @@ class RecordingController extends GetxController {
     isPaused.value = false;
     recordDuration.value = 0;
     _startTimer();
-    
+
     // Show overlay when recording starts
     showOverlay(hymnId, 'Hymn $hymnId'); // You might want to pass actual title
   }
@@ -239,7 +243,7 @@ class RecordingController extends GetxController {
     isRecording.value = false;
     isPaused.value = false;
     _timer?.cancel();
-    
+
     if (filePath != null) {
       final recording = await _recordingService.saveRecording(
         filePath: filePath,
@@ -247,10 +251,10 @@ class RecordingController extends GetxController {
         title: title,
         durationSeconds: recordDuration.value,
       );
-      
+
       // Update overlay title with actual title
       currentHymnTitle.value = title;
-      
+
       return recording;
     }
     return null;
@@ -353,7 +357,7 @@ class RecordingController extends GetxController {
   Future<void> uploadToDrive(UserRecording recording) async {
     // Remove any existing error for this recording
     uploadErrors.remove(recording.id);
-    
+
     if (!isDriveSignedIn.value) {
       await signInToDrive();
       if (!isDriveSignedIn.value) {
@@ -365,7 +369,7 @@ class RecordingController extends GetxController {
     // Add to uploading set
     uploadingRecordingIds.add(recording.id);
     isUploading.value = true;
-    
+
     try {
       final file = File(recording.filePath);
       if (!await file.exists()) {
@@ -385,13 +389,13 @@ class RecordingController extends GetxController {
           driveWebLink: webLink,
         );
         await _recordingService.updateRecording(updated);
-        
+
         // Remove from uploading set on success
         uploadingRecordingIds.remove(recording.id);
         uploadErrors.remove(recording.id);
-        
+
         Get.snackbar(
-          'Success', 
+          'Success',
           'Recording uploaded to Drive successfully',
           backgroundColor: Colors.green.withValues(alpha: 0.8),
           colorText: Colors.white,
@@ -403,9 +407,9 @@ class RecordingController extends GetxController {
     } catch (e) {
       // Store error message
       uploadErrors[recording.id] = e.toString();
-      
+
       Get.snackbar(
-        'Upload Failed', 
+        'Upload Failed',
         'Failed to upload recording: ${e.toString()}',
         backgroundColor: Colors.red.withValues(alpha: 0.8),
         colorText: Colors.white,
@@ -417,23 +421,23 @@ class RecordingController extends GetxController {
       isUploading.value = uploadingRecordingIds.isNotEmpty;
     }
   }
-  
+
   // Helper method to check if a recording is currently uploading
   bool isUploadingRecording(String recordingId) {
     return uploadingRecordingIds.contains(recordingId);
   }
-  
+
   // Helper method to get upload error for a recording
   String? getUploadError(String recordingId) {
     return uploadErrors[recordingId];
   }
-  
+
   // Method to retry upload for a failed recording
   Future<void> retryUpload(UserRecording recording) async {
     uploadErrors.remove(recording.id);
     await uploadToDrive(recording);
   }
-  
+
   // Overlay state management methods
   void showOverlay(String hymnId, String hymnTitle) {
     currentHymnId.value = hymnId;
@@ -441,23 +445,23 @@ class RecordingController extends GetxController {
     overlayVisible.value = true;
     isOverlayMinimized.value = false;
   }
-  
+
   void minimizeOverlay() {
     isOverlayMinimized.value = true;
   }
-  
+
   void restoreOverlay() {
     isOverlayMinimized.value = false;
   }
-  
+
   void hideOverlay() {
     overlayVisible.value = false;
     isOverlayMinimized.value = false;
     currentHymnId.value = '';
     currentHymnTitle.value = '';
   }
-  
+
   bool shouldShowOverlay() {
-    return overlayVisible.value && (isRecording.value || recordDuration.value > 0);
+    return overlayVisible.value;
   }
 }

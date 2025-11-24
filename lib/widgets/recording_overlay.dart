@@ -33,11 +33,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   late AnimationController _countdownController;
   late AnimationController _pulseController;
-  late AnimationController _slideController;
   int _countdown = 3;
   bool _isCountingDown = false;
   bool _showSaveDialog = false;
-  bool _isCollapsed = false;
+  bool _isExpanded = false; // Default to collapsed (FAB)
 
   final TextEditingController _nameController = TextEditingController();
   bool _uploadToDrive = false;
@@ -57,15 +56,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       duration: const Duration(milliseconds: 1000),
     )..repeat(reverse: true);
 
-    _slideController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-
     // Auto-generate recording name
     _nameController.text =
         '${widget.hymnTitle} - ${DateTime.now().toString().substring(0, 16)}';
-    
+
     // Update controller state
     _controller.showOverlay(widget.hymnId, widget.hymnTitle);
   }
@@ -74,7 +68,6 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   void dispose() {
     _countdownController.dispose();
     _pulseController.dispose();
-    _slideController.dispose();
     _nameController.dispose();
     // Only hide overlay if not minimized (recording continues in background)
     if (!_controller.isOverlayMinimized.value) {
@@ -85,16 +78,19 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   void _startCountdown() async {
     setState(() {
+      _isExpanded = true; // Expand to show countdown
       _isCountingDown = true;
       _countdown = 3;
     });
 
     for (int i = 3; i > 0; i--) {
+      if (!mounted) return;
       setState(() => _countdown = i);
       _countdownController.forward(from: 0);
       await Future.delayed(const Duration(milliseconds: 1000));
     }
 
+    if (!mounted) return;
     setState(() => _isCountingDown = false);
     await _controller.startRecording(widget.hymnId);
   }
@@ -117,6 +113,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     // Update recording name
     if (_controller.recordings.isNotEmpty) {
       final recording = _controller.recordings.last;
+      // In a real app, you'd update the recording name in the DB/File here
+      // For now we just proceed
 
       if (_uploadToDrive) {
         // Show upload progress in dialog
@@ -132,22 +130,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     }
   }
 
-  void _toggleCollapse() {
-    if (_isCollapsed) {
-      _expandOverlay();
-    } else {
-      _collapseOverlay();
-    }
-  }
-
-  void _collapseOverlay() {
-    _slideController.reverse();
-    setState(() => _isCollapsed = true);
-  }
-
-  void _expandOverlay() {
-    _slideController.forward();
-    setState(() => _isCollapsed = false);
+  void _toggleExpand() {
+    setState(() => _isExpanded = !_isExpanded);
   }
 
   String _formatDuration(int seconds) {
@@ -156,188 +140,213 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
+  void _showCloseConfirmation() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Stop Recording?'),
+        content: const Text('Are you sure you want to stop recording?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _stopRecording();
+            },
+            child: const Text('Stop'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
+    // If showing save dialog, take up full screen
     if (_showSaveDialog) {
-      return _buildSaveDialog(l10n);
+      return Container(
+        color: Colors.black.withValues(alpha: 0.5),
+        child: _buildSaveDialog(l10n),
+      );
     }
 
-    return GestureDetector(
-      onTap: _toggleCollapse,
-      behavior: HitTestBehavior.translucent,
-      child: Container(
-        color: Colors.black.withValues(alpha: 0.5),
-        child: Stack(
-          children: [
-            // Tap-outside-to-collapse area
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: _toggleCollapse,
-                behavior: HitTestBehavior.translucent,
-              ),
-            ),
-            // Main overlay content
-            AnimatedBuilder(
-              animation: _slideController,
-              builder: (context, child) {
-                final slideOffset = _isCollapsed 
-                    ? MediaQuery.of(context).size.height * 0.7 
-                    : 0.0;
-                
-                return Transform.translate(
-                  offset: Offset(0, slideOffset),
-                  child: child!,
-                );
-              },
-              child: _buildOverlayContent(l10n),
-            ),
-          ],
-        ),
+    // Otherwise, position at bottom right
+    return Positioned(
+      bottom: 20,
+      right: 20,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        alignment: Alignment.bottomRight,
+        child: _isExpanded ? _buildExpandedCard(l10n) : _buildFab(l10n),
       ),
     );
   }
 
-  Widget _buildOverlayContent(AppLocalizations l10n) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            _colorController.primaryColor.value.withValues(alpha: 0.95),
-            _colorController.primaryColor.value.withValues(alpha: 0.85),
+  Widget _buildFab(AppLocalizations l10n) {
+    return GestureDetector(
+      onTap: _toggleExpand,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: _colorController.primaryColor.value,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(20),
-          bottom: Radius.circular(0),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (_controller.isRecording.value)
+              AnimatedBuilder(
+                animation: _pulseController,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: 1.0 + (_pulseController.value * 0.3),
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.red.withValues(alpha: 0.5),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            Icon(
+              _controller.isRecording.value ? Icons.mic : Icons.mic_none,
+              color: Colors.white,
+              size: 28,
+            ),
+          ],
         ),
+      ),
+    ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack);
+  }
+
+  Widget _buildExpandedCard(AppLocalizations l10n) {
+    return Container(
+      width: 300,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _colorController.backgroundColor.value,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
         ],
-      ),
-      child: ClipRRect(
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(20),
-          bottom: Radius.circular(0),
-        ),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: SafeArea(
-            child: Container(
-              color: _colorController.backgroundColor.value.withValues(alpha: 0.9),
-              child: Column(
-                children: [
-                  // Compact header
-                  _buildCompactHeader(l10n),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Main content
-                  Expanded(
-                    child: _isCountingDown
-                        ? _buildCountdown()
-                        : _buildRecordingView(l10n),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ),
+        border: Border.all(
+          color: _colorController.primaryColor.value.withValues(alpha: 0.2),
+          width: 1,
         ),
       ),
-    );
-  }
-
-  Widget _buildCompactHeader(AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Close button
-          GestureDetector(
-            onTap: () {
-              if (_controller.isRecording.value) {
-                _showCloseConfirmation();
-              } else {
-                _controller.hideOverlay();
-                widget.onClose();
-              }
-            },
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
+          // Header
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.hymnTitle,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: _colorController.textColor.value,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      'Hymn ${widget.hymnId}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _colorController.textColor.value
+                            .withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              child: Icon(
-                Icons.close,
-                color: _colorController.textColor.value,
-                size: 20,
+              if (_controller.isRecording.value)
+                IconButton(
+                  icon: Icon(Icons.close,
+                      color: _colorController.textColor.value),
+                  onPressed: () {
+                    _showCloseConfirmation();
+                  },
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              const SizedBox(width: 8),
+              IconButton(
+                icon: Icon(Icons.keyboard_arrow_down,
+                    color: _colorController.textColor.value),
+                onPressed: _toggleExpand,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
-            ),
+            ],
           ),
-          
-          const Spacer(),
-          
-          // Title
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  widget.hymnTitle,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  'Hymn ${widget.hymnId}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          const Spacer(),
-          
-          // Minimize button
-          if (widget.onMinimize != null && _controller.isRecording.value)
-            GestureDetector(
-              onTap: () {
-                _controller.minimizeOverlay();
-                widget.onMinimize?.call();
-              },
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
+
+          const SizedBox(height: 16),
+
+          // Content
+          if (_isCountingDown)
+            SizedBox(
+              height: 100,
+              child: _buildCountdown(),
             )
           else
-            const SizedBox(width: 36),
+            Column(
+              children: [
+                // Waveform placeholder or visualizer
+                SizedBox(
+                  height: 40,
+                  child: Obx(() => _buildCompactWaveform()),
+                ),
+
+                const SizedBox(height: 12),
+
+                // Timer
+                Obx(() => Text(
+                      _formatDuration(_controller.recordDuration.value),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'monospace',
+                        color: _colorController.primaryColor.value,
+                      ),
+                    )),
+
+                const SizedBox(height: 16),
+
+                // Controls
+                Obx(() => _buildCompactControls()),
+              ],
+            ),
         ],
       ),
     );
@@ -354,47 +363,16 @@ class _RecordingOverlayState extends State<RecordingOverlay>
               opacity: 1.0 - _countdownController.value,
               child: Text(
                 _countdown.toString(),
-                style: const TextStyle(
-                  fontSize: 80,
+                style: TextStyle(
+                  fontSize: 60,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: _colorController.primaryColor.value,
                 ),
               ),
             ),
           );
         },
       ),
-    );
-  }
-
-  Widget _buildRecordingView(AppLocalizations l10n) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Compact waveform
-        SizedBox(
-          height: 60,
-          child: Obx(() => _buildCompactWaveform()),
-        ),
-
-        const SizedBox(height: 24),
-
-        // Timer
-        Obx(() => Text(
-              _formatDuration(_controller.recordDuration.value),
-              style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'monospace',
-                color: Colors.white,
-              ),
-            )),
-
-        const SizedBox(height: 32),
-
-        // Compact controls
-        Obx(() => _buildCompactControls()),
-      ],
     );
   }
 
@@ -405,15 +383,14 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       children: List.generate(15, (index) {
         return AnimatedContainer(
           duration: Duration(milliseconds: 300 + (index * 30)),
-          width: 6,
-          height:
-              _controller.isRecording.value ? 15 + (index % 4) * 10.0 : 15,
-          margin: const EdgeInsets.symmetric(horizontal: 1.5),
+          width: 4,
+          height: _controller.isRecording.value ? 10 + (index % 4) * 8.0 : 10,
+          margin: const EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
             color: _controller.isRecording.value
-                ? Colors.white
-                : Colors.white.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(3),
+                ? _colorController.primaryColor.value
+                : _colorController.primaryColor.value.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(2),
           ),
         )
             .animate(
@@ -437,15 +414,15 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       return GestureDetector(
         onTap: _startCountdown,
         child: Container(
-          width: 64,
-          height: 64,
+          width: 56,
+          height: 56,
           decoration: BoxDecoration(
             color: Colors.red,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
                 color: Colors.red.withValues(alpha: 0.4),
-                blurRadius: 12,
+                blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
             ],
@@ -476,12 +453,12 @@ class _RecordingOverlayState extends State<RecordingOverlay>
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: _colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               _controller.isPaused.value ? Icons.play_arrow : Icons.pause,
-              color: Colors.white,
+              color: _colorController.primaryColor.value,
               size: 24,
             ),
           ),
@@ -498,15 +475,15 @@ class _RecordingOverlayState extends State<RecordingOverlay>
               return Transform.scale(
                 scale: 1.0 + (_pulseController.value * 0.1),
                 child: Container(
-                  width: 64,
-                  height: 64,
+                  width: 56,
+                  height: 56,
                   decoration: BoxDecoration(
                     color: Colors.red,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.red.withValues(alpha: 0.4),
-                        blurRadius: 16,
+                        blurRadius: 12,
                         offset: const Offset(0, 6),
                       ),
                     ],
@@ -599,20 +576,25 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                   ),
                   decoration: InputDecoration(
                     labelText: 'Recording Name',
-                    labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                    labelStyle:
+                        TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                      borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.3)),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                      borderSide: BorderSide(
+                          color: Colors.white.withValues(alpha: 0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.white, width: 2),
+                      borderSide:
+                          const BorderSide(color: Colors.white, width: 2),
                     ),
-                    prefixIcon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.8)),
+                    prefixIcon: Icon(Icons.edit,
+                        color: Colors.white.withValues(alpha: 0.8)),
                   ),
                 ),
 
@@ -681,8 +663,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                         onChanged: (value) {
                           setState(() => _uploadToDrive = value ?? false);
                         },
-                    checkColor: Colors.white,
-                    fillColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.2)),
+                        checkColor: Colors.white,
+                        fillColor: WidgetStateProperty.all(
+                            Colors.white.withValues(alpha: 0.2)),
                       ),
                     )),
 
@@ -696,11 +679,13 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                         onPressed: widget.onClose,
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+                          side: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.5)),
                         ),
                         child: Text(
                           'Discard',
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                          style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8)),
                         ),
                       ),
                     ),
@@ -787,40 +772,37 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                   ),
                   const SizedBox(height: 20),
                   Obx(() {
-                    final isUploading = _controller.isUploadingRecording(recording.id);
-                    final uploadError = _controller.getUploadError(recording.id);
-                    
+                    final isUploading =
+                        _controller.isUploadingRecording(recording.id);
+                    final uploadError =
+                        _controller.getUploadError(recording.id);
+
                     if (isUploading) {
                       return Column(
                         children: [
                           const CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Uploading "${recording.title}"...',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 14,
+                            'Uploading...',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
                             ),
-                            textAlign: TextAlign.center,
                           ),
                         ],
                       );
                     } else if (uploadError != null) {
                       return Column(
                         children: [
-                          const Icon(
-                            Icons.error_outline,
-                            size: 40,
-                            color: Colors.red,
-                          ),
+                          const Icon(Icons.error_outline,
+                              color: Colors.redAccent, size: 48),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'Upload Failed',
-                            style: TextStyle(
+                            style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -828,29 +810,53 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                           Text(
                             uploadError,
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
+                              color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 12,
                             ),
                             textAlign: TextAlign.center,
                           ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _controller.hideOverlay();
+                              widget.onClose();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.red,
+                            ),
+                            child: const Text('Close'),
+                          ),
                         ],
                       );
                     } else {
-                      return const Column(
+                      // Success
+                      return Column(
                         children: [
-                          Icon(
-                            Icons.check_circle,
-                            size: 40,
-                            color: Colors.green,
-                          ),
-                          SizedBox(height: 16),
-                          Text(
+                          const Icon(Icons.check_circle_outline,
+                              color: Colors.white, size: 48),
+                          const SizedBox(height: 16),
+                          const Text(
                             'Upload Complete!',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _controller.hideOverlay();
+                              widget.onClose();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              foregroundColor:
+                                  _colorController.primaryColor.value,
+                            ),
+                            child: const Text('Done'),
                           ),
                         ],
                       );
@@ -861,35 +867,6 @@ class _RecordingOverlayState extends State<RecordingOverlay>
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showCloseConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _colorController.backgroundColor.value,
-        title: const Text('Stop Recording?'),
-        content: const Text('Your recording will be lost if you close now.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Continue Recording'),
-          ),
-          TextButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
-              if (mounted) {
-                navigator.pop();
-                _controller.hideOverlay();
-                widget.onClose();
-              }
-            },
-            child: const Text('Discard', style: TextStyle(color: Colors.red)),
-          ),
-        ],
       ),
     );
   }
