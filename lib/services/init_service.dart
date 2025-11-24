@@ -6,6 +6,7 @@ import 'package:fihirana/controller/history_controller.dart';
 import 'package:fihirana/controller/language_controller.dart';
 import 'package:fihirana/controller/playlist_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
+import 'package:fihirana/controller/shell_controller.dart';
 import 'package:fihirana/services/audio_file_mapping.dart';
 import 'package:fihirana/services/audio_foreground_service.dart';
 import 'package:fihirana/services/background_service.dart';
@@ -36,6 +37,7 @@ class InitService {
     final colorController = Get.put(ColorController());
     final fontController = Get.put(FontController());
     Get.put(LanguageController());
+    Get.put(ShellController());
 
     // Load theme and colors (fast, from local storage)
     await colorController.loadColors();
