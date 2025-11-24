@@ -9,17 +9,79 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 
 ## ✨ Features
 
-*   **📖 Complete Hymnal**: Access to a vast collection of hymns with lyrics.
-*   **🎧 Audio Playback**: Listen to hymn tunes (requires internet connection).
-*   **✝️ Built-in Bible**: Read the Bible directly within the app.
-*   **❤️ Favorites**: Save your favorite hymns for quick access.
-*   **🔍 Search**: Powerful search functionality for finding hymns by number or title.
-*   **🎨 Modern UI**: Clean, user-friendly interface with dark mode support.
-*   **⚙️ Customization**: Adjust font sizes and settings for a comfortable reading experience.
-*   **🌈 Themes**: Support for Light and Dark modes with customizable color themes.
-*   **🅰️ Fonts**: Choose from a variety of fonts and adjust text size for optimal readability.
-*   **📂 Smart Playlists**: Create, manage, and share playlists with deep linking support.
-*   **☁️ Cloud Sync**: Automatically syncs playlists across devices with smart merging to prevent duplicates.
+### 📖 **Content & Reading**
+*   **Complete Hymnal**: Access to a vast collection of hymns with lyrics
+*   **Built-in Bible**: Full Bible text with advanced reading features
+*   **Bible Highlights**: Highlight and save Bible verses with custom colors
+*   **Bible Notes**: Add personal notes to Bible passages
+*   **Bible Search**: Advanced search functionality within Bible text
+*   **User-Generated Content**: Create custom hymns and edit existing ones
+*   **Firebase Hymns**: Cloud-based hymn storage and synchronization
+
+### 🎵 **Audio & Multimedia**
+*   **Audio Playback**: Listen to hymn tunes with streaming support
+*   **Audio Caching**: Local caching for offline playback
+*   **Foreground Audio Service**: Background audio playback
+*   **Audio File Mapping**: Intelligent audio file association
+
+### 👤 **User & Authentication**
+*   **Google Sign-In**: Firebase-based user authentication
+*   **Admin Panel**: Administrative interface for content management
+*   **Biometric Authentication**: Secure local authentication options
+*   **User Management**: Admin controls for managing users
+
+### 📱 **Interface & Design**
+*   **Modern UI**: Clean, user-friendly interface with multiple design systems
+*   **Dark Mode Support**: Full light/dark theme support
+*   **Customizable Themes**: Personalized color themes and settings
+*   **Font Customization**: Multiple font options with size adjustment
+*   **Neumorphic Design**: Modern neumorphic UI elements
+*   **Rive Animations**: Custom animations for enhanced UX
+*   **Liquid Swipe**: Smooth liquid swipe navigation effects
+*   **Curved Navigation**: Custom curved navigation bar
+*   **Zoom Drawer**: Advanced drawer navigation system
+
+### 🔗 **Social & Sharing**
+*   **Smart Playlists**: Create, manage, and share playlists
+*   **Deep Link Support**: Custom URL scheme (fihirana://) for content sharing
+*   **App Links Integration**: Handle external app links seamlessly
+*   **Public Notes Sharing**: Share notes with other users
+*   **Community Highlights**: See public Bible highlights from the community
+*   **Announcements System**: Admin announcements with expiration dates
+
+### 📚 **History & Tracking**
+*   **Viewing History**: Track recently viewed hymns and Bible passages
+*   **Selection Mode**: Bulk operations on history items
+*   **Favorites System**: Save and organize favorite content
+
+### 🔔 **Notifications & Daily Content**
+*   **Daily Verse Notifications**: Scheduled daily Bible verse delivery
+*   **Customizable Notifications**: User-defined notification times
+*   **Inspiring Verses**: Curated collection of inspiring verses
+*   **Rich Notifications**: Advanced notifications with actions
+*   **Update Notifications**: Alert users about app updates
+
+### 🌐 **Localization & Languages**
+*   **Multi-language Support**: English, French, and Malagasy (mg) languages
+*   **Full Internationalization**: Complete i18n support with ARB files
+
+### ⚙️ **App Management & Updates**
+*   **Auto-Update Checking**: Automatic GitHub release monitoring
+*   **In-App Updates**: Flexible and immediate update options
+*   **APK Download Service**: Direct APK download and installation
+*   **Version Management**: Track installed and available versions
+*   **Background Sync**: Periodic data synchronization
+*   **Background Announcements**: Automatic announcement checking
+
+### 🔐 **Security & Storage**
+*   **Secure Storage**: Flutter secure storage for sensitive data
+*   **File Management**: Import/export functionality with file picker
+*   **Storage Optimization**: Local storage management and cleanup
+
+### 🔍 **Search & Discovery**
+*   **Powerful Search**: Find hymns by number, title, or content
+*   **Advanced Filters**: Refine search results with multiple criteria
+*   **Quick Access**: Fast navigation to frequently used content
 
 ---
 

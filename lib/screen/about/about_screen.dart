@@ -31,6 +31,13 @@ class _AboutScreenState extends State<AboutScreen> {
     PubspecService.clearCache();
     _getAppInfo();
 
+    // Check if update info is already cached from startup check
+    if (VersionCheckService.hasUpdateCached()) {
+      _updateAvailable = true;
+      _latestVersion = VersionCheckService.getCachedVersion();
+      _releaseNotes = VersionCheckService.getCachedReleaseNotes();
+    }
+
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
         setState(() {
@@ -459,6 +466,70 @@ class _AboutScreenState extends State<AboutScreen> {
                     delay: const Duration(milliseconds: 450),
                     duration: const Duration(milliseconds: 300))
                 .slideX(begin: -0.1, end: 0),
+
+            // Show "Up to date" status when no updates available
+            if (!_updateAvailable && VersionCheckService.isUpToDate()) ...[
+              const SizedBox(height: 12),
+              Card(
+                elevation: 1,
+                shadowColor: Colors.black.withValues(alpha: 0.05),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: Colors.green.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
+                color: Colors.green.withValues(alpha: 0.05),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.green.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.green,
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.upToDate,
+                              style: TextStyle(
+                                color: colorController.textColor.value,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              l10n.appIsUpToDate,
+                              style: TextStyle(
+                                color: colorController.textColor.value
+                                    .withValues(alpha: 0.7),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+                  .animate()
+                  .fadeIn(duration: const Duration(milliseconds: 300))
+                  .slideY(begin: -0.1, end: 0),
+            ],
 
             if (_updateAvailable) ...[
               const SizedBox(height: 12),
