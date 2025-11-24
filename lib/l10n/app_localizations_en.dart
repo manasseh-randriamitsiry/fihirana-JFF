@@ -1425,4 +1425,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get whatsNew => 'What\'s New';
+
+  @override
+  String get upToDate => 'Up to date';
+
+  @override
+  String get appIsUpToDate => 'Your app is up to date';
 }

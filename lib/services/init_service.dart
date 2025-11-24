@@ -16,6 +16,7 @@ import 'package:fihirana/services/hymn_service.dart';
 import 'package:fihirana/services/local_audio_service.dart';
 import 'package:fihirana/services/notification_service.dart';
 import 'package:fihirana/services/deep_link_service.dart';
+import 'package:fihirana/services/version_check_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -72,6 +73,9 @@ class InitService {
   static void _initializeBackgroundTasks() {
     Future.delayed(const Duration(milliseconds: 500), () async {
       try {
+        // Check for updates on startup (silent check)
+        await VersionCheckService.checkForUpdateOnStartup();
+
         // Update audio file mapping (GitHub API call - can be slow)
         final audioMapping = AudioFileMapping();
         await audioMapping.updateAudioFileMapping();

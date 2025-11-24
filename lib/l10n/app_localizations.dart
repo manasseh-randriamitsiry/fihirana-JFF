@@ -2790,6 +2790,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What\'s New'**
   String get whatsNew;
+
+  /// No description provided for @upToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get upToDate;
+
+  /// No description provided for @appIsUpToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Your app is up to date'**
+  String get appIsUpToDate;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
