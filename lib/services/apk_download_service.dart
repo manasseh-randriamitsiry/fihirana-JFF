@@ -15,7 +15,34 @@ class ApkDownloadService {
   static CancelToken? _cancelToken;
 
   static void _initializeDio() {
-    _dio ??= Dio();
+    if (_dio == null) {
+      _dio = Dio(
+        BaseOptions(
+          connectTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(minutes: 5),
+          sendTimeout: const Duration(minutes: 5),
+          // Enable HTTP/2 for faster downloads
+          headers: {
+            'Connection': 'keep-alive',
+            'Accept-Encoding': 'gzip, deflate, br',
+          },
+          // Increase buffer size for faster downloads
+          receiveDataWhenStatusError: true,
+          followRedirects: true,
+          maxRedirects: 5,
+        ),
+      );
+
+      // Add interceptor for better logging in debug mode
+      if (kDebugMode) {
+        _dio!.interceptors.add(LogInterceptor(
+          requestBody: false,
+          responseBody: false,
+          requestHeader: false,
+          responseHeader: false,
+        ));
+      }
+    }
   }
 
   static Future<bool> _requestInstallPermission() async {
