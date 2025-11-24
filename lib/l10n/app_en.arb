@@ -562,6 +562,7 @@
   },
   "clearSearch": "Clear search",
   "appSection": "App",
+  "account": "Account",
   "totalCachedHymns": "Total cached hymns: {count}",
   "@totalCachedHymns": {
     "placeholders": {

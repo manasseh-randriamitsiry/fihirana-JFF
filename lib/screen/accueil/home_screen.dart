@@ -4,7 +4,7 @@ import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
-import '../../widgets/drawer_widget.dart';
+
 import '../../widgets/update_checker_widget.dart';
 import '../../controller/shell_controller.dart';
 import 'accueil_screen.dart';
@@ -67,49 +67,14 @@ class _HomeScreenState extends State<HomeScreen> {
     await prefs.setBool('isFirstTime', false);
   }
 
-  void _handleDrawerToggle() {
-    zoomDrawerController.toggle?.call();
-  }
-
   @override
   Widget build(BuildContext context) {
     return UpdateCheckerWidget(
-      child: Builder(
-        builder: (context) {
-          // Use MediaQuery instead of LayoutBuilder to avoid nested drawer issue
-          // when ResponsiveShell is active (which also uses MediaQuery > 800)
-          final width = MediaQuery.of(context).size.width;
-
-          if (width > 800) {
-            return AccueilScreen(
-              openDrawer: () {},
-              showMenuButton: false,
-            );
-          } else {
-            return Obx(() => NeumorphicBackground(
-                  child: ZoomDrawer(
-                    controller: zoomDrawerController,
-                    style: DrawerStyle.defaultStyle,
-                    menuScreen: DrawerWidget(
-                      key: const ValueKey('zoom_drawer'),
-                      openDrawer: _handleDrawerToggle,
-                    ),
-                    mainScreen: AccueilScreen(
-                      openDrawer: _handleDrawerToggle,
-                      showMenuButton: true,
-                    ),
-                    borderRadius: 24.0,
-                    showShadow: true,
-                    angle: -12.0,
-                    menuBackgroundColor: _colorController.drawerColor.value,
-                    slideWidth: MediaQuery.of(context).size.width * 0.85,
-                    mainScreenTapClose: true,
-                    openCurve: Curves.fastOutSlowIn,
-                    closeCurve: Curves.bounceIn,
-                  ),
-                ));
-          }
+      child: AccueilScreen(
+        openDrawer: () {
+          Get.find<ShellController>().toggleDrawer();
         },
+        showMenuButton: true,
       ),
     );
   }

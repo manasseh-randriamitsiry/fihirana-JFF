@@ -5,6 +5,7 @@ import 'package:fihirana/services/version_check_service.dart';
 import 'package:fihirana/services/pubspec_service.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 
 class AboutScreen extends StatefulWidget {
@@ -247,9 +248,9 @@ class _AboutScreenState extends State<AboutScreen> {
           ),
         ),
         leading: IconButton(
-          onPressed: () => Get.back(),
+          onPressed: () => Get.find<ShellController>().toggleDrawer(),
           icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
+            Icons.menu_rounded,
             color: colorController.iconColor.value,
           ),
         ),

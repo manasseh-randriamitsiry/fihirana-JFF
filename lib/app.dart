@@ -25,6 +25,7 @@ import 'package:fihirana/screen/hymn/create_hymn_page.dart';
 import 'package:fihirana/screen/hymn/firebase_hymns_screen.dart';
 import 'package:fihirana/screen/playlist/playlist_list_screen.dart';
 import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
+import 'package:fihirana/screen/settings/settings_screen.dart';
 
 // ... existing imports
 
@@ -152,6 +153,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     try {
       final shellController = Get.find<ShellController>();
       shellController.setDrawerEnabled(initialRoute == '/home');
+      shellController.currentRoute.value = initialRoute;
     } catch (e) {
       // Controller might not be ready if InitService failed, but it should be
     }
@@ -188,11 +190,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         theme: themeWithFont,
         darkTheme: themeWithFont,
         builder: (context, child) {
-          final width = MediaQuery.of(context).size.width;
-          if (width > 800) {
-            return ResponsiveShell(child: child!);
-          }
-          return child!;
+          return ResponsiveShell(child: child!);
         },
         initialRoute: initialRoute,
         routingCallback: (routing) {
@@ -225,6 +223,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GetPage(
               name: '/daily_verse_settings',
               page: () => DailyVerseSettingsScreen()),
+          GetPage(name: '/settings', page: () => const SettingsScreen()),
           GetPage(
               name: '/announcements', page: () => const AnnouncementScreen()),
           GetPage(name: '/admin', page: () => const AdminPanelScreen()),

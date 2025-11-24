@@ -1400,6 +1400,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appSection => 'App';
 
   @override
+  String get account => 'Account';
+
+  @override
   String totalCachedHymns(int count) {
     return 'Total cached hymns: $count';
   }

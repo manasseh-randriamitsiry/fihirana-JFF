@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/color_controller.dart';
 import '../controller/shell_controller.dart';
 import 'drawer_widget.dart';
+
+import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
 class ResponsiveShell extends StatefulWidget {
   final Widget child;
@@ -24,8 +26,50 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
     return Obx(() {
       final width = MediaQuery.of(context).size.width;
       final isMobile = width < 800;
-      final shouldShowDrawer =
-          shellController.isDrawerEnabled.value && !isMobile;
+
+      if (isMobile) {
+        // Phone Layout: Use ZoomDrawer globally
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+
+            final navigator = Get.key.currentState;
+            if (navigator != null && navigator.canPop()) {
+              navigator.pop();
+            } else {
+              if (shellController.zoomDrawerController.isOpen?.call() ??
+                  false) {
+                shellController.toggleDrawer();
+              } else {
+                shellController.toggleDrawer();
+              }
+            }
+          },
+          child: NeumorphicBackground(
+            child: ZoomDrawer(
+              controller: shellController.zoomDrawerController,
+              style: DrawerStyle.defaultStyle,
+              menuScreen: DrawerWidget(
+                key: const ValueKey('zoom_drawer'),
+                openDrawer: shellController.toggleDrawer,
+              ),
+              mainScreen: widget.child,
+              borderRadius: 24.0,
+              showShadow: true,
+              angle: -12.0,
+              menuBackgroundColor: _colorController.drawerColor.value,
+              slideWidth: width * 0.85,
+              mainScreenTapClose: true,
+              openCurve: Curves.fastOutSlowIn,
+              closeCurve: Curves.bounceIn,
+            ),
+          ),
+        );
+      }
+
+      // Tablet/Desktop Layout: Use Row with Side Drawer
+      final shouldShowDrawer = shellController.isDrawerEnabled.value;
 
       return Scaffold(
         backgroundColor: _colorController.drawerColor.value,

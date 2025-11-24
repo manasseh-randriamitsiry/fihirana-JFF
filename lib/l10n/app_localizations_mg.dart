@@ -1400,6 +1400,9 @@ class AppLocalizationsMg extends AppLocalizations {
   String get appSection => 'App Section';
 
   @override
+  String get account => 'Kaonty';
+
+  @override
   String totalCachedHymns(int count) {
     return 'Totalin’ny hira voatahiry: $count';
   }
