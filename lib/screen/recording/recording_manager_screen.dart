@@ -10,7 +10,9 @@ class RecordingManagerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final RecordingController controller = Get.find<RecordingController>();
+    // Use Get.put to ensure the controller is initialized
+    final RecordingController controller =
+        Get.put(RecordingController(), permanent: true);
 
     return Scaffold(
       appBar: AppBar(
