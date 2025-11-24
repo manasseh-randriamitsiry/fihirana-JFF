@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -280,14 +281,24 @@ class VersionCheckService {
         String latestVersion = data['tag_name'].toString().replaceAll('v', '');
         final releaseNotes = data['body'] ?? 'No release notes available';
 
-        // Prioritize universal APK, then fallback to any APK
+        // Get device architecture
+        String deviceArch = _getDeviceArchitecture();
+
+        // Try to find architecture-specific APK first, then fallback to universal
         final apkAsset = data['assets']?.firstWhere(
-          (asset) =>
-              asset['name'].toString().toLowerCase().contains('universal') &&
-              asset['name'].toString().endsWith('.apk'),
+          (asset) {
+            final name = asset['name'].toString().toLowerCase();
+            return name.contains(deviceArch) && name.endsWith('.apk');
+          },
           orElse: () => data['assets']?.firstWhere(
-            (asset) => asset['name'].toString().endsWith('.apk'),
-            orElse: () => null,
+            (asset) {
+              final name = asset['name'].toString().toLowerCase();
+              return name.contains('universal') && name.endsWith('.apk');
+            },
+            orElse: () => data['assets']?.firstWhere(
+              (asset) => asset['name'].toString().endsWith('.apk'),
+              orElse: () => null,
+            ),
           ),
         );
 
@@ -448,14 +459,24 @@ class VersionCheckService {
         final releaseUrl = data['html_url'];
         final releaseNotes = data['body'] ?? 'No release notes available';
 
-        // Prioritize universal APK, then fallback to any APK
+        // Get device architecture
+        String deviceArch = _getDeviceArchitecture();
+
+        // Try to find architecture-specific APK first, then fallback to universal
         final apkAsset = data['assets']?.firstWhere(
-          (asset) =>
-              asset['name'].toString().toLowerCase().contains('universal') &&
-              asset['name'].toString().endsWith('.apk'),
+          (asset) {
+            final name = asset['name'].toString().toLowerCase();
+            return name.contains(deviceArch) && name.endsWith('.apk');
+          },
           orElse: () => data['assets']?.firstWhere(
-            (asset) => asset['name'].toString().endsWith('.apk'),
-            orElse: () => null,
+            (asset) {
+              final name = asset['name'].toString().toLowerCase();
+              return name.contains('universal') && name.endsWith('.apk');
+            },
+            orElse: () => data['assets']?.firstWhere(
+              (asset) => asset['name'].toString().endsWith('.apk'),
+              orElse: () => null,
+            ),
           ),
         );
 
@@ -651,5 +672,34 @@ class VersionCheckService {
 
   static bool hasUpdateCached() {
     return _cachedVersion != null && _cachedDownloadUrl != null;
+  }
+
+  /// Detects the device's CPU architecture for APK selection
+  /// Returns architecture string that matches GitHub release APK naming
+  static String _getDeviceArchitecture() {
+    try {
+      // Get the ABI list from Platform
+      final abis = Platform.version.contains('arm64') ||
+              Platform.version.contains('aarch64')
+          ? 'arm64-v8a'
+          : Platform.version.contains('arm') ||
+                  Platform.version.contains('armeabi')
+              ? 'armeabi-v7a'
+              : Platform.version.contains('x86_64')
+                  ? 'x86_64'
+                  : 'x86';
+
+      if (kDebugMode) {
+        print('🔍 Detected device architecture: $abis');
+      }
+
+      return abis;
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error detecting architecture: $e, defaulting to arm64-v8a');
+      }
+      // Default to most common architecture
+      return 'arm64-v8a';
+    }
   }
 }
