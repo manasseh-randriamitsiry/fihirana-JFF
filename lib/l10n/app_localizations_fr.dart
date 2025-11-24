@@ -1431,4 +1431,239 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get appIsUpToDate => 'Votre application est à jour';
+
+  @override
+  String get recordings => 'Enregistrements';
+
+  @override
+  String get refreshRecordings => 'Actualiser les enregistrements';
+
+  @override
+  String get syncFromGoogleDrive => 'Synchroniser depuis Google Drive';
+
+  @override
+  String signedInAs(String email) {
+    return 'Connecté en tant que $email';
+  }
+
+  @override
+  String get signInToGoogleDrive => 'Se connecter à Google Drive';
+
+  @override
+  String get noRecordingsYet => 'Aucun enregistrement pour le moment';
+
+  @override
+  String get startRecordingYourFavoriteHymns => 'Commencez à enregistrer vos cantiques préférés';
+
+  @override
+  String get personalRecordings => 'Enregistrements personnels';
+
+  @override
+  String get publicRecordings => 'Enregistrements publics';
+
+  @override
+  String recordingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 's',
+      one: '',
+    );
+    return '$count enregistrement$_temp0';
+  }
+
+  @override
+  String get googleDrive => 'Google Drive';
+
+  @override
+  String get signedInAsLabel => 'Connecté en tant que:';
+
+  @override
+  String get sync => 'Synchroniser';
+
+  @override
+  String hymnDuration(String hymnId, String duration) {
+    return 'Cantique $hymnId • $duration';
+  }
+
+  @override
+  String get public => 'Public';
+
+  @override
+  String get uploadToDrive => 'Télécharger vers Drive';
+
+  @override
+  String uploadFailedTapToRetry(String error) {
+    return 'Échec du téléchargement. Appuyez pour réessayer.\nErreur: $error';
+  }
+
+  @override
+  String get deleteRecording => 'Supprimer l\'enregistrement';
+
+  @override
+  String deleteRecordingConfirmation(String title) {
+    return 'Êtes-vous sûr de vouloir supprimer \"$title\"? Cette action est irréversible.';
+  }
+
+  @override
+  String get deleted => 'Supprimé';
+
+  @override
+  String get recordingDeletedSuccessfully => 'Enregistrement supprimé avec succès';
+
+  @override
+  String get downloadStarted => 'Téléchargement démarré';
+
+  @override
+  String get recordingInProgressDialog => 'Enregistrement en cours';
+
+  @override
+  String get pleaseStopRecordingBeforePlaying => 'Veuillez arrêter l\'enregistrement avant de lire.';
+
+  @override
+  String get recordingSessionActive => 'Session d\'enregistrement active';
+
+  @override
+  String get pleaseCloseRecordingOverlayFirst => 'Veuillez d\'abord fermer l\'overlay d\'enregistrement.';
+
+  @override
+  String get recordingInProgress => 'Enregistrement en cours...';
+
+  @override
+  String get recordingCompleted => 'Enregistrement terminé';
+
+  @override
+  String get recordingSaved => 'Enregistrement enregistré avec succès';
+
+  @override
+  String failedToSaveRecording(String error) {
+    return 'Échec de l\'enregistrement: $error';
+  }
+
+  @override
+  String get failedToPlayRecording => 'Échec de la lecture de l\'enregistrement';
+
+  @override
+  String get recordingUploadSuccess => 'Enregistrement téléchargé vers Drive avec succès';
+
+  @override
+  String get recordingUploadFailed => 'Échec du téléchargement';
+
+  @override
+  String failedToUploadRecording(String error) {
+    return 'Échec du téléchargement de l\'enregistrement: $error';
+  }
+
+  @override
+  String get syncFailed => 'Échec de la synchronisation';
+
+  @override
+  String failedToSyncFromDrive(String error) {
+    return 'Échec de la synchronisation des enregistrements depuis Drive: $error';
+  }
+
+  @override
+  String get driveSyncCompleted => 'Synchronisation Drive terminée';
+
+  @override
+  String driveSignInFailed(Object error) {
+    return 'Échec de la connexion à Drive: $error';
+  }
+
+  @override
+  String get driveFileNotFound => 'Fichier d\'enregistrement introuvable';
+
+  @override
+  String get uploadInProgress => 'Téléchargement en cours...';
+
+  @override
+  String get storageUsage => 'Utilisation du stockage';
+
+  @override
+  String totalStorageUsed(String size) {
+    return 'Stockage total utilisé: $size';
+  }
+
+  @override
+  String recordingOverlayTitle(String hymnId) {
+    return 'Enregistrement du cantique $hymnId';
+  }
+
+  @override
+  String get minimize => 'Minimiser';
+
+  @override
+  String get recordingPaused => 'Enregistrement mis en pause';
+
+  @override
+  String get recordingResumed => 'Enregistrement repris';
+
+  @override
+  String get recordingStopped => 'Enregistrement arrêté';
+
+  @override
+  String get playbackSpeed => 'Vitesse de lecture';
+
+  @override
+  String get normalSpeed => 'Vitesse normale';
+
+  @override
+  String get renameRecording => 'Renommer l\'enregistrement';
+
+  @override
+  String get enterNewTitle => 'Entrez un nouveau titre';
+
+  @override
+  String get rename => 'Renommer';
+
+  @override
+  String get recordingRenamed => 'Enregistrement renommé avec succès';
+
+  @override
+  String failedToRenameRecording(String error) {
+    return 'Échec du renommage de l\'enregistrement: $error';
+  }
+
+  @override
+  String get recordingManager => 'Gestionnaire d\'enregistrements';
+
+  @override
+  String get createNewRecording => 'Créer un nouvel enregistrement';
+
+  @override
+  String get viewRecordings => 'Voir les enregistrements';
+
+  @override
+  String get recordingPermissionRequired => 'Autorisation d\'enregistrement requise';
+
+  @override
+  String get pleaseGrantMicrophonePermission => 'Veuillez accorder l\'autorisation du microphone pour enregistrer des cantiques.';
+
+  @override
+  String get grantPermission => 'Accorder l\'autorisation';
+
+  @override
+  String get recordingNotAllowed => 'Enregistrement non autorisé';
+
+  @override
+  String get microphoneAccessDenied => 'Accès au microphone refusé. Veuillez l\'activer dans les paramètres pour enregistrer des cantiques.';
+
+  @override
+  String get openSettings => 'Ouvrir les paramètres';
+
+  @override
+  String get recordingError => 'Erreur d\'enregistrement';
+
+  @override
+  String anErrorOccurredDuringRecording(String error) {
+    return 'Une erreur s\'est produite pendant l\'enregistrement: $error';
+  }
+
+  @override
+  String get playbackError => 'Erreur de lecture';
+
+  @override
+  String anErrorOccurredDuringPlayback(String error) {
+    return 'Une erreur s\'est produite pendant la lecture: $error';
+  }
 }

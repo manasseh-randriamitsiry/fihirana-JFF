@@ -585,5 +585,150 @@
   "latestVersion": "version farany",
   "whatsNew": "Vaovao",
   "upToDate": "Efa version farany",
-  "appIsUpToDate": "Efa version farany ny rindrambaiko"
+  "appIsUpToDate": "Efa version farany ny rindrambaiko",
+  
+  "recordings": "Fandrakitra",
+  "refreshRecordings": "Avereno ny fandrakitra",
+  "syncFromGoogleDrive": "Sync avy amin'i Google Drive",
+  "signedInAs": "Tondroka ho {email}",
+  "signInToGoogleDrive": "Midira ao amin'i Google Drive",
+  "noRecordingsYet": "Tsy misy fandrakitra",
+  "startRecordingYourFavoriteHymns": "Atombohy ny fandrakitra ny hira tiana",
+  "personalRecordings": "Fandrakitra manokana",
+  "publicRecordings": "Fandrakitra ho an'ny rehetra",
+  "recordingCount": "{count} fandrakitra{count,plural, =1{} other{}}",
+  "googleDrive": "Google Drive",
+  "signedInAsLabel": "Tondroka ho:",
+  "close": "Hidio",
+  "sync": "Sync",
+  "signOut": "Hivoaka",
+  "hymnDuration": "Hira {hymnId} • {duration}",
+  "public": "Ho an'ny rehetra",
+  "uploadToDrive": "Alefaso any amin'i Drive",
+  "uploadFailedTapToRetry": "Tsy nahomby ny fandefasana. Tsindrio hanandrana indray.\nHadisoana: {error}",
+  "share": "Zarao",
+  "download": "Alahao",
+  "delete": "Fafao",
+  "deleteRecording": "Fafao ny fandrakitra",
+  "deleteRecordingConfirmation": "Tena te hamafa ny \"{title}\" ve ianao? Tsy afaka averina io.",
+  "cancel": "Ajanony",
+  "deleted": "Voafafa",
+  "recordingDeletedSuccessfully": "Voafafa soa aman-tsara ny fandrakitra",
+  "downloadStarted": "Efa nanomboka ny fampidinana",
+  "recordingInProgressDialog": "Fandrakitra mandeha",
+  "pleaseStopRecordingBeforePlaying": "Ajanony aloha ny fandrakitra mialohan'ny mamaky azy.",
+  "recordingSessionActive": "Fandrakitra mandeha",
+  "pleaseCloseRecordingOverlayFirst": "Akatony aloha ny fiparitaka fandrakitra.",
+  "recordingInProgress": "Fandrakitra mandeha...",
+  "pause": "Atohizo",
+  "resume": "Tohizo",
+  "stop": "Ajanony",
+  "recordingCompleted": "Vita ny fandrakitra",
+  "recordingSaved": "Voatahiry soa aman-tsara ny fandrakitra",
+  "failedToSaveRecording": "Tsy nahomby ny fandratra: {error}",
+  "failedToPlayRecording": "Tsy nahomby ny famaky fandrakitra",
+  "recordingUploadSuccess": "Voalefa soa aman-tsara any amin'i Drive ny fandrakitra",
+  "recordingUploadFailed": "Tsy nahomby ny fandefasana",
+  "failedToUploadRecording": "Tsy nahomby ny fandefasana fandrakitra: {error}",
+  "syncFailed": "Tsy nahomby ny sync",
+  "failedToSyncFromDrive": "Tsy nahomby ny sync ny fandrakitra avy any amin'i Drive: {error}",
+  "driveSyncCompleted": "Vita ny sync Drive",
+  "driveSignInFailed": "Tsy nahomby ny fidirana amin'i Drive: {error}",
+  "driveFileNotFound": "Tsy hita ny rakin-tsilaka",
+  "uploadInProgress": "Fandefasana mandeha...",
+  "retry": "Andramo indray",
+  "storageUsage": "Fampiasana ahabara",
+  "totalStorageUsed": "Fampiasana ahabara tanteraka: {size}",
+  "recordingOverlayTitle": "Fandrakitra ny hira {hymnId}",
+  "minimize": "Akelezo",
+  "recordingPaused": "Natohina ny fandrakitra",
+  "recordingResumed": "Notohizina ny fandrakitra",
+  "recordingStopped": "Najanona ny fandrakitra",
+  "playbackSpeed": "Hafainganana mamaky",
+  "normalSpeed": "Hafainganana tokony ho izy",
+  "renameRecording": "Hanova anaran'ny fandrakitra",
+  "enterNewTitle": "Ampidiro ny anarana vaovao",
+  "rename": "Hanova anarana",
+  "recordingRenamed": "Novana soa aman-tsara ny anaran'ny fandrakitra",
+  "failedToRenameRecording": "Tsy nahomby ny fanovan'ny anaran'ny fandrakitra: {error}",
+  "recordingManager": "Mpikarakara fandrakitra",
+  "createNewRecording": "Hamorona fandrakitra vaovao",
+  "viewRecordings": "Hijery ny fandrakitra",
+  "recordingPermissionRequired": "Ilàna fahazoandàlana fandrakitra",
+  "pleaseGrantMicrophonePermission": "Omeo fahazoandàlana ny afindrafoano mba handrakitra hira.",
+  "grantPermission": "Omeo fahazoandàlana",
+  "recordingNotAllowed": "Tsy afaka mandrakitra",
+  "microphoneAccessDenied": "Tsy nahazo ny afindrafoano. Alefaso ao amin'ny fikirakirana mba handrakitra hira.",
+  "openSettings": "Sokafy ny fikirakirana",
+  "recordingError": "Hadisoana fandrakitra",
+  "anErrorOccurredDuringRecording": "Nisy hadisoana nandritra ny fandrakitra: {error}",
+  "playbackError": "Hadisoana famaky",
+  "anErrorOccurredDuringPlayback": "Nisy hadisoana nandritra ny famaky: {error}",
+  
+  "@signedInAs": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "@recordingCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@hymnDuration": {
+    "placeholders": {
+      "hymnId": {"type": "String"},
+      "duration": {"type": "String"}
+    }
+  },
+  "@uploadFailedTapToRetry": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@deleteRecordingConfirmation": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "@failedToSaveRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@failedToUploadRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@failedToSyncFromDrive": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@totalStorageUsed": {
+    "placeholders": {
+      "size": {"type": "String"}
+    }
+  },
+  "@recordingOverlayTitle": {
+    "placeholders": {
+      "hymnId": {"type": "String"}
+    }
+  },
+  "@failedToRenameRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@anErrorOccurredDuringRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@anErrorOccurredDuringPlayback": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  }
 }
