@@ -2,15 +2,17 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/hymn.dart';
 import '../services/hymn_service.dart';
 import '../l10n/app_localizations.dart';
 
 class HymnController extends GetxController {
-  final searchController = TextEditingController();
+  late final TextEditingController searchController;
   final _hymnService = HymnService();
   final favoriteStatuses = <String, String>{}.obs;
   StreamSubscription? _favoriteStatusSubscription;
+  bool _isDisposed = false;
 
   void _initFavoriteStatusStream() {
     _favoriteStatusSubscription?.cancel();
@@ -40,6 +42,7 @@ class HymnController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    searchController = TextEditingController();
     _initFavoriteStatusStream();
   }
 
@@ -95,9 +98,28 @@ class HymnController extends GetxController {
     return firstVerse;
   }
 
+  // Safe getter for search controller
+  TextEditingController get safeSearchController {
+    if (_isDisposed) {
+      return TextEditingController();
+    }
+    return searchController;
+  }
+
+  // Check if controller is disposed
+  bool get isDisposed => _isDisposed;
+
   @override
   void onClose() {
-    searchController.dispose();
+    _isDisposed = true;
+    try {
+      searchController.dispose();
+    } catch (e) {
+      // Controller already disposed, ignore
+        if (kDebugMode) {
+          debugPrint('SearchController already disposed: $e');
+        }
+    }
     _favoriteStatusSubscription?.cancel();
     super.onClose();
   }

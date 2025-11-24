@@ -61,6 +61,11 @@ dependencies:
   file_picker: ^10.3.7
   app_links: ^6.4.1
   collection: ^1.19.1
+  record: ^6.1.2
+  googleapis: ^15.0.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  googleapis_auth: ^1.6.0
+  uuid: ^4.5.2
 
 dev_dependencies:
   flutter_test:

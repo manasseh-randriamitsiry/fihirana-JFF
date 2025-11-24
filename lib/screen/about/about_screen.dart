@@ -245,7 +245,6 @@ class _AboutScreenState extends State<AboutScreen> {
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: true,
         title: Text(
           l10n.aboutUs,
           style: TextStyle(

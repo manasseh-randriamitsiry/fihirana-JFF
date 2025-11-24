@@ -585,5 +585,150 @@
   "latestVersion": "Dernière version",
   "whatsNew": "Quoi de neuf",
   "upToDate": "À jour",
-  "appIsUpToDate": "Votre application est à jour"
+  "appIsUpToDate": "Votre application est à jour",
+  
+  "recordings": "Enregistrements",
+  "refreshRecordings": "Actualiser les enregistrements",
+  "syncFromGoogleDrive": "Synchroniser depuis Google Drive",
+  "signedInAs": "Connecté en tant que {email}",
+  "signInToGoogleDrive": "Se connecter à Google Drive",
+  "noRecordingsYet": "Aucun enregistrement pour le moment",
+  "startRecordingYourFavoriteHymns": "Commencez à enregistrer vos cantiques préférés",
+  "personalRecordings": "Enregistrements personnels",
+  "publicRecordings": "Enregistrements publics",
+  "recordingCount": "{count} enregistrement{count,plural, =1{} other{s}}",
+  "googleDrive": "Google Drive",
+  "signedInAsLabel": "Connecté en tant que:",
+  "close": "Fermer",
+  "sync": "Synchroniser",
+  "signOut": "Se déconnecter",
+  "hymnDuration": "Cantique {hymnId} • {duration}",
+  "public": "Public",
+  "uploadToDrive": "Télécharger vers Drive",
+  "uploadFailedTapToRetry": "Échec du téléchargement. Appuyez pour réessayer.\nErreur: {error}",
+  "share": "Partager",
+  "download": "Télécharger",
+  "delete": "Supprimer",
+  "deleteRecording": "Supprimer l'enregistrement",
+  "deleteRecordingConfirmation": "Êtes-vous sûr de vouloir supprimer \"{title}\"? Cette action est irréversible.",
+  "cancel": "Annuler",
+  "deleted": "Supprimé",
+  "recordingDeletedSuccessfully": "Enregistrement supprimé avec succès",
+  "downloadStarted": "Téléchargement démarré",
+  "recordingInProgressDialog": "Enregistrement en cours",
+  "pleaseStopRecordingBeforePlaying": "Veuillez arrêter l'enregistrement avant de lire.",
+  "recordingSessionActive": "Session d'enregistrement active",
+  "pleaseCloseRecordingOverlayFirst": "Veuillez d'abord fermer l'overlay d'enregistrement.",
+  "recordingInProgress": "Enregistrement en cours...",
+  "pause": "Pause",
+  "resume": "Reprendre",
+  "stop": "Arrêter",
+  "recordingCompleted": "Enregistrement terminé",
+  "recordingSaved": "Enregistrement enregistré avec succès",
+  "failedToSaveRecording": "Échec de l'enregistrement: {error}",
+  "failedToPlayRecording": "Échec de la lecture de l'enregistrement",
+  "recordingUploadSuccess": "Enregistrement téléchargé vers Drive avec succès",
+  "recordingUploadFailed": "Échec du téléchargement",
+  "failedToUploadRecording": "Échec du téléchargement de l'enregistrement: {error}",
+  "syncFailed": "Échec de la synchronisation",
+  "failedToSyncFromDrive": "Échec de la synchronisation des enregistrements depuis Drive: {error}",
+  "driveSyncCompleted": "Synchronisation Drive terminée",
+  "driveSignInFailed": "Échec de la connexion à Drive: {error}",
+  "driveFileNotFound": "Fichier d'enregistrement introuvable",
+  "uploadInProgress": "Téléchargement en cours...",
+  "retry": "Réessayer",
+  "storageUsage": "Utilisation du stockage",
+  "totalStorageUsed": "Stockage total utilisé: {size}",
+  "recordingOverlayTitle": "Enregistrement du cantique {hymnId}",
+  "minimize": "Minimiser",
+  "recordingPaused": "Enregistrement mis en pause",
+  "recordingResumed": "Enregistrement repris",
+  "recordingStopped": "Enregistrement arrêté",
+  "playbackSpeed": "Vitesse de lecture",
+  "normalSpeed": "Vitesse normale",
+  "renameRecording": "Renommer l'enregistrement",
+  "enterNewTitle": "Entrez un nouveau titre",
+  "rename": "Renommer",
+  "recordingRenamed": "Enregistrement renommé avec succès",
+  "failedToRenameRecording": "Échec du renommage de l'enregistrement: {error}",
+  "recordingManager": "Gestionnaire d'enregistrements",
+  "createNewRecording": "Créer un nouvel enregistrement",
+  "viewRecordings": "Voir les enregistrements",
+  "recordingPermissionRequired": "Autorisation d'enregistrement requise",
+  "pleaseGrantMicrophonePermission": "Veuillez accorder l'autorisation du microphone pour enregistrer des cantiques.",
+  "grantPermission": "Accorder l'autorisation",
+  "recordingNotAllowed": "Enregistrement non autorisé",
+  "microphoneAccessDenied": "Accès au microphone refusé. Veuillez l'activer dans les paramètres pour enregistrer des cantiques.",
+  "openSettings": "Ouvrir les paramètres",
+  "recordingError": "Erreur d'enregistrement",
+  "anErrorOccurredDuringRecording": "Une erreur s'est produite pendant l'enregistrement: {error}",
+  "playbackError": "Erreur de lecture",
+  "anErrorOccurredDuringPlayback": "Une erreur s'est produite pendant la lecture: {error}",
+  
+  "@signedInAs": {
+    "placeholders": {
+      "email": {"type": "String"}
+    }
+  },
+  "@recordingCount": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "@hymnDuration": {
+    "placeholders": {
+      "hymnId": {"type": "String"},
+      "duration": {"type": "String"}
+    }
+  },
+  "@uploadFailedTapToRetry": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@deleteRecordingConfirmation": {
+    "placeholders": {
+      "title": {"type": "String"}
+    }
+  },
+  "@failedToSaveRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@failedToUploadRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@failedToSyncFromDrive": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@totalStorageUsed": {
+    "placeholders": {
+      "size": {"type": "String"}
+    }
+  },
+  "@recordingOverlayTitle": {
+    "placeholders": {
+      "hymnId": {"type": "String"}
+    }
+  },
+  "@failedToRenameRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@anErrorOccurredDuringRecording": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  },
+  "@anErrorOccurredDuringPlayback": {
+    "placeholders": {
+      "error": {"type": "String"}
+    }
+  }
 }

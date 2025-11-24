@@ -23,6 +23,11 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 *   **Audio Caching**: Local caching for offline playback
 *   **Foreground Audio Service**: Background audio playback
 *   **Audio File Mapping**: Intelligent audio file association
+*   **User Recordings**: Record and upload custom hymn performances
+*   **Recording Player**: Built-in player for user recordings with playback controls
+*   **Recording Overlay**: Persistent floating player for background recording playback
+*   **Google Drive Integration**: Upload and sync recordings to Google Drive
+*   **Upload Retry**: Automatic retry mechanism for failed uploads
 
 ### 👤 **User & Authentication**
 *   **Google Sign-In**: Firebase-based user authentication
@@ -83,6 +88,14 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 *   **Advanced Filters**: Refine search results with multiple criteria
 *   **Quick Access**: Fast navigation to frequently used content
 
+### 🎙️ **Recording & User Content**
+*   **Audio Recording**: Record custom hymn performances with high-quality audio
+*   **Recording Management**: Organize, play, and manage personal recordings
+*   **Cloud Upload**: Upload recordings to Google Drive for backup and sharing
+*   **Recording Player**: Full-featured player with speed controls and seek functionality
+*   **Background Playback**: Persistent floating player for continuous listening
+*   **Upload Status**: Real-time upload progress and retry mechanisms
+
 ---
 
 ## 🚀 Setup Instructions
@@ -108,7 +121,20 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
     flutter run
     ```
 
-### 3. Build Configuration (For Release)
+### 3. Development Tools
+The project includes several utility scripts in the `tool/` directory:
+*   `generate_assets.dart` - Updates asset manifests and pubspec.yaml
+*   `combine_hymns.dart` - Combines individual hymn JSON files
+*   `update_version.dart` - Manages app versioning
+*   `verify_audio_urls.dart` - Validates audio file availability
+
+### 4. Testing
+Run tests with:
+```bash
+flutter test
+```
+
+### 5. Build Configuration (For Release)
 
 #### 🔹 Google Services Configuration
 1.  Copy the `google-services.json` file from your Firebase project into:
@@ -129,6 +155,29 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 2.  Add it to GitHub Secrets as `KEYSTORE_BASE64`.
 
 ---
+
+## 📁 Project Structure
+
+```
+lib/
+├── controller/          # State management and business logic
+├── data/               # Static data and constants
+├── l10n/               # Internationalization files
+├── models/             # Data models and entities
+├── screen/             # UI screens and pages
+├── services/           # Background services and APIs
+├── utility/            # Helper utilities and functions
+└── widgets/            # Reusable UI components
+
+assets/
+├── animations/         # Rive animation files
+├── baiboly/           # Bible data files
+├── fonts/             # Custom font files
+├── images/            # Image assets
+└── json/              # Hymn data files (individual JSON files)
+
+tool/                  # Development and maintenance scripts
+```
 
 ## 🤝 Contribution Guide
 
@@ -210,4 +259,55 @@ To update translations or add a new language:
     ```bash
     flutter gen-l10n
     ```
-.
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### **Build Issues**
+*   **Gradle errors**: Run `flutter clean` then `flutter pub get`
+*   **Missing assets**: Run `dart tool/generate_assets.dart` to update asset manifests
+*   **Font issues**: Ensure all font files are present in `assets/fonts/`
+
+#### **Audio/Recording Issues**
+*   **Permission denied**: Check microphone permissions in app settings
+*   **Upload failures**: Verify Google Drive authentication and network connection
+*   **Playback issues**: Ensure audio files are properly cached and available
+
+#### **Firebase Issues**
+*   **Authentication errors**: Verify `google-services.json` is correctly placed
+*   **Firestore connection**: Check Firebase project configuration and rules
+*   **Build errors**: Ensure Firebase SDK versions are compatible
+
+### Development Tips
+*   Use `flutter run --debug` for development with hot reload
+*   Check `flutter doctor` for environment setup issues
+*   Monitor console logs for debugging recording and upload issues
+*   Test on multiple devices for audio compatibility
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+*   **Flutter Community** For the amazing framework and ecosystem
+*   **Firebase Team** For providing robust backend services
+*   **Contributors** Everyone who has contributed hymns, translations, and code improvements
+*   **Users** The community that makes this app meaningful
+
+---
+
+<div>
+
+**⭐ If this project has blessed you, consider giving it a star on GitHub! ⭐**
+
+Made with ❤️ for the faith community
+
+</div>

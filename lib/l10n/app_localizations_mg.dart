@@ -99,7 +99,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get send => 'Alefaso';
 
   @override
-  String get cancel => 'Ajanona';
+  String get cancel => 'Ajanony';
 
   @override
   String get ok => 'OK';
@@ -108,7 +108,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get save => 'Tehirizo';
 
   @override
-  String get delete => 'Hamafa';
+  String get delete => 'Fafao';
 
   @override
   String get edit => 'Hanova';
@@ -215,7 +215,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get playlistNotFound => 'Tsy hita ny playlist';
 
   @override
-  String get share => 'Hizara';
+  String get share => 'Zarao';
 
   @override
   String get copy => 'Handika';
@@ -224,7 +224,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get view => 'Hijery';
 
   @override
-  String get download => 'Haka';
+  String get download => 'Alahao';
 
   @override
   String get hymnNotDownloaded => 'Tsy mbola tafiditra ny hira';
@@ -308,13 +308,13 @@ class AppLocalizationsMg extends AppLocalizations {
   String get unknownError => 'Olana tsy fantatra';
 
   @override
-  String get retry => 'averina atao';
+  String get retry => 'Andramo indray';
 
   @override
   String get tryAgain => 'Andramo indray';
 
   @override
-  String get close => 'Akatona';
+  String get close => 'Hidio';
 
   @override
   String get back => 'Hiverina';
@@ -332,10 +332,10 @@ class AppLocalizationsMg extends AppLocalizations {
   String get start => 'Manomboka';
 
   @override
-  String get stop => 'Ajanona';
+  String get stop => 'Ajanony';
 
   @override
-  String get pause => 'Atsahatra';
+  String get pause => 'Atohizo';
 
   @override
   String get resume => 'Tohizo';
@@ -1418,17 +1418,252 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get currentVersion => 'Kinova ankehitriny';
+  String get currentVersion => 'version ankehitriny';
 
   @override
-  String get latestVersion => 'Kinova farany';
+  String get latestVersion => 'version farany';
 
   @override
   String get whatsNew => 'Vaovao';
 
   @override
-  String get upToDate => 'Efa vaovao';
+  String get upToDate => 'Efa version farany';
 
   @override
-  String get appIsUpToDate => 'Efa vaovao ny rindrambaiko';
+  String get appIsUpToDate => 'Efa version farany ny rindrambaiko';
+
+  @override
+  String get recordings => 'Fandrakitra';
+
+  @override
+  String get refreshRecordings => 'Avereno ny fandrakitra';
+
+  @override
+  String get syncFromGoogleDrive => 'Sync avy amin\'i Google Drive';
+
+  @override
+  String signedInAs(String email) {
+    return 'Tondroka ho $email';
+  }
+
+  @override
+  String get signInToGoogleDrive => 'Midira ao amin\'i Google Drive';
+
+  @override
+  String get noRecordingsYet => 'Tsy misy fandrakitra';
+
+  @override
+  String get startRecordingYourFavoriteHymns => 'Atombohy ny fandrakitra ny hira tiana';
+
+  @override
+  String get personalRecordings => 'Fandrakitra manokana';
+
+  @override
+  String get publicRecordings => 'Fandrakitra ho an\'ny rehetra';
+
+  @override
+  String recordingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '',
+      one: '',
+    );
+    return '$count fandrakitra$_temp0';
+  }
+
+  @override
+  String get googleDrive => 'Google Drive';
+
+  @override
+  String get signedInAsLabel => 'Tondroka ho:';
+
+  @override
+  String get sync => 'Sync';
+
+  @override
+  String hymnDuration(String hymnId, String duration) {
+    return 'Hira $hymnId • $duration';
+  }
+
+  @override
+  String get public => 'Ho an\'ny rehetra';
+
+  @override
+  String get uploadToDrive => 'Alefaso any amin\'i Drive';
+
+  @override
+  String uploadFailedTapToRetry(String error) {
+    return 'Tsy nahomby ny fandefasana. Tsindrio hanandrana indray.\nHadisoana: $error';
+  }
+
+  @override
+  String get deleteRecording => 'Fafao ny fandrakitra';
+
+  @override
+  String deleteRecordingConfirmation(String title) {
+    return 'Tena te hamafa ny \"$title\" ve ianao? Tsy afaka averina io.';
+  }
+
+  @override
+  String get deleted => 'Voafafa';
+
+  @override
+  String get recordingDeletedSuccessfully => 'Voafafa soa aman-tsara ny fandrakitra';
+
+  @override
+  String get downloadStarted => 'Efa nanomboka ny fampidinana';
+
+  @override
+  String get recordingInProgressDialog => 'Fandrakitra mandeha';
+
+  @override
+  String get pleaseStopRecordingBeforePlaying => 'Ajanony aloha ny fandrakitra mialohan\'ny mamaky azy.';
+
+  @override
+  String get recordingSessionActive => 'Fandrakitra mandeha';
+
+  @override
+  String get pleaseCloseRecordingOverlayFirst => 'Akatony aloha ny fiparitaka fandrakitra.';
+
+  @override
+  String get recordingInProgress => 'Fandrakitra mandeha...';
+
+  @override
+  String get recordingCompleted => 'Vita ny fandrakitra';
+
+  @override
+  String get recordingSaved => 'Voatahiry soa aman-tsara ny fandrakitra';
+
+  @override
+  String failedToSaveRecording(String error) {
+    return 'Tsy nahomby ny fandratra: $error';
+  }
+
+  @override
+  String get failedToPlayRecording => 'Tsy nahomby ny famaky fandrakitra';
+
+  @override
+  String get recordingUploadSuccess => 'Voalefa soa aman-tsara any amin\'i Drive ny fandrakitra';
+
+  @override
+  String get recordingUploadFailed => 'Tsy nahomby ny fandefasana';
+
+  @override
+  String failedToUploadRecording(String error) {
+    return 'Tsy nahomby ny fandefasana fandrakitra: $error';
+  }
+
+  @override
+  String get syncFailed => 'Tsy nahomby ny sync';
+
+  @override
+  String failedToSyncFromDrive(String error) {
+    return 'Tsy nahomby ny sync ny fandrakitra avy any amin\'i Drive: $error';
+  }
+
+  @override
+  String get driveSyncCompleted => 'Vita ny sync Drive';
+
+  @override
+  String driveSignInFailed(Object error) {
+    return 'Tsy nahomby ny fidirana amin\'i Drive: $error';
+  }
+
+  @override
+  String get driveFileNotFound => 'Tsy hita ny rakin-tsilaka';
+
+  @override
+  String get uploadInProgress => 'Fandefasana mandeha...';
+
+  @override
+  String get storageUsage => 'Fampiasana ahabara';
+
+  @override
+  String totalStorageUsed(String size) {
+    return 'Fampiasana ahabara tanteraka: $size';
+  }
+
+  @override
+  String recordingOverlayTitle(String hymnId) {
+    return 'Fandrakitra ny hira $hymnId';
+  }
+
+  @override
+  String get minimize => 'Akelezo';
+
+  @override
+  String get recordingPaused => 'Natohina ny fandrakitra';
+
+  @override
+  String get recordingResumed => 'Notohizina ny fandrakitra';
+
+  @override
+  String get recordingStopped => 'Najanona ny fandrakitra';
+
+  @override
+  String get playbackSpeed => 'Hafainganana mamaky';
+
+  @override
+  String get normalSpeed => 'Hafainganana tokony ho izy';
+
+  @override
+  String get renameRecording => 'Hanova anaran\'ny fandrakitra';
+
+  @override
+  String get enterNewTitle => 'Ampidiro ny anarana vaovao';
+
+  @override
+  String get rename => 'Hanova anarana';
+
+  @override
+  String get recordingRenamed => 'Novana soa aman-tsara ny anaran\'ny fandrakitra';
+
+  @override
+  String failedToRenameRecording(String error) {
+    return 'Tsy nahomby ny fanovan\'ny anaran\'ny fandrakitra: $error';
+  }
+
+  @override
+  String get recordingManager => 'Mpikarakara fandrakitra';
+
+  @override
+  String get createNewRecording => 'Hamorona fandrakitra vaovao';
+
+  @override
+  String get viewRecordings => 'Hijery ny fandrakitra';
+
+  @override
+  String get recordingPermissionRequired => 'Ilàna fahazoandàlana fandrakitra';
+
+  @override
+  String get pleaseGrantMicrophonePermission => 'Omeo fahazoandàlana ny afindrafoano mba handrakitra hira.';
+
+  @override
+  String get grantPermission => 'Omeo fahazoandàlana';
+
+  @override
+  String get recordingNotAllowed => 'Tsy afaka mandrakitra';
+
+  @override
+  String get microphoneAccessDenied => 'Tsy nahazo ny afindrafoano. Alefaso ao amin\'ny fikirakirana mba handrakitra hira.';
+
+  @override
+  String get openSettings => 'Sokafy ny fikirakirana';
+
+  @override
+  String get recordingError => 'Hadisoana fandrakitra';
+
+  @override
+  String anErrorOccurredDuringRecording(String error) {
+    return 'Nisy hadisoana nandritra ny fandrakitra: $error';
+  }
+
+  @override
+  String get playbackError => 'Hadisoana famaky';
+
+  @override
+  String anErrorOccurredDuringPlayback(String error) {
+    return 'Nisy hadisoana nandritra ny famaky: $error';
+  }
 }

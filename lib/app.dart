@@ -26,6 +26,7 @@ import 'package:fihirana/screen/hymn/firebase_hymns_screen.dart';
 import 'package:fihirana/screen/playlist/playlist_list_screen.dart';
 import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
 import 'package:fihirana/screen/settings/settings_screen.dart';
+import 'package:fihirana/screen/recording/recording_manager_screen.dart';
 
 // ... existing imports
 
@@ -220,6 +221,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GetPage(name: '/favorites', page: () => const FavoritesPage()),
           GetPage(name: '/history', page: () => HistoryScreen()),
           GetPage(name: '/playlists', page: () => const PlaylistListScreen()),
+          GetPage(
+              name: '/recordings', page: () => const RecordingManagerScreen()),
           GetPage(
               name: '/daily_verse_settings',
               page: () => DailyVerseSettingsScreen()),
