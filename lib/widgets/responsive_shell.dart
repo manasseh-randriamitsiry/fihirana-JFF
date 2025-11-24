@@ -52,21 +52,38 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                     child: widget.child,
                   ),
                   Positioned(
-                    left: 16,
-                    bottom: 16,
-                    child: FloatingActionButton.small(
-                      heroTag: 'drawer_toggle',
-                      onPressed: () {
+                    left: 0,
+                    top: 250,
+                    child: GestureDetector(
+                      onTap: () {
                         setState(() {
                           _isDrawerOpen = !_isDrawerOpen;
                         });
                       },
-                      backgroundColor: _colorController.primaryColor.value,
-                      child: Icon(
-                        _isDrawerOpen
-                            ? Icons.keyboard_double_arrow_left
-                            : Icons.keyboard_double_arrow_right,
-                        color: Colors.white,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: _colorController.drawerColor.value,
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(12),
+                            bottomRight: Radius.circular(12),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 4,
+                              offset: const Offset(2, 0),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          _isDrawerOpen
+                              ? Icons.chevron_left_rounded
+                              : Icons.chevron_right_rounded,
+                          color: _colorController.iconColor.value,
+                          size: 24,
+                        ),
                       ),
                     ),
                   ),
