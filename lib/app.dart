@@ -13,10 +13,21 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Fallback localization delegate for unsupported locales
+import 'package:fihirana/screen/bible/bible_reader_screen.dart';
+import 'package:fihirana/screen/favorite/favorites_screen.dart';
+import 'package:fihirana/screen/admin/admin_panel_screen.dart';
+import 'package:fihirana/screen/about/about_screen.dart';
+import 'package:fihirana/screen/history/history_screen.dart';
+import 'package:fihirana/screen/announcement/announcement_screen.dart';
+import 'package:fihirana/screen/hymn/create_hymn_page.dart';
+import 'package:fihirana/screen/hymn/firebase_hymns_screen.dart';
+import 'package:fihirana/screen/playlist/playlist_list_screen.dart';
+import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
+
+// ... existing imports
+
 class _FallbackMaterialLocalizationsDelegate
     extends LocalizationsDelegate<MaterialLocalizations> {
   const _FallbackMaterialLocalizationsDelegate();
@@ -204,6 +215,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GetPage(name: '/splash', page: () => const SplashScreen1()),
           GetPage(name: '/loading', page: () => const LoadingScreen()),
           GetPage(name: '/home', page: () => const HomeScreen()),
+          GetPage(name: '/create_hymn', page: () => const CreateHymnPage()),
+          GetPage(
+              name: '/firebase_hymns', page: () => const FirebaseHymnsScreen()),
+          GetPage(name: '/bible', page: () => const BibleReaderScreen()),
+          GetPage(name: '/favorites', page: () => const FavoritesPage()),
+          GetPage(name: '/history', page: () => HistoryScreen()),
+          GetPage(name: '/playlists', page: () => const PlaylistListScreen()),
+          GetPage(
+              name: '/daily_verse_settings',
+              page: () => DailyVerseSettingsScreen()),
+          GetPage(
+              name: '/announcements', page: () => const AnnouncementScreen()),
+          GetPage(name: '/admin', page: () => const AdminPanelScreen()),
+          GetPage(name: '/about', page: () => const AboutScreen()),
         ],
       );
     });

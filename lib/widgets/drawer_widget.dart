@@ -8,16 +8,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/color_controller.dart';
 import '../controller/shell_controller.dart';
-import '../screen/bible/bible_reader_screen.dart';
-import '../screen/favorite/favorites_screen.dart';
-import '../screen/admin/admin_panel_screen.dart';
-import '../screen/about/about_screen.dart';
-import '../screen/history/history_screen.dart';
-import '../screen/announcement/announcement_screen.dart';
-import '../screen/hymn/create_hymn_page.dart';
-import '../screen/hymn/firebase_hymns_screen.dart';
-import '../screen/playlist/playlist_list_screen.dart';
-import '../screen/settings/daily_verse_settings_screen.dart';
 import '../services/audio_service.dart';
 import 'color_picker_widget.dart';
 import 'font_picker_widget.dart';
@@ -530,43 +520,49 @@ class DrawerWidgetState extends State<DrawerWidget> {
                 padding: EdgeInsets.zero,
                 children: [
                   _buildSectionHeader(l10n.library),
+                  _buildDrawerItem(
+                    icon: Icons.home_rounded,
+                    title: l10n.home,
+                    isActive: currentRoute == '/home',
+                    onTap: () => Get.offAllNamed('/home'),
+                  ),
                   if (_isAuthenticated)
                     _buildDrawerItem(
                       icon: Icons.add_circle_outline,
                       title: l10n.createHymn,
                       isActive: currentRoute == '/create_hymn',
-                      onTap: () => Get.to(() => const CreateHymnPage()),
+                      onTap: () => Get.toNamed('/create_hymn'),
                     ),
                   _buildDrawerItem(
                     icon: Icons.library_music_outlined,
                     title: l10n.additionalHymns,
                     isActive: currentRoute == '/firebase_hymns',
-                    onTap: () => Get.to(() => const FirebaseHymnsScreen()),
+                    onTap: () => Get.toNamed('/firebase_hymns'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.menu_book_rounded,
                     title: l10n.bible,
                     isActive: currentRoute == '/bible',
-                    onTap: () => Get.to(() => const BibleReaderScreen()),
+                    onTap: () => Get.toNamed('/bible'),
                   ),
                   _buildSectionHeader(l10n.personal),
                   _buildDrawerItem(
                     icon: Icons.favorite_border_rounded,
                     title: l10n.favoriteHymns,
                     isActive: currentRoute == '/favorites',
-                    onTap: () => Get.to(() => const FavoritesPage()),
+                    onTap: () => Get.toNamed('/favorites'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.history_rounded,
                     title: l10n.hymnHistory,
                     isActive: currentRoute == '/history',
-                    onTap: () => Get.to(() => HistoryScreen()),
+                    onTap: () => Get.toNamed('/history'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.playlist_play_rounded,
                     title: l10n.playlists,
                     isActive: currentRoute == '/playlists',
-                    onTap: () => Get.to(() => const PlaylistListScreen()),
+                    onTap: () => Get.toNamed('/playlists'),
                   ),
                   _buildSectionHeader(l10n.settings),
                   _buildDrawerItem(
@@ -593,7 +589,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     icon: Icons.auto_stories,
                     title: l10n.dailyBibleVerse,
                     isActive: currentRoute == '/daily_verse_settings',
-                    onTap: () => Get.to(() => DailyVerseSettingsScreen()),
+                    onTap: () => Get.toNamed('/daily_verse_settings'),
                   ),
                   _buildDrawerItem(
                     icon: Icons.storage_rounded,
@@ -605,20 +601,20 @@ class DrawerWidgetState extends State<DrawerWidget> {
                     icon: Icons.notifications_none_rounded,
                     title: l10n.announcements,
                     isActive: currentRoute == '/announcements',
-                    onTap: () => Get.to(() => const AnnouncementScreen()),
+                    onTap: () => Get.toNamed('/announcements'),
                   ),
                   if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
                     _buildDrawerItem(
                       icon: Icons.admin_panel_settings_outlined,
                       title: l10n.adminPanel,
                       isActive: currentRoute == '/admin',
-                      onTap: () => Get.to(() => const AdminPanelScreen()),
+                      onTap: () => Get.toNamed('/admin'),
                     ),
                   _buildDrawerItem(
                     icon: Icons.info_outline_rounded,
                     title: l10n.aboutUs,
                     isActive: currentRoute == '/about',
-                    onTap: () => Get.to(() => const AboutScreen()),
+                    onTap: () => Get.toNamed('/about'),
                   ),
                   if (_isAuthenticated)
                     _buildDrawerItem(
