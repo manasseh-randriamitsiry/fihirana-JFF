@@ -27,7 +27,6 @@ class SplashScreenAuthenticatedState extends State<SplashScreenAuthenticated> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
@@ -38,27 +37,36 @@ class SplashScreenAuthenticatedState extends State<SplashScreenAuthenticated> {
               decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('assets/images/splash.png'),
-                  fit: BoxFit.fitWidth,
+                  fit: BoxFit.cover,
                 ),
               ),
             ),
-            Container(
-              padding: EdgeInsets.only(top: screenHeight / 4),
-              alignment: Alignment.topCenter,
-              child: Text(
-                l10n.appTitleShort,
-                style: const TextStyle(
-                    fontSize: 70.0,
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Image.asset(
-                'assets/images/icon.png',
-                width: screenWidth / 2,
-                height: screenHeight / 5,
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Stack(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.only(top: screenHeight / 4),
+                      alignment: Alignment.topCenter,
+                      child: Text(
+                        l10n.appTitleShort,
+                        style: const TextStyle(
+                            fontSize: 70.0,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Image.asset(
+                        'assets/images/icon.png',
+                        width: 200, // Fixed width instead of screen percentage
+                        height: 200,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

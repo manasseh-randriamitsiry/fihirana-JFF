@@ -7,19 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/color_controller.dart';
-import '../screen/bible/bible_reader_screen.dart';
-import '../screen/favorite/favorites_screen.dart';
-import '../screen/admin/admin_panel_screen.dart';
-import '../screen/about/about_screen.dart';
-import '../screen/history/history_screen.dart';
-import '../screen/announcement/announcement_screen.dart';
-import '../screen/hymn/create_hymn_page.dart';
-import '../screen/hymn/firebase_hymns_screen.dart';
-import '../screen/playlist/playlist_list_screen.dart';
-import '../screen/settings/daily_verse_settings_screen.dart';
-import '../services/audio_service.dart';
-import 'color_picker_widget.dart';
-import 'font_picker_widget.dart';
+import '../controller/shell_controller.dart';
 import '../l10n/app_localizations.dart';
 
 class DrawerWidget extends StatefulWidget {
@@ -140,189 +128,6 @@ class DrawerWidgetState extends State<DrawerWidget> {
     });
   }
 
-  void _showAudioCacheDialog(AppLocalizations l10n) {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: _colorController.backgroundColor.value,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    l10n.audioCacheManagement,
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: _colorController.textColor.value,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(
-                      Icons.close,
-                      color: _colorController.iconColor.value,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              FutureBuilder<Map<String, dynamic>>(
-                future: AudioService.instance.getCacheStats(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    final stats = snapshot.data!;
-                    return Column(
-                      children: [
-                        Text(
-                          l10n.totalCachedHymns(stats['total_checked']),
-                          style: TextStyle(
-                            color: _colorController.textColor.value,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.withAudio(stats['with_audio']),
-                          style: const TextStyle(
-                            color: Colors.green,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.withoutAudio(stats['without_audio']),
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ],
-                    );
-                  }
-                  return const CircularProgressIndicator();
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  NeumorphicButton(
-                    onPressed: () async {
-                      await AudioService.instance.clearExpiredCache();
-                      if (!context.mounted) return;
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(l10n.expiredCacheCleared),
-                          backgroundColor: Colors.green,
-                        ),
-                      );
-                    },
-                    style: NeumorphicStyle(
-                      color: Colors.orange.withValues(alpha: 0.1),
-                      boxShape: NeumorphicBoxShape.roundRect(
-                          BorderRadius.circular(10)),
-                      depth: 2,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Text(
-                        l10n.clearExpired,
-                        style: const TextStyle(
-                          color: Colors.orange,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  NeumorphicButton(
-                    onPressed: () async {
-                      final confirmed = await showDialog<bool>(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          backgroundColor:
-                              _colorController.backgroundColor.value,
-                          title: Text(
-                            l10n.clearAllCache,
-                            style: TextStyle(
-                              color: _colorController.textColor.value,
-                            ),
-                          ),
-                          content: Text(
-                            l10n.clearCacheWarning,
-                            style: TextStyle(
-                              color: _colorController.textColor.value,
-                            ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, false),
-                              child: Text(
-                                l10n.cancel,
-                                style: TextStyle(
-                                  color: _colorController.textColor.value,
-                                ),
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, true),
-                              child: Text(
-                                l10n.clearAll,
-                                style: const TextStyle(color: Colors.red),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-
-                      if (confirmed == true) {
-                        await AudioService.instance.clearAllCache();
-                        if (!context.mounted) return;
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(l10n.allCacheCleared),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
-                      }
-                    },
-                    style: NeumorphicStyle(
-                      color: Colors.red.withValues(alpha: 0.1),
-                      boxShape: NeumorphicBoxShape.roundRect(
-                          BorderRadius.circular(10)),
-                      depth: 2,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Text(
-                        l10n.clearAll,
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
@@ -343,19 +148,52 @@ class DrawerWidgetState extends State<DrawerWidget> {
     required String title,
     required VoidCallback onTap,
     Color? color,
+    bool isActive = false,
   }) {
-    return ListTile(
-      leading: Icon(icon, color: color ?? _colorController.iconColor.value),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: color ?? _colorController.textColor.value,
-          fontWeight: FontWeight.w500,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: isActive
+          ? BoxDecoration(
+              color:
+                  _colorController.primaryColor.value.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color:
+                    _colorController.primaryColor.value.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            )
+          : null,
+      child: ListTile(
+        leading: Icon(
+          icon,
+          color: isActive
+              ? _colorController.primaryColor.value
+              : (color ?? _colorController.iconColor.value),
         ),
+        title: Text(
+          title,
+          style: TextStyle(
+            color: isActive
+                ? _colorController.primaryColor.value
+                : (color ?? _colorController.textColor.value),
+            fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+        trailing: isActive
+            ? Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: _colorController.primaryColor.value,
+                  shape: BoxShape.circle,
+                ),
+              )
+            : null,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        onTap: onTap,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-      onTap: onTap,
     );
   }
 
@@ -491,108 +329,100 @@ class DrawerWidgetState extends State<DrawerWidget> {
           ),
           // Menu Items
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                _buildSectionHeader(l10n.library),
-                if (_isAuthenticated)
+            child: Obx(() {
+              final currentRoute =
+                  Get.find<ShellController>().currentRoute.value;
+              return ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  _buildSectionHeader(l10n.library),
                   _buildDrawerItem(
-                    icon: Icons.add_circle_outline,
-                    title: l10n.createHymn,
-                    onTap: () => Get.to(() => const CreateHymnPage()),
+                    icon: Icons.home_rounded,
+                    title: l10n.home,
+                    isActive: currentRoute == '/home',
+                    onTap: () => Get.offAllNamed('/home'),
                   ),
-                _buildDrawerItem(
-                  icon: Icons.library_music_outlined,
-                  title: l10n.additionalHymns,
-                  onTap: () => Get.to(() => const FirebaseHymnsScreen()),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.menu_book_rounded,
-                  title: l10n.bible,
-                  onTap: () => Get.to(() => const BibleReaderScreen()),
-                ),
-                _buildSectionHeader(l10n.personal),
-                _buildDrawerItem(
-                  icon: Icons.favorite_border_rounded,
-                  title: l10n.favoriteHymns,
-                  onTap: () => Get.to(() => const FavoritesPage()),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.history_rounded,
-                  title: l10n.hymnHistory,
-                  onTap: () => Get.to(() => HistoryScreen()),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.playlist_play_rounded,
-                  title: l10n.playlists,
-                  onTap: () => Get.to(() => const PlaylistListScreen()),
-                ),
-                _buildSectionHeader(l10n.settings),
-                _buildDrawerItem(
-                  icon: Icons.color_lens_outlined,
-                  title: l10n.changeColor,
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => Dialog(
-                      backgroundColor: _colorController.backgroundColor.value,
-                      child: ColorPickerWidget(),
+                  if (_isAuthenticated)
+                    _buildDrawerItem(
+                      icon: Icons.add_circle_outline,
+                      title: l10n.createHymn,
+                      isActive: currentRoute == '/create_hymn',
+                      onTap: () => Get.toNamed('/create_hymn'),
                     ),
+                  _buildDrawerItem(
+                    icon: Icons.library_music_outlined,
+                    title: l10n.additionalHymns,
+                    isActive: currentRoute == '/firebase_hymns',
+                    onTap: () => Get.toNamed('/firebase_hymns'),
                   ),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.font_download_outlined,
-                  title: l10n.fontStyle,
-                  onTap: () => showDialog(
-                    context: context,
-                    builder: (context) => Dialog(
-                      backgroundColor: _colorController.backgroundColor.value,
-                      child: FontPickerWidget(),
+                  _buildDrawerItem(
+                    icon: Icons.menu_book_rounded,
+                    title: l10n.bible,
+                    isActive: currentRoute == '/bible',
+                    onTap: () => Get.toNamed('/bible'),
+                  ),
+                  _buildSectionHeader(l10n.personal),
+                  _buildDrawerItem(
+                    icon: Icons.favorite_border_rounded,
+                    title: l10n.favoriteHymns,
+                    isActive: currentRoute == '/favorites',
+                    onTap: () => Get.toNamed('/favorites'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.history_rounded,
+                    title: l10n.hymnHistory,
+                    isActive: currentRoute == '/history',
+                    onTap: () => Get.toNamed('/history'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.playlist_play_rounded,
+                    title: l10n.playlists,
+                    isActive: currentRoute == '/playlists',
+                    onTap: () => Get.toNamed('/playlists'),
+                  ),
+                  _buildSectionHeader(l10n.appSection),
+                  _buildDrawerItem(
+                    icon: Icons.notifications_none_rounded,
+                    title: l10n.announcements,
+                    isActive: currentRoute == '/announcements',
+                    onTap: () => Get.toNamed('/announcements'),
+                  ),
+                  if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
+                    _buildDrawerItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: l10n.adminPanel,
+                      isActive: currentRoute == '/admin',
+                      onTap: () => Get.toNamed('/admin'),
                     ),
-                  ),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.auto_stories,
-                  title: l10n.dailyBibleVerse,
-                  onTap: () => Get.to(() => DailyVerseSettingsScreen()),
-                ),
-                _buildDrawerItem(
-                  icon: Icons.storage_rounded,
-                  title: l10n.audioCache,
-                  onTap: () => _showAudioCacheDialog(l10n),
-                ),
-                _buildSectionHeader(l10n.appSection),
-                _buildDrawerItem(
-                  icon: Icons.notifications_none_rounded,
-                  title: l10n.announcements,
-                  onTap: () => Get.to(() => const AnnouncementScreen()),
-                ),
-                if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
                   _buildDrawerItem(
-                    icon: Icons.admin_panel_settings_outlined,
-                    title: l10n.adminPanel,
-                    onTap: () => Get.to(() => const AdminPanelScreen()),
+                    icon: Icons.settings_outlined,
+                    title: l10n.settings,
+                    isActive: currentRoute == '/settings',
+                    onTap: () => Get.toNamed('/settings'),
                   ),
-                _buildDrawerItem(
-                  icon: Icons.info_outline_rounded,
-                  title: l10n.aboutUs,
-                  onTap: () => Get.to(() => const AboutScreen()),
-                ),
-                if (_isAuthenticated)
                   _buildDrawerItem(
-                    icon: Icons.logout_rounded,
-                    title: l10n.signOut,
-                    color: _colorController.iconColor.value,
-                    onTap: () {
-                      FirebaseAuth.instance.signOut();
-                      setState(() {
-                        _isAuthenticated = false;
-                        _currentUser = null;
-                      });
-                    },
+                    icon: Icons.info_outline_rounded,
+                    title: l10n.aboutUs,
+                    isActive: currentRoute == '/about',
+                    onTap: () => Get.toNamed('/about'),
                   ),
-                const SizedBox(height: 32),
-              ],
-            ),
+                  if (_isAuthenticated)
+                    _buildDrawerItem(
+                      icon: Icons.logout_rounded,
+                      title: l10n.signOut,
+                      color: _colorController.iconColor.value,
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        setState(() {
+                          _isAuthenticated = false;
+                          _currentUser = null;
+                        });
+                      },
+                    ),
+                  const SizedBox(height: 32),
+                ],
+              );
+            }),
           ),
         ],
       ),

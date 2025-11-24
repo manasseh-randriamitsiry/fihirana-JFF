@@ -4,6 +4,8 @@ import 'package:fihirana/controller/language_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/screen/accueil/home_screen.dart';
+import 'package:fihirana/widgets/responsive_shell.dart';
+import 'package:fihirana/controller/shell_controller.dart';
 import 'package:fihirana/screen/intro/splash_screen1.dart';
 import 'package:fihirana/screen/loading/loading_screen.dart';
 import 'package:fihirana/services/version_check_service.dart';
@@ -11,10 +13,22 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Fallback localization delegate for unsupported locales
+import 'package:fihirana/screen/bible/bible_reader_screen.dart';
+import 'package:fihirana/screen/favorite/favorites_screen.dart';
+import 'package:fihirana/screen/admin/admin_panel_screen.dart';
+import 'package:fihirana/screen/about/about_screen.dart';
+import 'package:fihirana/screen/history/history_screen.dart';
+import 'package:fihirana/screen/announcement/announcement_screen.dart';
+import 'package:fihirana/screen/hymn/create_hymn_page.dart';
+import 'package:fihirana/screen/hymn/firebase_hymns_screen.dart';
+import 'package:fihirana/screen/playlist/playlist_list_screen.dart';
+import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
+import 'package:fihirana/screen/settings/settings_screen.dart';
+
+// ... existing imports
+
 class _FallbackMaterialLocalizationsDelegate
     extends LocalizationsDelegate<MaterialLocalizations> {
   const _FallbackMaterialLocalizationsDelegate();
@@ -132,6 +146,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final LanguageController languageController =
         Get.find<LanguageController>();
 
+    final initialRoute =
+        shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading');
+
+    // Set initial drawer state
+    try {
+      final shellController = Get.find<ShellController>();
+      shellController.setDrawerEnabled(initialRoute == '/home');
+      shellController.currentRoute.value = initialRoute;
+    } catch (e) {
+      // Controller might not be ready if InitService failed, but it should be
+    }
+
     return Obx(() {
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
@@ -163,12 +189,45 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
         theme: themeWithFont,
         darkTheme: themeWithFont,
-        initialRoute:
-            shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading'),
+        builder: (context, child) {
+          return ResponsiveShell(child: child!);
+        },
+        initialRoute: initialRoute,
+        routingCallback: (routing) {
+          if (routing != null) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final shellController = Get.find<ShellController>();
+              shellController.currentRoute.value = routing.current;
+
+              // Disable drawer on splash and loading screens
+              if (routing.current == '/splash' ||
+                  routing.current == '/loading') {
+                shellController.setDrawerEnabled(false);
+              } else {
+                shellController.setDrawerEnabled(true);
+              }
+            });
+          }
+        },
         getPages: [
           GetPage(name: '/splash', page: () => const SplashScreen1()),
           GetPage(name: '/loading', page: () => const LoadingScreen()),
           GetPage(name: '/home', page: () => const HomeScreen()),
+          GetPage(name: '/create_hymn', page: () => const CreateHymnPage()),
+          GetPage(
+              name: '/firebase_hymns', page: () => const FirebaseHymnsScreen()),
+          GetPage(name: '/bible', page: () => const BibleReaderScreen()),
+          GetPage(name: '/favorites', page: () => const FavoritesPage()),
+          GetPage(name: '/history', page: () => HistoryScreen()),
+          GetPage(name: '/playlists', page: () => const PlaylistListScreen()),
+          GetPage(
+              name: '/daily_verse_settings',
+              page: () => DailyVerseSettingsScreen()),
+          GetPage(name: '/settings', page: () => const SettingsScreen()),
+          GetPage(
+              name: '/announcements', page: () => const AnnouncementScreen()),
+          GetPage(name: '/admin', page: () => const AdminPanelScreen()),
+          GetPage(name: '/about', page: () => const AboutScreen()),
         ],
       );
     });

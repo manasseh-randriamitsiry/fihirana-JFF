@@ -2749,6 +2749,12 @@ abstract class AppLocalizations {
   /// **'App'**
   String get appSection;
 
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
   /// No description provided for @totalCachedHymns.
   ///
   /// In en, this message translates to:

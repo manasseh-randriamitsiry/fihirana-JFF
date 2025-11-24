@@ -7,6 +7,7 @@ import '../../controller/bible_controller.dart';
 import '../../controller/font_controller.dart';
 import '../../widgets/bible_search_dialog.dart';
 import '../../l10n/app_localizations.dart';
+import '../../controller/shell_controller.dart';
 
 class BibleReaderScreen extends StatefulWidget {
   const BibleReaderScreen({super.key});
@@ -79,7 +80,12 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios_new_rounded, color: iconColor),
+            icon: Icon(
+              bibleController.selectedBook.isEmpty
+                  ? Icons.menu_rounded
+                  : Icons.arrow_back_ios_new_rounded,
+              color: iconColor,
+            ),
             onPressed: () {
               if (bibleController.selectedChapter.value > 0) {
                 bibleController
@@ -87,7 +93,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               } else if (bibleController.selectedBook.isNotEmpty) {
                 bibleController.selectBook(''); // Go back to book selection
               } else {
-                Navigator.pop(context);
+                Get.find<ShellController>().toggleDrawer();
               }
             },
           ),
