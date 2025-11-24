@@ -539,15 +539,49 @@ class _RecordingTile extends StatelessWidget {
                   color: Colors.green,
                 ),
               )
-            else if (!isPublic)
-              IconButton(
-                icon: Icon(
-                  Icons.cloud_upload_outlined,
-                  color: colorController.iconColor.value,
-                ),
-                onPressed: () => controller.uploadToDrive(recording),
-                tooltip: 'Upload to Drive',
-              ),
+            else
+              Obx(() {
+                final isUploading = controller.isUploadingRecording(recording.id);
+                final uploadError = controller.getUploadError(recording.id);
+                
+                if (isUploading) {
+                  return Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.blue,
+                        ),
+                      ),
+                    ),
+                  );
+                } else if (uploadError != null) {
+                  return IconButton(
+                    icon: Icon(
+                      Icons.cloud_off,
+                      color: Colors.red,
+                    ),
+                    onPressed: () => controller.retryUpload(recording),
+                    tooltip: 'Upload failed. Tap to retry.\nError: $uploadError',
+                  );
+                } else {
+                  return IconButton(
+                    icon: Icon(
+                      Icons.cloud_upload_outlined,
+                      color: colorController.iconColor.value,
+                    ),
+                    onPressed: () => controller.uploadToDrive(recording),
+                    tooltip: 'Upload to Drive',
+                  );
+                }
+              }),
             
             // Menu button
             PopupMenuButton<String>(
