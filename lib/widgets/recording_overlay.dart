@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../controller/recording_controller.dart';
@@ -799,9 +798,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                           const Icon(Icons.error_outline,
                               color: Colors.redAccent, size: 48),
                           const SizedBox(height: 16),
-                          Text(
-                            'Upload Failed',
-                            style: const TextStyle(
+                          const Text(
+                          'Upload Failed',
+                            style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),

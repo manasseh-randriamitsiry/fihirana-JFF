@@ -203,7 +203,7 @@ class _RecordingPlayerOverlayState extends State<RecordingPlayerOverlay>
                     final tapValue = (tapPos.dx / box.size.width) * duration.inSeconds;
                     _controller.seekTo(Duration(seconds: tapValue.round().clamp(0, duration.inSeconds)));
                   },
-                  child: Container(
+                  child: SizedBox(
                     height: 40,
                     width: double.infinity,
                     child: CustomPaint(
@@ -356,8 +356,8 @@ class _CustomSliderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final trackHeight = 2.0;
-    final thumbRadius = 6.0;
+    const trackHeight = 2.0;
+    const thumbRadius = 6.0;
     final trackY = size.height / 2;
 
     // Draw inactive track
