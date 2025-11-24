@@ -28,6 +28,8 @@ class VersionCheckService {
   static bool _flexibleUpdateAvailable = false;
   static VoidCallback? _onUpdateAvailable;
   static VoidCallback? _onFlexibleUpdateDownloaded;
+  static bool _isUpToDate = false;
+  static bool _hasCheckedOnStartup = false;
 
   static void setOnUpdateAvailableCallback(VoidCallback callback) {
     _onUpdateAvailable = callback;
@@ -701,5 +703,91 @@ class VersionCheckService {
       // Default to most common architecture
       return 'arm64-v8a';
     }
+  }
+
+  /// Check for updates on app startup without showing notifications
+  static Future<void> checkForUpdateOnStartup() async {
+    if (_hasCheckedOnStartup) return;
+    _hasCheckedOnStartup = true;
+
+    try {
+      final currentVersion = await PubspecService.getAppVersion();
+      final response = await http.get(
+        Uri.parse(githubApiUrl),
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'Fihirana-App',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        String latestVersion = data['tag_name'].toString().replaceAll('v', '');
+        final releaseNotes = data['body'] ?? 'No release notes available';
+
+        // Get device architecture
+        String deviceArch = _getDeviceArchitecture();
+
+        // Try to find architecture-specific APK first, then fallback to universal
+        final apkAsset = data['assets']?.firstWhere(
+          (asset) {
+            final name = asset['name'].toString().toLowerCase();
+            return name.contains(deviceArch) && name.endsWith('.apk');
+          },
+          orElse: () => data['assets']?.firstWhere(
+            (asset) {
+              final name = asset['name'].toString().toLowerCase();
+              return name.contains('universal') && name.endsWith('.apk');
+            },
+            orElse: () => data['assets']?.firstWhere(
+              (asset) => asset['name'].toString().endsWith('.apk'),
+              orElse: () => null,
+            ),
+          ),
+        );
+
+        final downloadUrl =
+            apkAsset?['browser_download_url'] ?? data['html_url'];
+
+        final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
+
+        if (isNewer) {
+          _isUpToDate = false;
+          _cachedVersion = latestVersion;
+          _cachedDownloadUrl = downloadUrl;
+          _cachedReleaseNotes = releaseNotes;
+          _onUpdateAvailable?.call();
+        } else {
+          _isUpToDate = true;
+          _cachedVersion = null;
+          _cachedDownloadUrl = null;
+          _cachedReleaseNotes = null;
+        }
+
+        if (kDebugMode) {
+          print(
+              '🔍 Startup update check: current=$currentVersion, latest=$latestVersion, isUpToDate=$_isUpToDate');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Startup update check failed: $e');
+      }
+      // On error, assume we're up to date to avoid false negatives
+      _isUpToDate = true;
+    }
+  }
+
+  /// Returns true if the app is on the latest version
+  static bool isUpToDate() {
+    return _isUpToDate;
+  }
+
+  /// Returns a description of the update status
+  static String getUpdateStatus() {
+    if (!_hasCheckedOnStartup) {
+      return 'Checking...';
+    }
+    return _isUpToDate ? 'Up to date' : 'Update available';
   }
 }

@@ -1418,11 +1418,17 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get currentVersion => 'Current Version';
+  String get currentVersion => 'Version actuelle';
 
   @override
-  String get latestVersion => 'Latest Version';
+  String get latestVersion => 'Dernière version';
 
   @override
-  String get whatsNew => 'What\'s New';
+  String get whatsNew => 'Quoi de neuf';
+
+  @override
+  String get upToDate => 'À jour';
+
+  @override
+  String get appIsUpToDate => 'Votre application est à jour';
 }
