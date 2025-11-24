@@ -106,7 +106,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               fontSize: 18,
             ),
           ),
-          centerTitle: true,
           actions: [
             IconButton(
               icon: Icon(Icons.search_rounded, color: iconColor),
