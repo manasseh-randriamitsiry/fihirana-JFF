@@ -27,7 +27,6 @@ class SplashScreenAuthenticatedState extends State<SplashScreenAuthenticated> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     double screenHeight = MediaQuery.of(context).size.height;
-    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
