@@ -5,6 +5,7 @@ import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/screen/accueil/home_screen.dart';
 import 'package:fihirana/widgets/responsive_shell.dart';
+import 'package:fihirana/controller/shell_controller.dart';
 import 'package:fihirana/screen/intro/splash_screen1.dart';
 import 'package:fihirana/screen/loading/loading_screen.dart';
 import 'package:fihirana/services/version_check_service.dart';
@@ -133,6 +134,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     final LanguageController languageController =
         Get.find<LanguageController>();
 
+    final initialRoute =
+        shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading');
+
+    // Set initial drawer state
+    try {
+      final shellController = Get.find<ShellController>();
+      shellController.setDrawerEnabled(initialRoute == '/home');
+    } catch (e) {
+      // Controller might not be ready if InitService failed, but it should be
+    }
+
     return Obx(() {
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
@@ -171,8 +183,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           }
           return child!;
         },
-        initialRoute:
-            shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading'),
+        initialRoute: initialRoute,
+        routingCallback: (routing) {
+          if (routing != null) {
+            final shellController = Get.find<ShellController>();
+            // Disable drawer on splash and loading screens
+            if (routing.current == '/splash' || routing.current == '/loading') {
+              shellController.setDrawerEnabled(false);
+            } else {
+              shellController.setDrawerEnabled(true);
+            }
+          }
+        },
         getPages: [
           GetPage(name: '/splash', page: () => const SplashScreen1()),
           GetPage(name: '/loading', page: () => const LoadingScreen()),

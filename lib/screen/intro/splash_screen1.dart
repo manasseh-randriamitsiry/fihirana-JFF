@@ -43,7 +43,6 @@ class _SplashScreen1State extends State<SplashScreen1> {
   @override
   void dispose() {
     _usernameController.dispose();
-
     super.dispose();
   }
 
@@ -289,49 +288,54 @@ class _SplashScreen1State extends State<SplashScreen1> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      const SizedBox(height: 40),
-                      Icon(
-                        Icons.language,
-                        size: 80,
-                        color: Colors.white.withValues(alpha: 0.9),
-                      )
-                          .animate()
-                          .fadeIn(duration: 600.ms)
-                          .scale(delay: 200.ms, duration: 400.ms),
-                      const SizedBox(height: 20),
-                      Text(
-                        l10n.chooseLanguage,
-                        style: const TextStyle(
-                          fontSize: 28.0,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              color: Colors.black26,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const SizedBox(height: 40),
+                          Icon(
+                            Icons.language,
+                            size: 80,
+                            color: Colors.white.withValues(alpha: 0.9),
+                          )
+                              .animate()
+                              .fadeIn(duration: 600.ms)
+                              .scale(delay: 200.ms, duration: 400.ms),
+                          const SizedBox(height: 20),
+                          Text(
+                            l10n.chooseLanguage,
+                            style: const TextStyle(
+                              fontSize: 28.0,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 2),
+                                  blurRadius: 4,
+                                  color: Colors.black26,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        textAlign: TextAlign.center,
-                      ).animate().fadeIn(duration: 600.ms).slideY(
-                          begin: 0.3,
-                          end: 0,
-                          duration: 600.ms,
-                          curve: Curves.easeOut),
-                      const SizedBox(height: 40),
-                      _buildLanguageOptions(l10n)
-                          .animate()
-                          .fadeIn(delay: 300.ms, duration: 600.ms)
-                          .slideY(
-                              begin: 0.2,
+                            textAlign: TextAlign.center,
+                          ).animate().fadeIn(duration: 600.ms).slideY(
+                              begin: 0.3,
                               end: 0,
                               duration: 600.ms,
                               curve: Curves.easeOut),
-                    ],
+                          const SizedBox(height: 40),
+                          _buildLanguageOptions(l10n)
+                              .animate()
+                              .fadeIn(delay: 300.ms, duration: 600.ms)
+                              .slideY(
+                                  begin: 0.2,
+                                  end: 0,
+                                  duration: 600.ms,
+                                  curve: Curves.easeOut),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 _buildPageIndicator(),
@@ -394,102 +398,109 @@ class _SplashScreen1State extends State<SplashScreen1> {
 
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: const EdgeInsets.all(30),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 30,
-                          offset: const Offset(0, 15),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(30),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.2),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.music_note_rounded,
-                      size: 80,
-                      color: Color(0xFF4A90E2),
-                    ),
-                  )
-                      .animate()
-                      .scale(
-                          duration: 800.ms,
-                          curve: Curves.elasticOut,
-                          begin: const Offset(0, 0),
-                          end: const Offset(1, 1))
-                      .then(delay: 200.ms)
-                      .shimmer(duration: 1500.ms, color: Colors.blue.shade100),
-                  const SizedBox(height: 40),
-                  _buildCard(
-                    child: Column(
-                      children: [
-                        Text(
-                          l10n.splashScreenTitle,
-                          style: const TextStyle(
-                            fontSize: 26,
-                            color: Colors.black87,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                        child: const Icon(
+                          Icons.music_note_rounded,
+                          size: 80,
+                          color: Color(0xFF4A90E2),
+                        ),
+                      )
+                          .animate()
+                          .scale(
+                              duration: 800.ms,
+                              curve: Curves.elasticOut,
+                              begin: const Offset(0, 0),
+                              end: const Offset(1, 1))
+                          .then(delay: 200.ms)
+                          .shimmer(
+                              duration: 1500.ms, color: Colors.blue.shade100),
+                      const SizedBox(height: 40),
+                      _buildCard(
+                        child: Column(
+                          children: [
+                            Text(
+                              l10n.splashScreenTitle,
+                              style: const TextStyle(
+                                fontSize: 26,
+                                color: Colors.black87,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 0.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16.0),
+                            Text(
+                              l10n.splashScreenSubtitle,
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontSize: 16,
+                                height: 1.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(delay: 400.ms, duration: 600.ms)
+                          .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                      const SizedBox(height: 40),
+                      ElevatedButton(
+                        onPressed: () {
+                          HapticFeedback.mediumImpact();
+                          _liquidController.animateToPage(
+                              page: 2, duration: 600);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF4A90E2),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 50, vertical: 18),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
-                          textAlign: TextAlign.center,
+                          elevation: 8,
+                          shadowColor: Colors.black.withValues(alpha: 0.3),
                         ),
-                        const SizedBox(height: 16.0),
-                        Text(
-                          l10n.splashScreenSubtitle,
-                          style: const TextStyle(
-                            color: Colors.black54,
-                            fontSize: 16,
-                            height: 1.5,
-                          ),
-                          textAlign: TextAlign.center,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              l10n.continueText,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.arrow_forward_rounded),
+                          ],
                         ),
-                      ],
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(delay: 400.ms, duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-                  const SizedBox(height: 40),
-                  ElevatedButton(
-                    onPressed: () {
-                      HapticFeedback.mediumImpact();
-                      _liquidController.animateToPage(page: 2, duration: 600);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF4A90E2),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 8,
-                      shadowColor: Colors.black.withValues(alpha: 0.3),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          l10n.continueText,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward_rounded),
-                      ],
-                    ),
-                  ).animate().fadeIn(delay: 800.ms, duration: 600.ms).scale(
-                      delay: 800.ms,
-                      duration: 400.ms,
-                      curve: Curves.easeOutBack),
-                ],
+                      ).animate().fadeIn(delay: 800.ms, duration: 600.ms).scale(
+                          delay: 800.ms,
+                          duration: 400.ms,
+                          curve: Curves.easeOutBack),
+                    ],
+                  ),
+                ),
               ),
             ),
             _buildPageIndicator(),
@@ -538,214 +549,223 @@ class _SplashScreen1State extends State<SplashScreen1> {
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  // Title
-                  Text(
-                    l10n.termsAndConditions,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          offset: Offset(0, 2),
-                          blurRadius: 4,
-                          color: Colors.black26,
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                  )
-                      .animate()
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: -0.2, end: 0, curve: Curves.easeOut),
-                  const SizedBox(height: 24),
-
-                  // Terms Card
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: _buildCard(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              l10n.agreement,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            _buildAgreementItem(l10n.term1),
-                            const SizedBox(height: 8),
-                            _buildAgreementItem(l10n.term2),
-                            const SizedBox(height: 16),
-
-                            // Agreement Checkbox
-                            InkWell(
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                setState(() {
-                                  _agreementAccepted = !_agreementAccepted;
-                                });
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: _agreementAccepted
-                                      ? Colors.green.shade50
-                                      : Colors.grey.shade100,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: _agreementAccepted
-                                        ? Colors.green
-                                        : Colors.grey.shade300,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 300),
-                                      width: 22,
-                                      height: 22,
-                                      decoration: BoxDecoration(
-                                        color: _agreementAccepted
-                                            ? Colors.green
-                                            : Colors.white,
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: _agreementAccepted
-                                              ? Colors.green
-                                              : Colors.grey,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: _agreementAccepted
-                                          ? const Icon(
-                                              Icons.check,
-                                              color: Colors.white,
-                                              size: 16,
-                                            )
-                                          : null,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        l10n.acceptTerms,
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.black87,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      // Title
+                      Text(
+                        l10n.termsAndConditions,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              offset: Offset(0, 2),
+                              blurRadius: 4,
+                              color: Colors.black26,
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  ).animate().fadeIn(delay: 200.ms, duration: 600.ms).scale(
-                      delay: 200.ms, duration: 400.ms, curve: Curves.easeOut),
+                        textAlign: TextAlign.center,
+                      )
+                          .animate()
+                          .fadeIn(duration: 600.ms)
+                          .slideY(begin: -0.2, end: 0, curve: Curves.easeOut),
+                      const SizedBox(height: 24),
 
-                  const SizedBox(height: 20),
+                      // Terms Card
+                      Flexible(
+                        child: SingleChildScrollView(
+                          child: _buildCard(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  l10n.agreement,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                _buildAgreementItem(l10n.term1),
+                                const SizedBox(height: 8),
+                                _buildAgreementItem(l10n.term2),
+                                const SizedBox(height: 16),
 
-                  // Username Input
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 15,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                    child: TextField(
-                      controller: _usernameController,
-                      style: const TextStyle(fontSize: 15, color: Colors.black),
-                      decoration: InputDecoration(
-                        labelText: l10n.enterYourName,
-                        labelStyle:
-                            const TextStyle(color: Colors.green, fontSize: 14),
-                        prefixIcon: const Icon(Icons.person_outline,
-                            color: Colors.green, size: 22),
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(delay: 400.ms, duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-
-                  const SizedBox(height: 16),
-
-                  // Continue Button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _agreementAccepted
-                          ? () async {
-                              await _handleUsernameSubmit();
-                            }
-                          : null,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _agreementAccepted
-                            ? Colors.white
-                            : Colors.grey.shade300,
-                        foregroundColor: _agreementAccepted
-                            ? Colors.green
-                            : Colors.grey.shade600,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: _agreementAccepted ? 8 : 0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            l10n.continueText,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
+                                // Agreement Checkbox
+                                InkWell(
+                                  onTap: () {
+                                    HapticFeedback.selectionClick();
+                                    setState(() {
+                                      _agreementAccepted = !_agreementAccepted;
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: _agreementAccepted
+                                          ? Colors.green.shade50
+                                          : Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: _agreementAccepted
+                                            ? Colors.green
+                                            : Colors.grey.shade300,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        AnimatedContainer(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          width: 22,
+                                          height: 22,
+                                          decoration: BoxDecoration(
+                                            color: _agreementAccepted
+                                                ? Colors.green
+                                                : Colors.white,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: _agreementAccepted
+                                                  ? Colors.green
+                                                  : Colors.grey,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: _agreementAccepted
+                                              ? const Icon(
+                                                  Icons.check,
+                                                  color: Colors.white,
+                                                  size: 16,
+                                                )
+                                              : null,
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            l10n.acceptTerms,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black87,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward_rounded, size: 20),
-                        ],
-                      ),
-                    ),
-                  )
-                      .animate(target: _agreementAccepted ? 1 : 0)
-                      .shimmer(duration: 1500.ms, color: Colors.green.shade100)
-                      .animate()
-                      .fadeIn(delay: 600.ms, duration: 600.ms)
-                      .scale(
-                          delay: 600.ms,
+                        ),
+                      ).animate().fadeIn(delay: 200.ms, duration: 600.ms).scale(
+                          delay: 200.ms,
                           duration: 400.ms,
-                          curve: Curves.easeOutBack),
+                          curve: Curves.easeOut),
 
-                  const SizedBox(height: 60), // Space for page indicator
-                ],
+                      const SizedBox(height: 20),
+
+                      // Username Input
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.1),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 4),
+                        child: TextField(
+                          controller: _usernameController,
+                          style: const TextStyle(
+                              fontSize: 15, color: Colors.black),
+                          decoration: InputDecoration(
+                            labelText: l10n.enterYourName,
+                            labelStyle: const TextStyle(
+                                color: Colors.green, fontSize: 14),
+                            prefixIcon: const Icon(Icons.person_outline,
+                                color: Colors.green, size: 22),
+                            border: InputBorder.none,
+                            contentPadding:
+                                const EdgeInsets.symmetric(vertical: 14),
+                          ),
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(delay: 400.ms, duration: 600.ms)
+                          .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+                      const SizedBox(height: 16),
+
+                      // Continue Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _agreementAccepted
+                              ? () async {
+                                  await _handleUsernameSubmit();
+                                }
+                              : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _agreementAccepted
+                                ? Colors.white
+                                : Colors.grey.shade300,
+                            foregroundColor: _agreementAccepted
+                                ? Colors.green
+                                : Colors.grey.shade600,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: _agreementAccepted ? 8 : 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                l10n.continueText,
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.arrow_forward_rounded, size: 20),
+                            ],
+                          ),
+                        ),
+                      )
+                          .animate(target: _agreementAccepted ? 1 : 0)
+                          .shimmer(
+                              duration: 1500.ms, color: Colors.green.shade100)
+                          .animate()
+                          .fadeIn(delay: 600.ms, duration: 600.ms)
+                          .scale(
+                              delay: 600.ms,
+                              duration: 400.ms,
+                              curve: Curves.easeOutBack),
+
+                      const SizedBox(height: 60), // Space for page indicator
+                    ],
+                  ),
+                ),
               ),
             ),
             _buildPageIndicator(),

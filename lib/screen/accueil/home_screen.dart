@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
 import '../../widgets/drawer_widget.dart';
 import '../../widgets/update_checker_widget.dart';
+import '../../controller/shell_controller.dart';
 import 'accueil_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,6 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _initializeApp();
     _notFirstTime();
+
+    // Enable drawer when entering Home Screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<ShellController>().setDrawerEnabled(true);
+    });
   }
 
   Future<void> _initializeApp() async {
@@ -68,9 +74,13 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return UpdateCheckerWidget(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth > 800) {
+      child: Builder(
+        builder: (context) {
+          // Use MediaQuery instead of LayoutBuilder to avoid nested drawer issue
+          // when ResponsiveShell is active (which also uses MediaQuery > 800)
+          final width = MediaQuery.of(context).size.width;
+
+          if (width > 800) {
             return AccueilScreen(
               openDrawer: () {},
               showMenuButton: false,
@@ -80,7 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ZoomDrawer(
                     controller: zoomDrawerController,
                     style: DrawerStyle.defaultStyle,
-                    menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
+                    menuScreen: DrawerWidget(
+                      key: const ValueKey('zoom_drawer'),
+                      openDrawer: _handleDrawerToggle,
+                    ),
                     mainScreen: AccueilScreen(
                       openDrawer: _handleDrawerToggle,
                       showMenuButton: true,
