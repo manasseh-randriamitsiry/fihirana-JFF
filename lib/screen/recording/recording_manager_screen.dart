@@ -59,15 +59,28 @@ class RecordingManagerScreen extends StatelessWidget {
           ),
           Obx(() {
             if (controller.isDriveSignedIn.value) {
-              return IconButton(
-                icon: Icon(
-                  Icons.cloud_done,
-                  color: colorController.iconColor.value,
-                ),
-                tooltip: 'Signed in as ${controller.userEmail.value}',
-                onPressed: () {
-                  _showDriveDialog(context, controller, colorController);
-                },
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.sync,
+                      color: colorController.iconColor.value,
+                    ),
+                    tooltip: 'Sync from Google Drive',
+                    onPressed: () => controller.syncFromDrive(),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.cloud_done,
+                      color: colorController.iconColor.value,
+                    ),
+                    tooltip: 'Signed in as ${controller.userEmail.value}',
+                    onPressed: () {
+                      _showDriveDialog(context, controller, colorController);
+                    },
+                  ),
+                ],
               );
             } else {
               return IconButton(
@@ -341,13 +354,36 @@ class RecordingManagerScreen extends StatelessWidget {
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
+          Obx(() => controller.isLoading.value
+              ? const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              : ElevatedButton.icon(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await controller.syncFromDrive();
+                  },
+                  icon: const Icon(Icons.sync, size: 18),
+                  label: const Text('Sync'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colorController.primaryColor.value,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                )),
           ElevatedButton(
             onPressed: () {
               controller.signOutFromDrive();
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: colorController.primaryColor.value,
+              backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),

@@ -16,14 +16,11 @@ import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
-
 import '../../widgets/color_picker_widget.dart';
-
 import '../../services/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
-import '../recording/recording_manager_screen.dart';
 import '../../controller/recording_controller.dart';
 
 class HymnDetailScreen extends StatefulWidget {
@@ -697,9 +694,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   case 'add_to_playlist':
                     _showAddToPlaylistDialog();
                     break;
-                  case 'my_recordings':
-                    Get.to(() => const RecordingManagerScreen());
-                    break;
                 }
               },
               itemBuilder: (BuildContext context) {
@@ -779,21 +773,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                         const SizedBox(width: 8),
                         Text(
                           l10n.addToPlaylist,
-                        ),
-                      ],
-                    ),
-                  ),
-                  PopupMenuItem<String>(
-                    value: 'my_recordings',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.mic,
-                          color: colorController.textColor.value,
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'My Recordings',
                         ),
                       ],
                     ),

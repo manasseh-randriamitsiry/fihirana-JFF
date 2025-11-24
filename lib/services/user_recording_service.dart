@@ -165,6 +165,12 @@ class UserRecordingService {
     return recording;
   }
 
+  Future<UserRecording> saveDriveRecording(UserRecording recording) async {
+    _recordings.insert(0, recording);
+    await _saveMetadata();
+    return recording;
+  }
+
   Future<void> deleteRecording(String id) async {
     final index = _recordings.indexWhere((r) => r.id == id);
     if (index != -1) {

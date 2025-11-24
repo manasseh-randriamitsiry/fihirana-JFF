@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:uuid/uuid.dart';
 import '../models/user_recording.dart';
 import '../services/user_recording_service.dart';
 import '../services/google_drive_service.dart';
@@ -12,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class RecordingController extends GetxController {
   final UserRecordingService _recordingService = UserRecordingService();
   final GoogleDriveService _driveService = GoogleDriveService();
+  final _uuid = const Uuid();
 
   // Recording state
   final RxBool isRecording = false.obs;
@@ -119,7 +121,38 @@ class RecordingController extends GetxController {
         print('RecordingController: Periodic refresh triggered');
       }
       _recordingService.loadRecordings();
+      
+      // Check for silent sign-in every 2 minutes (every 4 ticks)
+      if (!isDriveSignedIn.value && timer.tick % 4 == 0) {
+        _checkForSilentSignIn();
+      }
+      
+      // Also sync from Drive if signed in (every 5 minutes to avoid API limits)
+      if (isDriveSignedIn.value && timer.tick % 10 == 0) {
+        syncFromDrive();
+      }
     });
+  }
+
+  // Check for silent sign-in periodically
+  Future<void> _checkForSilentSignIn() async {
+    try {
+      final currentUser = await _driveService.signInSilently();
+      if (currentUser != null) {
+        isDriveSignedIn.value = true;
+        userEmail.value = currentUser.email;
+        if (kDebugMode) {
+          print('RecordingController: Periodic check found Drive account: ${currentUser.email}');
+        }
+        
+        // Auto-sync when account is detected
+        await syncFromDrive();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Periodic silent sign-in check failed: $e');
+      }
+    }
   }
 
   @override
@@ -165,28 +198,28 @@ class RecordingController extends GetxController {
       // Small delay to ensure stream is ready
       await Future.delayed(const Duration(milliseconds: 200));
 
-      // Check Drive sign-in status by checking if user is already signed in
+      // Try to silently sign in to detect existing Google account
       try {
-        final isSignedIn = _driveService.isSignedIn;
-        if (kDebugMode) {
-          print('RecordingController: Drive signed in status: $isSignedIn');
-        }
-
-        if (isSignedIn) {
-          final currentUser = _driveService.currentUser;
-          if (currentUser != null) {
-            isDriveSignedIn.value = true;
-            userEmail.value = currentUser.email;
-            if (kDebugMode) {
-              print(
-                  'RecordingController: Drive user found: ${currentUser.email}');
-            }
+        final currentUser = await _driveService.signInSilently();
+        if (currentUser != null) {
+          isDriveSignedIn.value = true;
+          userEmail.value = currentUser.email;
+          if (kDebugMode) {
+            print(
+                'RecordingController: Auto-detected Drive account: ${currentUser.email}');
+          }
+          
+          // Auto-sync recordings from Drive
+          await syncFromDrive();
+        } else {
+          if (kDebugMode) {
+            print('RecordingController: No existing Google Drive account found');
           }
         }
       } catch (e) {
         // Silent sign-in check failed
         if (kDebugMode) {
-          print('Drive sign-in check failed: $e');
+          print('Drive silent sign-in failed: $e');
         }
       }
 
@@ -300,9 +333,14 @@ class RecordingController extends GetxController {
   Future<void> deleteRecording(UserRecording recording) async {
     await _recordingService.deleteRecording(recording.id);
     if (recording.driveFileId != null) {
-      // Optionally delete from Drive too, or ask user
-      // For now, let's just delete local reference
-      // await _driveService.deleteFile(recording.driveFileId!);
+      try {
+        await _driveService.deleteFile(recording.driveFileId!);
+      } catch (e) {
+        // Log error but don't fail the deletion
+        if (kDebugMode) {
+          print('Failed to delete from Google Drive: $e');
+        }
+      }
     }
   }
 
@@ -345,6 +383,13 @@ class RecordingController extends GetxController {
     if (account != null) {
       isDriveSignedIn.value = true;
       userEmail.value = account.email;
+      
+      if (kDebugMode) {
+        print('RecordingController: Manual sign-in successful for ${account.email}');
+      }
+      
+      // Auto-sync after successful sign-in
+      await syncFromDrive();
     }
   }
 
@@ -436,6 +481,100 @@ class RecordingController extends GetxController {
   Future<void> retryUpload(UserRecording recording) async {
     uploadErrors.remove(recording.id);
     await uploadToDrive(recording);
+  }
+
+  // Sync recordings from Google Drive
+  Future<void> syncFromDrive() async {
+    if (!isDriveSignedIn.value) {
+      if (kDebugMode) {
+        print('Cannot sync from Drive: Not signed in');
+      }
+      return;
+    }
+
+    try {
+      isLoading.value = true;
+      final driveFiles = await _driveService.listRecordings();
+      
+      if (kDebugMode) {
+        print('Found ${driveFiles.length} files in Drive');
+      }
+
+      // Create a map of existing recordings by drive file ID for quick lookup
+      final existingByDriveId = <String, UserRecording>{};
+      for (final recording in recordings) {
+        if (recording.driveFileId != null) {
+          existingByDriveId[recording.driveFileId!] = recording;
+        }
+      }
+
+      // Check for files in Drive that aren't in local recordings
+      for (final driveFile in driveFiles) {
+        if (!existingByDriveId.containsKey(driveFile.id!)) {
+          // This is a new recording from Drive that's not in local storage
+          // Create a local entry for it
+          final recording = UserRecording(
+            id: _uuid.v4(),
+            hymnId: driveFile.description?.split('Hymn: ').last ?? 'unknown',
+            title: (driveFile.name ?? '').replaceAll('.m4a', ''),
+            filePath: '', // No local file available
+            durationSeconds: 0, // Unknown duration
+            createdAt: DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ?? DateTime.now(),
+            isPublic: false,
+            tags: [],
+            driveFileId: driveFile.id ?? '',
+            driveWebLink: driveFile.webViewLink,
+          );
+
+          // Use saveDriveRecording to add it directly with Drive info
+          await _recordingService.saveDriveRecording(recording);
+          
+          if (kDebugMode) {
+            print('Added new recording from Drive: ${recording.title}');
+          }
+        }
+      }
+
+      // Check for local recordings that have Drive files but the Drive file no longer exists
+      for (final recording in recordings) {
+        if (recording.driveFileId != null) {
+          final driveFileExists = driveFiles.any((f) => f.id == recording.driveFileId);
+          if (!driveFileExists) {
+            // The Drive file was deleted externally, update local recording
+            final updated = recording.copyWith(
+              driveFileId: null,
+              driveWebLink: null,
+            );
+            await _recordingService.updateRecording(updated);
+            
+            if (kDebugMode) {
+              print('Removed Drive reference for deleted file: ${recording.title}');
+            }
+          }
+        }
+      }
+
+      // Refresh recordings to show updated list
+      await _recordingService.loadRecordings();
+
+      if (kDebugMode) {
+        print('Drive sync completed');
+      }
+
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error syncing from Drive: $e');
+      }
+      Get.snackbar(
+        'Sync Failed',
+        'Failed to sync recordings from Drive: ${e.toString()}',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 5),
+      );
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   // Overlay state management methods
