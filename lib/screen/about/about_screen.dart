@@ -481,7 +481,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.info_outline,
                             color: Colors.orange,
                             size: 20,
@@ -542,7 +542,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 _latestVersion ?? 'Unknown',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.orange,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

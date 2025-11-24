@@ -17,7 +17,7 @@ class AppBootstrap extends StatefulWidget {
 
 class _AppBootstrapState extends State<AppBootstrap> {
   double _progress = 0.0;
-  String _currentTask = '...';
+  final String _currentTask = '...';
 
   @override
   void initState() {
