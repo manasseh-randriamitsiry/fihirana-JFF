@@ -5,6 +5,7 @@ import 'package:fihirana/services/version_check_service.dart';
 import 'package:fihirana/services/pubspec_service.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 
 class AboutScreen extends StatefulWidget {
@@ -247,9 +248,9 @@ class _AboutScreenState extends State<AboutScreen> {
           ),
         ),
         leading: IconButton(
-          onPressed: () => Get.back(),
+          onPressed: () => Get.find<ShellController>().toggleDrawer(),
           icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
+            Icons.menu_rounded,
             color: colorController.iconColor.value,
           ),
         ),
@@ -481,7 +482,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.info_outline,
                             color: Colors.orange,
                             size: 20,
@@ -542,7 +543,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 _latestVersion ?? 'Unknown',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.orange,
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,

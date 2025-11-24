@@ -19,10 +19,12 @@ import '../../l10n/app_localizations.dart';
 
 class AccueilScreen extends StatefulWidget {
   final Function() openDrawer;
+  final bool showMenuButton;
 
   const AccueilScreen({
     super.key,
     required this.openDrawer,
+    this.showMenuButton = true,
   });
 
   @override
@@ -160,11 +162,13 @@ class AccueilScreenState extends State<AccueilScreen> {
                   floating: true,
                   pinned: true,
                   snap: true,
-                  leading: IconButton(
-                    key: const ValueKey('menu_button'),
-                    icon: Icon(Icons.menu, color: iconColor),
-                    onPressed: widget.openDrawer,
-                  ),
+                  leading: widget.showMenuButton
+                      ? IconButton(
+                          key: const ValueKey('menu_button'),
+                          icon: Icon(Icons.menu, color: iconColor),
+                          onPressed: widget.openDrawer,
+                        )
+                      : null,
                   title: Text(
                     AppLocalizations.of(context)!.appTitleShort,
                     style: defaultTextStyle.copyWith(

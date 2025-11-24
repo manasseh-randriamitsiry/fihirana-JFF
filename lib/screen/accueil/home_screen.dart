@@ -4,8 +4,9 @@ import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
-import '../../widgets/drawer_widget.dart';
+
 import '../../widgets/update_checker_widget.dart';
+import '../../controller/shell_controller.dart';
 import 'accueil_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -24,6 +25,11 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _initializeApp();
     _notFirstTime();
+
+    // Enable drawer when entering Home Screen
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<ShellController>().setDrawerEnabled(true);
+    });
   }
 
   Future<void> _initializeApp() async {
@@ -61,29 +67,15 @@ class _HomeScreenState extends State<HomeScreen> {
     await prefs.setBool('isFirstTime', false);
   }
 
-  void _handleDrawerToggle() {
-    zoomDrawerController.toggle?.call();
-  }
-
   @override
   Widget build(BuildContext context) {
     return UpdateCheckerWidget(
-      child: Obx(() => NeumorphicBackground(
-            child: ZoomDrawer(
-              controller: zoomDrawerController,
-              style: DrawerStyle.defaultStyle,
-              menuScreen: DrawerWidget(openDrawer: _handleDrawerToggle),
-              mainScreen: AccueilScreen(openDrawer: _handleDrawerToggle),
-              borderRadius: 24.0,
-              showShadow: true,
-              angle: -12.0,
-              menuBackgroundColor: _colorController.drawerColor.value,
-              slideWidth: MediaQuery.of(context).size.width * 0.85,
-              mainScreenTapClose: true,
-              openCurve: Curves.fastOutSlowIn,
-              closeCurve: Curves.bounceIn,
-            ),
-          )),
+      child: AccueilScreen(
+        openDrawer: () {
+          Get.find<ShellController>().toggleDrawer();
+        },
+        showMenuButton: true,
+      ),
     );
   }
 }
