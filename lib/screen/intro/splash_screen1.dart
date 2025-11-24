@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/language_controller.dart';
+import '../../controller/recording_controller.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class SplashScreen1 extends StatefulWidget {
@@ -100,6 +101,11 @@ class _SplashScreen1State extends State<SplashScreen1> {
       await prefs.setString('username', username);
       await prefs.setBool('has_agreed_to_terms', true);
       await prefs.setBool('isFirstTime', false);
+
+      // Also save to RecordingController for guest recordings
+      final recordingController = Get.find<RecordingController>();
+      await recordingController.setGuestName(username);
+
       Get.offAll(() => const HomeScreen());
     } catch (e) {
       Get.snackbar(
