@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../hymn/hymn_detail_screen.dart';
 import 'package:intl/intl.dart';
 import '../../l10n/app_localizations.dart';
@@ -45,9 +46,8 @@ class HistoryScreen extends StatelessWidget {
                   onPressed: historyController.toggleSelectionMode,
                 )
               : IconButton(
-                  icon:
-                      Icon(Icons.arrow_back_ios_new_rounded, color: iconColor),
-                  onPressed: () => Get.back(),
+                  icon: Icon(Icons.menu_rounded, color: iconColor),
+                  onPressed: () => Get.find<ShellController>().toggleDrawer(),
                 ),
           actions: [
             if (historyController.isSelectionMode.value) ...[
@@ -72,7 +72,8 @@ class HistoryScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.history,
-                                size: 64, color: textColor.withValues(alpha: 0.3))
+                                size: 64,
+                                color: textColor.withValues(alpha: 0.3))
                             .animate(
                                 onPlay: (controller) =>
                                     controller.repeat(reverse: true))
@@ -85,7 +86,8 @@ class HistoryScreen extends StatelessWidget {
                         Text(
                           l10n.noHistory,
                           style: TextStyle(
-                              color: textColor.withValues(alpha: 0.7), fontSize: 16),
+                              color: textColor.withValues(alpha: 0.7),
+                              fontSize: 16),
                         ),
                       ],
                     ),
@@ -134,15 +136,16 @@ class HistoryScreen extends StatelessWidget {
                             ),
                             subtitle: Text(
                               formattedDate,
-                              style:
-                                  TextStyle(color: textColor.withValues(alpha: 0.6)),
+                              style: TextStyle(
+                                  color: textColor.withValues(alpha: 0.6)),
                             ),
                             trailing: historyController.isSelectionMode.value
                                 ? Checkbox(
                                     value: isSelected,
                                     activeColor: primaryColor,
                                     side: BorderSide(
-                                        color: textColor.withValues(alpha: 0.5)),
+                                        color:
+                                            textColor.withValues(alpha: 0.5)),
                                     onChanged: (_) => historyController
                                         .toggleItemSelection(history['id']),
                                   )

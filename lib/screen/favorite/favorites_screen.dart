@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
@@ -93,19 +94,17 @@ class _FavoritesPageState extends State<FavoritesPage> {
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
         scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon:
+              Icon(Icons.menu_rounded, color: colorController.iconColor.value),
+          onPressed: () => Get.find<ShellController>().toggleDrawer(),
+        ),
         title: Text(
           l10n.favorites,
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
             fontSize: 24,
-          ),
-        ),
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: colorController.iconColor.value,
           ),
         ),
       ),

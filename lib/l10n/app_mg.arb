@@ -562,6 +562,7 @@
   },
   "clearSearch": "Hanadio ny fikarohana",
   "appSection": "App Section",
+  "account": "Kaonty",
   "totalCachedHymns": "Totalin’ny hira voatahiry: {count}",
   "@totalCachedHymns": {
     "placeholders": {

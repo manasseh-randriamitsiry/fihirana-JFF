@@ -562,6 +562,7 @@
   },
   "clearSearch": "Effacer la recherche",
   "appSection": "Application",
+  "account": "Compte",
   "totalCachedHymns": "Total des cantiques mis en cache: {count}",
   "@totalCachedHymns": {
     "placeholders": {

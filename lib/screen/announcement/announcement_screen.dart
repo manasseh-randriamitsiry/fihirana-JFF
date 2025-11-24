@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../models/announcement.dart';
 import '../../services/announcement_service.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 
 class AnnouncementScreen extends StatefulWidget {
@@ -439,10 +440,10 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
         ),
         leading: IconButton(
           icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
+            Icons.menu_rounded,
             color: colorController.iconColor.value,
           ),
-          onPressed: () => Get.back(),
+          onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
       ),
       floatingActionButton: isAdmin()

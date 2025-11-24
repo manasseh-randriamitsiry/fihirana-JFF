@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../../controller/playlist_controller.dart';
 import '../../models/playlist.dart';
 import 'playlist_detail_screen.dart';
@@ -25,6 +26,11 @@ class PlaylistListScreen extends StatelessWidget {
         ),
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
+        leading: IconButton(
+          icon:
+              Icon(Icons.menu_rounded, color: colorController.iconColor.value),
+          onPressed: () => Get.find<ShellController>().toggleDrawer(),
+        ),
         iconTheme: IconThemeData(color: colorController.iconColor.value),
         actions: [
           IconButton(
