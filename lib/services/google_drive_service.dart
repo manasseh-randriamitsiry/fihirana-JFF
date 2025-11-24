@@ -35,6 +35,29 @@ class GoogleDriveService {
     }
   }
 
+  // Method to automatically check for existing signed-in accounts
+  Future<GoogleSignInAccount?> signInSilently() async {
+    try {
+      _currentUser = await _googleSignIn.signInSilently();
+      if (_currentUser != null) {
+        await _initializeDriveApi();
+        if (kDebugMode) {
+          print('GoogleDriveService: Silent sign-in successful for ${_currentUser!.email}');
+        }
+      } else {
+        if (kDebugMode) {
+          print('GoogleDriveService: No existing signed-in account found');
+        }
+      }
+      return _currentUser;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error during silent sign-in: $e');
+      }
+      return null;
+    }
+  }
+
   Future<void> signOut() async {
     await _googleSignIn.signOut();
     _currentUser = null;
@@ -134,6 +157,7 @@ class GoogleDriveService {
     if (_driveApi == null) return false;
 
     try {
+      // Permanently delete the file (not just move to trash)
       await _driveApi!.files.delete(fileId);
       return true;
     } catch (e) {
@@ -141,6 +165,25 @@ class GoogleDriveService {
         print('Error deleting file from Drive: $e');
       }
       return false;
+    }
+  }
+
+  Future<List<drive.File>> listRecordings() async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null || _folderId == null) return [];
+
+    try {
+      final fileList = await _driveApi!.files.list(
+        q: "'$_folderId' in parents and trashed = false",
+        $fields: "files(id, name, description, webViewLink, createdTime, modifiedTime, size)",
+      );
+
+      return fileList.files ?? [];
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error listing recordings from Drive: $e');
+      }
+      return [];
     }
   }
 

@@ -32,9 +32,24 @@ class AccueilScreen extends StatefulWidget {
 }
 
 class AccueilScreenState extends State<AccueilScreen> {
-  final HymnController _hymnController = Get.put(HymnController());
+  late final HymnController _hymnController;
   bool _updateAvailable = false;
   final Set<String> _checkedHymnIds = <String>{};
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the controller properly to avoid disposal issues
+    _hymnController = Get.put<HymnController>(HymnController(), permanent: true);
+
+    VersionCheckService.setOnUpdateAvailableCallback(() {
+      if (mounted) {
+        setState(() {
+          _updateAvailable = true;
+        });
+      }
+    });
+  }
 
   void _showAudioPlayerDialog(Hymn hymn) {
     // Navigate to enhanced player - it will load all hymns as playlist
@@ -104,18 +119,7 @@ class AccueilScreenState extends State<AccueilScreen> {
     AudioService.instance.preloadCommonHymns(commonHymnIds);
   }
 
-  @override
-  void initState() {
-    super.initState();
 
-    VersionCheckService.setOnUpdateAvailableCallback(() {
-      if (mounted) {
-        setState(() {
-          _updateAvailable = true;
-        });
-      }
-    });
-  }
 
   Future<void> _checkForUpdates() async {
     try {
@@ -247,12 +251,17 @@ class AccueilScreenState extends State<AccueilScreen> {
                 ),
                 SliverToBoxAdapter(
                   child: HymnSearchField(
-                    controller: _hymnController.searchController,
+                    controller: _hymnController.safeSearchController,
                     defaultTextStyle: defaultTextStyle,
                     textColor: textColor,
                     iconColor: iconColor,
                     backgroundColor: backgroundColor,
-                    onChanged: () => setState(() {}),
+                    onChanged: () {
+                      // Check if controller is still valid before updating state
+                      if (mounted && !_hymnController.isDisposed) {
+                        setState(() {});
+                      }
+                    },
                   ),
                 ),
                 StreamBuilder<List<Hymn>>(
@@ -285,9 +294,11 @@ class AccueilScreenState extends State<AccueilScreen> {
                           actionLabel:
                               AppLocalizations.of(context)!.clearSearch,
                           onActionPressed: () {
-                            _hymnController.searchController.clear();
-                            // Trigger rebuild/search update if needed, though controller listener should handle it
-                            setState(() {});
+                            if (!_hymnController.isDisposed) {
+                              _hymnController.safeSearchController.clear();
+                              // Trigger rebuild/search update if needed, though controller listener should handle it
+                              setState(() {});
+                            }
                           },
                         ),
                       );
@@ -343,5 +354,12 @@ class AccueilScreenState extends State<AccueilScreen> {
         );
       }),
     );
+  }
+
+  @override
+  void dispose() {
+    // Don't dispose the controller here since it's managed by GetX
+    // Just clean up any local resources
+    super.dispose();
   }
 }
