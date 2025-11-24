@@ -67,8 +67,8 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                   openCurve: Curves.fastOutSlowIn,
                   closeCurve: Curves.bounceIn,
                 ),
-                // Recording overlay manager for mobile
-                const RecordingOverlayManager(),
+                 // Recording overlay manager for mobile
+                 const RecordingOverlayManager(),
               ],
             ),
           ),
@@ -140,8 +140,8 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                         ),
                       ),
                     ),
-                  // Recording overlay manager for desktop/tablet
-                  const RecordingOverlayManager(),
+                   // Recording overlay manager for desktop/tablet
+                   const RecordingOverlayManager(),
                 ],
               ),
             ),
