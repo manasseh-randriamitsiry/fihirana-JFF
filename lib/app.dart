@@ -186,13 +186,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         initialRoute: initialRoute,
         routingCallback: (routing) {
           if (routing != null) {
-            final shellController = Get.find<ShellController>();
-            // Disable drawer on splash and loading screens
-            if (routing.current == '/splash' || routing.current == '/loading') {
-              shellController.setDrawerEnabled(false);
-            } else {
-              shellController.setDrawerEnabled(true);
-            }
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              final shellController = Get.find<ShellController>();
+              shellController.currentRoute.value = routing.current;
+
+              // Disable drawer on splash and loading screens
+              if (routing.current == '/splash' ||
+                  routing.current == '/loading') {
+                shellController.setDrawerEnabled(false);
+              } else {
+                shellController.setDrawerEnabled(true);
+              }
+            });
           }
         },
         getPages: [
