@@ -464,4 +464,51 @@ class RecordingController extends GetxController {
   bool shouldShowOverlay() {
     return overlayVisible.value;
   }
+
+  // Player Overlay state management
+  final RxBool isPlayerOverlayVisible = false.obs;
+  final RxBool isPlayerMinimized = false.obs;
+  final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
+
+  void showPlayer(UserRecording recording) {
+    // If recording is in progress, do not show player or maybe pause recording?
+    // For now, let's assume we can't play while recording.
+    if (isRecording.value) {
+      Get.snackbar(
+          'Recording in progress', 'Please stop recording before playing.');
+      return;
+    }
+
+    if (overlayVisible.value) {
+      Get.snackbar('Recording session active',
+          'Please close the recording overlay first.');
+      return;
+    }
+
+    currentRecording.value = recording;
+    isPlayerOverlayVisible.value = true;
+    isPlayerMinimized.value = false;
+
+    // Start playing
+    playRecording(recording);
+  }
+
+  void hidePlayer() {
+    isPlayerOverlayVisible.value = false;
+    isPlayerMinimized.value = false;
+    currentRecording.value = null;
+    pausePlayback();
+  }
+
+  void minimizePlayer() {
+    isPlayerMinimized.value = true;
+  }
+
+  void restorePlayer() {
+    isPlayerMinimized.value = false;
+  }
+
+  bool shouldShowPlayerOverlay() {
+    return isPlayerOverlayVisible.value;
+  }
 }

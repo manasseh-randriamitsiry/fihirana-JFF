@@ -18,12 +18,12 @@ class RecordingManagerScreen extends StatelessWidget {
     final RecordingController controller =
         Get.put(RecordingController(), permanent: true);
     final ColorController colorController = Get.find<ColorController>();
-    
+
     // Auto-refresh when page is accessed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.onPageVisible();
     });
-    
+
     // Auto-refresh when page is accessed
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.onPageVisible();
@@ -36,7 +36,8 @@ class RecordingManagerScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.menu_rounded, color: colorController.iconColor.value),
+          icon:
+              Icon(Icons.menu_rounded, color: colorController.iconColor.value),
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
         title: Text(
@@ -82,13 +83,17 @@ class RecordingManagerScreen extends StatelessWidget {
         ],
       ),
       body: Obx(() {
-        final personalRecordings = controller.recordings.where((r) => !r.isPublic).toList();
-        final publicRecordings = controller.recordings.where((r) => r.isPublic).toList();
-        
+        final personalRecordings =
+            controller.recordings.where((r) => !r.isPublic).toList();
+        final publicRecordings =
+            controller.recordings.where((r) => r.isPublic).toList();
+
         // Debug: Print current state
         if (kDebugMode) {
-          print('RecordingManager: Total recordings: ${controller.recordings.length}');
-          print('RecordingManager: Personal: ${personalRecordings.length}, Public: ${publicRecordings.length}');
+          print(
+              'RecordingManager: Total recordings: ${controller.recordings.length}');
+          print(
+              'RecordingManager: Personal: ${personalRecordings.length}, Public: ${publicRecordings.length}');
         }
 
         if (controller.recordings.isEmpty) {
@@ -106,7 +111,8 @@ class RecordingManagerScreen extends StatelessWidget {
                   'No recordings yet',
                   style: TextStyle(
                     fontSize: 18,
-                    color: colorController.textColor.value.withValues(alpha: 0.6),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -115,7 +121,8 @@ class RecordingManagerScreen extends StatelessWidget {
                   'Start recording your favorite hymns',
                   style: TextStyle(
                     fontSize: 14,
-                    color: colorController.textColor.value.withValues(alpha: 0.4),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.4),
                   ),
                 ),
               ],
@@ -131,9 +138,11 @@ class RecordingManagerScreen extends StatelessWidget {
           color: colorController.primaryColor.value,
           child: ListView.builder(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: _getItemCount(personalRecordings.length, publicRecordings.length),
+            itemCount: _getItemCount(
+                personalRecordings.length, publicRecordings.length),
             itemBuilder: (context, index) {
-              return _buildItem(context, index, personalRecordings, publicRecordings, controller, colorController);
+              return _buildItem(context, index, personalRecordings,
+                  publicRecordings, controller, colorController);
             },
           ),
         );
@@ -149,21 +158,27 @@ class RecordingManagerScreen extends StatelessWidget {
     return count;
   }
 
-  Widget _buildItem(BuildContext context, int index, List<UserRecording> personalRecordings, 
-      List<UserRecording> publicRecordings, RecordingController controller, ColorController colorController) {
+  Widget _buildItem(
+      BuildContext context,
+      int index,
+      List<UserRecording> personalRecordings,
+      List<UserRecording> publicRecordings,
+      RecordingController controller,
+      ColorController colorController) {
     final personalCount = personalRecordings.length;
     final publicCount = publicRecordings.length;
-    
+
     // Determine if this index is a header or item
     int currentIndex = 0;
-    
+
     // Personal recordings section
     if (personalCount > 0) {
       if (currentIndex == index) {
-        return _buildSectionHeader('Personal Recordings', Icons.person, colorController, personalCount);
+        return _buildSectionHeader('Personal Recordings', Icons.person,
+            colorController, personalCount);
       }
       currentIndex++;
-      
+
       if (index < currentIndex + personalCount) {
         final recordingIndex = index - currentIndex;
         final recording = personalRecordings[recordingIndex];
@@ -176,7 +191,7 @@ class RecordingManagerScreen extends StatelessWidget {
       }
       currentIndex += personalCount;
     }
-    
+
     // Spacing between sections
     if (personalCount > 0 && publicCount > 0) {
       if (currentIndex == index) {
@@ -184,14 +199,15 @@ class RecordingManagerScreen extends StatelessWidget {
       }
       currentIndex++;
     }
-    
+
     // Public recordings section
     if (publicCount > 0) {
       if (currentIndex == index) {
-        return _buildSectionHeader('Public Recordings', Icons.public, colorController, publicCount);
+        return _buildSectionHeader(
+            'Public Recordings', Icons.public, colorController, publicCount);
       }
       currentIndex++;
-      
+
       if (index < currentIndex + publicCount) {
         final recordingIndex = index - currentIndex;
         final recording = publicRecordings[recordingIndex];
@@ -204,12 +220,13 @@ class RecordingManagerScreen extends StatelessWidget {
         );
       }
     }
-    
+
     // Fallback
     return const SizedBox.shrink();
   }
 
-  Widget _buildSectionHeader(String title, IconData icon, ColorController colorController, int count) {
+  Widget _buildSectionHeader(
+      String title, IconData icon, ColorController colorController, int count) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
@@ -258,7 +275,8 @@ class RecordingManagerScreen extends StatelessWidget {
                 Text(
                   '$count recording${count == 1 ? '' : 's'}',
                   style: TextStyle(
-                    color: colorController.textColor.value.withValues(alpha: 0.7),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                 ),
@@ -270,7 +288,8 @@ class RecordingManagerScreen extends StatelessWidget {
     ).animate().slideX(duration: 400.ms, begin: -0.1).fadeIn(duration: 400.ms);
   }
 
-  void _showDriveDialog(BuildContext context, RecordingController controller, ColorController colorController) {
+  void _showDriveDialog(BuildContext context, RecordingController controller,
+      ColorController colorController) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -330,7 +349,8 @@ class RecordingManagerScreen extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: colorController.primaryColor.value,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Sign Out'),
           ),
@@ -458,7 +478,8 @@ class _RecordingTile extends StatelessWidget {
                   child: Text(
                     'Hymn ${recording.hymnId} • ${_formatDuration(recording.durationSeconds)}',
                     style: TextStyle(
-                      color: colorController.textColor.value.withValues(alpha: 0.7),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.7),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                     ),
@@ -481,7 +502,8 @@ class _RecordingTile extends StatelessWidget {
                   child: Text(
                     DateFormat.yMMMd().add_jm().format(recording.createdAt),
                     style: TextStyle(
-                      color: colorController.textColor.value.withValues(alpha: 0.5),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.5),
                       fontSize: 11,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -541,9 +563,10 @@ class _RecordingTile extends StatelessWidget {
               )
             else
               Obx(() {
-                final isUploading = controller.isUploadingRecording(recording.id);
+                final isUploading =
+                    controller.isUploadingRecording(recording.id);
                 final uploadError = controller.getUploadError(recording.id);
-                
+
                 if (isUploading) {
                   return Container(
                     padding: const EdgeInsets.all(8),
@@ -569,7 +592,8 @@ class _RecordingTile extends StatelessWidget {
                       color: Colors.red,
                     ),
                     onPressed: () => controller.retryUpload(recording),
-                    tooltip: 'Upload failed. Tap to retry.\nError: $uploadError',
+                    tooltip:
+                        'Upload failed. Tap to retry.\nError: $uploadError',
                   );
                 } else {
                   return IconButton(
@@ -582,7 +606,7 @@ class _RecordingTile extends StatelessWidget {
                   );
                 }
               }),
-            
+
             // Menu button
             PopupMenuButton<String>(
               icon: Icon(
@@ -611,7 +635,8 @@ class _RecordingTile extends StatelessWidget {
                       Get.snackbar(
                         'Download',
                         'Download started',
-                        backgroundColor: colorController.primaryColor.value.withValues(alpha: 0.8),
+                        backgroundColor: colorController.primaryColor.value
+                            .withValues(alpha: 0.8),
                         colorText: Colors.white,
                       );
                     }
@@ -636,7 +661,8 @@ class _RecordingTile extends StatelessWidget {
                       const SizedBox(width: 12),
                       Text(
                         'Share',
-                        style: TextStyle(color: colorController.textColor.value),
+                        style:
+                            TextStyle(color: colorController.textColor.value),
                       ),
                     ],
                   ),
@@ -654,7 +680,8 @@ class _RecordingTile extends StatelessWidget {
                         const SizedBox(width: 12),
                         Text(
                           'Download',
-                          style: TextStyle(color: colorController.textColor.value),
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                       ],
                     ),
@@ -684,16 +711,17 @@ class _RecordingTile extends StatelessWidget {
           ],
         ),
         onTap: () {
-          // Play recording
-          controller.playRecording(recording);
-          _showPlayerSheet(context);
+          controller.showPlayer(recording);
         },
       ),
-    ).animate().slideX(
-      duration: 300.ms,
-      begin: index % 2 == 0 ? -0.1 : 0.1,
-      curve: Curves.easeOut,
-    ).fadeIn(duration: 300.ms);
+    )
+        .animate()
+        .slideX(
+          duration: 300.ms,
+          begin: index % 2 == 0 ? -0.1 : 0.1,
+          curve: Curves.easeOut,
+        )
+        .fadeIn(duration: 300.ms);
   }
 
   void _showDeleteConfirmation(BuildContext context) {
@@ -746,296 +774,12 @@ class _RecordingTile extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: const Text('Delete'),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showPlayerSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => Container(
-        decoration: BoxDecoration(
-          color: colorController.backgroundColor.value,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: DraggableScrollableSheet(
-          initialChildSize: 0.4,
-          minChildSize: 0.4,
-          maxChildSize: 0.7,
-          expand: false,
-          builder: (context, scrollController) => SingleChildScrollView(
-            controller: scrollController,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  // Handle bar
-                  Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: colorController.iconColor.value.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  // Recording info
-                  Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              colorController.primaryColor.value,
-                              colorController.primaryColor.value.withValues(alpha: 0.7),
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const Icon(
-                          Icons.music_note_rounded,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              recording.title,
-                              style: TextStyle(
-                                color: colorController.textColor.value,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'Hymn ${recording.hymnId}',
-                              style: TextStyle(
-                                color: colorController.textColor.value.withValues(alpha: 0.7),
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Progress bar
-                  Obx(() {
-                    final position = controller.currentPosition.value;
-                    final duration = controller.totalDuration.value;
-                    return Column(
-                      children: [
-                        SliderTheme(
-                          data: SliderTheme.of(context).copyWith(
-                            activeTrackColor: colorController.primaryColor.value,
-                            inactiveTrackColor: colorController.iconColor.value.withValues(alpha: 0.2),
-                            thumbColor: colorController.primaryColor.value,
-                            overlayColor: colorController.primaryColor.value.withValues(alpha: 0.2),
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                            trackHeight: 4,
-                          ),
-                          child: Slider(
-                            value: position.inSeconds.toDouble().clamp(0.0, duration.inSeconds.toDouble()),
-                            max: duration.inSeconds.toDouble(),
-                            onChanged: (val) {
-                              controller.seekTo(Duration(seconds: val.toInt()));
-                            },
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                _formatDuration(position.inSeconds),
-                                style: TextStyle(
-                                  color: colorController.textColor.value.withValues(alpha: 0.7),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              Text(
-                                _formatDuration(duration.inSeconds),
-                                style: TextStyle(
-                                  color: colorController.textColor.value.withValues(alpha: 0.7),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Playback controls
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Rewind 10 seconds
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorController.primaryColor.value.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.replay_10,
-                            color: colorController.primaryColor.value,
-                            size: 28,
-                          ),
-                          onPressed: () {
-                            final newPos = controller.currentPosition.value -
-                                const Duration(seconds: 10);
-                            controller.seekTo(
-                                newPos < Duration.zero ? Duration.zero : newPos);
-                          },
-                        ),
-                      ),
-                      
-                      // Play/Pause button
-                      Obx(() => Container(
-                        decoration: BoxDecoration(
-                          color: colorController.primaryColor.value,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorController.primaryColor.value.withValues(alpha: 0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            controller.isPlaying.value
-                                ? Icons.pause_rounded
-                                : Icons.play_arrow_rounded,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                          onPressed: () {
-                            if (controller.isPlaying.value) {
-                              controller.pausePlayback();
-                            } else {
-                              controller.playRecording(recording);
-                            }
-                          },
-                        ),
-                      )),
-                      
-                      // Forward 10 seconds
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colorController.primaryColor.value.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.forward_10,
-                            color: colorController.primaryColor.value,
-                            size: 28,
-                          ),
-                          onPressed: () {
-                            final newPos = controller.currentPosition.value +
-                                const Duration(seconds: 10);
-                            controller.seekTo(newPos);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Speed control
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: colorController.primaryColor.value.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: colorController.primaryColor.value.withValues(alpha: 0.1),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Playback Speed',
-                          style: TextStyle(
-                            color: colorController.textColor.value,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Obx(() => Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0].map((speed) {
-                            final isSelected = controller.playbackSpeed.value == speed;
-                            return InkWell(
-                              onTap: () => controller.setPlaybackSpeed(speed),
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: isSelected 
-                                      ? colorController.primaryColor.value 
-                                      : Colors.transparent,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: colorController.primaryColor.value,
-                                  ),
-                                ),
-                                child: Text(
-                                  '${speed}x',
-                                  style: TextStyle(
-                                    color: isSelected 
-                                        ? Colors.white 
-                                        : colorController.primaryColor.value,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        )),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

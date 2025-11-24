@@ -25,7 +25,6 @@ import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../recording/recording_manager_screen.dart';
 import '../../controller/recording_controller.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -120,7 +119,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     _heartAnimationController.dispose();
     // Hide overlay when leaving screen, unless recording is in progress
     if (!_recordingController.isRecording.value) {
-      _recordingController.hideOverlay();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _recordingController.hideOverlay();
+      });
     }
     super.dispose();
   }
