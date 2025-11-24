@@ -198,7 +198,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: true,
         title: Text(
           l10n.settings,
           style: TextStyle(

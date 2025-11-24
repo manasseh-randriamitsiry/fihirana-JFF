@@ -39,7 +39,6 @@ class HistoryScreen extends StatelessWidget {
               fontSize: 20,
             ),
           ),
-          centerTitle: true,
           leading: historyController.isSelectionMode.value
               ? IconButton(
                   icon: Icon(Icons.close, color: iconColor),

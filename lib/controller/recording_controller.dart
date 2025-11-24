@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/user_recording.dart';
@@ -29,6 +30,9 @@ class RecordingController extends GetxController {
   final RxList<UserRecording> recordings = <UserRecording>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isUploading = false.obs;
+  
+  // Timer for periodic refresh
+  Timer? _periodicRefreshTimer;
 
   // Drive state
   final RxBool isDriveSignedIn = false.obs;
@@ -41,6 +45,12 @@ class RecordingController extends GetxController {
     _initServices();
     _loadGuestName();
     _setupAudioPlayerListeners();
+    
+    // Auto-refresh recordings when page is accessed
+    _autoRefreshRecordings();
+    
+    // Start periodic refresh to keep recordings in sync
+    _startPeriodicRefresh();
   }
 
   Future<void> _loadGuestName() async {
@@ -54,31 +64,125 @@ class RecordingController extends GetxController {
     await prefs.setString('guest_name', name);
   }
 
+  // Method to manually refresh recordings
+  Future<void> refreshRecordings() async {
+    try {
+      if (kDebugMode) {
+        print('RecordingController: Manually refreshing recordings...');
+      }
+      await _recordingService.loadRecordings();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error refreshing recordings: $e');
+      }
+    }
+  }
+
+  // Auto-refresh recordings when page is accessed
+  Future<void> _autoRefreshRecordings() async {
+    try {
+      if (kDebugMode) {
+        print('RecordingController: Auto-refreshing recordings...');
+      }
+      
+      // Small delay to ensure UI is ready
+      await Future.delayed(const Duration(milliseconds: 100));
+      await _recordingService.loadRecordings();
+      
+      if (kDebugMode) {
+        print('RecordingController: Auto-refresh complete');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error auto-refreshing recordings: $e');
+      }
+    }
+  }
+
+  // Periodic refresh to keep recordings in sync
+  void _startPeriodicRefresh() {
+    // Refresh every 30 seconds
+    _periodicRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (kDebugMode) {
+        print('RecordingController: Periodic refresh triggered');
+      }
+      _recordingService.loadRecordings();
+    });
+  }
+
   @override
   void onClose() {
     _timer?.cancel();
     _audioPlayer.dispose();
+    _periodicRefreshTimer?.cancel(); // Stop periodic refresh
     super.onClose();
   }
 
-  Future<void> _initServices() async {
-    await _recordingService.initialize();
-    recordings.bindStream(_recordingService.recordingsStream);
+  // Call this when recording page becomes visible
+  void onPageVisible() {
+    if (kDebugMode) {
+      print('RecordingController: Page became visible, refreshing recordings...');
+    }
+    _autoRefreshRecordings();
+  }
 
-    // Check Drive sign-in status silently
-    // Note: This might need explicit user action to sign in initially
-    // but we can check if we have a cached user
-    /*
+  Future<void> _initServices() async {
     try {
-      final account = await _driveService.signIn();
-      if (account != null) {
-        isDriveSignedIn.value = true;
-        userEmail.value = account.email;
+      if (kDebugMode) {
+        print('RecordingController: Starting initialization...');
+      }
+      
+      await _recordingService.initialize();
+      
+      // Bind to stream BEFORE checking Drive status
+      recordings.bindStream(_recordingService.recordingsStream);
+      
+      if (kDebugMode) {
+        print('RecordingController: Service initialized, stream bound');
+      }
+      
+      // Listen to stream for debugging
+      recordings.listen((recordingsList) {
+        if (kDebugMode) {
+          print('RecordingController: Stream updated with ${recordingsList.length} recordings');
+        }
+      });
+      
+      // Small delay to ensure stream is ready
+      await Future.delayed(const Duration(milliseconds: 200));
+      
+      // Check Drive sign-in status by checking if user is already signed in
+      try {
+        final isSignedIn = _driveService.isSignedIn;
+        if (kDebugMode) {
+          print('RecordingController: Drive signed in status: $isSignedIn');
+        }
+        
+        if (isSignedIn) {
+          final currentUser = _driveService.currentUser;
+          if (currentUser != null) {
+            isDriveSignedIn.value = true;
+            userEmail.value = currentUser.email;
+            if (kDebugMode) {
+              print('RecordingController: Drive user found: ${currentUser.email}');
+            }
+          }
+        }
+      } catch (e) {
+        // Silent sign-in check failed
+        if (kDebugMode) {
+          print('Drive sign-in check failed: $e');
+        }
+      }
+      
+      if (kDebugMode) {
+        print('RecordingController: Initialization complete');
       }
     } catch (e) {
-      // Silent sign-in failed or cancelled
+      if (kDebugMode) {
+        print('Error initializing services: $e');
+      }
     }
-    */
   }
 
   void _setupAudioPlayerListeners() {

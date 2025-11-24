@@ -376,7 +376,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
                   ),
                   _buildDrawerItem(
                     icon: Icons.mic_rounded,
-                    title: 'My Recordings', // TODO: Add to l10n
+                    title: 'Recordings', // TODO: Add to l10n
                     isActive: currentRoute == '/recordings',
                     onTap: () => Get.toNamed('/recordings'),
                   ),
