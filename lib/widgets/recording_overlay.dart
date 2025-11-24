@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../controller/recording_controller.dart';
 import '../controller/color_controller.dart';
 import '../l10n/app_localizations.dart';
+import '../models/user_recording.dart';
 
 class RecordingOverlay extends StatefulWidget {
   final String hymnId;
@@ -102,12 +103,184 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       final recording = _controller.recordings.last;
       // TODO: Implement rename functionality
 
-      if (_uploadToDrive && _controller.isDriveSignedIn.value) {
-        await _controller.uploadToDrive(recording);
+      if (_uploadToDrive) {
+        // Show upload progress in dialog
+        setState(() => _showSaveDialog = false);
+        
+        // Show upload progress dialog
+        _showUploadProgressDialog(recording);
+      } else {
+        widget.onClose();
       }
+    } else {
+      widget.onClose();
     }
-
-    widget.onClose();
+  }
+  
+  void _showUploadProgressDialog(UserRecording recording) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: _colorController.backgroundColor.value,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(
+              Icons.cloud_upload,
+              color: _colorController.primaryColor.value,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Uploading to Drive',
+              style: TextStyle(
+                color: _colorController.textColor.value,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 16),
+            Obx(() {
+              final isUploading = _controller.isUploadingRecording(recording.id);
+              final uploadError = _controller.getUploadError(recording.id);
+              
+              if (isUploading) {
+                return Column(
+                  children: [
+                    CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        _colorController.primaryColor.value,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Uploading "${recording.title}"...',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                        fontSize: 14,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                );
+              } else if (uploadError != null) {
+                return Column(
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Upload Failed',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      uploadError,
+                      style: TextStyle(
+                        color: _colorController.textColor.value.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                );
+              } else {
+                return Column(
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      size: 48,
+                      color: Colors.green,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Upload Complete!',
+                      style: TextStyle(
+                        color: _colorController.textColor.value,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                );
+              }
+            }),
+          ],
+        ),
+        actions: [
+          Obx(() {
+            final isUploading = _controller.isUploadingRecording(recording.id);
+            final uploadError = _controller.getUploadError(recording.id);
+            
+            if (isUploading) {
+              return TextButton(
+                onPressed: () {
+                  // Cancel upload (optional - you might want to implement this)
+                  Navigator.pop(context);
+                  widget.onClose();
+                },
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: _colorController.textColor.value),
+                ),
+              );
+            } else if (uploadError != null) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      widget.onClose();
+                    },
+                    child: Text(
+                      'Close',
+                      style: TextStyle(color: _colorController.textColor.value),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _controller.retryUpload(recording);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _colorController.primaryColor.value,
+                      foregroundColor: Colors.white,
+                    ),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              );
+            } else {
+              return ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  widget.onClose();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _colorController.primaryColor.value,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('Done'),
+              );
+            }
+          }),
+        ],
+      ),
+    );
   }
 
   String _formatDuration(int seconds) {

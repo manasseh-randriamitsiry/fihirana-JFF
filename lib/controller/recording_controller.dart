@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import '../models/user_recording.dart';
@@ -38,6 +39,10 @@ class RecordingController extends GetxController {
   final RxBool isDriveSignedIn = false.obs;
   final Rxn<String> userEmail = Rxn<String>();
   final RxString guestName = ''.obs;
+  
+  // Upload state tracking
+  final RxSet<String> uploadingRecordingIds = <String>{}.obs;
+  final RxMap<String, String> uploadErrors = <String, String>{}.obs;
 
   @override
   void onInit() {
@@ -333,35 +338,86 @@ class RecordingController extends GetxController {
   }
 
   Future<void> uploadToDrive(UserRecording recording) async {
+    // Remove any existing error for this recording
+    uploadErrors.remove(recording.id);
+    
     if (!isDriveSignedIn.value) {
       await signInToDrive();
-      if (!isDriveSignedIn.value) return;
+      if (!isDriveSignedIn.value) {
+        uploadErrors[recording.id] = 'Failed to sign in to Google Drive';
+        return;
+      }
     }
 
+    // Add to uploading set
+    uploadingRecordingIds.add(recording.id);
     isUploading.value = true;
+    
     try {
       final file = File(recording.filePath);
-      if (await file.exists()) {
-        final fileId = await _driveService.uploadFile(
-          file,
-          '${recording.title}.m4a',
-          description: 'Hymn: ${recording.hymnId}',
-        );
+      if (!await file.exists()) {
+        throw Exception('Recording file not found');
+      }
 
-        if (fileId != null) {
-          final webLink = await _driveService.getWebViewLink(fileId);
-          final updated = recording.copyWith(
-            driveFileId: fileId,
-            driveWebLink: webLink,
-          );
-          await _recordingService.updateRecording(updated);
-          Get.snackbar('Success', 'Recording uploaded to Drive');
-        }
+      final fileId = await _driveService.uploadFile(
+        file,
+        '${recording.title}.m4a',
+        description: 'Hymn: ${recording.hymnId}',
+      );
+
+      if (fileId != null) {
+        final webLink = await _driveService.getWebViewLink(fileId);
+        final updated = recording.copyWith(
+          driveFileId: fileId,
+          driveWebLink: webLink,
+        );
+        await _recordingService.updateRecording(updated);
+        
+        // Remove from uploading set on success
+        uploadingRecordingIds.remove(recording.id);
+        uploadErrors.remove(recording.id);
+        
+        Get.snackbar(
+          'Success', 
+          'Recording uploaded to Drive successfully',
+          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      } else {
+        throw Exception('Upload failed - no file ID returned');
       }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to upload recording');
+      // Store error message
+      uploadErrors[recording.id] = e.toString();
+      
+      Get.snackbar(
+        'Upload Failed', 
+        'Failed to upload recording: ${e.toString()}',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 5),
+      );
     } finally {
-      isUploading.value = false;
+      // Remove from uploading set
+      uploadingRecordingIds.remove(recording.id);
+      isUploading.value = uploadingRecordingIds.isNotEmpty;
     }
+  }
+  
+  // Helper method to check if a recording is currently uploading
+  bool isUploadingRecording(String recordingId) {
+    return uploadingRecordingIds.contains(recordingId);
+  }
+  
+  // Helper method to get upload error for a recording
+  String? getUploadError(String recordingId) {
+    return uploadErrors[recordingId];
+  }
+  
+  // Method to retry upload for a failed recording
+  Future<void> retryUpload(UserRecording recording) async {
+    uploadErrors.remove(recording.id);
+    await uploadToDrive(recording);
   }
 }
