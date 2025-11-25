@@ -21,15 +21,32 @@ class ApkDownloadService {
           connectTimeout: const Duration(seconds: 30),
           receiveTimeout: const Duration(minutes: 5),
           sendTimeout: const Duration(minutes: 5),
-          // Enable HTTP/2 for faster downloads
+          // Optimized headers for faster downloads
           headers: {
             'Connection': 'keep-alive',
             'Accept-Encoding': 'gzip, deflate, br',
+            'User-Agent': 'Fihirana-JFF/1.0',
+            'Accept': '*/*',
           },
-          // Increase buffer size for faster downloads
+          // Performance optimizations
           receiveDataWhenStatusError: true,
           followRedirects: true,
           maxRedirects: 5,
+        ),
+      );
+
+        // Add interceptor for performance optimization
+      _dio!.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            // Optimize for large file downloads
+            if (options.path.endsWith('.apk')) {
+              options.receiveTimeout = const Duration(minutes: 10);
+              // Use larger chunk size for APK downloads
+              options.headers['Range'] = 'bytes=0-';
+            }
+            handler.next(options);
+          },
         ),
       );
 
@@ -101,15 +118,32 @@ class ApkDownloadService {
 
       _cancelToken = CancelToken();
 
-      // Download the file
+      // Download the file with optimized progress reporting
+      int lastProgressUpdate = 0;
+      const int progressUpdateInterval = 1024 * 1024; // Update every 1MB
+      
       await _dio!.download(
         url,
         savePath,
         cancelToken: _cancelToken,
+        options: Options(
+          receiveTimeout: const Duration(minutes: 10),
+          headers: {
+            'Accept-Encoding': 'gzip, deflate, br',
+          },
+        ),
         onReceiveProgress: (received, total) {
           if (total != -1) {
-            final progress = (received / total * 100).round();
-            _showDownloadNotification('Fangalana... $progress%', progress);
+            // Only update progress every 1MB or 5% to reduce UI overhead
+            final currentProgress = (received / total * 100).round();
+            final shouldUpdate = (received - lastProgressUpdate) >= progressUpdateInterval ||
+                               currentProgress - lastProgressUpdate >= 5 ||
+                               currentProgress >= 100;
+            
+            if (shouldUpdate) {
+              lastProgressUpdate = received;
+              _showDownloadNotification('Fangalana... $currentProgress%', currentProgress);
+            }
           }
         },
       );
