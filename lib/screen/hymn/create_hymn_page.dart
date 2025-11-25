@@ -10,6 +10,7 @@ import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
 import '../../widgets/drawer_widget.dart';
+import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 
 class CreateHymnPage extends StatefulWidget {
@@ -418,7 +419,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
-        drawer: DrawerWidget(openDrawer: () {}),
+        drawer: DrawerWidget(openDrawer: () {
+          Get.find<ShellController>().toggleDrawer();
+        }),
         backgroundColor: colorController.backgroundColor.value,
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,

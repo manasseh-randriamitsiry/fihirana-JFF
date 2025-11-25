@@ -1521,6 +1521,9 @@ class AppLocalizationsMg extends AppLocalizations {
   String get pleaseStopRecordingBeforePlaying => 'Ajanony aloha ny fandrakitra mialohan\'ny mamaky azy.';
 
   @override
+  String get stopAndPlay => 'Ajanona';
+
+  @override
   String get recordingSessionActive => 'Fandrakitra mandeha';
 
   @override
@@ -1665,5 +1668,46 @@ class AppLocalizationsMg extends AppLocalizations {
   @override
   String anErrorOccurredDuringPlayback(String error) {
     return 'Nisy hadisoana nandritra ny famaky: $error';
+  }
+
+  @override
+  String get signInWithGoogle => 'Hampiasa Google';
+
+  @override
+  String get continueAsGuest => 'Tsy asiana compte';
+
+  @override
+  String get signingIn => 'Hiditra...';
+
+  @override
+  String get googleSignInFailed => 'Tsy nahomby ny fidirana amin\'ny Google';
+
+  @override
+  String get welcomeBack => 'Tongasoa tafaverina';
+
+  @override
+  String get orDivider => 'NA';
+
+  @override
+  String get skipForNow => 'Aoka aloha';
+
+  @override
+  String get getStarted => 'Hanomboka';
+
+  @override
+  String get appFeature1 => 'Mampiasa fihirana';
+
+  @override
+  String get appFeature2 => 'Mampiditra ny hira fiderana, sy fandraisampeo( mila compte Google)';
+
+  @override
+  String get appFeature3 => 'Voatahiry ny hiranao sy izay tianao sns na miova finday hafa';
+
+  @override
+  String get appFeature4 => 'Mizara hira na playlist';
+
+  @override
+  String continueAs(String name) {
+    return 'Hanohy ho: $name';
   }
 }

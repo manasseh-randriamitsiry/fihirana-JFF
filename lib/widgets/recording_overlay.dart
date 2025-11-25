@@ -58,7 +58,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
     // Auto-generate recording name with better format
     final now = DateTime.now();
-    final timestamp = '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final timestamp =
+        '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     _nameController.text = '${widget.hymnTitle} - $timestamp';
 
     // Update controller state
@@ -117,11 +118,15 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     if (_currentRecording != null) {
       // Update the recording with the user's custom name
       await _controller.renameRecording(_currentRecording!, name);
-      
+
       if (_uploadToDrive) {
         // Show upload progress in dialog
         setState(() => _showSaveDialog = false);
-        _showUploadProgressDialog(_currentRecording!);
+        _showUploadProgressDialog(_currentRecording!, isPublic: _isPublic);
+      } else if (_isPublic) {
+        // If marked as public but not uploading to Drive, we need to upload it
+        setState(() => _showSaveDialog = false);
+        _showUploadProgressDialog(_currentRecording!, isPublic: true);
       } else {
         _controller.hideOverlay();
         widget.onClose();
@@ -282,7 +287,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Hymn ${widget.hymnId}',
+                      'Hira ${widget.hymnId}',
                       style: TextStyle(
                         fontSize: 12,
                         color: _colorController.textColor.value
@@ -713,10 +718,16 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     );
   }
 
-  void _showUploadProgressDialog(UserRecording recording) {
+  void _showUploadProgressDialog(UserRecording recording,
+      {bool isPublic = false}) {
     // Trigger the upload when dialog is shown
-    _controller.uploadToDrive(recording);
-    
+    _controller.uploadToDrive(recording).then((_) async {
+      // If marked as public, publish to Firestore after upload
+      if (isPublic) {
+        await _controller.publishRecording(recording);
+      }
+    });
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -805,7 +816,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                               color: Colors.redAccent, size: 48),
                           const SizedBox(height: 16),
                           const Text(
-                          'Upload Failed',
+                            'Upload Failed',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -830,7 +841,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.white,
-                                    foregroundColor: _colorController.primaryColor.value,
+                                    foregroundColor:
+                                        _colorController.primaryColor.value,
                                   ),
                                   child: const Text('Retry'),
                                 ),
@@ -844,7 +856,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                                     widget.onClose();
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                                    backgroundColor:
+                                        Colors.white.withValues(alpha: 0.2),
                                     foregroundColor: Colors.white,
                                   ),
                                   child: const Text('Skip'),

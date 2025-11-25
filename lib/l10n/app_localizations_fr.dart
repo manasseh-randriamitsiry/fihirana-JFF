@@ -1521,6 +1521,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pleaseStopRecordingBeforePlaying => 'Veuillez arrêter l\'enregistrement avant de lire.';
 
   @override
+  String get stopAndPlay => 'Arrêter & Lire';
+
+  @override
   String get recordingSessionActive => 'Session d\'enregistrement active';
 
   @override
@@ -1665,5 +1668,46 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String anErrorOccurredDuringPlayback(String error) {
     return 'Une erreur s\'est produite pendant la lecture: $error';
+  }
+
+  @override
+  String get signInWithGoogle => 'Se connecter avec Google';
+
+  @override
+  String get continueAsGuest => 'Continuer en tant qu\'invité';
+
+  @override
+  String get signingIn => 'Connexion en cours...';
+
+  @override
+  String get googleSignInFailed => 'Échec de la connexion Google';
+
+  @override
+  String get welcomeBack => 'Bon retour';
+
+  @override
+  String get orDivider => 'OU';
+
+  @override
+  String get skipForNow => 'Ignorer pour l\'instant';
+
+  @override
+  String get getStarted => 'Commencer';
+
+  @override
+  String get appFeature1 => 'Parcourir des milliers de cantiques';
+
+  @override
+  String get appFeature2 => 'Enregistrer vos propres versions et des nouveaux cantiques';
+
+  @override
+  String get appFeature3 => 'Synchroniser sur tous les appareils';
+
+  @override
+  String get appFeature4 => 'Partager avec les autres et la communauté';
+
+  @override
+  String continueAs(String name) {
+    return 'Continuer en tant que : $name';
   }
 }

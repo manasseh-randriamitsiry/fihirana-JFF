@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../controller/recording_controller.dart';
 import 'recording_overlay.dart';
 import 'recording_mini_player.dart';
-import 'recording_player_overlay.dart';
 
 class RecordingOverlayManager extends StatelessWidget {
   const RecordingOverlayManager({super.key});
@@ -29,9 +28,6 @@ class RecordingOverlayManager extends StatelessWidget {
       }
 
       // Show player overlay if visible
-      if (controller.shouldShowPlayerOverlay()) {
-        return const RecordingPlayerOverlay();
-      }
 
       return const SizedBox.shrink();
     });

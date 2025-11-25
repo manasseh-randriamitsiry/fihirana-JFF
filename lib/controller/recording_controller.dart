@@ -3,16 +3,27 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
+// import 'package:just_audio/just_audio.dart'; // Removed unused import
 import 'package:uuid/uuid.dart';
 import '../models/user_recording.dart';
 import '../services/user_recording_service.dart';
 import '../services/google_drive_service.dart';
+import '../services/public_recording_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/hymn.dart';
+import '../services/audio_service.dart';
+import 'package:fihirana/services/local_audio_service.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path/path.dart' as path;
+import 'package:file_picker/file_picker.dart';
+// We need to import AudioPlayerScreen to navigate to it
+import '../screen/player/audio_player_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class RecordingController extends GetxController {
   final UserRecordingService _recordingService = UserRecordingService();
   final GoogleDriveService _driveService = GoogleDriveService();
+  final PublicRecordingService _publicService = PublicRecordingService();
   final _uuid = const Uuid();
 
   // Recording state
@@ -22,15 +33,17 @@ class RecordingController extends GetxController {
   Timer? _timer;
 
   // Playback state
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  final RxBool isPlaying = false.obs;
-  final RxString currentPlayingId = ''.obs;
-  final Rx<Duration> currentPosition = Duration.zero.obs;
-  final Rx<Duration> totalDuration = Duration.zero.obs;
-  final RxDouble playbackSpeed = 1.0.obs;
+  // Removed internal AudioPlayer as we now use AudioService
+  // final AudioPlayer _audioPlayer = AudioPlayer();
+  // final RxBool isPlaying = false.obs;
+  // final RxString currentPlayingId = ''.obs;
+  // final Rx<Duration> currentPosition = Duration.zero.obs;
+  // final Rx<Duration> totalDuration = Duration.zero.obs;
+  // final RxDouble playbackSpeed = 1.0.obs;
 
   // Data
   final RxList<UserRecording> recordings = <UserRecording>[].obs;
+  final RxList<UserRecording> publicRecordings = <UserRecording>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isUploading = false.obs;
 
@@ -57,10 +70,13 @@ class RecordingController extends GetxController {
     super.onInit();
     _initServices();
     _loadGuestName();
-    _setupAudioPlayerListeners();
+    // _setupAudioPlayerListeners(); // No longer needed
 
     // Auto-refresh recordings when page is accessed
     _autoRefreshRecordings();
+
+    // Load public recordings from Firestore
+    refreshPublicRecordings();
 
     // Start periodic refresh to keep recordings in sync
     _startPeriodicRefresh();
@@ -87,6 +103,33 @@ class RecordingController extends GetxController {
     } catch (e) {
       if (kDebugMode) {
         print('Error refreshing recordings: $e');
+      }
+    }
+  }
+
+  Future<List<UserRecording>> loadPublicRecordings({String? hymnId}) async {
+    try {
+      return await _publicService.getPublicRecordings(hymnId: hymnId);
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Load public recordings error: $e');
+      }
+      return [];
+    }
+  }
+
+  Future<void> refreshPublicRecordings({String? hymnId}) async {
+    try {
+      final recordings =
+          await _publicService.getPublicRecordings(hymnId: hymnId);
+      publicRecordings.value = recordings;
+      if (kDebugMode) {
+        print(
+            'RecordingController: Loaded ${recordings.length} public recordings');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Refresh public recordings error: $e');
       }
     }
   }
@@ -121,12 +164,12 @@ class RecordingController extends GetxController {
         print('RecordingController: Periodic refresh triggered');
       }
       _recordingService.loadRecordings();
-      
+
       // Check for silent sign-in every 2 minutes (every 4 ticks)
       if (!isDriveSignedIn.value && timer.tick % 4 == 0) {
         _checkForSilentSignIn();
       }
-      
+
       // Also sync from Drive if signed in (every 5 minutes to avoid API limits)
       if (isDriveSignedIn.value && timer.tick % 10 == 0) {
         syncFromDrive();
@@ -142,9 +185,10 @@ class RecordingController extends GetxController {
         isDriveSignedIn.value = true;
         userEmail.value = currentUser.email;
         if (kDebugMode) {
-          print('RecordingController: Periodic check found Drive account: ${currentUser.email}');
+          print(
+              'RecordingController: Periodic check found Drive account: ${currentUser.email}');
         }
-        
+
         // Auto-sync when account is detected
         await syncFromDrive();
       }
@@ -158,7 +202,7 @@ class RecordingController extends GetxController {
   @override
   void onClose() {
     _timer?.cancel();
-    _audioPlayer.dispose();
+    // _audioPlayer.dispose(); // No longer needed
     _periodicRefreshTimer?.cancel(); // Stop periodic refresh
     super.onClose();
   }
@@ -208,12 +252,13 @@ class RecordingController extends GetxController {
             print(
                 'RecordingController: Auto-detected Drive account: ${currentUser.email}');
           }
-          
+
           // Auto-sync recordings from Drive
           await syncFromDrive();
         } else {
           if (kDebugMode) {
-            print('RecordingController: No existing Google Drive account found');
+            print(
+                'RecordingController: No existing Google Drive account found');
           }
         }
       } catch (e) {
@@ -233,24 +278,24 @@ class RecordingController extends GetxController {
     }
   }
 
-  void _setupAudioPlayerListeners() {
-    _audioPlayer.playerStateStream.listen((state) {
-      isPlaying.value = state.playing;
-      if (state.processingState == ProcessingState.completed) {
-        isPlaying.value = false;
-        currentPlayingId.value = '';
-        currentPosition.value = Duration.zero;
-      }
-    });
-
-    _audioPlayer.positionStream.listen((position) {
-      currentPosition.value = position;
-    });
-
-    _audioPlayer.durationStream.listen((duration) {
-      totalDuration.value = duration ?? Duration.zero;
-    });
-  }
+  // void _setupAudioPlayerListeners() {
+  //   _audioPlayer.playerStateStream.listen((state) {
+  //     isPlaying.value = state.playing;
+  //     if (state.processingState == ProcessingState.completed) {
+  //       isPlaying.value = false;
+  //       currentPlayingId.value = '';
+  //       currentPosition.value = Duration.zero;
+  //     }
+  //   });
+  //
+  //   _audioPlayer.positionStream.listen((position) {
+  //     currentPosition.value = position;
+  //   });
+  //
+  //   _audioPlayer.durationStream.listen((duration) {
+  //     totalDuration.value = duration ?? Duration.zero;
+  //   });
+  // }
 
   void _startTimer() {
     _timer?.cancel();
@@ -308,25 +353,24 @@ class RecordingController extends GetxController {
   // Playback Actions
   Future<void> playRecording(UserRecording recording) async {
     try {
-      currentPlayingId.value = recording.id;
-      await _audioPlayer.setFilePath(recording.filePath);
-      await _audioPlayer.play();
+      // Use AudioService to play the recording
+      await AudioService.instance.playRecording(recording);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to play recording');
+      Get.snackbar('Error', 'Failed to play recording: $e');
     }
   }
 
   Future<void> pausePlayback() async {
-    await _audioPlayer.pause();
+    await AudioService.instance.pause();
   }
 
   Future<void> seekTo(Duration position) async {
-    await _audioPlayer.seek(position);
+    await AudioService.instance.seekTo(position);
   }
 
   Future<void> setPlaybackSpeed(double speed) async {
-    playbackSpeed.value = speed;
-    await _audioPlayer.setSpeed(speed);
+    // playbackSpeed.value = speed;
+    await AudioService.instance.player.setSpeed(speed);
   }
 
   // Management Actions
@@ -383,11 +427,12 @@ class RecordingController extends GetxController {
     if (account != null) {
       isDriveSignedIn.value = true;
       userEmail.value = account.email;
-      
+
       if (kDebugMode) {
-        print('RecordingController: Manual sign-in successful for ${account.email}');
+        print(
+            'RecordingController: Manual sign-in successful for ${account.email}');
       }
-      
+
       // Auto-sync after successful sign-in
       await syncFromDrive();
     }
@@ -495,7 +540,7 @@ class RecordingController extends GetxController {
     try {
       isLoading.value = true;
       final driveFiles = await _driveService.listRecordings();
-      
+
       if (kDebugMode) {
         print('Found ${driveFiles.length} files in Drive');
       }
@@ -519,7 +564,9 @@ class RecordingController extends GetxController {
             title: (driveFile.name ?? '').replaceAll('.m4a', ''),
             filePath: '', // No local file available
             durationSeconds: 0, // Unknown duration
-            createdAt: DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ?? DateTime.now(),
+            createdAt:
+                DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ??
+                    DateTime.now(),
             isPublic: false,
             tags: [],
             driveFileId: driveFile.id ?? '',
@@ -528,7 +575,7 @@ class RecordingController extends GetxController {
 
           // Use saveDriveRecording to add it directly with Drive info
           await _recordingService.saveDriveRecording(recording);
-          
+
           if (kDebugMode) {
             print('Added new recording from Drive: ${recording.title}');
           }
@@ -538,7 +585,8 @@ class RecordingController extends GetxController {
       // Check for local recordings that have Drive files but the Drive file no longer exists
       for (final recording in recordings) {
         if (recording.driveFileId != null) {
-          final driveFileExists = driveFiles.any((f) => f.id == recording.driveFileId);
+          final driveFileExists =
+              driveFiles.any((f) => f.id == recording.driveFileId);
           if (!driveFileExists) {
             // The Drive file was deleted externally, update local recording
             final updated = recording.copyWith(
@@ -546,9 +594,10 @@ class RecordingController extends GetxController {
               driveWebLink: null,
             );
             await _recordingService.updateRecording(updated);
-            
+
             if (kDebugMode) {
-              print('Removed Drive reference for deleted file: ${recording.title}');
+              print(
+                  'Removed Drive reference for deleted file: ${recording.title}');
             }
           }
         }
@@ -560,7 +609,6 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('Drive sync completed');
       }
-
     } catch (e) {
       if (kDebugMode) {
         print('Error syncing from Drive: $e');
@@ -604,32 +652,70 @@ class RecordingController extends GetxController {
     return overlayVisible.value;
   }
 
+  void _showStopRecordingDialog(UserRecording recording) {
+    final l10n = AppLocalizations.of(Get.context!);
+    Get.dialog(
+      AlertDialog(
+        title: Text(l10n!.recordingInProgressDialog),
+        content: Text(l10n.pleaseStopRecordingBeforePlaying),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await stopRecording(currentHymnId.value, currentHymnTitle.value);
+              hideOverlay();
+              _proceedWithPlayback(recording);
+            },
+            child: Text(l10n.stopAndPlay),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _proceedWithPlayback(UserRecording recording) {
+    // Create a fake Hymn object for the player screen
+    final hymn = Hymn(
+      id: recording.id,
+      hymnNumber: recording.hymnId,
+      title: recording.title,
+      verses: [],
+      createdAt: recording.createdAt,
+      createdBy: 'User',
+    );
+
+    // Navigate to AudioPlayerScreen
+    Get.to(() => AudioPlayerScreen(
+          hymn: hymn,
+          playlist: [hymn],
+        ));
+
+    // Start playing
+    playRecording(recording);
+  }
+
   // Player Overlay state management
   final RxBool isPlayerOverlayVisible = false.obs;
   final RxBool isPlayerMinimized = false.obs;
   final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
 
   void showPlayer(UserRecording recording) {
-    // If recording is in progress, do not show player or maybe pause recording?
-    // For now, let's assume we can't play while recording.
+    // If recording is in progress, ask user to stop
     if (isRecording.value) {
-      Get.snackbar(
-          'Recording in progress', 'Please stop recording before playing.');
+      _showStopRecordingDialog(recording);
       return;
     }
 
+    // If overlay is visible, close it automatically
     if (overlayVisible.value) {
-      Get.snackbar('Recording session active',
-          'Please close the recording overlay first.');
-      return;
+      hideOverlay();
     }
 
-    currentRecording.value = recording;
-    isPlayerOverlayVisible.value = true;
-    isPlayerMinimized.value = false;
-
-    // Start playing
-    playRecording(recording);
+    _proceedWithPlayback(recording);
   }
 
   void hidePlayer() {
@@ -649,5 +735,382 @@ class RecordingController extends GetxController {
 
   bool shouldShowPlayerOverlay() {
     return isPlayerOverlayVisible.value;
+  }
+
+  Future<void> downloadRecording(UserRecording recording) async {
+    try {
+      // Check if already exists
+      if (recording.filePath.isNotEmpty &&
+          await File(recording.filePath).exists()) {
+        Get.snackbar(
+          'Download',
+          'Recording is already downloaded.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      if (recording.driveFileId == null) {
+        Get.snackbar('Error', 'Cannot download: No Drive file ID found.');
+        return;
+      }
+
+      Get.snackbar(
+        'Downloading',
+        'Downloading ${recording.title}...',
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Determine target path
+      String targetPath = recording.filePath;
+      if (targetPath.isEmpty) {
+        final localService = LocalAudioService();
+        await localService.initialize();
+        final stats = await localService.getStorageStats();
+        final dir = stats['directory'] as String;
+        targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+      }
+
+      final driveService = GoogleDriveService();
+      if (!driveService.isSignedIn) {
+        await driveService.signInSilently();
+      }
+
+      if (!driveService.isSignedIn) {
+        throw Exception('Not signed in to Drive');
+      }
+
+      final file =
+          await driveService.downloadFile(recording.driveFileId!, targetPath);
+
+      if (file != null && await file.exists()) {
+        // Update recording with new path
+        final updatedRecording = recording.copyWith(filePath: file.path);
+        await _recordingService.updateRecording(updatedRecording);
+
+        // Update in list
+        final index = recordings.indexWhere((r) => r.id == recording.id);
+        if (index != -1) {
+          recordings[index] = updatedRecording;
+        }
+
+        Get.back(); // Close progress snackbar
+        Get.snackbar(
+          'Success',
+          'Downloaded ${recording.title}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withValues(alpha: 0.1),
+          colorText: Colors.green,
+        );
+      } else {
+        throw Exception('Download failed');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Download error: $e');
+      }
+      Get.back(); // Close progress snackbar
+      Get.snackbar(
+        'Error',
+        'Failed to download recording: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+
+  Future<void> shareRecordingFile(UserRecording recording) async {
+    try {
+      String? filePath = recording.filePath;
+      bool fileExists = filePath.isNotEmpty && await File(filePath).exists();
+
+      if (!fileExists) {
+        // Try to download first
+        if (recording.driveFileId != null) {
+          Get.snackbar(
+            'Preparing Share',
+            'Downloading file to share...',
+            showProgressIndicator: true,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+
+          // Determine target path
+          String targetPath = recording.filePath;
+          if (targetPath.isEmpty) {
+            final localService = LocalAudioService();
+            await localService.initialize();
+            final stats = await localService.getStorageStats();
+            final dir = stats['directory'] as String;
+            targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+          }
+
+          final driveService = GoogleDriveService();
+          if (!driveService.isSignedIn) {
+            await driveService.signInSilently();
+          }
+
+          if (driveService.isSignedIn) {
+            final file = await driveService.downloadFile(
+                recording.driveFileId!, targetPath);
+            if (file != null && await file.exists()) {
+              filePath = file.path;
+
+              // Update recording with new path
+              final updatedRecording = recording.copyWith(filePath: filePath);
+              await _recordingService.updateRecording(updatedRecording);
+
+              // Update in list
+              final index = recordings.indexWhere((r) => r.id == recording.id);
+              if (index != -1) {
+                recordings[index] = updatedRecording;
+              }
+            }
+          }
+        }
+      }
+
+      if (await File(filePath).exists()) {
+        // Share the file
+        await Share.shareXFiles(
+          [XFile(filePath)],
+          text: 'Check out my recording of ${recording.title}',
+        );
+      } else if (recording.driveWebLink != null) {
+        // Fallback to link
+        await Share.share(
+            'Check out this recording: ${recording.driveWebLink}');
+      } else {
+        Get.snackbar('Error', 'Could not share recording. File not found.');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Share error: $e');
+      }
+      Get.snackbar('Error', 'Failed to share recording');
+    }
+  }
+
+  Future<void> exportRecording(UserRecording recording) async {
+    try {
+      String? filePath = recording.filePath;
+
+      // Download from Drive if needed
+      if (filePath.isEmpty || !await File(filePath).exists()) {
+        if (recording.driveFileId != null) {
+          Get.snackbar(
+            'Preparing Export',
+            'Downloading file...',
+            showProgressIndicator: true,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+
+          String targetPath = recording.filePath;
+          if (targetPath.isEmpty) {
+            final localService = LocalAudioService();
+            await localService.initialize();
+            final stats = await localService.getStorageStats();
+            final dir = stats['directory'] as String;
+            targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+          }
+
+          final driveService = GoogleDriveService();
+          if (!driveService.isSignedIn) {
+            await driveService.signInSilently();
+          }
+
+          if (driveService.isSignedIn) {
+            final file = await driveService.downloadFile(
+                recording.driveFileId!, targetPath);
+            if (file != null && await file.exists()) {
+              filePath = file.path;
+            }
+          }
+        }
+      }
+
+      if (filePath.isEmpty || !await File(filePath).exists()) {
+        Get.snackbar('Error', 'Could not find recording file.');
+        return;
+      }
+
+      // Use file_picker to let user choose save location
+      final fileName = path.basename(filePath);
+
+      // Read file as bytes
+      final sourceFile = File(filePath);
+      final bytes = await sourceFile.readAsBytes();
+
+      // Let user pick save location with bytes
+      final outputPath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export Recording',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['m4a'],
+        bytes: bytes,
+      );
+
+      if (outputPath == null) {
+        // User cancelled
+        return;
+      }
+
+      Get.snackbar(
+        'Success',
+        'Exported ${recording.title}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Export error: $e');
+      }
+      Get.snackbar(
+        'Error',
+        'Failed to export recording: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+
+  Future<void> publishRecording(UserRecording recording) async {
+    try {
+      Get.snackbar(
+        'Publishing',
+        'Making recording public...',
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Get user name from preferences or auth
+      final prefs = await SharedPreferences.getInstance();
+      final userName = prefs.getString('guest_name') ?? guestName.value;
+
+      // Upload to public folder if not already on Drive
+      String? driveFileId = recording.driveFileId;
+      String? publicLink;
+
+      if (driveFileId == null && recording.filePath.isNotEmpty) {
+        // Upload to Drive public folder
+        final file = File(recording.filePath);
+        if (await file.exists()) {
+          driveFileId = await _driveService.uploadFile(
+            file,
+            recording.title,
+            isPublic: true,
+          );
+        }
+      } else if (driveFileId != null) {
+        // Set existing file to public
+        await _driveService.setFilePublic(driveFileId);
+      }
+
+      if (driveFileId != null) {
+        publicLink = await _driveService.getPublicLink(driveFileId);
+      }
+
+      if (driveFileId == null || publicLink == null) {
+        throw Exception('Failed to upload or get public link');
+      }
+
+      // Update recording
+      final updatedRecording = recording.copyWith(
+        isPublic: true,
+        driveFileId: driveFileId,
+        publicLink: publicLink,
+        userName: userName,
+      );
+
+      // Save to Firestore
+      final success = await _publicService.publishRecording(updatedRecording);
+      if (!success) {
+        throw Exception('Failed to publish to Firestore');
+      }
+
+      // Update local recording
+      await _recordingService.updateRecording(updatedRecording);
+      final index = recordings.indexWhere((r) => r.id == recording.id);
+      if (index != -1) {
+        recordings[index] = updatedRecording;
+      }
+
+      // Refresh public recordings list
+      await refreshPublicRecordings();
+
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Success',
+        'Recording is now public!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Publish error: $e');
+      }
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Error',
+        'Failed to publish recording: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+
+  Future<void> unpublishRecording(UserRecording recording) async {
+    try {
+      Get.snackbar(
+        'Unpublishing',
+        'Making recording private...',
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Remove from Firestore
+      await _publicService.unpublishRecording(recording.id);
+
+      // Update local recording
+      final updatedRecording = recording.copyWith(
+        isPublic: false,
+        publicLink: null,
+      );
+
+      await _recordingService.updateRecording(updatedRecording);
+      final index = recordings.indexWhere((r) => r.id == recording.id);
+      if (index != -1) {
+        recordings[index] = updatedRecording;
+      }
+
+      // Refresh public recordings list
+      await refreshPublicRecordings();
+
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Success',
+        'Recording is now private',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Unpublish error: $e');
+      }
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Error',
+        'Failed to unpublish recording',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
+    }
   }
 }

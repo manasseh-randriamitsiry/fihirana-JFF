@@ -34,6 +34,7 @@ class AccueilScreen extends StatefulWidget {
 class AccueilScreenState extends State<AccueilScreen> {
   late final HymnController _hymnController;
   bool _updateAvailable = false;
+  bool _isDownloading = false;
   final Set<String> _checkedHymnIds = <String>{};
 
   @override
@@ -79,7 +80,7 @@ class AccueilScreenState extends State<AccueilScreen> {
   Future<void> _showAudioPlayerWithFirstHymn() async {
     // Get the first hymn from the current filtered list
     final hymns =
-        _hymnController.filterHymnList(await _hymnController.hymnsStream.first);
+    _hymnController.filterHymnList(await _hymnController.hymnsStream.first);
 
     if (hymns.isNotEmpty && context.mounted) {
       _showAudioPlayerDialog(hymns.first);
@@ -121,23 +122,36 @@ class AccueilScreenState extends State<AccueilScreen> {
 
 
 
-  Future<void> _checkForUpdates() async {
+
+
+  Future<void> _downloadAndInstallUpdate() async {
     try {
-      final updateAvailable =
-          await VersionCheckService.checkForUpdateManually();
-      if (mounted) {
-        setState(() {
-          _updateAvailable = updateAvailable;
-        });
-      }
+      setState(() {
+        _isDownloading = true;
+      });
+
+      await VersionCheckService.downloadAndInstallLatestVersion();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.checkUpdateError),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          _isDownloading = false;
+        });
+
+        if (context.mounted) {
+          final l10n = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('${l10n.errorDownloadingUpdate}: ${e.toString()}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDownloading = false;
+        });
       }
     }
   }
@@ -168,10 +182,10 @@ class AccueilScreenState extends State<AccueilScreen> {
                   snap: true,
                   leading: widget.showMenuButton
                       ? IconButton(
-                          key: const ValueKey('menu_button'),
-                          icon: Icon(Icons.menu, color: iconColor),
-                          onPressed: widget.openDrawer,
-                        )
+                    key: const ValueKey('menu_button'),
+                    icon: Icon(Icons.menu, color: iconColor),
+                    onPressed: widget.openDrawer,
+                  )
                       : null,
                   title: Text(
                     AppLocalizations.of(context)!.appTitleShort,
@@ -184,9 +198,19 @@ class AccueilScreenState extends State<AccueilScreen> {
                     if (_updateAvailable)
                       IconButton(
                         key: const ValueKey('update_button'),
-                        icon: const Icon(Icons.system_update,
+                        icon: _isDownloading
+                            ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                Colors.orange),
+                          ),
+                        )
+                            : const Icon(Icons.system_update,
                             color: Colors.orange),
-                        onPressed: _checkForUpdates,
+                        onPressed: _isDownloading ? null : _downloadAndInstallUpdate,
                       ),
                     Obx(() {
                       final audioService = AudioService.instance;
@@ -273,7 +297,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                           child: Text(
                             AppLocalizations.of(context)!
                                 .errorOccurredWithDetails(
-                                    snapshot.error.toString()),
+                                snapshot.error.toString()),
                             style: defaultTextStyle,
                           ),
                         ),
@@ -285,14 +309,14 @@ class AccueilScreenState extends State<AccueilScreen> {
                     }
 
                     final hymns =
-                        _hymnController.filterHymnList(snapshot.data ?? []);
+                    _hymnController.filterHymnList(snapshot.data ?? []);
                     if (hymns.isEmpty) {
                       return SliverFillRemaining(
                         child: EmptyStateWidget(
                           message: AppLocalizations.of(context)!.noHymnsFound,
                           icon: Icons.music_off_rounded,
                           actionLabel:
-                              AppLocalizations.of(context)!.clearSearch,
+                          AppLocalizations.of(context)!.clearSearch,
                           onActionPressed: () {
                             if (!_hymnController.isDisposed) {
                               _hymnController.safeSearchController.clear();
@@ -307,7 +331,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                     // Initial batch check for first 10 items and preload common hymns
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       final List<Hymn> firstTen =
-                          hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
+                      hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
                       _batchCheckAudioFiles(firstTen);
 
                       // Preload common hymns in background
@@ -319,7 +343,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                       builder: (context, favoriteSnapshot) {
                         return SliverList(
                           delegate: SliverChildBuilderDelegate(
-                            (context, index) {
+                                (context, index) {
                               final hymn = hymns[index];
                               return HymnListItem(
                                 key: ValueKey(hymn.id),
@@ -333,13 +357,13 @@ class AccueilScreenState extends State<AccueilScreen> {
                               )
                                   .animate()
                                   .fadeIn(
-                                      duration: 400.ms,
-                                      delay: (50 * index).clamp(0, 500).ms)
+                                  duration: 400.ms,
+                                  delay: (50 * index).clamp(0, 500).ms)
                                   .slideY(
-                                      begin: 0.2,
-                                      end: 0,
-                                      curve: Curves.easeOutQuad,
-                                      duration: 400.ms);
+                                  begin: 0.2,
+                                  end: 0,
+                                  curve: Curves.easeOutQuad,
+                                  duration: 400.ms);
                             },
                             childCount: hymns.length,
                           ),

@@ -58,9 +58,9 @@
   "info": "Information",
   "confirm": "Confirmer",
   "newHymn": "Nouveau cantique",
-  "deleteVerse":"Supprimer le verset",
+  "deleteVerse": "Supprimer le verset",
   "addVerse": "Ajouter un verset",
-  "hymnHint":"Indice du cantique",
+  "hymnHint": "Indice du cantique",
   "confirmDelete": "Êtes-vous sûr de vouloir supprimer cet élément?",
   "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter?",
   "noResults": "Aucun résultat trouvé",
@@ -191,7 +191,9 @@
   "chooseColorFor": "Choisir la couleur pour {colorType}",
   "@chooseColorFor": {
     "placeholders": {
-      "colorType": {"type": "String"}
+      "colorType": {
+        "type": "String"
+      }
     }
   },
   "chooseColor": "Choisir la couleur",
@@ -209,14 +211,20 @@
   "createdByLabel": "Créé par : {name}{email}",
   "@createdByLabel": {
     "placeholders": {
-      "name": {"type": "String"},
-      "email": {"type": "String"}
+      "name": {
+        "type": "String"
+      },
+      "email": {
+        "type": "String"
+      }
     }
   },
   "confirmDeleteHymn": "Êtes-vous sûr de vouloir supprimer le cantique \"{title}\" ?",
   "@confirmDeleteHymn": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "copyHymnContent": "Copier le contenu du cantique",
@@ -261,7 +269,9 @@
   "verseWithNumber": "Verset {number}",
   "@verseWithNumber": {
     "placeholders": {
-      "number": {"type": "int"}
+      "number": {
+        "type": "int"
+      }
     }
   },
   "bridge": "Pont",
@@ -276,14 +286,18 @@
   "errorSavingHymn": "Erreur lors de l'enregistrement du cantique: {error}",
   "@errorSavingHymn": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "enterVerse": "Entrez le verset",
   "noPermissionToCreate": "Bonjour {email},\nPour des raisons spécifiques, vous n'avez pas encore la permission de créer des cantiques.\nVeuillez patienter.\nOu contactez l'administrateur (manassé) pour obtenir la permission.",
   "@noPermissionToCreate": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "createHymn": "Créer un cantique",
@@ -294,7 +308,9 @@
   "errorUpdating": "Erreur: {error}",
   "@errorUpdating": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "editNote": "Modifier la note",
@@ -311,7 +327,9 @@
   "errorOccurredColon": "Erreur survenue: {error}",
   "@errorOccurredColon": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noAdditionalHymns": "Aucun cantique supplémentaire",
@@ -329,7 +347,9 @@
   "cannotDownload": "Impossible de télécharger: {error}",
   "@cannotDownload": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noPermissionAdmin": "Vous n'avez pas la permission d'accéder au panneau d'administration",
@@ -343,16 +363,20 @@
   "notLoggedInMessage": "Vous n'êtes pas connecté. Connectez-vous à votre compte pour accéder à toutes les fonctionnalités.",
   "clearAllHistory": "Effacer tout l'historique",
   "removeAllHistory": "Supprimer tout votre historique",
-  "createdBy": "Créé par: {name}",
+  "createdBy": "Créé par",
   "@createdBy": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "deleteFailed": "Échec de la suppression: {error}",
   "@deleteFailed": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "sortByRecent": "Récent",
@@ -371,7 +395,6 @@
   "selectedHymnsDeleted": "Les cantiques sélectionnés ont été supprimés",
   "noHymns": "Aucun cantique",
   "adminPanel": "Panneau d'administration",
-  "createdBy": "Créé par",
   "date": "Date",
   "errorLabel": "Erreur",
   "newest": "Nouveau",
@@ -379,14 +402,16 @@
   "noPermission": "Vous n'avez pas la permission",
   "userManagement": "Gestion des utilisateurs",
   "noEmail": "Pas d'email",
-  "unknownUser": "Utilisateur inconnu",
+  "unknownUser": "Inconnu",
   "noUsers": "Aucun utilisateur",
   "lastLogin": "Dernière connexion",
   "registered": "Inscrit",
   "hymnCount": "{count} cantiques",
   "@hymnCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "sortBySongs": "Par nombre de cantiques",
@@ -418,7 +443,7 @@
   "clearHistorySuccess": "Historique effacé",
   "clearHistoryError": "Erreur lors de l'effacement de l'historique",
   "cannotAddHymns": "Impossible d'ajouter des cantiques pour le moment",
-  "searchBooks": "Rechercher des livres...",
+  "searchBooks": "Rechercher des livres",
   "searchCurrentChapter": "Rechercher dans le chapitre {chapter}",
   "searchEntireBible": "Rechercher dans toute la Bible",
   "change": "Changer",
@@ -426,14 +451,18 @@
   "emailLabel": "Email: {email}",
   "@emailLabel": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "addressLabel": "Adresse:",
   "appVersion": "Version {version}",
   "@appVersion": {
     "placeholders": {
-      "version": {"type": "String"}
+      "version": {
+        "type": "String"
+      }
     }
   },
   "appNameSuffix": "JFF",
@@ -448,7 +477,9 @@
   "selectedItems": "{count} sélectionné(s)",
   "@selectedItems": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aboutTheApp": "À propos de l'application",
@@ -496,19 +527,22 @@
   "errorPlayingAudio": "Erreur lors de la lecture audio: {error}",
   "@errorPlayingAudio": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "playlistExampleHint": "ex: Service du dimanche",
   "confirmDeletePlaylist": "Êtes-vous sûr de vouloir supprimer \"{playlistTitle}\"?",
   "@confirmDeletePlaylist": {
     "placeholders": {
-      "playlistTitle": {"type": "String"}
+      "playlistTitle": {
+        "type": "String"
+      }
     }
   },
   "searchFavoriteSongsHint": "Rechercher vos chants favoris...",
   "searchWordsOrVersesHint": "Rechercher des mots ou des versets...",
-  "searchBooks": "Rechercher des livres",
   "wholeBible": "Bible entière",
   "audioPlayer": "Lecteur audio",
   "playAudio": "Lire l'audio",
@@ -522,12 +556,12 @@
   "added": "Ajouté",
   "noHymnsAddedYet": "Aucun cantique ajouté pour le moment",
   "errorLoadingHymns": "Erreur lors du chargement des cantiques",
-  "audioAvailable":"Audio disponible",
-  "noAudioAvailable":"Pas d'audio disponible",
-  "searchBible":"Recherche biblique",
-  "enterWordToSearch":"Entrez le mot à rechercher",
-  "noSearchResults":"Aucun résultat de recherche",
-  "changeWordToSearch":"Changer le mot à rechercher",
+  "audioAvailable": "Audio disponible",
+  "noAudioAvailable": "Pas d'audio disponible",
+  "searchBible": "Recherche biblique",
+  "enterWordToSearch": "Entrez le mot à rechercher",
+  "noSearchResults": "Aucun résultat de recherche",
+  "changeWordToSearch": "Changer le mot à rechercher",
   "hymnsCount": "{count,plural, =0{Aucun cantique} =1{1 cantique} other{{count} cantiques}}",
   "@hymnsCount": {
     "description": "Un message qui affiche le nombre de cantiques dans une liste de lecture",
@@ -537,27 +571,32 @@
       }
     }
   },
-  "noChaptersFound":"Aucun chapitre trouvé",
+  "noChaptersFound": "Aucun chapitre trouvé",
   "yourProfile": "Votre profil",
   "usernameLabel": "Nom d'utilisateur: {username}",
   "@usernameLabel": {
     "placeholders": {
-      "username": {"type": "String"}
+      "username": {
+        "type": "String"
+      }
     }
   },
   "userIdLabel": "ID: {userId}",
   "@userIdLabel": {
     "placeholders": {
-      "userId": {"type": "String"}
+      "userId": {
+        "type": "String"
+      }
     }
   },
   "syncInfoMessage1": "Vos cantiques favoris et votre historique sont enregistrés sur votre compte Google.",
   "syncInfoMessage2": "Cela ne sera pas perdu si vous changez de compte.",
-  "unknownUser": "Inconnu",
   "errorOccurredWithDetails": "Une erreur s'est produite: {error}",
   "@errorOccurredWithDetails": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "clearSearch": "Effacer la recherche",
@@ -566,19 +605,25 @@
   "totalCachedHymns": "Total des cantiques mis en cache: {count}",
   "@totalCachedHymns": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "withAudio": "Avec audio: {count}",
   "@withAudio": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "withoutAudio": "Sans audio: {count}",
   "@withoutAudio": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "currentVersion": "Version actuelle",
@@ -586,7 +631,6 @@
   "whatsNew": "Quoi de neuf",
   "upToDate": "À jour",
   "appIsUpToDate": "Votre application est à jour",
-  
   "recordings": "Enregistrements",
   "refreshRecordings": "Actualiser les enregistrements",
   "syncFromGoogleDrive": "Synchroniser depuis Google Drive",
@@ -599,30 +643,22 @@
   "recordingCount": "{count} enregistrement{count,plural, =1{} other{s}}",
   "googleDrive": "Google Drive",
   "signedInAsLabel": "Connecté en tant que:",
-  "close": "Fermer",
   "sync": "Synchroniser",
-  "signOut": "Se déconnecter",
   "hymnDuration": "Cantique {hymnId} • {duration}",
   "public": "Public",
   "uploadToDrive": "Télécharger vers Drive",
   "uploadFailedTapToRetry": "Échec du téléchargement. Appuyez pour réessayer.\nErreur: {error}",
-  "share": "Partager",
-  "download": "Télécharger",
-  "delete": "Supprimer",
   "deleteRecording": "Supprimer l'enregistrement",
   "deleteRecordingConfirmation": "Êtes-vous sûr de vouloir supprimer \"{title}\"? Cette action est irréversible.",
-  "cancel": "Annuler",
   "deleted": "Supprimé",
   "recordingDeletedSuccessfully": "Enregistrement supprimé avec succès",
   "downloadStarted": "Téléchargement démarré",
   "recordingInProgressDialog": "Enregistrement en cours",
   "pleaseStopRecordingBeforePlaying": "Veuillez arrêter l'enregistrement avant de lire.",
+  "stopAndPlay": "Arrêter & Lire",
   "recordingSessionActive": "Session d'enregistrement active",
   "pleaseCloseRecordingOverlayFirst": "Veuillez d'abord fermer l'overlay d'enregistrement.",
   "recordingInProgress": "Enregistrement en cours...",
-  "pause": "Pause",
-  "resume": "Reprendre",
-  "stop": "Arrêter",
   "recordingCompleted": "Enregistrement terminé",
   "recordingSaved": "Enregistrement enregistré avec succès",
   "failedToSaveRecording": "Échec de l'enregistrement: {error}",
@@ -636,7 +672,6 @@
   "driveSignInFailed": "Échec de la connexion à Drive: {error}",
   "driveFileNotFound": "Fichier d'enregistrement introuvable",
   "uploadInProgress": "Téléchargement en cours...",
-  "retry": "Réessayer",
   "storageUsage": "Utilisation du stockage",
   "totalStorageUsed": "Stockage total utilisé: {size}",
   "recordingOverlayTitle": "Enregistrement du cantique {hymnId}",
@@ -664,71 +699,118 @@
   "anErrorOccurredDuringRecording": "Une erreur s'est produite pendant l'enregistrement: {error}",
   "playbackError": "Erreur de lecture",
   "anErrorOccurredDuringPlayback": "Une erreur s'est produite pendant la lecture: {error}",
-  
   "@signedInAs": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "@recordingCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "@hymnDuration": {
     "placeholders": {
-      "hymnId": {"type": "String"},
-      "duration": {"type": "String"}
+      "hymnId": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
     }
   },
   "@uploadFailedTapToRetry": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@deleteRecordingConfirmation": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "@failedToSaveRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@failedToUploadRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@failedToSyncFromDrive": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@totalStorageUsed": {
     "placeholders": {
-      "size": {"type": "String"}
+      "size": {
+        "type": "String"
+      }
     }
   },
   "@recordingOverlayTitle": {
     "placeholders": {
-      "hymnId": {"type": "String"}
+      "hymnId": {
+        "type": "String"
+      }
     }
   },
   "@failedToRenameRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@anErrorOccurredDuringRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@anErrorOccurredDuringPlayback": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "signInWithGoogle": "Se connecter avec Google",
+  "continueAsGuest": "Continuer en tant qu'invité",
+  "signingIn": "Connexion en cours...",
+  "googleSignInFailed": "Échec de la connexion Google",
+  "welcomeBack": "Bon retour",
+  "orDivider": "OU",
+  "skipForNow": "Ignorer pour l'instant",
+  "getStarted": "Commencer",
+  "appFeature1": "Parcourir des milliers de cantiques",
+  "appFeature2": "Enregistrer vos propres versions et des nouveaux cantiques",
+  "appFeature3": "Synchroniser sur tous les appareils",
+  "appFeature4": "Partager avec les autres et la communauté",
+  "continueAs": "Continuer en tant que : {name}",
+  "@continueAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
     }
   }
 }

@@ -1521,6 +1521,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseStopRecordingBeforePlaying => 'Please stop recording before playing.';
 
   @override
+  String get stopAndPlay => 'Stop & Play';
+
+  @override
   String get recordingSessionActive => 'Recording session active';
 
   @override
@@ -1665,5 +1668,46 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String anErrorOccurredDuringPlayback(String error) {
     return 'An error occurred during playback: $error';
+  }
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get continueAsGuest => 'Continue as Guest';
+
+  @override
+  String get signingIn => 'Signing in...';
+
+  @override
+  String get googleSignInFailed => 'Google sign-in failed';
+
+  @override
+  String get welcomeBack => 'Welcome back';
+
+  @override
+  String get orDivider => 'OR';
+
+  @override
+  String get skipForNow => 'Skip for now';
+
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get appFeature1 => 'Browse thousands of hymns';
+
+  @override
+  String get appFeature2 => 'Record your own versions';
+
+  @override
+  String get appFeature3 => 'Sync across devices';
+
+  @override
+  String get appFeature4 => 'Share with community';
+
+  @override
+  String continueAs(String name) {
+    return 'Continue as: $name';
   }
 }
