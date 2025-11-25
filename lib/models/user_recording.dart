@@ -10,6 +10,8 @@ class UserRecording {
   final bool isPublic;
   final String? driveFileId;
   final String? driveWebLink;
+  final String? publicLink;
+  final String? userName;
   final List<String> tags;
 
   UserRecording({
@@ -22,6 +24,8 @@ class UserRecording {
     this.isPublic = false,
     this.driveFileId,
     this.driveWebLink,
+    this.publicLink,
+    this.userName,
     this.tags = const [],
   });
 
@@ -35,6 +39,8 @@ class UserRecording {
     bool? isPublic,
     String? driveFileId,
     String? driveWebLink,
+    String? publicLink,
+    String? userName,
     List<String>? tags,
   }) {
     return UserRecording(
@@ -47,6 +53,8 @@ class UserRecording {
       isPublic: isPublic ?? this.isPublic,
       driveFileId: driveFileId ?? this.driveFileId,
       driveWebLink: driveWebLink ?? this.driveWebLink,
+      publicLink: publicLink ?? this.publicLink,
+      userName: userName ?? this.userName,
       tags: tags ?? this.tags,
     );
   }
@@ -62,6 +70,8 @@ class UserRecording {
       'isPublic': isPublic,
       'driveFileId': driveFileId,
       'driveWebLink': driveWebLink,
+      'publicLink': publicLink,
+      'userName': userName,
       'tags': tags,
     };
   }
@@ -77,6 +87,8 @@ class UserRecording {
       isPublic: map['isPublic'] ?? false,
       driveFileId: map['driveFileId'],
       driveWebLink: map['driveWebLink'],
+      publicLink: map['publicLink'],
+      userName: map['userName'],
       tags: List<String>.from(map['tags'] ?? []),
     );
   }

@@ -8,6 +8,7 @@ import 'package:uuid/uuid.dart';
 import '../models/user_recording.dart';
 import '../services/user_recording_service.dart';
 import '../services/google_drive_service.dart';
+import '../services/public_recording_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/hymn.dart';
 import '../services/audio_service.dart';
@@ -21,6 +22,7 @@ import '../screen/player/audio_player_screen.dart';
 class RecordingController extends GetxController {
   final UserRecordingService _recordingService = UserRecordingService();
   final GoogleDriveService _driveService = GoogleDriveService();
+  final PublicRecordingService _publicService = PublicRecordingService();
   final _uuid = const Uuid();
 
   // Recording state
@@ -40,6 +42,7 @@ class RecordingController extends GetxController {
 
   // Data
   final RxList<UserRecording> recordings = <UserRecording>[].obs;
+  final RxList<UserRecording> publicRecordings = <UserRecording>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isUploading = false.obs;
 
@@ -66,12 +69,13 @@ class RecordingController extends GetxController {
     super.onInit();
     _initServices();
     _loadGuestName();
-    _initServices();
-    _loadGuestName();
     // _setupAudioPlayerListeners(); // No longer needed
 
     // Auto-refresh recordings when page is accessed
     _autoRefreshRecordings();
+
+    // Load public recordings from Firestore
+    refreshPublicRecordings();
 
     // Start periodic refresh to keep recordings in sync
     _startPeriodicRefresh();
@@ -98,6 +102,33 @@ class RecordingController extends GetxController {
     } catch (e) {
       if (kDebugMode) {
         print('Error refreshing recordings: $e');
+      }
+    }
+  }
+
+  Future<List<UserRecording>> loadPublicRecordings({String? hymnId}) async {
+    try {
+      return await _publicService.getPublicRecordings(hymnId: hymnId);
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Load public recordings error: $e');
+      }
+      return [];
+    }
+  }
+
+  Future<void> refreshPublicRecordings({String? hymnId}) async {
+    try {
+      final recordings =
+          await _publicService.getPublicRecordings(hymnId: hymnId);
+      publicRecordings.value = recordings;
+      if (kDebugMode) {
+        print(
+            'RecordingController: Loaded ${recordings.length} public recordings');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Refresh public recordings error: $e');
       }
     }
   }
@@ -912,6 +943,143 @@ class RecordingController extends GetxController {
       Get.snackbar(
         'Error',
         'Failed to export recording: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+
+  Future<void> publishRecording(UserRecording recording) async {
+    try {
+      Get.snackbar(
+        'Publishing',
+        'Making recording public...',
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Get user name from preferences or auth
+      final prefs = await SharedPreferences.getInstance();
+      final userName = prefs.getString('guest_name') ?? guestName.value;
+
+      // Upload to public folder if not already on Drive
+      String? driveFileId = recording.driveFileId;
+      String? publicLink;
+
+      if (driveFileId == null && recording.filePath.isNotEmpty) {
+        // Upload to Drive public folder
+        final file = File(recording.filePath);
+        if (await file.exists()) {
+          driveFileId = await _driveService.uploadFile(
+            file,
+            recording.title,
+            isPublic: true,
+          );
+        }
+      } else if (driveFileId != null) {
+        // Set existing file to public
+        await _driveService.setFilePublic(driveFileId);
+      }
+
+      if (driveFileId != null) {
+        publicLink = await _driveService.getPublicLink(driveFileId);
+      }
+
+      if (driveFileId == null || publicLink == null) {
+        throw Exception('Failed to upload or get public link');
+      }
+
+      // Update recording
+      final updatedRecording = recording.copyWith(
+        isPublic: true,
+        driveFileId: driveFileId,
+        publicLink: publicLink,
+        userName: userName,
+      );
+
+      // Save to Firestore
+      final success = await _publicService.publishRecording(updatedRecording);
+      if (!success) {
+        throw Exception('Failed to publish to Firestore');
+      }
+
+      // Update local recording
+      await _recordingService.updateRecording(updatedRecording);
+      final index = recordings.indexWhere((r) => r.id == recording.id);
+      if (index != -1) {
+        recordings[index] = updatedRecording;
+      }
+
+      // Refresh public recordings list
+      await refreshPublicRecordings();
+
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Success',
+        'Recording is now public!',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Publish error: $e');
+      }
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Error',
+        'Failed to publish recording: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+
+  Future<void> unpublishRecording(UserRecording recording) async {
+    try {
+      Get.snackbar(
+        'Unpublishing',
+        'Making recording private...',
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Remove from Firestore
+      await _publicService.unpublishRecording(recording.id);
+
+      // Update local recording
+      final updatedRecording = recording.copyWith(
+        isPublic: false,
+        publicLink: null,
+      );
+
+      await _recordingService.updateRecording(updatedRecording);
+      final index = recordings.indexWhere((r) => r.id == recording.id);
+      if (index != -1) {
+        recordings[index] = updatedRecording;
+      }
+
+      // Refresh public recordings list
+      await refreshPublicRecordings();
+
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Success',
+        'Recording is now private',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Unpublish error: $e');
+      }
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Error',
+        'Failed to unpublish recording',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withValues(alpha: 0.1),
         colorText: Colors.red,

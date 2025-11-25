@@ -97,8 +97,8 @@ class RecordingManagerScreen extends StatelessWidget {
       body: Obx(() {
         final personalRecordings =
             controller.recordings.where((r) => !r.isPublic).toList();
-        final publicRecordings =
-            controller.recordings.where((r) => r.isPublic).toList();
+        // Load community public recordings from Firestore
+        final publicRecordings = controller.publicRecordings.toList();
 
         // Debug: Print current state
         if (kDebugMode) {
@@ -144,160 +144,110 @@ class RecordingManagerScreen extends StatelessWidget {
 
         return RefreshIndicator(
           onRefresh: () async {
-            // Actually refresh recordings
             await controller.refreshRecordings();
+            await controller.refreshPublicRecordings();
           },
           color: colorController.primaryColor.value,
-          child: ListView.builder(
+          child: ListView(
             padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: _getItemCount(
-                personalRecordings.length, publicRecordings.length),
-            itemBuilder: (context, index) {
-              return _buildItem(context, index, personalRecordings,
-                  publicRecordings, controller, colorController);
-            },
+            children: [
+              // Personal Recordings Section
+              if (personalRecordings.isNotEmpty)
+                ExpansionTile(
+                  initiallyExpanded: false,
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorController.primaryColor.value,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    'Personal Recordings',
+                    style: TextStyle(
+                      color: colorController.textColor.value,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${personalRecordings.length} recording${personalRecordings.length == 1 ? '' : 's'}',
+                    style: TextStyle(
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                  children: personalRecordings.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final recording = entry.value;
+                    return _RecordingTile(
+                      recording: recording,
+                      controller: controller,
+                      colorController: colorController,
+                      index: index,
+                    );
+                  }).toList(),
+                ),
+
+              // Spacing between sections
+              if (personalRecordings.isNotEmpty && publicRecordings.isNotEmpty)
+                const SizedBox(height: 16),
+
+              // Public Recordings Section
+              if (publicRecordings.isNotEmpty)
+                ExpansionTile(
+                  initiallyExpanded: false,
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.public,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  title: Text(
+                    'Public Recordings',
+                    style: TextStyle(
+                      color: colorController.textColor.value,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${publicRecordings.length} recording${publicRecordings.length == 1 ? '' : 's'}',
+                    style: TextStyle(
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                  children: publicRecordings.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final recording = entry.value;
+                    return _RecordingTile(
+                      recording: recording,
+                      controller: controller,
+                      colorController: colorController,
+                      index: index + personalRecordings.length,
+                      isPublic: true,
+                    );
+                  }).toList(),
+                ),
+            ],
           ),
         );
       }),
     );
-  }
-
-  int _getItemCount(int personalCount, int publicCount) {
-    int count = 0;
-    if (personalCount > 0) count += personalCount + 1; // +1 for header
-    if (publicCount > 0) count += publicCount + 1; // +1 for header
-    if (personalCount > 0 && publicCount > 0) count += 1; // +1 for spacing
-    return count;
-  }
-
-  Widget _buildItem(
-      BuildContext context,
-      int index,
-      List<UserRecording> personalRecordings,
-      List<UserRecording> publicRecordings,
-      RecordingController controller,
-      ColorController colorController) {
-    final personalCount = personalRecordings.length;
-    final publicCount = publicRecordings.length;
-
-    // Determine if this index is a header or item
-    int currentIndex = 0;
-
-    // Personal recordings section
-    if (personalCount > 0) {
-      if (currentIndex == index) {
-        return _buildSectionHeader('Personal Recordings', Icons.person,
-            colorController, personalCount);
-      }
-      currentIndex++;
-
-      if (index < currentIndex + personalCount) {
-        final recordingIndex = index - currentIndex;
-        final recording = personalRecordings[recordingIndex];
-        return _RecordingTile(
-          recording: recording,
-          controller: controller,
-          colorController: colorController,
-          index: recordingIndex,
-        );
-      }
-      currentIndex += personalCount;
-    }
-
-    // Spacing between sections
-    if (personalCount > 0 && publicCount > 0) {
-      if (currentIndex == index) {
-        return const SizedBox(height: 16);
-      }
-      currentIndex++;
-    }
-
-    // Public recordings section
-    if (publicCount > 0) {
-      if (currentIndex == index) {
-        return _buildSectionHeader(
-            'Public Recordings', Icons.public, colorController, publicCount);
-      }
-      currentIndex++;
-
-      if (index < currentIndex + publicCount) {
-        final recordingIndex = index - currentIndex;
-        final recording = publicRecordings[recordingIndex];
-        return _RecordingTile(
-          recording: recording,
-          controller: controller,
-          colorController: colorController,
-          index: recordingIndex + personalCount,
-          isPublic: true,
-        );
-      }
-    }
-
-    // Fallback
-    return const SizedBox.shrink();
-  }
-
-  Widget _buildSectionHeader(
-      String title, IconData icon, ColorController colorController, int count) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colorController.primaryColor.value.withValues(alpha: 0.1),
-            colorController.primaryColor.value.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorController.primaryColor.value.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: colorController.primaryColor.value,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              icon,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: colorController.textColor.value,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  '$count recording${count == 1 ? '' : 's'}',
-                  style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.7),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ).animate().slideX(duration: 400.ms, begin: -0.1).fadeIn(duration: 400.ms);
   }
 
   void _showDriveDialog(BuildContext context, RecordingController controller,
