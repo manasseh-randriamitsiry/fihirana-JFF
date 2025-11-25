@@ -141,7 +141,7 @@ class VersionCheckService {
         id: updateNotificationId,
         channelKey: 'basic_channel',
         title: 'Misy rindrambaiko vaovao',
-        body: 'Misy Version vaovao efa azo ampiasaina! Tsindrio raha haka azy.',
+        body: 'Misy Version vaovao efa azo ampiasaina! Tsindrio eto raha haka.',
         payload: {'type': 'in_app_update'},
         color: const Color(0xFF9D50DD),
       ),
@@ -207,7 +207,7 @@ class VersionCheckService {
           channelKey: 'basic_channel',
           title: 'Tsy afaka naka',
           body:
-              'Tsy afaka naka ny rindrambaiko vaovao. Avereno alaina rehefa afaka kelikely.',
+              'Nisy olana fa avereno alaina rehefa afaka kelikely.',
           color: const Color(0xFF9D50DD),
         ),
       );
@@ -227,7 +227,7 @@ class VersionCheckService {
             channelKey: 'basic_channel',
             title: 'Fakàna rindrambaiko',
             body:
-                'Eo apangalana vaovao. Hahazo fampahalalana ianao rehefa vita ny fakàna.',
+                'Mahandrasa kely azafady.',
             payload: {'type': 'flexible_update_complete'},
             color: const Color(0xFF9D50DD),
           ),

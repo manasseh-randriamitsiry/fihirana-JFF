@@ -66,7 +66,7 @@ class ApkDownloadService {
       final hasPermission = await _requestInstallPermission();
       if (!hasPermission) {
         await _showNotification(
-            'Tsy afaka naka', 'Tsy manana alalana ianao hampiditra apk');
+            'Nisy olana', 'Tsy nahazo alalana hampiditra apk');
         return;
       }
 
@@ -125,7 +125,7 @@ class ApkDownloadService {
         print('❌ Download failed: $e');
       }
       await _showNotification('Tsy nety',
-          'Nisy olana teo ampanaovana fanavaozana: ${e.toString()}');
+          'Nisy olana teo ampanavaozana: ${e.toString()}');
     }
   }
 
@@ -177,7 +177,7 @@ class ApkDownloadService {
         print('❌ Install failed: $e');
       }
       await _showNotification(
-          'Tsy nety', 'Tsy afaka mametraka ny fanavaozana: ${e.toString()}');
+          'Nisy olana', 'Tsy afaka nametraka ny fanavaozana: ${e.toString()}');
     }
   }
 
