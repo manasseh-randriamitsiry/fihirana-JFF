@@ -55,7 +55,7 @@ class PubspecService {
     if (kDebugMode) {
       print('Using fallback version: 1.0.9');
     } // Debug print
-    _cachedVersion = '1.0.20';
+    _cachedVersion = '1.0.21';
     return _cachedVersion!;
   }
 
