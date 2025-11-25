@@ -7,6 +7,7 @@ import 'dart:async';
 
 import '../utility/snackbar_utility.dart';
 import '../services/google_drive_service.dart';
+import '../services/security_service.dart';
 
 class AuthController extends GetxController {
   static AuthController get instance => Get.find();
@@ -35,15 +36,29 @@ class AuthController extends GetxController {
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
       if (user != null) {
         _updateUserPermissions(user);
-        
+
         // Ensure user document exists
         await ensureUserDocumentExists();
-        
+
         // Automatically sign in to Google Drive when Firebase auth state changes
         try {
-          await _driveService.signIn();
-          if (kDebugMode) {
-            print('✅ Auto-signed in to Google Drive for user: ${user.displayName}');
+          final account = await _driveService.signIn();
+          if (account != null) {
+            // Check if email is banned before allowing auto sign-in
+            final securityService = SecurityService.instance;
+            final isEmailBanned = await securityService.isEmailBlocked(account.email);
+            
+            if (isEmailBanned) {
+              if (kDebugMode) {
+                print('🚫 Auto sign-in blocked for banned email: ${account.email}');
+              }
+              // Sign out immediately
+              await _driveService.signOut();
+            } else {
+              if (kDebugMode) {
+                print('✅ Auto-signed in to Google Drive for user: ${user.displayName}');
+              }
+            }
           }
         } catch (driveError) {
           if (kDebugMode) {
@@ -55,7 +70,7 @@ class AuthController extends GetxController {
         _permissionSubscription = null;
         _canAddSongs.value = false;
         _isAdmin.value = false;
-        
+
         // Sign out from Google Drive when Firebase signs out
         try {
           await _driveService.signOut();
@@ -78,41 +93,34 @@ class AuthController extends GetxController {
     // Cancel existing subscription if any
     _permissionSubscription?.cancel();
 
-    // Admin check (hardcoded email)
-    if (user.email == 'manassehrandriamitsiry@gmail.com') {
-      _isAdmin.value = true;
-      _canAddSongs.value = true;
-      return;
-    }
-
-    // Set up real-time listener for regular users
+    // Set up real-time listener for all users
     _permissionSubscription =
         _firestore.collection('users').doc(user.uid).snapshots().listen(
       (snapshot) {
         if (snapshot.exists) {
           final data = snapshot.data();
-          _canAddSongs.value = data?['canAddSongs'] ?? false;
+          _canAddSongs.value = (data?['canAddSongs'] ?? false) ||
+              user.email == 'manassehrandriamitsiry@gmail.com';
+          _isAdmin.value = (data?['isAdmin'] ?? false) ||
+              user.email == 'manassehrandriamitsiry@gmail.com';
+
           if (kDebugMode) {
-            print('Permission updated: canAddSongs = ${_canAddSongs.value}');
+            print(
+                'Permission updated: canAddSongs = ${_canAddSongs.value}, isAdmin = ${_isAdmin.value}');
           }
         } else {
-          _canAddSongs.value = false;
+          _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
+          _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
         }
       },
       onError: (error) {
         if (kDebugMode) {
           print('Error listening to user permissions: $error');
         }
-        _canAddSongs.value = false;
+        _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
+        _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
       },
     );
-  }
-
-  Future<void> refreshPermissions() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      _updateUserPermissions(user);
-    }
   }
 
   Future<void> signOut() async {
@@ -132,11 +140,12 @@ class AuthController extends GetxController {
   Future<void> _createOrUpdateUserDocument(User user) async {
     try {
       if (kDebugMode) {
-        print('AuthController: Creating/updating user document for ${user.email}');
+        print(
+            'AuthController: Creating/updating user document for ${user.email}');
         print('AuthController: User UID: ${user.uid}');
         print('AuthController: Email verified: ${user.emailVerified}');
       }
-      
+
       final userDoc = _firestore.collection('users').doc(user.uid);
       final docSnapshot = await userDoc.get();
 
@@ -158,10 +167,9 @@ class AuthController extends GetxController {
         if (kDebugMode) {
           print('AuthController: User document created successfully');
         }
-        
+
         // Double-check that document was created
         await _verifyUserDocumentExists(user.uid);
-        
       } else {
         if (kDebugMode) {
           print('AuthController: Updating existing user document...');
@@ -194,15 +202,16 @@ class AuthController extends GetxController {
       if (kDebugMode) {
         print('AuthController: Verifying user document exists for UID: $uid');
       }
-      
+
       final userDoc = _firestore.collection('users').doc(uid);
       final docSnapshot = await userDoc.get();
-      
+
       if (!docSnapshot.exists) {
         if (kDebugMode) {
-          print('AuthController: User document not found, creating backup document...');
+          print(
+              'AuthController: User document not found, creating backup document...');
         }
-        
+
         // Get current user data
         final currentUser = _auth.currentUser;
         if (currentUser != null) {
@@ -217,14 +226,15 @@ class AuthController extends GetxController {
             'lastLogin': FieldValue.serverTimestamp(),
             'uid': currentUser.uid,
           });
-          
+
           if (kDebugMode) {
             print('AuthController: Backup user document created successfully');
           }
         }
       } else {
         if (kDebugMode) {
-          print('AuthController: User document exists, verification successful');
+          print(
+              'AuthController: User document exists, verification successful');
         }
       }
     } catch (e) {
@@ -268,7 +278,7 @@ class AuthController extends GetxController {
       if (kDebugMode) {
         print('AuthController: Starting Google sign-in process...');
       }
-      
+
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         if (kDebugMode) {
@@ -298,7 +308,8 @@ class AuthController extends GetxController {
 
         if (userCredential.user != null) {
           if (kDebugMode) {
-            print('AuthController: Firebase sign-in successful, creating user document...');
+            print(
+                'AuthController: Firebase sign-in successful, creating user document...');
           }
           await _createOrUpdateUserDocument(userCredential.user!);
         } else {

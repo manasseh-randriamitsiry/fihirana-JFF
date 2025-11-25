@@ -1710,4 +1710,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String continueAs(String name) {
     return 'Hanohy ho: $name';
   }
+
+  @override
+  String get portfolio => 'Mombamomban\'ny mpamorona ?';
 }
