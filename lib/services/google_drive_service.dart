@@ -9,9 +9,8 @@ class GoogleDriveService {
   factory GoogleDriveService() => _instance;
   GoogleDriveService._internal();
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [drive.DriveApi.driveFileScope],
-  );
+  // Use the shared GoogleSignIn instance
+  late final GoogleSignIn _googleSignIn;
 
   GoogleSignInAccount? _currentUser;
   drive.DriveApi? _driveApi;
@@ -24,8 +23,28 @@ class GoogleDriveService {
   String? _privateFolderId;
   String? _publicFolderId;
 
+  // Initialize with the shared GoogleSignIn instance
+  void initialize(GoogleSignIn googleSignIn) {
+    _googleSignIn = googleSignIn;
+  }
+
   Future<GoogleSignInAccount?> signIn() async {
     try {
+      // First try to get current user without prompting
+      _currentUser = _googleSignIn.currentUser;
+      if (_currentUser != null) {
+        await _initializeDriveApi();
+        return _currentUser;
+      }
+      
+      // If no current user, try silent sign-in
+      _currentUser = await _googleSignIn.signInSilently();
+      if (_currentUser != null) {
+        await _initializeDriveApi();
+        return _currentUser;
+      }
+      
+      // If still no user, prompt for sign-in with Drive scopes
       _currentUser = await _googleSignIn.signIn();
       if (_currentUser != null) {
         await _initializeDriveApi();
@@ -33,7 +52,7 @@ class GoogleDriveService {
       return _currentUser;
     } catch (e) {
       if (kDebugMode) {
-        print('Error signing in to Google: $e');
+        print('Error signing in to Google Drive: $e');
       }
       return null;
     }
