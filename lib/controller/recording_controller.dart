@@ -18,6 +18,7 @@ import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
 // We need to import AudioPlayerScreen to navigate to it
 import '../screen/player/audio_player_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class RecordingController extends GetxController {
   final UserRecordingService _recordingService = UserRecordingService();
@@ -651,25 +652,32 @@ class RecordingController extends GetxController {
     return overlayVisible.value;
   }
 
-  // Player Overlay state management
-  final RxBool isPlayerOverlayVisible = false.obs;
-  final RxBool isPlayerMinimized = false.obs;
-  final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
+  void _showStopRecordingDialog(UserRecording recording) {
+    final l10n = AppLocalizations.of(Get.context!);
+    Get.dialog(
+      AlertDialog(
+        title: Text(l10n!.recordingInProgressDialog),
+        content: Text(l10n.pleaseStopRecordingBeforePlaying),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await stopRecording(currentHymnId.value, currentHymnTitle.value);
+              hideOverlay();
+              _proceedWithPlayback(recording);
+            },
+            child: Text(l10n.stopAndPlay),
+          ),
+        ],
+      ),
+    );
+  }
 
-  void showPlayer(UserRecording recording) {
-    // If recording is in progress, do not show player
-    if (isRecording.value) {
-      Get.snackbar(
-          'Recording in progress', 'Please stop recording before playing.');
-      return;
-    }
-
-    if (overlayVisible.value) {
-      Get.snackbar('Recording session active',
-          'Please close the recording overlay first.');
-      return;
-    }
-
+  void _proceedWithPlayback(UserRecording recording) {
     // Create a fake Hymn object for the player screen
     final hymn = Hymn(
       id: recording.id,
@@ -683,12 +691,31 @@ class RecordingController extends GetxController {
     // Navigate to AudioPlayerScreen
     Get.to(() => AudioPlayerScreen(
           hymn: hymn,
-          // We can pass a playlist of 1 item if needed, or just the hymn
           playlist: [hymn],
         ));
 
     // Start playing
     playRecording(recording);
+  }
+
+  // Player Overlay state management
+  final RxBool isPlayerOverlayVisible = false.obs;
+  final RxBool isPlayerMinimized = false.obs;
+  final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
+
+  void showPlayer(UserRecording recording) {
+    // If recording is in progress, ask user to stop
+    if (isRecording.value) {
+      _showStopRecordingDialog(recording);
+      return;
+    }
+
+    // If overlay is visible, close it automatically
+    if (overlayVisible.value) {
+      hideOverlay();
+    }
+
+    _proceedWithPlayback(recording);
   }
 
   void hidePlayer() {

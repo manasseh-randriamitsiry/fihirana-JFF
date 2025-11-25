@@ -655,6 +655,7 @@
   "downloadStarted": "Download started",
   "recordingInProgressDialog": "Recording in progress",
   "pleaseStopRecordingBeforePlaying": "Please stop recording before playing.",
+  "stopAndPlay": "Stop & Play",
   "recordingSessionActive": "Recording session active",
   "pleaseCloseRecordingOverlayFirst": "Please close the recording overlay first.",
   "recordingInProgress": "Recording in progress...",

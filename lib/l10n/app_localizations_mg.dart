@@ -1521,6 +1521,9 @@ class AppLocalizationsMg extends AppLocalizations {
   String get pleaseStopRecordingBeforePlaying => 'Ajanony aloha ny fandrakitra mialohan\'ny mamaky azy.';
 
   @override
+  String get stopAndPlay => 'Ajanona';
+
+  @override
   String get recordingSessionActive => 'Fandrakitra mandeha';
 
   @override
