@@ -11,6 +11,8 @@ import '../../controller/auth_controller.dart';
 import '../../services/google_drive_service.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -35,9 +37,10 @@ class _SplashScreen1State extends State<SplashScreen1> {
   late LiquidController _liquidController;
 
   // Helper getter for Google sign-in status
-  bool get isGoogleUserSignedIn => _googleUserName != null && _googleUserEmail != null;
+  bool get isGoogleUserSignedIn =>
+      _googleUserName != null && _googleUserEmail != null;
 
-@override
+  @override
   void initState() {
     super.initState();
     _checkAgreementStatus();
@@ -161,7 +164,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
     }
   }
 
-Future<void> _handleUsernameSubmit() async {
+  Future<void> _handleUsernameSubmit() async {
     HapticFeedback.mediumImpact();
 
     final username = _usernameController.text.trim();
@@ -171,6 +174,19 @@ Future<void> _handleUsernameSubmit() async {
       Get.snackbar(
         l10n.errorOccurred,
         l10n.enterYourName,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    // Validate username length (4-15 characters)
+    if (username.length < 4 || username.length > 15) {
+      Get.snackbar(
+        l10n.errorOccurred,
+        'Name must be between 4 and 15 characters',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
@@ -735,7 +751,7 @@ Future<void> _handleUsernameSubmit() async {
     );
   }
 
-Widget _buildTermsPage(AppLocalizations l10n) {
+  Widget _buildTermsPage(AppLocalizations l10n) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -932,7 +948,7 @@ Widget _buildTermsPage(AppLocalizations l10n) {
                           duration: 400.ms,
                           curve: Curves.easeOut),
 
-const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
                       // Username Input (only shown when agreement is accepted and not signed in with Google)
                       if (_agreementAccepted && !isGoogleUserSignedIn) ...[
@@ -953,6 +969,7 @@ const SizedBox(height: 20),
                               horizontal: 20, vertical: 4),
                           child: TextField(
                             controller: _usernameController,
+                            maxLength: 15, // Limit to 15 characters
                             style: const TextStyle(
                                 fontSize: 15, color: Colors.black),
                             decoration: InputDecoration(
@@ -962,6 +979,7 @@ const SizedBox(height: 20),
                               prefixIcon: const Icon(Icons.person_outline,
                                   color: Colors.green, size: 22),
                               border: InputBorder.none,
+                              counterText: '', // Hide the default counter
                               contentPadding:
                                   const EdgeInsets.symmetric(vertical: 14),
                             ),
@@ -970,15 +988,80 @@ const SizedBox(height: 20),
                             .animate()
                             .fadeIn(delay: 200.ms, duration: 600.ms)
                             .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+                        // Helper text for character count
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Text(
+                            '${_usernameController.text.trim().length}/15 characters (minimum 4)',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: _usernameController.text.trim().length >= 4
+                                  ? Colors.green.shade700
+                                  : Colors.orange.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+
+                        // Debug info (temporary)
+                        if (kDebugMode) ...[
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Debug Info:',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.red.shade700,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Agreement: $_agreementAccepted',
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.red),
+                                ),
+                                Text(
+                                  'Google signed in: $isGoogleUserSignedIn',
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.red),
+                                ),
+                                Text(
+                                  'Username length: ${_usernameController.text.trim().length}',
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.red),
+                                ),
+                                Text(
+                                  'Show Google btn: ${_agreementAccepted && !isGoogleUserSignedIn && _usernameController.text.trim().length >= 4}',
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.red),
+                                ),
+                                Text(
+                                  'Show Continue btn: ${_agreementAccepted && (isGoogleUserSignedIn || _usernameController.text.trim().length >= 4)}',
+                                  style: const TextStyle(
+                                      fontSize: 10, color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
 
-                      // Google Sign In Button (only shown when agreement is accepted, username is filled, and not signed in)
-                      if (_agreementAccepted && !isGoogleUserSignedIn && _usernameController.text.trim().isNotEmpty) ...[
+                      // Google Sign In Button (only shown when agreement is accepted, username is filled with 4+ chars, and not signed in)
+                      if (_agreementAccepted &&
+                          !isGoogleUserSignedIn &&
+                          _usernameController.text.trim().length >= 4) ...[
                         const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed: !_isSigningIn ? _handleGoogleSignIn : null,
+                            onPressed:
+                                !_isSigningIn ? _handleGoogleSignIn : null,
                             icon: _isSigningIn
                                 ? const SizedBox(
                                     width: 20,
@@ -992,8 +1075,9 @@ const SizedBox(height: 20),
                                 : Image.asset(
                                     'assets/images/google_logo.png',
                                     height: 24,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        const Icon(Icons.login, size: 24),
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(Icons.login, size: 24),
                                   ),
                             label: Text(
                               _isSigningIn
@@ -1014,11 +1098,13 @@ const SizedBox(height: 20),
                               elevation: 8,
                             ),
                           ),
-                        ).animate().fadeIn(delay: 400.ms, duration: 600.ms).scale(
-                            delay: 400.ms,
-                            duration: 400.ms,
-                            curve: Curves.easeOutBack),
-
+                        )
+                            .animate()
+                            .fadeIn(delay: 400.ms, duration: 600.ms)
+                            .scale(
+                                delay: 400.ms,
+                                duration: 400.ms,
+                                curve: Curves.easeOutBack),
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -1029,7 +1115,8 @@ const SizedBox(height: 20),
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               child: Text(
                                 l10n.orDivider,
                                 style: TextStyle(
@@ -1085,7 +1172,8 @@ const SizedBox(height: 20),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         l10n.signedInAsLabel,
@@ -1120,48 +1208,71 @@ const SizedBox(height: 20),
                           )
                               .animate()
                               .fadeIn(delay: 200.ms, duration: 600.ms)
-                              .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+                              .slideY(
+                                  begin: 0.2, end: 0, curve: Curves.easeOut),
 
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: !_isSigningIn
-                                ? isGoogleUserSignedIn
-                                    ? _handleGoogleUserContinue
-                                    : _usernameController.text.trim().isNotEmpty
-                                        ? () async {
-                                            await _handleUsernameSubmit();
-                                          }
-                                        : null
-                                : null,
-                            icon: isGoogleUserSignedIn
-                                ? const Icon(Icons.check_circle, size: 20)
-                                : const Icon(Icons.person_outline, size: 20),
-                            label: Text(
-                              _getContinueButtonText(l10n),
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                        if (isGoogleUserSignedIn ||
+                            _usernameController.text.trim().length >= 4)
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: !_isSigningIn
+                                  ? isGoogleUserSignedIn
+                                      ? _handleGoogleUserContinue
+                                      : _usernameController.text
+                                                  .trim()
+                                                  .length >=
+                                              4
+                                          ? () async {
+                                              await _handleUsernameSubmit();
+                                            }
+                                          : null
+                                  : null,
+                              icon: isGoogleUserSignedIn
+                                  ? const Icon(Icons.check_circle, size: 20)
+                                  : const Icon(Icons.person_outline, size: 20),
+                              label: Text(
+                                _getContinueButtonText(l10n),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    _usernameController.text.trim().length >=
+                                                4 ||
+                                            isGoogleUserSignedIn
+                                        ? Colors.white
+                                        : Colors.grey.shade300,
+                                foregroundColor:
+                                    _usernameController.text.trim().length >=
+                                                4 ||
+                                            isGoogleUserSignedIn
+                                        ? Colors.green.shade700
+                                        : Colors.grey.shade600,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation:
+                                    _usernameController.text.trim().length >=
+                                                4 ||
+                                            isGoogleUserSignedIn
+                                        ? 8
+                                        : 0,
                               ),
                             ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _usernameController.text.trim().isNotEmpty || isGoogleUserSignedIn
-                                  ? Colors.white
-                                  : Colors.grey.shade300,
-                              foregroundColor: _usernameController.text.trim().isNotEmpty || isGoogleUserSignedIn
-                                  ? Colors.green.shade700
-                                  : Colors.grey.shade600,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              elevation: _usernameController.text.trim().isNotEmpty || isGoogleUserSignedIn ? 8 : 0,
-                            ),
-                          ),
-                        ).animate().fadeIn(delay: isGoogleUserSignedIn ? 400.ms : 600.ms, duration: 600.ms).scale(
-                            delay: isGoogleUserSignedIn ? 400.ms : 600.ms,
-                            duration: 400.ms,
-                            curve: Curves.easeOutBack),
+                          )
+                              .animate()
+                              .fadeIn(
+                                  delay: isGoogleUserSignedIn ? 400.ms : 600.ms,
+                                  duration: 600.ms)
+                              .scale(
+                                  delay: isGoogleUserSignedIn ? 400.ms : 600.ms,
+                                  duration: 400.ms,
+                                  curve: Curves.easeOutBack),
                       ],
 
                       const SizedBox(height: 60), // Space for page indicator
