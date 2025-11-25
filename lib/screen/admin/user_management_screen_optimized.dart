@@ -10,17 +10,19 @@ class OptimizedUserManagementScreen extends StatefulWidget {
   const OptimizedUserManagementScreen({super.key});
 
   @override
-  State<OptimizedUserManagementScreen> createState() => _OptimizedUserManagementScreenState();
+  State<OptimizedUserManagementScreen> createState() =>
+      _OptimizedUserManagementScreenState();
 }
 
-class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementScreen>
+class _OptimizedUserManagementScreenState
+    extends State<OptimizedUserManagementScreen>
     with AutomaticKeepAliveClientMixin {
   final ColorController _colorController = Get.find<ColorController>();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final TextEditingController _searchController = TextEditingController();
   String _sortBy = 'recent';
   String _searchQuery = '';
-  
+
   // Virtual scrolling and pagination
   final ScrollController _scrollController = ScrollController();
   final int _pageSize = 25; // Smaller page size for better performance
@@ -29,10 +31,10 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
   bool _hasMore = true;
   final List<Map<String, dynamic>> _users = [];
   final Map<String, int> _hymnCountCache = {};
-  
+
   // Debounced search
   Timer? _searchTimer;
-  
+
   // Performance optimization flags
   bool _isSuperAdmin = false;
   bool _disposed = false;
@@ -43,17 +45,18 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
   @override
   void initState() {
     super.initState();
-    _isSuperAdmin = FirebaseAuth.instance.currentUser?.email == 'manassehrandriamitsiry@gmail.com';
-    
+    _isSuperAdmin = FirebaseAuth.instance.currentUser?.email ==
+        'manassehrandriamitsiry@gmail.com';
+
     _loadUsers();
-    
+
     _searchController.addListener(() {
       _searchTimer?.cancel();
       _searchTimer = Timer(const Duration(milliseconds: 300), () {
         _performSearch(_searchController.text);
       });
     });
-    
+
     _scrollController.addListener(_onScroll);
   }
 
@@ -67,9 +70,9 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
   }
 
   void _onScroll() {
-    if (!_isLoadingMore && 
-        _scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 300 && 
+    if (!_isLoadingMore &&
+        _scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 300 &&
         _hasMore) {
       _loadUsers();
     }
@@ -78,7 +81,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
   // Optimized user loading with minimal data fetching
   Future<void> _loadUsers({bool refresh = false}) async {
     if (_disposed) return;
-    
+
     if (refresh) {
       _lastDocuments.clear();
       _users.clear();
@@ -99,11 +102,15 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
       // Apply search filter server-side if searching
       if (_searchQuery.isNotEmpty) {
         if (_searchQuery.contains('@')) {
-          query = query.where('email', isGreaterThanOrEqualTo: _searchQuery.toLowerCase())
-                      .where('email', isLessThanOrEqualTo: '${_searchQuery.toLowerCase()}\uf8ff');
+          query = query
+              .where('email',
+                  isGreaterThanOrEqualTo: _searchQuery.toLowerCase())
+              .where('email',
+                  isLessThanOrEqualTo: '${_searchQuery.toLowerCase()}\uf8ff');
         } else {
-          query = query.where('displayName', isGreaterThanOrEqualTo: _searchQuery)
-                      .where('displayName', isLessThanOrEqualTo: '$_searchQuery\uf8ff');
+          query = query
+              .where('displayName', isGreaterThanOrEqualTo: _searchQuery)
+              .where('displayName', isLessThanOrEqualTo: '$_searchQuery\uf8ff');
         }
       }
 
@@ -112,7 +119,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
       }
 
       final snapshot = await query.get();
-      
+
       final newUsers = snapshot.docs.map((doc) {
         final userData = doc.data() as Map<String, dynamic>?;
         return <String, dynamic>{
@@ -138,7 +145,9 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
         setState(() => _isLoadingMore = false);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error loading users: $e'), backgroundColor: Colors.red),
+            SnackBar(
+                content: Text('Error loading users: $e'),
+                backgroundColor: Colors.red),
           );
         }
       }
@@ -148,7 +157,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
   // Debounced search implementation
   Future<void> _performSearch(String query) async {
     if (_disposed) return;
-    
+
     final newQuery = query.trim();
     if (newQuery != _searchQuery) {
       setState(() => _searchQuery = newQuery);
@@ -180,8 +189,10 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
     if (_hymnCountCache.containsKey(email)) {
       return _hymnCountCache[email]!;
     }
-    
-    await _preloadHymnCounts([{'email': email}]);
+
+    await _preloadHymnCounts([
+      {'email': email}
+    ]);
     return _hymnCountCache[email] ?? 0;
   }
 
@@ -216,7 +227,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
   Future<void> _updateUserField(String userId, String field, bool value) async {
     try {
       await _firestore.collection('users').doc(userId).update({field: value});
-      
+
       // Update local state immediately for better UX
       final userIndex = _users.indexWhere((u) => u['id'] == userId);
       if (userIndex != -1) {
@@ -227,17 +238,21 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error updating user: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error updating user: $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
   }
 
   // Toggle admin status (super admin only)
-  Future<void> _toggleAdminStatus(String userId, String displayName, bool currentStatus) async {
+  Future<void> _toggleAdminStatus(
+      String userId, String displayName, bool currentStatus) async {
     final confirmed = await _showConfirmationDialog(
       title: currentStatus ? 'Remove Admin Access' : 'Grant Admin Access',
-      content: 'Are you sure you want to ${currentStatus ? 'remove admin access from' : 'make'} $displayName an ${currentStatus ? 'regular user' : 'admin'}?',
+      content:
+          'Are you sure you want to ${currentStatus ? 'remove admin access from' : 'make'} $displayName an ${currentStatus ? 'regular user' : 'admin'}?',
       confirmText: currentStatus ? 'Remove' : 'Make Admin',
       confirmColor: currentStatus ? Colors.red : Colors.green,
     );
@@ -245,16 +260,19 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
     if (confirmed == true) {
       await _updateUserField(userId, 'isAdmin', !currentStatus);
       if (mounted) {
-        _showSuccessSnackBar('Successfully ${!currentStatus ? 'granted admin access to' : 'removed admin access from'} $displayName');
+        _showSuccessSnackBar(
+            'Successfully ${!currentStatus ? 'granted admin access to' : 'removed admin access from'} $displayName');
       }
     }
   }
 
   // Toggle user disabled status
-  Future<void> _toggleUserDisabled(String userId, String displayName, bool currentStatus) async {
+  Future<void> _toggleUserDisabled(
+      String userId, String displayName, bool currentStatus) async {
     final confirmed = await _showConfirmationDialog(
       title: currentStatus ? 'Enable User' : 'Disable User',
-      content: 'Are you sure you want to ${currentStatus ? 'enable' : 'disable'} $displayName? ${!currentStatus ? 'This will prevent them from accessing app.' : ''}',
+      content:
+          'Are you sure you want to ${currentStatus ? 'enable' : 'disable'} $displayName? ${!currentStatus ? 'This will prevent them from accessing app.' : ''}',
       confirmText: currentStatus ? 'Enable' : 'Disable',
       confirmColor: currentStatus ? Colors.green : Colors.red,
     );
@@ -265,7 +283,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           'disabled': !currentStatus,
           if (!currentStatus) 'disabledAt': FieldValue.serverTimestamp(),
         });
-        
+
         // Update local state
         final userIndex = _users.indexWhere((u) => u['id'] == userId);
         if (userIndex != -1) {
@@ -273,14 +291,17 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
             _users[userIndex]['disabled'] = !currentStatus;
           });
         }
-        
+
         if (mounted) {
-          _showSuccessSnackBar('Successfully ${currentStatus ? 'enabled' : 'disabled'} $displayName');
+          _showSuccessSnackBar(
+              'Successfully ${currentStatus ? 'enabled' : 'disabled'} $displayName');
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error updating user: $e'), backgroundColor: Colors.red),
+            SnackBar(
+                content: Text('Error updating user: $e'),
+                backgroundColor: Colors.red),
           );
         }
       }
@@ -331,41 +352,49 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-               title: Text('⚠️ PERMANENT ACTION - Delete All User Data', 
-                        style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-               content: SingleChildScrollView(
-                 child: Column(
-                   mainAxisSize: MainAxisSize.min,
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     Text('This will PERMANENTLY delete ALL data for $displayName ($email):'),
-                     const SizedBox(height: 12),
-                     Container(
-                       padding: const EdgeInsets.all(8),
-                       decoration: BoxDecoration(
-                         color: Colors.red.withValues(alpha: 0.1),
-                         borderRadius: BorderRadius.circular(8),
-                         border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-                       ),
-                       child: const Text('⚠️ This action CANNOT be undone and will affect user experience permanently!', 
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 11)),
-                     ),
-                     const SizedBox(height: 12),
-                     TextField(
-                       controller: confirmationController,
-                       decoration: const InputDecoration(
-                         hintText: 'Type "YES" to confirm',
-                         border: OutlineInputBorder(),
-                         hintStyle: TextStyle(color: Colors.grey),
-                       ),
-                     ),
-                   ],
-                 ),
-               ),
+              title: Text('⚠️ PERMANENT ACTION - Delete All User Data',
+                  style: const TextStyle(
+                      color: Colors.red, fontWeight: FontWeight.bold)),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                        'This will PERMANENTLY delete ALL data for $displayName ($email):'),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                            color: Colors.red.withValues(alpha: 0.3)),
+                      ),
+                      child: const Text(
+                          '⚠️ This action CANNOT be undone and will affect user experience permanently!',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                              fontSize: 11)),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: confirmationController,
+                      decoration: const InputDecoration(
+                        hintText: 'Type "YES" to confirm',
+                        border: OutlineInputBorder(),
+                        hintStyle: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+                  child: const Text('Cancel',
+                      style: TextStyle(color: Colors.grey)),
                 ),
                 TextButton(
                   onPressed: () {
@@ -381,8 +410,9 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                       );
                     }
                   },
-                  child: const Text('DELETE EVERYTHING', 
-                             style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  child: const Text('DELETE EVERYTHING',
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold)),
                 ),
               ],
             );
@@ -410,13 +440,13 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
 
     try {
       final batch = _firestore.batch();
-      
+
       // 1. Delete all hymns created by this user
       final hymnsSnapshot = await _firestore
           .collection('hymns')
           .where('createdByEmail', isEqualTo: email)
           .get();
-      
+
       for (var doc in hymnsSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -426,7 +456,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('favorites')
           .where('userId', isEqualTo: userId)
           .get();
-      
+
       for (var doc in favoritesSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -436,7 +466,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('history')
           .where('userId', isEqualTo: userId)
           .get();
-      
+
       for (var doc in historySnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -446,7 +476,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('recordings')
           .where('uploadedBy', isEqualTo: email)
           .get();
-      
+
       for (var doc in recordingsSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -456,7 +486,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('user_recordings')
           .where('userId', isEqualTo: userId)
           .get();
-      
+
       for (var doc in userRecordingsSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -466,7 +496,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('playlists')
           .where('userId', isEqualTo: userId)
           .get();
-      
+
       for (var doc in playlistsSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -476,7 +506,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('shared_links')
           .where('createdBy', isEqualTo: email)
           .get();
-      
+
       for (var doc in sharedLinksSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -486,7 +516,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('announcements')
           .where('createdBy', isEqualTo: email)
           .get();
-      
+
       for (var doc in announcementsSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -496,7 +526,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('user_settings')
           .where('userId', isEqualTo: userId)
           .get();
-      
+
       for (var doc in userSettingsSnapshot.docs) {
         batch.delete(doc.reference);
       }
@@ -506,7 +536,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           .collection('blocked_emails')
           .doc(email.toLowerCase().trim())
           .get();
-      
+
       if (blockedEmailDoc.exists) {
         batch.delete(blockedEmailDoc.reference);
       }
@@ -517,7 +547,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
         'disabled': true,
         'permanentlyBlocked': true,
         'blockedAt': FieldValue.serverTimestamp(),
-        'blockedReason': 'Super admin action - All data deleted and account permanently blocked',
+        'blockedReason':
+            'Super admin action - All data deleted and account permanently blocked',
         'deletedDataCount': hymnsSnapshot.docs.length,
         'deletedRecordingsCount': recordingsSnapshot.docs.length,
         'deletedUserRecordingsCount': userRecordingsSnapshot.docs.length,
@@ -526,14 +557,14 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
         'deletedAnnouncementsCount': announcementsSnapshot.docs.length,
         'deletedFavoritesCount': favoritesSnapshot.docs.length,
         'deletedHistoryCount': historySnapshot.docs.length,
-        'totalDeletedItems': hymnsSnapshot.docs.length + 
-                           recordingsSnapshot.docs.length + 
-                           userRecordingsSnapshot.docs.length + 
-                           playlistsSnapshot.docs.length + 
-                           sharedLinksSnapshot.docs.length + 
-                           announcementsSnapshot.docs.length + 
-                           favoritesSnapshot.docs.length + 
-                           historySnapshot.docs.length,
+        'totalDeletedItems': hymnsSnapshot.docs.length +
+            recordingsSnapshot.docs.length +
+            userRecordingsSnapshot.docs.length +
+            playlistsSnapshot.docs.length +
+            sharedLinksSnapshot.docs.length +
+            announcementsSnapshot.docs.length +
+            favoritesSnapshot.docs.length +
+            historySnapshot.docs.length,
       });
 
       // Execute all operations
@@ -545,15 +576,15 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
       }
 
       if (!mounted) return;
-      
-      final totalDeleted = hymnsSnapshot.docs.length + 
-                          recordingsSnapshot.docs.length + 
-                          userRecordingsSnapshot.docs.length + 
-                          playlistsSnapshot.docs.length + 
-                          sharedLinksSnapshot.docs.length + 
-                          announcementsSnapshot.docs.length + 
-                          favoritesSnapshot.docs.length + 
-                          historySnapshot.docs.length;
+
+      final totalDeleted = hymnsSnapshot.docs.length +
+          recordingsSnapshot.docs.length +
+          userRecordingsSnapshot.docs.length +
+          playlistsSnapshot.docs.length +
+          sharedLinksSnapshot.docs.length +
+          announcementsSnapshot.docs.length +
+          favoritesSnapshot.docs.length +
+          historySnapshot.docs.length;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -570,9 +601,9 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
     } catch (e) {
       // Close loading dialog
       if (mounted) Navigator.of(context).pop();
-      
+
       if (!mounted) return;
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('❌ Error deleting user data: $e'),
@@ -597,7 +628,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
     final canAddSongs = userData['canAddSongs'] as bool? ?? false;
     final isAdmin = userData['isAdmin'] as bool? ?? false;
     final isDisabled = userData['disabled'] as bool? ?? false;
-    final isPermanentlyBlocked = userData['permanentlyBlocked'] as bool? ?? false;
+    final isPermanentlyBlocked =
+        userData['permanentlyBlocked'] as bool? ?? false;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -621,10 +653,13 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                 CircleAvatar(
                   radius: 16,
                   backgroundColor: primaryColor.withValues(alpha: 0.1),
-                  backgroundImage: photoURL != null ? NetworkImage(photoURL) : null,
+                  backgroundImage:
+                      photoURL != null ? NetworkImage(photoURL) : null,
                   child: photoURL == null
                       ? Text(
-                          displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
+                          displayName.isNotEmpty
+                              ? displayName[0].toUpperCase()
+                              : '?',
                           style: TextStyle(
                             color: primaryColor,
                             fontWeight: FontWeight.bold,
@@ -634,7 +669,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                       : null,
                 ),
                 const SizedBox(width: 12),
-                
+
                 // User info
                 Expanded(
                   child: Column(
@@ -646,7 +681,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                           color: textColor,
                           fontWeight: FontWeight.w600,
                           fontSize: 13,
-                          decoration: isDisabled ? TextDecoration.lineThrough : null,
+                          decoration:
+                              isDisabled ? TextDecoration.lineThrough : null,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -663,7 +699,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                     ],
                   ),
                 ),
-                
+
                 // Status indicators and controls
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -671,7 +707,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                     // Status badges
                     if (isPermanentlyBlocked)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 1),
                         decoration: BoxDecoration(
                           color: Colors.purple.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
@@ -680,14 +717,15 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                       )
                     else if (isDisabled)
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 4, vertical: 1),
                         decoration: BoxDecoration(
                           color: Colors.red.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text('⛔', style: TextStyle(fontSize: 8)),
                       ),
-                    
+
                     // Hymn count (minimal)
                     FutureBuilder<int>(
                       future: _getHymnCount(email),
@@ -696,7 +734,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                         if (count == 0) return const SizedBox.shrink();
                         return Container(
                           margin: const EdgeInsets.only(left: 4),
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 1),
                           decoration: BoxDecoration(
                             color: primaryColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
@@ -712,40 +751,45 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                         );
                       },
                     ),
-                    
+
                     // Compact controls
                     const SizedBox(width: 8),
                     _buildMiniSwitch(
                       value: canAddSongs,
-                      onChanged: (val) => _updateUserField(userId, 'canAddSongs', val),
+                      onChanged: (val) =>
+                          _updateUserField(userId, 'canAddSongs', val),
                       activeColor: primaryColor,
                     ),
-                    
+
                     if (_isSuperAdmin) ...[
                       const SizedBox(width: 4),
                       _buildMiniSwitch(
                         value: isAdmin,
-                        onChanged: (val) => _toggleAdminStatus(userId, displayName, isAdmin),
+                        onChanged: (val) =>
+                            _toggleAdminStatus(userId, displayName, isAdmin),
                         activeColor: Colors.orange,
                       ),
                       const SizedBox(width: 4),
                       _buildMiniSwitch(
                         value: !isDisabled,
-                        onChanged: (val) => _toggleUserDisabled(userId, displayName, isDisabled),
+                        onChanged: (val) => _toggleUserDisabled(
+                            userId, displayName, isDisabled),
                         activeColor: Colors.green,
                         inactiveColor: Colors.red,
                       ),
                       if (!isPermanentlyBlocked) ...[
                         const SizedBox(width: 4),
                         GestureDetector(
-                          onTap: () => _deleteAllUserDataAndBlock(userId, displayName, email),
+                          onTap: () => _deleteAllUserDataAndBlock(
+                              userId, displayName, email),
                           child: Container(
                             width: 24,
                             height: 24,
                             decoration: BoxDecoration(
                               color: Colors.red.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
-                              border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                              border: Border.all(
+                                  color: Colors.red.withValues(alpha: 0.3)),
                             ),
                             child: const Icon(
                               Icons.delete_forever,
@@ -763,7 +807,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           ),
         ),
       ),
-    ).animate().fadeIn(duration: const Duration(milliseconds: 150)).slideX(begin: -0.05, end: 0, duration: const Duration(milliseconds: 150));
+    ).animate().fadeIn(duration: const Duration(milliseconds: 150)).slideX(
+        begin: -0.05, end: 0, duration: const Duration(milliseconds: 150));
   }
 
   // Ultra-compact switch widget
@@ -776,13 +821,17 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
     return GestureDetector(
       onTap: () => onChanged(!value),
       child: Container(
-        width: 24,
-        height: 14,
+        width: 40,
+        height: 24,
         decoration: BoxDecoration(
-          color: value ? activeColor.withValues(alpha: 0.3) : (inactiveColor ?? Colors.grey).withValues(alpha: 0.2),
-          borderRadius: BorderRadius.circular(7),
+          color: value
+              ? activeColor.withValues(alpha: 0.3)
+              : (inactiveColor ?? Colors.grey).withValues(alpha: 0.2),
+          borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: value ? activeColor : (inactiveColor ?? Colors.grey).withValues(alpha: 0.5),
+            color: value
+                ? activeColor
+                : (inactiveColor ?? Colors.grey).withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -790,8 +839,9 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
           duration: const Duration(milliseconds: 200),
           alignment: value ? Alignment.centerRight : Alignment.centerLeft,
           child: Container(
-            width: 10,
-            height: 10,
+            width: 18,
+            height: 18,
+            margin: const EdgeInsets.symmetric(horizontal: 2),
             decoration: BoxDecoration(
               color: value ? activeColor : (inactiveColor ?? Colors.grey),
               shape: BoxShape.circle,
@@ -819,7 +869,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: backgroundColor,
-              border: Border(bottom: BorderSide(color: textColor.withValues(alpha: 0.1))),
+              border: Border(
+                  bottom: BorderSide(color: textColor.withValues(alpha: 0.1))),
             ),
             child: Row(
               children: [
@@ -835,13 +886,18 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                       style: TextStyle(color: textColor, fontSize: 14),
                       decoration: InputDecoration(
                         hintText: 'Search users...',
-                        hintStyle: TextStyle(color: textColor.withValues(alpha: 0.5), fontSize: 14),
+                        hintStyle: TextStyle(
+                            color: textColor.withValues(alpha: 0.5),
+                            fontSize: 14),
                         border: InputBorder.none,
-                        prefixIcon: Icon(Icons.search, color: iconColor, size: 20),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        prefixIcon:
+                            Icon(Icons.search, color: iconColor, size: 20),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
                         suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
-                                icon: Icon(Icons.clear, color: iconColor, size: 18),
+                                icon: Icon(Icons.clear,
+                                    color: iconColor, size: 18),
                                 onPressed: () {
                                   _searchController.clear();
                                   _performSearch('');
@@ -872,19 +928,23 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                     itemBuilder: (BuildContext context) => [
                       PopupMenuItem<String>(
                         value: 'recent',
-                        child: Text('Recent', style: TextStyle(color: textColor, fontSize: 14)),
+                        child: Text('Recent',
+                            style: TextStyle(color: textColor, fontSize: 14)),
                       ),
                       PopupMenuItem<String>(
                         value: 'old',
-                        child: Text('Oldest', style: TextStyle(color: textColor, fontSize: 14)),
+                        child: Text('Oldest',
+                            style: TextStyle(color: textColor, fontSize: 14)),
                       ),
                       PopupMenuItem<String>(
                         value: 'name',
-                        child: Text('Name', style: TextStyle(color: textColor, fontSize: 14)),
+                        child: Text('Name',
+                            style: TextStyle(color: textColor, fontSize: 14)),
                       ),
                       PopupMenuItem<String>(
                         value: 'created',
-                        child: Text('Created', style: TextStyle(color: textColor, fontSize: 14)),
+                        child: Text('Created',
+                            style: TextStyle(color: textColor, fontSize: 14)),
                       ),
                     ],
                   ),
@@ -899,7 +959,7 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
             child: Row(
               children: [
                 Text(
-                  _searchQuery.isEmpty 
+                  _searchQuery.isEmpty
                       ? 'Loaded: ${_users.length}${_hasMore ? '+' : ''} users'
                       : 'Found: ${_users.length}${_hasMore ? '+' : ''} users',
                   style: TextStyle(
@@ -945,12 +1005,21 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                             Icon(Icons.people_outline,
                                     size: 64,
                                     color: textColor.withValues(alpha: 0.3))
-                                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                                .scale(duration: const Duration(seconds: 2), begin: const Offset(1, 1), end: const Offset(1.1, 1.1)),
+                                .animate(
+                                    onPlay: (controller) =>
+                                        controller.repeat(reverse: true))
+                                .scale(
+                                    duration: const Duration(seconds: 2),
+                                    begin: const Offset(1, 1),
+                                    end: const Offset(1.1, 1.1)),
                             const SizedBox(height: 16),
                             Text(
-                              _searchQuery.isEmpty ? 'No users found' : 'No users match "$_searchQuery"',
-                              style: TextStyle(color: textColor.withValues(alpha: 0.7), fontSize: 16),
+                              _searchQuery.isEmpty
+                                  ? 'No users found'
+                                  : 'No users match "$_searchQuery"',
+                              style: TextStyle(
+                                  color: textColor.withValues(alpha: 0.7),
+                                  fontSize: 16),
                             ),
                           ],
                         ),
@@ -968,7 +1037,8 @@ class _OptimizedUserManagementScreenState extends State<OptimizedUserManagementS
                           }
 
                           final userData = _users[index];
-                          return _buildUltraCompactUserCard(userData, textColor, primaryColor, backgroundColor);
+                          return _buildUltraCompactUserCard(userData, textColor,
+                              primaryColor, backgroundColor);
                         },
                       ),
           ),

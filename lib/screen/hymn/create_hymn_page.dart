@@ -371,8 +371,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       String message;
       if (authController.canAddSongs &&
           authController.remainingHymnsThisMonth <= 0) {
-        message =
-            "You have reached the monthly limit of 5 hymns. Please wait for next month or contact admin.";
+        message = "5 ihany no hira afaka ampidirina isambolana.";
       } else {
         message = l10n.noPermissionToCreate(user?.email ?? '');
       }

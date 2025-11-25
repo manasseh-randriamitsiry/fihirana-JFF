@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth_controller.dart';
-// import 'package:just_audio/just_audio.dart'; // Removed unused import
 import 'package:uuid/uuid.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../models/user_recording.dart';
 import '../services/user_recording_service.dart';
 import '../services/google_drive_service.dart';
@@ -18,7 +18,6 @@ import 'package:fihirana/services/local_audio_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
-// We need to import AudioPlayerScreen to navigate to it
 import '../screen/player/audio_player_screen.dart';
 import '../l10n/app_localizations.dart';
 import '../services/security_service.dart';
@@ -34,15 +33,6 @@ class RecordingController extends GetxController {
   final RxBool isPaused = false.obs;
   final RxInt recordDuration = 0.obs;
   Timer? _timer;
-
-  // Playback state
-  // Removed internal AudioPlayer as we now use AudioService
-  // final AudioPlayer _audioPlayer = AudioPlayer();
-  // final RxBool isPlaying = false.obs;
-  // final RxString currentPlayingId = ''.obs;
-  // final Rx<Duration> currentPosition = Duration.zero.obs;
-  // final Rx<Duration> totalDuration = Duration.zero.obs;
-  // final RxDouble playbackSpeed = 1.0.obs;
 
   // Data
   final RxList<UserRecording> recordings = <UserRecording>[].obs;
@@ -96,7 +86,8 @@ class RecordingController extends GetxController {
       final authController = Get.find<AuthController>();
       _driveService = authController.driveService;
       if (kDebugMode) {
-        print('RecordingController: Drive service initialized from AuthController');
+        print(
+            'RecordingController: Drive service initialized from AuthController');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -216,15 +207,11 @@ class RecordingController extends GetxController {
     try {
       final currentUser = await _driveService.signInSilently();
       if (currentUser != null) {
-        isDriveSignedIn.value = true;
-        userEmail.value = currentUser.email;
         if (kDebugMode) {
           print(
               'RecordingController: Periodic check found Drive account: ${currentUser.email}');
         }
-
-        // Auto-sync when account is detected
-        await syncFromDrive();
+        await _validateDriveUser(currentUser);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -247,13 +234,13 @@ class RecordingController extends GetxController {
       print(
           'RecordingController: Page became visible, refreshing recordings...');
     }
-    
+
     // Ensure Drive service is properly initialized
     _initializeDriveService();
-    
+
     // Check Drive status and sync if needed
     _checkDriveStatusAndSync();
-    
+
     _autoRefreshRecordings();
   }
 
@@ -263,24 +250,13 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('RecordingController: Checking Drive service status...');
         print('RecordingController: Current user: ${currentUser?.email}');
-        print('RecordingController: isDriveSignedIn before: ${isDriveSignedIn.value}');
       }
-      
-      if (currentUser != null) {
-        isDriveSignedIn.value = true;
-        userEmail.value = currentUser.email;
-        if (kDebugMode) {
-          print(
-              'RecordingController: Using shared Drive account: ${currentUser.email}');
-          print('RecordingController: isDriveSignedIn after: ${isDriveSignedIn.value}');
-        }
 
-        // Auto-sync recordings from Drive
-        await syncFromDrive();
+      if (currentUser != null) {
+        await _validateDriveUser(currentUser);
       } else {
         if (kDebugMode) {
-          print(
-              'RecordingController: No existing Google Drive account found');
+          print('RecordingController: No existing Google Drive account found');
         }
       }
     } catch (e) {
@@ -323,20 +299,10 @@ class RecordingController extends GetxController {
         if (kDebugMode) {
           print('RecordingController: Checking Drive service status...');
           print('RecordingController: Current user: ${currentUser?.email}');
-          print('RecordingController: isDriveSignedIn before: ${isDriveSignedIn.value}');
         }
-        
-        if (currentUser != null) {
-          isDriveSignedIn.value = true;
-          userEmail.value = currentUser.email;
-          if (kDebugMode) {
-            print(
-                'RecordingController: Using shared Drive account: ${currentUser.email}');
-            print('RecordingController: isDriveSignedIn after: ${isDriveSignedIn.value}');
-          }
 
-          // Auto-sync recordings from Drive
-          await syncFromDrive();
+        if (currentUser != null) {
+          await _validateDriveUser(currentUser);
         } else {
           if (kDebugMode) {
             print(
@@ -356,6 +322,59 @@ class RecordingController extends GetxController {
     } catch (e) {
       if (kDebugMode) {
         print('Error initializing services: $e');
+      }
+    }
+  }
+
+  // Helper to validate Drive user and set permissions
+  Future<void> _validateDriveUser(GoogleSignInAccount user) async {
+    try {
+      // Check if email is banned
+      final securityService = SecurityService.instance;
+      final isEmailBanned = await securityService.isEmailBlocked(user.email);
+
+      if (isEmailBanned) {
+        if (kDebugMode) {
+          print(
+              'RecordingController: Email ${user.email} is banned, denying access');
+        }
+
+        // Sign out immediately and deny access
+        await _driveService.signOut();
+        isDriveSignedIn.value = false;
+        userEmail.value = null;
+        await _setShareAudioPreference(false);
+
+        // Only show snackbar if we're in a visible context (not background init)
+        if (Get.context != null) {
+          Get.snackbar(
+            'Access Denied',
+            'This email is not allowed to share audio content.',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+        }
+        return;
+      }
+
+      // User is valid
+      isDriveSignedIn.value = true;
+      userEmail.value = user.email;
+
+      // Allow sharing for non-banned emails
+      await _setShareAudioPreference(true);
+
+      if (kDebugMode) {
+        print('RecordingController: Validated Drive account: ${user.email}');
+        print('RecordingController: Audio sharing enabled');
+      }
+
+      // Auto-sync recordings from Drive
+      await syncFromDrive();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error validating Drive user: $e');
       }
     }
   }
@@ -392,7 +411,7 @@ class RecordingController extends GetxController {
     if (!await _checkUserCanRecord()) {
       return;
     }
-    
+
     await _recordingService.startRecording(hymnId);
     isRecording.value = true;
     isPaused.value = false;
@@ -513,45 +532,7 @@ class RecordingController extends GetxController {
     try {
       final account = await _driveService.signIn();
       if (account != null) {
-        // Check if email is banned before allowing sign-in
-        final securityService = SecurityService.instance;
-        final isEmailBanned = await securityService.isEmailBlocked(account.email);
-        
-        if (isEmailBanned) {
-          if (kDebugMode) {
-            print('RecordingController: Email ${account.email} is banned, denying access');
-          }
-          
-          // Sign out immediately and deny access
-          await _driveService.signOut();
-          isDriveSignedIn.value = false;
-          userEmail.value = null;
-          await _setShareAudioPreference(false);
-          
-          Get.snackbar(
-            'Access Denied',
-            'This email is not allowed to share audio content.',
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            duration: const Duration(seconds: 3),
-          );
-          return;
-        }
-        
-        isDriveSignedIn.value = true;
-        userEmail.value = account.email;
-        
-        // Allow sharing for non-banned emails
-        await _setShareAudioPreference(true);
-
-        if (kDebugMode) {
-          print(
-              'RecordingController: Manual sign-in successful for ${account.email}');
-          print('RecordingController: Audio sharing enabled for ${account.email}');
-        }
-
-        // Auto-sync after successful sign-in
-        await syncFromDrive();
+        await _validateDriveUser(account);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -575,7 +556,7 @@ class RecordingController extends GetxController {
     if (!await _checkUserCanRecord()) {
       return;
     }
-    
+
     // Check if user is allowed to share audio
     if (!allowToShareAudio.value) {
       uploadErrors[recording.id] = 'You are not allowed to share audio content';
@@ -588,7 +569,7 @@ class RecordingController extends GetxController {
       );
       return;
     }
-    
+
     // Remove any existing error for this recording
     uploadErrors.remove(recording.id);
 
@@ -665,19 +646,19 @@ class RecordingController extends GetxController {
   String? getUploadError(String recordingId) {
     return uploadErrors[recordingId];
   }
-  
+
   // Security check to prevent banned users from recording (but allow guests)
   Future<bool> _checkUserCanRecord() async {
     final SecurityService securityService = SecurityService.instance;
-    
+
     // Check if user is authenticated via Firebase
     final isFirebaseAuthenticated = FirebaseAuth.instance.currentUser != null;
-    
+
     // Check if user is authenticated via Google Drive
     final isGoogleDriveAuthenticated = _driveService.currentUser != null;
-    
+
     // Allow all users (including guests) to record - no authentication required for recording
-    
+
     // Check Firebase user security if authenticated via Firebase
     if (isFirebaseAuthenticated) {
       await securityService.checkUserSecurity();
@@ -696,15 +677,17 @@ class RecordingController extends GetxController {
         return false;
       }
     }
-    
+
     // Check Google Drive user email if authenticated via Google Drive
     if (isGoogleDriveAuthenticated) {
       final googleUserEmail = _driveService.currentUser?.email;
       if (googleUserEmail != null) {
-        final isEmailBlocked = await securityService.isEmailBlocked(googleUserEmail);
+        final isEmailBlocked =
+            await securityService.isEmailBlocked(googleUserEmail);
         if (isEmailBlocked) {
           if (kDebugMode) {
-            print('🚫 Blocked Google Drive user attempted to record/publish: $googleUserEmail');
+            print(
+                '🚫 Blocked Google Drive user attempted to record/publish: $googleUserEmail');
           }
           Get.snackbar(
             'Access Denied',
@@ -718,7 +701,7 @@ class RecordingController extends GetxController {
         }
       }
     }
-    
+
     // All users (including guests) are allowed to record
     return true;
   }
@@ -733,9 +716,10 @@ class RecordingController extends GetxController {
   Future<void> syncFromDrive() async {
     if (kDebugMode) {
       print('RecordingController: syncFromDrive() called');
-      print('RecordingController: isDriveSignedIn.value = ${isDriveSignedIn.value}');
+      print(
+          'RecordingController: isDriveSignedIn.value = ${isDriveSignedIn.value}');
     }
-    
+
     if (!isDriveSignedIn.value) {
       if (kDebugMode) {
         print('Cannot sync from Drive: Not signed in');
@@ -948,7 +932,7 @@ class RecordingController extends GetxController {
     if (!await _checkUserCanRecord()) {
       return;
     }
-    
+
     try {
       // Check if already exists
       if (recording.filePath.isNotEmpty &&
@@ -1037,7 +1021,7 @@ class RecordingController extends GetxController {
     if (!await _checkUserCanRecord()) {
       return;
     }
-    
+
     try {
       String? filePath = recording.filePath;
       bool fileExists = filePath.isNotEmpty && await File(filePath).exists();
@@ -1113,7 +1097,7 @@ class RecordingController extends GetxController {
     if (!await _checkUserCanRecord()) {
       return;
     }
-    
+
     try {
       String? filePath = recording.filePath;
 
@@ -1203,7 +1187,7 @@ class RecordingController extends GetxController {
     if (!await _checkUserCanRecord()) {
       return;
     }
-    
+
     try {
       Get.snackbar(
         'Publishing',
