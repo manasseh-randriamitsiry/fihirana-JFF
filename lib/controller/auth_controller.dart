@@ -12,21 +12,25 @@ class AuthController extends GetxController {
   static AuthController get instance => Get.find();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn googleSignIn = GoogleSignIn(
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  );
   final Rx<bool> _canAddSongs = false.obs;
   final Rx<bool> _isAdmin = false.obs;
   StreamSubscription<DocumentSnapshot>? _permissionSubscription;
+  late final GoogleDriveService _driveService;
 
   bool get canAddSongs => _canAddSongs.value;
   bool get isAdmin => _isAdmin.value;
+  GoogleDriveService get driveService => _driveService;
 
   @override
   void onInit() {
     super.onInit();
 
     // Initialize Google Drive service with shared GoogleSignIn instance
-    final driveService = GoogleDriveService();
-    driveService.initialize(_googleSignIn);
+    _driveService = GoogleDriveService();
+    _driveService.initialize(googleSignIn);
 
     FirebaseAuth.instance.authStateChanges().listen((User? user) async {
       if (user != null) {
@@ -34,7 +38,7 @@ class AuthController extends GetxController {
         
         // Automatically sign in to Google Drive when Firebase auth state changes
         try {
-          await driveService.signIn();
+          await _driveService.signIn();
           if (kDebugMode) {
             print('✅ Auto-signed in to Google Drive for user: ${user.displayName}');
           }
@@ -51,7 +55,7 @@ class AuthController extends GetxController {
         
         // Sign out from Google Drive when Firebase signs out
         try {
-          await driveService.signOut();
+          await _driveService.signOut();
         } catch (e) {
           if (kDebugMode) {
             print('Error signing out from Google Drive: $e');
@@ -110,7 +114,7 @@ class AuthController extends GetxController {
 
   Future<void> signOut() async {
     try {
-      await _googleSignIn.signOut();
+      await googleSignIn.signOut();
       await _auth.signOut();
       await _auth.setPersistence(Persistence.NONE);
       _canAddSongs.value = false;
@@ -175,7 +179,7 @@ class AuthController extends GetxController {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) return null;
 
       try {
