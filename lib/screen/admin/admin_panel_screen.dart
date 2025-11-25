@@ -8,6 +8,7 @@ import '../../services/hymn_service.dart';
 import '../../widgets/drawer_widget.dart';
 import './user_management_screen.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 
 class AdminPanelScreen extends StatefulWidget {
@@ -88,7 +89,9 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
       return Scaffold(
         backgroundColor: backgroundColor,
-        drawer: DrawerWidget(openDrawer: () {}),
+        drawer: DrawerWidget(openDrawer: () {
+          Get.find<ShellController>().toggleDrawer();
+        }),
         appBar: AppBar(
           backgroundColor: backgroundColor,
           elevation: 0,
