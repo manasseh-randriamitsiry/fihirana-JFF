@@ -792,18 +792,18 @@
       }
     }
   },
-  "signInWithGoogle": "Hiditra amin'ny Google",
-  "continueAsGuest": "Hanohy ho vahiny",
-  "signingIn": "Miditra...",
+  "signInWithGoogle": "Hampiasa Google",
+  "continueAsGuest": "Tsy asiana compte",
+  "signingIn": "Hiditra...",
   "googleSignInFailed": "Tsy nahomby ny fidirana amin'ny Google",
-  "welcomeBack": "Tongasoa indray",
+  "welcomeBack": "Tongasoa tafaverina",
   "orDivider": "NA",
-  "skipForNow": "Alefaso aloha",
-  "getStarted": "Atombohy",
-  "appFeature1": "Mijery hira an'arivony",
-  "appFeature2": "Mandrakitra ny anao manokana",
-  "appFeature3": "Sync amin'ny fitaovana rehetra",
-  "appFeature4": "Mizara amin'ny vondrom-piarahamonina",
+  "skipForNow": "Aoka aloha",
+  "getStarted": "Hanomboka",
+  "appFeature1": "Mampiasa fihirana",
+  "appFeature2": "Mampiditra ny hira fiderana, sy fandraisampeo( mila compte Google)",
+  "appFeature3": "Voatahiry ny hiranao sy izay tianao sns na miova finday hafa",
+  "appFeature4": "Mizara hira na playlist",
   "continueAs": "Hanohy ho: {name}",
   "@continueAs": {
     "placeholders": {
