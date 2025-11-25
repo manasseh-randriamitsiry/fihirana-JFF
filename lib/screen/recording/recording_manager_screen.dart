@@ -7,7 +7,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:share_plus/share_plus.dart';
 
 class RecordingManagerScreen extends StatelessWidget {
   const RecordingManagerScreen({super.key});
@@ -585,17 +584,31 @@ class _RecordingTile extends StatelessWidget {
                 ),
               )
             else if (recording.driveFileId != null)
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Icon(
-                  Icons.cloud_done,
-                  size: 18,
-                  color: Colors.green,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (recording.filePath.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Icon(
+                        Icons.check_circle,
+                        size: 16,
+                        color: colorController.primaryColor.value,
+                      ),
+                    ),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.cloud_done,
+                      size: 18,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
               )
             else
               Obx(() {
@@ -656,26 +669,10 @@ class _RecordingTile extends StatelessWidget {
               onSelected: (value) {
                 switch (value) {
                   case 'share':
-                    if (recording.driveWebLink != null) {
-                      Share.share(
-                          'Check out this recording: ${recording.driveWebLink}');
-                    } else {
-                      Share.shareXFiles([XFile(recording.filePath)],
-                          text: recording.title);
-                    }
+                    controller.shareRecordingFile(recording);
                     break;
                   case 'download':
-                    // For public recordings, add download option
-                    if (isPublic) {
-                      // Implement download functionality
-                      Get.snackbar(
-                        'Download',
-                        'Download started',
-                        backgroundColor: colorController.primaryColor.value
-                            .withValues(alpha: 0.8),
-                        colorText: Colors.white,
-                      );
-                    }
+                    controller.downloadRecording(recording);
                     break;
                   case 'delete':
                     if (!isPublic) {
@@ -703,7 +700,9 @@ class _RecordingTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (isPublic)
+                if (isPublic ||
+                    (recording.driveFileId != null &&
+                        recording.filePath.isEmpty))
                   PopupMenuItem(
                     value: 'download',
                     child: Row(
