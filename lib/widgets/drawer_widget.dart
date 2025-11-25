@@ -22,7 +22,8 @@ class DrawerWidget extends StatefulWidget {
   DrawerWidgetState createState() => DrawerWidgetState();
 }
 
-class DrawerWidgetState extends State<DrawerWidget> {
+class DrawerWidgetState extends State<DrawerWidget>
+    with WidgetsBindingObserver {
   final ColorController _colorController = Get.find<ColorController>();
   bool _isAuthenticated = false;
   String? _username;
@@ -38,6 +39,7 @@ class DrawerWidgetState extends State<DrawerWidget> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _checkAuthStatus();
     _loadUsername();
     _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
@@ -47,6 +49,27 @@ class DrawerWidgetState extends State<DrawerWidget> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Reload username when app comes back to foreground
+      _loadUsername();
+    }
+  }
+
+  @override
+  void didUpdateWidget(DrawerWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reload username when drawer is rebuilt (e.g., after returning from splash screen)
+    _loadUsername();
   }
 
   void _checkAuthStatus() {
@@ -123,9 +146,15 @@ class DrawerWidgetState extends State<DrawerWidget> {
 
   void _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _username = prefs.getString('username');
-    });
+    final username = prefs.getString('username');
+    if (kDebugMode) {
+      print('🔄 Drawer: Loading username from SharedPreferences: $username');
+    }
+    if (mounted) {
+      setState(() {
+        _username = username;
+      });
+    }
   }
 
   Widget _buildSectionHeader(String title) {
