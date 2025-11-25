@@ -188,12 +188,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         .slideX(begin: -0.1, end: 0);
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
+    return GetBuilder<ColorController>(
+      builder: (colorController) => Scaffold(
+        backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
@@ -278,7 +279,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: 32),
           ],
-        ),
+),
+      ),
       ),
     );
   }
