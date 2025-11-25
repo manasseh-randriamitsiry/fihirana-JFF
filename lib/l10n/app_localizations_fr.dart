@@ -1702,4 +1702,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get appFeature4 => 'Partager avec la communauté';
+
+  @override
+  String continueAs(String name) {
+    return 'Continuer en tant que : $name';
+  }
 }

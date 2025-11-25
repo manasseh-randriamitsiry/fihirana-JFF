@@ -3276,6 +3276,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Share with community'**
   String get appFeature4;
+
+  /// No description provided for @continueAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as: {name}'**
+  String continueAs(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

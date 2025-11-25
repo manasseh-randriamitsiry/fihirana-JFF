@@ -803,5 +803,13 @@
   "appFeature1": "Mijery hira an'arivony",
   "appFeature2": "Mandrakitra ny anao manokana",
   "appFeature3": "Sync amin'ny fitaovana rehetra",
-  "appFeature4": "Mizara amin'ny vondrom-piarahamonina"
+  "appFeature4": "Mizara amin'ny vondrom-piarahamonina",
+  "continueAs": "Hanohy ho: {name}",
+  "@continueAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
