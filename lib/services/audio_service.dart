@@ -23,7 +23,7 @@ class AudioService {
     _player.playerStateStream.listen((state) {
       if (kDebugMode) {
         print(
-          'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
+            'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       }
     });
   }
@@ -51,7 +51,7 @@ class AudioService {
     _currentPlaylistIndex = initialIndex;
     if (kDebugMode) {
       print(
-        'AudioService: Playlist set with ${_playlist.length} hymns, starting at $initialIndex');
+          'AudioService: Playlist set with ${_playlist.length} hymns, starting at $initialIndex');
     }
   }
 
@@ -86,7 +86,7 @@ class AudioService {
     return await _cacheService.checkMultipleAudioExists(hymnIds);
   }
 
-  Future<void> playHymn(Hymn hymn) async {
+  Future<void> playHymn(Hymn hymn, {String? filePath}) async {
     if (kDebugMode) {
       print('AudioService: Starting to play hymn ${hymn.id}');
     }
@@ -117,7 +117,14 @@ class AudioService {
     String audioUrl;
     bool isLocalFile = false;
 
-    if (localAudioPath != null) {
+    if (filePath != null) {
+      // Use provided file path (e.g. for recordings)
+      audioUrl = filePath;
+      isLocalFile = true;
+      if (kDebugMode) {
+        print('AudioService: Using provided audio file: $filePath');
+      }
+    } else if (localAudioPath != null) {
       // Use local file
       audioUrl = localAudioPath;
       isLocalFile = true;
@@ -220,7 +227,8 @@ class AudioService {
 
   Future<void> stopCurrentAndPlayNew(Hymn newHymn) async {
     if (kDebugMode) {
-      print('AudioService: Stopping current and playing new hymn ${newHymn.id}');
+      print(
+          'AudioService: Stopping current and playing new hymn ${newHymn.id}');
     }
 
     // Stop current playback if any
@@ -274,7 +282,7 @@ class AudioService {
 
     if (kDebugMode) {
       print(
-        'AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isActuallyPlaying)');
+          'AudioService: isHymnPlaying($hymnId) = $result (current: ${_currentPlayingHymnId.value}, isPlaying: $isActuallyPlaying)');
     }
     return result;
   }
@@ -286,7 +294,7 @@ class AudioService {
 
     if (kDebugMode) {
       print(
-        'AudioService: Refresh state - ID: $currentId, Playing: $currentlyPlaying');
+          'AudioService: Refresh state - ID: $currentId, Playing: $currentlyPlaying');
     }
 
     // If we think something is playing but it's not, clear the state
@@ -325,7 +333,8 @@ class AudioService {
         await audioMapping.updateAudioFileMapping();
         audioUrl = audioMapping.getAudioUrl(hymn.id);
       }
-      audioUrl ??= 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
+      audioUrl ??=
+          'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/${hymn.id}.mp3';
     }
 
     return await _localAudioService.downloadAudio(hymn.id, audioUrl,
@@ -355,5 +364,23 @@ class AudioService {
 
   Future<Set<String>> getLocalHymnIds() async {
     return await _localAudioService.getLocalHymnIds();
+  }
+
+  // Helper to play a user recording
+  Future<void> playRecording(dynamic recording) async {
+    // We use dynamic here to avoid circular imports if UserRecording is in a different package
+    // but ideally we should import UserRecording.
+    // Assuming recording has: id, title, hymnId, filePath
+
+    final hymn = Hymn(
+      id: recording.id,
+      hymnNumber: recording.hymnId,
+      title: recording.title,
+      verses: [],
+      createdAt: recording.createdAt,
+      createdBy: 'User',
+    );
+
+    await playHymn(hymn, filePath: recording.filePath);
   }
 }
