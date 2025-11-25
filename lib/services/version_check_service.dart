@@ -15,9 +15,31 @@ import 'pubspec_service.dart';
 class VersionCheckService {
   static const String githubApiUrl =
       'https://api.github.com/repos/manasseh-randriamitsiry/fihirana-JFF/releases/latest';
+  // Get GitHub token from SharedPreferences for API authentication
+  static Future<String> getGithubToken() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getString(githubTokenKey) ?? '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  // Set GitHub token for API authentication
+  static Future<void> setGithubToken(String token) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(githubTokenKey, token);
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Failed to save GitHub token: $e');
+      }
+    }
+  }
   static const String lastCheckKey = 'last_version_check';
   static const String dismissedVersionKey = 'dismissed_update_version';
   static const String installedVersionKey = 'installed_update_version';
+  static const String githubTokenKey = 'github_token';
   static const Duration checkInterval = Duration(hours: 1);
   static const int updateNotificationId = 1;
   static Timer? _notificationTimer;
@@ -253,6 +275,18 @@ class VersionCheckService {
     }
   }
 
+  static Future<bool> _isInstalledFromPlayStore() async {
+    try {
+      // Try to get installer package name
+      await PubspecService.getPackageInfo();
+      // This is a simple check - in a real implementation you might want to use
+      // platform-specific methods to determine the installer
+      return false; // Assume not from Play Store for manual APK installations
+    } catch (e) {
+      return false;
+    }
+  }
+
   static Future<bool> checkForUpdateManually() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -270,13 +304,35 @@ class VersionCheckService {
       //   return false;
       // }
 
+      final headers = {
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'Fihirana-JFF-App/1.0',
+      };
+      
+      // Add GitHub token if available (for higher rate limit)
+      final githubToken = await getGithubToken();
+      if (githubToken.isNotEmpty) {
+        headers['Authorization'] = 'token $githubToken';
+        if (kDebugMode) {
+          print('🔑 Using authenticated GitHub API request');
+        }
+      } else {
+        if (kDebugMode) {
+          print('⚠️ Using unauthenticated GitHub API request (rate limited)');
+        }
+      }
+      
       final response = await http.get(
         Uri.parse(githubApiUrl),
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Fihirana-App',
-        },
-      );
+        headers: headers,
+      ).timeout(const Duration(seconds: 15));
+
+      if (kDebugMode) {
+        print('🌐 GitHub API response status: ${response.statusCode}');
+        if (response.statusCode != 200) {
+          print('❌ GitHub API response body: ${response.body}');
+        }
+      }
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -308,17 +364,27 @@ class VersionCheckService {
             apkAsset?['browser_download_url'] ?? data['html_url'];
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
+        final bool isSameVersion = currentVersion == latestVersion;
 
         if (kDebugMode) {
           print(
-              '🔄 Manual check: current=$currentVersion, latest=$latestVersion, newer=$isNewer');
+              '🔄 Manual check: current=$currentVersion, latest=$latestVersion, newer=$isNewer, same=$isSameVersion');
         }
+
+        // Update the up-to-date flag
+        _isUpToDate = !isNewer;
+        _hasCheckedOnStartup = true;
 
         // Cache version info for download
         if (isNewer) {
           _cachedVersion = latestVersion;
           _cachedDownloadUrl = downloadUrl;
           _cachedReleaseNotes = releaseNotes;
+        } else {
+          // Clear cached info if up to date
+          _cachedVersion = null;
+          _cachedDownloadUrl = null;
+          _cachedReleaseNotes = null;
         }
 
         // Only return true if there's actually a newer version and not dismissed
@@ -336,28 +402,55 @@ class VersionCheckService {
       }
 
       if (kDebugMode) {
-        print('❌ GitHub API failed, falling back to InAppUpdate');
+        print('❌ GitHub API failed with status: ${response.statusCode}');
       }
 
-      // Fallback to InAppUpdate if GitHub fails
-      final updateInfo = await InAppUpdate.checkForUpdate();
-      _updateInfo = updateInfo;
+      // Try InAppUpdate only if installed from Play Store
+      final isFromPlayStore = await _isInstalledFromPlayStore();
+      if (isFromPlayStore) {
+        try {
+          final updateInfo = await InAppUpdate.checkForUpdate();
+          _updateInfo = updateInfo;
 
-      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-        // Don't show update if user already dismissed this version
-        if (dismissedVersion == currentVersion) {
+        if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+          // Don't show update if user already dismissed this version
+          if (dismissedVersion == currentVersion) {
+            return false;
+          }
+
+          _onUpdateAvailable?.call();
+          return true;
+        } else {
+          // Update the up-to-date flag for InAppUpdate result
+          _isUpToDate = true;
+          _hasCheckedOnStartup = true;
           return false;
         }
-
-        _onUpdateAvailable?.call();
-        return true;
-      } else {
+      } catch (playStoreError) {
+        if (kDebugMode) {
+          print('❌ InAppUpdate failed: $playStoreError');
+        }
+        // If Play Store check fails, assume up-to-date to avoid errors
+        _isUpToDate = true;
+        _hasCheckedOnStartup = true;
         return false;
       }
+    } else {
+      if (kDebugMode) {
+        print('📱 Not installed from Play Store, skipping InAppUpdate check');
+      }
+      // If not from Play Store and GitHub failed, assume up-to-date
+      _isUpToDate = true;
+      _hasCheckedOnStartup = true;
+      return false;
+    }
     } catch (e) {
       if (kDebugMode) {
         print('❌ Manual check failed: $e');
       }
+      // On error, assume up-to-date to avoid constant error states
+      _isUpToDate = true;
+      _hasCheckedOnStartup = true;
       return false;
     }
   }
@@ -789,5 +882,10 @@ class VersionCheckService {
       return 'Checking...';
     }
     return _isUpToDate ? 'Up to date' : 'Update available';
+  }
+
+  /// Returns true if a manual check has been performed
+  static bool hasCheckedManually() {
+    return _hasCheckedOnStartup;
   }
 }

@@ -2368,7 +2368,7 @@ abstract class AppLocalizations {
   /// No description provided for @splashScreenTitle.
   ///
   /// In en, this message translates to:
-  /// **'Hymns of Jesus Savior of Our Souls'**
+  /// **'Hymns of Jesosy Famonjena Fahamarinantsika\'s Church'**
   String get splashScreenTitle;
 
   /// No description provided for @splashScreenSubtitle.

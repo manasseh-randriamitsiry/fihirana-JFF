@@ -154,6 +154,20 @@ class PubspecService {
     return await getAppVersion();
   }
 
+  static Future<PackageInfo> getPackageInfo() async {
+    try {
+      return await PackageInfo.fromPlatform();
+    } catch (e) {
+      // Return a default PackageInfo if it fails
+      return PackageInfo(
+        appName: 'Fihirana',
+        packageName: 'com.manasseh.fihirana_jff',
+        version: '1.0.19',
+        buildNumber: '1',
+      );
+    }
+  }
+
   @visibleForTesting
   static void setVersion(String version) {
     _cachedVersion = version;

@@ -1189,7 +1189,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get continueText => 'Continuer';
 
   @override
-  String get splashScreenTitle => 'Cantiques de Jésus Sauveur de Nos Âmes';
+  String get splashScreenTitle => 'Cantiques de l\'eglise Jesosy Famonjena Fahamarinantsika';
 
   @override
   String get splashScreenSubtitle => 'Louez le Seigneur car il est bon';

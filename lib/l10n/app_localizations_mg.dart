@@ -1189,7 +1189,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get continueText => 'Hanohy';
 
   @override
-  String get splashScreenTitle => 'Fihirana Fesosy Famonjena Fahamarinantsika';
+  String get splashScreenTitle => 'Fihiranan\'ny fiangonana Fesosy Famonjena Fahamarinantsika';
 
   @override
   String get splashScreenSubtitle => 'Miderà an\'i Jehovah fa tsara Izy';
