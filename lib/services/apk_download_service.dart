@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,7 +20,7 @@ class ApkDownloadService {
       _dio = Dio(
         BaseOptions(
           connectTimeout: const Duration(seconds: 30),
-          receiveTimeout: const Duration(minutes: 5),
+          receiveTimeout: const Duration(minutes: 10),
           sendTimeout: const Duration(minutes: 5),
           // Optimized headers for faster downloads
           headers: {
@@ -27,23 +28,43 @@ class ApkDownloadService {
             'Accept-Encoding': 'gzip, deflate, br',
             'User-Agent': 'Fihirana-JFF/1.0',
             'Accept': '*/*',
+            'Cache-Control': 'no-cache',
           },
           // Performance optimizations
           receiveDataWhenStatusError: true,
           followRedirects: true,
           maxRedirects: 5,
+          // Increase buffer size for better performance
+          responseType: ResponseType.stream,
         ),
       );
 
-        // Add interceptor for performance optimization
+      // Configure HTTP client adapter for optimal performance
+      (_dio!.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+        // Configure the HTTP client for better download performance
+        client.connectionTimeout = const Duration(seconds: 30);
+        client.idleTimeout = const Duration(minutes: 5);
+        
+        // Optimize for large file downloads
+        client.maxConnectionsPerHost = 10;
+        
+        // Disable auto compression for APK files (they're already compressed)
+        client.autoUncompress = false;
+        
+        return client;
+      };
+
+      // Add interceptor for performance optimization
       _dio!.interceptors.add(
         InterceptorsWrapper(
           onRequest: (options, handler) {
             // Optimize for large file downloads
             if (options.path.endsWith('.apk')) {
-              options.receiveTimeout = const Duration(minutes: 10);
-              // Use larger chunk size for APK downloads
-              options.headers['Range'] = 'bytes=0-';
+              options.receiveTimeout = const Duration(minutes: 15);
+              // Remove Range header to allow full speed download
+              options.headers.remove('Range');
+              // Add performance headers
+              options.headers['Accept-Ranges'] = 'bytes';
             }
             handler.next(options);
           },
@@ -111,6 +132,8 @@ class ApkDownloadService {
 
       if (kDebugMode) {
         print('📥 Downloading APK to: $savePath');
+        print('🌐 Download URL: $url');
+        print('⏱️ Starting download at: ${DateTime.now()}');
       }
 
       // Show download started notification
@@ -118,35 +141,72 @@ class ApkDownloadService {
 
       _cancelToken = CancelToken();
 
-      // Download the file with optimized progress reporting
+      // Download the file with detailed speed monitoring
       int lastProgressUpdate = 0;
-      const int progressUpdateInterval = 1024 * 1024; // Update every 1MB
+      const int progressUpdateInterval = 1024 * 1024; // Update every 1MB for better speed tracking
+      DateTime? lastSpeedCheck;
+      int lastBytesReceived = 0;
+      double maxSpeed = 0.0;
       
       await _dio!.download(
         url,
         savePath,
         cancelToken: _cancelToken,
         options: Options(
-          receiveTimeout: const Duration(minutes: 10),
+          receiveTimeout: const Duration(minutes: 15),
+          sendTimeout: const Duration(minutes: 5),
           headers: {
-            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Encoding': 'identity', // Disable compression for APK files to avoid CPU overhead
+            'User-Agent': 'Fihirana-JFF/1.0',
           },
+          // Use larger chunk size for better performance
+          receiveDataWhenStatusError: true,
         ),
         onReceiveProgress: (received, total) {
           if (total != -1) {
-            // Only update progress every 1MB or 5% to reduce UI overhead
+            final now = DateTime.now();
+            
+            // Calculate download speed
+            if (lastSpeedCheck != null) {
+              final timeDiff = now.difference(lastSpeedCheck!).inMilliseconds;
+              if (timeDiff > 0) {
+                final bytesDiff = received - lastBytesReceived;
+                final speedBytesPerSec = (bytesDiff * 1000) / timeDiff;
+                final speedMBps = speedBytesPerSec / (1024 * 1024);
+                
+                if (speedMBps > maxSpeed) {
+                  maxSpeed = speedMBps;
+                }
+                
+                if (kDebugMode) {
+                  print('📊 Download Speed: ${speedMBps.toStringAsFixed(2)} MB/s | Current: ${(received / (1024 * 1024)).toStringAsFixed(2)} MB | Total: ${(total / (1024 * 1024)).toStringAsFixed(2)} MB');
+                }
+              }
+            }
+            
+            // Only update progress every 1MB or 3% to reduce UI overhead
             final currentProgress = (received / total * 100).round();
             final shouldUpdate = (received - lastProgressUpdate) >= progressUpdateInterval ||
-                               currentProgress - lastProgressUpdate >= 5 ||
+                               currentProgress - lastProgressUpdate >= 3 ||
                                currentProgress >= 100;
             
             if (shouldUpdate) {
               lastProgressUpdate = received;
+              if (kDebugMode) {
+                print('📈 Progress: $currentProgress% | Downloaded: ${(received / (1024 * 1024)).toStringAsFixed(2)} MB');
+              }
               _showDownloadNotification('Fangalana... $currentProgress%', currentProgress);
             }
+            
+            lastSpeedCheck = now;
+            lastBytesReceived = received;
           }
         },
       );
+      
+      if (kDebugMode) {
+        print('🚀 Max download speed reached: ${maxSpeed.toStringAsFixed(2)} MB/s');
+      }
 
       // Download completed
       await _showNotification(
