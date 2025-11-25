@@ -27,6 +27,7 @@ import 'package:fihirana/screen/playlist/playlist_list_screen.dart';
 import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
 import 'package:fihirana/screen/settings/settings_screen.dart';
 import 'package:fihirana/screen/recording/recording_manager_screen.dart';
+import 'package:fihirana/services/security_service.dart';
 
 // ... existing imports
 
@@ -163,6 +164,39 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
       final currentLocale = languageController.currentLocale.value;
+
+      // Check if user is blocked before building the app
+      final SecurityService securityService = Get.find<SecurityService>();
+      
+      // If user is blocked, show banned page instead of normal app
+      if (securityService.isSecurityChecked && securityService.isUserBlocked) {
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          locale: currentLocale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            _FallbackMaterialLocalizationsDelegate(),
+            _FallbackCupertinoLocalizationsDelegate(),
+          ],
+          supportedLocales: const [
+            Locale('mg'), // Malagasy
+            Locale('en'), // English
+            Locale('fr'), // French
+          ],
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          theme: _getThemeWithFont(
+              isDark ? colorController.getDarkTheme() : colorController.getLightTheme(),
+              currentFont),
+          darkTheme: _getThemeWithFont(
+              isDark ? colorController.getDarkTheme() : colorController.getLightTheme(),
+              currentFont),
+          home: const BannedPage(),
+          builder: (context, child) => ResponsiveShell(child: child!),
+        );
+      }
 
       ThemeData baseTheme = isDark
           ? colorController.getDarkTheme()
