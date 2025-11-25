@@ -674,6 +674,9 @@ class _RecordingTile extends StatelessWidget {
                   case 'download':
                     controller.downloadRecording(recording);
                     break;
+                  case 'export':
+                    controller.exportRecording(recording);
+                    break;
                   case 'delete':
                     if (!isPublic) {
                       _showDeleteConfirmation(context);
@@ -715,6 +718,25 @@ class _RecordingTile extends StatelessWidget {
                         const SizedBox(width: 12),
                         Text(
                           'Download',
+                          style:
+                              TextStyle(color: colorController.textColor.value),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (!isPublic)
+                  PopupMenuItem(
+                    value: 'export',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.drive_file_move_outlined,
+                          color: colorController.iconColor.value,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Export to...',
                           style:
                               TextStyle(color: colorController.textColor.value),
                         ),

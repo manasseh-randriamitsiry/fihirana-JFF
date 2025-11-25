@@ -11,9 +11,10 @@ import '../services/google_drive_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/hymn.dart';
 import '../services/audio_service.dart';
-import 'package:fihirana/services/local_audio_service.dart'; // New import
-import 'package:share_plus/share_plus.dart'; // New import
-import 'package:path/path.dart' as path; // New import
+import 'package:fihirana/services/local_audio_service.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path/path.dart' as path;
+import 'package:file_picker/file_picker.dart';
 // We need to import AudioPlayerScreen to navigate to it
 import '../screen/player/audio_player_screen.dart';
 
@@ -830,6 +831,91 @@ class RecordingController extends GetxController {
         print('RecordingController: Share error: $e');
       }
       Get.snackbar('Error', 'Failed to share recording');
+    }
+  }
+
+  Future<void> exportRecording(UserRecording recording) async {
+    try {
+      String? filePath = recording.filePath;
+
+      // Download from Drive if needed
+      if (filePath.isEmpty || !await File(filePath).exists()) {
+        if (recording.driveFileId != null) {
+          Get.snackbar(
+            'Preparing Export',
+            'Downloading file...',
+            showProgressIndicator: true,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+
+          String targetPath = recording.filePath;
+          if (targetPath.isEmpty) {
+            final localService = LocalAudioService();
+            await localService.initialize();
+            final stats = await localService.getStorageStats();
+            final dir = stats['directory'] as String;
+            targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+          }
+
+          final driveService = GoogleDriveService();
+          if (!driveService.isSignedIn) {
+            await driveService.signInSilently();
+          }
+
+          if (driveService.isSignedIn) {
+            final file = await driveService.downloadFile(
+                recording.driveFileId!, targetPath);
+            if (file != null && await file.exists()) {
+              filePath = file.path;
+            }
+          }
+        }
+      }
+
+      if (filePath.isEmpty || !await File(filePath).exists()) {
+        Get.snackbar('Error', 'Could not find recording file.');
+        return;
+      }
+
+      // Use file_picker to let user choose save location
+      final fileName = path.basename(filePath);
+
+      // Read file as bytes
+      final sourceFile = File(filePath);
+      final bytes = await sourceFile.readAsBytes();
+
+      // Let user pick save location with bytes
+      final outputPath = await FilePicker.platform.saveFile(
+        dialogTitle: 'Export Recording',
+        fileName: fileName,
+        type: FileType.custom,
+        allowedExtensions: ['m4a'],
+        bytes: bytes,
+      );
+
+      if (outputPath == null) {
+        // User cancelled
+        return;
+      }
+
+      Get.snackbar(
+        'Success',
+        'Exported ${recording.title}',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green.withValues(alpha: 0.1),
+        colorText: Colors.green,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Export error: $e');
+      }
+      Get.snackbar(
+        'Error',
+        'Failed to export recording: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
     }
   }
 }
