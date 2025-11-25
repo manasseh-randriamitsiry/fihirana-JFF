@@ -1,4 +1,5 @@
 import 'package:fihirana/screen/accueil/home_screen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,7 +12,6 @@ import '../../controller/auth_controller.dart';
 import '../../services/google_drive_service.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
@@ -211,7 +211,12 @@ class _SplashScreen1State extends State<SplashScreen1> {
       final recordingController = Get.find<RecordingController>();
       await recordingController.setGuestName(username);
 
-      Get.offAll(() => const HomeScreen());
+      // Delay to ensure SharedPreferences is flushed to disk
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (mounted) {
+        Get.offAll(() => const HomeScreen());
+      }
     } catch (e) {
       Get.snackbar(
         l10n.errorOccurred,
@@ -240,7 +245,12 @@ class _SplashScreen1State extends State<SplashScreen1> {
       final recordingController = Get.find<RecordingController>();
       await recordingController.setGuestName(_googleUserName!);
 
-      Get.offAll(() => const HomeScreen());
+      // Delay to ensure SharedPreferences is flushed to disk
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (mounted) {
+        Get.offAll(() => const HomeScreen());
+      }
     } catch (e) {
       Get.snackbar(
         l10n.errorOccurred,

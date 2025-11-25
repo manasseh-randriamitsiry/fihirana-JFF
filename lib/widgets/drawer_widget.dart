@@ -35,6 +35,7 @@ class DrawerWidgetState extends State<DrawerWidget>
     ],
   );
   GoogleSignInAccount? _currentUser;
+  bool _hasLoadedUsername = false;
 
   @override
   void initState() {
@@ -61,6 +62,7 @@ class DrawerWidgetState extends State<DrawerWidget>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // Reload username when app comes back to foreground
+      _hasLoadedUsername = false;
       _loadUsername();
     }
   }
@@ -69,7 +71,17 @@ class DrawerWidgetState extends State<DrawerWidget>
   void didUpdateWidget(DrawerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Reload username when drawer is rebuilt (e.g., after returning from splash screen)
+    _hasLoadedUsername = false;
     _loadUsername();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload username when dependencies change (e.g., after navigation)
+    if (!_hasLoadedUsername) {
+      _loadUsername();
+    }
   }
 
   void _checkAuthStatus() {
@@ -147,12 +159,10 @@ class DrawerWidgetState extends State<DrawerWidget>
   void _loadUsername() async {
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString('username');
-    if (kDebugMode) {
-      print('🔄 Drawer: Loading username from SharedPreferences: $username');
-    }
     if (mounted) {
       setState(() {
         _username = username;
+        _hasLoadedUsername = true;
       });
     }
   }
