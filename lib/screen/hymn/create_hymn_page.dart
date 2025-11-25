@@ -358,7 +358,25 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     final authController = Get.find<AuthController>();
     final user = FirebaseAuth.instance.currentUser;
 
-    if (!authController.isAdmin && !authController.canAddSongs) {
+    // Check permissions:
+    // 1. If admin, always allow
+    // 2. If canAddSongs is true AND (remainingHymnsThisMonth > 0 OR admin), allow
+    // 3. Otherwise, show restriction message
+
+    bool isAllowed = authController.isAdmin ||
+        (authController.canAddSongs &&
+            authController.remainingHymnsThisMonth > 0);
+
+    if (!isAllowed) {
+      String message;
+      if (authController.canAddSongs &&
+          authController.remainingHymnsThisMonth <= 0) {
+        message =
+            "You have reached the monthly limit of 5 hymns. Please wait for next month or contact admin.";
+      } else {
+        message = l10n.noPermissionToCreate(user?.email ?? '');
+      }
+
       return Scaffold(
         backgroundColor: Get.find<ColorController>().backgroundColor.value,
         appBar: AppBar(
@@ -402,7 +420,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    l10n.noPermissionToCreate(user?.email ?? ''),
+                    message,
                     style: TextStyle(
                       color: Get.find<ColorController>().textColor.value,
                       fontSize: 16,
@@ -448,6 +466,41 @@ class CreateHymnPageState extends State<CreateHymnPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (!authController.isAdmin)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 24),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: colorController.primaryColor.value
+                            .withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: colorController.primaryColor.value
+                              .withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: colorController.primaryColor.value,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Hymns remaining this month: ${authController.remainingHymnsThisMonth}',
+                              style: TextStyle(
+                                color: colorController.textColor.value,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   _buildTextField(
                     controller: _hymnNumberController,
                     label: l10n.number,

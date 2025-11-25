@@ -18,11 +18,26 @@ class AuthController extends GetxController {
   );
   final Rx<bool> _canAddSongs = false.obs;
   final Rx<bool> _isAdmin = false.obs;
+  final RxInt _addedHymnsCount = 0.obs;
+  final RxInt _monthlyHymnCount = 0.obs;
+  final RxString _lastHymnAdditionMonth = ''.obs;
   StreamSubscription<DocumentSnapshot>? _permissionSubscription;
   late final GoogleDriveService _driveService;
 
   bool get canAddSongs => _canAddSongs.value;
   bool get isAdmin => _isAdmin.value;
+  int get addedHymnsCount => _addedHymnsCount.value;
+
+  int get effectiveMonthlyHymnCount {
+    final currentMonth = DateTime.now().toString().substring(0, 7); // YYYY-MM
+    if (_lastHymnAdditionMonth.value != currentMonth) {
+      return 0;
+    }
+    return _monthlyHymnCount.value;
+  }
+
+  int get remainingHymnsThisMonth => 5 - effectiveMonthlyHymnCount;
+
   GoogleDriveService get driveService => _driveService;
 
   @override
@@ -46,17 +61,20 @@ class AuthController extends GetxController {
           if (account != null) {
             // Check if email is banned before allowing auto sign-in
             final securityService = SecurityService.instance;
-            final isEmailBanned = await securityService.isEmailBlocked(account.email);
-            
+            final isEmailBanned =
+                await securityService.isEmailBlocked(account.email);
+
             if (isEmailBanned) {
               if (kDebugMode) {
-                print('🚫 Auto sign-in blocked for banned email: ${account.email}');
+                print(
+                    '🚫 Auto sign-in blocked for banned email: ${account.email}');
               }
               // Sign out immediately
               await _driveService.signOut();
             } else {
               if (kDebugMode) {
-                print('✅ Auto-signed in to Google Drive for user: ${user.displayName}');
+                print(
+                    '✅ Auto-signed in to Google Drive for user: ${user.displayName}');
               }
             }
           }
@@ -103,6 +121,10 @@ class AuthController extends GetxController {
               user.email == 'manassehrandriamitsiry@gmail.com';
           _isAdmin.value = (data?['isAdmin'] ?? false) ||
               user.email == 'manassehrandriamitsiry@gmail.com';
+          _addedHymnsCount.value = (data?['addedHymnsCount'] ?? 0) as int;
+          _monthlyHymnCount.value = (data?['monthlyHymnCount'] ?? 0) as int;
+          _lastHymnAdditionMonth.value =
+              (data?['lastHymnAdditionMonth'] ?? '') as String;
 
           if (kDebugMode) {
             print(
@@ -157,7 +179,10 @@ class AuthController extends GetxController {
           'email': user.email,
           'displayName': user.displayName,
           'photoURL': user.photoURL,
-          'canAddSongs': false,
+          'canAddSongs': true,
+          'addedHymnsCount': 0,
+          'monthlyHymnCount': 0,
+          'lastHymnAdditionMonth': DateTime.now().toString().substring(0, 7),
           'emailVerified': user.emailVerified,
           'isAdmin': false,
           'createdAt': FieldValue.serverTimestamp(),
@@ -219,7 +244,10 @@ class AuthController extends GetxController {
             'email': currentUser.email,
             'displayName': currentUser.displayName,
             'photoURL': currentUser.photoURL,
-            'canAddSongs': false,
+            'canAddSongs': true,
+            'addedHymnsCount': 0,
+            'monthlyHymnCount': 0,
+            'lastHymnAdditionMonth': DateTime.now().toString().substring(0, 7),
             'emailVerified': currentUser.emailVerified,
             'isAdmin': false,
             'createdAt': FieldValue.serverTimestamp(),
