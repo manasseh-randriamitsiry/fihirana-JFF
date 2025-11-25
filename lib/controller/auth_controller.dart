@@ -6,6 +6,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
 
 import '../utility/snackbar_utility.dart';
+import '../services/google_drive_service.dart';
 
 class AuthController extends GetxController {
   static AuthController get instance => Get.find();
@@ -23,14 +24,39 @@ class AuthController extends GetxController {
   void onInit() {
     super.onInit();
 
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    // Initialize Google Drive service with shared GoogleSignIn instance
+    final driveService = GoogleDriveService();
+    driveService.initialize(_googleSignIn);
+
+    FirebaseAuth.instance.authStateChanges().listen((User? user) async {
       if (user != null) {
         _updateUserPermissions(user);
+        
+        // Automatically sign in to Google Drive when Firebase auth state changes
+        try {
+          await driveService.signIn();
+          if (kDebugMode) {
+            print('✅ Auto-signed in to Google Drive for user: ${user.displayName}');
+          }
+        } catch (driveError) {
+          if (kDebugMode) {
+            print('⚠️ Could not auto sign-in to Google Drive: $driveError');
+          }
+        }
       } else {
         _permissionSubscription?.cancel();
         _permissionSubscription = null;
         _canAddSongs.value = false;
         _isAdmin.value = false;
+        
+        // Sign out from Google Drive when Firebase signs out
+        try {
+          await driveService.signOut();
+        } catch (e) {
+          if (kDebugMode) {
+            print('Error signing out from Google Drive: $e');
+          }
+        }
       }
     });
   }
