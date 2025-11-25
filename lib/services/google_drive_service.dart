@@ -42,7 +42,8 @@ class GoogleDriveService {
       if (_currentUser != null) {
         await _initializeDriveApi();
         if (kDebugMode) {
-          print('GoogleDriveService: Silent sign-in successful for ${_currentUser!.email}');
+          print(
+              'GoogleDriveService: Silent sign-in successful for ${_currentUser!.email}');
         }
       } else {
         if (kDebugMode) {
@@ -168,6 +169,35 @@ class GoogleDriveService {
     }
   }
 
+  Future<File?> downloadFile(String fileId, String savePath) async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) return null;
+
+    try {
+      final drive.Media file = await _driveApi!.files.get(
+        fileId,
+        downloadOptions: drive.DownloadOptions.fullMedia,
+      ) as drive.Media;
+
+      final saveFile = File(savePath);
+      // Ensure directory exists
+      await saveFile.parent.create(recursive: true);
+
+      final List<int> dataStore = [];
+      await for (final data in file.stream) {
+        dataStore.addAll(data);
+      }
+
+      await saveFile.writeAsBytes(dataStore);
+      return saveFile;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error downloading file from Drive: $e');
+      }
+      return null;
+    }
+  }
+
   Future<List<drive.File>> listRecordings() async {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null || _folderId == null) return [];
@@ -175,7 +205,8 @@ class GoogleDriveService {
     try {
       final fileList = await _driveApi!.files.list(
         q: "'$_folderId' in parents and trashed = false",
-        $fields: "files(id, name, description, webViewLink, createdTime, modifiedTime, size)",
+        $fields:
+            "files(id, name, description, webViewLink, createdTime, modifiedTime, size)",
       );
 
       return fileList.files ?? [];
