@@ -372,9 +372,9 @@ class _AboutScreenState extends State<AboutScreen> {
 
             _buildActionCard(
               icon: Icons.code_rounded,
-              label: l10n.github,
+              label: l10n.portfolio,
               onTap: () =>
-                  _launchURL('https://github.com/manasseh-randriamitsiry'),
+                  _launchURL('https://manassehrandriamitsiry.netlify.app/'),
             )
                 .animate()
                 .fadeIn(

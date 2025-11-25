@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,6 +66,18 @@ class HymnService {
     return hymns;
   }
 
+  Future<DateTime> _getServerTime() async {
+    try {
+      final response = await http.head(Uri.parse('https://www.google.com'));
+      if (response.headers['date'] != null) {
+        return HttpDate.parse(response.headers['date']!);
+      }
+      return DateTime.now();
+    } catch (e) {
+      return DateTime.now();
+    }
+  }
+
   Future<bool> addHymn(Hymn hymn) async {
     try {
       final user = _auth.currentUser;
@@ -75,20 +89,63 @@ class HymnService {
         return false;
       }
 
-      hymn.createdBy = user.displayName ?? user.email ?? 'Unknown User';
-      hymn.createdByEmail = user.email;
+      // Get server time to prevent local time manipulation
+      final now = await _getServerTime();
+      final currentMonth = now.toString().substring(0, 7); // Format: YYYY-MM
 
-      final docRef = await _firestore.collection('hymns').add(hymn.toMap());
+      // Get current user data to check limit
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      final userData = userDoc.data();
 
-      hymn.id = docRef.id;
-      await docRef.update({'id': docRef.id});
+      if (userData != null) {
+        final lastMonth = userData['lastHymnAdditionMonth'] as String? ?? '';
+        final monthlyCount = userData['monthlyHymnCount'] as int? ?? 0;
+        final isAdmin = userData['isAdmin'] as bool? ?? false;
 
-      SnackbarUtility.showSuccess(
-        title: 'Vita soa aman-tsara',
-        message: 'Voapetraha soa aman-tsara ny hira',
-      );
+        // Check limit if not admin
+        if (!isAdmin) {
+          if (lastMonth == currentMonth && monthlyCount >= 5) {
+            SnackbarUtility.showError(
+              title: 'Fetra tratra',
+              message:
+                  'Efa feno ny fetra 5 hira isam-bolana. Miandrasa volana manaraka.',
+            );
+            return false;
+          }
+        }
 
-      return true;
+        hymn.createdBy = user.displayName ?? user.email ?? 'Unknown User';
+        hymn.createdByEmail = user.email;
+
+        final docRef = await _firestore.collection('hymns').add(hymn.toMap());
+
+        hymn.id = docRef.id;
+        await docRef.update({'id': docRef.id});
+
+        // Prepare update data
+        final Map<String, dynamic> updateData = {
+          'addedHymnsCount': FieldValue.increment(1),
+        };
+
+        if (lastMonth != currentMonth) {
+          // New month, reset counter
+          updateData['monthlyHymnCount'] = 1;
+          updateData['lastHymnAdditionMonth'] = currentMonth;
+        } else {
+          // Same month, increment counter
+          updateData['monthlyHymnCount'] = FieldValue.increment(1);
+        }
+
+        await _firestore.collection('users').doc(user.uid).update(updateData);
+
+        SnackbarUtility.showSuccess(
+          title: 'Vita soa aman-tsara',
+          message: 'Voapetraha soa aman-tsara ny hira',
+        );
+
+        return true;
+      }
+      return false;
     } catch (e) {
       SnackbarUtility.showError(
         title: 'Nisy olana',

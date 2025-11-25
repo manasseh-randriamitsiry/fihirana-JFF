@@ -18,6 +18,7 @@ import 'package:fihirana/services/local_audio_service.dart';
 import 'package:fihirana/services/notification_service.dart';
 import 'package:fihirana/services/deep_link_service.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import 'package:fihirana/services/security_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -59,6 +60,9 @@ class InitService {
     Get.put(AudioForegroundService());
     Get.put(PlaylistController());
     Get.put(RecordingController());
+
+    // Initialize security service (critical - runs on app startup)
+    Get.put(SecurityService());
 
     // Initialize Bible service (but don't load data yet)
     Get.put(BibleService());

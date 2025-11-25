@@ -66,6 +66,7 @@ dependencies:
   extension_google_sign_in_as_googleapis_auth: ^2.0.12
   googleapis_auth: ^1.6.0
   uuid: ^4.5.2
+  debounce_throttle: ^2.0.0
 
 dev_dependencies:
   flutter_test:

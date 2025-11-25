@@ -1710,4 +1710,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String continueAs(String name) {
     return 'Continue as: $name';
   }
+
+  @override
+  String get portfolio => 'Portfolio';
 }

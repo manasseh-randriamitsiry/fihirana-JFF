@@ -7,15 +7,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:fihirana/services/security_service.dart';
 
 class RecordingManagerScreen extends StatelessWidget {
   const RecordingManagerScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Use Get.put to ensure controller is initialized
-    final RecordingController controller =
-        Get.put(RecordingController(), permanent: true);
+    // Use Get.find to get existing controller or create if not exists
+    final RecordingController controller = Get.isRegistered<RecordingController>()
+        ? Get.find<RecordingController>()
+        : Get.put(RecordingController(), permanent: true);
     final ColorController colorController = Get.find<ColorController>();
 
     // Auto-refresh when page is accessed
@@ -95,6 +97,66 @@ class RecordingManagerScreen extends StatelessWidget {
         ],
       ),
       body: Obx(() {
+        // Security check - prevent banned users from accessing recordings
+        final SecurityService securityService = SecurityService.instance;
+        if (securityService.isSecurityChecked && securityService.isUserBlocked) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.block,
+                  size: 80,
+                  color: Colors.red.withValues(alpha: 0.5),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Access Restricted',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your account has been restricted from recording features.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.red.withValues(alpha: 0.7),
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+                      const SizedBox(height: 8),
+                      Text(
+                        securityService.blockReason.isNotEmpty 
+                            ? securityService.blockReason 
+                            : 'Account suspended',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         final personalRecordings =
             controller.recordings.where((r) => !r.isPublic).toList();
         // Load community public recordings from Firestore

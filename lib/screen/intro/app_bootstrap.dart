@@ -1,7 +1,9 @@
 import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/services/init_service.dart';
+import 'package:fihirana/services/security_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
@@ -61,10 +63,35 @@ class _AppBootstrapState extends State<AppBootstrap> {
       // Initialize deep links for playlist sharing
       await InitService.initDeepLinks();
 
-      // Step 4: Get SharedPreferences (90% -> 100%)
+      // Step 4: Security Check (90% -> 95%)
       _updateProgress(0.9);
+      
+      // Security check will run automatically when SecurityService is initialized
+      // This ensures blocked users are handled before app fully loads
+      await Future.delayed(const Duration(milliseconds: 500)); // Allow security check to complete
+
+      // Step 5: Get SharedPreferences (95% -> 100%)
+      _updateProgress(0.95);
 
       final prefs = await SharedPreferences.getInstance();
+
+      // Track installation
+      try {
+        final isFirstRun = prefs.getBool('first_run') ?? true;
+        if (isFirstRun) {
+          await FirebaseFirestore.instance
+              .collection('stats')
+              .doc('global')
+              .set({
+            'installations': FieldValue.increment(1),
+          }, SetOptions(merge: true));
+          await prefs.setBool('first_run', false);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error tracking installation: $e');
+        }
+      }
 
       _updateProgress(1.0);
 

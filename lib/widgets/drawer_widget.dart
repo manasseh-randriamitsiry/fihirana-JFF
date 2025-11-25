@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/color_controller.dart';
 import '../controller/shell_controller.dart';
+import '../controller/auth_controller.dart';
 import '../l10n/app_localizations.dart';
 
 class DrawerWidget extends StatefulWidget {
@@ -432,7 +433,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                     isActive: currentRoute == '/announcements',
                     onTap: () => Get.toNamed('/announcements'),
                   ),
-                  if (_currentUser?.email == 'manassehrandriamitsiry@gmail.com')
+                  if (Get.find<AuthController>().isAdmin)
                     _buildDrawerItem(
                       icon: Icons.admin_panel_settings_outlined,
                       title: l10n.adminPanel,

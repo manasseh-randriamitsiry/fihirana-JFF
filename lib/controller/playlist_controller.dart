@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/playlist.dart';
 import '../services/playlist_service.dart';
+import '../services/security_service.dart';
+import '../services/google_drive_service.dart';
 
 class PlaylistController extends GetxController {
   final PlaylistService _playlistService = PlaylistService();
@@ -116,6 +119,73 @@ class PlaylistController extends GetxController {
   }
 
   Future<void> sharePlaylist(Playlist playlist) async {
+    // Security check first
+    final SecurityService securityService = SecurityService.instance;
+    
+    // Check if user is authenticated via Firebase
+    final isFirebaseAuthenticated = FirebaseAuth.instance.currentUser != null;
+    
+    // Check if user is authenticated via Google Drive (need to get drive service)
+    final GoogleDriveService driveService = GoogleDriveService();
+    final isGoogleDriveAuthenticated = driveService.currentUser != null;
+    
+    if (!isFirebaseAuthenticated && !isGoogleDriveAuthenticated) {
+      // Guest user - block sharing for guests to prevent abuse
+      if (kDebugMode) {
+        print('🚫 Guest user attempted to share playlist');
+      }
+      Get.snackbar(
+        'Authentication Required',
+        'Please sign in to access sharing features.',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 5),
+      );
+      return;
+    }
+    
+    // Check Firebase user security if authenticated via Firebase
+    if (isFirebaseAuthenticated) {
+      await securityService.checkUserSecurity();
+      if (securityService.isUserBlocked) {
+        if (kDebugMode) {
+          print('🚫 Blocked Firebase user attempted to share playlist');
+        }
+        Get.snackbar(
+          'Access Denied',
+          'Your account has been restricted. Sharing features are not available.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 5),
+        );
+        return;
+      }
+    }
+    
+    // Check Google Drive user email if authenticated via Google Drive
+    if (isGoogleDriveAuthenticated) {
+      final googleUserEmail = driveService.currentUser?.email;
+      if (googleUserEmail != null) {
+        final isEmailBlocked = await securityService.isEmailBlocked(googleUserEmail);
+        if (isEmailBlocked) {
+          if (kDebugMode) {
+            print('🚫 Blocked Google Drive user attempted to share playlist: $googleUserEmail');
+          }
+          Get.snackbar(
+            'Access Denied',
+            'Your account has been restricted. Sharing features are not available.',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 5),
+          );
+          return;
+        }
+      }
+    }
+    
     // Create a clickable HTTPS link using GitHub Pages
     final shareUrl =
         'https://manasseh-randriamitsiry.github.io/fihirana-share/?id=${playlist.id}';

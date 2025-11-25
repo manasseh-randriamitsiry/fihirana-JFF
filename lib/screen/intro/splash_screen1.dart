@@ -9,7 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../controller/language_controller.dart';
 import '../../controller/recording_controller.dart';
 import '../../controller/auth_controller.dart';
-import '../../services/google_drive_service.dart';
+
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -23,6 +23,7 @@ class SplashScreen1 extends StatefulWidget {
 class _SplashScreen1State extends State<SplashScreen1> {
   final TextEditingController _usernameController = TextEditingController();
   bool _agreementAccepted = false;
+  bool _termsExpanded = false;
   int _currentPage = 0;
   bool _isSigningIn = false;
   String? _googleUserName;
@@ -43,7 +44,6 @@ class _SplashScreen1State extends State<SplashScreen1> {
   void initState() {
     super.initState();
     _checkAgreementStatus();
-    _checkGoogleSignInStatus();
 
     // Initialize language controller
     languageController = Get.find<LanguageController>();
@@ -58,22 +58,25 @@ class _SplashScreen1State extends State<SplashScreen1> {
         setState(() {});
       }
     });
-  }
 
-  Future<void> _checkGoogleSignInStatus() async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user != null && mounted) {
+    // Listen to Firebase auth state changes
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (mounted) {
         setState(() {
-          _googleUserName = user.displayName ?? user.email?.split('@')[0];
-          _googleUserEmail = user.email;
+          if (user != null) {
+            _googleUserName = user.displayName ?? user.email?.split('@')[0];
+            _googleUserEmail = user.email;
+          } else {
+            _googleUserName = null;
+            _googleUserEmail = null;
+          }
         });
       }
-    } catch (e) {
-      // User not signed in or error occurred
-    }
+    });
   }
+
+
+
 
   @override
   void dispose() {
@@ -136,17 +139,31 @@ class _SplashScreen1State extends State<SplashScreen1> {
         return;
       }
 
-      // Sign in to Google Drive
-      final driveService = GoogleDriveService();
-      await driveService.signIn();
 
-      // Save preferences
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('has_agreed_to_terms', true);
-      await prefs.setBool('isFirstTime', false);
 
-      // Navigate to home
-      Get.offAll(() => const HomeScreen());
+      // Reset signing in state - the auth state listener will update the UI
+      if (mounted) {
+        setState(() {
+          _isSigningIn = false;
+        });
+
+        // Show success message
+        Get.snackbar(
+          l10n.welcome,
+          'Connected as ${userCredential.user?.displayName ?? userCredential.user?.email}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+          icon: const Icon(Icons.check_circle, color: Colors.white),
+        );
+
+        // Small delay to show the success message and updated UI
+        await Future.delayed(const Duration(milliseconds: 1500));
+      }
+
+      // Don't automatically navigate - let user click continue button
+      // The auth state listener will update the UI to show Google user info
     } catch (e) {
       if (mounted) {
         Get.snackbar(
@@ -233,7 +250,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
     final l10n = AppLocalizations.of(context)!;
 
     try {
-      // Save preferences for Google user
+      // Save preferences for Google user - use Google username, not field username
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('username', _googleUserName!);
       await prefs.setString('email', _googleUserEmail!);
@@ -785,7 +802,6 @@ class _SplashScreen1State extends State<SplashScreen1> {
       child: SafeArea(
         child: Stack(
           children: [
-// Background elements
             Positioned(
               top: -80,
               right: -80,
@@ -875,18 +891,72 @@ class _SplashScreen1State extends State<SplashScreen1> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  l10n.agreement,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                  ),
+                                // Header with expand/collapse button
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        l10n.agreement,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        _termsExpanded
+                                            ? Icons.expand_less
+                                            : Icons.expand_more,
+                                        color: Colors.green,
+                                      ),
+                                      onPressed: () {
+                                        HapticFeedback.selectionClick();
+                                        setState(() {
+                                          _termsExpanded = !_termsExpanded;
+                                        });
+                                      },
+                                      tooltip: _termsExpanded
+                                          ? 'Collapse'
+                                          : 'Expand to read full terms',
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 12),
-                                _buildAgreementItem(l10n.term1),
-                                const SizedBox(height: 8),
-                                _buildAgreementItem(l10n.term2),
+
+                                // Collapsible terms content
+                                AnimatedCrossFade(
+                                  firstChild: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Tap to expand and read the full terms...',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey.shade600,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  secondChild: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildAgreementItem(l10n.term1),
+                                      const SizedBox(height: 8),
+                                      _buildAgreementItem(l10n.term2),
+                                    ],
+                                  ),
+                                  crossFadeState: _termsExpanded
+                                      ? CrossFadeState.showSecond
+                                      : CrossFadeState.showFirst,
+                                  duration: const Duration(milliseconds: 300),
+                                ),
                                 const SizedBox(height: 16),
 
                                 // Agreement Checkbox
@@ -1022,10 +1092,8 @@ class _SplashScreen1State extends State<SplashScreen1> {
                         ),
                       ],
 
-                      // Google Sign In Button (only shown when agreement is accepted, username is filled with 4+ chars, and not signed in)
-                      if (_agreementAccepted &&
-                          !isGoogleUserSignedIn &&
-                          _usernameController.text.trim().length >= 4) ...[
+                      // Google Sign In Button (shown when agreement is accepted and not signed in)
+                      if (_agreementAccepted && !isGoogleUserSignedIn) ...[
                         const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
@@ -1181,8 +1249,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
                               .slideY(
                                   begin: 0.2, end: 0, curve: Curves.easeOut),
 
-                        if (isGoogleUserSignedIn ||
-                            _usernameController.text.trim().length >= 4)
+                        if (isGoogleUserSignedIn || _usernameController.text.trim().length >= 4)
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(

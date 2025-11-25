@@ -1710,4 +1710,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String continueAs(String name) {
     return 'Continuer en tant que : $name';
   }
+
+  @override
+  String get portfolio => 'Portfolio';
 }

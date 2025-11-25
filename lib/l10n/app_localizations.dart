@@ -3288,6 +3288,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue as: {name}'**
   String continueAs(String name);
+
+  /// No description provided for @portfolio.
+  ///
+  /// In en, this message translates to:
+  /// **'Portfolio'**
+  String get portfolio;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
