@@ -1702,4 +1702,9 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get appFeature4 => 'Mizara amin\'ny vondrom-piarahamonina';
+
+  @override
+  String continueAs(String name) {
+    return 'Hanohy ho: $name';
+  }
 }

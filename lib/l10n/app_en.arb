@@ -803,5 +803,13 @@
   "appFeature1": "Browse thousands of hymns",
   "appFeature2": "Record your own versions",
   "appFeature3": "Sync across devices",
-  "appFeature4": "Share with community"
+  "appFeature4": "Share with community",
+  "continueAs": "Continue as: {name}",
+  "@continueAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

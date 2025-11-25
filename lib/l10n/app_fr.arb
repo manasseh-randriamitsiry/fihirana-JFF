@@ -803,5 +803,13 @@
   "appFeature1": "Parcourir des milliers de cantiques",
   "appFeature2": "Enregistrer vos propres versions",
   "appFeature3": "Synchroniser sur tous les appareils",
-  "appFeature4": "Partager avec la communauté"
+  "appFeature4": "Partager avec la communauté",
+  "continueAs": "Continuer en tant que : {name}",
+  "@continueAs": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }
