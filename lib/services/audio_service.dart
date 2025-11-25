@@ -1,10 +1,14 @@
+import 'dart:io';
+import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart'; // For Color
 import '../models/hymn.dart';
 import 'audio_cache_service.dart';
 import 'audio_file_mapping.dart';
 import 'local_audio_service.dart';
+import 'google_drive_service.dart';
 
 class AudioService {
   static AudioService? _instance;
@@ -86,7 +90,7 @@ class AudioService {
     return await _cacheService.checkMultipleAudioExists(hymnIds);
   }
 
-  Future<void> playHymn(Hymn hymn, {String? filePath}) async {
+  Future<void> playHymn(Hymn hymn, {String? customAudioUrl}) async {
     if (kDebugMode) {
       print('AudioService: Starting to play hymn ${hymn.id}');
     }
@@ -117,12 +121,20 @@ class AudioService {
     String audioUrl;
     bool isLocalFile = false;
 
-    if (filePath != null) {
-      // Use provided file path (e.g. for recordings)
-      audioUrl = filePath;
-      isLocalFile = true;
-      if (kDebugMode) {
-        print('AudioService: Using provided audio file: $filePath');
+    if (customAudioUrl != null) {
+      // Use provided URL (could be local path or remote URL)
+      audioUrl = customAudioUrl;
+      // Check if it's a remote URL
+      if (audioUrl.startsWith('http')) {
+        isLocalFile = false;
+        if (kDebugMode) {
+          print('AudioService: Using provided remote audio URL: $audioUrl');
+        }
+      } else {
+        isLocalFile = true;
+        if (kDebugMode) {
+          print('AudioService: Using provided local audio file: $audioUrl');
+        }
       }
     } else if (localAudioPath != null) {
       // Use local file
@@ -381,6 +393,89 @@ class AudioService {
       createdBy: 'User',
     );
 
-    await playHymn(hymn, filePath: recording.filePath);
+    String? audioUrl;
+    String targetPath = recording.filePath;
+
+    // Check if local file exists
+    if (targetPath.isNotEmpty) {
+      final file = File(targetPath);
+      if (await file.exists()) {
+        audioUrl = targetPath;
+      }
+    } else {
+      // Generate a path if one doesn't exist
+      final stats = await _localAudioService.getStorageStats();
+      final dir = stats['directory'] as String;
+      // Default to .m4a as it's common for mobile recordings, or .mp3
+      targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+      if (kDebugMode) {
+        print('AudioService: Generated target path: $targetPath');
+      }
+    }
+
+    // If no local file, try to download from Drive
+    if (audioUrl == null && recording.driveFileId != null) {
+      if (kDebugMode) {
+        print(
+            'AudioService: Local file missing, attempting download from Drive...');
+      }
+
+      // Show loading indicator
+      Get.snackbar(
+        'Downloading Audio',
+        'Fetching recording from Google Drive...',
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 2),
+      );
+
+      try {
+        final driveService = GoogleDriveService();
+
+        // Ensure user is signed in
+        if (!driveService.isSignedIn) {
+          await driveService.signInSilently();
+        }
+
+        if (driveService.isSignedIn) {
+          final downloadedFile = await driveService.downloadFile(
+            recording.driveFileId!,
+            targetPath, // Save to the expected local path
+          );
+
+          if (downloadedFile != null && await downloadedFile.exists()) {
+            audioUrl = downloadedFile.path;
+            if (kDebugMode) {
+              print('AudioService: Download successful: $audioUrl');
+            }
+          } else {
+            throw Exception('Download failed');
+          }
+        } else {
+          throw Exception('Sign-in required to play Drive recordings');
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('AudioService: Error downloading from Drive: $e');
+        }
+        Get.snackbar(
+          'Error',
+          'Failed to download recording from Drive. Please check your connection.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: const Color(0xFFFFCDD2),
+          colorText: const Color(0xFFC62828),
+        );
+        return; // Stop playback attempt
+      }
+    }
+
+    if (audioUrl != null) {
+      await playHymn(hymn, customAudioUrl: audioUrl);
+    } else {
+      Get.snackbar(
+        'Error',
+        'Audio file not found locally or on Drive.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 }
