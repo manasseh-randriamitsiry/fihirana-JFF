@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 
-import './user_management_screen.dart';
+import './user_management_screen_optimized.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
@@ -92,25 +92,26 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   }
 
   Stream<Map<String, dynamic>> _getStats() {
-    return _firestore
-        .collection('users')
-        .snapshots()
-        .asyncMap((usersSnapshot) async {
-      final totalUsers = usersSnapshot.docs.length;
-
-      // Active users (last login within 30 days)
+    // Optimized stats using counters and aggregated queries
+    return _firestore.collection('stats').doc('global').snapshots().asyncMap((statsDoc) async {
+      // Get user counts efficiently
+      final totalUsersQuery = await _firestore.collection('users').count().get();
+      final totalUsers = totalUsersQuery.count ?? 0;
+      
+      // Active users count using query instead of loading all documents
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-      final activeUsers = usersSnapshot.docs.where((doc) {
-        final lastLogin = (doc.data()['lastLogin'] as Timestamp?)?.toDate();
-        return lastLogin != null && lastLogin.isAfter(thirtyDaysAgo);
-      }).length;
+      final activeUsersQuery = await _firestore
+          .collection('users')
+          .where('lastLogin', isGreaterThan: Timestamp.fromDate(thirtyDaysAgo))
+          .count()
+          .get();
+      final activeUsers = activeUsersQuery.count ?? 0;
 
-      // New hymns (total count for now, could be improved to recent)
+      // Hymns count
       final hymnsSnapshot = await _firestore.collection('hymns').count().get();
-      final totalHymns = hymnsSnapshot.count;
+      final totalHymns = hymnsSnapshot.count ?? 0;
 
-      // Installations
-      final statsDoc = await _firestore.collection('stats').doc('global').get();
+      // Installations from stats doc or fallback
       final installations = statsDoc.data()?['installations'] as int? ?? 0;
 
       return {
@@ -226,7 +227,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
                 controller: _tabController,
                 children: [
                   // Users Tab
-                  const UserListWidget(),
+                  const OptimizedUserManagementScreen(),
 
                   // Hymns Tab
                   _buildHymnsList(
