@@ -108,7 +108,7 @@ class RecordingManagerScreen extends StatelessWidget {
               'RecordingManager: Personal: ${personalRecordings.length}, Public: ${publicRecordings.length}');
         }
 
-        if (controller.recordings.isEmpty) {
+        if (personalRecordings.isEmpty && publicRecordings.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
