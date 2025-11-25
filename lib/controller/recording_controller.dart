@@ -11,6 +11,9 @@ import '../services/google_drive_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/hymn.dart';
 import '../services/audio_service.dart';
+import 'package:fihirana/services/local_audio_service.dart'; // New import
+import 'package:share_plus/share_plus.dart'; // New import
+import 'package:path/path.dart' as path; // New import
 // We need to import AudioPlayerScreen to navigate to it
 import '../screen/player/audio_player_screen.dart';
 
@@ -673,5 +676,160 @@ class RecordingController extends GetxController {
 
   bool shouldShowPlayerOverlay() {
     return isPlayerOverlayVisible.value;
+  }
+
+  Future<void> downloadRecording(UserRecording recording) async {
+    try {
+      // Check if already exists
+      if (recording.filePath.isNotEmpty &&
+          await File(recording.filePath).exists()) {
+        Get.snackbar(
+          'Download',
+          'Recording is already downloaded.',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      if (recording.driveFileId == null) {
+        Get.snackbar('Error', 'Cannot download: No Drive file ID found.');
+        return;
+      }
+
+      Get.snackbar(
+        'Downloading',
+        'Downloading ${recording.title}...',
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Determine target path
+      String targetPath = recording.filePath;
+      if (targetPath.isEmpty) {
+        final localService = LocalAudioService();
+        await localService.initialize();
+        final stats = await localService.getStorageStats();
+        final dir = stats['directory'] as String;
+        targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+      }
+
+      final driveService = GoogleDriveService();
+      if (!driveService.isSignedIn) {
+        await driveService.signInSilently();
+      }
+
+      if (!driveService.isSignedIn) {
+        throw Exception('Not signed in to Drive');
+      }
+
+      final file =
+          await driveService.downloadFile(recording.driveFileId!, targetPath);
+
+      if (file != null && await file.exists()) {
+        // Update recording with new path
+        final updatedRecording = recording.copyWith(filePath: file.path);
+        await _recordingService.updateRecording(updatedRecording);
+
+        // Update in list
+        final index = recordings.indexWhere((r) => r.id == recording.id);
+        if (index != -1) {
+          recordings[index] = updatedRecording;
+        }
+
+        Get.back(); // Close progress snackbar
+        Get.snackbar(
+          'Success',
+          'Downloaded ${recording.title}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withValues(alpha: 0.1),
+          colorText: Colors.green,
+        );
+      } else {
+        throw Exception('Download failed');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Download error: $e');
+      }
+      Get.back(); // Close progress snackbar
+      Get.snackbar(
+        'Error',
+        'Failed to download recording: $e',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.withValues(alpha: 0.1),
+        colorText: Colors.red,
+      );
+    }
+  }
+
+  Future<void> shareRecordingFile(UserRecording recording) async {
+    try {
+      String? filePath = recording.filePath;
+      bool fileExists = filePath.isNotEmpty && await File(filePath).exists();
+
+      if (!fileExists) {
+        // Try to download first
+        if (recording.driveFileId != null) {
+          Get.snackbar(
+            'Preparing Share',
+            'Downloading file to share...',
+            showProgressIndicator: true,
+            snackPosition: SnackPosition.BOTTOM,
+          );
+
+          // Determine target path
+          String targetPath = recording.filePath;
+          if (targetPath.isEmpty) {
+            final localService = LocalAudioService();
+            await localService.initialize();
+            final stats = await localService.getStorageStats();
+            final dir = stats['directory'] as String;
+            targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+          }
+
+          final driveService = GoogleDriveService();
+          if (!driveService.isSignedIn) {
+            await driveService.signInSilently();
+          }
+
+          if (driveService.isSignedIn) {
+            final file = await driveService.downloadFile(
+                recording.driveFileId!, targetPath);
+            if (file != null && await file.exists()) {
+              filePath = file.path;
+
+              // Update recording with new path
+              final updatedRecording = recording.copyWith(filePath: filePath);
+              await _recordingService.updateRecording(updatedRecording);
+
+              // Update in list
+              final index = recordings.indexWhere((r) => r.id == recording.id);
+              if (index != -1) {
+                recordings[index] = updatedRecording;
+              }
+            }
+          }
+        }
+      }
+
+      if (await File(filePath).exists()) {
+        // Share the file
+        await Share.shareXFiles(
+          [XFile(filePath)],
+          text: 'Check out my recording of ${recording.title}',
+        );
+      } else if (recording.driveWebLink != null) {
+        // Fallback to link
+        await Share.share(
+            'Check out this recording: ${recording.driveWebLink}');
+      } else {
+        Get.snackbar('Error', 'Could not share recording. File not found.');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Share error: $e');
+      }
+      Get.snackbar('Error', 'Failed to share recording');
+    }
   }
 }
