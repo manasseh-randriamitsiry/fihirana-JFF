@@ -396,8 +396,15 @@ class AudioService {
     String? audioUrl;
     String targetPath = recording.filePath;
 
-    // Check if local file exists
-    if (targetPath.isNotEmpty) {
+    // PRIORITY 1: Check if recording has a public link (for public recordings - no auth needed)
+    if (recording.publicLink != null && recording.publicLink!.isNotEmpty) {
+      audioUrl = recording.publicLink;
+      if (kDebugMode) {
+        print('AudioService: Streaming public recording from: $audioUrl');
+      }
+    }
+    // PRIORITY 2: Check if local file exists
+    else if (targetPath.isNotEmpty) {
       final file = File(targetPath);
       if (await file.exists()) {
         audioUrl = targetPath;
@@ -413,11 +420,11 @@ class AudioService {
       }
     }
 
-    // If no local file, try to download from Drive
+    // PRIORITY 3: If no local file and no public link, try to download from Drive (private recordings)
     if (audioUrl == null && recording.driveFileId != null) {
       if (kDebugMode) {
         print(
-            'AudioService: Local file missing, attempting download from Drive...');
+            'AudioService: Private recording - attempting download from Drive...');
       }
 
       // Show loading indicator
