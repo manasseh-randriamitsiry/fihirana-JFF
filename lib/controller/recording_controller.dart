@@ -3,12 +3,16 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
+// import 'package:just_audio/just_audio.dart'; // Removed unused import
 import 'package:uuid/uuid.dart';
 import '../models/user_recording.dart';
 import '../services/user_recording_service.dart';
 import '../services/google_drive_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/hymn.dart';
+import '../services/audio_service.dart';
+// We need to import AudioPlayerScreen to navigate to it
+import '../screen/player/audio_player_screen.dart';
 
 class RecordingController extends GetxController {
   final UserRecordingService _recordingService = UserRecordingService();
@@ -22,12 +26,13 @@ class RecordingController extends GetxController {
   Timer? _timer;
 
   // Playback state
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  final RxBool isPlaying = false.obs;
-  final RxString currentPlayingId = ''.obs;
-  final Rx<Duration> currentPosition = Duration.zero.obs;
-  final Rx<Duration> totalDuration = Duration.zero.obs;
-  final RxDouble playbackSpeed = 1.0.obs;
+  // Removed internal AudioPlayer as we now use AudioService
+  // final AudioPlayer _audioPlayer = AudioPlayer();
+  // final RxBool isPlaying = false.obs;
+  // final RxString currentPlayingId = ''.obs;
+  // final Rx<Duration> currentPosition = Duration.zero.obs;
+  // final Rx<Duration> totalDuration = Duration.zero.obs;
+  // final RxDouble playbackSpeed = 1.0.obs;
 
   // Data
   final RxList<UserRecording> recordings = <UserRecording>[].obs;
@@ -57,7 +62,9 @@ class RecordingController extends GetxController {
     super.onInit();
     _initServices();
     _loadGuestName();
-    _setupAudioPlayerListeners();
+    _initServices();
+    _loadGuestName();
+    // _setupAudioPlayerListeners(); // No longer needed
 
     // Auto-refresh recordings when page is accessed
     _autoRefreshRecordings();
@@ -121,12 +128,12 @@ class RecordingController extends GetxController {
         print('RecordingController: Periodic refresh triggered');
       }
       _recordingService.loadRecordings();
-      
+
       // Check for silent sign-in every 2 minutes (every 4 ticks)
       if (!isDriveSignedIn.value && timer.tick % 4 == 0) {
         _checkForSilentSignIn();
       }
-      
+
       // Also sync from Drive if signed in (every 5 minutes to avoid API limits)
       if (isDriveSignedIn.value && timer.tick % 10 == 0) {
         syncFromDrive();
@@ -142,9 +149,10 @@ class RecordingController extends GetxController {
         isDriveSignedIn.value = true;
         userEmail.value = currentUser.email;
         if (kDebugMode) {
-          print('RecordingController: Periodic check found Drive account: ${currentUser.email}');
+          print(
+              'RecordingController: Periodic check found Drive account: ${currentUser.email}');
         }
-        
+
         // Auto-sync when account is detected
         await syncFromDrive();
       }
@@ -158,7 +166,7 @@ class RecordingController extends GetxController {
   @override
   void onClose() {
     _timer?.cancel();
-    _audioPlayer.dispose();
+    // _audioPlayer.dispose(); // No longer needed
     _periodicRefreshTimer?.cancel(); // Stop periodic refresh
     super.onClose();
   }
@@ -208,12 +216,13 @@ class RecordingController extends GetxController {
             print(
                 'RecordingController: Auto-detected Drive account: ${currentUser.email}');
           }
-          
+
           // Auto-sync recordings from Drive
           await syncFromDrive();
         } else {
           if (kDebugMode) {
-            print('RecordingController: No existing Google Drive account found');
+            print(
+                'RecordingController: No existing Google Drive account found');
           }
         }
       } catch (e) {
@@ -233,24 +242,24 @@ class RecordingController extends GetxController {
     }
   }
 
-  void _setupAudioPlayerListeners() {
-    _audioPlayer.playerStateStream.listen((state) {
-      isPlaying.value = state.playing;
-      if (state.processingState == ProcessingState.completed) {
-        isPlaying.value = false;
-        currentPlayingId.value = '';
-        currentPosition.value = Duration.zero;
-      }
-    });
-
-    _audioPlayer.positionStream.listen((position) {
-      currentPosition.value = position;
-    });
-
-    _audioPlayer.durationStream.listen((duration) {
-      totalDuration.value = duration ?? Duration.zero;
-    });
-  }
+  // void _setupAudioPlayerListeners() {
+  //   _audioPlayer.playerStateStream.listen((state) {
+  //     isPlaying.value = state.playing;
+  //     if (state.processingState == ProcessingState.completed) {
+  //       isPlaying.value = false;
+  //       currentPlayingId.value = '';
+  //       currentPosition.value = Duration.zero;
+  //     }
+  //   });
+  //
+  //   _audioPlayer.positionStream.listen((position) {
+  //     currentPosition.value = position;
+  //   });
+  //
+  //   _audioPlayer.durationStream.listen((duration) {
+  //     totalDuration.value = duration ?? Duration.zero;
+  //   });
+  // }
 
   void _startTimer() {
     _timer?.cancel();
@@ -308,25 +317,24 @@ class RecordingController extends GetxController {
   // Playback Actions
   Future<void> playRecording(UserRecording recording) async {
     try {
-      currentPlayingId.value = recording.id;
-      await _audioPlayer.setFilePath(recording.filePath);
-      await _audioPlayer.play();
+      // Use AudioService to play the recording
+      await AudioService.instance.playRecording(recording);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to play recording');
+      Get.snackbar('Error', 'Failed to play recording: $e');
     }
   }
 
   Future<void> pausePlayback() async {
-    await _audioPlayer.pause();
+    await AudioService.instance.pause();
   }
 
   Future<void> seekTo(Duration position) async {
-    await _audioPlayer.seek(position);
+    await AudioService.instance.seekTo(position);
   }
 
   Future<void> setPlaybackSpeed(double speed) async {
-    playbackSpeed.value = speed;
-    await _audioPlayer.setSpeed(speed);
+    // playbackSpeed.value = speed;
+    await AudioService.instance.player.setSpeed(speed);
   }
 
   // Management Actions
@@ -383,11 +391,12 @@ class RecordingController extends GetxController {
     if (account != null) {
       isDriveSignedIn.value = true;
       userEmail.value = account.email;
-      
+
       if (kDebugMode) {
-        print('RecordingController: Manual sign-in successful for ${account.email}');
+        print(
+            'RecordingController: Manual sign-in successful for ${account.email}');
       }
-      
+
       // Auto-sync after successful sign-in
       await syncFromDrive();
     }
@@ -495,7 +504,7 @@ class RecordingController extends GetxController {
     try {
       isLoading.value = true;
       final driveFiles = await _driveService.listRecordings();
-      
+
       if (kDebugMode) {
         print('Found ${driveFiles.length} files in Drive');
       }
@@ -519,7 +528,9 @@ class RecordingController extends GetxController {
             title: (driveFile.name ?? '').replaceAll('.m4a', ''),
             filePath: '', // No local file available
             durationSeconds: 0, // Unknown duration
-            createdAt: DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ?? DateTime.now(),
+            createdAt:
+                DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ??
+                    DateTime.now(),
             isPublic: false,
             tags: [],
             driveFileId: driveFile.id ?? '',
@@ -528,7 +539,7 @@ class RecordingController extends GetxController {
 
           // Use saveDriveRecording to add it directly with Drive info
           await _recordingService.saveDriveRecording(recording);
-          
+
           if (kDebugMode) {
             print('Added new recording from Drive: ${recording.title}');
           }
@@ -538,7 +549,8 @@ class RecordingController extends GetxController {
       // Check for local recordings that have Drive files but the Drive file no longer exists
       for (final recording in recordings) {
         if (recording.driveFileId != null) {
-          final driveFileExists = driveFiles.any((f) => f.id == recording.driveFileId);
+          final driveFileExists =
+              driveFiles.any((f) => f.id == recording.driveFileId);
           if (!driveFileExists) {
             // The Drive file was deleted externally, update local recording
             final updated = recording.copyWith(
@@ -546,9 +558,10 @@ class RecordingController extends GetxController {
               driveWebLink: null,
             );
             await _recordingService.updateRecording(updated);
-            
+
             if (kDebugMode) {
-              print('Removed Drive reference for deleted file: ${recording.title}');
+              print(
+                  'Removed Drive reference for deleted file: ${recording.title}');
             }
           }
         }
@@ -560,7 +573,6 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('Drive sync completed');
       }
-
     } catch (e) {
       if (kDebugMode) {
         print('Error syncing from Drive: $e');
@@ -610,8 +622,7 @@ class RecordingController extends GetxController {
   final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
 
   void showPlayer(UserRecording recording) {
-    // If recording is in progress, do not show player or maybe pause recording?
-    // For now, let's assume we can't play while recording.
+    // If recording is in progress, do not show player
     if (isRecording.value) {
       Get.snackbar(
           'Recording in progress', 'Please stop recording before playing.');
@@ -624,9 +635,22 @@ class RecordingController extends GetxController {
       return;
     }
 
-    currentRecording.value = recording;
-    isPlayerOverlayVisible.value = true;
-    isPlayerMinimized.value = false;
+    // Create a fake Hymn object for the player screen
+    final hymn = Hymn(
+      id: recording.id,
+      hymnNumber: recording.hymnId,
+      title: recording.title,
+      verses: [],
+      createdAt: recording.createdAt,
+      createdBy: 'User',
+    );
+
+    // Navigate to AudioPlayerScreen
+    Get.to(() => AudioPlayerScreen(
+          hymn: hymn,
+          // We can pass a playlist of 1 item if needed, or just the hymn
+          playlist: [hymn],
+        ));
 
     // Start playing
     playRecording(recording);
