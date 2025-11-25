@@ -1668,40 +1668,40 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get signInWithGoogle => 'Hiditra amin\'ny Google';
+  String get signInWithGoogle => 'Hampiasa Google';
 
   @override
-  String get continueAsGuest => 'Hanohy ho vahiny';
+  String get continueAsGuest => 'Tsy asiana compte';
 
   @override
-  String get signingIn => 'Miditra...';
+  String get signingIn => 'Hiditra...';
 
   @override
   String get googleSignInFailed => 'Tsy nahomby ny fidirana amin\'ny Google';
 
   @override
-  String get welcomeBack => 'Tongasoa indray';
+  String get welcomeBack => 'Tongasoa tafaverina';
 
   @override
   String get orDivider => 'NA';
 
   @override
-  String get skipForNow => 'Alefaso aloha';
+  String get skipForNow => 'Aoka aloha';
 
   @override
-  String get getStarted => 'Atombohy';
+  String get getStarted => 'Hanomboka';
 
   @override
-  String get appFeature1 => 'Mijery hira an\'arivony';
+  String get appFeature1 => 'Mampiasa fihirana';
 
   @override
-  String get appFeature2 => 'Mandrakitra ny anao manokana';
+  String get appFeature2 => 'Mampiditra ny hira fiderana, sy fandraisampeo( mila compte Google)';
 
   @override
-  String get appFeature3 => 'Sync amin\'ny fitaovana rehetra';
+  String get appFeature3 => 'Voatahiry ny hiranao sy izay tianao sns na miova finday hafa';
 
   @override
-  String get appFeature4 => 'Mizara amin\'ny vondrom-piarahamonina';
+  String get appFeature4 => 'Mizara hira na playlist';
 
   @override
   String continueAs(String name) {

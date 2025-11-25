@@ -1695,13 +1695,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get appFeature1 => 'Parcourir des milliers de cantiques';
 
   @override
-  String get appFeature2 => 'Enregistrer vos propres versions';
+  String get appFeature2 => 'Enregistrer vos propres versions et des nouveaux cantiques';
 
   @override
   String get appFeature3 => 'Synchroniser sur tous les appareils';
 
   @override
-  String get appFeature4 => 'Partager avec la communauté';
+  String get appFeature4 => 'Partager avec les autres et la communauté';
 
   @override
   String continueAs(String name) {
