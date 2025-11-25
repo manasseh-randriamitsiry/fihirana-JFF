@@ -16,9 +16,13 @@ class GoogleDriveService {
   GoogleSignInAccount? _currentUser;
   drive.DriveApi? _driveApi;
 
-  // Folder name in Drive
+  // Folder names in Drive
   static const String _folderName = 'Fihirana Recordings';
+  static const String _privateFolderName = 'Private Recordings';
+  static const String _publicFolderName = 'Public Recordings';
   String? _folderId;
+  String? _privateFolderId;
+  String? _publicFolderId;
 
   Future<GoogleSignInAccount?> signIn() async {
     try {
@@ -64,6 +68,8 @@ class GoogleDriveService {
     _currentUser = null;
     _driveApi = null;
     _folderId = null;
+    _privateFolderId = null;
+    _publicFolderId = null;
   }
 
   Future<void> _initializeDriveApi() async {
@@ -110,15 +116,57 @@ class GoogleDriveService {
     }
   }
 
+  Future<String?> _getOrCreateSubfolder(String subfolderName) async {
+    if (_driveApi == null || _folderId == null) return null;
+
+    try {
+      // Check if subfolder exists
+      final fileList = await _driveApi!.files.list(
+        q: "mimeType = 'application/vnd.google-apps.folder' and name = '$subfolderName' and '$_folderId' in parents and trashed = false",
+        $fields: "files(id, name)",
+      );
+
+      if (fileList.files != null && fileList.files!.isNotEmpty) {
+        return fileList.files!.first.id;
+      } else {
+        // Create subfolder
+        final folder = drive.File()
+          ..name = subfolderName
+          ..mimeType = 'application/vnd.google-apps.folder'
+          ..parents = [_folderId!];
+
+        final createdFolder = await _driveApi!.files.create(folder);
+        return createdFolder.id;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error creating subfolder $subfolderName: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<void> _ensureSubfoldersExist() async {
+    _privateFolderId = await _getOrCreateSubfolder(_privateFolderName);
+    _publicFolderId = await _getOrCreateSubfolder(_publicFolderName);
+  }
+
   Future<String?> uploadFile(File file, String title,
-      {String? description}) async {
+      {String? description, bool isPublic = false}) async {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null || _folderId == null) return null;
+
+    // Ensure subfolders exist
+    await _ensureSubfoldersExist();
+
+    // Choose folder based on isPublic flag
+    final targetFolderId = isPublic ? _publicFolderId : _privateFolderId;
+    if (targetFolderId == null) return null;
 
     try {
       final driveFile = drive.File()
         ..name = title
-        ..parents = [_folderId!]
+        ..parents = [targetFolderId]
         ..description = description;
 
       final media = drive.Media(file.openRead(), await file.length());
@@ -128,10 +176,54 @@ class GoogleDriveService {
         $fields: 'id, webViewLink',
       );
 
+      // If public, set file permissions
+      if (isPublic && result.id != null) {
+        await setFilePublic(result.id!);
+      }
+
       return result.id;
     } catch (e) {
       if (kDebugMode) {
         print('Error uploading file to Drive: $e');
+      }
+      return null;
+    }
+  }
+
+  Future<bool> setFilePublic(String fileId) async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) return false;
+
+    try {
+      final permission = drive.Permission()
+        ..type = 'anyone'
+        ..role = 'reader';
+
+      await _driveApi!.permissions.create(permission, fileId);
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error setting file public: $e');
+      }
+      return false;
+    }
+  }
+
+  Future<String?> getPublicLink(String fileId) async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) return null;
+
+    try {
+      final file = await _driveApi!.files.get(
+        fileId,
+        $fields: 'webContentLink, webViewLink',
+      ) as drive.File;
+
+      // Return direct download link if available, otherwise view link
+      return file.webContentLink ?? file.webViewLink;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting public link: $e');
       }
       return null;
     }

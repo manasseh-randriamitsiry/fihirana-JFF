@@ -122,7 +122,11 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       if (_uploadToDrive) {
         // Show upload progress in dialog
         setState(() => _showSaveDialog = false);
-        _showUploadProgressDialog(_currentRecording!);
+        _showUploadProgressDialog(_currentRecording!, isPublic: _isPublic);
+      } else if (_isPublic) {
+        // If marked as public but not uploading to Drive, we need to upload it
+        setState(() => _showSaveDialog = false);
+        _showUploadProgressDialog(_currentRecording!, isPublic: true);
       } else {
         _controller.hideOverlay();
         widget.onClose();
@@ -714,9 +718,15 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     );
   }
 
-  void _showUploadProgressDialog(UserRecording recording) {
+  void _showUploadProgressDialog(UserRecording recording,
+      {bool isPublic = false}) {
     // Trigger the upload when dialog is shown
-    _controller.uploadToDrive(recording);
+    _controller.uploadToDrive(recording).then((_) async {
+      // If marked as public, publish to Firestore after upload
+      if (isPublic) {
+        await _controller.publishRecording(recording);
+      }
+    });
 
     showDialog(
       context: context,
