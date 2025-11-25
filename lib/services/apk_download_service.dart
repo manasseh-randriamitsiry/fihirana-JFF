@@ -184,8 +184,8 @@ class ApkDownloadService {
     );
 
     // Configure adapter
-    (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate =
-        (client) {
+    (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+      final client = HttpClient();
       client.badCertificateCallback = (cert, host, port) => false;
       client.maxConnectionsPerHost = 16;
       return client;
