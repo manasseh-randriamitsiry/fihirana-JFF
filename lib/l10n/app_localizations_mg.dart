@@ -1666,4 +1666,40 @@ class AppLocalizationsMg extends AppLocalizations {
   String anErrorOccurredDuringPlayback(String error) {
     return 'Nisy hadisoana nandritra ny famaky: $error';
   }
+
+  @override
+  String get signInWithGoogle => 'Hiditra amin\'ny Google';
+
+  @override
+  String get continueAsGuest => 'Hanohy ho vahiny';
+
+  @override
+  String get signingIn => 'Miditra...';
+
+  @override
+  String get googleSignInFailed => 'Tsy nahomby ny fidirana amin\'ny Google';
+
+  @override
+  String get welcomeBack => 'Tongasoa indray';
+
+  @override
+  String get orDivider => 'NA';
+
+  @override
+  String get skipForNow => 'Alefaso aloha';
+
+  @override
+  String get getStarted => 'Atombohy';
+
+  @override
+  String get appFeature1 => 'Mijery hira an\'arivony';
+
+  @override
+  String get appFeature2 => 'Mandrakitra ny anao manokana';
+
+  @override
+  String get appFeature3 => 'Sync amin\'ny fitaovana rehetra';
+
+  @override
+  String get appFeature4 => 'Mizara amin\'ny vondrom-piarahamonina';
 }

@@ -30,10 +30,10 @@
   "forgotPassword": "Hadinonao ny teny miafina?",
   "resetPassword": "Hanova ny teny miafina",
   "send": "Alefaso",
-  "cancel": "Ajanona",
+  "cancel": "Ajanony",
   "ok": "OK",
   "save": "Tehirizo",
-  "delete": "Hamafa",
+  "delete": "Fafao",
   "edit": "Hanova",
   "add": "Ampidiro",
   "remove": "Esory",
@@ -58,9 +58,9 @@
   "info": "Fampahalalana",
   "confirm": "Hanamafy",
   "newHymn": "Hira vaovao",
-  "deleteVerse":"Hamafa ny andininy",
+  "deleteVerse": "Hamafa ny andininy",
   "addVerse": "Hampiditra andininy",
-  "hymnHint":"Soso-kevitra momba ny hira",
+  "hymnHint": "Soso-kevitra momba ny hira",
   "confirmDelete": "Tena hamafa?",
   "confirmLogout": "Tena hivoaka?",
   "noResults": "Tsy misy vokatra",
@@ -76,10 +76,10 @@
   },
   "hymnAlreadyDownloaded": "Efa nadika ny hira",
   "playlistNotFound": "Tsy hita ny playlist",
-  "share": "Hizara",
+  "share": "Zarao",
   "copy": "Handika",
   "view": "Hijery",
-  "download": "Haka",
+  "download": "Alahao",
   "hymnNotDownloaded": "Tsy mbola tafiditra ny hira",
   "addToFavorites": "Hampiditra amin’ny hira tiana",
   "removeFromFavorites": "hanaisotra amin’ny hira tiana",
@@ -107,16 +107,16 @@
   "connectionError": "Olana ara-pifandraisana",
   "serverError": "Olana foibe",
   "unknownError": "Olana tsy fantatra",
-  "retry": "averina atao",
+  "retry": "Andramo indray",
   "tryAgain": "Andramo indray",
-  "close": "Akatona",
+  "close": "Hidio",
   "back": "Hiverina",
   "next": "Manaraka",
   "previous": "Teo aloha",
   "finish": "Vita",
   "start": "Manomboka",
-  "stop": "Ajanona",
-  "pause": "Atsahatra",
+  "stop": "Ajanony",
+  "pause": "Atohizo",
   "resume": "Tohizo",
   "play": "Alefaso",
   "alphabeticalOrder": "Filaharana abidy",
@@ -191,7 +191,9 @@
   "chooseColorFor": "Safidio ny loko ho an’ny {colorType}",
   "@chooseColorFor": {
     "placeholders": {
-      "colorType": {"type": "String"}
+      "colorType": {
+        "type": "String"
+      }
     }
   },
   "chooseColor": "Safidio ny loko",
@@ -209,14 +211,20 @@
   "createdByLabel": "Nampidirin’i {name}{email}",
   "@createdByLabel": {
     "placeholders": {
-      "name": {"type": "String"},
-      "email": {"type": "String"}
+      "name": {
+        "type": "String"
+      },
+      "email": {
+        "type": "String"
+      }
     }
   },
   "confirmDeleteHymn": "Tena hamafa ny hira \"{title}\" ve ianao?",
   "@confirmDeleteHymn": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "copyHymnContent": "Adikao ny votoatin’ny hira",
@@ -261,7 +269,9 @@
   "verseWithNumber": "Andininy {number}",
   "@verseWithNumber": {
     "placeholders": {
-      "number": {"type": "int"}
+      "number": {
+        "type": "int"
+      }
     }
   },
   "bridge": "Isan'Andininy",
@@ -276,14 +286,18 @@
   "errorSavingHymn": "Nisy olana: {error}",
   "@errorSavingHymn": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "enterVerse": "Soraty ny andininy",
   "noPermissionToCreate": "Salama {email},\nNoho ny antony manokana dia tsy mbola manana alalana hamorona hira ianao.\nAzafady miandrasa kely.\nNa mifandraisa amin’ny admin (Manassé) hanome alalana.",
   "@noPermissionToCreate": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "createHymn": "Hamorona hira",
@@ -294,7 +308,9 @@
   "errorUpdating": "Nisy olana: {error}",
   "@errorUpdating": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "editNote": "Hanova naoty",
@@ -311,7 +327,9 @@
   "errorOccurredColon": "Nisy olana: {error}",
   "@errorOccurredColon": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noAdditionalHymns": "Tsy misy fihirana fanampiny",
@@ -329,7 +347,9 @@
   "cannotDownload": "Tsy afaka naka: {error}",
   "@cannotDownload": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noPermissionAdmin": "Tsy manana alalana hiditra amin’ny admin panel ianao",
@@ -343,16 +363,20 @@
   "notLoggedInMessage": "Tsy tafiditra ianao. Midira amin’ny kaontinao mba hahazoana fampiasa rehetra.",
   "clearAllHistory": "Hamafa ny tantara rehetra",
   "removeAllHistory": "Hanaisotra ny tantara rehetra",
-  "createdBy": "Nampidirin’i {name}",
+  "createdBy": "Nampidirin’i",
   "@createdBy": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "deleteFailed": "Tsy nahomby ny famafana: {error}",
   "@deleteFailed": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "sortByRecent": "Vao haingana",
@@ -371,7 +395,6 @@
   "selectedHymnsDeleted": "Voafafa ny hira voafidy",
   "noHymns": "Tsy misy hira",
   "adminPanel": "Ho an'ny Admin",
-  "createdBy": "Nampidirin’i",
   "date": "Daty",
   "errorLabel": "Hadisoana",
   "newest": "Vaovao indrindra",
@@ -386,7 +409,9 @@
   "hymnCount": "{count} hira",
   "@hymnCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "sortBySongs": "Araka isan’ny hira",
@@ -418,7 +443,7 @@
   "clearHistorySuccess": "Voafafa ny tantara rehetra",
   "clearHistoryError": "Nisy hadisoana tamin’ny famafana tantara",
   "cannotAddHymns": "Tsy afaka manampy hira amin’izao fotoana izao",
-  "searchBooks": "Hikaroka boky...",
+  "searchBooks": "Hikaroka boky",
   "searchCurrentChapter": "Hikaroka ao amin’ny toko {chapter}",
   "searchEntireBible": "Hikaroka amin'ny Baiboly manontolo",
   "change": "Hanova",
@@ -426,14 +451,18 @@
   "emailLabel": "Adiresy mailaka: {email}",
   "@emailLabel": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "addressLabel": "Adiresy:",
   "appVersion": "Kinova {version}",
   "@appVersion": {
     "placeholders": {
-      "version": {"type": "String"}
+      "version": {
+        "type": "String"
+      }
     }
   },
   "appNameSuffix": "JFF",
@@ -448,7 +477,9 @@
   "selectedItems": "{count} voafidy",
   "@selectedItems": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "aboutTheApp": "Mombamomba ny Application",
@@ -496,19 +527,22 @@
   "errorPlayingAudio": "Nisy olana tamin'ny fandefasana hira: {error}",
   "@errorPlayingAudio": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "playlistExampleHint": "oh: Hira fivoriana maraina",
   "confirmDeletePlaylist": "Tena hamafa ny \"{playlistTitle}\" ve ianao?",
   "@confirmDeletePlaylist": {
     "placeholders": {
-      "playlistTitle": {"type": "String"}
+      "playlistTitle": {
+        "type": "String"
+      }
     }
   },
   "searchFavoriteSongsHint": "Hikaroka ny hira tiana...",
   "searchWordsOrVersesHint": "Hikaroka teny na andininy...",
-  "searchBooks": "Hikaroka boky",
   "wholeBible": "Amin'ny baiboly manontolo",
   "audioPlayer": "Mpandefa hira",
   "playAudio": "Alefaso ny hira",
@@ -522,12 +556,12 @@
   "added": "Tafiditra",
   "noHymnsAddedYet": "Tsy mbola nampidira hira",
   "errorLoadingHymns": "Nisy olana tamin'ny fakana hira",
-  "audioAvailable":"Misy audio",
-  "noAudioAvailable":"Tsy misy audio",
-  "searchBible":"Fikarohana Baiboly",
-  "enterWordToSearch":"Ampidiro ny teny hokarohina",
-  "noSearchResults":"Tsy misy vokatra",
-  "changeWordToSearch":"Hanova ny teny hikarohana",
+  "audioAvailable": "Misy audio",
+  "noAudioAvailable": "Tsy misy audio",
+  "searchBible": "Fikarohana Baiboly",
+  "enterWordToSearch": "Ampidiro ny teny hokarohina",
+  "noSearchResults": "Tsy misy vokatra",
+  "changeWordToSearch": "Hanova ny teny hikarohana",
   "hymnsCount": "{count,plural, =0{Tsy misy hira} =1{1 hira} other{{count} hira}}",
   "@hymnsCount": {
     "description": "Hafatra izay mampiseho ny isan'ny hira ao amin'ny playlist iray",
@@ -537,27 +571,32 @@
       }
     }
   },
-  "noChaptersFound":"Tsy misy toko",
+  "noChaptersFound": "Tsy misy toko",
   "yourProfile": "Ny momba anao",
   "usernameLabel": "Anarana mpampiasa: {username}",
   "@usernameLabel": {
     "placeholders": {
-      "username": {"type": "String"}
+      "username": {
+        "type": "String"
+      }
     }
   },
   "userIdLabel": "ID: {userId}",
   "@userIdLabel": {
     "placeholders": {
-      "userId": {"type": "String"}
+      "userId": {
+        "type": "String"
+      }
     }
   },
   "syncInfoMessage1": "Ny hira tiana sy ny tantara ary playlist dia voatahiry ao amin’ny kaontinao Google.",
   "syncInfoMessage2": "Tsy ho very na dia miova finday ianao.",
-  "unknownUser": "Mpampiasa tsy fantatra",
   "errorOccurredWithDetails": "Nisy olana: {error}",
   "@errorOccurredWithDetails": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "clearSearch": "Hanadio ny fikarohana",
@@ -566,19 +605,25 @@
   "totalCachedHymns": "Totalin’ny hira voatahiry: {count}",
   "@totalCachedHymns": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "withAudio": "Misy feo: {count}",
   "@withAudio": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "withoutAudio": "Tsy misy feo: {count}",
   "@withoutAudio": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "currentVersion": "version ankehitriny",
@@ -586,7 +631,6 @@
   "whatsNew": "Vaovao",
   "upToDate": "Efa version farany",
   "appIsUpToDate": "Efa version farany ny rindrambaiko",
-  
   "recordings": "Fandrakitra",
   "refreshRecordings": "Avereno ny fandrakitra",
   "syncFromGoogleDrive": "Sync avy amin'i Google Drive",
@@ -599,19 +643,13 @@
   "recordingCount": "{count} fandrakitra{count,plural, =1{} other{}}",
   "googleDrive": "Google Drive",
   "signedInAsLabel": "Tondroka ho:",
-  "close": "Hidio",
   "sync": "Sync",
-  "signOut": "Hivoaka",
   "hymnDuration": "Hira {hymnId} • {duration}",
   "public": "Ho an'ny rehetra",
   "uploadToDrive": "Alefaso any amin'i Drive",
   "uploadFailedTapToRetry": "Tsy nahomby ny fandefasana. Tsindrio hanandrana indray.\nHadisoana: {error}",
-  "share": "Zarao",
-  "download": "Alahao",
-  "delete": "Fafao",
   "deleteRecording": "Fafao ny fandrakitra",
   "deleteRecordingConfirmation": "Tena te hamafa ny \"{title}\" ve ianao? Tsy afaka averina io.",
-  "cancel": "Ajanony",
   "deleted": "Voafafa",
   "recordingDeletedSuccessfully": "Voafafa soa aman-tsara ny fandrakitra",
   "downloadStarted": "Efa nanomboka ny fampidinana",
@@ -620,9 +658,6 @@
   "recordingSessionActive": "Fandrakitra mandeha",
   "pleaseCloseRecordingOverlayFirst": "Akatony aloha ny fiparitaka fandrakitra.",
   "recordingInProgress": "Fandrakitra mandeha...",
-  "pause": "Atohizo",
-  "resume": "Tohizo",
-  "stop": "Ajanony",
   "recordingCompleted": "Vita ny fandrakitra",
   "recordingSaved": "Voatahiry soa aman-tsara ny fandrakitra",
   "failedToSaveRecording": "Tsy nahomby ny fandratra: {error}",
@@ -636,7 +671,6 @@
   "driveSignInFailed": "Tsy nahomby ny fidirana amin'i Drive: {error}",
   "driveFileNotFound": "Tsy hita ny rakin-tsilaka",
   "uploadInProgress": "Fandefasana mandeha...",
-  "retry": "Andramo indray",
   "storageUsage": "Fampiasana ahabara",
   "totalStorageUsed": "Fampiasana ahabara tanteraka: {size}",
   "recordingOverlayTitle": "Fandrakitra ny hira {hymnId}",
@@ -664,71 +698,110 @@
   "anErrorOccurredDuringRecording": "Nisy hadisoana nandritra ny fandrakitra: {error}",
   "playbackError": "Hadisoana famaky",
   "anErrorOccurredDuringPlayback": "Nisy hadisoana nandritra ny famaky: {error}",
-  
   "@signedInAs": {
     "placeholders": {
-      "email": {"type": "String"}
+      "email": {
+        "type": "String"
+      }
     }
   },
   "@recordingCount": {
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "@hymnDuration": {
     "placeholders": {
-      "hymnId": {"type": "String"},
-      "duration": {"type": "String"}
+      "hymnId": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
     }
   },
   "@uploadFailedTapToRetry": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@deleteRecordingConfirmation": {
     "placeholders": {
-      "title": {"type": "String"}
+      "title": {
+        "type": "String"
+      }
     }
   },
   "@failedToSaveRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@failedToUploadRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@failedToSyncFromDrive": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@totalStorageUsed": {
     "placeholders": {
-      "size": {"type": "String"}
+      "size": {
+        "type": "String"
+      }
     }
   },
   "@recordingOverlayTitle": {
     "placeholders": {
-      "hymnId": {"type": "String"}
+      "hymnId": {
+        "type": "String"
+      }
     }
   },
   "@failedToRenameRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@anErrorOccurredDuringRecording": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "@anErrorOccurredDuringPlayback": {
     "placeholders": {
-      "error": {"type": "String"}
+      "error": {
+        "type": "String"
+      }
     }
-  }
+  },
+  "signInWithGoogle": "Hiditra amin'ny Google",
+  "continueAsGuest": "Hanohy ho vahiny",
+  "signingIn": "Miditra...",
+  "googleSignInFailed": "Tsy nahomby ny fidirana amin'ny Google",
+  "welcomeBack": "Tongasoa indray",
+  "orDivider": "NA",
+  "skipForNow": "Alefaso aloha",
+  "getStarted": "Atombohy",
+  "appFeature1": "Mijery hira an'arivony",
+  "appFeature2": "Mandrakitra ny anao manokana",
+  "appFeature3": "Sync amin'ny fitaovana rehetra",
+  "appFeature4": "Mizara amin'ny vondrom-piarahamonina"
 }

@@ -3204,6 +3204,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'An error occurred during playback: {error}'**
   String anErrorOccurredDuringPlayback(String error);
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get signInWithGoogle;
+
+  /// No description provided for @continueAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as Guest'**
+  String get continueAsGuest;
+
+  /// No description provided for @signingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in...'**
+  String get signingIn;
+
+  /// No description provided for @googleSignInFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in failed'**
+  String get googleSignInFailed;
+
+  /// No description provided for @welcomeBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get welcomeBack;
+
+  /// No description provided for @orDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get orDivider;
+
+  /// No description provided for @skipForNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip for now'**
+  String get skipForNow;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @appFeature1.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse thousands of hymns'**
+  String get appFeature1;
+
+  /// No description provided for @appFeature2.
+  ///
+  /// In en, this message translates to:
+  /// **'Record your own versions'**
+  String get appFeature2;
+
+  /// No description provided for @appFeature3.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync across devices'**
+  String get appFeature3;
+
+  /// No description provided for @appFeature4.
+  ///
+  /// In en, this message translates to:
+  /// **'Share with community'**
+  String get appFeature4;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
