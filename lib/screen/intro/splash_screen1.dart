@@ -9,7 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../../controller/language_controller.dart';
 import '../../controller/recording_controller.dart';
 import '../../controller/auth_controller.dart';
-import '../../services/google_drive_service.dart';
+
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -75,6 +75,9 @@ class _SplashScreen1State extends State<SplashScreen1> {
     });
   }
 
+
+
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -136,9 +139,7 @@ class _SplashScreen1State extends State<SplashScreen1> {
         return;
       }
 
-      // Sign in to Google Drive
-      final driveService = GoogleDriveService();
-      await driveService.signIn();
+
 
       // Reset signing in state - the auth state listener will update the UI
       if (mounted) {

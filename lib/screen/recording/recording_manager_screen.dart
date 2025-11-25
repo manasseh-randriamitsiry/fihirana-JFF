@@ -13,9 +13,10 @@ class RecordingManagerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Use Get.put to ensure controller is initialized
-    final RecordingController controller =
-        Get.put(RecordingController(), permanent: true);
+    // Use Get.find to get existing controller or create if not exists
+    final RecordingController controller = Get.isRegistered<RecordingController>()
+        ? Get.find<RecordingController>()
+        : Get.put(RecordingController(), permanent: true);
     final ColorController colorController = Get.find<ColorController>();
 
     // Auto-refresh when page is accessed

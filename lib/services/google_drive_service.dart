@@ -26,13 +26,24 @@ class GoogleDriveService {
   // Initialize with the shared GoogleSignIn instance
   void initialize(GoogleSignIn googleSignIn) {
     _googleSignIn = googleSignIn;
+    if (kDebugMode) {
+      print('GoogleDriveService: Initialized with shared GoogleSignIn instance');
+      print('GoogleDriveService: Scopes: ${googleSignIn.scopes}');
+    }
   }
 
   Future<GoogleSignInAccount?> signIn() async {
     try {
+      if (kDebugMode) {
+        print('GoogleDriveService: Starting sign-in process...');
+      }
+      
       // First try to get current user without prompting
       _currentUser = _googleSignIn.currentUser;
       if (_currentUser != null) {
+        if (kDebugMode) {
+          print('GoogleDriveService: Found current user: ${_currentUser!.email}');
+        }
         await _initializeDriveApi();
         return _currentUser;
       }
@@ -40,19 +51,28 @@ class GoogleDriveService {
       // If no current user, try silent sign-in
       _currentUser = await _googleSignIn.signInSilently();
       if (_currentUser != null) {
+        if (kDebugMode) {
+          print('GoogleDriveService: Silent sign-in successful: ${_currentUser!.email}');
+        }
         await _initializeDriveApi();
         return _currentUser;
       }
       
       // If still no user, prompt for sign-in with Drive scopes
+      if (kDebugMode) {
+        print('GoogleDriveService: No current user, attempting interactive sign-in...');
+      }
       _currentUser = await _googleSignIn.signIn();
       if (_currentUser != null) {
+        if (kDebugMode) {
+          print('GoogleDriveService: Interactive sign-in successful: ${_currentUser!.email}');
+        }
         await _initializeDriveApi();
       }
       return _currentUser;
     } catch (e) {
       if (kDebugMode) {
-        print('Error signing in to Google Drive: $e');
+        print('GoogleDriveService: Error signing in to Google Drive: $e');
       }
       return null;
     }
@@ -95,14 +115,24 @@ class GoogleDriveService {
     if (_currentUser == null) return;
 
     try {
+      if (kDebugMode) {
+        print('GoogleDriveService: Initializing Drive API for user: ${_currentUser!.email}');
+      }
       final httpClient = await _googleSignIn.authenticatedClient();
       if (httpClient != null) {
         _driveApi = drive.DriveApi(httpClient);
         await _ensureFolderExists();
+        if (kDebugMode) {
+          print('GoogleDriveService: Drive API initialized successfully');
+        }
+      } else {
+        if (kDebugMode) {
+          print('GoogleDriveService: Failed to get authenticated client');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error initializing Drive API: $e');
+        print('GoogleDriveService: Error initializing Drive API: $e');
       }
     }
   }

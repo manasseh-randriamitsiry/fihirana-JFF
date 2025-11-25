@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'auth_controller.dart';
 // import 'package:just_audio/just_audio.dart'; // Removed unused import
 import 'package:uuid/uuid.dart';
 import '../models/user_recording.dart';
@@ -22,7 +23,7 @@ import '../l10n/app_localizations.dart';
 
 class RecordingController extends GetxController {
   final UserRecordingService _recordingService = UserRecordingService();
-  final GoogleDriveService _driveService = GoogleDriveService();
+  late final GoogleDriveService _driveService;
   final PublicRecordingService _publicService = PublicRecordingService();
   final _uuid = const Uuid();
 
@@ -68,6 +69,7 @@ class RecordingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    _initializeDriveService();
     _initServices();
     _loadGuestName();
     // _setupAudioPlayerListeners(); // No longer needed
@@ -80,6 +82,21 @@ class RecordingController extends GetxController {
 
     // Start periodic refresh to keep recordings in sync
     _startPeriodicRefresh();
+  }
+
+  // Separate method to initialize Drive service - can be called multiple times
+  void _initializeDriveService() {
+    try {
+      final authController = Get.find<AuthController>();
+      _driveService = authController.driveService;
+      if (kDebugMode) {
+        print('RecordingController: Drive service initialized from AuthController');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingController: Error initializing Drive service: $e');
+      }
+    }
   }
 
   Future<void> _loadGuestName() async {
@@ -213,7 +230,48 @@ class RecordingController extends GetxController {
       print(
           'RecordingController: Page became visible, refreshing recordings...');
     }
+    
+    // Ensure Drive service is properly initialized
+    _initializeDriveService();
+    
+    // Check Drive status and sync if needed
+    _checkDriveStatusAndSync();
+    
     _autoRefreshRecordings();
+  }
+
+  Future<void> _checkDriveStatusAndSync() async {
+    try {
+      final currentUser = _driveService.currentUser;
+      if (kDebugMode) {
+        print('RecordingController: Checking Drive service status...');
+        print('RecordingController: Current user: ${currentUser?.email}');
+        print('RecordingController: isDriveSignedIn before: ${isDriveSignedIn.value}');
+      }
+      
+      if (currentUser != null) {
+        isDriveSignedIn.value = true;
+        userEmail.value = currentUser.email;
+        if (kDebugMode) {
+          print(
+              'RecordingController: Using shared Drive account: ${currentUser.email}');
+          print('RecordingController: isDriveSignedIn after: ${isDriveSignedIn.value}');
+        }
+
+        // Auto-sync recordings from Drive
+        await syncFromDrive();
+      } else {
+        if (kDebugMode) {
+          print(
+              'RecordingController: No existing Google Drive account found');
+        }
+      }
+    } catch (e) {
+      // Drive status check failed
+      if (kDebugMode) {
+        print('Drive status check failed: $e');
+      }
+    }
   }
 
   Future<void> _initServices() async {
@@ -242,15 +300,22 @@ class RecordingController extends GetxController {
       // Small delay to ensure stream is ready
       await Future.delayed(const Duration(milliseconds: 200));
 
-      // Try to silently sign in to detect existing Google account
+      // Check if Drive service is already signed in from AuthController
       try {
-        final currentUser = await _driveService.signInSilently();
+        final currentUser = _driveService.currentUser;
+        if (kDebugMode) {
+          print('RecordingController: Checking Drive service status...');
+          print('RecordingController: Current user: ${currentUser?.email}');
+          print('RecordingController: isDriveSignedIn before: ${isDriveSignedIn.value}');
+        }
+        
         if (currentUser != null) {
           isDriveSignedIn.value = true;
           userEmail.value = currentUser.email;
           if (kDebugMode) {
             print(
-                'RecordingController: Auto-detected Drive account: ${currentUser.email}');
+                'RecordingController: Using shared Drive account: ${currentUser.email}');
+            print('RecordingController: isDriveSignedIn after: ${isDriveSignedIn.value}');
           }
 
           // Auto-sync recordings from Drive
@@ -262,9 +327,9 @@ class RecordingController extends GetxController {
           }
         }
       } catch (e) {
-        // Silent sign-in check failed
+        // Drive status check failed
         if (kDebugMode) {
-          print('Drive silent sign-in failed: $e');
+          print('Drive status check failed: $e');
         }
       }
 
@@ -530,6 +595,11 @@ class RecordingController extends GetxController {
 
   // Sync recordings from Google Drive
   Future<void> syncFromDrive() async {
+    if (kDebugMode) {
+      print('RecordingController: syncFromDrive() called');
+      print('RecordingController: isDriveSignedIn.value = ${isDriveSignedIn.value}');
+    }
+    
     if (!isDriveSignedIn.value) {
       if (kDebugMode) {
         print('Cannot sync from Drive: Not signed in');
