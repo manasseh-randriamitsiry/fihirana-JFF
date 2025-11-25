@@ -655,6 +655,7 @@
   "downloadStarted": "Efa nanomboka ny fampidinana",
   "recordingInProgressDialog": "Fandrakitra mandeha",
   "pleaseStopRecordingBeforePlaying": "Ajanony aloha ny fandrakitra mialohan'ny mamaky azy.",
+  "stopAndPlay": "Ajanona",
   "recordingSessionActive": "Fandrakitra mandeha",
   "pleaseCloseRecordingOverlayFirst": "Akatony aloha ny fiparitaka fandrakitra.",
   "recordingInProgress": "Fandrakitra mandeha...",

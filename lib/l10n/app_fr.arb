@@ -655,6 +655,7 @@
   "downloadStarted": "Téléchargement démarré",
   "recordingInProgressDialog": "Enregistrement en cours",
   "pleaseStopRecordingBeforePlaying": "Veuillez arrêter l'enregistrement avant de lire.",
+  "stopAndPlay": "Arrêter & Lire",
   "recordingSessionActive": "Session d'enregistrement active",
   "pleaseCloseRecordingOverlayFirst": "Veuillez d'abord fermer l'overlay d'enregistrement.",
   "recordingInProgress": "Enregistrement en cours...",

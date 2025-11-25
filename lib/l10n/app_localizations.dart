@@ -2947,6 +2947,12 @@ abstract class AppLocalizations {
   /// **'Please stop recording before playing.'**
   String get pleaseStopRecordingBeforePlaying;
 
+  /// No description provided for @stopAndPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop & Play'**
+  String get stopAndPlay;
+
   /// No description provided for @recordingSessionActive.
   ///
   /// In en, this message translates to:

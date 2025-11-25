@@ -1521,6 +1521,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pleaseStopRecordingBeforePlaying => 'Please stop recording before playing.';
 
   @override
+  String get stopAndPlay => 'Stop & Play';
+
+  @override
   String get recordingSessionActive => 'Recording session active';
 
   @override
