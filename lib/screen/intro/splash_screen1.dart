@@ -13,7 +13,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
-
 class SplashScreen1 extends StatefulWidget {
   const SplashScreen1({super.key});
 
@@ -200,6 +199,13 @@ class _SplashScreen1State extends State<SplashScreen1> {
       await prefs.setString('username', username);
       await prefs.setBool('has_agreed_to_terms', true);
       await prefs.setBool('isFirstTime', false);
+
+      if (kDebugMode) {
+        print('✅ Splash: Saved username to SharedPreferences: $username');
+        // Verify it was saved
+        final savedUsername = prefs.getString('username');
+        print('✅ Splash: Verified saved username: $savedUsername');
+      }
 
       // Also save to RecordingController for guest recordings
       final recordingController = Get.find<RecordingController>();
@@ -1004,52 +1010,6 @@ class _SplashScreen1State extends State<SplashScreen1> {
                             ),
                           ),
                         ),
-
-                        // Debug info (temporary)
-                        if (kDebugMode) ...[
-                          const SizedBox(height: 8),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Debug Info:',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.red.shade700,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text(
-                                  'Agreement: $_agreementAccepted',
-                                  style: const TextStyle(
-                                      fontSize: 10, color: Colors.red),
-                                ),
-                                Text(
-                                  'Google signed in: $isGoogleUserSignedIn',
-                                  style: const TextStyle(
-                                      fontSize: 10, color: Colors.red),
-                                ),
-                                Text(
-                                  'Username length: ${_usernameController.text.trim().length}',
-                                  style: const TextStyle(
-                                      fontSize: 10, color: Colors.red),
-                                ),
-                                Text(
-                                  'Show Google btn: ${_agreementAccepted && !isGoogleUserSignedIn && _usernameController.text.trim().length >= 4}',
-                                  style: const TextStyle(
-                                      fontSize: 10, color: Colors.red),
-                                ),
-                                Text(
-                                  'Show Continue btn: ${_agreementAccepted && (isGoogleUserSignedIn || _usernameController.text.trim().length >= 4)}',
-                                  style: const TextStyle(
-                                      fontSize: 10, color: Colors.red),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
                       ],
 
                       // Google Sign In Button (only shown when agreement is accepted, username is filled with 4+ chars, and not signed in)
