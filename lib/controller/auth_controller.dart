@@ -117,10 +117,19 @@ class AuthController extends GetxController {
       (snapshot) {
         if (snapshot.exists) {
           final data = snapshot.data();
-          _canAddSongs.value = (data?['canAddSongs'] ?? false) ||
+
+          // Strict boolean check for isAdmin
+          final dynamic isAdminData = data?['isAdmin'];
+          final bool isAdminDb = isAdminData == true;
+          final bool isSuperAdmin =
               user.email == 'manassehrandriamitsiry@gmail.com';
-          _isAdmin.value = (data?['isAdmin'] ?? false) ||
-              user.email == 'manassehrandriamitsiry@gmail.com';
+
+          _isAdmin.value = isAdminDb || isSuperAdmin;
+
+          // canAddSongs is true by default for new users, so we trust the DB value
+          // If it's missing (null), we default to false, unless it's the super admin
+          _canAddSongs.value = (data?['canAddSongs'] ?? false) || isSuperAdmin;
+
           _addedHymnsCount.value = (data?['addedHymnsCount'] ?? 0) as int;
           _monthlyHymnCount.value = (data?['monthlyHymnCount'] ?? 0) as int;
           _lastHymnAdditionMonth.value =
@@ -128,11 +137,15 @@ class AuthController extends GetxController {
 
           if (kDebugMode) {
             print(
-                'Permission updated: canAddSongs = ${_canAddSongs.value}, isAdmin = ${_isAdmin.value}');
+                'Permission updated for ${user.email}: canAddSongs = ${_canAddSongs.value}, isAdmin = ${_isAdmin.value} (DB: $isAdminDb, Super: $isSuperAdmin)');
           }
         } else {
           _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
           _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+          if (kDebugMode) {
+            print(
+                'User document does not exist for ${user.email}. Defaulting permissions to false (unless super admin).');
+          }
         }
       },
       onError: (error) {
@@ -190,7 +203,8 @@ class AuthController extends GetxController {
           'uid': user.uid,
         });
         if (kDebugMode) {
-          print('AuthController: User document created successfully');
+          print(
+              'AuthController: User document created successfully with isAdmin: false, canAddSongs: true');
         }
 
         // Double-check that document was created
