@@ -9,7 +9,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
-import '../../widgets/drawer_widget.dart';
+
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -419,22 +419,17 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
-        drawer: DrawerWidget(openDrawer: () {
-          Get.find<ShellController>().toggleDrawer();
-        }),
         backgroundColor: colorController.backgroundColor.value,
         appBar: AppBar(
           backgroundColor: colorController.backgroundColor.value,
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: colorController.iconColor.value,
-              ),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+          leading: IconButton(
+            icon: Icon(
+              Icons.menu,
+              color: colorController.iconColor.value,
             ),
+            onPressed: () => Get.find<ShellController>().toggleDrawer(),
           ),
           title: Text(
             l10n.addHymn,

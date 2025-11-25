@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
-import '../../widgets/drawer_widget.dart';
+
 import './user_management_screen.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
@@ -89,21 +89,16 @@ class _AdminPanelScreenState extends State<AdminPanelScreen> {
 
       return Scaffold(
         backgroundColor: backgroundColor,
-        drawer: DrawerWidget(openDrawer: () {
-          Get.find<ShellController>().toggleDrawer();
-        }),
         appBar: AppBar(
           backgroundColor: backgroundColor,
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: Builder(
-            builder: (context) => IconButton(
-              icon: Icon(
-                Icons.menu,
-                color: iconColor,
-              ),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+          leading: IconButton(
+            icon: Icon(
+              Icons.menu,
+              color: iconColor,
             ),
+            onPressed: () => Get.find<ShellController>().toggleDrawer(),
           ),
           title: Text(
             l10n.adminPanel,

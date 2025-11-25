@@ -308,17 +308,27 @@ class VersionCheckService {
             apkAsset?['browser_download_url'] ?? data['html_url'];
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
+        final bool isSameVersion = currentVersion == latestVersion;
 
         if (kDebugMode) {
           print(
-              '🔄 Manual check: current=$currentVersion, latest=$latestVersion, newer=$isNewer');
+              '🔄 Manual check: current=$currentVersion, latest=$latestVersion, newer=$isNewer, same=$isSameVersion');
         }
+
+        // Update the up-to-date flag
+        _isUpToDate = !isNewer;
+        _hasCheckedOnStartup = true;
 
         // Cache version info for download
         if (isNewer) {
           _cachedVersion = latestVersion;
           _cachedDownloadUrl = downloadUrl;
           _cachedReleaseNotes = releaseNotes;
+        } else {
+          // Clear cached info if up to date
+          _cachedVersion = null;
+          _cachedDownloadUrl = null;
+          _cachedReleaseNotes = null;
         }
 
         // Only return true if there's actually a newer version and not dismissed
@@ -352,12 +362,16 @@ class VersionCheckService {
         _onUpdateAvailable?.call();
         return true;
       } else {
+        // Update the up-to-date flag for InAppUpdate result
+        _isUpToDate = true;
+        _hasCheckedOnStartup = true;
         return false;
       }
     } catch (e) {
       if (kDebugMode) {
         print('❌ Manual check failed: $e');
       }
+      // On error, don't assume up-to-date to avoid false positives
       return false;
     }
   }
@@ -789,5 +803,10 @@ class VersionCheckService {
       return 'Checking...';
     }
     return _isUpToDate ? 'Up to date' : 'Update available';
+  }
+
+  /// Returns true if a manual check has been performed
+  static bool hasCheckedManually() {
+    return _hasCheckedOnStartup;
   }
 }

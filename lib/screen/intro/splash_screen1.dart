@@ -934,77 +934,8 @@ Widget _buildTermsPage(AppLocalizations l10n) {
 
 const SizedBox(height: 20),
 
-                      // User Info Display (when Google user is signed in)
-                      if (isGoogleUserSignedIn)
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.95),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.1),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade100,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green.shade700,
-                                  size: 24,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.signedInAsLabel,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade600,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      _googleUserName!,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black87,
-                                      ),
-                                    ),
-                                    if (_googleUserEmail != null)
-                                      Text(
-                                        _googleUserEmail!,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade600,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(delay: 400.ms, duration: 600.ms)
-                            .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-
-                      // Username Input (only when not signed in with Google)
-                      if (!isGoogleUserSignedIn) ...[
+                      // Username Input (only shown when agreement is accepted and not signed in with Google)
+                      if (_agreementAccepted && !isGoogleUserSignedIn) ...[
                         const SizedBox(height: 20),
                         Container(
                           decoration: BoxDecoration(
@@ -1037,20 +968,17 @@ const SizedBox(height: 20),
                           ),
                         )
                             .animate()
-                            .fadeIn(delay: 400.ms, duration: 600.ms)
+                            .fadeIn(delay: 200.ms, duration: 600.ms)
                             .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
                       ],
 
-                      const SizedBox(height: 20),
-
-                      // Google Sign In Button (only when not signed in)
-                      if (!isGoogleUserSignedIn)
+                      // Google Sign In Button (only shown when agreement is accepted, username is filled, and not signed in)
+                      if (_agreementAccepted && !isGoogleUserSignedIn && _usernameController.text.trim().isNotEmpty) ...[
+                        const SizedBox(height: 20),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton.icon(
-                            onPressed: _agreementAccepted && !_isSigningIn
-                                ? _handleGoogleSignIn
-                                : null,
+                            onPressed: !_isSigningIn ? _handleGoogleSignIn : null,
                             icon: _isSigningIn
                                 ? const SizedBox(
                                     width: 20,
@@ -1077,26 +1005,20 @@ const SizedBox(height: 20),
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: _agreementAccepted
-                                  ? Colors.white
-                                  : Colors.grey.shade300,
-                              foregroundColor: _agreementAccepted
-                                  ? Colors.black87
-                                  : Colors.grey.shade600,
+                              backgroundColor: Colors.white,
+                              foregroundColor: Colors.black87,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              elevation: _agreementAccepted ? 8 : 0,
+                              elevation: 8,
                             ),
                           ),
-                        ).animate().fadeIn(delay: 600.ms, duration: 600.ms).scale(
-                            delay: 600.ms,
+                        ).animate().fadeIn(delay: 400.ms, duration: 600.ms).scale(
+                            delay: 400.ms,
                             duration: 400.ms,
                             curve: Curves.easeOutBack),
 
-                      // OR Divider (only when not signed in)
-                      if (!isGoogleUserSignedIn) ...[
                         const SizedBox(height: 16),
                         Row(
                           children: [
@@ -1124,49 +1046,123 @@ const SizedBox(height: 20),
                               ),
                             ),
                           ],
-                        ).animate().fadeIn(delay: 700.ms, duration: 600.ms),
+                        ).animate().fadeIn(delay: 500.ms, duration: 600.ms),
                         const SizedBox(height: 16),
                       ],
 
-// Continue Button (dynamic text based on login status and username field)
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed: _agreementAccepted && !_isSigningIn
-                              ? isGoogleUserSignedIn
-                                  ? _handleGoogleUserContinue
-                                  : () async {
-                                      await _handleUsernameSubmit();
-                                    }
-                              : null,
-                          icon: isGoogleUserSignedIn
-                              ? const Icon(Icons.check_circle, size: 20)
-                              : const Icon(Icons.person_outline, size: 20),
-                          label: Text(
-                            _getContinueButtonText(l10n),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: _agreementAccepted
-                                ? Colors.white
-                                : Colors.grey.shade300,
-                            foregroundColor: _agreementAccepted
-                                ? Colors.green.shade700
-                                : Colors.grey.shade600,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
+                      // Continue Button (shown when agreement is accepted)
+                      if (_agreementAccepted) ...[
+                        // User Info Display (when Google user is signed in)
+                        if (isGoogleUserSignedIn)
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.95),
                               borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
-                            elevation: _agreementAccepted ? 8 : 0,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green.shade700,
+                                    size: 24,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.signedInAsLabel,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _googleUserName!,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      if (_googleUserEmail != null)
+                                        Text(
+                                          _googleUserEmail!,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                              .animate()
+                              .fadeIn(delay: 200.ms, duration: 600.ms)
+                              .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: !_isSigningIn
+                                ? isGoogleUserSignedIn
+                                    ? _handleGoogleUserContinue
+                                    : _usernameController.text.trim().isNotEmpty
+                                        ? () async {
+                                            await _handleUsernameSubmit();
+                                          }
+                                        : null
+                                : null,
+                            icon: isGoogleUserSignedIn
+                                ? const Icon(Icons.check_circle, size: 20)
+                                : const Icon(Icons.person_outline, size: 20),
+                            label: Text(
+                              _getContinueButtonText(l10n),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _usernameController.text.trim().isNotEmpty || isGoogleUserSignedIn
+                                  ? Colors.white
+                                  : Colors.grey.shade300,
+                              foregroundColor: _usernameController.text.trim().isNotEmpty || isGoogleUserSignedIn
+                                  ? Colors.green.shade700
+                                  : Colors.grey.shade600,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: _usernameController.text.trim().isNotEmpty || isGoogleUserSignedIn ? 8 : 0,
+                            ),
                           ),
-                        ),
-                      ).animate().fadeIn(delay: isGoogleUserSignedIn ? 600.ms : 800.ms, duration: 600.ms).scale(
-                          delay: isGoogleUserSignedIn ? 600.ms : 800.ms,
-                          duration: 400.ms,
-                          curve: Curves.easeOutBack),
+                        ).animate().fadeIn(delay: isGoogleUserSignedIn ? 400.ms : 600.ms, duration: 600.ms).scale(
+                            delay: isGoogleUserSignedIn ? 400.ms : 600.ms,
+                            duration: 400.ms,
+                            curve: Curves.easeOutBack),
+                      ],
 
                       const SizedBox(height: 60), // Space for page indicator
                     ],

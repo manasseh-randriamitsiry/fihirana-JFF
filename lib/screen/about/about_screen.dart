@@ -19,6 +19,7 @@ class _AboutScreenState extends State<AboutScreen> {
   String _appVersion = '';
   String _appName = 'Fihirana';
   bool _checkingForUpdates = false;
+  bool _downloadingUpdate = false;
   bool _updateAvailable = false;
   bool _flexibleUpdateDownloaded = false;
   String? _latestVersion;
@@ -108,6 +109,17 @@ class _AboutScreenState extends State<AboutScreen> {
             _releaseNotes = VersionCheckService.getCachedReleaseNotes();
           }
         });
+
+        // Show "up to date" message if no update is available
+        if (!updateAvailable && context.mounted) {
+          final l10n = AppLocalizations.of(context)!;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(l10n.appIsUpToDate),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -131,14 +143,14 @@ class _AboutScreenState extends State<AboutScreen> {
   Future<void> _downloadAndInstallUpdate() async {
     try {
       setState(() {
-        _checkingForUpdates = true;
+        _downloadingUpdate = true;
       });
 
       await VersionCheckService.downloadAndInstallLatestVersion();
     } catch (e) {
       if (mounted) {
         setState(() {
-          _checkingForUpdates = false;
+          _downloadingUpdate = false;
         });
 
         if (context.mounted) {
@@ -154,7 +166,7 @@ class _AboutScreenState extends State<AboutScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _checkingForUpdates = false;
+          _downloadingUpdate = false;
         });
       }
     }
@@ -405,58 +417,60 @@ class _AboutScreenState extends State<AboutScreen> {
               ),
               color: colorController.backgroundColor.value,
               child: InkWell(
-                onTap: _checkingForUpdates ? null : _checkForUpdates,
+                onTap: (_checkingForUpdates || _downloadingUpdate) ? null : _checkForUpdates,
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: _checkingForUpdates
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      colorController.primaryColor.value),
-                                ),
-                              )
-                            : Icon(
-                                Icons.system_update_rounded,
-                                color: colorController.primaryColor.value,
-                                size: 24,
-                              ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          _checkingForUpdates
-                              ? l10n.checkingForUpdates
-                              : l10n.checkForUpdates,
-                          style: TextStyle(
-                            color: colorController.textColor.value,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      if (!_checkingForUpdates)
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.3),
-                        ),
-                    ],
-                  ),
+                       child: Row(
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.all(12),
+                             decoration: BoxDecoration(
+                               color: colorController.primaryColor.value
+                                   .withValues(alpha: 0.15),
+                               shape: BoxShape.circle,
+                             ),
+                             child: (_checkingForUpdates || _downloadingUpdate)
+                                 ? SizedBox(
+                                     width: 24,
+                                     height: 24,
+                                     child: CircularProgressIndicator(
+                                       strokeWidth: 2.5,
+                                       valueColor: AlwaysStoppedAnimation<Color>(
+                                           colorController.primaryColor.value),
+                                     ),
+                                   )
+                                 : Icon(
+                                     Icons.system_update_rounded,
+                                     color: colorController.primaryColor.value,
+                                     size: 24,
+                                   ),
+                           ),
+                           const SizedBox(width: 16),
+                           Expanded(
+                             child: Text(
+                               _downloadingUpdate
+                                   ? l10n.downloading
+                                   : _checkingForUpdates
+                                       ? l10n.checkingForUpdates
+                                       : l10n.checkForUpdates,
+                               style: TextStyle(
+                                 color: colorController.textColor.value,
+                                 fontSize: 16,
+                                 fontWeight: FontWeight.w600,
+                               ),
+                             ),
+                           ),
+                           if (!_checkingForUpdates && !_downloadingUpdate)
+                             Icon(
+                               Icons.arrow_forward_ios,
+                               size: 16,
+                               color: colorController.textColor.value
+                                   .withValues(alpha: 0.3),
+                             ),
+                         ],
+                       ),
                 ),
               ),
             )
@@ -467,7 +481,7 @@ class _AboutScreenState extends State<AboutScreen> {
                 .slideX(begin: -0.1, end: 0),
 
             // Show "Up to date" status when no updates available
-            if (!_updateAvailable && VersionCheckService.isUpToDate()) ...[
+            if (!_updateAvailable && (VersionCheckService.isUpToDate() || VersionCheckService.hasCheckedManually())) ...[
               const SizedBox(height: 12),
               Card(
                 elevation: 1,
@@ -665,11 +679,11 @@ class _AboutScreenState extends State<AboutScreen> {
               const SizedBox(height: 12),
 
               _buildActionCard(
-                icon: Icons.download_rounded,
+                icon: _downloadingUpdate ? Icons.downloading_rounded : Icons.download_rounded,
                 label: _flexibleUpdateDownloaded
                     ? l10n.downloadAndInstall
-                    : (_checkingForUpdates ? l10n.downloading : l10n.download),
-                onTap: _checkingForUpdates ? () {} : _downloadAndInstallUpdate,
+                    : (_downloadingUpdate ? l10n.downloading : l10n.download),
+                onTap: (_checkingForUpdates || _downloadingUpdate) ? () {} : _downloadAndInstallUpdate,
                 iconColor: Colors.orange,
                 backgroundColor: Colors.orange.withValues(alpha: 0.05),
               )
