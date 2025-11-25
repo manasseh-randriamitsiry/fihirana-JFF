@@ -338,7 +338,7 @@ class BannedPage extends StatelessWidget {
                   Text(
                     securityService.isPermanentlyBlocked 
                         ? 'PERMANENTLY BANNED' 
-                        : 'TSY MAHAZO MAMPIASA',
+                        : 'TSY MAHAZO MAMPIASA KAONTY',
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       color: Colors.white,
@@ -353,7 +353,7 @@ class BannedPage extends StatelessWidget {
                   Text(
                     securityService.isPermanentlyBlocked
                         ? 'Your account has been permanently banned due to violations of our terms of service. All your data has been removed from the platform.'
-                        : 'Tsy afaka mampiasa ilay application fihirana ity intsony ianao satria tsy nanara-dalana.',
+                        : 'Tsy afaka mampiasa ity application fihirana miaraka @ kaonty ity intsony ianao satria tsy nanara-dalana.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.8),
@@ -414,7 +414,7 @@ class BannedPage extends StatelessWidget {
                           child: Text(
                             securityService.isPermanentlyBlocked
                                 ? 'This action is permanent and cannot be reversed.'
-                                : 'Ity application ity natao hoan\'ny kristianina JFF.',
+                                : 'Mbola afaka mampiasa ny fihirana tsy misy kaonty na andramo kaonty Google hafa',
                             style: TextStyle(
                               color: Colors.orange.shade300,
                               fontSize: 13,
