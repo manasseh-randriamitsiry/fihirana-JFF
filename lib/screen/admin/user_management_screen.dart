@@ -182,31 +182,35 @@ class _UserListWidgetState extends State<UserListWidget> {
             return AlertDialog(
               title: Text('⚠️ PERMANENT ACTION - Delete All User Data', 
                         style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('This will PERMANENTLY delete ALL data for $displayName ($email):'),
-                  const SizedBox(height: 12),
-                  Text('• ALL hymns created by this user', style: TextStyle(color: Colors.red)),
-                  Text('• ALL favorites saved by this user', style: TextStyle(color: Colors.red)),
-                  Text('• ALL history records for this user', style: TextStyle(color: Colors.red)),
-                  Text('• ALL recorded audio links made public', style: TextStyle(color: Colors.red)),
-                  Text('• User account will be permanently BLOCKED', style: TextStyle(color: Colors.red)),
-                  const SizedBox(height: 12),
-                  Text('This action CANNOT be undone!', 
-                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: confirmationController,
-                    decoration: InputDecoration(
-                      hintText: 'Type "DELETE" to confirm',
-                      border: OutlineInputBorder(),
-                      hintStyle: TextStyle(color: Colors.grey),
-                    ),
-                  ),
-                ],
-              ),
+               content: SingleChildScrollView(
+                 child: Column(
+                   mainAxisSize: MainAxisSize.min,
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   children: [
+                     Text('This will PERMANENTLY delete ALL data for $displayName ($email):'),
+                     const SizedBox(height: 12),
+                     Container(
+                       padding: EdgeInsets.all(8),
+                       decoration: BoxDecoration(
+                         color: Colors.red.withValues(alpha: 0.1),
+                         borderRadius: BorderRadius.circular(8),
+                         border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                       ),
+                       child: Text('⚠️ This action CANNOT be undone and will affect the user experience permanently!', 
+                            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red, fontSize: 11)),
+                     ),
+                     const SizedBox(height: 12),
+                     TextField(
+                       controller: confirmationController,
+                       decoration: InputDecoration(
+                         hintText: 'Type "YES" to confirm',
+                         border: OutlineInputBorder(),
+                         hintStyle: TextStyle(color: Colors.grey),
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -214,13 +218,13 @@ class _UserListWidgetState extends State<UserListWidget> {
                 ),
                 TextButton(
                   onPressed: () {
-                    if (confirmationController.text == 'DELETE') {
+                    if (confirmationController.text == 'YES') {
                       isConfirmed = true;
                       Navigator.of(context).pop();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Please type "DELETE" to confirm'),
+                          content: Text('Please type "YES" to confirm'),
                           backgroundColor: Colors.orange,
                         ),
                       );
@@ -276,36 +280,110 @@ class _UserListWidgetState extends State<UserListWidget> {
         batch.delete(doc.reference);
       }
 
-        // 3. Delete all history for this user
-        final historySnapshot = await _firestore
-            .collection('history')
-            .where('userId', isEqualTo: userId)
-            .get();
-        
-        for (var doc in historySnapshot.docs) {
-          batch.delete(doc.reference);
-        }
+      // 3. Delete all history for this user
+      final historySnapshot = await _firestore
+          .collection('history')
+          .where('userId', isEqualTo: userId)
+          .get();
+      
+      for (var doc in historySnapshot.docs) {
+        batch.delete(doc.reference);
+      }
 
-        // 4. Delete all recorded audio links made public by this user
-        final recordingsSnapshot = await _firestore
-            .collection('recordings')
-            .where('uploadedBy', isEqualTo: email)
-            .get();
-        
-        for (var doc in recordingsSnapshot.docs) {
-          batch.delete(doc.reference);
-        }
+      // 4. Delete all recorded audio links made public by this user
+      final recordingsSnapshot = await _firestore
+          .collection('recordings')
+          .where('uploadedBy', isEqualTo: email)
+          .get();
+      
+      for (var doc in recordingsSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
 
-        // 5. Update user document to permanently block them
-        final userRef = _firestore.collection('users').doc(userId);
-        batch.update(userRef, {
-          'disabled': true,
-          'permanentlyBlocked': true,
-          'blockedAt': FieldValue.serverTimestamp(),
-          'blockedReason': 'Super admin action - All data deleted',
-          'deletedDataCount': hymnsSnapshot.docs.length,
-          'deletedRecordingsCount': recordingsSnapshot.docs.length,
-        });
+      // 5. Delete all user recordings (local recordings that might be synced)
+      final userRecordingsSnapshot = await _firestore
+          .collection('user_recordings')
+          .where('userId', isEqualTo: userId)
+          .get();
+      
+      for (var doc in userRecordingsSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // 6. Delete all playlist data for this user
+      final playlistsSnapshot = await _firestore
+          .collection('playlists')
+          .where('userId', isEqualTo: userId)
+          .get();
+      
+      for (var doc in playlistsSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // 7. Delete all shared links created by this user
+      final sharedLinksSnapshot = await _firestore
+          .collection('shared_links')
+          .where('createdBy', isEqualTo: email)
+          .get();
+      
+      for (var doc in sharedLinksSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // 8. Delete all announcements created by this user
+      final announcementsSnapshot = await _firestore
+          .collection('announcements')
+          .where('createdBy', isEqualTo: email)
+          .get();
+      
+      for (var doc in announcementsSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // 9. Delete all user settings/preferences
+      final userSettingsSnapshot = await _firestore
+          .collection('user_settings')
+          .where('userId', isEqualTo: userId)
+          .get();
+      
+      for (var doc in userSettingsSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // 10. Remove user from any blocked_emails collection if they were added there
+      final blockedEmailDoc = await _firestore
+          .collection('blocked_emails')
+          .doc(email.toLowerCase().trim())
+          .get();
+      
+      if (blockedEmailDoc.exists) {
+        batch.delete(blockedEmailDoc.reference);
+      }
+
+      // 11. Update user document to permanently block them
+      final userRef = _firestore.collection('users').doc(userId);
+      batch.update(userRef, {
+        'disabled': true,
+        'permanentlyBlocked': true,
+        'blockedAt': FieldValue.serverTimestamp(),
+        'blockedReason': 'Super admin action - All data deleted and account permanently blocked',
+        'deletedDataCount': hymnsSnapshot.docs.length,
+        'deletedRecordingsCount': recordingsSnapshot.docs.length,
+        'deletedUserRecordingsCount': userRecordingsSnapshot.docs.length,
+        'deletedPlaylistsCount': playlistsSnapshot.docs.length,
+        'deletedSharedLinksCount': sharedLinksSnapshot.docs.length,
+        'deletedAnnouncementsCount': announcementsSnapshot.docs.length,
+        'deletedFavoritesCount': favoritesSnapshot.docs.length,
+        'deletedHistoryCount': historySnapshot.docs.length,
+        'totalDeletedItems': hymnsSnapshot.docs.length + 
+                           recordingsSnapshot.docs.length + 
+                           userRecordingsSnapshot.docs.length + 
+                           playlistsSnapshot.docs.length + 
+                           sharedLinksSnapshot.docs.length + 
+                           announcementsSnapshot.docs.length + 
+                           favoritesSnapshot.docs.length + 
+                           historySnapshot.docs.length,
+      });
 
       // Execute all operations
       await batch.commit();
@@ -315,12 +393,22 @@ class _UserListWidgetState extends State<UserListWidget> {
 
       if (!mounted) return;
       
+      final totalDeleted = hymnsSnapshot.docs.length + 
+                          recordingsSnapshot.docs.length + 
+                          userRecordingsSnapshot.docs.length + 
+                          playlistsSnapshot.docs.length + 
+                          sharedLinksSnapshot.docs.length + 
+                          announcementsSnapshot.docs.length + 
+                          favoritesSnapshot.docs.length + 
+                          historySnapshot.docs.length;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              '✅ Successfully deleted ${hymnsSnapshot.docs.length} hymns, ${recordingsSnapshot.docs.length} recordings and all user data for $displayName. User permanently blocked.'),
+              '✅ Successfully deleted $totalDeleted items for $displayName:\n'
+              'User permanently blocked.'),
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
+          duration: const Duration(seconds: 8),
         ),
       );
     } catch (e) {
@@ -664,65 +752,86 @@ class _UserListWidgetState extends State<UserListWidget> {
                               Divider(color: textColor.withValues(alpha: 0.1)),
                               const SizedBox(height: 8),
 
-                              // Controls Row
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              // Controls Section - Fixed overflow with better layout
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Can Add Songs Switch
-                                  _buildSwitchOption(
-                                    label: 'Can Add Songs',
-                                    value: canAddSongs,
-                                    onChanged: (val) => _updateUserField(
-                                        userId, 'canAddSongs', val),
-                                    activeColor: primaryColor,
-                                    textColor: textColor,
+                                  // First Row: Basic Controls
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Can Add Songs Switch
+                                      _buildSwitchOption(
+                                        label: 'Can Add Songs',
+                                        value: canAddSongs,
+                                        onChanged: (val) => _updateUserField(
+                                            userId, 'canAddSongs', val),
+                                        activeColor: primaryColor,
+                                        textColor: textColor,
+                                      ),
+                                      
+                                      // Admin Controls (Super Admin Only)
+                                      if (_isSuperAdmin) ...[
+                                        _buildSwitchOption(
+                                          label: 'Admin',
+                                          value: isAdmin,
+                                          onChanged: (val) => _toggleAdminStatus(
+                                              userId, displayName, isAdmin),
+                                          activeColor: Colors.orange,
+                                          textColor: textColor,
+                                        ),
+                                      ],
+                                    ],
                                   ),
-
-                                   // Admin Controls (Super Admin Only)
-                                   if (_isSuperAdmin) ...[
-                                     _buildSwitchOption(
-                                       label: 'Admin',
-                                       value: isAdmin,
-                                       onChanged: (val) => _toggleAdminStatus(
-                                           userId, displayName, isAdmin),
-                                       activeColor: Colors.orange,
-                                       textColor: textColor,
-                                     ),
-                                     _buildSwitchOption(
-                                       label: 'Active',
-                                       value: !isDisabled,
-                                       onChanged: (val) => _toggleUserDisabled(
-                                           userId, displayName, isDisabled),
-                                       activeColor: Colors.green,
-                                       textColor: textColor,
-                                       inactiveColor: Colors.red,
-                                     ),
-                                     // Super Admin: Delete All Data Button (only for non-permanently blocked users)
-                                     if (!isPermanentlyBlocked)
-                                       Container(
-                                         decoration: BoxDecoration(
-                                           color: Colors.red.withValues(alpha: 0.1),
-                                           borderRadius: BorderRadius.circular(8),
-                                           border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-                                         ),
-                                         child: TextButton.icon(
-                                           onPressed: () => _deleteAllUserDataAndBlock(
-                                               userId, displayName, email),
-                                           icon: Icon(Icons.delete_forever, size: 16, color: Colors.red),
-                                           label: Text('DELETE ALL',
-                                               style: TextStyle(
-                                                 color: Colors.red,
-                                                 fontSize: 11,
-                                                 fontWeight: FontWeight.bold,
-                                               )),
-                                           style: TextButton.styleFrom(
-                                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                             minimumSize: Size(0, 32),
-                                           ),
-                                         ),
-                                       ),
-                                   ],
+                                  
+                                  // Second Row: Admin Controls (Super Admin Only)
+                                  if (_isSuperAdmin) ...[
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        _buildSwitchOption(
+                                          label: 'Active',
+                                          value: !isDisabled,
+                                          onChanged: (val) => _toggleUserDisabled(
+                                              userId, displayName, isDisabled),
+                                          activeColor: Colors.green,
+                                          textColor: textColor,
+                                          inactiveColor: Colors.red,
+                                        ),
+                                        
+                                        // Super Admin: Delete All Data Button (only for non-permanently blocked users)
+                                        if (!isPermanentlyBlocked)
+                                          Flexible(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.red.withValues(alpha: 0.1),
+                                                borderRadius: BorderRadius.circular(8),
+                                                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                                              ),
+                                              child: TextButton.icon(
+                                                onPressed: () => _deleteAllUserDataAndBlock(
+                                                    userId, displayName, email),
+                                                icon: Icon(Icons.delete_forever, size: 14, color: Colors.red),
+                                                label: Text('DELETE ALL',
+                                                    style: TextStyle(
+                                                      color: Colors.red,
+                                                      fontSize: 10,
+                                                      fontWeight: FontWeight.bold,
+                                                    )),
+                                                style: TextButton.styleFrom(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                                  minimumSize: Size(60, 28),
+                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
                                 ],
                               ),
                             ],
