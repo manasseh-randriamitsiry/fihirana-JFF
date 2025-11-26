@@ -32,6 +32,9 @@ class InitService {
         AwesomeNotifications().requestPermissionToSendNotifications();
       }
     });
+
+    // Setup listeners for notification actions (e.g., audio player controls)
+    NotificationService.setupNotificationListeners();
   }
 
   static Future<void> initControllers() async {

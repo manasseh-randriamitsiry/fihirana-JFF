@@ -1,6 +1,9 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../models/hymn.dart';
+import 'audio_service.dart';
+import 'version_check_service.dart';
 
 class NotificationService {
   static const int audioPlayerNotificationId = 1001;
@@ -30,7 +33,8 @@ class NotificationService {
     );
   }
 
-  static void showAudioPlayerNotification(Hymn hymn, bool isPlaying) {
+  static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
+      {Duration? position, Duration? duration}) {
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: audioPlayerNotificationId,
@@ -51,6 +55,10 @@ class NotificationService {
         largeIcon:
             'resource://mipmap/ic_launcher', // Use app icon as album art placeholder
         roundedLargeIcon: true,
+        // Add progress for timeline display
+        progress: position != null && duration != null && duration.inSeconds > 0
+            ? (position.inSeconds / duration.inSeconds) * 100
+            : null,
       ),
       actionButtons: [
         NotificationActionButton(
@@ -95,9 +103,11 @@ class NotificationService {
     AwesomeNotifications().dismiss(audioPlayerNotificationId);
   }
 
-  static void updateAudioPlayerNotification(Hymn? hymn, bool isPlaying) {
+  static void updateAudioPlayerNotification(Hymn? hymn, bool isPlaying,
+      {Duration? position, Duration? duration}) {
     if (hymn != null) {
-      showAudioPlayerNotification(hymn, isPlaying);
+      showAudioPlayerNotification(hymn, isPlaying,
+          position: position, duration: duration);
     } else {
       hideAudioPlayerNotification();
     }
@@ -174,5 +184,90 @@ class NotificationService {
         ),
       ],
     );
+  }
+
+  /// Setup notification action listeners for audio player controls
+  static void setupNotificationListeners() {
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: onNotificationActionReceived,
+    );
+  }
+
+  /// Handle notification action button clicks
+  @pragma('vm:entry-point')
+  static Future<void> onNotificationActionReceived(
+      ReceivedAction receivedAction) async {
+    try {
+      if (kDebugMode) {
+        print(
+            'Notification action received: ${receivedAction.buttonKeyPressed}');
+      }
+
+      // Handle audio player actions
+      if (receivedAction.buttonKeyPressed == 'prev' ||
+          receivedAction.buttonKeyPressed == 'play' ||
+          receivedAction.buttonKeyPressed == 'pause' ||
+          receivedAction.buttonKeyPressed == 'next' ||
+          receivedAction.buttonKeyPressed == 'stop') {
+        await _handleAudioPlayerAction(receivedAction);
+        return;
+      }
+
+      // Handle version check/update actions
+      if (receivedAction.buttonKeyPressed == 'UPDATE' ||
+          receivedAction.buttonKeyPressed == 'DISMISS' ||
+          receivedAction.buttonKeyPressed == 'CANCEL_DOWNLOAD') {
+        await _handleUpdateAction(receivedAction);
+        return;
+      }
+
+      if (kDebugMode) {
+        print('Unknown action: ${receivedAction.buttonKeyPressed}');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error handling notification action: $e');
+      }
+    }
+  }
+
+  /// Handle audio player notification actions
+  static Future<void> _handleAudioPlayerAction(
+      ReceivedAction receivedAction) async {
+    final audioService = AudioService.instance;
+
+    switch (receivedAction.buttonKeyPressed) {
+      case 'prev':
+        if (kDebugMode) print('Playing previous track');
+        await audioService.playPrevious();
+        break;
+
+      case 'play':
+        if (kDebugMode) print('Resuming playback');
+        await audioService.resume();
+        break;
+
+      case 'pause':
+        if (kDebugMode) print('Pausing playback');
+        await audioService.pause();
+        break;
+
+      case 'next':
+        if (kDebugMode) print('Playing next track');
+        await audioService.playNext();
+        break;
+
+      case 'stop':
+        if (kDebugMode) print('Stopping playback');
+        await audioService.stop();
+        hideAudioPlayerNotification();
+        break;
+    }
+  }
+
+  /// Handle version check/update notification actions
+  static Future<void> _handleUpdateAction(ReceivedAction receivedAction) async {
+    // Delegate to VersionCheckService handler
+    await VersionCheckService.onActionReceivedMethod(receivedAction);
   }
 }
