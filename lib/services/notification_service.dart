@@ -33,25 +33,57 @@ class NotificationService {
     );
   }
 
-static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
+  static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
+      {Duration? position, Duration? duration}) {
+    // Delegate to update method for consistency
+    updateAudioPlayerProgress(hymn, isPlaying, position: position, duration: duration);
+  }
+
+  static void updateAudioPlayerProgress(Hymn hymn, bool isPlaying,
       {Duration? position, Duration? duration}) {
     final audioService = AudioService.instance;
     final canGoNext = audioService.canGoNext;
     final canGoPrev = audioService.canGoPrevious;
+    
+    // Calculate progress percentage
+    double? progress;
+    if (position != null && duration != null && duration.inMilliseconds > 0) {
+      progress = (position.inMilliseconds.toDouble() / duration.inMilliseconds.toDouble()) * 100;
+      progress = progress.clamp(0.0, 100.0); // Ensure progress is within bounds
+    }
+    
+    // Format position and duration for display
+    String positionText = '';
+    String durationText = '';
+    if (position != null) {
+      final minutes = position.inMinutes;
+      final seconds = position.inSeconds % 60;
+      positionText = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+    if (duration != null) {
+      final minutes = duration.inMinutes;
+      final seconds = duration.inSeconds % 60;
+      durationText = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+    
+    String body = 'Hira faha ${hymn.hymnNumber}';
+    if (positionText.isNotEmpty && durationText.isNotEmpty) {
+      body += ' • $positionText / $durationText';
+    }
     
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: audioPlayerNotificationId,
         channelKey: 'audio_player_channel',
         title: hymn.title,
-        body: 'Hira faha  ${hymn.hymnNumber}',
+        body: body,
         category: NotificationCategory.Transport,
         notificationLayout: NotificationLayout.MediaPlayer,
         color: Colors.blue,
         autoDismissible: !isPlaying, // Allow dismissal when paused
         displayOnForeground: true,
         displayOnBackground: true,
-        wakeUpScreen: false, // Don't wake up screen on every update
+        wakeUpScreen: false,
         fullScreenIntent: false,
         locked: isPlaying, // Only lock notification when playing
         backgroundColor: Colors.black87,
@@ -59,10 +91,8 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
         largeIcon:
             'resource://mipmap/ic_launcher', // Use app icon as album art placeholder
         roundedLargeIcon: true,
-        // Add progress for timeline display
-        progress: position != null && duration != null && duration.inSeconds > 0
-            ? (position.inSeconds / duration.inSeconds) * 100
-            : null,
+        // Add progress for timeline display - use double precision
+        progress: progress,
       ),
       actionButtons: [
         NotificationActionButton(
@@ -92,6 +122,22 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
           showInCompactView: true,
         ),
         NotificationActionButton(
+          key: 'rewind',
+          label: '-10s',
+          icon: 'resource://drawable/ic_rewind',
+          enabled: true,
+          autoDismissible: false,
+          showInCompactView: false,
+        ),
+        NotificationActionButton(
+          key: 'forward',
+          label: '+10s',
+          icon: 'resource://drawable/ic_forward',
+          enabled: true,
+          autoDismissible: false,
+          showInCompactView: false,
+        ),
+        NotificationActionButton(
           key: 'stop',
           label: 'Stop',
           icon: 'resource://drawable/ic_stop',
@@ -101,6 +147,16 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
         ),
       ],
     );
+  }
+
+  static void updateAudioPlayerNotification(Hymn? hymn, bool isPlaying,
+      {Duration? position, Duration? duration}) {
+    if (hymn != null) {
+      updateAudioPlayerProgress(hymn, isPlaying,
+          position: position, duration: duration);
+    } else {
+      hideAudioPlayerNotification();
+    }
   }
 
   static void hideAudioPlayerNotification() {
@@ -133,16 +189,6 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
       if (kDebugMode) {
         print('NotificationService: Error force clearing notifications: $e');
       }
-    }
-  }
-
-  static void updateAudioPlayerNotification(Hymn? hymn, bool isPlaying,
-      {Duration? position, Duration? duration}) {
-    if (hymn != null) {
-      showAudioPlayerNotification(hymn, isPlaying,
-          position: position, duration: duration);
-    } else {
-      hideAudioPlayerNotification();
     }
   }
 
@@ -226,7 +272,7 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
     );
   }
 
-/// Handle notification action button clicks
+  /// Handle notification action button clicks
   @pragma('vm:entry-point')
   static Future<void> onNotificationActionReceived(
       ReceivedAction receivedAction) async {
@@ -240,7 +286,9 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
           receivedAction.buttonKeyPressed == 'play' ||
           receivedAction.buttonKeyPressed == 'pause' ||
           receivedAction.buttonKeyPressed == 'next' ||
-          receivedAction.buttonKeyPressed == 'stop') {
+          receivedAction.buttonKeyPressed == 'stop' ||
+          receivedAction.buttonKeyPressed == 'rewind' ||
+          receivedAction.buttonKeyPressed == 'forward') {
         await _handleAudioPlayerAction(receivedAction);
         return;
       }
@@ -263,7 +311,7 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
     }
   }
 
-/// Handle audio player notification actions
+  /// Handle audio player notification actions
   static Future<void> _handleAudioPlayerAction(
       ReceivedAction receivedAction) async {
     final audioService = AudioService.instance;
@@ -294,6 +342,27 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
           await audioService.playNext();
         } else {
           if (kDebugMode) print('Next track not available');
+        }
+        break;
+
+      case 'rewind':
+        if (kDebugMode) print('Rewinding 10 seconds');
+        final currentPosition = audioService.currentPosition;
+        if (currentPosition != null) {
+          final newPosition = currentPosition - const Duration(seconds: 10);
+          final seekPosition = newPosition.isNegative ? Duration.zero : newPosition;
+          await audioService.seekTo(seekPosition);
+        }
+        break;
+
+      case 'forward':
+        if (kDebugMode) print('Forwarding 10 seconds');
+        final currentPosition = audioService.currentPosition;
+        final duration = audioService.duration;
+        if (currentPosition != null && duration != null) {
+          final newPosition = currentPosition + const Duration(seconds: 10);
+          final seekPosition = newPosition > duration ? duration : newPosition;
+          await audioService.seekTo(seekPosition);
         }
         break;
 

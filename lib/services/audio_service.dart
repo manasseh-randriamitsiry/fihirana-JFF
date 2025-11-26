@@ -70,6 +70,13 @@ class AudioService {
         _currentHymn = null;
       }
     });
+
+    // Add debugging for position stream
+    _player.positionStream.listen((position) {
+      if (kDebugMode) {
+        print('AudioService: Position stream update: ${position.inMilliseconds}ms');
+      }
+    });
   }
 
   final AudioPlayer _player = AudioPlayer(
@@ -368,7 +375,12 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
   }
 
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;
-  Stream<Duration?> get positionStream => _player.positionStream;
+  Stream<Duration?> get positionStream {
+    if (kDebugMode) {
+      print('AudioService: Position stream accessed');
+    }
+    return _player.positionStream;
+  }
   Stream<Duration?> get durationStream => _player.durationStream;
   Stream<SequenceState?> get sequenceStateStream => _player.sequenceStateStream;
 
