@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -143,7 +142,7 @@ class AdminControlService {
         return config;
       } else {
         // Create default config if none exists
-        final defaultConfig = AdminConfig();
+        const defaultConfig = AdminConfig();
         await setAdminConfig(defaultConfig);
         return defaultConfig;
       }
@@ -227,7 +226,7 @@ class AdminControlService {
 
   /// Emergency stop - disable all updates immediately
   static Future<void> emergencyStop() async {
-    final config = await fetchAdminConfig();
+    await fetchAdminConfig();
     final emergencyConfig = AdminConfig(
       updatesEnabled: false,
       emergencyMode: true,
@@ -239,7 +238,7 @@ class AdminControlService {
 
   /// Clear emergency mode and restore normal operation
   static Future<void> clearEmergencyMode() async {
-    final config = await fetchAdminConfig();
+    await fetchAdminConfig();
     final normalConfig = AdminConfig(
       updatesEnabled: true,
       emergencyMode: false,
@@ -279,7 +278,7 @@ class AdminControlService {
     }
     
     // Return default configuration
-    return AdminConfig();
+    return const AdminConfig();
   }
 
   /// Clear local cache

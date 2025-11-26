@@ -5,14 +5,13 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../controller/auth_controller.dart';
 import '../../services/admin_control_service.dart';
 import '../../services/version_check_service.dart';
 import '../../services/pubspec_service.dart';
 import 'update_management_screen.dart';
 
 class SuperAdminDashboard extends StatefulWidget {
-  const SuperAdminDashboard({Key? key}) : super(key: key);
+  const SuperAdminDashboard({super.key});
 
   @override
   State<SuperAdminDashboard> createState() => _SuperAdminDashboardState();
@@ -237,7 +236,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.red.withOpacity(0.3),
+            color: Colors.red.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -263,7 +262,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                 Text(
                   'All updates are currently disabled',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
                   ),
                 ),
@@ -359,9 +358,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha:0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +374,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   title,
                   style: TextStyle(
                     fontSize: 12,
-                    color: color.withOpacity(0.8),
+                    color: color.withValues(alpha:0.8),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -430,13 +429,13 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: (_adminConfig?.updatesEnabled == true)
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.red.withOpacity(0.1),
+                    ? Colors.green.withValues(alpha:0.1)
+                    : Colors.red.withValues(alpha:0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
                   color: (_adminConfig?.updatesEnabled == true)
-                      ? Colors.green.withOpacity(0.3)
-                      : Colors.red.withOpacity(0.3),
+                      ? Colors.green.withValues(alpha:0.3)
+                      : Colors.red.withValues(alpha:0.3),
                 ),
               ),
               child: Row(
@@ -483,9 +482,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border: Border.all(color: Colors.orange.withValues(alpha:0.3)),
                 ),
                 child: Row(
                   children: [
@@ -598,12 +597,12 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: color.withOpacity(0.1),
+        backgroundColor: color.withValues(alpha:0.1),
         foregroundColor: color,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: color.withOpacity(0.3)),
+          side: BorderSide(color: color.withValues(alpha:0.3)),
         ),
       ),
       child: Column(
@@ -643,12 +642,12 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               ),
             const ListTile(
               leading: Icon(Icons.download, color: Colors.green),
-              title: const Text('Update Check Performed'),
+              title: Text('Update Check Performed'),
               subtitle: Text('System check completed'),
             ),
             const ListTile(
               leading: Icon(Icons.info, color: Colors.grey),
-              title: const Text('Dashboard Loaded'),
+              title: Text('Dashboard Loaded'),
               subtitle: Text('Admin dashboard initialized'),
             ),
           ],

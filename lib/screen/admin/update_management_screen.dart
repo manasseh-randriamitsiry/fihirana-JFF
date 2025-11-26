@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../services/admin_control_service.dart';
-import '../../services/pubspec_service.dart';
 
 class UpdateManagementScreen extends StatefulWidget {
-  const UpdateManagementScreen({Key? key}) : super(key: key);
+  const UpdateManagementScreen({super.key});
 
   @override
   State<UpdateManagementScreen> createState() => _UpdateManagementScreenState();
@@ -223,7 +221,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             : Colors.orange;
 
     return Card(
-      color: statusColor.withOpacity(0.1),
+      color: statusColor.withValues(alpha:0.1),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -260,9 +258,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                  border: Border.all(color: Colors.blue.withValues(alpha:0.3)),
                 ),
                 child: Row(
                   children: [
@@ -282,9 +280,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                 margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
+                  color: Colors.red.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  border: Border.all(color: Colors.red.withValues(alpha:0.3)),
                 ),
                 child: Row(
                   children: [
