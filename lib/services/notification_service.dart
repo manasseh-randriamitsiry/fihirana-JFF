@@ -104,7 +104,36 @@ static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
   }
 
   static void hideAudioPlayerNotification() {
-    AwesomeNotifications().dismiss(audioPlayerNotificationId);
+    try {
+      // Try to dismiss the specific notification first
+      AwesomeNotifications().dismiss(audioPlayerNotificationId);
+      
+      // Also try to cancel all notifications as fallback
+      AwesomeNotifications().cancelAll();
+      
+      if (kDebugMode) {
+        print('NotificationService: Hid audio player notification');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('NotificationService: Error hiding notification: $e');
+      }
+    }
+  }
+
+  static void forceClearAudioNotification() {
+    try {
+      // Force clear all audio player notifications
+      AwesomeNotifications().cancelAll();
+      
+      if (kDebugMode) {
+        print('NotificationService: Force cleared all audio notifications');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('NotificationService: Error force clearing notifications: $e');
+      }
+    }
   }
 
   static void updateAudioPlayerNotification(Hymn? hymn, bool isPlaying,
