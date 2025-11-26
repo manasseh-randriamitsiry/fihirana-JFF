@@ -29,6 +29,24 @@ class AudioService {
         print(
             'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       }
+      
+      // Handle completion state
+      if (state.processingState == ProcessingState.completed) {
+        _currentPlayingHymnId.value = '';
+        _currentHymn = null;
+      }
+    });
+
+    // Listen to player errors via playerStateStream
+    _player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.idle && 
+          _currentPlayingHymnId.value.isNotEmpty) {
+        if (kDebugMode) {
+          print('AudioService: Player entered idle state, likely due to error');
+        }
+        _currentPlayingHymnId.value = '';
+        _currentHymn = null;
+      }
     });
   }
 
@@ -41,18 +59,20 @@ class AudioService {
   List<Hymn> _playlist = [];
   int _currentPlaylistIndex = -1;
 
-  final AudioCacheService _cacheService = AudioCacheService();
+final AudioCacheService _cacheService = AudioCacheService();
   final LocalAudioService _localAudioService = LocalAudioService();
   final RxString _currentPlayingHymnId = ''.obs;
+  final RxInt _playlistChangeNotifier = 0.obs; // Used to trigger playlist updates
 
   AudioPlayer get player => _player;
   Hymn? get currentHymn => _currentHymn;
 
   // ... (keep existing methods)
 
-  void setPlaylist(List<Hymn> playlist, int initialIndex) {
+void setPlaylist(List<Hymn> playlist, int initialIndex) {
     _playlist = playlist;
     _currentPlaylistIndex = initialIndex;
+    _playlistChangeNotifier.value++; // Trigger playlist change notification
     if (kDebugMode) {
       print(
           'AudioService: Playlist set with ${_playlist.length} hymns, starting at $initialIndex');
@@ -64,8 +84,15 @@ class AudioService {
 
     if (_currentPlaylistIndex < _playlist.length - 1) {
       _currentPlaylistIndex++;
+      _playlistChangeNotifier.value++; // Trigger playlist change notification
       final nextHymn = _playlist[_currentPlaylistIndex];
       await playHymn(nextHymn);
+    } else if (_playlist.isNotEmpty && _currentPlaylistIndex == _playlist.length - 1) {
+      // Loop back to first hymn if at end
+      _currentPlaylistIndex = 0;
+      _playlistChangeNotifier.value++;
+      final firstHymn = _playlist[_currentPlaylistIndex];
+      await playHymn(firstHymn);
     }
   }
 
@@ -74,8 +101,15 @@ class AudioService {
 
     if (_currentPlaylistIndex > 0) {
       _currentPlaylistIndex--;
+      _playlistChangeNotifier.value++; // Trigger playlist change notification
       final prevHymn = _playlist[_currentPlaylistIndex];
       await playHymn(prevHymn);
+    } else if (_playlist.isNotEmpty && _currentPlaylistIndex == 0) {
+      // Loop to last hymn if at first
+      _currentPlaylistIndex = _playlist.length - 1;
+      _playlistChangeNotifier.value++;
+      final lastHymn = _playlist[_currentPlaylistIndex];
+      await playHymn(lastHymn);
     }
   }
 
@@ -200,39 +234,76 @@ class AudioService {
       if (kDebugMode) {
         print('AudioService: Started playing hymn ${hymn.id}');
       }
-    } catch (e) {
+    } on PlayerException catch (e) {
       _currentPlayingHymnId.value = '';
       if (kDebugMode) {
-        print('AudioService: Error playing hymn ${hymn.id}: $e');
+        print('AudioService: PlayerException playing hymn ${hymn.id}: ${e.code} - ${e.message}');
       }
 
       // Provide more user-friendly error messages
       String userMessage = 'Failed to play audio';
-      if (e.toString().contains('Network') ||
-          e.toString().contains('timeout')) {
-        userMessage =
-            'Network connection error. Please check your internet connection.';
-      } else if (e.toString().contains('not found')) {
+      final message = e.message ?? '';
+      if (message.toLowerCase().contains('network') || 
+          message.toLowerCase().contains('connection')) {
+        userMessage = 'Network connection error. Please check your internet connection.';
+      } else if (message.toLowerCase().contains('not found') ||
+          message.toLowerCase().contains('404')) {
         userMessage = 'Audio file not found for hymn ${hymn.id}';
+      } else if (message.toLowerCase().contains('format') ||
+          message.toLowerCase().contains('corrupted')) {
+        userMessage = 'Audio format not supported or file corrupted for hymn ${hymn.id}';
+      } else {
+        userMessage = 'Failed to play hymn ${hymn.id}: $message';
       }
 
       throw Exception(userMessage);
+    } on PlayerInterruptedException catch (e) {
+      _currentPlayingHymnId.value = '';
+      if (kDebugMode) {
+        print('AudioService: PlayerInterruptedException for hymn ${hymn.id}: ${e.message}');
+      }
+      // Don't throw for interruptions as this is expected behavior
+    } catch (e) {
+      _currentPlayingHymnId.value = '';
+      if (kDebugMode) {
+        print('AudioService: Unexpected error playing hymn ${hymn.id}: $e');
+      }
+
+      throw Exception('Unexpected error playing hymn ${hymn.id}: $e');
     }
   }
 
   Future<void> pause() async {
-    await _player.pause();
+    try {
+      await _player.pause();
+    } catch (e) {
+      if (kDebugMode) {
+        print('AudioService: Error pausing player: $e');
+      }
+    }
   }
 
   Future<void> resume() async {
-    await _player.play();
+    try {
+      await _player.play();
+    } catch (e) {
+      if (kDebugMode) {
+        print('AudioService: Error resuming player: $e');
+      }
+    }
   }
 
   Future<void> stop() async {
     if (kDebugMode) {
       print('AudioService: Stopping playback');
     }
-    await _player.stop();
+    try {
+      await _player.stop();
+    } catch (e) {
+      if (kDebugMode) {
+        print('AudioService: Error stopping player: $e');
+      }
+    }
     _currentHymn = null;
     _currentPlayingHymnId.value = '';
   }
@@ -260,9 +331,15 @@ class AudioService {
         print('AudioService: Seeking to ${position.inMilliseconds}ms');
       }
       await _player.seek(position);
+    } on PlayerException catch (e) {
+      if (kDebugMode) {
+        print('AudioService: Seek error - ${e.code}: ${e.message}');
+      }
+      final message = e.message ?? 'Unknown error';
+      throw Exception('Failed to seek audio: $message');
     } catch (e) {
       if (kDebugMode) {
-        print('AudioService: Seek error: $e');
+        print('AudioService: Unexpected seek error: $e');
       }
       throw Exception('Failed to seek audio: $e');
     }
@@ -283,9 +360,17 @@ class AudioService {
     _cacheService.close();
   }
 
-  // Getters for reactive state
+// Getters for reactive state
   String get currentPlayingHymnId => _currentPlayingHymnId.value;
   RxString get currentPlayingHymnIdRx => _currentPlayingHymnId;
+
+  // Getters for playlist status
+  bool get hasPlaylist => _playlist.isNotEmpty;
+  int get currentPlaylistIndex => _currentPlaylistIndex;
+  int get playlistLength => _playlist.length;
+  bool get canGoNext => hasPlaylist && _currentPlaylistIndex < _playlist.length - 1;
+  bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
+  RxInt get playlistChangeNotifier => _playlistChangeNotifier;
 
   bool isHymnPlaying(String hymnId) {
     final isCurrentHymn = _currentPlayingHymnId.value == hymnId;

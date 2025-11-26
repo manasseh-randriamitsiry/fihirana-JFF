@@ -16,7 +16,7 @@ class AudioForegroundService extends GetxService {
 
   bool _isForeground = false;
 
-  @override
+@override
   void onInit() {
     super.onInit();
 
@@ -42,7 +42,7 @@ class AudioForegroundService extends GetxService {
         final currentHymn = audioService.currentHymn;
         if (currentHymn != null) {
           // Update notification with new playing state
-          // This will toggle the locked/dismissible status
+          // This will toggle the locked/dismissible status and button states
           NotificationService.updateAudioPlayerNotification(
             currentHymn,
             state.playing,
@@ -63,6 +63,22 @@ class AudioForegroundService extends GetxService {
             currentHymn,
             audioService.isPlaying,
             position: position,
+            duration: audioService.duration,
+          );
+        }
+      }
+    });
+
+    // Listen to playlist changes to update button states
+    ever(audioService.playlistChangeNotifier, (int _) {
+      if (_isForeground) {
+        final currentHymn = audioService.currentHymn;
+        if (currentHymn != null) {
+          // Update notification to reflect current playlist state
+          NotificationService.updateAudioPlayerNotification(
+            currentHymn,
+            audioService.isPlaying,
+            position: audioService.currentPosition,
             duration: audioService.duration,
           );
         }
