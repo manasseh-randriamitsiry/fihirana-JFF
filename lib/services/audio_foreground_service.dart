@@ -44,7 +44,27 @@ class AudioForegroundService extends GetxService {
           // Update notification with new playing state
           // This will toggle the locked/dismissible status
           NotificationService.updateAudioPlayerNotification(
-              currentHymn, state.playing);
+            currentHymn,
+            state.playing,
+            position: audioService.currentPosition,
+            duration: audioService.duration,
+          );
+        }
+      }
+    });
+
+    // Listen to position changes to update progress bar
+    audioService.positionStream.listen((position) {
+      if (_isForeground && position != null) {
+        final currentHymn = audioService.currentHymn;
+        if (currentHymn != null) {
+          // Update notification with current position
+          NotificationService.updateAudioPlayerNotification(
+            currentHymn,
+            audioService.isPlaying,
+            position: position,
+            duration: audioService.duration,
+          );
         }
       }
     });

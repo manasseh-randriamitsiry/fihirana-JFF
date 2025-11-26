@@ -45,7 +45,7 @@ class ApkDownloadService {
     return true;
   }
 
-static Future<void> downloadAndInstallApk(String url, String version) async {
+  static Future<void> downloadAndInstallApk(String url, String version) async {
     try {
       if (kDebugMode) {
         print('🚀 Starting APK download');
@@ -123,15 +123,12 @@ static Future<void> downloadAndInstallApk(String url, String version) async {
         }
         await _showNotification(
             'Vita ny fangalana', 'Voaray ny fanavaozana $fileName');
-
-
       } else {
         // Download failed
         if (kDebugMode) {
           print('❌ Download failed');
         }
-        await _showNotification(
-            'Tsy nety', 'Nisy olana teo ampanavaozana');
+        await _showNotification('Tsy nety', 'Nisy olana teo ampanavaozana');
         return;
       }
 
@@ -146,11 +143,11 @@ static Future<void> downloadAndInstallApk(String url, String version) async {
     }
   }
 
-static Future<bool> _startDownloadIsolate(String url, String savePath) async {
+  static Future<bool> _startDownloadIsolate(String url, String savePath) async {
     final receivePort = ReceivePort();
     _receivePort = receivePort;
 
-final completer = Completer<bool>();
+    final completer = Completer<bool>();
 
     try {
       _downloadIsolate = await Isolate.spawn(
@@ -245,7 +242,7 @@ final completer = Completer<bool>();
       }
 // Don't create empty file beforehand - download directly to avoid empty files if download fails
 
-if (supportsRange) {
+      if (supportsRange) {
         await _downloadParallel(dio, params, contentLength);
       } else {
         await _downloadStandard(dio, params);
@@ -258,14 +255,13 @@ if (supportsRange) {
 
       final fileSize = await file.length();
       if (fileSize != contentLength) {
-        throw Exception('Download incomplete: Expected $contentLength bytes, got $fileSize bytes');
+        throw Exception(
+            'Download incomplete: Expected $contentLength bytes, got $fileSize bytes');
       }
 
       if (kDebugMode) {
         print('✅ Download verification passed: $fileSize bytes');
       }
-
-      
 
       params.sendPort.send(_DownloadComplete());
     } catch (e) {
@@ -273,7 +269,7 @@ if (supportsRange) {
     }
   }
 
-static Future<void> _downloadParallel(
+  static Future<void> _downloadParallel(
       Dio dio, _DownloadParams params, int contentLength) async {
     const int numChunks = 16; // Reduced chunks for better reliability
     final int chunkSize = (contentLength / numChunks).ceil();
@@ -335,7 +331,7 @@ static Future<void> _downloadParallel(
     }
   }
 
-static Future<void> _downloadChunk({
+  static Future<void> _downloadChunk({
     required Dio dio,
     required String url,
     required String savePath,
@@ -372,7 +368,8 @@ static Future<void> _downloadChunk({
       final expectedChunkSize = endByte - startByte + 1;
       if (chunkBytesDownloaded != expectedChunkSize) {
         if (kDebugMode) {
-          print('⚠️ Chunk size mismatch: expected $expectedChunkSize, got $chunkBytesDownloaded');
+          print(
+              '⚠️ Chunk size mismatch: expected $expectedChunkSize, got $chunkBytesDownloaded');
         }
         // Don't throw error here as it might be the last chunk which can be smaller
       }
@@ -511,6 +508,7 @@ static Future<void> _downloadChunk({
                 key: 'CANCEL_DOWNLOAD',
                 label: 'Ajanona',
                 actionType: ActionType.Default,
+                icon: 'resource://mipmap/ic_launcher',
               ),
             ]
           : null,
