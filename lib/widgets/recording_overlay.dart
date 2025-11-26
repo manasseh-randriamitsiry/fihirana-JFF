@@ -720,11 +720,15 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   void _showUploadProgressDialog(UserRecording recording,
       {bool isPublic = false}) {
-    // Trigger the upload when dialog is shown
+    // Trigger upload when dialog is shown
     _controller.uploadToDrive(recording).then((_) async {
       // If marked as public, publish to Firestore after upload
       if (isPublic) {
-        await _controller.publishRecording(recording);
+        // Get the updated recording with Drive info
+        final updatedRecording = _controller.recordings.firstWhereOrNull((r) => r.id == recording.id);
+        if (updatedRecording != null) {
+          await _controller.publishRecording(updatedRecording);
+        }
       }
     });
 

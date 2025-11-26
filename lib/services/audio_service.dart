@@ -527,6 +527,13 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
       final file = File(targetPath);
       if (await file.exists()) {
         audioUrl = targetPath;
+        if (kDebugMode) {
+          print('AudioService: Found local file: $targetPath');
+        }
+      } else {
+        if (kDebugMode) {
+          print('AudioService: Local file not found: $targetPath');
+        }
       }
     } else {
       // Generate a path if one doesn't exist
@@ -536,6 +543,15 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
       targetPath = path.join(dir, 'recording_${recording.id}.m4a');
       if (kDebugMode) {
         print('AudioService: Generated target path: $targetPath');
+      }
+      
+      // Check if the generated path exists
+      final file = File(targetPath);
+      if (await file.exists()) {
+        audioUrl = targetPath;
+        if (kDebugMode) {
+          print('AudioService: Found file at generated path: $targetPath');
+        }
       }
     }
 
@@ -583,24 +599,50 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
         if (kDebugMode) {
           print('AudioService: Error downloading from Drive: $e');
         }
+        
+        String errorMessage = 'Failed to download recording from Drive.';
+        if (e.toString().contains('Google Docs format')) {
+          errorMessage = 'Recording is stored in incompatible format. Please re-upload the original audio file.';
+        } else if (e.toString().contains('403') || e.toString().contains('permission')) {
+          errorMessage = 'Permission denied accessing Drive file. Please check file sharing settings.';
+        } else if (e.toString().contains('network') || e.toString().contains('connection')) {
+          errorMessage = 'Network error accessing Drive. Please check your internet connection.';
+        }
+        
         Get.snackbar(
-          'Error',
-          'Failed to download recording from Drive. Please check your connection.',
+          'Drive Download Error',
+          errorMessage,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFFFCDD2),
           colorText: const Color(0xFFC62828),
+          duration: const Duration(seconds: 5),
         );
         return; // Stop playback attempt
       }
     }
 
     if (audioUrl != null) {
-      await playHymn(hymn, customAudioUrl: audioUrl);
+      try {
+        await playHymn(hymn, customAudioUrl: audioUrl);
+      } catch (e) {
+        if (kDebugMode) {
+          print('AudioService: Error playing recording: $e');
+        }
+        Get.snackbar(
+          'Playback Error',
+          'Failed to play recording: ${e.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withValues(alpha: 0.1),
+          colorText: Colors.red,
+        );
+      }
     } else {
       Get.snackbar(
-        'Error',
-        'Audio file not found locally or on Drive.',
+        'Audio Not Available',
+        'Recording file not found locally or on Drive. Try uploading to Drive first.',
         snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange.withValues(alpha: 0.1),
+        colorText: Colors.orange,
       );
     }
   }
