@@ -334,8 +334,26 @@ class VersionCheckService {
         String latestVersion = data['tag_name'].toString().replaceAll('v', '');
         final releaseNotes = data['body'] ?? 'No release notes available';
 
+        if (kDebugMode) {
+          print('✅ GitHub API Success - Latest Version: $latestVersion');
+        }
+
         // Get device architecture
         String deviceArch = _getDeviceArchitecture();
+
+        if (kDebugMode) {
+          print('🔍 Device Arch: $deviceArch');
+          if (data['assets'] != null) {
+            final assetsList = data['assets'] as List;
+            print('📦 Total Assets: ${assetsList.length}');
+            for (var asset in assetsList) {
+              print(
+                  '   - ${asset['name']} (digest: ${asset['digest'] != null ? "YES" : "NO"})');
+            }
+          } else {
+            print('❌ No assets found in release data');
+          }
+        }
 
         // Try to find architecture-specific APK first, then fallback to universal
         final apkAsset = data['assets']?.firstWhere(
@@ -355,22 +373,43 @@ class VersionCheckService {
           ),
         );
 
+        if (kDebugMode) {
+          print('🎯 Selected Asset: ${apkAsset?['name']}');
+          if (apkAsset != null) {
+            print(
+                '📄 Asset has digest field: ${apkAsset.containsKey('digest')}');
+            print('📄 Asset digest value: ${apkAsset['digest']}');
+            print('📄 All asset keys: ${apkAsset.keys.toList()}');
+          }
+        }
+
         final downloadUrl =
             apkAsset?['browser_download_url'] ?? data['html_url'];
 
         // Extract SHA-256 from the asset digest if available
         String? sha256;
-        if (apkAsset != null && apkAsset['digest'] != null) {
+        if (apkAsset != null &&
+            apkAsset.containsKey('digest') &&
+            apkAsset['digest'] != null) {
           final digest = apkAsset['digest'].toString();
+          if (kDebugMode) {
+            print('🔍 Raw digest value: "$digest"');
+          }
           if (digest.startsWith('sha256:')) {
             sha256 = digest.substring(7); // Remove 'sha256:' prefix
+            if (kDebugMode) {
+              print('🔐 Extracted SHA-256 from digest (with prefix): $sha256');
+            }
           } else {
             sha256 = digest;
-          }
-          if (kDebugMode) {
-            print('🔐 Found SHA-256 in asset digest: $sha256');
+            if (kDebugMode) {
+              print('🔐 Using digest as-is (no prefix): $sha256');
+            }
           }
         } else {
+          if (kDebugMode) {
+            print('⚠️ No digest field found, trying release notes fallback');
+          }
           // Fallback to release notes extraction (legacy support)
           final shaRegex =
               RegExp(r'sha256:\s*([a-fA-F0-9]{64})', caseSensitive: false);
@@ -379,6 +418,10 @@ class VersionCheckService {
             sha256 = match.group(1);
             if (kDebugMode) {
               print('🔐 Found SHA-256 in release notes (fallback): $sha256');
+            }
+          } else {
+            if (kDebugMode) {
+              print('❌ No SHA-256 found anywhere!');
             }
           }
         }
@@ -401,6 +444,12 @@ class VersionCheckService {
           _cachedDownloadUrl = downloadUrl;
           _cachedReleaseNotes = releaseNotes;
           _cachedSha256 = sha256;
+          if (kDebugMode) {
+            print('💾 Caching update info:');
+            print('   Version: $_cachedVersion');
+            print('   URL: $_cachedDownloadUrl');
+            print('   SHA-256: ${_cachedSha256 ?? "NOT SET"}');
+          }
         } else {
           // Clear cached info if up to date
           _cachedVersion = null;
