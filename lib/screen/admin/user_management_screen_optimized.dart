@@ -400,8 +400,8 @@ class _OptimizedUserManagementScreenState
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('⚠️ PERMANENT ACTION - Delete All User Data',
-                  style: const TextStyle(
+              title: const Text('⚠️ PERMANENT ACTION - Delete All User Data',
+                  style: TextStyle(
                       color: Colors.red, fontWeight: FontWeight.bold)),
               content: SingleChildScrollView(
                 child: Column(

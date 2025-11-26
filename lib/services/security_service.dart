@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controller/auth_controller.dart';
-import '../l10n/app_localizations.dart';
 
 class SecurityService extends GetxService {
   static SecurityService get instance => Get.find<SecurityService>();
@@ -163,7 +162,9 @@ class SecurityService extends GetxService {
       Get.offAll(() => const BannedPage(), transition: Transition.fadeIn);
       
     } catch (e) {
-      print('Error handling blocked user: $e');
+      if (kDebugMode) {
+        print('Error handling blocked user: $e');
+      }
       // Fallback: just navigate to banned page
       Get.offAll(() => const BannedPage(), transition: Transition.fadeIn);
     }
@@ -212,7 +213,7 @@ class SecurityService extends GetxService {
           .timeout(const Duration(seconds: 10));
       
       if (userQuery.docs.isNotEmpty) {
-        final userData = userQuery.docs.first.data() as Map<String, dynamic>;
+        final userData = userQuery.docs.first.data();
         final isDisabled = userData['disabled'] as bool? ?? false;
         final isPermanentlyBlocked = userData['permanentlyBlocked'] as bool? ?? false;
         
@@ -278,7 +279,9 @@ class SecurityService extends GetxService {
       try {
         await SystemChannels.platform.invokeMethod('SystemNavigator.pop');
       } catch (e) {
-        print('Error exiting app: $e');
+        if (kDebugMode) {
+          print('Error exiting app: $e');
+        }
       }
     } else if (GetPlatform.isIOS) {
       // For iOS, we can't force exit, so we just show the banned page
@@ -293,7 +296,6 @@ class BannedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final SecurityService securityService = SecurityService.instance;
     
     return Scaffold(

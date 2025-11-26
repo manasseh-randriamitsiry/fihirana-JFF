@@ -54,7 +54,7 @@ static Future<void> downloadAndInstallApk(String url, String version) async {
       }
 
       // Request storage and install permissions
-      final hasStoragePermission = await _requestStoragePermission();
+      await _requestStoragePermission();
       final hasInstallPermission = await _requestInstallPermission();
       if (!hasInstallPermission) {
         await _showNotification(
