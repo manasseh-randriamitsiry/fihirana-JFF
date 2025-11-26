@@ -147,29 +147,18 @@ class RecordingController extends GetxController {
         // Check if this is a ghost recording:
         // 1. Duration is 0
         // 2. No local file
-        // 3. Has Drive file ID but file doesn't actually exist
+        // 3. Has Drive file ID
+        // 4. HymnId is 'unknown' (indicating it couldn't be parsed properly)
         if (recording.durationSeconds == 0 && 
             recording.filePath.isEmpty && 
             recording.driveFileId != null &&
             recording.hymnId == 'unknown') {
           
-          // Verify this is actually a ghost by checking if Drive file exists
-          try {
-            final driveFiles = await _driveService.listRecordings();
-            final driveFileExists = driveFiles.any((f) => f.id == recording.driveFileId);
-            
-            if (!driveFileExists) {
-              ghostsToRemove.add(recording);
-              if (kDebugMode) {
-                print('Found ghost recording to remove: ${recording.title}');
-              }
-            }
-          } catch (e) {
-            // If we can't check Drive, assume it's a ghost
-            ghostsToRemove.add(recording);
-            if (kDebugMode) {
-              print('Found potential ghost recording: ${recording.title}');
-            }
+          // This is likely a ghost recording from Drive sync that couldn't be properly parsed
+          // These recordings serve no purpose since they have no audio and no identifiable hymn
+          ghostsToRemove.add(recording);
+          if (kDebugMode) {
+            print('Found ghost recording to remove: ${recording.title} (ID: ${recording.id})');
           }
         }
       }
@@ -919,25 +908,33 @@ class RecordingController extends GetxController {
               print('Updated existing recording with Drive info: ${existingLocalRecording.title}');
             }
           } else {
-            // Create new recording entry
-            final recording = UserRecording(
-              id: _uuid.v4(),
-              hymnId: hymnId,
-              title: fileName,
-              filePath: '', // No local file available
-              durationSeconds: 0, // Unknown duration
-              createdAt: driveCreatedTime,
-              isPublic: false,
-              tags: [],
-              driveFileId: driveFile.id ?? '',
-              driveWebLink: driveFile.webViewLink,
-            );
+            // Only create recording entry if we can properly identify the hymn
+            // This prevents creating ghost recordings for unidentifiable files
+            if (hymnId != 'unknown') {
+              // Create new recording entry
+              final recording = UserRecording(
+                id: _uuid.v4(),
+                hymnId: hymnId,
+                title: fileName,
+                filePath: '', // No local file available
+                durationSeconds: 0, // Unknown duration
+                createdAt: driveCreatedTime,
+                isPublic: false,
+                tags: [],
+                driveFileId: driveFile.id ?? '',
+                driveWebLink: driveFile.webViewLink,
+              );
 
-            // Use saveDriveRecording to add it directly with Drive info
-            await _recordingService.saveDriveRecording(recording);
+              // Use saveDriveRecording to add it directly with Drive info
+              await _recordingService.saveDriveRecording(recording);
 
-            if (kDebugMode) {
-              print('Added new recording from Drive: ${recording.title}');
+              if (kDebugMode) {
+                print('Added new recording from Drive: ${recording.title} (Hymn: $hymnId)');
+              }
+            } else {
+              if (kDebugMode) {
+                print('Skipping unidentifiable Drive file: ${driveFile.name} - could not extract hymn ID');
+              }
             }
           }
         }
