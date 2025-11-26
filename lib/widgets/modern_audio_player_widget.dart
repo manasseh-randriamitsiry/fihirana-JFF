@@ -47,15 +47,18 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   Duration? _position;
   bool _isDraggingSlider = false;
   double _dragValue = 0.0;
+  Hymn? _currentDisplayedHymn;
 
   StreamSubscription? _playerStateSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
   StreamSubscription? _playlistChangeSubscription;
+  StreamSubscription? _currentHymnSubscription;
 
-  @override
+@override
   void initState() {
     super.initState();
+    _currentDisplayedHymn = widget.hymn;
     _initializePlayer();
   }
 
@@ -68,10 +71,24 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   void _initializePlayer() {
     _updateCurrentState();
 
+    // Listen to current hymn changes
+    _currentHymnSubscription = _audioService.currentPlayingHymnIdRx.listen((hymnId) {
+      if (!mounted) return;
+      
+      final newCurrentHymn = _audioService.currentHymn;
+      if (newCurrentHymn != null && newCurrentHymn.id != _currentDisplayedHymn?.id) {
+        setState(() {
+          _currentDisplayedHymn = newCurrentHymn;
+        });
+        // Notify parent of the change
+        widget.onHymnChange?.call(newCurrentHymn);
+      }
+    });
+
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
 
-      if (_audioService.currentHymn?.id == widget.hymn.id) {
+      if (_audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
         final wasPlaying = _isPlaying;
         final isLoading = state.processingState == ProcessingState.loading ||
             state.processingState == ProcessingState.buffering;
@@ -118,7 +135,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
       
       // Handle error states
       if (state.processingState == ProcessingState.idle && 
-          _audioService.currentHymn?.id == widget.hymn.id) {
+          _audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
         setState(() {
           _isLoading = false;
           _isPlaying = false;
@@ -127,10 +144,10 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     });
   }
 
-  void _updateCurrentState() {
+void _updateCurrentState() {
     if (!mounted) return;
     final currentHymn = _audioService.currentHymn;
-    if (currentHymn?.id == widget.hymn.id) {
+    if (currentHymn?.id == _currentDisplayedHymn?.id) {
       setState(() {
         _isPlaying = _audioService.isPlaying;
         _isLoading = false;
@@ -168,7 +185,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
 
   Future<void> _togglePlayPause() async {
     try {
-      if (_audioService.currentHymn?.id == widget.hymn.id) {
+      if (_audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
         if (_isPlaying) {
           await _audioService.pause();
         } else {
@@ -178,7 +195,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
         setState(() {
           _isLoading = true;
         });
-        await _audioService.playHymn(widget.hymn);
+        await _audioService.playHymn(_currentDisplayedHymn ?? widget.hymn);
       }
     } catch (e) {
       if (mounted) {
@@ -210,6 +227,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
     _playlistChangeSubscription?.cancel();
+    _currentHymnSubscription?.cancel();
     super.dispose();
   }
 
@@ -320,13 +338,13 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                                 color: Colors.black.withValues(alpha:0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Text(
-                                '#${widget.hymn.hymnNumber}',
-                                style: TextStyle(
-                                  color: Colors.brown.shade900,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+child: Text(
+                                 '#${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                                 style: TextStyle(
+                                   color: Colors.brown.shade900,
+                                   fontWeight: FontWeight.bold,
+                                 ),
+                               ),
                             ),
                           ),
                         ],
@@ -354,26 +372,26 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    widget.hymn.title,
-                                    style: const TextStyle(
-                                      color: primaryTextColor,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Hymn ${widget.hymn.hymnNumber}',
-                                    style: const TextStyle(
-                                      color: secondaryTextColor,
-                                      fontSize: 16,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+Text(
+                                     _currentDisplayedHymn?.title ?? widget.hymn.title,
+                                     style: const TextStyle(
+                                       color: primaryTextColor,
+                                       fontSize: 24,
+                                       fontWeight: FontWeight.bold,
+                                     ),
+                                     maxLines: 1,
+                                     overflow: TextOverflow.ellipsis,
+                                   ),
+                                   const SizedBox(height: 4),
+                                   Text(
+                                     'Hymn ${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                                     style: const TextStyle(
+                                       color: secondaryTextColor,
+                                       fontSize: 16,
+                                     ),
+                                     maxLines: 1,
+                                     overflow: TextOverflow.ellipsis,
+                                   ),
                                 ],
                               ),
                             ),
@@ -598,7 +616,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                             itemCount: widget.playlist!.length,
                             itemBuilder: (context, index) {
                               final hymn = widget.playlist![index];
-                              final isCurrent = hymn.id == widget.hymn.id;
+                              final isCurrent = hymn.id == _currentDisplayedHymn?.id;
                               final isDownloaded =
                                   widget.isDownloaded?.call(hymn) ?? false;
                               final downloadProgress =
