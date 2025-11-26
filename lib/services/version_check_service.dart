@@ -27,7 +27,7 @@ class VersionCheckService {
   static String? _cachedDownloadUrl;
   static String? _cachedVersion;
   static String? _cachedReleaseNotes;
-  static String? _cachedSha256;
+  
   static AppUpdateInfo? _updateInfo;
   static bool _flexibleUpdateAvailable = false;
   static VoidCallback? _onUpdateAvailable;
@@ -373,58 +373,25 @@ class VersionCheckService {
           ),
         );
 
-        if (kDebugMode) {
+if (kDebugMode) {
           print('🎯 Selected Asset: ${apkAsset?['name']}');
           if (apkAsset != null) {
             print(
                 '📄 Asset has digest field: ${apkAsset.containsKey('digest')}');
             print('📄 Asset digest value: ${apkAsset['digest']}');
             print('📄 All asset keys: ${apkAsset.keys.toList()}');
+            // Log all asset values for debugging
+            print('📄 Full asset data:');
+            apkAsset.forEach((key, value) {
+              print('   $key: $value');
+            });
           }
         }
 
         final downloadUrl =
             apkAsset?['browser_download_url'] ?? data['html_url'];
 
-        // Extract SHA-256 from the asset digest if available
-        String? sha256;
-        if (apkAsset != null &&
-            apkAsset.containsKey('digest') &&
-            apkAsset['digest'] != null) {
-          final digest = apkAsset['digest'].toString();
-          if (kDebugMode) {
-            print('🔍 Raw digest value: "$digest"');
-          }
-          if (digest.startsWith('sha256:')) {
-            sha256 = digest.substring(7); // Remove 'sha256:' prefix
-            if (kDebugMode) {
-              print('🔐 Extracted SHA-256 from digest (with prefix): $sha256');
-            }
-          } else {
-            sha256 = digest;
-            if (kDebugMode) {
-              print('🔐 Using digest as-is (no prefix): $sha256');
-            }
-          }
-        } else {
-          if (kDebugMode) {
-            print('⚠️ No digest field found, trying release notes fallback');
-          }
-          // Fallback to release notes extraction (legacy support)
-          final shaRegex =
-              RegExp(r'sha256:\s*([a-fA-F0-9]{64})', caseSensitive: false);
-          final match = shaRegex.firstMatch(releaseNotes);
-          if (match != null) {
-            sha256 = match.group(1);
-            if (kDebugMode) {
-              print('🔐 Found SHA-256 in release notes (fallback): $sha256');
-            }
-          } else {
-            if (kDebugMode) {
-              print('❌ No SHA-256 found anywhere!');
-            }
-          }
-        }
+
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         final bool isSameVersion = currentVersion == latestVersion;
@@ -438,24 +405,21 @@ class VersionCheckService {
         _isUpToDate = !isNewer;
         _hasCheckedOnStartup = true;
 
-        // Cache version info for download
+// Cache version info for download
         if (isNewer) {
           _cachedVersion = latestVersion;
           _cachedDownloadUrl = downloadUrl;
           _cachedReleaseNotes = releaseNotes;
-          _cachedSha256 = sha256;
           if (kDebugMode) {
             print('💾 Caching update info:');
             print('   Version: $_cachedVersion');
             print('   URL: $_cachedDownloadUrl');
-            print('   SHA-256: ${_cachedSha256 ?? "NOT SET"}');
           }
         } else {
           // Clear cached info if up to date
           _cachedVersion = null;
           _cachedDownloadUrl = null;
           _cachedReleaseNotes = null;
-          _cachedSha256 = null;
         }
 
         // Only return true if there's actually a newer version and not dismissed
@@ -640,30 +604,7 @@ class VersionCheckService {
 
         final downloadUrl = apkAsset?['browser_download_url'] ?? releaseUrl;
 
-        // Extract SHA-256 from the asset digest if available
-        String? sha256;
-        if (apkAsset != null && apkAsset['digest'] != null) {
-          final digest = apkAsset['digest'].toString();
-          if (digest.startsWith('sha256:')) {
-            sha256 = digest.substring(7); // Remove 'sha256:' prefix
-          } else {
-            sha256 = digest;
-          }
-          if (kDebugMode) {
-            print('🔐 Found SHA-256 in asset digest: $sha256');
-          }
-        } else {
-          // Fallback to release notes extraction (legacy support)
-          final shaRegex =
-              RegExp(r'sha256:\s*([a-fA-F0-9]{64})', caseSensitive: false);
-          final match = shaRegex.firstMatch(releaseNotes);
-          if (match != null) {
-            sha256 = match.group(1);
-            if (kDebugMode) {
-              print('🔐 Found SHA-256 in release notes (fallback): $sha256');
-            }
-          }
-        }
+
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         final bool isSameVersion = currentVersion == latestVersion;
@@ -686,10 +627,9 @@ class VersionCheckService {
             await clearDismissedVersion();
           }
 
-          _cachedDownloadUrl = downloadUrl;
+_cachedDownloadUrl = downloadUrl;
           _cachedVersion = latestVersion;
           _cachedReleaseNotes = releaseNotes;
-          _cachedSha256 = sha256;
           _onUpdateAvailable?.call();
           await _showUpdateNotification();
         } else {
@@ -745,11 +685,10 @@ class VersionCheckService {
   static Future<void> _downloadAndInstallUpdate(String url) async {
     try {
       if (_cachedVersion != null) {
-        // Use the new APK download service
+// Use the new APK download service
         await ApkDownloadService.downloadAndInstallApk(
           url,
           _cachedVersion!,
-          expectedSha256: _cachedSha256,
         );
       } else {
         // Fallback to external browser
@@ -832,21 +771,19 @@ class VersionCheckService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(dismissedVersionKey);
     await prefs.remove(installedVersionKey);
-    _updateInfo = null;
+_updateInfo = null;
     _cachedDownloadUrl = null;
     _cachedVersion = null;
     _cachedReleaseNotes = null;
-    _cachedSha256 = null;
     _flexibleUpdateAvailable = false;
     stopPeriodicCheck();
   }
 
-  static Future<void> downloadAndInstallLatestVersion() async {
+static Future<void> downloadAndInstallLatestVersion() async {
     if (_cachedDownloadUrl != null && _cachedVersion != null) {
       await ApkDownloadService.downloadAndInstallApk(
         _cachedDownloadUrl!,
         _cachedVersion!,
-        expectedSha256: _cachedSha256,
       );
     } else {
       throw Exception(

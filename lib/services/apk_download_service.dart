@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:crypto/crypto.dart';
 
 import 'dart:ui';
 import 'dart:isolate';
@@ -46,14 +45,12 @@ class ApkDownloadService {
     return true;
   }
 
-  static Future<void> downloadAndInstallApk(String url, String version,
-      {String? expectedSha256}) async {
+static Future<void> downloadAndInstallApk(String url, String version) async {
     try {
       if (kDebugMode) {
         print('🚀 Starting APK download');
         print('📥 URL: $url');
         print('🏷️ Version: $version');
-        print('🔐 Expected SHA-256: ${expectedSha256 ?? "NOT PROVIDED"}');
       }
 
       // Request storage and install permissions
@@ -113,19 +110,30 @@ class ApkDownloadService {
         print('⏱️ Starting download at: ${DateTime.now()}');
       }
 
-      // Show download started notification
+// Show download started notification
       await _showDownloadNotification('Maka fanavaozana...', 0);
 
-      // Start download in a separate isolate
-      await _startDownloadIsolate(url, savePath,
-          expectedSha256: expectedSha256);
+      // Start download in a separate isolate and wait for completion
+      final downloadSuccess = await _startDownloadIsolate(url, savePath);
 
-      // Download completed
-      if (kDebugMode) {
-        print('✅ Download completed at: ${DateTime.now()}');
+      if (downloadSuccess) {
+        // Download completed successfully
+        if (kDebugMode) {
+          print('✅ Download completed at: ${DateTime.now()}');
+        }
+        await _showNotification(
+            'Vita ny fangalana', 'Voaray ny fanavaozana $fileName');
+
+
+      } else {
+        // Download failed
+        if (kDebugMode) {
+          print('❌ Download failed');
+        }
+        await _showNotification(
+            'Tsy nety', 'Nisy olana teo ampanavaozana');
+        return;
       }
-      await _showNotification(
-          'Vita ny fangalana', 'Voaray ny fanavaozana $fileName');
 
       // Install the APK
       await _installApk(savePath);
@@ -138,12 +146,11 @@ class ApkDownloadService {
     }
   }
 
-  static Future<void> _startDownloadIsolate(String url, String savePath,
-      {String? expectedSha256}) async {
+static Future<bool> _startDownloadIsolate(String url, String savePath) async {
     final receivePort = ReceivePort();
     _receivePort = receivePort;
 
-    final completer = Completer<void>();
+final completer = Completer<bool>();
 
     try {
       _downloadIsolate = await Isolate.spawn(
@@ -152,7 +159,6 @@ class ApkDownloadService {
           url: url,
           savePath: savePath,
           sendPort: receivePort.sendPort,
-          expectedSha256: expectedSha256,
         ),
       );
 
@@ -161,18 +167,18 @@ class ApkDownloadService {
           _showDownloadNotification(
               'Fangalana... ${message.percent}%', message.percent);
         } else if (message is _DownloadError) {
-          completer.completeError(message.error);
+          completer.complete(false);
           receivePort.close();
         } else if (message is _DownloadComplete) {
-          completer.complete();
+          completer.complete(true);
           receivePort.close();
         }
       });
 
-      await completer.future;
+      return await completer.future;
     } catch (e) {
       _downloadIsolate?.kill(priority: Isolate.immediate);
-      rethrow;
+      return false;
     } finally {
       _downloadIsolate = null;
       _receivePort = null;
@@ -217,67 +223,49 @@ class ApkDownloadService {
       final supportsRange =
           headResponse.headers.value('accept-ranges') == 'bytes';
 
-      // Prepare the file
+// Prepare the file
       final file = File(params.savePath);
       if (await file.exists()) {
         if (kDebugMode) {
           print('📂 File exists at: ${params.savePath}');
-          print('🔐 Expected SHA: ${params.expectedSha256}');
+          print('⚠️ Deleting existing file for fresh download.');
         }
-
-        // Check SHA-256 if expected hash is provided
-        if (params.expectedSha256 != null) {
-          try {
-            final bytes = await file.readAsBytes();
-            final digest = sha256.convert(bytes);
-            final calculatedSha = digest.toString().toLowerCase();
-            final expectedSha = params.expectedSha256!.toLowerCase();
-
-            if (kDebugMode) {
-              print('🧮 Calculated SHA: $calculatedSha');
-              print('🔢 Expected SHA:   $expectedSha');
-            }
-
-            if (calculatedSha == expectedSha) {
-              // File exists and matches hash, skip download
-              if (kDebugMode) {
-                print('✅ SHA matches! Skipping download.');
-              }
-              params.sendPort.send(_DownloadComplete());
-              return;
-            } else {
-              if (kDebugMode) {
-                print('❌ SHA mismatch. Deleting and re-downloading.');
-              }
-            }
-          } catch (e) {
-            if (kDebugMode) {
-              print('❌ Error checking hash: $e');
-            }
-            // Error checking hash, proceed with re-download
-          }
-        } else {
+        // Delete existing file for fresh download
+        try {
+          await file.delete();
+        } catch (e) {
           if (kDebugMode) {
-            print('⚠️ No expected SHA provided. Proceeding with overwrite.');
+            print('⚠️ Error deleting existing file: $e');
           }
         }
-        // We don't delete the file here anymore.
-        // We will overwrite it when we open it in write mode.
       } else {
         if (kDebugMode) {
           print('📂 File does not exist at: ${params.savePath}');
         }
       }
-      // Create empty file with specific size to reserve space and avoid fragmentation
-      final raf = await file.open(mode: FileMode.write);
-      await raf.truncate(contentLength);
-      await raf.close();
+// Don't create empty file beforehand - download directly to avoid empty files if download fails
 
-      if (supportsRange) {
+if (supportsRange) {
         await _downloadParallel(dio, params, contentLength);
       } else {
         await _downloadStandard(dio, params);
       }
+
+      // Verify download completed successfully
+      if (!await file.exists()) {
+        throw Exception('Download failed: File does not exist after download');
+      }
+
+      final fileSize = await file.length();
+      if (fileSize != contentLength) {
+        throw Exception('Download incomplete: Expected $contentLength bytes, got $fileSize bytes');
+      }
+
+      if (kDebugMode) {
+        print('✅ Download verification passed: $fileSize bytes');
+      }
+
+      
 
       params.sendPort.send(_DownloadComplete());
     } catch (e) {
@@ -285,9 +273,9 @@ class ApkDownloadService {
     }
   }
 
-  static Future<void> _downloadParallel(
+static Future<void> _downloadParallel(
       Dio dio, _DownloadParams params, int contentLength) async {
-    const int numChunks = 8; // Increased chunks for better speed
+    const int numChunks = 6; // Reduced chunks for better reliability
     final int chunkSize = (contentLength / numChunks).ceil();
     final List<Future<void>> futures = [];
 
@@ -315,7 +303,12 @@ class ApkDownloadService {
         onProgress: (bytes) {
           progressPort.sendPort.send(bytes);
         },
-      ));
+      ).catchError((e) {
+        if (kDebugMode) {
+          print('❌ Chunk $i download failed: $e');
+        }
+        throw Exception('Chunk $i download failed: $e');
+      }));
     }
 
     // Monitor progress
@@ -329,12 +322,20 @@ class ApkDownloadService {
       }
     });
 
-    await Future.wait(futures);
-    await progressSubscription.cancel();
-    progressPort.close();
+    try {
+      await Future.wait(futures);
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Parallel download failed: $e');
+      }
+      rethrow;
+    } finally {
+      await progressSubscription.cancel();
+      progressPort.close();
+    }
   }
 
-  static Future<void> _downloadChunk({
+static Future<void> _downloadChunk({
     required Dio dio,
     required String url,
     required String savePath,
@@ -360,10 +361,26 @@ class ApkDownloadService {
       );
 
       final stream = response.data!.stream;
+      int chunkBytesDownloaded = 0;
       await for (final chunk in stream) {
         await raf.writeFrom(chunk);
+        chunkBytesDownloaded += chunk.length;
         onProgress(chunk.length);
       }
+
+      // Verify we got the expected amount of data for this chunk
+      final expectedChunkSize = endByte - startByte + 1;
+      if (chunkBytesDownloaded != expectedChunkSize) {
+        if (kDebugMode) {
+          print('⚠️ Chunk size mismatch: expected $expectedChunkSize, got $chunkBytesDownloaded');
+        }
+        // Don't throw error here as it might be the last chunk which can be smaller
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Chunk download error ($startByte-$endByte): $e');
+      }
+      rethrow;
     } finally {
       await raf.close();
     }
@@ -513,13 +530,11 @@ class _DownloadParams {
   final String url;
   final String savePath;
   final SendPort sendPort;
-  final String? expectedSha256;
 
   _DownloadParams({
     required this.url,
     required this.savePath,
     required this.sendPort,
-    this.expectedSha256,
   });
 }
 
