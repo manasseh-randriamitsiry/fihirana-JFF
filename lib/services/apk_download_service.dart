@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 
 import 'dart:ui';
 import 'dart:isolate';
@@ -45,7 +46,8 @@ class ApkDownloadService {
     return true;
   }
 
-  static Future<void> downloadAndInstallApk(String url, String version) async {
+  static Future<void> downloadAndInstallApk(String url, String version,
+      {String? expectedSha256}) async {
     try {
       // Request storage and install permissions
       final hasStoragePermission = await _requestStoragePermission();
@@ -108,7 +110,8 @@ class ApkDownloadService {
       await _showDownloadNotification('Maka fanavaozana...', 0);
 
       // Start download in a separate isolate
-      await _startDownloadIsolate(url, savePath);
+      await _startDownloadIsolate(url, savePath,
+          expectedSha256: expectedSha256);
 
       // Download completed
       if (kDebugMode) {
@@ -128,7 +131,8 @@ class ApkDownloadService {
     }
   }
 
-  static Future<void> _startDownloadIsolate(String url, String savePath) async {
+  static Future<void> _startDownloadIsolate(String url, String savePath,
+      {String? expectedSha256}) async {
     final receivePort = ReceivePort();
     _receivePort = receivePort;
 
@@ -141,6 +145,7 @@ class ApkDownloadService {
           url: url,
           savePath: savePath,
           sendPort: receivePort.sendPort,
+          expectedSha256: expectedSha256,
         ),
       );
 
@@ -208,7 +213,52 @@ class ApkDownloadService {
       // Prepare the file
       final file = File(params.savePath);
       if (await file.exists()) {
+        if (kDebugMode) {
+          print('📂 File exists at: ${params.savePath}');
+          print('🔐 Expected SHA: ${params.expectedSha256}');
+        }
+
+        // Check SHA-256 if expected hash is provided
+        if (params.expectedSha256 != null) {
+          try {
+            final bytes = await file.readAsBytes();
+            final digest = sha256.convert(bytes);
+            final calculatedSha = digest.toString().toLowerCase();
+            final expectedSha = params.expectedSha256!.toLowerCase();
+
+            if (kDebugMode) {
+              print('🧮 Calculated SHA: $calculatedSha');
+              print('🔢 Expected SHA:   $expectedSha');
+            }
+
+            if (calculatedSha == expectedSha) {
+              // File exists and matches hash, skip download
+              if (kDebugMode) {
+                print('✅ SHA matches! Skipping download.');
+              }
+              params.sendPort.send(_DownloadComplete());
+              return;
+            } else {
+              if (kDebugMode) {
+                print('❌ SHA mismatch. Deleting and re-downloading.');
+              }
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('❌ Error checking hash: $e');
+            }
+            // Error checking hash, proceed with re-download
+          }
+        } else {
+          if (kDebugMode) {
+            print('⚠️ No expected SHA provided. Deleting existing file.');
+          }
+        }
         await file.delete();
+      } else {
+        if (kDebugMode) {
+          print('📂 File does not exist at: ${params.savePath}');
+        }
       }
       // Create empty file with specific size to reserve space and avoid fragmentation
       final raf = await file.open(mode: FileMode.write);
@@ -336,15 +386,32 @@ class ApkDownloadService {
 
         // Determine the correct path name based on file location
         String pathName = 'external_cache';
-        if (filePath.contains('/storage/emulated/0/Download/') ||
-            filePath.contains('/Android/data/')) {
-          // File is in external storage or public Downloads
+        String relativePath = 'Downloads/$fileName';
+
+        if (filePath.contains('/storage/emulated/0/Download/')) {
+          // File is in public Downloads directory
+          pathName = 'external_storage';
+          // Extract path relative to /storage/emulated/0/
+          final parts = filePath.split('/storage/emulated/0/');
+          if (parts.length > 1) {
+            relativePath = parts[1];
+          }
+        } else if (filePath.contains('/Android/data/')) {
+          // File is in app-specific external storage
           pathName = 'external_files';
+          // For external_files, the root is .../files/
+          // If our path is .../files/Downloads/file.apk, relative path is Downloads/file.apk
+          if (filePath.contains('/files/')) {
+            final parts = filePath.split('/files/');
+            if (parts.length > 1) {
+              relativePath = parts[1];
+            }
+          }
         }
 
         // Use file provider URI for installation
         final uri =
-            'content://$packageName.fileprovider/$pathName/Downloads/$fileName';
+            'content://$packageName.fileprovider/$pathName/$relativePath';
 
         if (kDebugMode) {
           print('📦 Installing APK from URI: $uri');
@@ -438,11 +505,13 @@ class _DownloadParams {
   final String url;
   final String savePath;
   final SendPort sendPort;
+  final String? expectedSha256;
 
   _DownloadParams({
     required this.url,
     required this.savePath,
     required this.sendPort,
+    this.expectedSha256,
   });
 }
 
