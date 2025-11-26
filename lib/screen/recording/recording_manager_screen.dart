@@ -521,19 +521,21 @@ class _RecordingTile extends StatelessWidget {
                   color: colorController.iconColor.value.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    'Hymn ${recording.hymnId} • ${_formatDuration(recording.durationSeconds)}',
-                    style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.7),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
+                 Flexible(
+                   child: Text(
+                     recording.hymnId == 'unknown' 
+                         ? '${_formatDuration(recording.durationSeconds)}'
+                         : 'Hymn ${recording.hymnId} • ${_formatDuration(recording.durationSeconds)}',
+                     style: TextStyle(
+                       color: colorController.textColor.value
+                           .withValues(alpha: 0.7),
+                       fontSize: 12,
+                       fontWeight: FontWeight.w500,
+                     ),
+                     overflow: TextOverflow.ellipsis,
+                     maxLines: 1,
+                   ),
+                 ),
               ],
             ),
             const SizedBox(height: 2),
@@ -689,6 +691,11 @@ class _RecordingTile extends StatelessWidget {
                   case 'export':
                     controller.exportRecording(recording);
                     break;
+                  case 'reupload':
+                    if (!isPublic) {
+                      controller.reuploadToDrive(recording);
+                    }
+                    break;
                   case 'delete':
                     if (!isPublic) {
                       _showDeleteConfirmation(context);
@@ -715,27 +722,46 @@ class _RecordingTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (isPublic ||
-                    (recording.driveFileId != null &&
-                        recording.filePath.isEmpty))
-                  PopupMenuItem(
-                    value: 'download',
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.download,
-                          color: colorController.iconColor.value,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Download',
-                          style:
-                              TextStyle(color: colorController.textColor.value),
-                        ),
-                      ],
-                    ),
-                  ),
+                 if (isPublic ||
+                     (recording.driveFileId != null &&
+                         recording.filePath.isEmpty))
+                   PopupMenuItem(
+                     value: 'download',
+                     child: Row(
+                       children: [
+                         Icon(
+                           Icons.download,
+                           color: colorController.iconColor.value,
+                           size: 20,
+                         ),
+                         const SizedBox(width: 12),
+                         Text(
+                           'Download',
+                           style:
+                               TextStyle(color: colorController.textColor.value),
+                         ),
+                       ],
+                     ),
+                   ),
+                 if (!isPublic && recording.driveFileId != null)
+                   PopupMenuItem(
+                     value: 'reupload',
+                     child: Row(
+                       children: [
+                         Icon(
+                           Icons.cloud_upload,
+                           color: Colors.orange,
+                           size: 20,
+                         ),
+                         const SizedBox(width: 12),
+                         Text(
+                           'Fix Upload',
+                           style:
+                               TextStyle(color: colorController.textColor.value),
+                         ),
+                       ],
+                     ),
+                   ),
                 if (!isPublic)
                   PopupMenuItem(
                     value: 'export',
