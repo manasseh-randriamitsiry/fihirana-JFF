@@ -33,14 +33,18 @@ class NotificationService {
     );
   }
 
-  static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
+static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
       {Duration? position, Duration? duration}) {
+    final audioService = AudioService.instance;
+    final canGoNext = audioService.canGoNext;
+    final canGoPrev = audioService.canGoPrevious;
+    
     AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: audioPlayerNotificationId,
         channelKey: 'audio_player_channel',
         title: hymn.title,
-        body: 'Hira ${hymn.hymnNumber}',
+        body: 'Hira faha  ${hymn.hymnNumber}',
         category: NotificationCategory.Transport,
         notificationLayout: NotificationLayout.MediaPlayer,
         color: Colors.blue,
@@ -65,7 +69,7 @@ class NotificationService {
           key: 'prev',
           label: 'Previous',
           icon: 'resource://drawable/ic_skip_previous',
-          enabled: true,
+          enabled: canGoPrev,
           autoDismissible: false,
           showInCompactView: true,
         ),
@@ -83,7 +87,7 @@ class NotificationService {
           key: 'next',
           label: 'Next',
           icon: 'resource://drawable/ic_skip_next',
-          enabled: true,
+          enabled: canGoNext,
           autoDismissible: false,
           showInCompactView: true,
         ),
@@ -193,14 +197,13 @@ class NotificationService {
     );
   }
 
-  /// Handle notification action button clicks
+/// Handle notification action button clicks
   @pragma('vm:entry-point')
   static Future<void> onNotificationActionReceived(
       ReceivedAction receivedAction) async {
     try {
       if (kDebugMode) {
-        print(
-            'Notification action received: ${receivedAction.buttonKeyPressed}');
+        print('Notification action received: ${receivedAction.buttonKeyPressed}');
       }
 
       // Handle audio player actions
@@ -231,15 +234,19 @@ class NotificationService {
     }
   }
 
-  /// Handle audio player notification actions
+/// Handle audio player notification actions
   static Future<void> _handleAudioPlayerAction(
       ReceivedAction receivedAction) async {
     final audioService = AudioService.instance;
 
     switch (receivedAction.buttonKeyPressed) {
       case 'prev':
-        if (kDebugMode) print('Playing previous track');
-        await audioService.playPrevious();
+        if (audioService.canGoPrevious) {
+          if (kDebugMode) print('Playing previous track');
+          await audioService.playPrevious();
+        } else {
+          if (kDebugMode) print('Previous track not available');
+        }
         break;
 
       case 'play':
@@ -253,8 +260,12 @@ class NotificationService {
         break;
 
       case 'next':
-        if (kDebugMode) print('Playing next track');
-        await audioService.playNext();
+        if (audioService.canGoNext) {
+          if (kDebugMode) print('Playing next track');
+          await audioService.playNext();
+        } else {
+          if (kDebugMode) print('Next track not available');
+        }
         break;
 
       case 'stop':
