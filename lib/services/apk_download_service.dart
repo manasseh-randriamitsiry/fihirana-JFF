@@ -275,7 +275,7 @@ if (supportsRange) {
 
 static Future<void> _downloadParallel(
       Dio dio, _DownloadParams params, int contentLength) async {
-    const int numChunks = 6; // Reduced chunks for better reliability
+    const int numChunks = 16; // Reduced chunks for better reliability
     final int chunkSize = (contentLength / numChunks).ceil();
     final List<Future<void>> futures = [];
 
