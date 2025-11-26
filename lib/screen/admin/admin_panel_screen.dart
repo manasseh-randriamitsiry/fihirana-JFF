@@ -7,6 +7,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 
 import './user_management_screen_optimized.dart';
+import './super_admin_dashboard.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
@@ -149,7 +150,12 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
               fontWeight: FontWeight.bold,
             ),
           ),
-          actions: [
+actions: [
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
+              onPressed: () => Get.to(() => const SuperAdminDashboard()),
+              tooltip: 'Super Admin Dashboard',
+            ),
             if (_tabController.index == 1 && selectedHymns.isNotEmpty)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),

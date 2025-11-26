@@ -45,8 +45,7 @@ class _OptimizedUserManagementScreenState
   @override
   void initState() {
     super.initState();
-    _isSuperAdmin = FirebaseAuth.instance.currentUser?.email ==
-        'manassehrandriamitsiry@gmail.com';
+    _checkSuperAdminStatus();
 
     _loadUsers();
 
@@ -58,6 +57,20 @@ class _OptimizedUserManagementScreenState
     });
 
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _checkSuperAdminStatus() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final doc = await _firestore.collection('users').doc(user.uid).get();
+      if (mounted) {
+        setState(() {
+          final data = doc.data();
+          _isSuperAdmin = (data != null && data['isSuperAdmin'] == true) ||
+              user.email == 'manassehrandriamitsiry@gmail.com';
+        });
+      }
+    }
   }
 
   @override
@@ -304,6 +317,41 @@ class _OptimizedUserManagementScreenState
                 backgroundColor: Colors.red),
           );
         }
+      }
+    }
+  }
+
+  // Toggle super admin status
+  Future<void> _toggleSuperAdminStatus(
+      String userId, String displayName, bool currentStatus) async {
+    final confirmed = await _showConfirmationDialog(
+      title: currentStatus ? 'Remove Super Admin' : 'Make Super Admin',
+      content:
+          'Are you sure you want to ${currentStatus ? 'remove super admin access from' : 'make'} $displayName a ${currentStatus ? 'regular admin' : 'SUPER ADMIN'}?\n\n⚠️ Super Admins have full control over the system!',
+      confirmText: currentStatus ? 'Remove' : 'Make Super Admin',
+      confirmColor: currentStatus ? Colors.red : Colors.purple,
+    );
+
+    if (confirmed == true) {
+      // If making super admin, ensure they are also regular admin
+      if (!currentStatus) {
+        await _updateUserField(userId, 'isAdmin', true);
+      }
+
+      await _updateUserField(userId, 'isSuperAdmin', !currentStatus);
+
+      // Update local state
+      final userIndex = _users.indexWhere((u) => u['id'] == userId);
+      if (userIndex != -1) {
+        setState(() {
+          _users[userIndex]['isSuperAdmin'] = !currentStatus;
+          if (!currentStatus) _users[userIndex]['isAdmin'] = true;
+        });
+      }
+
+      if (mounted) {
+        _showSuccessSnackBar(
+            'Successfully ${!currentStatus ? 'granted super admin access to' : 'removed super admin access from'} $displayName');
       }
     }
   }
@@ -630,6 +678,7 @@ class _OptimizedUserManagementScreenState
     final isDisabled = userData['disabled'] as bool? ?? false;
     final isPermanentlyBlocked =
         userData['permanentlyBlocked'] as bool? ?? false;
+    final isSuperAdminUser = userData['isSuperAdmin'] as bool? ?? false;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -768,6 +817,13 @@ class _OptimizedUserManagementScreenState
                         onChanged: (val) =>
                             _toggleAdminStatus(userId, displayName, isAdmin),
                         activeColor: Colors.orange,
+                      ),
+                      const SizedBox(width: 4),
+                      _buildMiniSwitch(
+                        value: isSuperAdminUser,
+                        onChanged: (val) => _toggleSuperAdminStatus(
+                            userId, displayName, isSuperAdminUser),
+                        activeColor: Colors.purple,
                       ),
                       const SizedBox(width: 4),
                       _buildMiniSwitch(

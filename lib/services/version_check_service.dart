@@ -11,6 +11,7 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'apk_download_service.dart';
 import 'pubspec_service.dart';
+import 'admin_control_service.dart';
 
 class VersionCheckService {
   static const String githubApiUrl =
@@ -103,11 +104,42 @@ class VersionCheckService {
     _notificationTimer = null;
   }
 
-  static Future<void> checkForUpdate() async {
+static Future<void> checkForUpdate() async {
     try {
+      // Check admin control first
+      final adminConfig = await AdminControlService.fetchAdminConfig();
+      final currentVersion = await PubspecService.getAppVersion();
+      
+      // Check if updates are disabled
+      if (!adminConfig.updatesEnabled) {
+        if (kDebugMode) {
+          print('🚫 Updates disabled by administrator');
+        }
+        stopPeriodicCheck();
+        return;
+      }
+
+      // Check if current version is blocked
+      if (adminConfig.isVersionBlocked(currentVersion)) {
+        if (kDebugMode) {
+          print('🚫 Current version is blocked by administrator');
+        }
+        // Force update for blocked versions
+        await _checkForUpdateFromGitHub();
+        return;
+      }
+
+      // Check emergency mode
+      if (adminConfig.emergencyMode) {
+        if (kDebugMode) {
+          print('🚨 Emergency mode active - updates disabled');
+        }
+        stopPeriodicCheck();
+        return;
+      }
+
       final prefs = await SharedPreferences.getInstance();
       final dismissedVersion = prefs.getString(dismissedVersionKey);
-      final currentVersion = await PubspecService.getAppVersion();
 
       // First check GitHub for the latest version
       final githubHasUpdate = await _checkGitHubVersionOnly();
@@ -138,7 +170,8 @@ class VersionCheckService {
 
         _onUpdateAvailable?.call();
 
-        if (updateInfo.updatePriority >= 4) {
+        // Check if admin wants to force update
+        if (adminConfig.forceUpdate || updateInfo.updatePriority >= 4) {
           await _performImmediateUpdate();
         } else {
           await _showInAppUpdateNotification();
@@ -289,13 +322,38 @@ class VersionCheckService {
     }
   }
 
-  static Future<bool> checkForUpdateManually() async {
+static Future<bool> checkForUpdateManually() async {
     try {
+      // Check admin control first
+      final adminConfig = await AdminControlService.fetchAdminConfig();
+      final currentVersion = await PubspecService.getAppVersion();
+      
+      // Check if updates are disabled
+      if (!adminConfig.updatesEnabled) {
+        if (kDebugMode) {
+          print('🚫 Updates disabled by administrator');
+        }
+        return false;
+      }
+
+      // Check if current version is blocked
+      if (adminConfig.isVersionBlocked(currentVersion)) {
+        if (kDebugMode) {
+          print('🚫 Current version is blocked - forcing update');
+        }
+        // Continue with update check for blocked versions
+      }
+
+      // Check emergency mode
+      if (adminConfig.emergencyMode) {
+        if (kDebugMode) {
+          print('🚨 Emergency mode active - updates disabled');
+        }
+        return false;
+      }
+
       final prefs = await SharedPreferences.getInstance();
       final dismissedVersion = prefs.getString(dismissedVersionKey);
-
-      // Check GitHub for accurate version info
-      final currentVersion = await PubspecService.getAppVersion();
 
       final headers = {
         'Accept': 'application/vnd.github.v3+json',
