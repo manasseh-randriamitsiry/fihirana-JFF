@@ -110,7 +110,7 @@ class RecordingManagerScreen extends StatelessWidget {
                   color: Colors.red.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 16),
-                Text(
+                const Text(
                   'Access Restricted',
                   style: TextStyle(
                     color: Colors.red,
@@ -137,7 +137,7 @@ class RecordingManagerScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+                      const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
                       const SizedBox(height: 8),
                       Text(
                         securityService.blockReason.isNotEmpty 

@@ -11,10 +11,31 @@ import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'apk_download_service.dart';
 import 'pubspec_service.dart';
+import 'admin_control_service.dart';
 
 class VersionCheckService {
   static const String githubApiUrl =
       'https://api.github.com/repos/manasseh-randriamitsiry/fihirana-JFF/releases/latest';
+
+  static const String lastCheckKey = 'last_version_check';
+  static const String dismissedVersionKey = 'dismissed_update_version';
+  static const String installedVersionKey = 'installed_update_version';
+  static const String githubTokenKey = 'github_token';
+  static const Duration checkInterval = Duration(hours: 1);
+  static const int updateNotificationId = 1;
+
+  static Timer? _notificationTimer;
+  static String? _cachedDownloadUrl;
+  static String? _cachedVersion;
+  static String? _cachedReleaseNotes;
+  
+  static AppUpdateInfo? _updateInfo;
+  static bool _flexibleUpdateAvailable = false;
+  static VoidCallback? _onUpdateAvailable;
+  static VoidCallback? _onFlexibleUpdateDownloaded;
+  static bool _isUpToDate = false;
+  static bool _hasCheckedOnStartup = false;
+
   // Get GitHub token from SharedPreferences for API authentication
   static Future<String> getGithubToken() async {
     try {
@@ -36,22 +57,6 @@ class VersionCheckService {
       }
     }
   }
-  static const String lastCheckKey = 'last_version_check';
-  static const String dismissedVersionKey = 'dismissed_update_version';
-  static const String installedVersionKey = 'installed_update_version';
-  static const String githubTokenKey = 'github_token';
-  static const Duration checkInterval = Duration(hours: 1);
-  static const int updateNotificationId = 1;
-  static Timer? _notificationTimer;
-  static String? _cachedDownloadUrl;
-  static String? _cachedVersion;
-  static String? _cachedReleaseNotes;
-  static AppUpdateInfo? _updateInfo;
-  static bool _flexibleUpdateAvailable = false;
-  static VoidCallback? _onUpdateAvailable;
-  static VoidCallback? _onFlexibleUpdateDownloaded;
-  static bool _isUpToDate = false;
-  static bool _hasCheckedOnStartup = false;
 
   static void setOnUpdateAvailableCallback(VoidCallback callback) {
     _onUpdateAvailable = callback;
@@ -99,11 +104,42 @@ class VersionCheckService {
     _notificationTimer = null;
   }
 
-  static Future<void> checkForUpdate() async {
+static Future<void> checkForUpdate() async {
     try {
+      // Check admin control first
+      final adminConfig = await AdminControlService.fetchAdminConfig();
+      final currentVersion = await PubspecService.getAppVersion();
+      
+      // Check if updates are disabled
+      if (!adminConfig.updatesEnabled) {
+        if (kDebugMode) {
+          print('🚫 Updates disabled by administrator');
+        }
+        stopPeriodicCheck();
+        return;
+      }
+
+      // Check if current version is blocked
+      if (adminConfig.isVersionBlocked(currentVersion)) {
+        if (kDebugMode) {
+          print('🚫 Current version is blocked by administrator');
+        }
+        // Force update for blocked versions
+        await _checkForUpdateFromGitHub();
+        return;
+      }
+
+      // Check emergency mode
+      if (adminConfig.emergencyMode) {
+        if (kDebugMode) {
+          print('🚨 Emergency mode active - updates disabled');
+        }
+        stopPeriodicCheck();
+        return;
+      }
+
       final prefs = await SharedPreferences.getInstance();
       final dismissedVersion = prefs.getString(dismissedVersionKey);
-      final currentVersion = await PubspecService.getAppVersion();
 
       // First check GitHub for the latest version
       final githubHasUpdate = await _checkGitHubVersionOnly();
@@ -134,7 +170,8 @@ class VersionCheckService {
 
         _onUpdateAvailable?.call();
 
-        if (updateInfo.updatePriority >= 4) {
+        // Check if admin wants to force update
+        if (adminConfig.forceUpdate || updateInfo.updatePriority >= 4) {
           await _performImmediateUpdate();
         } else {
           await _showInAppUpdateNotification();
@@ -228,8 +265,7 @@ class VersionCheckService {
           id: updateNotificationId + 1,
           channelKey: 'basic_channel',
           title: 'Tsy afaka naka',
-          body:
-              'Nisy olana fa avereno alaina rehefa afaka kelikely.',
+          body: 'Nisy olana fa avereno alaina rehefa afaka kelikely.',
           color: const Color(0xFF9D50DD),
         ),
       );
@@ -248,8 +284,7 @@ class VersionCheckService {
             id: updateNotificationId + 2,
             channelKey: 'basic_channel',
             title: 'Fakàna rindrambaiko',
-            body:
-                'Mahandrasa kely azafady.',
+            body: 'Mahandrasa kely azafady.',
             payload: {'type': 'flexible_update_complete'},
             color: const Color(0xFF9D50DD),
           ),
@@ -287,28 +322,44 @@ class VersionCheckService {
     }
   }
 
-  static Future<bool> checkForUpdateManually() async {
+static Future<bool> checkForUpdateManually() async {
     try {
+      // Check admin control first
+      final adminConfig = await AdminControlService.fetchAdminConfig();
+      final currentVersion = await PubspecService.getAppVersion();
+      
+      // Check if updates are disabled
+      if (!adminConfig.updatesEnabled) {
+        if (kDebugMode) {
+          print('🚫 Updates disabled by administrator');
+        }
+        return false;
+      }
+
+      // Check if current version is blocked
+      if (adminConfig.isVersionBlocked(currentVersion)) {
+        if (kDebugMode) {
+          print('🚫 Current version is blocked - forcing update');
+        }
+        // Continue with update check for blocked versions
+      }
+
+      // Check emergency mode
+      if (adminConfig.emergencyMode) {
+        if (kDebugMode) {
+          print('🚨 Emergency mode active - updates disabled');
+        }
+        return false;
+      }
+
       final prefs = await SharedPreferences.getInstance();
       final dismissedVersion = prefs.getString(dismissedVersionKey);
-
-      // Check GitHub for accurate version info
-      final currentVersion = await PubspecService.getAppVersion();
-
-      // Debug mode: skip update check for testing (uncomment to disable updates)
-      // if (kDebugMode) {
-      //   if (kDebugMode) {
-      //     print('🔍 Debug mode: Skipping manual update check for testing');
-      //   }
-      //   await clearUpdateState();
-      //   return false;
-      // }
 
       final headers = {
         'Accept': 'application/vnd.github.v3+json',
         'User-Agent': 'Fihirana-JFF-App/1.0',
       };
-      
+
       // Add GitHub token if available (for higher rate limit)
       final githubToken = await getGithubToken();
       if (githubToken.isNotEmpty) {
@@ -321,11 +372,13 @@ class VersionCheckService {
           print('⚠️ Using unauthenticated GitHub API request (rate limited)');
         }
       }
-      
-      final response = await http.get(
-        Uri.parse(githubApiUrl),
-        headers: headers,
-      ).timeout(const Duration(seconds: 15));
+
+      final response = await http
+          .get(
+            Uri.parse(githubApiUrl),
+            headers: headers,
+          )
+          .timeout(const Duration(seconds: 15));
 
       if (kDebugMode) {
         print('🌐 GitHub API response status: ${response.statusCode}');
@@ -339,8 +392,26 @@ class VersionCheckService {
         String latestVersion = data['tag_name'].toString().replaceAll('v', '');
         final releaseNotes = data['body'] ?? 'No release notes available';
 
+        if (kDebugMode) {
+          print('✅ GitHub API Success - Latest Version: $latestVersion');
+        }
+
         // Get device architecture
         String deviceArch = _getDeviceArchitecture();
+
+        if (kDebugMode) {
+          print('🔍 Device Arch: $deviceArch');
+          if (data['assets'] != null) {
+            final assetsList = data['assets'] as List;
+            print('📦 Total Assets: ${assetsList.length}');
+            for (var asset in assetsList) {
+              print(
+                  '   - ${asset['name']} (digest: ${asset['digest'] != null ? "YES" : "NO"})');
+            }
+          } else {
+            print('❌ No assets found in release data');
+          }
+        }
 
         // Try to find architecture-specific APK first, then fallback to universal
         final apkAsset = data['assets']?.firstWhere(
@@ -360,8 +431,25 @@ class VersionCheckService {
           ),
         );
 
+if (kDebugMode) {
+          print('🎯 Selected Asset: ${apkAsset?['name']}');
+          if (apkAsset != null) {
+            print(
+                '📄 Asset has digest field: ${apkAsset.containsKey('digest')}');
+            print('📄 Asset digest value: ${apkAsset['digest']}');
+            print('📄 All asset keys: ${apkAsset.keys.toList()}');
+            // Log all asset values for debugging
+            print('📄 Full asset data:');
+            apkAsset.forEach((key, value) {
+              print('   $key: $value');
+            });
+          }
+        }
+
         final downloadUrl =
             apkAsset?['browser_download_url'] ?? data['html_url'];
+
+
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         final bool isSameVersion = currentVersion == latestVersion;
@@ -375,11 +463,16 @@ class VersionCheckService {
         _isUpToDate = !isNewer;
         _hasCheckedOnStartup = true;
 
-        // Cache version info for download
+// Cache version info for download
         if (isNewer) {
           _cachedVersion = latestVersion;
           _cachedDownloadUrl = downloadUrl;
           _cachedReleaseNotes = releaseNotes;
+          if (kDebugMode) {
+            print('💾 Caching update info:');
+            print('   Version: $_cachedVersion');
+            print('   URL: $_cachedDownloadUrl');
+          }
         } else {
           // Clear cached info if up to date
           _cachedVersion = null;
@@ -412,38 +505,39 @@ class VersionCheckService {
           final updateInfo = await InAppUpdate.checkForUpdate();
           _updateInfo = updateInfo;
 
-        if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-          // Don't show update if user already dismissed this version
-          if (dismissedVersion == currentVersion) {
+          if (updateInfo.updateAvailability ==
+              UpdateAvailability.updateAvailable) {
+            // Don't show update if user already dismissed this version
+            if (dismissedVersion == currentVersion) {
+              return false;
+            }
+
+            _onUpdateAvailable?.call();
+            return true;
+          } else {
+            // Update the up-to-date flag for InAppUpdate result
+            _isUpToDate = true;
+            _hasCheckedOnStartup = true;
             return false;
           }
-
-          _onUpdateAvailable?.call();
-          return true;
-        } else {
-          // Update the up-to-date flag for InAppUpdate result
+        } catch (playStoreError) {
+          if (kDebugMode) {
+            print('❌ InAppUpdate failed: $playStoreError');
+          }
+          // If Play Store check fails, assume up-to-date to avoid errors
           _isUpToDate = true;
           _hasCheckedOnStartup = true;
           return false;
         }
-      } catch (playStoreError) {
+      } else {
         if (kDebugMode) {
-          print('❌ InAppUpdate failed: $playStoreError');
+          print('📱 Not installed from Play Store, skipping InAppUpdate check');
         }
-        // If Play Store check fails, assume up-to-date to avoid errors
+        // If not from Play Store and GitHub failed, assume up-to-date
         _isUpToDate = true;
         _hasCheckedOnStartup = true;
         return false;
       }
-    } else {
-      if (kDebugMode) {
-        print('📱 Not installed from Play Store, skipping InAppUpdate check');
-      }
-      // If not from Play Store and GitHub failed, assume up-to-date
-      _isUpToDate = true;
-      _hasCheckedOnStartup = true;
-      return false;
-    }
     } catch (e) {
       if (kDebugMode) {
         print('❌ Manual check failed: $e');
@@ -482,15 +576,6 @@ class VersionCheckService {
   static Future<bool> _checkGitHubVersionOnly() async {
     try {
       final currentVersion = await PubspecService.getAppVersion();
-
-      // Debug mode: skip update check for testing (uncomment to disable updates)
-      // if (kDebugMode) {
-      //   if (kDebugMode) {
-      //     print('🔍 Debug mode: Skipping update check for testing');
-      //   }
-      //   await clearUpdateState();
-      //   return false;
-      // }
 
       final response = await http.get(
         Uri.parse(githubApiUrl),
@@ -577,6 +662,8 @@ class VersionCheckService {
 
         final downloadUrl = apkAsset?['browser_download_url'] ?? releaseUrl;
 
+
+
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         final bool isSameVersion = currentVersion == latestVersion;
 
@@ -598,7 +685,7 @@ class VersionCheckService {
             await clearDismissedVersion();
           }
 
-          _cachedDownloadUrl = downloadUrl;
+_cachedDownloadUrl = downloadUrl;
           _cachedVersion = latestVersion;
           _cachedReleaseNotes = releaseNotes;
           _onUpdateAvailable?.call();
@@ -656,8 +743,11 @@ class VersionCheckService {
   static Future<void> _downloadAndInstallUpdate(String url) async {
     try {
       if (_cachedVersion != null) {
-        // Use the new APK download service
-        await ApkDownloadService.downloadAndInstallApk(url, _cachedVersion!);
+// Use the new APK download service
+        await ApkDownloadService.downloadAndInstallApk(
+          url,
+          _cachedVersion!,
+        );
       } else {
         // Fallback to external browser
         final uri = Uri.parse(url);
@@ -739,7 +829,7 @@ class VersionCheckService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(dismissedVersionKey);
     await prefs.remove(installedVersionKey);
-    _updateInfo = null;
+_updateInfo = null;
     _cachedDownloadUrl = null;
     _cachedVersion = null;
     _cachedReleaseNotes = null;
@@ -747,10 +837,12 @@ class VersionCheckService {
     stopPeriodicCheck();
   }
 
-  static Future<void> downloadAndInstallLatestVersion() async {
+static Future<void> downloadAndInstallLatestVersion() async {
     if (_cachedDownloadUrl != null && _cachedVersion != null) {
       await ApkDownloadService.downloadAndInstallApk(
-          _cachedDownloadUrl!, _cachedVersion!);
+        _cachedDownloadUrl!,
+        _cachedVersion!,
+      );
     } else {
       throw Exception(
           'No update information available. Please check for updates first.');

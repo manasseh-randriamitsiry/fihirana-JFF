@@ -121,8 +121,12 @@ class AuthController extends GetxController {
           // Strict boolean check for isAdmin
           final dynamic isAdminData = data?['isAdmin'];
           final bool isAdminDb = isAdminData == true;
-          final bool isSuperAdmin =
+
+          // Check isSuperAdmin from DB and Hardcoded Email
+          final bool isSuperAdminDb = data?['isSuperAdmin'] == true;
+          final bool isSuperAdminEmail =
               user.email == 'manassehrandriamitsiry@gmail.com';
+          final bool isSuperAdmin = isSuperAdminDb || isSuperAdminEmail;
 
           _isAdmin.value = isAdminDb || isSuperAdmin;
 
@@ -198,6 +202,7 @@ class AuthController extends GetxController {
           'lastHymnAdditionMonth': DateTime.now().toString().substring(0, 7),
           'emailVerified': user.emailVerified,
           'isAdmin': false,
+          'isSuperAdmin': false,
           'createdAt': FieldValue.serverTimestamp(),
           'lastLogin': FieldValue.serverTimestamp(),
           'uid': user.uid,
@@ -264,6 +269,7 @@ class AuthController extends GetxController {
             'lastHymnAdditionMonth': DateTime.now().toString().substring(0, 7),
             'emailVerified': currentUser.emailVerified,
             'isAdmin': false,
+            'isSuperAdmin': false,
             'createdAt': FieldValue.serverTimestamp(),
             'lastLogin': FieldValue.serverTimestamp(),
             'uid': currentUser.uid,
