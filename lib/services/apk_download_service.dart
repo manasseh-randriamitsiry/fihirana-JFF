@@ -49,6 +49,13 @@ class ApkDownloadService {
   static Future<void> downloadAndInstallApk(String url, String version,
       {String? expectedSha256}) async {
     try {
+      if (kDebugMode) {
+        print('🚀 Starting APK download');
+        print('📥 URL: $url');
+        print('🏷️ Version: $version');
+        print('🔐 Expected SHA-256: ${expectedSha256 ?? "NOT PROVIDED"}');
+      }
+
       // Request storage and install permissions
       final hasStoragePermission = await _requestStoragePermission();
       final hasInstallPermission = await _requestInstallPermission();
@@ -251,10 +258,11 @@ class ApkDownloadService {
           }
         } else {
           if (kDebugMode) {
-            print('⚠️ No expected SHA provided. Deleting existing file.');
+            print('⚠️ No expected SHA provided. Proceeding with overwrite.');
           }
         }
-        await file.delete();
+        // We don't delete the file here anymore.
+        // We will overwrite it when we open it in write mode.
       } else {
         if (kDebugMode) {
           print('📂 File does not exist at: ${params.savePath}');
