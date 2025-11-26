@@ -139,6 +139,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           final isSuperAdmin = data?['isSuperAdmin'] == true;
 
           // Fallback to email check for migration
+          // HARDCODED DOUBLE CHECK: Allows access even if Firestore fails or field is missing
           final isSuperAdminFallback =
               user.email == 'manassehrandriamitsiry@gmail.com';
 

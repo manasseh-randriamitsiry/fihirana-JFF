@@ -121,8 +121,12 @@ class AuthController extends GetxController {
           // Strict boolean check for isAdmin
           final dynamic isAdminData = data?['isAdmin'];
           final bool isAdminDb = isAdminData == true;
-          final bool isSuperAdmin =
+
+          // Check isSuperAdmin from DB and Hardcoded Email
+          final bool isSuperAdminDb = data?['isSuperAdmin'] == true;
+          final bool isSuperAdminEmail =
               user.email == 'manassehrandriamitsiry@gmail.com';
+          final bool isSuperAdmin = isSuperAdminDb || isSuperAdminEmail;
 
           _isAdmin.value = isAdminDb || isSuperAdmin;
 
