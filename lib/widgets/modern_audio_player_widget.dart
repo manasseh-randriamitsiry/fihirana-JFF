@@ -45,36 +45,24 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   bool _isLoading = false;
   Duration? _duration;
   Duration? _position;
-  int _currentPlaylistIndex = 0;
   bool _isDraggingSlider = false;
   double _dragValue = 0.0;
 
   StreamSubscription? _playerStateSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
+  StreamSubscription? _playlistChangeSubscription;
 
   @override
   void initState() {
     super.initState();
-    if (widget.playlist != null) {
-      _currentPlaylistIndex = widget.playlist!.indexWhere(
-        (hymn) => hymn.id == widget.hymn.id,
-      );
-    }
     _initializePlayer();
   }
 
   @override
   void didUpdateWidget(ModernAudioPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.hymn.id != oldWidget.hymn.id ||
-        widget.playlist != oldWidget.playlist) {
-      if (widget.playlist != null) {
-        _currentPlaylistIndex = widget.playlist!.indexWhere(
-          (hymn) => hymn.id == widget.hymn.id,
-        );
-      }
-    }
+    // No need to manage playlist index locally anymore
   }
 
   void _initializePlayer() {
@@ -116,6 +104,27 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
         _duration = duration;
       });
     });
+
+    // Listen to playlist changes
+    _playlistChangeSubscription = _audioService.playlistChangeNotifier.listen((_) {
+      if (!mounted) return;
+      // Update UI when playlist changes
+      setState(() {});
+    });
+
+    // Listen to player errors via playerStateStream
+    _audioService.playerStateStream.listen((state) {
+      if (!mounted) return;
+      
+      // Handle error states
+      if (state.processingState == ProcessingState.idle && 
+          _audioService.currentHymn?.id == widget.hymn.id) {
+        setState(() {
+          _isLoading = false;
+          _isPlaying = false;
+        });
+      }
+    });
   }
 
   void _updateCurrentState() {
@@ -132,32 +141,55 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   }
 
   Future<void> _playNext() async {
-    if (widget.playlist == null || widget.playlist!.isEmpty) return;
-    final nextIndex = (_currentPlaylistIndex + 1) % widget.playlist!.length;
-    final nextHymn = widget.playlist![nextIndex];
-    widget.onHymnChange?.call(nextHymn);
-    await _audioService.playHymn(nextHymn);
+    // Use AudioService's playlist management instead of local
+    try {
+      await _audioService.playNext();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error playing next hymn: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _playPrevious() async {
-    if (widget.playlist == null || widget.playlist!.isEmpty) return;
-    final prevIndex = _currentPlaylistIndex == 0
-        ? widget.playlist!.length - 1
-        : _currentPlaylistIndex - 1;
-    final prevHymn = widget.playlist![prevIndex];
-    widget.onHymnChange?.call(prevHymn);
-    await _audioService.playHymn(prevHymn);
+    // Use AudioService's playlist management instead of local
+    try {
+      await _audioService.playPrevious();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error playing previous hymn: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _togglePlayPause() async {
-    if (_audioService.currentHymn?.id == widget.hymn.id) {
-      if (_isPlaying) {
-        await _audioService.pause();
+    try {
+      if (_audioService.currentHymn?.id == widget.hymn.id) {
+        if (_isPlaying) {
+          await _audioService.pause();
+        } else {
+          await _audioService.resume();
+        }
       } else {
-        await _audioService.resume();
+        setState(() {
+          _isLoading = true;
+        });
+        await _audioService.playHymn(widget.hymn);
       }
-    } else {
-      await _audioService.playHymn(widget.hymn);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isPlaying = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error playing audio: $e')),
+        );
+      }
     }
   }
 
@@ -177,6 +209,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     _playerStateSubscription?.cancel();
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
+    _playlistChangeSubscription?.cancel();
     super.dispose();
   }
 
@@ -195,9 +228,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     const primaryTextColor = Colors.white;
     const secondaryTextColor = Colors.white70;
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: Stack(
+    return Container(
+      color: backgroundColor,
+      child: Stack(
         children: [
           // Background Gradient (Subtle)
           Container(

@@ -174,6 +174,15 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
           _currentHymn = filteredList[0];
         }
       });
+      
+      // Set the playlist in AudioService for next/previous functionality
+      if (filteredList.isNotEmpty) {
+        final initialIndex = _currentIndex == -1 ? 0 : _currentIndex;
+        _audioService.setPlaylist(filteredList, initialIndex);
+        if (kDebugMode) {
+          print('AudioPlayerScreen: Set AudioService playlist with ${filteredList.length} hymns, starting at index $initialIndex');
+        }
+      }
     }
   }
 

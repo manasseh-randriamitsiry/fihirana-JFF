@@ -213,17 +213,33 @@ class GoogleDriveService {
     if (targetFolderId == null) return null;
 
     try {
-      final driveFile = drive.File()
-        ..name = title
-        ..parents = [targetFolderId]
-        ..description = description;
+      // Ensure proper file extension
+      String fileName = title;
+      if (!fileName.toLowerCase().endsWith('.m4a') && !fileName.toLowerCase().endsWith('.mp3')) {
+        fileName += '.m4a'; // Default to .m4a for recordings
+      }
 
-      final media = drive.Media(file.openRead(), await file.length());
+      final driveFile = drive.File()
+        ..name = fileName
+        ..parents = [targetFolderId]
+        ..description = description
+        ..mimeType = 'audio/m4a'; // Explicitly set MIME type for audio
+
+      final media = drive.Media(
+        file.openRead(), 
+        await file.length(),
+        contentType: 'audio/m4a', // Ensure correct content type
+      );
+      
       final result = await _driveApi!.files.create(
         driveFile,
         uploadMedia: media,
-        $fields: 'id, webViewLink',
+        $fields: 'id, webViewLink, mimeType, size',
       );
+
+      if (kDebugMode) {
+        print('GoogleDriveService: Uploaded file ${result.name} with MIME type ${result.mimeType}');
+      }
 
       // If public, set file permissions
       if (isPublic && result.id != null) {
@@ -315,6 +331,52 @@ class GoogleDriveService {
     if (_driveApi == null) return null;
 
     try {
+      // First get file metadata to check MIME type
+      final fileMetadata = await _driveApi!.files.get(
+        fileId,
+        $fields: 'name, mimeType, size',
+      ) as drive.File;
+
+      if (kDebugMode) {
+        print('GoogleDriveService: Downloading file ${fileMetadata.name} with MIME type ${fileMetadata.mimeType}');
+      }
+
+      // Check if it's a Google Docs file (which can't be downloaded directly)
+      if (fileMetadata.mimeType != null && 
+          fileMetadata.mimeType!.startsWith('application/vnd.google-apps')) {
+        if (kDebugMode) {
+          print('GoogleDriveService: Cannot download Google Docs file directly, need to export');
+        }
+        
+        // Try to export as audio if possible, otherwise fail
+        try {
+          final exportMimeType = fileMetadata.mimeType!.contains('audio') ? 
+              fileMetadata.mimeType! : 'audio/mpeg';
+          
+          final media = await _driveApi!.files.export(
+            fileId,
+            exportMimeType,
+          ) as drive.Media;
+
+          final saveFile = File(savePath);
+          await saveFile.parent.create(recursive: true);
+
+          final List<int> dataStore = [];
+          await for (final data in media.stream) {
+            dataStore.addAll(data);
+          }
+
+          await saveFile.writeAsBytes(dataStore);
+          return saveFile;
+        } catch (exportError) {
+          if (kDebugMode) {
+            print('GoogleDriveService: Export failed: $exportError');
+          }
+          throw Exception('File is stored as Google Docs format and cannot be downloaded as audio. Please re-upload the original audio file.');
+        }
+      }
+
+      // For regular binary files, download directly
       final drive.Media file = await _driveApi!.files.get(
         fileId,
         downloadOptions: drive.DownloadOptions.fullMedia,

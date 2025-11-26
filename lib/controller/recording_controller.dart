@@ -125,9 +125,105 @@ class RecordingController extends GetxController {
         print('RecordingController: Manually refreshing recordings...');
       }
       await _recordingService.loadRecordings();
+      
+      // Fix recordings with unknown hymnId
+      await _fixUnknownHymnIds();
+      
+      // Clean up ghost recordings
+      await _cleanupGhostRecordings();
     } catch (e) {
       if (kDebugMode) {
         print('Error refreshing recordings: $e');
+      }
+    }
+  }
+
+  // Clean up ghost recordings (0 duration, no file, but marked as uploaded)
+  Future<void> _cleanupGhostRecordings() async {
+    try {
+      final ghostsToRemove = <UserRecording>[];
+      
+      for (final recording in recordings) {
+        // Check if this is a ghost recording:
+        // 1. Duration is 0
+        // 2. No local file
+        // 3. Has Drive file ID
+        // 4. HymnId is 'unknown' (indicating it couldn't be parsed properly)
+        if (recording.durationSeconds == 0 && 
+            recording.filePath.isEmpty && 
+            recording.driveFileId != null &&
+            recording.hymnId == 'unknown') {
+          
+          // This is likely a ghost recording from Drive sync that couldn't be properly parsed
+          // These recordings serve no purpose since they have no audio and no identifiable hymn
+          ghostsToRemove.add(recording);
+          if (kDebugMode) {
+            print('Found ghost recording to remove: ${recording.title} (ID: ${recording.id})');
+          }
+        }
+      }
+      
+      // Remove ghost recordings
+      for (final ghost in ghostsToRemove) {
+        await _recordingService.deleteRecording(ghost.id);
+        if (kDebugMode) {
+          print('Removed ghost recording: ${ghost.title}');
+        }
+      }
+      
+      if (ghostsToRemove.isNotEmpty) {
+        await _recordingService.loadRecordings(); // Refresh the list
+        if (kDebugMode) {
+          print('Cleaned up ${ghostsToRemove.length} ghost recordings');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error cleaning up ghost recordings: $e');
+      }
+    }
+  }
+
+  // Fix recordings with unknown hymnId by extracting from filename
+  Future<void> _fixUnknownHymnIds() async {
+    try {
+      bool needsUpdate = false;
+      final updatedRecordings = <UserRecording>[];
+      
+      for (final recording in recordings) {
+        if (recording.hymnId == 'unknown') {
+          String newHymnId = 'unknown';
+          
+          // Try to extract from title or filename
+          final title = recording.title;
+          final numberMatch = RegExp(r'(\d+)').firstMatch(title);
+          if (numberMatch != null) {
+            newHymnId = numberMatch.group(1)!;
+          }
+          
+          if (newHymnId != recording.hymnId) {
+            final updated = recording.copyWith(hymnId: newHymnId);
+            updatedRecordings.add(updated);
+            needsUpdate = true;
+            
+            if (kDebugMode) {
+              print('Fixed hymnId for recording "${recording.title}": ${recording.hymnId} -> $newHymnId');
+            }
+          }
+        }
+      }
+      
+      if (needsUpdate) {
+        for (final updated in updatedRecordings) {
+          await _recordingService.updateRecording(updated);
+        }
+        if (kDebugMode) {
+          print('Updated ${updatedRecordings.length} recordings with corrected hymnId');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fixing unknown hymnIds: $e');
       }
     }
   }
@@ -188,7 +284,11 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('RecordingController: Periodic refresh triggered');
       }
-      _recordingService.loadRecordings();
+      
+      // Only refresh if not already loading to avoid conflicts
+      if (!isLoading.value) {
+        _recordingService.loadRecordings();
+      }
 
       // Check for silent sign-in every 2 minutes (every 4 ticks)
       if (!isDriveSignedIn.value && timer.tick % 4 == 0) {
@@ -196,7 +296,7 @@ class RecordingController extends GetxController {
       }
 
       // Also sync from Drive if signed in (every 5 minutes to avoid API limits)
-      if (isDriveSignedIn.value && timer.tick % 10 == 0) {
+      if (isDriveSignedIn.value && timer.tick % 10 == 0 && !isLoading.value) {
         syncFromDrive();
       }
     });
@@ -241,7 +341,10 @@ class RecordingController extends GetxController {
     // Check Drive status and sync if needed
     _checkDriveStatusAndSync();
 
-    _autoRefreshRecordings();
+    // Auto-refresh with delay to avoid conflicts
+    Future.delayed(const Duration(milliseconds: 200), () {
+      _autoRefreshRecordings();
+    });
   }
 
   Future<void> _checkDriveStatusAndSync() async {
@@ -605,6 +708,12 @@ class RecordingController extends GetxController {
         );
         await _recordingService.updateRecording(updated);
 
+        // Update the recordings list to reflect the change immediately
+        final index = recordings.indexWhere((r) => r.id == recording.id);
+        if (index != -1) {
+          recordings[index] = updated;
+        }
+
         // Remove from uploading set on success
         uploadingRecordingIds.remove(recording.id);
         uploadErrors.remove(recording.id);
@@ -727,6 +836,14 @@ class RecordingController extends GetxController {
       return;
     }
 
+    // Prevent concurrent syncs
+    if (isLoading.value) {
+      if (kDebugMode) {
+        print('Sync already in progress, skipping');
+      }
+      return;
+    }
+
     try {
       isLoading.value = true;
       final driveFiles = await _driveService.listRecordings();
@@ -748,26 +865,77 @@ class RecordingController extends GetxController {
         if (!existingByDriveId.containsKey(driveFile.id!)) {
           // This is a new recording from Drive that's not in local storage
           // Create a local entry for it
-          final recording = UserRecording(
-            id: _uuid.v4(),
-            hymnId: driveFile.description?.split('Hymn: ').last ?? 'unknown',
-            title: (driveFile.name ?? '').replaceAll('.m4a', ''),
-            filePath: '', // No local file available
-            durationSeconds: 0, // Unknown duration
-            createdAt:
-                DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ??
-                    DateTime.now(),
-            isPublic: false,
-            tags: [],
-            driveFileId: driveFile.id ?? '',
-            driveWebLink: driveFile.webViewLink,
-          );
+          // Parse hymnId more safely from description or filename
+          String hymnId = 'unknown';
+          if (driveFile.description != null && driveFile.description!.contains('Hymn:')) {
+            final parts = driveFile.description!.split('Hymn: ');
+            if (parts.length > 1) {
+              hymnId = parts.last.trim();
+              // Validate hymnId format (should be numeric)
+              if (!RegExp(r'^\d+$').hasMatch(hymnId)) {
+                hymnId = 'unknown';
+              }
+            }
+          } else {
+            // Try to extract hymnId from filename as fallback
+            final fileName = (driveFile.name ?? '').replaceAll('.m4a', '').replaceAll('.mp3', '');
+            // Look for patterns like "rec_123_" or "Hymn 123" or just numbers
+            final numberMatch = RegExp(r'(\d+)').firstMatch(fileName);
+            if (numberMatch != null) {
+              hymnId = numberMatch.group(1)!;
+            }
+          }
+          
+          // Check if this recording already exists locally by comparing title and creation time
+          final fileName = (driveFile.name ?? '').replaceAll('.m4a', '').replaceAll('.mp3', '');
+          final driveCreatedTime = DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ?? DateTime.now();
+          
+          final existingLocalRecording = recordings.firstWhereOrNull((r) => 
+              r.title == fileName && 
+              r.driveFileId == null && // Only match local recordings
+              (r.createdAt.difference(driveCreatedTime).inSeconds.abs() < 300)); // Within 5 minutes
+          
+          if (existingLocalRecording != null) {
+            // This is likely the same recording that was just uploaded
+            // Update the existing recording instead of creating a duplicate
+            final updated = existingLocalRecording.copyWith(
+              driveFileId: driveFile.id,
+              driveWebLink: driveFile.webViewLink,
+            );
+            await _recordingService.updateRecording(updated);
+            
+            if (kDebugMode) {
+              print('Updated existing recording with Drive info: ${existingLocalRecording.title}');
+            }
+          } else {
+            // Only create recording entry if we can properly identify the hymn
+            // This prevents creating ghost recordings for unidentifiable files
+            if (hymnId != 'unknown') {
+              // Create new recording entry
+              final recording = UserRecording(
+                id: _uuid.v4(),
+                hymnId: hymnId,
+                title: fileName,
+                filePath: '', // No local file available
+                durationSeconds: 0, // Unknown duration
+                createdAt: driveCreatedTime,
+                isPublic: false,
+                tags: [],
+                driveFileId: driveFile.id ?? '',
+                driveWebLink: driveFile.webViewLink,
+              );
 
-          // Use saveDriveRecording to add it directly with Drive info
-          await _recordingService.saveDriveRecording(recording);
+              // Use saveDriveRecording to add it directly with Drive info
+              await _recordingService.saveDriveRecording(recording);
 
-          if (kDebugMode) {
-            print('Added new recording from Drive: ${recording.title}');
+              if (kDebugMode) {
+                print('Added new recording from Drive: ${recording.title} (Hymn: $hymnId)');
+              }
+            } else {
+              if (kDebugMode) {
+                print('Skipping unidentifiable Drive file: ${driveFile.name} - could not extract hymn ID');
+              }
+            }
           }
         }
       }
@@ -1320,6 +1488,73 @@ class RecordingController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red.withValues(alpha: 0.1),
         colorText: Colors.red,
+      );
+    }
+  }
+
+  // Method to re-upload problematic Drive files
+  Future<void> reuploadToDrive(UserRecording recording) async {
+    if (recording.filePath.isEmpty || !await File(recording.filePath).exists()) {
+      Get.snackbar(
+        'Error',
+        'Original recording file not found. Cannot re-upload.',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    try {
+      Get.snackbar(
+        'Re-uploading',
+        'Fixing file format and re-uploading to Drive...',
+        showProgressIndicator: true,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      // Delete existing Drive file if it exists
+      if (recording.driveFileId != null) {
+        try {
+          await _driveService.deleteFile(recording.driveFileId!);
+        } catch (e) {
+          if (kDebugMode) {
+            print('Error deleting old Drive file: $e');
+          }
+        }
+      }
+
+      // Upload with proper MIME type
+      final fileId = await _driveService.uploadFile(
+        File(recording.filePath),
+        recording.title,
+        description: 'Hymn: ${recording.hymnId}',
+      );
+
+      if (fileId != null) {
+        final webLink = await _driveService.getWebViewLink(fileId);
+        final updated = recording.copyWith(
+          driveFileId: fileId,
+          driveWebLink: webLink,
+        );
+        await _recordingService.updateRecording(updated);
+
+        Get.back(); // Close progress
+        Get.snackbar(
+          'Success',
+          'Recording re-uploaded successfully with correct format',
+          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          colorText: Colors.white,
+        );
+      } else {
+        throw Exception('Upload failed');
+      }
+    } catch (e) {
+      Get.back(); // Close progress
+      Get.snackbar(
+        'Re-upload Failed',
+        'Failed to re-upload recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
       );
     }
   }

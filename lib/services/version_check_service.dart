@@ -28,7 +28,7 @@ class VersionCheckService {
   static String? _cachedDownloadUrl;
   static String? _cachedVersion;
   static String? _cachedReleaseNotes;
-  
+
   static AppUpdateInfo? _updateInfo;
   static bool _flexibleUpdateAvailable = false;
   static VoidCallback? _onUpdateAvailable;
@@ -86,7 +86,9 @@ class VersionCheckService {
       await AwesomeNotifications().requestPermissionToSendNotifications();
     }
 
-    initializeActionListeners();
+    // NOTE: Action listeners are now initialized in NotificationService.setupNotificationListeners()
+    // to avoid conflicts between multiple listener registrations
+    // initializeActionListeners();
 
     // Don't start periodic check by default to avoid false notifications
     // startPeriodicCheck();
@@ -104,12 +106,12 @@ class VersionCheckService {
     _notificationTimer = null;
   }
 
-static Future<void> checkForUpdate() async {
+  static Future<void> checkForUpdate() async {
     try {
       // Check admin control first
       final adminConfig = await AdminControlService.fetchAdminConfig();
       final currentVersion = await PubspecService.getAppVersion();
-      
+
       // Check if updates are disabled
       if (!adminConfig.updatesEnabled) {
         if (kDebugMode) {
@@ -208,11 +210,13 @@ static Future<void> checkForUpdate() async {
         NotificationActionButton(
           key: 'UPDATE',
           label: 'Haka',
+          icon: 'resource://mipmap/ic_launcher',
         ),
         NotificationActionButton(
           key: 'DISMISS',
           label: 'Mbola tsy izao aloha',
           actionType: ActionType.Default,
+          icon: 'resource://mipmap/ic_launcher',
         ),
       ],
     );
@@ -322,12 +326,12 @@ static Future<void> checkForUpdate() async {
     }
   }
 
-static Future<bool> checkForUpdateManually() async {
+  static Future<bool> checkForUpdateManually() async {
     try {
       // Check admin control first
       final adminConfig = await AdminControlService.fetchAdminConfig();
       final currentVersion = await PubspecService.getAppVersion();
-      
+
       // Check if updates are disabled
       if (!adminConfig.updatesEnabled) {
         if (kDebugMode) {
@@ -431,7 +435,7 @@ static Future<bool> checkForUpdateManually() async {
           ),
         );
 
-if (kDebugMode) {
+        if (kDebugMode) {
           print('🎯 Selected Asset: ${apkAsset?['name']}');
           if (apkAsset != null) {
             print(
@@ -448,8 +452,6 @@ if (kDebugMode) {
 
         final downloadUrl =
             apkAsset?['browser_download_url'] ?? data['html_url'];
-
-
 
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         final bool isSameVersion = currentVersion == latestVersion;
@@ -662,8 +664,6 @@ if (kDebugMode) {
 
         final downloadUrl = apkAsset?['browser_download_url'] ?? releaseUrl;
 
-
-
         final bool isNewer = _isNewerVersion(currentVersion, latestVersion);
         final bool isSameVersion = currentVersion == latestVersion;
 
@@ -685,7 +685,7 @@ if (kDebugMode) {
             await clearDismissedVersion();
           }
 
-_cachedDownloadUrl = downloadUrl;
+          _cachedDownloadUrl = downloadUrl;
           _cachedVersion = latestVersion;
           _cachedReleaseNotes = releaseNotes;
           _onUpdateAvailable?.call();
@@ -829,7 +829,7 @@ _cachedDownloadUrl = downloadUrl;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(dismissedVersionKey);
     await prefs.remove(installedVersionKey);
-_updateInfo = null;
+    _updateInfo = null;
     _cachedDownloadUrl = null;
     _cachedVersion = null;
     _cachedReleaseNotes = null;
@@ -837,7 +837,7 @@ _updateInfo = null;
     stopPeriodicCheck();
   }
 
-static Future<void> downloadAndInstallLatestVersion() async {
+  static Future<void> downloadAndInstallLatestVersion() async {
     if (_cachedDownloadUrl != null && _cachedVersion != null) {
       await ApkDownloadService.downloadAndInstallApk(
         _cachedDownloadUrl!,
