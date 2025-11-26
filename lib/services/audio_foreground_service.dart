@@ -1,30 +1,35 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'audio_service.dart';
 import 'notification_service.dart';
 import '../models/hymn.dart';
 
+/// Service to manage audio player notifications in foreground
 class AudioForegroundService extends GetxService {
   static AudioForegroundService? _instance;
+  bool _isForeground = false;
+  Timer? _notificationUpdateTimer;
+  late AudioService _audioService;
+
+  AudioForegroundService() {
+    _instance = this;
+  }
+
   static AudioForegroundService get instance {
-    _instance ??= AudioForegroundService._internal();
+    _instance ??= AudioForegroundService();
     return _instance!;
   }
 
-  factory AudioForegroundService() => instance;
-  AudioForegroundService._internal();
-
-  bool _isForeground = false;
-
-@override
+  @override
   void onInit() {
     super.onInit();
-
+ 
     // Listen to audio service state changes
-    final audioService = AudioService.instance;
-
+    _audioService = AudioService.instance;
+ 
     // Listen to current hymn changes
-    ever(audioService.currentPlayingHymnIdRx, (String hymnId) {
+    ever(_audioService.currentPlayingHymnIdRx, (String hymnId) {
       if (hymnId.isNotEmpty) {
         if (!_isForeground) {
           _startForegroundService();
@@ -35,80 +40,85 @@ class AudioForegroundService extends GetxService {
         }
       }
     });
-
+ 
     // Listen to player state changes (playing/paused)
-    audioService.playerStateStream.listen((state) {
+    _audioService.playerStateStream.listen((state) {
       if (_isForeground) {
-        final currentHymn = audioService.currentHymn;
+        final currentHymn = _audioService.currentHymn;
         if (currentHymn != null) {
           // Update notification with new playing state
           // This will toggle the locked/dismissible status and button states
-          NotificationService.updateAudioPlayerNotification(
+          NotificationService.updateAudioPlayerProgress(
             currentHymn,
             state.playing,
-            position: audioService.currentPosition,
-            duration: audioService.duration,
+            position: _audioService.currentPosition,
+            duration: _audioService.duration,
           );
         }
       }
     });
 
-    // Listen to position changes to update progress bar
-    audioService.positionStream.listen((position) {
+    // Listen to position changes to update progress bar (more frequent updates)
+    _audioService.positionStream.listen((position) {
       if (_isForeground && position != null) {
-        final currentHymn = audioService.currentHymn;
+        final currentHymn = _audioService.currentHymn;
         if (currentHymn != null) {
-          // Update notification with current position
-          NotificationService.updateAudioPlayerNotification(
+          if (kDebugMode) {
+            print('AudioForegroundService: Position received: ${position.inMilliseconds}ms');
+          }
+          // Update notification immediately with current position
+          NotificationService.updateAudioPlayerProgress(
             currentHymn,
-            audioService.isPlaying,
+            _audioService.isPlaying,
             position: position,
-            duration: audioService.duration,
+            duration: _audioService.duration,
           );
         }
       }
     });
+
+
 
     // Listen to playlist changes to update button states
-    ever(audioService.playlistChangeNotifier, (int _) {
+    ever(_audioService.playlistChangeNotifier, (int _) {
       if (_isForeground) {
-        final currentHymn = audioService.currentHymn;
+        final currentHymn = _audioService.currentHymn;
         if (currentHymn != null) {
           // Update notification to reflect current playlist state
-          NotificationService.updateAudioPlayerNotification(
+          NotificationService.updateAudioPlayerProgress(
             currentHymn,
-            audioService.isPlaying,
-            position: audioService.currentPosition,
-            duration: audioService.duration,
+            _audioService.isPlaying,
+            position: _audioService.currentPosition,
+            duration: _audioService.duration,
           );
         }
       }
-    });
-  }
+     });
+   }
 
-  void _startForegroundService() {
-    if (!kIsWeb) {
-      _isForeground = true;
-      // Update notification to make it persistent
-      final audioService = AudioService.instance;
-      final currentHymn = audioService.currentHymn;
-      if (currentHymn != null) {
-        NotificationService.showAudioPlayerNotification(
-            currentHymn, audioService.isPlaying);
-      }
-    }
-  }
 
-  void _stopForegroundService() {
-    if (!kIsWeb) {
-      _isForeground = false;
-      NotificationService.hideAudioPlayerNotification();
-    }
-  }
 
+   void _startForegroundService() {
+     if (kDebugMode) {
+       print('AudioForegroundService: Starting foreground service');
+     }
+     _isForeground = true;
+   }
+
+   void _stopForegroundService() {
+     if (kDebugMode) {
+       print('AudioForegroundService: Stopping foreground service');
+     }
+     _isForeground = false;
+     _notificationUpdateTimer?.cancel();
+     _notificationUpdateTimer = null;
+     NotificationService.hideAudioPlayerNotification();
+   }
+
+  /// Update notification when hymn changes
   void updateNotification(Hymn? hymn, bool isPlaying) {
     if (_isForeground && hymn != null) {
-      NotificationService.updateAudioPlayerNotification(hymn, isPlaying);
+      NotificationService.updateAudioPlayerProgress(hymn, isPlaying);
     }
   }
 
