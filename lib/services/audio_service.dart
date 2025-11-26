@@ -166,7 +166,8 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
           const Duration(milliseconds: 100)); // Brief pause for cleanup
     }
 
-    _currentHymn = hymn;
+_currentHymn = hymn;
+    _currentPlayingHymnId.value = hymn.id; // Ensure reactive update
 
     // Update playlist index if this hymn is in the current playlist
     if (_playlist.isNotEmpty) {
@@ -254,8 +255,7 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
         preload: true, // Preload the audio for faster seeking
       );
 
-      _currentPlayingHymnId.value = hymn.id;
-      if (kDebugMode) {
+if (kDebugMode) {
         print('AudioService: Audio source set, playing hymn ${hymn.id}');
       }
 
