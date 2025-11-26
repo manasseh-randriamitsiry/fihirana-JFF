@@ -18,7 +18,7 @@ import 'package:fihirana/services/local_audio_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
-import '../screen/player/audio_player_screen.dart';
+import '../widgets/compact_audio_player_widget.dart';
 import '../l10n/app_localizations.dart';
 import '../services/security_service.dart';
 
@@ -1035,8 +1035,8 @@ class RecordingController extends GetxController {
     );
   }
 
-  void _proceedWithPlayback(UserRecording recording) {
-    // Create a fake Hymn object for the player screen
+void _proceedWithPlayback(UserRecording recording) {
+    // Create a hymn object from the recording
     final hymn = Hymn(
       id: recording.id,
       hymnNumber: recording.hymnId,
@@ -1046,14 +1046,24 @@ class RecordingController extends GetxController {
       createdBy: 'User',
     );
 
-    // Navigate to AudioPlayerScreen
-    Get.to(() => AudioPlayerScreen(
-          hymn: hymn,
-          playlist: [hymn],
-        ));
+    // Show compact audio player as modal bottom sheet
+    _showCompactAudioPlayer(hymn, recording);
 
     // Start playing
     playRecording(recording);
+  }
+
+  void _showCompactAudioPlayer(Hymn hymn, UserRecording recording) {
+    Get.bottomSheet(
+      CompactAudioPlayerWidget(
+        hymn: hymn,
+        playlist: [hymn],
+        onClose: () => Get.back(),
+      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      enableDrag: false,
+    );
   }
 
   // Player Overlay state management
