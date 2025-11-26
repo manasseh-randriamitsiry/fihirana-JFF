@@ -141,8 +141,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   }
 
   Future<void> _playNext() async {
-    print('ModernAudioPlayer: _playNext called');
-    
     // Use AudioService's playlist management instead of local
     try {
       await _audioService.playNext();
@@ -156,8 +154,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   }
 
   Future<void> _playPrevious() async {
-    print('ModernAudioPlayer: _playPrevious called');
-    
     // Use AudioService's playlist management instead of local
     try {
       await _audioService.playPrevious();

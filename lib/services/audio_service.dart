@@ -20,6 +20,28 @@ class AudioService {
   factory AudioService() => instance;
   AudioService._internal() {
     _initializePlayerStateListener();
+    _initializePlayerOnStartup();
+  }
+
+  void _initializePlayerOnStartup() {
+    // Check if player is in a bad state on startup and reset it
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      try {
+        final state = _player.playerState;
+        if (state.processingState == ProcessingState.idle && 
+            _currentPlayingHymnId.value.isNotEmpty) {
+          if (kDebugMode) {
+            print('AudioService: Detected bad state on startup, resetting');
+          }
+          _currentPlayingHymnId.value = '';
+          _currentHymn = null;
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('AudioService: Error checking startup state: $e');
+        }
+      }
+    });
   }
 
   void _initializePlayerStateListener() {

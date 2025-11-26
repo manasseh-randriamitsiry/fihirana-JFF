@@ -9,8 +9,12 @@ import 'package:fihirana/controller/shell_controller.dart';
 import 'package:fihirana/screen/intro/splash_screen1.dart';
 import 'package:fihirana/screen/loading/loading_screen.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import 'package:fihirana/services/audio_service.dart';
+import 'package:fihirana/services/notification_service.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -105,12 +109,82 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _cleanupServices();
     super.dispose();
+  }
+
+  void _cleanupServices() {
+    // Cleanup all services when app is disposed
+    try {
+      // Stop audio playback
+      final audioService = AudioService.instance;
+      audioService.stop();
+      
+      // Hide audio notification with multiple approaches
+      NotificationService.hideAudioPlayerNotification();
+      
+      // Force dismiss all notifications immediately
+      try {
+        AwesomeNotifications().cancelAll();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error canceling all notifications: $e');
+        }
+      }
+      
+      // Dispose audio service
+      audioService.dispose();
+      
+      if (kDebugMode) {
+        print('App disposed: Cleaned up all services and notifications');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error during cleanup: $e');
+      }
+    }
+  }
+
+  void _cleanupAudioOnAppClose() {
+    // Specific cleanup when app is closed (detached state)
+    try {
+      final audioService = AudioService.instance;
+      
+      // Stop playback immediately
+      audioService.stop();
+      
+      // Hide notification with multiple approaches
+      NotificationService.hideAudioPlayerNotification();
+      
+      // Force clear all audio notifications
+      NotificationService.forceClearAudioNotification();
+      
+      if (kDebugMode) {
+        print('App closing: Aggressively cleaned up audio service and all notifications');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error during app close cleanup: $e');
+      }
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {}
+    switch (state) {
+      case AppLifecycleState.paused:
+        // App is in background
+        break;
+      case AppLifecycleState.detached:
+        // App is being closed - cleanup audio
+        _cleanupAudioOnAppClose();
+        break;
+      case AppLifecycleState.resumed:
+        // App is in foreground
+        break;
+      default:
+        break;
+    }
   }
 
   ThemeData _getThemeWithFont(ThemeData baseTheme, String fontName) {
