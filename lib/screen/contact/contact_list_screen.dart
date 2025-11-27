@@ -739,7 +739,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       floatingActionButton: ContextAwareFAB(
         onImportContact: _importContact,
         onAddContact: () => _showAddEditContactDialog(context),

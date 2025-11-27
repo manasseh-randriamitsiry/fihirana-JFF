@@ -64,13 +64,16 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
       return const SizedBox.shrink();
     }
 
+    // Determine if we're on the right side (for contact screen)
+    final isOnRight = _getActionsForRoute(context) == _getContactActions();
+    
     return Stack(
-      alignment: Alignment.bottomLeft,
+      alignment: isOnRight ? Alignment.bottomRight : Alignment.bottomLeft,
       children: [
         // Speed dial action buttons and main FAB
         Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: isOnRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             // Action buttons (shown when expanded)
             if (_isExpanded) ...[
@@ -79,9 +82,58 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                 final action = entry.value;
                 final delay = (index + 1) * 50;
 
-                return Row(
+return Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
+                  children: isOnRight ? [
+                    // FAB comes first when on right
+                    FloatingActionButton(
+                      heroTag: "fab_${action.label}",
+                      mini: true,
+                      onPressed: () {
+                        setState(() {
+                          _isExpanded = false;
+                        });
+                        action.onTap();
+                      },
+                      backgroundColor: action.backgroundColor ??
+                          colorController.primaryColor.value
+                              .withValues(alpha: 0.9),
+                      shape: const CircleBorder(),
+                      elevation: 4,
+                      child: Icon(
+                        action.icon,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    Container(
+                      margin: const EdgeInsets.only(left: 12, bottom: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorController.backgroundColor.value,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        action.label,
+                        style: TextStyle(
+                          color: colorController.textColor.value,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ] : [
+                    // Original order when on left
                     Container(
                       margin: const EdgeInsets.only(right: 12, bottom: 12),
                       padding: const EdgeInsets.symmetric(
@@ -130,7 +182,7 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                     ),
                   ],
                 ).animate().fadeIn(duration: 200.ms, delay: delay.ms).slideX(
-                    begin: -0.2, end: 0, duration: 200.ms, delay: delay.ms);
+                    begin: isOnRight ? 0.2 : -0.2, end: 0, duration: 200.ms, delay: delay.ms);
               }),
               const SizedBox(height: 4),
             ],
