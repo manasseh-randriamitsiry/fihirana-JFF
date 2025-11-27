@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/note.dart';
+import '../../services/note_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class NoteEditorWidget extends StatefulWidget {
@@ -301,6 +302,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
   late Animation<Offset> _slideAnimation;
   bool _isExpanded = false;
   bool _showCommunityNotes = false;
+  final NoteService _noteService = NoteService();
 
   @override
   void initState() {
@@ -395,7 +397,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
 
   Widget _buildHeader(ColorController colorController, AppLocalizations l10n, int totalNotes) {
     return Material(
-      color: Colors.transparent,
+      color: colorController.backgroundColor.value.withValues(alpha: 0.9),
       child: InkWell(
         onTap: () => setState(() => _isExpanded = !_isExpanded),
         borderRadius: const BorderRadius.only(
@@ -726,6 +728,11 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
     );
   }
 
+  // Helper method to check if current user can edit a note
+  Future<bool> _canEditNote(Note note) async {
+    return await _noteService.canEditNote(note);
+  }
+
   Widget _buildPublicNote(
     BuildContext context,
     Note note,
@@ -735,7 +742,12 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: () => widget.onNoteEdit(note),
+        onTap: () async {
+          final canEdit = await _canEditNote(note);
+          if (canEdit) {
+            widget.onNoteEdit(note);
+          }
+        },
         borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -778,6 +790,14 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                             color: colorController.textColor.value,
                           ),
                         ),
+                        if (note.userEmail.isNotEmpty && note.userEmail != note.userName)
+                          Text(
+                            note.userEmail,
+                            style: TextStyle(
+                              fontSize: widget.fontSize * 0.75,
+                              color: colorController.textColor.value.withValues(alpha: 0.6),
+                            ),
+                          ),
                         Row(
                           children: [
                             Icon(
@@ -796,26 +816,35 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                           ],
                         ),
                       ],
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: colorController.textColor.value.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: colorController.textColor.value.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.reply,
-                        size: widget.fontSize * 0.8,
-                        color: colorController.textColor.value.withValues(alpha: 0.6),
-                      ),
-                      onPressed: () => widget.onNoteEdit(note),
-                      tooltip: 'Reply to note',
-                    ),
-                  ),
+),
+                   ),
+                   FutureBuilder<bool>(
+                     future: _canEditNote(note),
+                     builder: (context, snapshot) {
+                       final canEdit = snapshot.data ?? false;
+                       if (!canEdit) {
+                         return const SizedBox.shrink();
+                       }
+                       return Container(
+                         decoration: BoxDecoration(
+                           color: colorController.textColor.value.withValues(alpha: 0.05),
+                           borderRadius: BorderRadius.circular(8),
+                           border: Border.all(
+                             color: colorController.textColor.value.withValues(alpha: 0.2),
+                           ),
+                         ),
+                         child: IconButton(
+                           icon: Icon(
+                             Icons.edit,
+                             size: widget.fontSize * 0.8,
+                             color: colorController.primaryColor.value,
+                           ),
+                           onPressed: () => widget.onNoteEdit(note),
+                           tooltip: l10n.editNote,
+                         ),
+                       );
+                     },
+                   ),
                 ],
               ),
               const SizedBox(height: 12),

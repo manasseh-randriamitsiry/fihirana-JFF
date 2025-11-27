@@ -138,6 +138,7 @@ class HymnPageWidget extends StatelessWidget {
                 id: '',
                 hymnId: hymn.id,
                 userId: '',
+                userEmail: '',
                 content: '',
                 createdAt: DateTime.now(),
                 updatedAt: DateTime.now(),

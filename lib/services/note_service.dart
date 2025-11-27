@@ -64,8 +64,9 @@ class NoteService {
       final existingNote = await getNote(hymnId);
       final now = DateTime.now();
 
-      // Get user's display name
+// Get user's display name and email
       final displayName = user.displayName ?? user.email ?? 'Anonymous';
+      final userEmail = user.email ?? '';
 
       if (existingNote != null) {
         // Update existing note
@@ -78,6 +79,7 @@ class NoteService {
         final noteData = {
           'hymnId': hymnId,
           'userId': user.uid,
+          'userEmail': userEmail,
           'content': content,
           'userName': displayName,
           'createdAt': now.toIso8601String(),
@@ -96,13 +98,13 @@ class NoteService {
     }
   }
 
-  // Check if current user can edit a note (owns it or is admin)
+// Check if current user can edit a note (owns it or is admin/superAdmin)
   Future<bool> canEditNote(Note note) async {
     final user = _auth.currentUser;
     if (user == null) return false;
 
-    // Admins can edit all notes
-    if (_authController.isAdmin) {
+    // Admins and SuperAdmins can edit all notes
+    if (_authController.isAdmin || _authController.isSuperAdmin) {
       return true;
     }
 
@@ -126,8 +128,8 @@ class NoteService {
       data['id'] = noteDoc.id;
       final note = Note.fromJson(data);
 
-      // Check if user is admin or owns the note
-      if (!_authController.isAdmin && note.userId != user.uid) {
+// Check if user is admin/superAdmin or owns the note
+      if (!_authController.isAdmin && !_authController.isSuperAdmin && note.userId != user.uid) {
         return false; // Not authorized
       }
 
