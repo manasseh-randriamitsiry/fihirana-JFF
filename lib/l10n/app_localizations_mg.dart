@@ -797,7 +797,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get editNote => 'Hanova naoty';
 
   @override
-  String get myPersonalNote => 'Ny naotiko manokana';
+  String get myPersonalNote => 'Naoty';
 
   @override
   String get noteInstructions => 'Ampidiro eto ny naoty momba ny hira';

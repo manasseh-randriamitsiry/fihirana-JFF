@@ -12,6 +12,7 @@ class HymnPageWidget extends StatelessWidget {
   final bool showHint;
   final bool isUserAuthenticated;
   final List<Note> publicNotes;
+  final Note? userNote;
   final Function(Note) onNoteEdit;
 
   const HymnPageWidget({
@@ -22,6 +23,7 @@ class HymnPageWidget extends StatelessWidget {
     required this.showHint,
     required this.isUserAuthenticated,
     required this.publicNotes,
+    this.userNote,
     required this.onNoteEdit,
   });
 
@@ -132,6 +134,59 @@ class HymnPageWidget extends StatelessWidget {
                     ),
                   );
                 },
+              ),
+            ],
+            if (isUserAuthenticated && userNote != null) ...[
+              Container(
+                margin: const EdgeInsets.only(top: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: colorController.primaryColor.value.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.person,
+                          size: fontSize * 0.8,
+                          color: colorController.primaryColor.value,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          l10n.myPersonalNote,
+                          style: TextStyle(
+                            fontSize: fontSize * 0.9,
+                            fontWeight: FontWeight.bold,
+                            color: colorController.primaryColor.value,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          icon: Icon(
+                            Icons.edit,
+                            size: fontSize,
+                            color: colorController.iconColor.value,
+                          ),
+                          onPressed: () => onNoteEdit(userNote!),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      userNote!.content,
+                      style: TextStyle(
+                        fontSize: fontSize * 0.9,
+                        color: colorController.textColor.value,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
             for (int i = 0; i < hymn.verses.length; i++) ...[

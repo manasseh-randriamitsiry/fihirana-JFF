@@ -797,7 +797,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editNote => 'Edit Note';
 
   @override
-  String get myPersonalNote => 'My Personal Note';
+  String get myPersonalNote => 'Note';
 
   @override
   String get noteInstructions => 'Enter your note about the hymn, such as chords, prayer reminders, or other information.';

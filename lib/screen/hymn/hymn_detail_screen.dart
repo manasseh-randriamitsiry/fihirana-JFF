@@ -352,6 +352,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         showHint: _show,
         isUserAuthenticated: isUserAuthenticated(),
         publicNotes: const [],
+        userNote: _userNote,
         onNoteEdit: (note) => _showNoteEditor(note: note),
       ),
     );
@@ -656,7 +657,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               }
             } else {
               final success = await _noteService.saveNote(widget.hymnId, content);
-              if (success && note == null) {
+              if (success) {
                 await _loadUserNote();
               }
             }

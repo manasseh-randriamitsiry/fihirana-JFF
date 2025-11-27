@@ -797,7 +797,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editNote => 'Modifier la note';
 
   @override
-  String get myPersonalNote => 'Ma note personnelle';
+  String get myPersonalNote => 'Note';
 
   @override
   String get noteInstructions => 'Entrez votre note sur le cantique, comme les accords, les rappels de prière ou d\'autres informations.';
