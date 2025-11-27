@@ -9,7 +9,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/player/lightweight_audio_player_widget.dart';
-import '../../widgets/hymn/form_widgets.dart';
+import '../../widgets/hymn/hymn_form_widgets.dart';
 
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
