@@ -177,75 +177,306 @@ class _ContactListScreenState extends State<ContactListScreen> {
   }
 
   void _showContactPickerDialog(List<flutter_contacts.Contact> contacts) {
+    final searchController = TextEditingController();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colorController.backgroundColor.value,
-        title: Text(
-          'Select Contact',
-          style: TextStyle(color: colorController.textColor.value),
-        ),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 400,
-          child: ListView.builder(
-            itemCount: contacts.length,
-            itemBuilder: (context, index) {
-              final contact = contacts[index];
-              final displayName = contact.displayName;
-              final phoneNumber =
-                  contact.phones.isNotEmpty ? contact.phones.first.number : '';
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          final searchQuery = searchController.text.toLowerCase();
+          final filteredContacts = searchQuery.isEmpty
+              ? contacts
+              : contacts.where((contact) {
+                  final name = contact.displayName.toLowerCase();
+                  final phone = contact.phones.isNotEmpty
+                      ? contact.phones.first.number
+                      : '';
+                  return name.contains(searchQuery) ||
+                      phone.contains(searchQuery);
+                }).toList();
 
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: colorController.primaryColor.value,
-                  child: Text(
-                    displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+            child: Container(
+              decoration: BoxDecoration(
+                color: colorController.backgroundColor.value,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Header
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: colorController.primaryColor.value
+                          .withValues(alpha: 0.1),
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.contacts_rounded,
+                          color: colorController.primaryColor.value,
+                          size: 28,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Select Contact',
+                            style: TextStyle(
+                              color: colorController.textColor.value,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: colorController.iconColor.value,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                title: Text(
-                  displayName,
-                  style: TextStyle(color: colorController.textColor.value),
-                ),
-                subtitle: phoneNumber.isNotEmpty
-                    ? Text(
-                        phoneNumber,
-                        style: TextStyle(
+
+                  // Search Bar
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: colorController.backgroundColor.value,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
                           color: colorController.textColor.value
-                              .withValues(alpha: 0.7),
+                              .withValues(alpha: 0.1),
+                          width: 1,
                         ),
-                      )
-                    : null,
-                onTap: () {
-                  Navigator.pop(context);
-                  _showAddEditContactDialog(
-                    context,
-                    contact: null,
-                    importedContact: {
-                      'name': displayName,
-                      'phone': phoneNumber,
-                    },
-                  );
-                },
-              );
-            },
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: colorController.primaryColor.value),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: TextField(
+                        controller: searchController,
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          hintText: 'Search contacts...',
+                          hintStyle: TextStyle(
+                            color: colorController.iconColor.value
+                                .withValues(alpha: 0.5),
+                          ),
+                          prefixIcon: Icon(
+                            Icons.search,
+                            color: colorController.iconColor.value,
+                          ),
+                          suffixIcon: searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(
+                                    Icons.clear,
+                                    color: colorController.iconColor.value,
+                                  ),
+                                  onPressed: () {
+                                    searchController.clear();
+                                    setState(() {});
+                                  },
+                                )
+                              : null,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+                        ),
+                        style: TextStyle(
+                          color: colorController.textColor.value,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Contact List
+                  Flexible(
+                    child: filteredContacts.isEmpty
+                        ? Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(40),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: colorController.textColor.value
+                                        .withValues(alpha: 0.3),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text(
+                                    'No contacts found',
+                                    style: TextStyle(
+                                      color: colorController.textColor.value,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            itemCount: filteredContacts.length,
+                            itemBuilder: (context, index) {
+                              final contact = filteredContacts[index];
+                              final displayName = contact.displayName;
+                              final phoneNumber = contact.phones.isNotEmpty
+                                  ? contact.phones.first.number
+                                  : '';
+
+                              return Card(
+                                elevation: 0,
+                                margin: const EdgeInsets.only(bottom: 8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: colorController.textColor.value
+                                        .withValues(alpha: 0.1),
+                                    width: 1,
+                                  ),
+                                ),
+                                color: colorController.backgroundColor.value,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _showAddEditContactDialog(
+                                      context,
+                                      contact: null,
+                                      importedContact: {
+                                        'name': displayName,
+                                        'phone': phoneNumber,
+                                      },
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor: colorController
+                                              .primaryColor.value
+                                              .withValues(alpha: 0.15),
+                                          radius: 24,
+                                          child: Text(
+                                            displayName.isNotEmpty
+                                                ? displayName[0].toUpperCase()
+                                                : '?',
+                                            style: TextStyle(
+                                              color: colorController
+                                                  .primaryColor.value,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                displayName,
+                                                style: TextStyle(
+                                                  color: colorController
+                                                      .textColor.value,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                              if (phoneNumber.isNotEmpty) ...[
+                                                const SizedBox(height: 4),
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.phone,
+                                                      size: 14,
+                                                      color: colorController
+                                                          .iconColor.value
+                                                          .withValues(
+                                                              alpha: 0.7),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      phoneNumber,
+                                                      style: TextStyle(
+                                                        color: colorController
+                                                            .textColor.value
+                                                            .withValues(
+                                                                alpha: 0.7),
+                                                        fontSize: 14,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 16,
+                                          color: colorController.iconColor.value
+                                              .withValues(alpha: 0.3),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ).animate().fadeIn(duration: 200.ms).slideX(
+                                    begin: 0.1,
+                                    end: 0,
+                                    duration: 200.ms,
+                                  );
+                            },
+                          ),
+                  ),
+
+                  // Bottom padding
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
-          ),
-        ],
+          );
+        },
       ),
-    );
+    ).then((_) {
+      searchController.dispose();
+    });
   }
 
   void _showAddEditContactDialog(BuildContext context,
