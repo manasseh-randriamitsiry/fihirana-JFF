@@ -22,7 +22,7 @@ import '../../widgets/add_to_playlist_sheet.dart';
 import '../../controller/recording_controller.dart';
 import '../../widgets/context_aware_fab.dart';
 import '../../widgets/hymn/hymn_detail_widgets.dart';
-import '../../widgets/hymn/hymn_note_widgets.dart';
+import '../../widgets/hymn/hymn_improved_note_section_widget.dart';
 import '../../widgets/hymn/hymn_action_widgets.dart';
 
 class HymnDetailScreen extends StatefulWidget {

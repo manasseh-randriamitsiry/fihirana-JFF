@@ -7,7 +7,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../controller/color_controller.dart';
-import '../../widgets/contact/location_picker_widgets.dart';
+import '../../widgets/contact/contact_location_picker_widgets.dart';
 
 
 class LocationPickerScreen extends StatefulWidget {
