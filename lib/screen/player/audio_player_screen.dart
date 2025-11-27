@@ -9,7 +9,7 @@ import '../../services/audio_service.dart';
 import '../../services/audio_file_mapping.dart';
 import '../../services/local_audio_service.dart';
 import '../../widgets/modern_audio_player_widget.dart';
-import '../../widgets/context_aware_fab.dart';
+
 import '../recording/recording_manager_screen.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -293,12 +293,8 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(
+return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
-        floatingActionButton: ContextAwareFAB(
-          onStartRecording: () => Get.to(() => const RecordingManagerScreen()),
-          onViewPlayerStats: () => _showPlayerStats(context),
-        ),
         body: ModernAudioPlayerWidget(
           hymn: _currentHymn,
           playlist: _playlist,
