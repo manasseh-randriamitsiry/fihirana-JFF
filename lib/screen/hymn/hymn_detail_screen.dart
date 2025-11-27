@@ -20,7 +20,7 @@ import '../../widgets/hymn/hymn_search_popup_widget.dart';
 import '../../widgets/player/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../../controller/recording_controller.dart';
-import '../../widgets/context_aware_fab.dart';
+
 import '../../widgets/hymn/hymn_detail_widgets.dart';
 import '../../widgets/hymn/hymn_improved_note_section_widget.dart';
 import '../../widgets/hymn/hymn_action_widgets.dart';
@@ -602,13 +602,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             ),
           ],
         ),
-        floatingActionButton: ContextAwareFAB(
-          onStartRecording: () {
-            if (_hymn != null) {
-              _recordingController.showOverlay(_hymn!.id, _hymn!.title);
-            }
-          },
-        ),
+
       ),
     );
   }
