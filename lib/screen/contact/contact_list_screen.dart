@@ -1,8 +1,10 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:maplibre_gl/maplibre_gl.dart' as maplibre;
 import 'package:url_launcher/url_launcher.dart';
+import 'package:android_intent_plus/android_intent.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../models/contact.dart';
@@ -30,30 +32,32 @@ class _ContactListScreenState extends State<ContactListScreen> {
   }
 
   Future<void> _launchMaps(double lat, double lng) async {
-    // Try Google Maps URL first
-    final googleMapsUrl =
-        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
-
-    if (await canLaunchUrl(googleMapsUrl)) {
-      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
-      return;
-    }
-
-    // Fallback to geo: URI which works with any map app
-    final geoUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng');
-
-    if (await canLaunchUrl(geoUri)) {
-      await launchUrl(geoUri, mode: LaunchMode.externalApplication);
-      return;
-    }
-
-    // If both fail, show error message
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'No map app found. Please install Google Maps or another map application.')),
-      );
+    try {
+      if (Platform.isAndroid) {
+        // Use Android Intent for more reliable launching on Android
+        final AndroidIntent intent = AndroidIntent(
+          action: 'action_view',
+          data: Uri.encodeFull('geo:$lat,$lng?q=$lat,$lng'),
+          package: 'com.google.android.apps.maps',
+        );
+        await intent.launch();
+      } else {
+        // iOS: Use URL launcher
+        final url = Uri.parse('https://maps.apple.com/?q=$lat,$lng');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        } else {
+          throw 'Could not launch maps';
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'Could not open maps. Please ensure Google Maps is installed.')),
+        );
+      }
     }
   }
 
