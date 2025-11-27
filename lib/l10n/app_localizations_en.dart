@@ -1704,6 +1704,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appFeature3 => 'Sync across devices';
 
   @override
+  String get contacts => 'Contacts';
+
+  @override
+  String get addContact => 'Add Contact';
+
+  @override
+  String get editContact => 'Edit Contact';
+
+  @override
+  String get noContactsFound => 'No contacts found';
+
+  @override
+  String get searchContacts => 'Search Contacts';
+
+  @override
+  String get contactName => 'Name';
+
+  @override
+  String get confirmDeleteContact => 'Are you sure you want to delete this contact?';
+
+  @override
+  String get contactSaved => 'Contact saved successfully';
+
+  @override
+  String get contactLocation => 'Location';
+
+  @override
+  String get contactPhone => 'Phone';
+
+  @override
   String get appFeature4 => 'Share with community';
 
   @override

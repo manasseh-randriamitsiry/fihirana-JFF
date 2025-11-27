@@ -32,6 +32,7 @@ import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
 import 'package:fihirana/screen/settings/settings_screen.dart';
 import 'package:fihirana/screen/recording/recording_manager_screen.dart';
 import 'package:fihirana/services/security_service.dart';
+import 'package:fihirana/screen/contact/contact_list_screen.dart';
 
 // ... existing imports
 
@@ -119,10 +120,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // Stop audio playback
       final audioService = AudioService.instance;
       audioService.stop();
-      
+
       // Hide audio notification with multiple approaches
       NotificationService.hideAudioPlayerNotification();
-      
+
       // Force dismiss all notifications immediately
       try {
         AwesomeNotifications().cancelAll();
@@ -131,10 +132,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           print('Error canceling all notifications: $e');
         }
       }
-      
+
       // Dispose audio service
       audioService.dispose();
-      
+
       if (kDebugMode) {
         print('App disposed: Cleaned up all services and notifications');
       }
@@ -149,18 +150,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Specific cleanup when app is closed (detached state)
     try {
       final audioService = AudioService.instance;
-      
+
       // Stop playback immediately
       audioService.stop();
-      
+
       // Hide notification with multiple approaches
       NotificationService.hideAudioPlayerNotification();
-      
+
       // Force clear all audio notifications
       NotificationService.forceClearAudioNotification();
-      
+
       if (kDebugMode) {
-        print('App closing: Aggressively cleaned up audio service and all notifications');
+        print(
+            'App closing: Aggressively cleaned up audio service and all notifications');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -241,7 +243,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       // Check if user is blocked before building the app
       final SecurityService securityService = Get.find<SecurityService>();
-      
+
       // If user is blocked, show banned page instead of normal app
       if (securityService.isSecurityChecked && securityService.isUserBlocked) {
         return GetMaterialApp(
@@ -262,10 +264,14 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ],
           themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
           theme: _getThemeWithFont(
-              isDark ? colorController.getDarkTheme() : colorController.getLightTheme(),
+              isDark
+                  ? colorController.getDarkTheme()
+                  : colorController.getLightTheme(),
               currentFont),
           darkTheme: _getThemeWithFont(
-              isDark ? colorController.getDarkTheme() : colorController.getLightTheme(),
+              isDark
+                  ? colorController.getDarkTheme()
+                  : colorController.getLightTheme(),
               currentFont),
           home: const BannedPage(),
           builder: (context, child) => ResponsiveShell(child: child!),
@@ -339,6 +345,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               name: '/announcements', page: () => const AnnouncementScreen()),
           GetPage(name: '/admin', page: () => const AdminPanelScreen()),
           GetPage(name: '/about', page: () => const AboutScreen()),
+          GetPage(name: '/contacts', page: () => const ContactListScreen()),
         ],
       );
     });
