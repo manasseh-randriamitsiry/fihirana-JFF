@@ -1,7 +1,8 @@
 import 'dart:io' show Platform;
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:android_intent_plus/android_intent.dart';
+import 'ui_service.dart';
 
 class MapsLauncherService {
   static Future<void> launchMaps(double lat, double lng, {BuildContext? context}) async {
@@ -13,7 +14,7 @@ class MapsLauncherService {
       }
     } catch (e) {
       if (context?.mounted == true) {
-        _showErrorSnackBar(context!, e);
+        UIService.showMapsErrorSnackBar(context!, e);
       }
     }
   }
@@ -61,42 +62,9 @@ class MapsLauncherService {
     await playStoreIntent.launch();
 
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Redirecting to Google Maps download...'),
-          backgroundColor: Colors.blue,
-          duration: Duration(seconds: 3),
-        ),
-      );
+      UIService.showMapsRedirectSnackBar(context);
     }
   }
 
-  static void _showErrorSnackBar(BuildContext context, dynamic e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Could not open maps. Please install a maps application.'),
-        backgroundColor: Colors.red,
-        action: SnackBarAction(
-          label: 'Download',
-          textColor: Colors.white,
-          onPressed: () async {
-            if (Platform.isAndroid) {
-              final playStoreIntent = AndroidIntent(
-                action: 'action_view',
-                data: Uri.encodeFull(
-                    'https://play.google.com/store/apps/details?id=com.google.android.apps.maps'),
-              );
-              await playStoreIntent.launch();
-            } else {
-              final appStoreUrl = Uri.parse(
-                  'https://apps.apple.com/app/google-maps/id585027354');
-              if (await canLaunchUrl(appStoreUrl)) {
-                await launchUrl(appStoreUrl, mode: LaunchMode.externalApplication);
-              }
-            }
-          },
-        ),
-      ),
-    );
-  }
+
 }

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'dart:ui';
 import 'dart:isolate';
 import 'dart:async';
 import 'package:dio/dio.dart';
@@ -10,8 +9,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_file/open_file.dart';
 import 'package:android_intent_plus/android_intent.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import '../widgets/common/download_notification.dart';
 
 class ApkDownloadService {
   static const int downloadNotificationd = 1001;
@@ -57,8 +56,9 @@ class ApkDownloadService {
       await _requestStoragePermission();
       final hasInstallPermission = await _requestInstallPermission();
       if (!hasInstallPermission) {
-        await _showNotification(
-            'Nisy olana', 'Tsy nahazo alalana hampiditra apk');
+        await DownloadNotificationBuilder.showDownloadError(
+          error: 'Tsy nahazo alalana hampiditra apk',
+        );
         return;
       }
 
@@ -111,7 +111,7 @@ class ApkDownloadService {
       }
 
 // Show download started notification
-      await _showDownloadNotification('Maka fanavaozana...', 0);
+      await DownloadNotificationBuilder.showDownloadStarted(progress: 0);
 
       // Start download in a separate isolate and wait for completion
       final downloadSuccess = await _startDownloadIsolate(url, savePath);
@@ -121,14 +121,13 @@ class ApkDownloadService {
         if (kDebugMode) {
           print('✅ Download completed at: ${DateTime.now()}');
         }
-        await _showNotification(
-            'Vita ny fangalana', 'Voaray ny fanavaozana $fileName');
+        await DownloadNotificationBuilder.showDownloadComplete(fileName: fileName);
       } else {
         // Download failed
         if (kDebugMode) {
           print('❌ Download failed');
         }
-        await _showNotification('Tsy nety', 'Nisy olana teo ampanavaozana');
+        await DownloadNotificationBuilder.showDownloadError();
         return;
       }
 
@@ -138,8 +137,7 @@ class ApkDownloadService {
       if (kDebugMode) {
         print('❌ Download failed: $e');
       }
-      await _showNotification(
-          'Tsy nety', 'Nisy olana teo ampanavaozana: ${e.toString()}');
+      await DownloadNotificationBuilder.showDownloadError(error: e.toString());
     }
   }
 
@@ -161,8 +159,8 @@ class ApkDownloadService {
 
       receivePort.listen((message) {
         if (message is _DownloadProgress) {
-          _showDownloadNotification(
-              'Fangalana... ${message.percent}%', message.percent);
+          DownloadNotificationBuilder.updateDownloadProgress(
+              progress: message.percent);
         } else if (message is _DownloadError) {
           completer.complete(false);
           receivePort.close();
@@ -461,8 +459,7 @@ class ApkDownloadService {
       if (kDebugMode) {
         print('❌ Install failed: $e');
       }
-      await _showNotification(
-          'Nisy olana', 'Tsy afaka nametraka ny fanavaozana: ${e.toString()}');
+      await DownloadNotificationBuilder.showInstallError(error: e.toString());
     }
   }
 
@@ -475,50 +472,10 @@ class ApkDownloadService {
     }
   }
 
-  static Future<void> _showNotification(String title, String body) async {
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: downloadNotificationd,
-        channelKey: 'hymn_download_channel',
-        title: title,
-        body: body,
-        notificationLayout: NotificationLayout.Default,
-        color: const Color(0xFF9D50DD),
-      ),
-    );
-  }
-
-  static Future<void> _showDownloadNotification(
-      String body, int progress) async {
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: downloadNotificationd,
-        channelKey: 'hymn_download_channel',
-        title: 'Fangalana fanavaozana',
-        body: body,
-        notificationLayout: NotificationLayout.ProgressBar,
-        progress: progress.toDouble(),
-        locked: true,
-        autoDismissible: false,
-        color: const Color(0xFF9D50DD),
-      ),
-      actionButtons: progress < 100
-          ? [
-              NotificationActionButton(
-                key: 'CANCEL_DOWNLOAD',
-                label: 'Ajanona',
-                actionType: ActionType.Default,
-                icon: 'resource://mipmap/ic_launcher',
-              ),
-            ]
-          : null,
-    );
-  }
-
   static Future<void> handleDownloadAction(String action) async {
     if (action == 'CANCEL_DOWNLOAD') {
       cancelDownload();
-      await _showNotification('Ajanona', 'Najanony ny fanavaozana');
+      await DownloadNotificationBuilder.showCancelled();
     }
   }
 }

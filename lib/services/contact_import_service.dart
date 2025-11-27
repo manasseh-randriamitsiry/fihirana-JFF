@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as flutter_contacts;
 import 'package:permission_handler/permission_handler.dart';
+import 'ui_service.dart';
 
 class ContactImportService {
   static Future<List<flutter_contacts.Contact>?> importContacts(BuildContext context) async {
@@ -8,17 +9,7 @@ class ContactImportService {
 
     if (!status.isGranted) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Contacts permission is required to import contacts.'),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Settings',
-              textColor: Colors.white,
-              onPressed: () => openAppSettings(),
-            ),
-          ),
-        );
+        UIService.showContactPermissionSnackBar(context);
       }
       return null;
     }
@@ -31,12 +22,7 @@ class ContactImportService {
 
       if (contacts.isEmpty) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No contacts found on your device.'),
-              backgroundColor: Colors.orange,
-            ),
-          );
+          UIService.showNoContactsSnackBar(context);
         }
         return null;
       }
@@ -44,12 +30,7 @@ class ContactImportService {
       return contacts;
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error accessing contacts: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        UIService.showContactsErrorSnackBar(context, e.toString());
       }
       return null;
     }

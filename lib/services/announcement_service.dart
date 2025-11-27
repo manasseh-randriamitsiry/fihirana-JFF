@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/announcement.dart';
+import '../widgets/common/announcement_notification.dart';
 import '../utility/snackbar_utility.dart';
 
 class AnnouncementService {
@@ -57,30 +57,13 @@ class AnnouncementService {
             }
           }
 
-          final notificationId = DateTime.now().millisecondsSinceEpoch.remainder(100000);
-
-          final created = await AwesomeNotifications().createNotification(
-            content: NotificationContent(
-              id: notificationId,
-              channelKey: 'announcement_channel',
-              title: 'Filazana vaovao: ${data['title']}',
-              body: data['message'],
-              notificationLayout: NotificationLayout.BigText,
-              payload: {'announcementId': id},
-              category: NotificationCategory.Message,
-            ),
-            actionButtons: [
-              NotificationActionButton(
-                key: 'OPEN',
-                label: 'Hijery',
-                actionType: ActionType.Default,
-              ),
-            ],
+          await AnnouncementNotificationBuilder.showNewAnnouncement(
+            id: id,
+            title: data['title'],
+            message: data['message'],
           );
 
-          if (created) {
-            await _markAnnouncementAsSeen(id);
-          }
+          await _markAnnouncementAsSeen(id);
         }
       }
     } catch (e) {
