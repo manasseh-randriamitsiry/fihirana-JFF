@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
 
-import '../../widgets/update_checker_widget.dart';
+import '../../widgets/settings/update_checker_widget.dart';
 import '../../controller/shell_controller.dart';
 import 'accueil_screen.dart';
 

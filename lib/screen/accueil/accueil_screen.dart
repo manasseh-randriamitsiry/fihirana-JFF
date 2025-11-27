@@ -4,11 +4,13 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/hymn_controller.dart';
-import '../../widgets/hymn_list_item.dart';
-import '../../widgets/hymn_search_field.dart';
+import '../../widgets/hymn/hymn_list_item.dart';
+import '../../widgets/hymn/hymn_search_field.dart';
 import '../../widgets/language_picker_widget.dart';
 import '../../widgets/skeleton_hymn_list.dart';
 import '../../widgets/empty_state_widget.dart';
+
+import '../../widgets/accueil/accueil_action_widgets.dart';
 import '../player/audio_player_screen.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/version_check_service.dart';
@@ -186,59 +188,20 @@ class AccueilScreenState extends State<AccueilScreen> {
                     ),
                   ),
                   actions: [
-                    if (_updateAvailable)
-                      IconButton(
-                        key: const ValueKey('update_button'),
-                        icon: _isDownloading
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.orange),
-                                ),
-                              )
-                            : const Icon(Icons.system_update,
-                                color: Colors.orange),
-                        onPressed:
-                            _isDownloading ? null : _downloadAndInstallUpdate,
-                      ),
+                    UpdateButtonWidget(
+                      isDownloading: _isDownloading,
+                      updateAvailable: _updateAvailable,
+                      onPressed: _isDownloading ? null : _downloadAndInstallUpdate,
+                    ),
                     Obx(() {
                       final audioService = AudioService.instance;
                       final currentHymnId = audioService.currentPlayingHymnId;
                       final isPlaying =
                           currentHymnId.isNotEmpty && audioService.isPlaying;
 
-                      return IconButton(
-                        key: const ValueKey('now_playing_button'),
-                        icon: Stack(
-                          children: [
-                            Icon(
-                              Icons.play_circle,
-                              color: isPlaying
-                                  ? Theme.of(context).colorScheme.primary
-                                  : iconColor,
-                            ),
-                            if (isPlaying)
-                              Positioned(
-                                right: 0,
-                                top: 0,
-                                child: Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: backgroundColor,
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                      return NowPlayingButtonWidget(
+                        currentHymnId: currentHymnId,
+                        isPlaying: isPlaying,
                         onPressed: () async {
                           if (isPlaying) {
                             _showCurrentPlayingDialog();

@@ -314,7 +314,7 @@
     }
   },
   "editNote": "Edit Note",
-  "myPersonalNote": "My Personal Note",
+  "myPersonalNote": "Note",
   "noteInstructions": "Enter your note about the hymn, such as chords, prayer reminders, or other information.",
   "enterYourNote": "Write your note here...",
   "noteDeleted": "Note deleted",
@@ -823,5 +823,7 @@
       }
     }
   },
-  "portfolio":"Portfolio"
+  "portfolio":"Portfolio",
+  "playFirstHymn": "Play First Hymn",
+  "nowPlaying": "Now Playing"
 }

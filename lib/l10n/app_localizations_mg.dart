@@ -797,7 +797,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get editNote => 'Hanova naoty';
 
   @override
-  String get myPersonalNote => 'Ny naotiko manokana';
+  String get myPersonalNote => 'Naoty';
 
   @override
   String get noteInstructions => 'Ampidiro eto ny naoty momba ny hira';
@@ -1743,4 +1743,10 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get portfolio => 'Mombamomban\'ny mpamorona ?';
+
+  @override
+  String get playFirstHymn => 'Alefaso ny hira voalohany';
+
+  @override
+  String get nowPlaying => 'Mamaky';
 }

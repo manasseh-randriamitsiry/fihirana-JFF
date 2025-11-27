@@ -1,34 +1,27 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import '../widgets/common/custom_snackbar.dart';
 
 class SnackbarService {
   static void showSuccess(String message) {
-    Get.snackbar(
-      'Success',
-      message,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    CustomSnackbar.success(message: message);
   }
 
   static void showError(String message) {
-    Get.snackbar(
-      'Error',
-      message,
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    CustomSnackbar.error(message: message);
   }
 
   static void showInfo(String message) {
-    Get.snackbar(
-      'Info',
-      message,
-      backgroundColor: Colors.blue,
-      colorText: Colors.white,
-      snackPosition: SnackPosition.BOTTOM,
-    );
+    CustomSnackbar.info(message: message);
+  }
+
+  static void showWarning(String message) {
+    CustomSnackbar.warning(message: message);
+  }
+
+  static void showLoading(String message) {
+    CustomSnackbar.loading(message: message);
+  }
+
+  static void dismiss() {
+    CustomSnackbar.dismiss();
   }
 }

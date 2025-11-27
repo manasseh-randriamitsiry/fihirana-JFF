@@ -314,7 +314,7 @@
     }
   },
   "editNote": "Modifier la note",
-  "myPersonalNote": "Ma note personnelle",
+  "myPersonalNote": "Note",
   "noteInstructions": "Entrez votre note sur le cantique, comme les accords, les rappels de prière ou d'autres informations.",
   "enterYourNote": "Écrivez votre note ici...",
   "noteDeleted": "Note supprimée",
@@ -823,5 +823,7 @@
       }
     }
   },
-  "portfolio":"Portfolio"
+  "portfolio":"Portfolio",
+  "playFirstHymn": "Lire le premier cantique",
+  "nowPlaying": "En lecture"
 }

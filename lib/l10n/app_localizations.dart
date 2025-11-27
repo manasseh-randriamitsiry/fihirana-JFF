@@ -1624,7 +1624,7 @@ abstract class AppLocalizations {
   /// No description provided for @myPersonalNote.
   ///
   /// In en, this message translates to:
-  /// **'My Personal Note'**
+  /// **'Note'**
   String get myPersonalNote;
 
   /// No description provided for @noteInstructions.
@@ -3354,6 +3354,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Portfolio'**
   String get portfolio;
+
+  /// No description provided for @playFirstHymn.
+  ///
+  /// In en, this message translates to:
+  /// **'Play First Hymn'**
+  String get playFirstHymn;
+
+  /// No description provided for @nowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Now Playing'**
+  String get nowPlaying;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
