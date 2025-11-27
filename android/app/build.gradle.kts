@@ -21,7 +21,7 @@ dependencies {
 android {
     namespace = "com.manasseh.fihirana_jff"
     compileSdk = 36
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.1.13356709"
 
     defaultConfig {
         applicationId = "com.manasseh.fihirana_jff"
