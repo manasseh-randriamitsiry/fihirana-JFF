@@ -312,10 +312,10 @@ class TermsPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Obx(() => Text(
-              '${splashController.usernameController.text.trim().length}/15 characters (minimum 4)',
+              '${splashController.usernameLength.value}/15 characters (minimum 4)',
               style: TextStyle(
                 fontSize: 12,
-                color: splashController.usernameController.text.trim().length >= 4
+                color: splashController.usernameLength.value >= 4
                     ? Colors.green.shade700
                     : Colors.orange.shade700,
                 fontWeight: FontWeight.w500,

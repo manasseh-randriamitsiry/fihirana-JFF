@@ -24,6 +24,7 @@ class SplashController extends GetxController {
   final RxString googleUserName = ''.obs;
   final RxString googleUserEmail = ''.obs;
   final Rx<Locale?> selectedLocale = Rx<Locale?>(null);
+  final RxInt usernameLength = 0.obs;
 
   // Controllers
   late final LanguageController languageController;
@@ -50,7 +51,7 @@ class SplashController extends GetxController {
 
     // Add listener to username controller
     usernameController.addListener(() {
-      // Trigger UI update if needed
+      usernameLength.value = usernameController.text.trim().length;
     });
   }
 
