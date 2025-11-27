@@ -314,40 +314,23 @@ class RecordingManagerScreen extends StatelessWidget {
           ),
         );
       }),
-      floatingActionButton: ContextAwareFAB(
-        onViewRecordingStats: () => _showRecordingStats(context, controller),
+floatingActionButton: ContextAwareFAB(
+        onStartRecording: () {
+          // Navigate back to hymn list to select a hymn for recording
+          Get.back();
+          Get.snackbar(
+            'Recording',
+            'Navigate to any hymn and use the record button to start recording',
+            backgroundColor: Colors.blue.withValues(alpha: 0.8),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+        },
       ),
     );
   }
 
-  void _showRecordingStats(
-      BuildContext context, RecordingController controller) {
-    final personalCount =
-        controller.recordings.where((r) => !r.isPublic).length;
-    final publicCount = controller.publicRecordings.length;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Recording Stats'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Personal Recordings: $personalCount'),
-            Text('Public Recordings: $publicCount'),
-            Text('Total: ${personalCount + publicCount}'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showDriveDialog(BuildContext context, RecordingController controller,
       ColorController colorController) {

@@ -65,7 +65,8 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
     }
 
     // Determine if we're on the right side (for contact screen)
-    final isOnRight = _getActionsForRoute(context) == _getContactActions();
+    final currentActions = _getActionsForRoute(context);
+    final isOnRight = currentActions == _getContactActions();
     
     return Stack(
       alignment: isOnRight ? Alignment.bottomRight : Alignment.bottomLeft,
@@ -187,7 +188,7 @@ return Row(
               const SizedBox(height: 4),
             ],
 
-            // Main FAB
+// Main FAB
             FloatingActionButton(
               heroTag: "mainContextFAB",
               onPressed: () {
@@ -195,22 +196,32 @@ return Row(
                   _isExpanded = !_isExpanded;
                 });
               },
-              backgroundColor: colorController.primaryColor.value,
+              backgroundColor: _isRecordingScreen() ? Colors.red : colorController.primaryColor.value,
               shape: const CircleBorder(),
               elevation: 6,
               child: AnimatedRotation(
                 duration: const Duration(milliseconds: 200),
                 turns: _isExpanded ? 0.125 : 0, // 45 degrees when expanded
-                child: Icon(
-                  _isExpanded ? Icons.close : Icons.add,
-                  color: Colors.white,
-                ),
+                child: _isRecordingScreen()
+                    ? Icon(
+                        _isExpanded ? Icons.close : Icons.mic,
+                        color: Colors.white,
+                      )
+                    : Icon(
+                        _isExpanded ? Icons.close : Icons.add,
+                        color: Colors.white,
+                      ),
               ),
             ),
           ],
         ),
       ],
     );
+  }
+
+/// Check if current screen is a recording screen
+  bool _isRecordingScreen() {
+    return widget.onViewRecordingStats != null || widget.onStartRecording != null;
   }
 
   /// Get actions based on current route
@@ -233,8 +244,10 @@ return Row(
         if (widget.onImportContact != null || widget.onAddContact != null) {
           return _getContactActions();
         }
-        if (widget.onStartRecording != null ||
-            widget.onViewPlayerStats != null) {
+        if (widget.onStartRecording != null) {
+          return _getRecordingActions();
+        }
+        if (widget.onViewPlayerStats != null) {
           return _getPlayerActions();
         }
         if (widget.onViewRecordingStats != null) {
@@ -297,15 +310,25 @@ return Row(
     return actions;
   }
 
-  /// Recording screen actions (for future use)
+/// Recording screen actions (for future use)
   List<FABAction> _getRecordingActions() {
     final actions = <FABAction>[];
+
+    if (widget.onStartRecording != null) {
+      actions.add(FABAction(
+        label: 'Start Recording',
+        icon: Icons.mic,
+        onTap: widget.onStartRecording!,
+        backgroundColor: Colors.red.withValues(alpha: 0.9),
+      ));
+    }
 
     if (widget.onViewRecordingStats != null) {
       actions.add(FABAction(
         label: 'Recording Stats',
-        icon: Icons.bar_chart,
+        icon: Icons.analytics,
         onTap: widget.onViewRecordingStats!,
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
       ));
     }
 
