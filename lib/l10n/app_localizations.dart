@@ -1624,7 +1624,7 @@ abstract class AppLocalizations {
   /// No description provided for @myPersonalNote.
   ///
   /// In en, this message translates to:
-  /// **'My Personal Note'**
+  /// **'Note'**
   String get myPersonalNote;
 
   /// No description provided for @noteInstructions.
