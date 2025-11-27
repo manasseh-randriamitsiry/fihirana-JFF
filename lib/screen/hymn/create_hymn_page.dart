@@ -428,6 +428,7 @@ FormTextFieldWidget(
                     },
                     children: List.generate(_verseControllers.length, (index) {
                       return VerseFieldWidget(
+                        key: ValueKey('verse_$index'),
                         index: index,
                         controller: _verseControllers[index],
                         onDelete: () {
