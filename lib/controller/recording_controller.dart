@@ -18,7 +18,7 @@ import 'package:fihirana/services/local_audio_service.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
-import '../widgets/compact_audio_player_widget.dart';
+import '../widgets/player/compact_audio_player_widget.dart';
 import '../l10n/app_localizations.dart';
 import '../services/security_service.dart';
 

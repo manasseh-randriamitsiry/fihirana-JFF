@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import '../controller/color_controller.dart';
 import '../controller/shell_controller.dart';
 import 'drawer_widget.dart';
-import 'recording_overlay_manager.dart';
+import 'recording/recording_overlay_manager.dart';
 
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';

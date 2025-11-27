@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/audio_service.dart';
-import '../../widgets/lightweight_audio_player_widget.dart';
+import '../player/lightweight_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 
 class FavoriteHymnCard extends StatelessWidget {

@@ -17,7 +17,7 @@ import '../../widgets/color_picker_widget.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/hymn/hymn_search_popup_widget.dart';
-import '../../widgets/compact_audio_player_widget.dart';
+import '../../widgets/player/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../../controller/recording_controller.dart';
 import '../../widgets/context_aware_fab.dart';

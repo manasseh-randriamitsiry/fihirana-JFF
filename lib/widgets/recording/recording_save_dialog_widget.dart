@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controller/recording_controller.dart';
-import '../controller/color_controller.dart';
+import '../../controller/recording_controller.dart';
+import '../../controller/color_controller.dart';
 
 class RecordingSaveDialogWidget extends StatelessWidget {
   final TextEditingController nameController;
