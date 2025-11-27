@@ -95,12 +95,21 @@ void _initializePlayer() {
         // Notify parent of the change
         widget.onHymnChange?.call(newCurrentHymn);
       }
+      
+      // Always update playing state when hymn changes
+      _updatePlayingState();
     });
 
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
 
-      if (_audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
+      // Always update state if this is the currently displayed hymn or if no hymn is displayed yet
+      final currentHymnId = _audioService.currentPlayingHymnId;
+      final displayedHymnId = _currentDisplayedHymn?.id;
+      final widgetHymnId = widget.hymn.id;
+      
+      // Update state if current playing hymn matches our widget or displayed hymn
+      if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId || displayedHymnId == null) {
         final wasPlaying = _isPlaying;
         final isLoading = state.processingState == ProcessingState.loading ||
             state.processingState == ProcessingState.buffering;
@@ -138,12 +147,28 @@ void _initializePlayer() {
 void _updateCurrentState() {
     if (!mounted) return;
     final currentHymn = _audioService.currentHymn;
-    if (currentHymn?.id == _currentDisplayedHymn?.id) {
+    if (currentHymn?.id == _currentDisplayedHymn?.id || _currentDisplayedHymn == null) {
       setState(() {
         _isPlaying = _audioService.isPlaying;
         _isLoading = false;
         _duration = _audioService.player.duration;
         _position = _audioService.player.position;
+      });
+    }
+  }
+
+  void _updatePlayingState() {
+    if (!mounted) return;
+    final currentHymnId = _audioService.currentPlayingHymnId;
+    final displayedHymnId = _currentDisplayedHymn?.id;
+    final widgetHymnId = widget.hymn.id;
+    
+    // Update playing state if this matches current playing hymn
+    if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
+      setState(() {
+        _isPlaying = _audioService.isPlaying;
+        _isLoading = _audioService.player.playerState.processingState == ProcessingState.loading ||
+                   _audioService.player.playerState.processingState == ProcessingState.buffering;
       });
     }
   }
@@ -167,14 +192,32 @@ void _updateCurrentState() {
   }
 
 Future<void> _togglePlayPause() async {
-    if (_audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
-      if (_isPlaying) {
-        await _audioService.pause();
+    try {
+      final currentHymnId = _audioService.currentPlayingHymnId;
+      final displayedHymnId = _currentDisplayedHymn?.id;
+      final widgetHymnId = widget.hymn.id;
+      
+      if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
+        // Same hymn is playing, toggle play/pause
+        if (_isPlaying) {
+          await _audioService.pause();
+        } else {
+          await _audioService.resume();
+        }
       } else {
-        await _audioService.resume();
+        // Different hymn, start playing the current one
+        setState(() {
+          _isLoading = true;
+        });
+        await _audioService.playHymn(_currentDisplayedHymn ?? widget.hymn);
       }
-    } else {
-      await _audioService.playHymn(_currentDisplayedHymn ?? widget.hymn);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isPlaying = false;
+        });
+      }
     }
   }
 
