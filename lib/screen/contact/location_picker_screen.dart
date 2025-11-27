@@ -1,4 +1,6 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:get/get.dart';
@@ -78,41 +80,57 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         backgroundColor: colorController.backgroundColor.value,
         foregroundColor: colorController.textColor.value,
       ),
-      body: Stack(
+      body: Column(
         children: [
-          MaplibreMap(
-            styleString: "https://tiles.openfreemap.org/styles/liberty",
-            initialCameraPosition: CameraPosition(
-              target: _selectedLocation ?? _defaultLocation,
-              zoom: 13.0,
-            ),
-            onMapCreated: _onMapCreated,
-            onMapClick: _onMapClick,
-            trackCameraPosition: true,
-          ),
-          Positioned(
-            bottom: 24,
-            left: 16,
-            right: 16,
-            child: ElevatedButton(
-              onPressed: _selectedLocation == null
-                  ? null
-                  : () {
-                      Navigator.pop(context, _selectedLocation);
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorController.primaryColor.value,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+          Expanded(
+            child: MaplibreMap(
+              styleString: "https://tiles.openfreemap.org/styles/liberty",
+              initialCameraPosition: CameraPosition(
+                target: _selectedLocation ?? _defaultLocation,
+                zoom: 13.0,
               ),
-              child: Text(
-                'Confirm Location', // TODO: Add to l10n
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              onMapCreated: _onMapCreated,
+              onMapClick: _onMapClick,
+              myLocationEnabled: false,
+              compassEnabled: true,
+              attributionButtonMargins: const Point(-100, -100),
+              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                Factory<PanGestureRecognizer>(() => PanGestureRecognizer()),
+                Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()),
+                Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
+                Factory<VerticalDragGestureRecognizer>(
+                    () => VerticalDragGestureRecognizer()),
+                Factory<HorizontalDragGestureRecognizer>(
+                    () => HorizontalDragGestureRecognizer()),
+              },
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.all(16),
+            color: colorController.backgroundColor.value,
+            child: SafeArea(
+              top: false,
+              child: ElevatedButton(
+                onPressed: _selectedLocation == null
+                    ? null
+                    : () {
+                        Navigator.pop(context, _selectedLocation);
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorController.primaryColor.value,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  minimumSize: const Size(double.infinity, 50),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Confirm Location',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
