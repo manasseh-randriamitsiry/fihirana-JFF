@@ -390,6 +390,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  flutter_contacts:
+    dependency: "direct main"
+    description:
+      name: flutter_contacts
+      sha256: "388d32cd33f16640ee169570128c933b45f3259bddbfae7a100bb49e5ffea9ae"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.9+2"
   flutter_launcher_icons:
     dependency: "direct main"
     description:
@@ -805,6 +813,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.11"
+  maplibre_gl:
+    dependency: "direct main"
+    description:
+      name: maplibre_gl
+      sha256: "5c7b1008396b2a321bada7d986ed60f9423406fbc7bd16f7ce91b385dfa054cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.22.0"
+  maplibre_gl_platform_interface:
+    dependency: transitive
+    description:
+      name: maplibre_gl_platform_interface
+      sha256: "08ee0a2d0853ea945a0ab619d52c0c714f43144145cd67478fc6880b52f37509"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.22.0"
+  maplibre_gl_web:
+    dependency: transitive
+    description:
+      name: maplibre_gl_web
+      sha256: "2b13d4b1955a9a54e38a718f2324e56e4983c080fc6de316f6f4b5458baacb58"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.22.0"
   matcher:
     dependency: transitive
     description:

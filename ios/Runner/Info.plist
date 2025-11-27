@@ -45,7 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSMicrophoneUsageDescription</key>
+<key>NSMicrophoneUsageDescription</key>
 	<string>Fihirana needs access to your microphone to record your singing. Recordings are stored locally on your device. You can optionally back them up to your Google account.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Fihirana needs access to your contacts to help you quickly add contact information for location sharing.</string>
 </dict>
 </plist>
