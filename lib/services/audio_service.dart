@@ -1,14 +1,15 @@
 import 'dart:io';
 import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
+
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
-import 'package:flutter/material.dart'; // For Color
 import '../models/hymn.dart';
 import 'audio_cache_service.dart';
 import 'audio_file_mapping.dart';
 import 'local_audio_service.dart';
 import 'google_drive_service.dart';
+import 'ui_service.dart';
 
 class AudioService {
   static AudioService? _instance;
@@ -586,12 +587,7 @@ if (kDebugMode) {
             }
             
             // Show loading indicator for download
-            Get.snackbar(
-              'Downloading Audio',
-              'Fetching recording from Google Drive...',
-              snackPosition: SnackPosition.BOTTOM,
-              duration: const Duration(seconds: 2),
-            );
+            UIService.showAudioDownloadingSnackBar();
 
             final downloadedFile = await driveService.downloadFile(
               recording.driveFileId!,
@@ -624,14 +620,7 @@ if (kDebugMode) {
           errorMessage = 'Network error accessing Drive. Please check your internet connection.';
         }
         
-        Get.snackbar(
-          'Drive Access Error',
-          errorMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: const Color(0xFFFFCDD2),
-          colorText: const Color(0xFFC62828),
-          duration: const Duration(seconds: 5),
-        );
+        UIService.showAudioDriveErrorSnackBar(errorMessage);
         return; // Stop playback attempt
       }
     }
@@ -659,14 +648,7 @@ if (kDebugMode) {
           errorMessage = 'Playback error: ${e.toString()}';
         }
         
-        Get.snackbar(
-          'Playback Error',
-          errorMessage,
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.1),
-          colorText: Colors.red,
-          duration: const Duration(seconds: 4),
-        );
+        UIService.showAudioPlaybackErrorSnackBar(errorMessage);
       }
     } else {
       if (kDebugMode) {
@@ -676,13 +658,7 @@ if (kDebugMode) {
         print('AudioService: filePath: ${recording.filePath}');
       }
       
-      Get.snackbar(
-        'Audio Not Available',
-        'Recording file not found locally or on Drive. Try uploading to Drive first.',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.orange.withValues(alpha: 0.1),
-        colorText: Colors.orange,
-      );
+      UIService.showAudioNotAvailableSnackBar();
     }
   }
 }

@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'ui_service.dart';
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,11 +12,7 @@ class FirebaseAuthService {
       return credential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        Get.snackbar('The email address is already in use.',
-            'Try another email address.',
-            backgroundColor: Colors.red.withValues(alpha: 0.2),
-            colorText: Colors.black,
-            icon: const Icon(Icons.warning_amber, color: Colors.black));
+        UIService.showAuthEmailAlreadyInUseSnackBar();
       } else {
       }
     }
@@ -32,11 +27,7 @@ class FirebaseAuthService {
       return credential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
-        Get.snackbar('The email address is already in use.',
-            'Try another email address.',
-            backgroundColor: Colors.red.withValues(alpha: 0.2),
-            colorText: Colors.black,
-            icon: const Icon(Icons.warning_amber, color: Colors.black));
+        UIService.showAuthInvalidCredentialsSnackBar();
       } else {
       }
     }

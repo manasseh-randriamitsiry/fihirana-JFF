@@ -5,13 +5,14 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/material.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'apk_download_service.dart';
 import 'pubspec_service.dart';
 import 'admin_control_service.dart';
+import '../widgets/common/update_notification.dart';
+import '../widgets/common/notification_channels.dart';
 
 class VersionCheckService {
   static const String githubApiUrl =
@@ -67,31 +68,7 @@ class VersionCheckService {
   }
 
   static Future<void> initializeNotifications() async {
-    await AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-          channelKey: 'basic_channel',
-          channelName: 'Basic notifications',
-          channelDescription: 'Notification channel for basic tests',
-          defaultColor: const Color(0xFF9D50DD),
-          ledColor: Colors.white,
-        ),
-      ],
-      debug: true,
-    );
-
-    final isAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (!isAllowed) {
-      await AwesomeNotifications().requestPermissionToSendNotifications();
-    }
-
-    // NOTE: Action listeners are now initialized in NotificationService.setupNotificationListeners()
-    // to avoid conflicts between multiple listener registrations
-    // initializeActionListeners();
-
-    // Don't start periodic check by default to avoid false notifications
-    // startPeriodicCheck();
+    await NotificationChannelBuilder.initializeAllChannels();
   }
 
   static void startPeriodicCheck() {
@@ -197,29 +174,7 @@ class VersionCheckService {
   }
 
   static Future<void> _showInAppUpdateNotification() async {
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: updateNotificationId,
-        channelKey: 'basic_channel',
-        title: 'Misy rindrambaiko vaovao',
-        body: 'Misy Version vaovao efa azo ampiasaina! Tsindrio eto raha haka.',
-        payload: {'type': 'in_app_update'},
-        color: const Color(0xFF9D50DD),
-      ),
-      actionButtons: [
-        NotificationActionButton(
-          key: 'UPDATE',
-          label: 'Haka',
-          icon: 'resource://mipmap/ic_launcher',
-        ),
-        NotificationActionButton(
-          key: 'DISMISS',
-          label: 'Mbola tsy izao aloha',
-          actionType: ActionType.Default,
-          icon: 'resource://mipmap/ic_launcher',
-        ),
-      ],
-    );
+    await UpdateNotificationBuilder.showInAppUpdateAvailable();
   }
 
   @pragma('vm:entry-point')
@@ -264,15 +219,7 @@ class VersionCheckService {
         } else if (result == AppUpdateResult.success) {}
       }
     } catch (e) {
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: updateNotificationId + 1,
-          channelKey: 'basic_channel',
-          title: 'Tsy afaka naka',
-          body: 'Nisy olana fa avereno alaina rehefa afaka kelikely.',
-          color: const Color(0xFF9D50DD),
-        ),
-      );
+      await UpdateNotificationBuilder.showDownloadError(error: e.toString());
     }
   }
 
@@ -283,16 +230,7 @@ class VersionCheckService {
         await InAppUpdate.startFlexibleUpdate();
         _flexibleUpdateAvailable = true;
 
-        await AwesomeNotifications().createNotification(
-          content: NotificationContent(
-            id: updateNotificationId + 2,
-            channelKey: 'basic_channel',
-            title: 'Fakàna rindrambaiko',
-            body: 'Mahandrasa kely azafady.',
-            payload: {'type': 'flexible_update_complete'},
-            color: const Color(0xFF9D50DD),
-          ),
-        );
+        await UpdateNotificationBuilder.showFlexibleUpdateDownloading();
       }
     } catch (e) {
       if (kDebugMode) {
@@ -709,28 +647,10 @@ class VersionCheckService {
   static Future<void> _showUpdateNotification() async {
     if (_cachedVersion == null || _cachedDownloadUrl == null) return;
 
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: updateNotificationId,
-        channelKey: 'basic_channel',
-        title: 'Misy rindrambaiko vaovao',
-        body:
-            'Version $_cachedVersion dia efa azo ampiasaina!\n\nVaovao:\n$_cachedReleaseNotes',
-        payload: {'url': _cachedDownloadUrl},
-        notificationLayout: NotificationLayout.BigText,
-        color: const Color(0xFF9D50DD),
-      ),
-      actionButtons: [
-        NotificationActionButton(
-          key: 'UPDATE',
-          label: 'Haka',
-        ),
-        NotificationActionButton(
-          key: 'DISMISS',
-          label: 'Mbola tsy izao aloha',
-          actionType: ActionType.Default,
-        ),
-      ],
+    await UpdateNotificationBuilder.showUpdateAvailable(
+      version: _cachedVersion!,
+      releaseNotes: _cachedReleaseNotes,
+      downloadUrl: _cachedDownloadUrl,
     );
   }
 
@@ -769,16 +689,7 @@ class VersionCheckService {
         }
       }
     } catch (e) {
-      await AwesomeNotifications().createNotification(
-        content: NotificationContent(
-          id: updateNotificationId + 1,
-          channelKey: 'basic_channel',
-          title: 'Tsy afaka naka',
-          body:
-              'Tsy afaka naka ny rindrambaiko vaovao. Avereno alaina rehefa afaka kelikely azafady.',
-          color: const Color(0xFF9D50DD),
-        ),
-      );
+      await UpdateNotificationBuilder.showInstallError(error: e.toString());
     }
   }
 

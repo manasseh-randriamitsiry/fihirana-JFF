@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import '../models/daily_verse.dart';
 import '../services/bible_service.dart';
 import '../data/inspiring_verses.dart';
 import '../utility/bible_book_order.dart';
+import '../widgets/common/daily_verse_notification.dart';
 
 class DailyVerseService {
   static final DailyVerseService _instance = DailyVerseService._internal();
@@ -186,34 +186,14 @@ class DailyVerseService {
     final verse = await getVerseOfTheDay();
 
     // Create notification
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 100, // Fixed ID for daily verse
-        channelKey: 'daily_verse_channel',
-        title: '📖 ${verse.reference}',
-        body: verse.text,
-        notificationLayout: NotificationLayout.BigText,
-        payload: {
-          'book': verse.book,
-          'chapter': verse.chapter.toString(),
-          'verse': verse.verse.toString(),
-          'type': 'daily_verse',
-        },
-        wakeUpScreen: true,
-        fullScreenIntent: true,
-        displayOnForeground: true,
-        displayOnBackground: true,
-        category: NotificationCategory.Reminder,
-        criticalAlert: false,
-        autoDismissible: true,
-      ),
-      schedule: NotificationCalendar(
-        hour: hour,
-        minute: minute,
-        second: 0,
-        repeats: true,
-        allowWhileIdle: true,
-      ),
+    await DailyVerseNotificationBuilder.scheduleDailyVerse(
+      reference: verse.reference,
+      text: verse.text,
+      book: verse.book,
+      chapter: verse.chapter,
+      verse: verse.verse,
+      hour: hour,
+      minute: minute,
     );
 
     if (kDebugMode) {
@@ -223,7 +203,7 @@ class DailyVerseService {
 
   /// Cancel all daily verse notifications
   Future<void> cancelDailyNotifications() async {
-    await AwesomeNotifications().cancel(100);
+    await DailyVerseNotificationBuilder.cancelDailyVerseNotifications();
     if (kDebugMode) {
       print('Daily verse notifications cancelled');
     }
@@ -233,31 +213,12 @@ class DailyVerseService {
   Future<void> sendTestNotification() async {
     final verse = await getVerseOfTheDay();
 
-    await AwesomeNotifications().createNotification(
-      content: NotificationContent(
-        id: 101, // Different ID for test
-        channelKey: 'daily_verse_channel',
-        title: '📖 ${verse.reference}',
-        body: verse.text,
-        notificationLayout: NotificationLayout.BigText,
-        payload: {
-          'book': verse.book,
-          'chapter': verse.chapter.toString(),
-          'verse': verse.verse.toString(),
-          'type': 'daily_verse',
-        },
-        wakeUpScreen: true,
-        fullScreenIntent: true,
-        displayOnForeground: true,
-        displayOnBackground: true,
-        category: NotificationCategory.Reminder,
-        criticalAlert: false,
-        autoDismissible: true,
-      ),
+    await DailyVerseNotificationBuilder.sendTestNotification(
+      reference: verse.reference,
+      text: verse.text,
+      book: verse.book,
+      chapter: verse.chapter,
+      verse: verse.verse,
     );
-
-    if (kDebugMode) {
-      print('Test notification sent');
-    }
   }
 }

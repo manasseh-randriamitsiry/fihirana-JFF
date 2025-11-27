@@ -9,6 +9,7 @@ import 'package:fihirana/controller/shell_controller.dart';
 import 'package:fihirana/screen/intro/splash_screen1.dart';
 import 'package:fihirana/screen/loading/loading_screen.dart';
 import 'package:fihirana/services/version_check_service.dart';
+import 'package:fihirana/widgets/common/banned_page.dart';
 import 'package:fihirana/services/audio_service.dart';
 import 'package:fihirana/services/notification_service.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
