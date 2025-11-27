@@ -5,6 +5,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:maplibre_gl/maplibre_gl.dart' as maplibre;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:android_intent_plus/android_intent.dart';
+import 'package:flutter_contacts/flutter_contacts.dart' as flutter_contacts;
+import 'package:permission_handler/permission_handler.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../models/contact.dart';
@@ -109,15 +111,144 @@ Future<void> _launchMaps(double lat, double lng) async {
           ),
         );
       }
+}
+  }
+
+  Future<void> _importContact() async {
+    // Request contacts permission
+    final status = await Permission.contacts.request();
+    
+    if (!status.isGranted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Contacts permission is required to import contacts.'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Settings',
+              textColor: Colors.white,
+              onPressed: () => openAppSettings(),
+            ),
+          ),
+        );
+      }
+      return;
+    }
+
+    try {
+      // Get all contacts
+      final contacts = await flutter_contacts.FlutterContacts.getContacts(
+        withProperties: true,
+        withPhoto: false,
+      );
+
+      if (contacts.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No contacts found on your device.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      // Show contact picker dialog
+      _showContactPickerDialog(contacts);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error accessing contacts: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
-  void _showAddEditContactDialog(BuildContext context, {Contact? contact}) {
+  void _showContactPickerDialog(List<flutter_contacts.Contact> contacts) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: colorController.backgroundColor.value,
+        title: Text(
+          'Select Contact',
+          style: TextStyle(color: colorController.textColor.value),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 400,
+          child: ListView.builder(
+            itemCount: contacts.length,
+            itemBuilder: (context, index) {
+              final contact = contacts[index];
+              final displayName = contact.displayName;
+              final phoneNumber = contact.phones.isNotEmpty 
+                  ? contact.phones.first.number
+                  : '';
+              
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: colorController.primaryColor.value,
+                  child: Text(
+                    displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                title: Text(
+                  displayName,
+                  style: TextStyle(color: colorController.textColor.value),
+                ),
+                subtitle: phoneNumber.isNotEmpty
+                    ? Text(
+                        phoneNumber,
+                        style: TextStyle(
+                          color: colorController.textColor.value.withValues(alpha: 0.7),
+                        ),
+                      )
+                    : null,
+                onTap: () {
+                  Navigator.pop(context);
+                  _showAddEditContactDialog(
+                    context,
+                    contact: null,
+                    importedContact: {
+                      'name': displayName,
+                      'phone': phoneNumber,
+                    },
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: colorController.primaryColor.value),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+void _showAddEditContactDialog(BuildContext context, {Contact? contact, Map<String, String>? importedContact}) {
     final l10n = AppLocalizations.of(context)!;
     final isEditing = contact != null;
-    final nameController = TextEditingController(text: contact?.name ?? '');
-    final phoneController =
-        TextEditingController(text: contact?.phoneNumber ?? '');
+    final nameController = TextEditingController(
+      text: importedContact?['name'] ?? contact?.name ?? ''
+    );
+    final phoneController = TextEditingController(
+      text: importedContact?['phone'] ?? contact?.phoneNumber ?? ''
+    );
     final locationController =
         TextEditingController(text: contact?.location ?? '');
     double? selectedLat = contact?.latitude;
@@ -369,10 +500,23 @@ Future<void> _launchMaps(double lat, double lng) async {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddEditContactDialog(context),
-        backgroundColor: colorController.primaryColor.value,
-        child: const Icon(Icons.add, color: Colors.white),
+floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton(
+            heroTag: "importContact",
+            onPressed: _importContact,
+            backgroundColor: colorController.primaryColor.value.withValues(alpha: 0.8),
+            child: const Icon(Icons.contacts, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: "addContact",
+            onPressed: () => _showAddEditContactDialog(context),
+            backgroundColor: colorController.primaryColor.value,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -464,7 +608,7 @@ Future<void> _launchMaps(double lat, double lng) async {
                 final contacts = snapshot.data ?? [];
                 final filteredContacts = _searchQuery.isEmpty
                     ? contacts
-                    : contacts.where((contact) {
+: contacts.where((contact) {
                         return contact.name
                                 .toLowerCase()
                                 .contains(_searchQuery) ||
