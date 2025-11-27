@@ -7,7 +7,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../controller/color_controller.dart';
-import '../../l10n/app_localizations.dart';
+
 
 class LocationPickerScreen extends StatefulWidget {
   final double? initialLat;
@@ -26,10 +26,11 @@ class LocationPickerScreen extends StatefulWidget {
 class _LocationPickerScreenState extends State<LocationPickerScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final TextEditingController _searchController = TextEditingController();
-  MaplibreMapController? mapController;
+  MapLibreMapController? mapController;
   LatLng? _selectedLocation;
   Circle? _selectedCircle;
   List<Map<String, dynamic>> _searchResults = [];
+  bool _isSearchExpanded = false;
 
   // Default to Antananarivo, Madagascar if no location provided
   static const LatLng _defaultLocation = LatLng(-18.8792, 47.5079);
@@ -93,7 +94,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _addMarker(newLocation);
   }
 
-  void _onMapCreated(MaplibreMapController controller) {
+  void _onMapCreated(MapLibreMapController controller) {
     mapController = controller;
     if (_selectedLocation != null) {
       _addMarker(_selectedLocation!);
@@ -107,7 +108,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _addMarker(coordinates);
   }
 
-  Future<void> _addMarker(LatLng coordinates) async {
+Future<void> _addMarker(LatLng coordinates) async {
     if (mapController == null) return;
 
     if (_selectedCircle != null) {
@@ -125,132 +126,183 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+  void _toggleSearch() {
+    setState(() {
+      _isSearchExpanded = !_isSearchExpanded;
+      if (!_isSearchExpanded) {
+        _searchController.clear();
+        _searchResults = [];
+      }
+    });
+  }
 
+@override
+  Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(l10n.contactLocation ?? 'Pick Location'),
-        backgroundColor: colorController.backgroundColor.value,
-        foregroundColor: colorController.textColor.value,
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search for a place...',
-                prefixIcon:
-                    Icon(Icons.search, color: colorController.iconColor.value),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(Icons.clear,
-                            color: colorController.iconColor.value),
-                        onPressed: () {
-                          setState(() {
-                            _searchController.clear();
-                            _searchResults = [];
-                          });
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: colorController.backgroundColor.value,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.3)),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.3)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                      color: colorController.primaryColor.value, width: 2),
-                ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: colorController.backgroundColor.value.withValues(alpha: 0.9),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back, color: colorController.textColor.value),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        actions: [
+          Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colorController.backgroundColor.value.withValues(alpha: 0.9),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: Icon(
+                _isSearchExpanded ? Icons.close : Icons.search,
+                color: colorController.textColor.value,
               ),
-              style: TextStyle(color: colorController.textColor.value),
-              onChanged: (value) {
-                setState(() {});
-                _searchPlace(value);
-              },
+              onPressed: _toggleSearch,
             ),
           ),
-          if (_searchResults.isNotEmpty)
-            Container(
-              constraints: const BoxConstraints(maxHeight: 200),
-              margin: const EdgeInsets.symmetric(horizontal: 12),
+        ],
+      ),
+      body: Stack(
+        children: [
+          // Map fills entire screen
+          MapLibreMap(
+            styleString: "https://tiles.openfreemap.org/styles/liberty",
+            initialCameraPosition: CameraPosition(
+              target: _selectedLocation ?? _defaultLocation,
+              zoom: 13.0,
+            ),
+            onMapCreated: _onMapCreated,
+            onMapClick: _onMapClick,
+            myLocationEnabled: false,
+            compassEnabled: true,
+            attributionButtonMargins: const Point(-100, -100),
+            gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+              Factory<PanGestureRecognizer>(() => PanGestureRecognizer()),
+              Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()),
+              Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
+              Factory<VerticalDragGestureRecognizer>(
+                  () => VerticalDragGestureRecognizer()),
+              Factory<HorizontalDragGestureRecognizer>(
+                  () => HorizontalDragGestureRecognizer()),
+            },
+          ),
+          
+          // Search overlay
+          if (_isSearchExpanded)
+            Positioned(
+              top: 100,
+              left: 16,
+              right: 16,
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: colorController.backgroundColor.value.withValues(alpha: 0.95),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        hintText: 'Search for a place...',
+                        prefixIcon: Icon(Icons.search, color: colorController.iconColor.value),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(Icons.clear, color: colorController.iconColor.value),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchController.clear();
+                                    _searchResults = [];
+                                  });
+                                },
+                              )
+                            : null,
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      style: TextStyle(color: colorController.textColor.value),
+                      onChanged: (value) {
+                        setState(() {});
+                        _searchPlace(value);
+                      },
+                    ),
+                  ),
+                  if (_searchResults.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      constraints: const BoxConstraints(maxHeight: 200),
+                      decoration: BoxDecoration(
+                        color: colorController.backgroundColor.value.withValues(alpha: 0.95),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _searchResults.length,
+                        itemBuilder: (context, index) {
+                          final result = _searchResults[index];
+                          return ListTile(
+                            dense: true,
+                            title: Text(
+                              result['display_name'],
+                              style: TextStyle(
+                                  color: colorController.textColor.value, fontSize: 14),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            leading: Icon(Icons.location_on,
+                                color: colorController.primaryColor.value, size: 20),
+                            onTap: () => _selectSearchResult(result),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          
+          // Confirm button overlay
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: Container(
               decoration: BoxDecoration(
-                color: colorController.backgroundColor.value,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.2)),
+                borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: _searchResults.length,
-                itemBuilder: (context, index) {
-                  final result = _searchResults[index];
-                  return ListTile(
-                    dense: true,
-                    title: Text(
-                      result['display_name'],
-                      style: TextStyle(
-                          color: colorController.textColor.value, fontSize: 14),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    leading: Icon(Icons.location_on,
-                        color: colorController.primaryColor.value, size: 20),
-                    onTap: () => _selectSearchResult(result),
-                  );
-                },
-              ),
-            ),
-          Expanded(
-            child: MaplibreMap(
-              styleString: "https://tiles.openfreemap.org/styles/liberty",
-              initialCameraPosition: CameraPosition(
-                target: _selectedLocation ?? _defaultLocation,
-                zoom: 13.0,
-              ),
-              onMapCreated: _onMapCreated,
-              onMapClick: _onMapClick,
-              myLocationEnabled: false,
-              compassEnabled: true,
-              attributionButtonMargins: const Point(-100, -100),
-              gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-                Factory<PanGestureRecognizer>(() => PanGestureRecognizer()),
-                Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()),
-                Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
-                Factory<VerticalDragGestureRecognizer>(
-                    () => VerticalDragGestureRecognizer()),
-                Factory<HorizontalDragGestureRecognizer>(
-                    () => HorizontalDragGestureRecognizer()),
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(16),
-            color: colorController.backgroundColor.value,
-            child: SafeArea(
-              top: false,
               child: ElevatedButton(
                 onPressed: _selectedLocation == null
                     ? null
@@ -262,7 +314,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   minimumSize: const Size(double.infinity, 50),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
                 child: const Text(
@@ -276,6 +328,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               ),
             ),
           ),
+          
+          
         ],
       ),
     );
