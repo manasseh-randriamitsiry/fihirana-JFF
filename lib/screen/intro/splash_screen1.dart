@@ -31,7 +31,7 @@ class SplashScreen1 extends StatelessWidget {
         }
       },
       child: Scaffold(
-        body: Obx(() => LiquidSwipe(
+        body: LiquidSwipe(
           pages: pages,
           liquidController: splashController.liquidController,
           onPageChangeCallback: (activePageIndex) {
@@ -56,7 +56,7 @@ class SplashScreen1 extends StatelessWidget {
           enableSideReveal: true,
           ignoreUserGestureWhileAnimating: true,
           disableUserGesture: false,
-        )),
+        ),
       ),
     );
   }

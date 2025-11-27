@@ -12,44 +12,48 @@ class LanguagePickerWidget extends StatelessWidget {
         Get.find<LanguageController>();
     final AppLocalizations l10n = AppLocalizations.of(context)!;
 
-    return Obx(() => Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).hintColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Theme.of(context).shadowColor.withValues(alpha:0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.language,
-                    color: Theme.of(context).primaryColor,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    l10n.language,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).textTheme.titleLarge?.color,
-                        ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ...languageController.supportedLocales.map((locale) {
-                final isSelected = languageController.isCurrentLocale(locale);
-                final languageName = languageController.getLanguageName(locale);
-                final languageFlag = languageController.getLanguageFlag(locale);
+    return Obx(() {
+          // Access the observable directly to ensure proper tracking
+          languageController.currentLocale.value;
+          
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).hintColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withValues(alpha:0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.language,
+                      color: Theme.of(context).primaryColor,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      l10n.language,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).textTheme.titleLarge?.color,
+                          ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ...languageController.supportedLocales.map((locale) {
+                  final isSelected = languageController.isCurrentLocale(locale);
+                  final languageName = languageController.getLanguageName(locale);
+                  final languageFlag = languageController.getLanguageFlag(locale);
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -118,7 +122,8 @@ class LanguagePickerWidget extends StatelessWidget {
               }),
             ],
           ),
-        ));
+        );
+      });
   }
 }
 
