@@ -8,6 +8,7 @@ import '../../services/announcement_service.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/context_aware_fab.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   const AnnouncementScreen({super.key});
@@ -447,26 +448,9 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
         ),
       ),
       floatingActionButton: isAdmin()
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  heroTag: 'add_announcement',
-                  backgroundColor: colorController.primaryColor.value,
-                  elevation: 4,
-                  onPressed: _showCreateAnnouncementDialog,
-                  child: const Icon(Icons.add, color: Colors.white),
-                ),
-                const SizedBox(height: 12),
-                FloatingActionButton(
-                  heroTag: 'refresh_announcements',
-                  backgroundColor:
-                      colorController.primaryColor.value.withValues(alpha: 0.8),
-                  elevation: 4,
-                  onPressed: _resetSeenAnnouncements,
-                  child: const Icon(Icons.refresh, color: Colors.white),
-                ),
-              ],
+          ? ContextAwareFAB(
+              onAddAnnouncement: _showCreateAnnouncementDialog,
+              onRefreshAnnouncements: _resetSeenAnnouncements,
             )
           : null,
       body: RefreshIndicator(
