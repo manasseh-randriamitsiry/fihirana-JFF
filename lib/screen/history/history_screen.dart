@@ -5,7 +5,7 @@ import '../../controller/history_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../hymn/hymn_detail_screen.dart';
-import 'package:intl/intl.dart';
+import '../../widgets/history/history_item_card.dart';
 import '../../l10n/app_localizations.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -95,90 +95,31 @@ class HistoryScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     itemCount: historyController.userHistory.length,
-                    itemBuilder: (context, index) {
-                      final history = historyController.userHistory[index];
-                      final DateTime timestamp = history['timestamp'];
-                      final String formattedDate =
-                          DateFormat('dd/MM/yyyy HH:mm').format(timestamp);
-                      final isSelected = historyController.selectedItems
-                          .contains(history['id']);
+                     itemBuilder: (context, index) {
+                       final history = historyController.userHistory[index];
+                       final isSelected = historyController.selectedItems.contains(history['id']);
 
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0),
-                        child: Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          color: backgroundColor,
-                          child: ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            leading: CircleAvatar(
-                              backgroundColor: primaryColor,
-                              radius: 25,
-                              child: Text(
-                                '${history['number']}',
-                                style: TextStyle(
-                                  color: backgroundColor, // Assuming contrast
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                            title: Text(
-                              history['title'] ?? 'Hira ${history['number']}',
-                              style: TextStyle(
-                                color: textColor,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            subtitle: Text(
-                              formattedDate,
-                              style: TextStyle(
-                                  color: textColor.withValues(alpha: 0.6)),
-                            ),
-                            trailing: historyController.isSelectionMode.value
-                                ? Checkbox(
-                                    value: isSelected,
-                                    activeColor: primaryColor,
-                                    side: BorderSide(
-                                        color:
-                                            textColor.withValues(alpha: 0.5)),
-                                    onChanged: (_) => historyController
-                                        .toggleItemSelection(history['id']),
-                                  )
-                                : null,
-                            onTap: () {
-                              if (historyController.isSelectionMode.value) {
-                                historyController
-                                    .toggleItemSelection(history['id']);
-                              } else {
-                                Get.to(() => HymnDetailScreen(
-                                    hymnId: history['hymnId']));
-                              }
-                            },
-                            onLongPress: () {
-                              if (!historyController.isSelectionMode.value) {
-                                historyController.toggleSelectionMode();
-                                historyController
-                                    .toggleItemSelection(history['id']);
-                              }
-                            },
-                          ),
-                        ),
-                      )
-                          .animate()
-                          .fadeIn(
-                              duration: const Duration(milliseconds: 300),
-                              delay: Duration(milliseconds: 50 * index))
-                          .slideY(
-                              begin: 0.1,
-                              end: 0,
-                              duration: const Duration(milliseconds: 300),
-                              delay: Duration(milliseconds: 50 * index),
-                              curve: Curves.easeOut);
-                    },
+                       return HistoryItemCard(
+                         history: history,
+                         index: index,
+                         isSelected: isSelected,
+                         isSelectionMode: historyController.isSelectionMode.value,
+                         onTap: () {
+                           if (historyController.isSelectionMode.value) {
+                             historyController.toggleItemSelection(history['id']);
+                           } else {
+                             Get.to(() => HymnDetailScreen(hymnId: history['hymnId']));
+                           }
+                         },
+                         onLongPress: () {
+                           if (!historyController.isSelectionMode.value) {
+                             historyController.toggleSelectionMode();
+                             historyController.toggleItemSelection(history['id']);
+                           }
+                         },
+                         onSelectionChanged: (_) => historyController.toggleItemSelection(history['id']),
+                       );
+                     },
                   ),
       );
     });

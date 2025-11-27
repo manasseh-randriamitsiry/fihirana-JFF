@@ -9,6 +9,7 @@ import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/lightweight_audio_player_widget.dart';
+import '../../widgets/hymn/form_widgets.dart';
 
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
@@ -207,150 +208,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     );
   }
 
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    String? Function(String?)? validator,
-    TextInputType? keyboardType,
-    int maxLines = 1,
-    IconData? icon,
-    void Function(String)? onChanged,
-  }) {
-    final colorController = Get.find<ColorController>();
-    return Container(
-      decoration: BoxDecoration(
-        color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        maxLines: maxLines,
-        keyboardType: keyboardType,
-        style: TextStyle(color: colorController.textColor.value),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: TextStyle(
-              color: colorController.textColor.value.withValues(alpha: 0.7)),
-          prefixIcon: icon != null
-              ? Icon(icon, color: colorController.iconColor.value, size: 20)
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(
-              color: colorController.primaryColor.value,
-              width: 2,
-            ),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.red, width: 1),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.red, width: 2),
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        ),
-        validator: validator,
-        onChanged: onChanged,
-      ),
-    );
-  }
 
-  Widget _buildVerseField(int index) {
-    final l10n = AppLocalizations.of(context)!;
-    final colorController = Get.find<ColorController>();
-    return Card(
-      key: ValueKey(index),
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      color: colorController.backgroundColor.value,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: TextFormField(
-                controller: _verseControllers[index],
-                maxLines: null,
-                style: TextStyle(color: colorController.textColor.value),
-                decoration: InputDecoration(
-                  labelText: l10n.verseWithNumber(index + 1),
-                  labelStyle: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.7),
-                  ),
-                  border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                ),
-                onChanged: (value) {
-                  _debouncer.run(() {
-                    setState(() {});
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return l10n.enterVerse;
-                  }
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon:
-                  const Icon(Icons.delete_outline, color: Colors.red, size: 22),
-              onPressed: () {
-                setState(() {
-                  _verseControllers[index].dispose();
-                  _verseControllers.removeAt(index);
-                });
-              },
-              tooltip: l10n.deleteVerse,
-            ),
-            ReorderableDragStartListener(
-              index: index,
-              child: Icon(
-                Icons.drag_handle,
-                color: colorController.iconColor.value.withValues(alpha: 0.5),
-                size: 24,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +358,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         ],
                       ),
                     ),
-                  _buildTextField(
+FormTextFieldWidget(
                     controller: _hymnNumberController,
                     label: l10n.number,
                     keyboardType: TextInputType.number,
@@ -509,26 +367,11 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       if (value == null || value.isEmpty) {
                         return l10n.enterHymnNumber;
                       }
-                      try {
-                        int? number = int.tryParse(value);
-                        if (number == null || number <= 0) {
-                          return l10n.invalidNumber;
-                        }
-                      } catch (e) {
-                        return l10n.invalidNumber;
-                      }
                       return null;
-                    },
-                    onChanged: (value) {
-                      if (value.trim().isNotEmpty) {
-                        _debouncer.run(() {
-                          _checkAudioAvailability(value.trim());
-                        });
-                      }
                     },
                   ),
                   const SizedBox(height: 16.0),
-                  _buildTextField(
+FormTextFieldWidget(
                     controller: _titleController,
                     label: l10n.title,
                     icon: Icons.title,
@@ -584,7 +427,21 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       });
                     },
                     children: List.generate(_verseControllers.length, (index) {
-                      return _buildVerseField(index);
+                      return VerseFieldWidget(
+                        index: index,
+                        controller: _verseControllers[index],
+                        onDelete: () {
+                          setState(() {
+                            _verseControllers[index].dispose();
+                            _verseControllers.removeAt(index);
+                          });
+                        },
+                        onChanged: () {
+                          _debouncer.run(() {
+                            setState(() {});
+                          });
+                        },
+                      );
                     }),
                   ),
 
@@ -623,7 +480,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ),
                   const SizedBox(height: 16.0),
 
-                  _buildTextField(
+FormTextFieldWidget(
                     controller: _bridgeController,
                     label: l10n.bridgeOptional,
                     maxLines: 3,
@@ -631,7 +488,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ),
                   const SizedBox(height: 16.0),
 
-                  _buildTextField(
+FormTextFieldWidget(
                     controller: _hymnHintController,
                     label: l10n.hymnHint,
                     maxLines: 2,
@@ -727,23 +584,4 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 }
 
-class Debouncer {
-  final int milliseconds;
-  Timer? _timer;
-  bool _isDisposed = false;
 
-  Debouncer({required this.milliseconds});
-
-  void run(VoidCallback action) {
-    if (_isDisposed) return;
-
-    _timer?.cancel();
-    _timer = Timer(Duration(milliseconds: milliseconds), action);
-  }
-
-  void dispose() {
-    _isDisposed = true;
-    _timer?.cancel();
-    _timer = null;
-  }
-}

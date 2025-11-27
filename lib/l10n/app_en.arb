@@ -823,5 +823,7 @@
       }
     }
   },
-  "portfolio":"Portfolio"
+  "portfolio":"Portfolio",
+  "playFirstHymn": "Play First Hymn",
+  "nowPlaying": "Now Playing"
 }

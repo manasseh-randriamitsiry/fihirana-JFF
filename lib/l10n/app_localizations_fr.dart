@@ -1743,4 +1743,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get portfolio => 'Portfolio';
+
+  @override
+  String get playFirstHymn => 'Lire le premier cantique';
+
+  @override
+  String get nowPlaying => 'En lecture';
 }
