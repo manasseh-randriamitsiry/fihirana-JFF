@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:maplibre_gl/maplibre_gl.dart' as maplibre;
+import 'package:url_launcher/url_launcher.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../models/contact.dart';
 import '../../services/contact_service.dart';
 import '../../l10n/app_localizations.dart';
+import 'location_picker_screen.dart';
 
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
@@ -26,6 +29,34 @@ class _ContactListScreenState extends State<ContactListScreen> {
     super.dispose();
   }
 
+  Future<void> _launchMaps(double lat, double lng) async {
+    // Try Google Maps URL first
+    final googleMapsUrl =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // Fallback to geo: URI which works with any map app
+    final geoUri = Uri.parse('geo:$lat,$lng?q=$lat,$lng');
+
+    if (await canLaunchUrl(geoUri)) {
+      await launchUrl(geoUri, mode: LaunchMode.externalApplication);
+      return;
+    }
+
+    // If both fail, show error message
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text(
+                'No map app found. Please install Google Maps or another map application.')),
+      );
+    }
+  }
+
   void _showAddEditContactDialog(BuildContext context, {Contact? contact}) {
     final l10n = AppLocalizations.of(context)!;
     final isEditing = contact != null;
@@ -34,128 +65,187 @@ class _ContactListScreenState extends State<ContactListScreen> {
         TextEditingController(text: contact?.phoneNumber ?? '');
     final locationController =
         TextEditingController(text: contact?.location ?? '');
+    double? selectedLat = contact?.latitude;
+    double? selectedLng = contact?.longitude;
     final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          backgroundColor: colorController.backgroundColor.value,
-          title: Text(
-            isEditing ? l10n.editContact : l10n.addContact,
-            style: TextStyle(color: colorController.textColor.value),
-          ),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: l10n.contactName,
-                      labelStyle: TextStyle(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.7)),
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: colorController.textColor.value
-                                  .withValues(alpha: 0.3))),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: colorController.primaryColor.value)),
-                    ),
-                    style: TextStyle(color: colorController.textColor.value),
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? l10n.enterNamePlease : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: phoneController,
-                    decoration: InputDecoration(
-                      labelText: l10n.contactPhone,
-                      labelStyle: TextStyle(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.7)),
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: colorController.textColor.value
-                                  .withValues(alpha: 0.3))),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: colorController.primaryColor.value)),
-                    ),
-                    style: TextStyle(color: colorController.textColor.value),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) =>
-                        value?.isEmpty ?? true ? l10n.fillAllFields : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: locationController,
-                    decoration: InputDecoration(
-                      labelText: l10n.contactLocation,
-                      labelStyle: TextStyle(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.7)),
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: colorController.textColor.value
-                                  .withValues(alpha: 0.3))),
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: colorController.primaryColor.value)),
-                    ),
-                    style: TextStyle(color: colorController.textColor.value),
-                  ),
-                ],
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: colorController.backgroundColor.value,
+              title: Text(
+                isEditing ? l10n.editContact : l10n.addContact,
+                style: TextStyle(color: colorController.textColor.value),
               ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel,
-                  style: TextStyle(color: colorController.textColor.value)),
-            ),
-            TextButton(
-              onPressed: () async {
-                if (formKey.currentState?.validate() ?? false) {
-                  final success = isEditing
-                      ? await _contactService.updateContact(contact.copyWith(
-                          name: nameController.text,
-                          phoneNumber: phoneController.text,
-                          location: locationController.text.isEmpty
-                              ? null
-                              : locationController.text,
-                        ))
-                      : await _contactService.addContact(
-                          name: nameController.text,
-                          phoneNumber: phoneController.text,
-                          location: locationController.text.isEmpty
-                              ? null
-                              : locationController.text,
-                        );
+              content: Form(
+                key: formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: l10n.contactName,
+                          labelStyle: TextStyle(
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.7)),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.3))),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: colorController.primaryColor.value)),
+                        ),
+                        style:
+                            TextStyle(color: colorController.textColor.value),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? l10n.enterNamePlease
+                            : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: phoneController,
+                        decoration: InputDecoration(
+                          labelText: l10n.contactPhone,
+                          labelStyle: TextStyle(
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.7)),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.3))),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: colorController.primaryColor.value)),
+                        ),
+                        style:
+                            TextStyle(color: colorController.textColor.value),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? l10n.fillAllFields : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: locationController,
+                        decoration: InputDecoration(
+                          labelText: l10n.contactLocation,
+                          labelStyle: TextStyle(
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.7)),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.3))),
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: colorController.primaryColor.value)),
+                        ),
+                        style:
+                            TextStyle(color: colorController.textColor.value),
+                      ),
+                      const SizedBox(height: 16),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          final result = await Navigator.push<maplibre.LatLng>(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LocationPickerScreen(
+                                initialLat: selectedLat,
+                                initialLng: selectedLng,
+                              ),
+                            ),
+                          );
+                          if (result != null) {
+                            setState(() {
+                              selectedLat = result.latitude;
+                              selectedLng = result.longitude;
+                            });
+                          }
+                        },
+                        icon: Icon(
+                          Icons.map,
+                          color: selectedLat != null
+                              ? Colors.green
+                              : colorController.primaryColor.value,
+                        ),
+                        label: Text(
+                          selectedLat != null
+                              ? 'Location Selected'
+                              : 'Pick Location on Map',
+                          style: TextStyle(
+                            color: selectedLat != null
+                                ? Colors.green
+                                : colorController.primaryColor.value,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: selectedLat != null
+                                ? Colors.green
+                                : colorController.primaryColor.value,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(l10n.cancel,
+                      style: TextStyle(color: colorController.textColor.value)),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    if (formKey.currentState?.validate() ?? false) {
+                      final success = isEditing
+                          ? await _contactService
+                              .updateContact(contact.copyWith(
+                              name: nameController.text,
+                              phoneNumber: phoneController.text,
+                              location: locationController.text.isEmpty
+                                  ? null
+                                  : locationController.text,
+                              latitude: selectedLat,
+                              longitude: selectedLng,
+                            ))
+                          : await _contactService.addContact(
+                              name: nameController.text,
+                              phoneNumber: phoneController.text,
+                              location: locationController.text.isEmpty
+                                  ? null
+                                  : locationController.text,
+                              latitude: selectedLat,
+                              longitude: selectedLng,
+                            );
 
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.contactSaved)),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.errorOccurred)),
-                      );
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                        if (success) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.contactSaved)),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(l10n.errorOccurred)),
+                          );
+                        }
+                      }
                     }
-                  }
-                }
-              },
-              child: Text(l10n.save,
-                  style: TextStyle(color: colorController.primaryColor.value)),
-            ),
-          ],
+                  },
+                  child: Text(l10n.save,
+                      style:
+                          TextStyle(color: colorController.primaryColor.value)),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -448,27 +538,35 @@ class _ContactListScreenState extends State<ContactListScreen> {
                                 ],
                               ],
                             ),
-                            trailing: canEdit
-                                ? Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      IconButton(
-                                        icon: Icon(Icons.edit,
-                                            color: colorController
-                                                .iconColor.value),
-                                        onPressed: () =>
-                                            _showAddEditContactDialog(context,
-                                                contact: contact),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete,
-                                            color: Colors.red),
-                                        onPressed: () =>
-                                            _confirmDelete(context, contact),
-                                      ),
-                                    ],
-                                  )
-                                : null,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                if (contact.latitude != null &&
+                                    contact.longitude != null)
+                                  IconButton(
+                                    icon: const Icon(Icons.directions,
+                                        color: Colors.blue),
+                                    onPressed: () => _launchMaps(
+                                        contact.latitude!, contact.longitude!),
+                                    tooltip: 'Directions',
+                                  ),
+                                if (canEdit) ...[
+                                  IconButton(
+                                    icon: Icon(Icons.edit,
+                                        color: colorController.iconColor.value),
+                                    onPressed: () => _showAddEditContactDialog(
+                                        context,
+                                        contact: contact),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () =>
+                                        _confirmDelete(context, contact),
+                                  ),
+                                ],
+                              ],
+                            ),
                           ),
                         )
                             .animate()

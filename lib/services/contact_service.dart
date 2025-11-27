@@ -30,6 +30,8 @@ class ContactService {
     required String name,
     required String phoneNumber,
     String? location,
+    double? latitude,
+    double? longitude,
   }) async {
     try {
       final user = _auth.currentUser;
@@ -42,6 +44,8 @@ class ContactService {
         'name': name,
         'phoneNumber': phoneNumber,
         'location': location,
+        'latitude': latitude,
+        'longitude': longitude,
         'userId': user.uid,
         'userName': displayName,
         'createdAt': now.toIso8601String(),
@@ -73,6 +77,8 @@ class ContactService {
         'name': contact.name,
         'phoneNumber': contact.phoneNumber,
         'location': contact.location,
+        'latitude': contact.latitude,
+        'longitude': contact.longitude,
         'updatedAt': now.toIso8601String(),
       });
 

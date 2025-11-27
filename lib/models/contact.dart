@@ -3,6 +3,8 @@ class Contact {
   String name;
   String phoneNumber;
   String? location;
+  double? latitude;
+  double? longitude;
   String userId;
   String userName;
   DateTime createdAt;
@@ -13,6 +15,8 @@ class Contact {
     required this.name,
     required this.phoneNumber,
     this.location,
+    this.latitude,
+    this.longitude,
     required this.userId,
     required this.userName,
     required this.createdAt,
@@ -25,6 +29,8 @@ class Contact {
       name: json['name'] as String,
       phoneNumber: json['phoneNumber'] as String,
       location: json['location'] as String?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
       userId: json['userId'] as String,
       userName: json['userName'] as String? ?? 'Anonymous',
       createdAt: DateTime.parse(
@@ -40,6 +46,8 @@ class Contact {
       'name': name,
       'phoneNumber': phoneNumber,
       'location': location,
+      'latitude': latitude,
+      'longitude': longitude,
       'userId': userId,
       'userName': userName,
       'createdAt': createdAt.toIso8601String(),
@@ -52,6 +60,8 @@ class Contact {
     String? name,
     String? phoneNumber,
     String? location,
+    double? latitude,
+    double? longitude,
     String? userId,
     String? userName,
     DateTime? createdAt,
@@ -62,6 +72,8 @@ class Contact {
       name: name ?? this.name,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       location: location ?? this.location,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
       userId: userId ?? this.userId,
       userName: userName ?? this.userName,
       createdAt: createdAt ?? this.createdAt,
