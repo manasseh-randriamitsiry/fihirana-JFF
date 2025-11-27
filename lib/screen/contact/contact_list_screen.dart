@@ -719,21 +719,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     return Stack(
       alignment: Alignment.bottomLeft,
       children: [
-        // Backdrop overlay when expanded
-        if (_isFABExpanded)
-          GestureDetector(
-            onTap: () {
-              setState(() {
-                _isFABExpanded = false;
-              });
-            },
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              color: Colors.black.withValues(alpha: 0.3),
-            ),
-          ).animate().fadeIn(duration: 200.ms),
-
         // Speed dial action buttons and main FAB
         Column(
           mainAxisSize: MainAxisSize.min,
