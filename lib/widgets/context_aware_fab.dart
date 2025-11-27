@@ -120,6 +120,7 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                       backgroundColor: action.backgroundColor ??
                           colorController.primaryColor.value
                               .withValues(alpha: 0.9),
+                      shape: const CircleBorder(),
                       elevation: 4,
                       child: Icon(
                         action.icon,
@@ -143,6 +144,7 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                 });
               },
               backgroundColor: colorController.primaryColor.value,
+              shape: const CircleBorder(),
               elevation: 6,
               child: AnimatedRotation(
                 duration: const Duration(milliseconds: 200),
