@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
-import '../models/hymn.dart';
-import '../services/audio_service.dart';
+import '../../models/hymn.dart';
+import '../../services/audio_service.dart';
 
 class CompactAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../controller/recording_controller.dart';
-import '../controller/color_controller.dart';
+import '../../controller/recording_controller.dart';
+import '../../controller/color_controller.dart';
 
 class RecordingMiniPlayer extends StatelessWidget {
   const RecordingMiniPlayer({super.key});

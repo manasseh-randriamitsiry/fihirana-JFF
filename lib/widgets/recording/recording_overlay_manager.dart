@@ -1,8 +1,8 @@
+import 'package:fihirana/widgets/player/recording_mini_player.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controller/recording_controller.dart';
+import '../../controller/recording_controller.dart';
 import 'recording_overlay.dart';
-import 'recording_mini_player.dart';
 
 class RecordingOverlayManager extends StatelessWidget {
   const RecordingOverlayManager({super.key});

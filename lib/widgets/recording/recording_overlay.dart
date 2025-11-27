@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../controller/recording_controller.dart';
-import '../controller/color_controller.dart';
-import '../l10n/app_localizations.dart';
-import '../models/user_recording.dart';
+import '../../controller/recording_controller.dart';
+import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
+import '../../models/user_recording.dart';
 
 class RecordingOverlay extends StatefulWidget {
   final String hymnId;

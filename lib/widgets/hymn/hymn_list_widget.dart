@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../controller/hymn_controller.dart';
-import '../../widgets/hymn_list_item.dart';
+import 'hymn_list_item.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/skeleton_hymn_list.dart';
 import '../../models/hymn.dart';

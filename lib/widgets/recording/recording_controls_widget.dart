@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import '../controller/color_controller.dart';
+import '../../controller/color_controller.dart';
 
 class RecordingControlsWidget extends StatefulWidget {
   final bool isRecording;

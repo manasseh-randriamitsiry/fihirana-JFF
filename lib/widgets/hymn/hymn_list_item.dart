@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import '../models/hymn.dart';
-import '../utility/navigation_utility.dart';
-import '../services/hymn_service.dart';
-import '../services/audio_service.dart';
-import '../l10n/app_localizations.dart';
+import '../../models/hymn.dart';
+import '../../utility/navigation_utility.dart';
+import '../../services/hymn_service.dart';
+import '../../services/audio_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class HymnListItem extends StatefulWidget {
   final Hymn hymn;

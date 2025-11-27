@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:just_audio/just_audio.dart';
-import '../models/hymn.dart';
-import '../services/audio_service.dart';
-import '../controller/color_controller.dart';
+import '../../models/hymn.dart';
+import '../../services/audio_service.dart';
+import '../../controller/color_controller.dart';
 import 'package:get/get.dart';
 
 class LightweightAudioPlayerWidget extends StatefulWidget {

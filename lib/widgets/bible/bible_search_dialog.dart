@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controller/bible_controller.dart';
-import '../controller/color_controller.dart';
-import '../models/bible_search.dart';
-import '../l10n/app_localizations.dart';
+import '../../controller/bible_controller.dart';
+import '../../controller/color_controller.dart';
+import '../../models/bible_search.dart';
+import '../../l10n/app_localizations.dart';
 
 class BibleSearchDialog extends StatefulWidget {
   const BibleSearchDialog({super.key});

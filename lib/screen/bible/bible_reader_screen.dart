@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
 import '../../controller/font_controller.dart';
-import '../../widgets/bible_search_dialog.dart';
+import '../../widgets/bible/bible_search_dialog.dart';
 import '../../widgets/bible/bible_reader_widgets.dart';
 import '../../widgets/bible/bible_settings_bottom_sheet_widget.dart';
 import '../../l10n/app_localizations.dart';

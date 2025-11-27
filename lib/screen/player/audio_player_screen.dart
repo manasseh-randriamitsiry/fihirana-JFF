@@ -8,7 +8,7 @@ import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../services/audio_file_mapping.dart';
 import '../../services/local_audio_service.dart';
-import '../../widgets/modern_audio_player_widget.dart';
+import '../../widgets/player/modern_audio_player_widget.dart';
 
 import '../../l10n/app_localizations.dart';
 
