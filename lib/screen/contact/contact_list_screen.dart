@@ -33,7 +33,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
     super.dispose();
   }
 
-Future<void> _launchMaps(double lat, double lng) async {
+  Future<void> _launchMaps(double lat, double lng) async {
     try {
       if (Platform.isAndroid) {
         // First try to launch Google Maps directly
@@ -42,7 +42,7 @@ Future<void> _launchMaps(double lat, double lng) async {
           data: Uri.encodeFull('geo:$lat,$lng?q=$lat,$lng'),
           package: 'com.google.android.apps.maps',
         );
-        
+
         bool launched = false;
         try {
           await intent.launch();
@@ -50,15 +50,16 @@ Future<void> _launchMaps(double lat, double lng) async {
         } catch (e) {
           launched = false;
         }
-        
+
         // If Google Maps is not installed, redirect to Play Store
         if (!launched) {
           final playStoreIntent = AndroidIntent(
             action: 'action_view',
-            data: Uri.encodeFull('https://play.google.com/store/apps/details?id=com.google.android.apps.maps'),
+            data: Uri.encodeFull(
+                'https://play.google.com/store/apps/details?id=com.google.android.apps.maps'),
           );
           await playStoreIntent.launch();
-          
+
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -76,9 +77,11 @@ Future<void> _launchMaps(double lat, double lng) async {
           await launchUrl(url, mode: LaunchMode.externalApplication);
         } else {
           // Fallback to Google Maps web if Apple Maps fails
-          final googleMapsUrl = Uri.parse('https://www.google.com/maps?q=$lat,$lng');
+          final googleMapsUrl =
+              Uri.parse('https://www.google.com/maps?q=$lat,$lng');
           if (await canLaunchUrl(googleMapsUrl)) {
-            await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+            await launchUrl(googleMapsUrl,
+                mode: LaunchMode.externalApplication);
           } else {
             throw Exception('Could not launch any maps application');
           }
@@ -88,7 +91,8 @@ Future<void> _launchMaps(double lat, double lng) async {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Could not open maps. Please install a maps application.'),
+            content: const Text(
+                'Could not open maps. Please install a maps application.'),
             backgroundColor: Colors.red,
             action: SnackBarAction(
               label: 'Download',
@@ -97,13 +101,16 @@ Future<void> _launchMaps(double lat, double lng) async {
                 if (Platform.isAndroid) {
                   final playStoreIntent = AndroidIntent(
                     action: 'action_view',
-                    data: Uri.encodeFull('https://play.google.com/store/apps/details?id=com.google.android.apps.maps'),
+                    data: Uri.encodeFull(
+                        'https://play.google.com/store/apps/details?id=com.google.android.apps.maps'),
                   );
                   await playStoreIntent.launch();
                 } else {
-                  final appStoreUrl = Uri.parse('https://apps.apple.com/app/google-maps/id585027354');
+                  final appStoreUrl = Uri.parse(
+                      'https://apps.apple.com/app/google-maps/id585027354');
                   if (await canLaunchUrl(appStoreUrl)) {
-                    await launchUrl(appStoreUrl, mode: LaunchMode.externalApplication);
+                    await launchUrl(appStoreUrl,
+                        mode: LaunchMode.externalApplication);
                   }
                 }
               },
@@ -111,18 +118,19 @@ Future<void> _launchMaps(double lat, double lng) async {
           ),
         );
       }
-}
+    }
   }
 
   Future<void> _importContact() async {
     // Request contacts permission
     final status = await Permission.contacts.request();
-    
+
     if (!status.isGranted) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Contacts permission is required to import contacts.'),
+            content: const Text(
+                'Contacts permission is required to import contacts.'),
             backgroundColor: Colors.red,
             action: SnackBarAction(
               label: 'Settings',
@@ -185,10 +193,9 @@ Future<void> _launchMaps(double lat, double lng) async {
             itemBuilder: (context, index) {
               final contact = contacts[index];
               final displayName = contact.displayName;
-              final phoneNumber = contact.phones.isNotEmpty 
-                  ? contact.phones.first.number
-                  : '';
-              
+              final phoneNumber =
+                  contact.phones.isNotEmpty ? contact.phones.first.number : '';
+
               return ListTile(
                 leading: CircleAvatar(
                   backgroundColor: colorController.primaryColor.value,
@@ -208,7 +215,8 @@ Future<void> _launchMaps(double lat, double lng) async {
                     ? Text(
                         phoneNumber,
                         style: TextStyle(
-                          color: colorController.textColor.value.withValues(alpha: 0.7),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.7),
                         ),
                       )
                     : null,
@@ -240,15 +248,14 @@ Future<void> _launchMaps(double lat, double lng) async {
     );
   }
 
-void _showAddEditContactDialog(BuildContext context, {Contact? contact, Map<String, String>? importedContact}) {
+  void _showAddEditContactDialog(BuildContext context,
+      {Contact? contact, Map<String, String>? importedContact}) {
     final l10n = AppLocalizations.of(context)!;
     final isEditing = contact != null;
     final nameController = TextEditingController(
-      text: importedContact?['name'] ?? contact?.name ?? ''
-    );
+        text: importedContact?['name'] ?? contact?.name ?? '');
     final phoneController = TextEditingController(
-      text: importedContact?['phone'] ?? contact?.phoneNumber ?? ''
-    );
+        text: importedContact?['phone'] ?? contact?.phoneNumber ?? '');
     final locationController =
         TextEditingController(text: contact?.location ?? '');
     double? selectedLat = contact?.latitude;
@@ -500,13 +507,15 @@ void _showAddEditContactDialog(BuildContext context, {Contact? contact, Map<Stri
           ),
         ),
       ),
-floatingActionButton: Column(
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+      floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           FloatingActionButton(
             heroTag: "importContact",
             onPressed: _importContact,
-            backgroundColor: colorController.primaryColor.value.withValues(alpha: 0.8),
+            backgroundColor:
+                colorController.primaryColor.value.withValues(alpha: 0.8),
             child: const Icon(Icons.contacts, color: Colors.white),
           ),
           const SizedBox(height: 12),
@@ -608,7 +617,7 @@ floatingActionButton: Column(
                 final contacts = snapshot.data ?? [];
                 final filteredContacts = _searchQuery.isEmpty
                     ? contacts
-: contacts.where((contact) {
+                    : contacts.where((contact) {
                         return contact.name
                                 .toLowerCase()
                                 .contains(_searchQuery) ||
