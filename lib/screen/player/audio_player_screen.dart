@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:get/get.dart';
+
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/hymn_service.dart';
@@ -8,6 +9,8 @@ import '../../services/audio_service.dart';
 import '../../services/audio_file_mapping.dart';
 import '../../services/local_audio_service.dart';
 import '../../widgets/modern_audio_player_widget.dart';
+
+import '../recording/recording_manager_screen.dart';
 import '../../l10n/app_localizations.dart';
 
 class AudioPlayerScreen extends StatefulWidget {
@@ -174,13 +177,14 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
           _currentHymn = filteredList[0];
         }
       });
-      
+
       // Set the playlist in AudioService for next/previous functionality
       if (filteredList.isNotEmpty) {
         final initialIndex = _currentIndex == -1 ? 0 : _currentIndex;
         _audioService.setPlaylist(filteredList, initialIndex);
         if (kDebugMode) {
-          print('AudioPlayerScreen: Set AudioService playlist with ${filteredList.length} hymns, starting at index $initialIndex');
+          print(
+              'AudioPlayerScreen: Set AudioService playlist with ${filteredList.length} hymns, starting at index $initialIndex');
         }
       }
     }
@@ -263,9 +267,33 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
     return _downloadProgress[hymn.id];
   }
 
+  void _showPlayerStats(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Player Stats'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Current Hymn: ${_currentHymn.title}'),
+            Text('Playlist Size: ${_playlist.length}'),
+            Text('Is Favorite: $_isFavorite'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(
+return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         body: ModernAudioPlayerWidget(
           hymn: _currentHymn,

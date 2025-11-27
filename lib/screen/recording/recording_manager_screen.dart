@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:fihirana/services/security_service.dart';
+import '../../widgets/context_aware_fab.dart';
 
 class RecordingManagerScreen extends StatelessWidget {
   const RecordingManagerScreen({super.key});
@@ -15,9 +16,10 @@ class RecordingManagerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Use Get.find to get existing controller or create if not exists
-    final RecordingController controller = Get.isRegistered<RecordingController>()
-        ? Get.find<RecordingController>()
-        : Get.put(RecordingController(), permanent: true);
+    final RecordingController controller =
+        Get.isRegistered<RecordingController>()
+            ? Get.find<RecordingController>()
+            : Get.put(RecordingController(), permanent: true);
     final ColorController colorController = Get.find<ColorController>();
 
     // Auto-refresh when page is accessed
@@ -99,7 +101,8 @@ class RecordingManagerScreen extends StatelessWidget {
       body: Obx(() {
         // Security check - prevent banned users from accessing recordings
         final SecurityService securityService = SecurityService.instance;
-        if (securityService.isSecurityChecked && securityService.isUserBlocked) {
+        if (securityService.isSecurityChecked &&
+            securityService.isUserBlocked) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -133,15 +136,17 @@ class RecordingManagerScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.red.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
+                    border:
+                        Border.all(color: Colors.red.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     children: [
-                      const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+                      const Icon(Icons.warning_amber,
+                          color: Colors.orange, size: 24),
                       const SizedBox(height: 8),
                       Text(
-                        securityService.blockReason.isNotEmpty 
-                            ? securityService.blockReason 
+                        securityService.blockReason.isNotEmpty
+                            ? securityService.blockReason
                             : 'Account suspended',
                         textAlign: TextAlign.center,
                         style: const TextStyle(
@@ -309,8 +314,23 @@ class RecordingManagerScreen extends StatelessWidget {
           ),
         );
       }),
+floatingActionButton: ContextAwareFAB(
+        onStartRecording: () {
+          // Navigate back to hymn list to select a hymn for recording
+          Get.back();
+          Get.snackbar(
+            'Recording',
+            'Navigate to any hymn and use the record button to start recording',
+            backgroundColor: Colors.blue.withValues(alpha: 0.8),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 3),
+          );
+        },
+      ),
     );
   }
+
+
 
   void _showDriveDialog(BuildContext context, RecordingController controller,
       ColorController colorController) {
@@ -521,21 +541,21 @@ class _RecordingTile extends StatelessWidget {
                   color: colorController.iconColor.value.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 4),
-                 Flexible(
-                   child: Text(
-                     recording.hymnId == 'unknown' 
-                         ? '${_formatDuration(recording.durationSeconds)}'
-                         : 'Hymn ${recording.hymnId} • ${_formatDuration(recording.durationSeconds)}',
-                     style: TextStyle(
-                       color: colorController.textColor.value
-                           .withValues(alpha: 0.7),
-                       fontSize: 12,
-                       fontWeight: FontWeight.w500,
-                     ),
-                     overflow: TextOverflow.ellipsis,
-                     maxLines: 1,
-                   ),
-                 ),
+                Flexible(
+                  child: Text(
+                    recording.hymnId == 'unknown'
+                        ? '${_formatDuration(recording.durationSeconds)}'
+                        : 'Hymn ${recording.hymnId} • ${_formatDuration(recording.durationSeconds)}',
+                    style: TextStyle(
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.7),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 2),
@@ -722,46 +742,46 @@ class _RecordingTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                 if (isPublic ||
-                     (recording.driveFileId != null &&
-                         recording.filePath.isEmpty))
-                   PopupMenuItem(
-                     value: 'download',
-                     child: Row(
-                       children: [
-                         Icon(
-                           Icons.download,
-                           color: colorController.iconColor.value,
-                           size: 20,
-                         ),
-                         const SizedBox(width: 12),
-                         Text(
-                           'Download',
-                           style:
-                               TextStyle(color: colorController.textColor.value),
-                         ),
-                       ],
-                     ),
-                   ),
-                 if (!isPublic && recording.driveFileId != null)
-                   PopupMenuItem(
-                     value: 'reupload',
-                     child: Row(
-                       children: [
-                         Icon(
-                           Icons.cloud_upload,
-                           color: Colors.orange,
-                           size: 20,
-                         ),
-                         const SizedBox(width: 12),
-                         Text(
-                           'Fix Upload',
-                           style:
-                               TextStyle(color: colorController.textColor.value),
-                         ),
-                       ],
-                     ),
-                   ),
+                if (isPublic ||
+                    (recording.driveFileId != null &&
+                        recording.filePath.isEmpty))
+                  PopupMenuItem(
+                    value: 'download',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.download,
+                          color: colorController.iconColor.value,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Download',
+                          style:
+                              TextStyle(color: colorController.textColor.value),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (!isPublic && recording.driveFileId != null)
+                  PopupMenuItem(
+                    value: 'reupload',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.cloud_upload,
+                          color: Colors.orange,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Fix Upload',
+                          style:
+                              TextStyle(color: colorController.textColor.value),
+                        ),
+                      ],
+                    ),
+                  ),
                 if (!isPublic)
                   PopupMenuItem(
                     value: 'export',

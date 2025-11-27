@@ -12,6 +12,7 @@ import '../../controller/shell_controller.dart';
 import '../../models/contact.dart';
 import '../../services/contact_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/context_aware_fab.dart';
 import 'location_picker_screen.dart';
 
 class ContactListScreen extends StatefulWidget {
@@ -26,7 +27,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
   final ColorController colorController = Get.find<ColorController>();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  bool _isFABExpanded = false;
 
   @override
   void dispose() {
@@ -715,154 +715,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-  Widget _buildSpeedDialFAB() {
-    return Stack(
-      alignment: Alignment.bottomLeft,
-      children: [
-        // Speed dial action buttons and main FAB
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Action buttons (shown when expanded)
-            if (_isFABExpanded) ...[
-              // Import Contact Button
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorController.backgroundColor.value,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      'Import Contact',
-                      style: TextStyle(
-                        color: colorController.textColor.value,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  FloatingActionButton(
-                    heroTag: "importContact",
-                    mini: true,
-                    onPressed: () {
-                      setState(() {
-                        _isFABExpanded = false;
-                      });
-                      _importContact();
-                    },
-                    backgroundColor: colorController.primaryColor.value
-                        .withValues(alpha: 0.8),
-                    elevation: 4,
-                    child: const Icon(
-                      Icons.contacts,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              )
-                  .animate()
-                  .fadeIn(duration: 200.ms, delay: 50.ms)
-                  .slideX(begin: -0.2, end: 0, duration: 200.ms, delay: 50.ms),
-
-              const SizedBox(height: 12),
-
-              // Add Contact Button
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 12),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colorController.backgroundColor.value,
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      'Add Contact',
-                      style: TextStyle(
-                        color: colorController.textColor.value,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  FloatingActionButton(
-                    heroTag: "addContact",
-                    mini: true,
-                    onPressed: () {
-                      setState(() {
-                        _isFABExpanded = false;
-                      });
-                      _showAddEditContactDialog(context);
-                    },
-                    backgroundColor: colorController.primaryColor.value,
-                    elevation: 4,
-                    child: const Icon(
-                      Icons.add,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ],
-              )
-                  .animate()
-                  .fadeIn(duration: 200.ms, delay: 100.ms)
-                  .slideX(begin: -0.2, end: 0, duration: 200.ms, delay: 100.ms),
-
-              const SizedBox(height: 16),
-            ],
-
-            // Main FAB
-            FloatingActionButton(
-              heroTag: "mainFAB",
-              onPressed: () {
-                setState(() {
-                  _isFABExpanded = !_isFABExpanded;
-                });
-              },
-              backgroundColor: colorController.primaryColor.value,
-              elevation: 6,
-              child: AnimatedRotation(
-                duration: const Duration(milliseconds: 200),
-                turns: _isFABExpanded ? 0.125 : 0, // 45 degrees when expanded
-                child: Icon(
-                  _isFABExpanded ? Icons.close : Icons.add,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -887,8 +739,11 @@ class _ContactListScreenState extends State<ContactListScreen> {
           ),
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
-      floatingActionButton: _buildSpeedDialFAB(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: ContextAwareFAB(
+        onImportContact: _importContact,
+        onAddContact: () => _showAddEditContactDialog(context),
+      ),
       body: Column(
         children: [
           Padding(

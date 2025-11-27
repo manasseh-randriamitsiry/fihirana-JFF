@@ -22,6 +22,7 @@ import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../../controller/recording_controller.dart';
+import '../../widgets/context_aware_fab.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -982,7 +983,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             ),
           ],
         ),
-        floatingActionButton: null,
+        floatingActionButton: ContextAwareFAB(
+          onStartRecording: () {
+            if (_hymn != null) {
+              _recordingController.showOverlay(_hymn!.id, _hymn!.title);
+            }
+          },
+        ),
       ),
     );
   }
