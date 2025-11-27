@@ -31,31 +31,82 @@ class _ContactListScreenState extends State<ContactListScreen> {
     super.dispose();
   }
 
-  Future<void> _launchMaps(double lat, double lng) async {
+Future<void> _launchMaps(double lat, double lng) async {
     try {
       if (Platform.isAndroid) {
-        // Use Android Intent for more reliable launching on Android
+        // First try to launch Google Maps directly
         final AndroidIntent intent = AndroidIntent(
           action: 'action_view',
           data: Uri.encodeFull('geo:$lat,$lng?q=$lat,$lng'),
           package: 'com.google.android.apps.maps',
         );
-        await intent.launch();
+        
+        bool launched = false;
+        try {
+          await intent.launch();
+          launched = true;
+        } catch (e) {
+          launched = false;
+        }
+        
+        // If Google Maps is not installed, redirect to Play Store
+        if (!launched) {
+          final playStoreIntent = AndroidIntent(
+            action: 'action_view',
+            data: Uri.encodeFull('https://play.google.com/store/apps/details?id=com.google.android.apps.maps'),
+          );
+          await playStoreIntent.launch();
+          
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Redirecting to Google Maps download...'),
+                backgroundColor: colorController.primaryColor.value,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        }
       } else {
         // iOS: Use URL launcher
         final url = Uri.parse('https://maps.apple.com/?q=$lat,$lng');
         if (await canLaunchUrl(url)) {
           await launchUrl(url, mode: LaunchMode.externalApplication);
         } else {
-          throw 'Could not launch maps';
+          // Fallback to Google Maps web if Apple Maps fails
+          final googleMapsUrl = Uri.parse('https://www.google.com/maps?q=$lat,$lng');
+          if (await canLaunchUrl(googleMapsUrl)) {
+            await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+          } else {
+            throw Exception('Could not launch any maps application');
+          }
         }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Could not open maps. Please ensure Google Maps is installed.')),
+          SnackBar(
+            content: const Text('Could not open maps. Please install a maps application.'),
+            backgroundColor: Colors.red,
+            action: SnackBarAction(
+              label: 'Download',
+              textColor: Colors.white,
+              onPressed: () async {
+                if (Platform.isAndroid) {
+                  final playStoreIntent = AndroidIntent(
+                    action: 'action_view',
+                    data: Uri.encodeFull('https://play.google.com/store/apps/details?id=com.google.android.apps.maps'),
+                  );
+                  await playStoreIntent.launch();
+                } else {
+                  final appStoreUrl = Uri.parse('https://apps.apple.com/app/google-maps/id585027354');
+                  if (await canLaunchUrl(appStoreUrl)) {
+                    await launchUrl(appStoreUrl, mode: LaunchMode.externalApplication);
+                  }
+                }
+              },
+            ),
+          ),
         );
       }
     }
