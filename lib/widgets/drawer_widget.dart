@@ -421,6 +421,12 @@ class DrawerWidgetState extends State<DrawerWidget>
                     onTap: () => Get.toNamed('/recordings'),
                   ),
                   _buildDrawerItem(
+                    icon: Icons.contacts_rounded,
+                    title: l10n.contacts,
+                    isActive: currentRoute == '/contacts',
+                    onTap: () => Get.toNamed('/contacts'),
+                  ),
+                  _buildDrawerItem(
                     icon: Icons.playlist_play_rounded,
                     title: l10n.playlists,
                     isActive: currentRoute == '/playlists',

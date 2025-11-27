@@ -3277,6 +3277,66 @@ abstract class AppLocalizations {
   /// **'Sync across devices'**
   String get appFeature3;
 
+  /// No description provided for @contacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts'**
+  String get contacts;
+
+  /// No description provided for @addContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Contact'**
+  String get addContact;
+
+  /// No description provided for @editContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Contact'**
+  String get editContact;
+
+  /// No description provided for @noContactsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No contacts found'**
+  String get noContactsFound;
+
+  /// No description provided for @searchContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Contacts'**
+  String get searchContacts;
+
+  /// No description provided for @contactName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get contactName;
+
+  /// No description provided for @confirmDeleteContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this contact?'**
+  String get confirmDeleteContact;
+
+  /// No description provided for @contactSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact saved successfully'**
+  String get contactSaved;
+
+  /// No description provided for @contactLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get contactLocation;
+
+  /// No description provided for @contactPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get contactPhone;
+
   /// No description provided for @appFeature4.
   ///
   /// In en, this message translates to:

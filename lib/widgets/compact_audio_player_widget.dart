@@ -46,14 +46,17 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
   int _currentPlaylistIndex = 0;
   bool _isDraggingSlider = false;
   double _dragValue = 0.0;
+  Hymn? _currentDisplayedHymn;
 
   StreamSubscription? _playerStateSubscription;
   StreamSubscription? _positionSubscription;
   StreamSubscription? _durationSubscription;
+  StreamSubscription? _currentHymnSubscription;
 
-  @override
+@override
   void initState() {
     super.initState();
+    _currentDisplayedHymn = widget.hymn;
     if (widget.playlist != null) {
       _currentPlaylistIndex = widget.playlist!.indexWhere(
         (hymn) => hymn.id == widget.hymn.id,
@@ -77,13 +80,36 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     }
   }
 
-  void _initializePlayer() {
+void _initializePlayer() {
     _updateCurrentState();
+
+    // Listen to current hymn changes
+    _currentHymnSubscription = _audioService.currentPlayingHymnIdRx.listen((hymnId) {
+      if (!mounted) return;
+      
+      final newCurrentHymn = _audioService.currentHymn;
+      if (newCurrentHymn != null && newCurrentHymn.id != _currentDisplayedHymn?.id) {
+        setState(() {
+          _currentDisplayedHymn = newCurrentHymn;
+        });
+        // Notify parent of the change
+        widget.onHymnChange?.call(newCurrentHymn);
+      }
+      
+      // Always update playing state when hymn changes
+      _updatePlayingState();
+    });
 
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
 
-      if (_audioService.currentHymn?.id == widget.hymn.id) {
+      // Always update state if this is the currently displayed hymn or if no hymn is displayed yet
+      final currentHymnId = _audioService.currentPlayingHymnId;
+      final displayedHymnId = _currentDisplayedHymn?.id;
+      final widgetHymnId = widget.hymn.id;
+      
+      // Update state if current playing hymn matches our widget or displayed hymn
+      if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId || displayedHymnId == null) {
         final wasPlaying = _isPlaying;
         final isLoading = state.processingState == ProcessingState.loading ||
             state.processingState == ProcessingState.buffering;
@@ -118,15 +144,31 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     });
   }
 
-  void _updateCurrentState() {
+void _updateCurrentState() {
     if (!mounted) return;
     final currentHymn = _audioService.currentHymn;
-    if (currentHymn?.id == widget.hymn.id) {
+    if (currentHymn?.id == _currentDisplayedHymn?.id || _currentDisplayedHymn == null) {
       setState(() {
         _isPlaying = _audioService.isPlaying;
         _isLoading = false;
         _duration = _audioService.player.duration;
         _position = _audioService.player.position;
+      });
+    }
+  }
+
+  void _updatePlayingState() {
+    if (!mounted) return;
+    final currentHymnId = _audioService.currentPlayingHymnId;
+    final displayedHymnId = _currentDisplayedHymn?.id;
+    final widgetHymnId = widget.hymn.id;
+    
+    // Update playing state if this matches current playing hymn
+    if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
+      setState(() {
+        _isPlaying = _audioService.isPlaying;
+        _isLoading = _audioService.player.playerState.processingState == ProcessingState.loading ||
+                   _audioService.player.playerState.processingState == ProcessingState.buffering;
       });
     }
   }
@@ -149,15 +191,33 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     await _audioService.playHymn(prevHymn);
   }
 
-  Future<void> _togglePlayPause() async {
-    if (_audioService.currentHymn?.id == widget.hymn.id) {
-      if (_isPlaying) {
-        await _audioService.pause();
+Future<void> _togglePlayPause() async {
+    try {
+      final currentHymnId = _audioService.currentPlayingHymnId;
+      final displayedHymnId = _currentDisplayedHymn?.id;
+      final widgetHymnId = widget.hymn.id;
+      
+      if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
+        // Same hymn is playing, toggle play/pause
+        if (_isPlaying) {
+          await _audioService.pause();
+        } else {
+          await _audioService.resume();
+        }
       } else {
-        await _audioService.resume();
+        // Different hymn, start playing the current one
+        setState(() {
+          _isLoading = true;
+        });
+        await _audioService.playHymn(_currentDisplayedHymn ?? widget.hymn);
       }
-    } else {
-      await _audioService.playHymn(widget.hymn);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isPlaying = false;
+        });
+      }
     }
   }
 
@@ -177,6 +237,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     _playerStateSubscription?.cancel();
     _positionSubscription?.cancel();
     _durationSubscription?.cancel();
+    _currentHymnSubscription?.cancel();
     super.dispose();
   }
 
@@ -227,24 +288,24 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            widget.hymn.title,
-                            style: const TextStyle(
-                              color: primaryTextColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Hymn ${widget.hymn.hymnNumber}',
-                            style: const TextStyle(
-                              color: secondaryTextColor,
-                              fontSize: 14,
-                            ),
-                          ),
+Text(
+                             _currentDisplayedHymn?.title ?? widget.hymn.title,
+                             style: const TextStyle(
+                               color: primaryTextColor,
+                               fontSize: 18,
+                               fontWeight: FontWeight.bold,
+                             ),
+                             maxLines: 1,
+                             overflow: TextOverflow.ellipsis,
+                           ),
+                           const SizedBox(height: 4),
+                           Text(
+                             'Hymn ${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                             style: const TextStyle(
+                               color: secondaryTextColor,
+                               fontSize: 14,
+                             ),
+                           ),
                         ],
                       ),
                     ),

@@ -166,7 +166,8 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
           const Duration(milliseconds: 100)); // Brief pause for cleanup
     }
 
-    _currentHymn = hymn;
+_currentHymn = hymn;
+    _currentPlayingHymnId.value = hymn.id; // Ensure reactive update
 
     // Update playlist index if this hymn is in the current playlist
     if (_playlist.isNotEmpty) {
@@ -254,8 +255,7 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
         preload: true, // Preload the audio for faster seeking
       );
 
-      _currentPlayingHymnId.value = hymn.id;
-      if (kDebugMode) {
+if (kDebugMode) {
         print('AudioService: Audio source set, playing hymn ${hymn.id}');
       }
 
@@ -515,11 +515,12 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
     String? audioUrl;
     String targetPath = recording.filePath;
 
-    // PRIORITY 1: Check if recording has a public link (for public recordings - no auth needed)
+// PRIORITY 1: Check if recording has a public link (for public recordings - no auth needed)
     if (recording.publicLink != null && recording.publicLink!.isNotEmpty) {
       audioUrl = recording.publicLink;
       if (kDebugMode) {
         print('AudioService: Streaming public recording from: $audioUrl');
+        print('AudioService: Recording ID: ${recording.id}, Public link: ${recording.publicLink}');
       }
     }
     // PRIORITY 2: Check if local file exists
@@ -555,20 +556,11 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
       }
     }
 
-    // PRIORITY 3: If no local file and no public link, try to download from Drive (private recordings)
+// PRIORITY 3: If no local file and no public link, try authenticated URL for private recordings
     if (audioUrl == null && recording.driveFileId != null) {
       if (kDebugMode) {
-        print(
-            'AudioService: Private recording - attempting download from Drive...');
+        print('AudioService: Private recording - attempting authenticated URL from Drive...');
       }
-
-      // Show loading indicator
-      Get.snackbar(
-        'Downloading Audio',
-        'Fetching recording from Google Drive...',
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 2),
-      );
 
       try {
         final driveService = GoogleDriveService();
@@ -579,28 +571,51 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
         }
 
         if (driveService.isSignedIn) {
-          final downloadedFile = await driveService.downloadFile(
-            recording.driveFileId!,
-            targetPath, // Save to the expected local path
-          );
-
-          if (downloadedFile != null && await downloadedFile.exists()) {
-            audioUrl = downloadedFile.path;
+          // Try to get authenticated download URL first (faster than downloading)
+          final authenticatedUrl = await driveService.getAuthenticatedDownloadUrl(recording.driveFileId!);
+          
+          if (authenticatedUrl != null) {
+            audioUrl = authenticatedUrl;
             if (kDebugMode) {
-              print('AudioService: Download successful: $audioUrl');
+              print('AudioService: Using authenticated URL for streaming: $audioUrl');
             }
           } else {
-            throw Exception('Download failed');
+            // Fallback to downloading the file
+            if (kDebugMode) {
+              print('AudioService: Authenticated URL failed, falling back to download...');
+            }
+            
+            // Show loading indicator for download
+            Get.snackbar(
+              'Downloading Audio',
+              'Fetching recording from Google Drive...',
+              snackPosition: SnackPosition.BOTTOM,
+              duration: const Duration(seconds: 2),
+            );
+
+            final downloadedFile = await driveService.downloadFile(
+              recording.driveFileId!,
+              targetPath, // Save to the expected local path
+            );
+
+            if (downloadedFile != null && await downloadedFile.exists()) {
+              audioUrl = downloadedFile.path;
+              if (kDebugMode) {
+                print('AudioService: Download successful: $audioUrl');
+              }
+            } else {
+              throw Exception('Download failed');
+            }
           }
         } else {
           throw Exception('Sign-in required to play Drive recordings');
         }
       } catch (e) {
         if (kDebugMode) {
-          print('AudioService: Error downloading from Drive: $e');
+          print('AudioService: Error accessing private recording from Drive: $e');
         }
         
-        String errorMessage = 'Failed to download recording from Drive.';
+        String errorMessage = 'Failed to access recording from Drive.';
         if (e.toString().contains('Google Docs format')) {
           errorMessage = 'Recording is stored in incompatible format. Please re-upload the original audio file.';
         } else if (e.toString().contains('403') || e.toString().contains('permission')) {
@@ -610,7 +625,7 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
         }
         
         Get.snackbar(
-          'Drive Download Error',
+          'Drive Access Error',
           errorMessage,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: const Color(0xFFFFCDD2),
@@ -623,20 +638,44 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
 
     if (audioUrl != null) {
       try {
+        if (kDebugMode) {
+          print('AudioService: Attempting to play recording with URL: $audioUrl');
+          print('AudioService: URL type: ${audioUrl.startsWith('http') ? 'Remote' : 'Local'}');
+        }
         await playHymn(hymn, customAudioUrl: audioUrl);
       } catch (e) {
         if (kDebugMode) {
           print('AudioService: Error playing recording: $e');
+          print('AudioService: Recording was public: ${recording.publicLink != null}');
+          print('AudioService: Had driveFileId: ${recording.driveFileId != null}');
         }
+        
+        String errorMessage = 'Failed to play recording';
+        if (e.toString().contains('404') || e.toString().contains('Source error')) {
+          errorMessage = 'Recording file not found or link expired';
+        } else if (e.toString().contains('network') || e.toString().contains('connection')) {
+          errorMessage = 'Network connection error';
+        } else {
+          errorMessage = 'Playback error: ${e.toString()}';
+        }
+        
         Get.snackbar(
           'Playback Error',
-          'Failed to play recording: ${e.toString()}',
+          errorMessage,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red.withValues(alpha: 0.1),
           colorText: Colors.red,
+          duration: const Duration(seconds: 4),
         );
       }
     } else {
+      if (kDebugMode) {
+        print('AudioService: No audio URL found for recording ${recording.id}');
+        print('AudioService: publicLink: ${recording.publicLink}');
+        print('AudioService: driveFileId: ${recording.driveFileId}');
+        print('AudioService: filePath: ${recording.filePath}');
+      }
+      
       Get.snackbar(
         'Audio Not Available',
         'Recording file not found locally or on Drive. Try uploading to Drive first.',

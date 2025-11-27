@@ -274,18 +274,33 @@ class GoogleDriveService {
     }
   }
 
-  Future<String?> getPublicLink(String fileId) async {
+Future<String?> getPublicLink(String fileId) async {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null) return null;
 
     try {
+      // First, make the file publicly readable
+      final permission = drive.Permission()
+        ..role = 'reader'
+        ..type = 'anyone';
+      
+      await _driveApi!.permissions.create(permission, fileId);
+
+      // Get the file to construct direct download URL
       final file = await _driveApi!.files.get(
         fileId,
-        $fields: 'webContentLink, webViewLink',
+        $fields: 'id, name, mimeType',
       ) as drive.File;
 
-      // Return direct download link if available, otherwise view link
-      return file.webContentLink ?? file.webViewLink;
+      // Construct direct download URL for public access
+      // Format: https://drive.google.com/uc?export=download&id=FILE_ID
+      final directDownloadUrl = 'https://drive.google.com/uc?export=download&id=${file.id}';
+      
+      if (kDebugMode) {
+        print('GoogleDriveService: Generated public download URL: $directDownloadUrl');
+      }
+      
+      return directDownloadUrl;
     } catch (e) {
       if (kDebugMode) {
         print('Error getting public link: $e');
@@ -294,7 +309,7 @@ class GoogleDriveService {
     }
   }
 
-  Future<String?> getWebViewLink(String fileId) async {
+Future<String?> getWebViewLink(String fileId) async {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null) return null;
 
@@ -305,6 +320,35 @@ class GoogleDriveService {
     } catch (e) {
       if (kDebugMode) {
         print('Error getting web view link: $e');
+      }
+      return null;
+    }
+  }
+
+  /// Get authenticated download URL for private recordings
+  Future<String?> getAuthenticatedDownloadUrl(String fileId) async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) return null;
+
+    try {
+      // Get file metadata
+      final file = await _driveApi!.files.get(
+        fileId,
+        $fields: 'id, name, mimeType',
+      ) as drive.File;
+
+      // Construct authenticated download URL
+      // This URL will work with the user's authentication tokens
+      final authenticatedUrl = 'https://drive.google.com/uc?export=download&id=${file.id}';
+      
+      if (kDebugMode) {
+        print('GoogleDriveService: Generated authenticated download URL: $authenticatedUrl');
+      }
+      
+      return authenticatedUrl;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting authenticated download URL: $e');
       }
       return null;
     }

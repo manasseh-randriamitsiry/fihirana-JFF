@@ -1704,6 +1704,36 @@ class AppLocalizationsMg extends AppLocalizations {
   String get appFeature3 => 'Voatahiry ny hiranao sy izay tianao sns na miova finday hafa';
 
   @override
+  String get contacts => 'Contact';
+
+  @override
+  String get addContact => 'Hanampy Contact';
+
+  @override
+  String get editContact => 'Hanova Contact';
+
+  @override
+  String get noContactsFound => 'Tsy misy contact hita';
+
+  @override
+  String get searchContacts => 'Hikaroka contact';
+
+  @override
+  String get contactName => 'Anarana';
+
+  @override
+  String get confirmDeleteContact => 'Tena hamafa ilay contact?';
+
+  @override
+  String get contactSaved => 'Voatahiry ny contact';
+
+  @override
+  String get contactLocation => 'Toerana iasany';
+
+  @override
+  String get contactPhone => 'Laharan\'ny finday';
+
+  @override
   String get appFeature4 => 'Mizara hira na playlist';
 
   @override
