@@ -196,6 +196,16 @@
       }
     }
   },
+  "contacts": "Contact",
+  "addContact": "Hanampy Contact",
+  "editContact": "Hanova Contact",
+  "noContactsFound": "Tsy misy contact hita",
+  "searchContacts": "Hikaroka contact",
+  "contactName": "Anarana",
+  "confirmDeleteContact": "Tena hamafa ilay contact?",
+  "contactSaved": "Voatahiry ny contact",
+  "contactLocation": "Toerana iasany",
+  "contactPhone": "Laharan'ny finday",
   "chooseColor": "Safidio ny loko",
   "accept": "Manaiky",
   "presetColors": "Loko efa voafantina",

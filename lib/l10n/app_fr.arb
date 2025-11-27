@@ -793,6 +793,16 @@
       }
     }
   },
+  "contacts": "Contacts",
+  "addContact": "Ajouter un contact",
+  "editContact": "Modifier le contact",
+  "noContactsFound": "Aucun contact trouvé",
+  "searchContacts": "Rechercher des contacts",
+  "contactName": "Nom",
+  "confirmDeleteContact": "Êtes-vous sûr de vouloir supprimer ce contact ?",
+  "contactSaved": "Contact enregistré avec succès",
+  "contactLocation": "Localisation",
+  "contactPhone": "Téléphone",
   "signInWithGoogle": "Se connecter avec Google",
   "continueAsGuest": "Continuer en tant qu'invité",
   "signingIn": "Connexion en cours...",

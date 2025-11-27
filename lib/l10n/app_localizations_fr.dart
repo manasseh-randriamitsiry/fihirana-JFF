@@ -1707,31 +1707,31 @@ class AppLocalizationsFr extends AppLocalizations {
   String get contacts => 'Contacts';
 
   @override
-  String get addContact => 'Add Contact';
+  String get addContact => 'Ajouter un contact';
 
   @override
-  String get editContact => 'Edit Contact';
+  String get editContact => 'Modifier le contact';
 
   @override
-  String get noContactsFound => 'No contacts found';
+  String get noContactsFound => 'Aucun contact trouvé';
 
   @override
-  String get searchContacts => 'Search Contacts';
+  String get searchContacts => 'Rechercher des contacts';
 
   @override
-  String get contactName => 'Name';
+  String get contactName => 'Nom';
 
   @override
-  String get confirmDeleteContact => 'Are you sure you want to delete this contact?';
+  String get confirmDeleteContact => 'Êtes-vous sûr de vouloir supprimer ce contact ?';
 
   @override
-  String get contactSaved => 'Contact saved successfully';
+  String get contactSaved => 'Contact enregistré avec succès';
 
   @override
-  String get contactLocation => 'Location';
+  String get contactLocation => 'Localisation';
 
   @override
-  String get contactPhone => 'Phone';
+  String get contactPhone => 'Téléphone';
 
   @override
   String get appFeature4 => 'Partager avec les autres et la communauté';
