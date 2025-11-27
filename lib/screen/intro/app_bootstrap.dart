@@ -1,7 +1,6 @@
 import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/services/init_service.dart';
-import 'package:fihirana/services/security_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';

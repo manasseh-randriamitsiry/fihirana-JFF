@@ -1743,4 +1743,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get portfolio => 'Portfolio';
+
+  @override
+  String get playFirstHymn => 'Play First Hymn';
+
+  @override
+  String get nowPlaying => 'Now Playing';
 }

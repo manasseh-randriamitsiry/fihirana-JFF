@@ -7,6 +7,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import '../../controller/color_controller.dart';
+import '../../widgets/contact/location_picker_widgets.dart';
 
 
 class LocationPickerScreen extends StatefulWidget {
@@ -202,88 +203,20 @@ Future<void> _addMarker(LatLng coordinates) async {
               top: 100,
               left: 16,
               right: 16,
-              child: Column(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      color: colorController.backgroundColor.value.withValues(alpha: 0.95),
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search for a place...',
-                        prefixIcon: Icon(Icons.search, color: colorController.iconColor.value),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: Icon(Icons.clear, color: colorController.iconColor.value),
-                                onPressed: () {
-                                  setState(() {
-                                    _searchController.clear();
-                                    _searchResults = [];
-                                  });
-                                },
-                              )
-                            : null,
-                        filled: true,
-                        fillColor: Colors.transparent,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                      style: TextStyle(color: colorController.textColor.value),
-                      onChanged: (value) {
-                        setState(() {});
-                        _searchPlace(value);
-                      },
-                    ),
-                  ),
-                  if (_searchResults.isNotEmpty)
-                    Container(
-                      margin: const EdgeInsets.only(top: 8),
-                      constraints: const BoxConstraints(maxHeight: 200),
-                      decoration: BoxDecoration(
-                        color: colorController.backgroundColor.value.withValues(alpha: 0.95),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _searchResults.length,
-                        itemBuilder: (context, index) {
-                          final result = _searchResults[index];
-                          return ListTile(
-                            dense: true,
-                            title: Text(
-                              result['display_name'],
-                              style: TextStyle(
-                                  color: colorController.textColor.value, fontSize: 14),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            leading: Icon(Icons.location_on,
-                                color: colorController.primaryColor.value, size: 20),
-                            onTap: () => _selectSearchResult(result),
-                          );
-                        },
-                      ),
-                    ),
-                ],
+              child: LocationSearchWidget(
+                controller: _searchController,
+                onChanged: (value) {
+                  setState(() {});
+                  _searchPlace(value);
+                },
+                searchResults: _searchResults,
+                onResultSelected: _selectSearchResult,
+                onClear: () {
+                  setState(() {
+                    _searchController.clear();
+                    _searchResults = [];
+                  });
+                },
               ),
             ),
           
@@ -292,40 +225,11 @@ Future<void> _addMarker(LatLng coordinates) async {
             bottom: 20,
             left: 20,
             right: 20,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: _selectedLocation == null
-                    ? null
-                    : () {
-                        Navigator.pop(context, _selectedLocation);
-                      },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorController.primaryColor.value,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-                child: const Text(
-                  'Confirm Location',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
+            child: LocationConfirmButtonWidget(
+              isEnabled: _selectedLocation != null,
+              onPressed: () {
+                Navigator.pop(context, _selectedLocation);
+              },
             ),
           ),
           

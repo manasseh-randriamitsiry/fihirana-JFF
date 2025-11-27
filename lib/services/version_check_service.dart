@@ -441,11 +441,11 @@ class VersionCheckService {
             print(
                 '📄 Asset has digest field: ${apkAsset.containsKey('digest')}');
             print('📄 Asset digest value: ${apkAsset['digest']}');
-            print('📄 All asset keys: ${apkAsset.keys.toList()}');
+            debugPrint('📄 All asset keys: ${apkAsset.keys.toList()}');
             // Log all asset values for debugging
-            print('📄 Full asset data:');
+            debugPrint('📄 Full asset data:');
             apkAsset.forEach((key, value) {
-              print('   $key: $value');
+              debugPrint('   $key: $value');
             });
           }
         }

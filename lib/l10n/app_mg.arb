@@ -823,5 +823,7 @@
       }
     }
   },
-  "portfolio":"Mombamomban'ny mpamorona ?"
+  "portfolio":"Mombamomban'ny mpamorona ?",
+  "playFirstHymn": "Alefaso ny hira voalohany",
+  "nowPlaying": "Mamaky"
 }

@@ -521,8 +521,10 @@ class RecordingController extends GetxController {
     recordDuration.value = 0;
     _startTimer();
 
-    // Show overlay when recording starts
-    showOverlay(hymnId, 'Hymn $hymnId'); // You might want to pass actual title
+    // Show overlay when recording starts (only for hymn recordings)
+    if (hymnId != 'unknown') {
+      showOverlay(hymnId, 'Hymn $hymnId'); // You might want to pass actual title
+    }
   }
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
@@ -557,6 +559,39 @@ class RecordingController extends GetxController {
     await _recordingService.resumeRecording();
     isPaused.value = false;
     _startTimer();
+  }
+
+  // Standalone recording methods for non-hymn recordings
+  Future<void> startStandaloneRecording() async {
+    // Security check first
+    if (!await _checkUserCanRecord()) {
+      return;
+    }
+
+    await _recordingService.startRecording('unknown');
+    isRecording.value = true;
+    isPaused.value = false;
+    recordDuration.value = 0;
+    _startTimer();
+  }
+
+  Future<UserRecording?> stopStandaloneRecording(String title) async {
+    final filePath = await _recordingService.stopRecording();
+    isRecording.value = false;
+    isPaused.value = false;
+    _timer?.cancel();
+
+    if (filePath != null) {
+      final recording = await _recordingService.saveRecording(
+        filePath: filePath,
+        hymnId: 'unknown',
+        title: title,
+        durationSeconds: recordDuration.value,
+      );
+
+      return recording;
+    }
+    return null;
   }
 
   // Playback Actions

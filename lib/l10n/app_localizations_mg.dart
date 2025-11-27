@@ -1743,4 +1743,10 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get portfolio => 'Mombamomban\'ny mpamorona ?';
+
+  @override
+  String get playFirstHymn => 'Alefaso ny hira voalohany';
+
+  @override
+  String get nowPlaying => 'Mamaky';
 }

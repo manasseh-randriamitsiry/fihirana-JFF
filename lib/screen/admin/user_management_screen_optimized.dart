@@ -472,6 +472,7 @@ class _OptimizedUserManagementScreenState
     if (!isConfirmed) return;
 
     // Show loading dialog
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,

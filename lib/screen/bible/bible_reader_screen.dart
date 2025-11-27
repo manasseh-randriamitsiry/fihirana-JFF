@@ -6,6 +6,8 @@ import '../../controller/color_controller.dart';
 import '../../controller/bible_controller.dart';
 import '../../controller/font_controller.dart';
 import '../../widgets/bible_search_dialog.dart';
+import '../../widgets/bible/bible_reader_widgets.dart';
+import '../../widgets/bible/bible_settings_bottom_sheet_widget.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/shell_controller.dart';
 
@@ -177,51 +179,18 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 ),
               ),
             ),
-            ...books.map((book) => _buildBookItem(book)),
+            ...books.map((book) => BibleBookItemWidget(
+              bookName: book,
+              chapterCount: bibleController.getChapterCountForBook(book),
+              onTap: () => bibleController.selectBook(book),
+            )),
           ],
         );
       },
     );
   }
 
-  Widget _buildBookItem(String bookName) {
-    final chapterCount = bibleController.getChapterCountForBook(bookName);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: colorController.primaryColor.value.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ListTile(
-        onTap: () => bibleController.selectBook(bookName),
-        title: Text(
-          bookName,
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            color: colorController.textColor.value,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-        ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: colorController.primaryColor.value.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            '$chapterCount',
-            style: TextStyle(
-              color: colorController.primaryColor.value,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
-  }
+
 
   Widget _buildChapterSelectionView() {
     final chapters = bibleController.chapterList;
@@ -235,42 +204,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(16),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: chapters.length,
-      itemBuilder: (context, index) {
-        final chapter = chapters[index];
-        return InkWell(
-          onTap: () => bibleController.selectChapter(chapter),
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorController.primaryColor.value.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color:
-                    colorController.primaryColor.value.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Center(
-              child: Text(
-                '$chapter',
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  color: colorController.primaryColor.value,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+    return BibleChapterGridWidget(
+      chapters: chapters,
+      onChapterSelected: (chapter) => bibleController.selectChapter(chapter),
     );
   }
 
@@ -298,11 +234,23 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     verses.length + 1, // +1 for bottom spacing/navigation
                 itemBuilder: (context, index) {
                   if (index == verses.length) {
-                    return _buildChapterNavigation();
+                    return BibleChapterNavigationWidget(
+                      onPrevious: () => _navigateChapter(-1),
+                      onNext: () => _navigateChapter(1),
+                    );
                   }
                   final verseNumber = index + 1;
                   final verseText = verses[index];
-                  return _buildVerseItem(verseNumber, verseText);
+                  return BibleVerseItemWidget(
+                    verseNumber: verseNumber,
+                    verseText: verseText,
+                    verseStyle: _verseStyle,
+                    fontSize: _fontSize,
+                    isSelected: bibleController.isVerseSelected(verseNumber),
+                    isHighlighted: bibleController.isVerseHighlighted(verseNumber),
+                    isSearchHighlighted: bibleController.isVerseSearchHighlighted(verseNumber),
+                    onTap: () => bibleController.toggleVerseSelection(verseNumber),
+                  );
                 },
               ),
             ),
@@ -367,278 +315,30 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
   }
 
-  Widget _buildVerseItem(int verseNumber, String verseText) {
-    return Obx(() {
-      final isSelected = bibleController.isVerseSelected(verseNumber);
-      final isHighlighted = bibleController.isVerseHighlighted(verseNumber);
-      final isSearchHighlighted =
-          bibleController.isVerseSearchHighlighted(verseNumber);
 
-      Color backgroundColor = Colors.transparent;
-      if (isSearchHighlighted) {
-        backgroundColor = Colors.yellow.withValues(alpha: 0.3);
-      } else if (isSelected) {
-        backgroundColor =
-            colorController.primaryColor.value.withValues(alpha: 0.15);
-      } else if (isHighlighted) {
-        backgroundColor =
-            colorController.primaryColor.value.withValues(alpha: 0.05);
-      }
 
-      return GestureDetector(
-        onTap: () => bibleController.toggleVerseSelection(verseNumber),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: RichText(
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: '$verseNumber ',
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    color: colorController.primaryColor.value,
-                    fontSize: _fontSize * 0.7,
-                    fontWeight: FontWeight.bold,
-                    fontFeatures: const [FontFeature.superscripts()],
-                  ),
-                ),
-                TextSpan(
-                  text: verseText,
-                  style: _verseStyle,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    });
-  }
 
-  Widget _buildChapterNavigation() {
-    final l10n = AppLocalizations.of(context)!;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextButton.icon(
-            onPressed: () => _navigateChapter(-1),
-            icon: const Icon(Icons.arrow_back_rounded),
-            label: Text(l10n.previous),
-            style: TextButton.styleFrom(
-              foregroundColor: colorController.textColor.value,
-            ),
-          ),
-          TextButton.icon(
-            onPressed: () => _navigateChapter(1),
-            icon: const Icon(Icons.arrow_forward_rounded),
-            label: Text(l10n.next),
-            style: TextButton.styleFrom(
-              foregroundColor: colorController.textColor.value,
-            ),
-            iconAlignment: IconAlignment.end,
-          ),
-        ],
-      ),
-    );
-  }
 
   void _showSettingsBottomSheet() {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          decoration: BoxDecoration(
-            color: colorController.backgroundColor.value,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 20,
-                offset: const Offset(0, -5),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Appearance',
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  color: colorController.textColor.value,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Font Size
-              Row(
-                children: [
-                  Icon(Icons.text_fields,
-                      size: 20, color: colorController.textColor.value),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Slider(
-                      value: _fontSize,
-                      min: 12,
-                      max: 32,
-                      activeColor: colorController.primaryColor.value,
-                      onChanged: (value) {
-                        setState(() => _fontSize = value);
-                        setModalState(() {}); // Update modal state
-                      },
-                      onChangeEnd: (value) => _saveSettings(),
-                    ),
-                  ),
-                  Text(
-                    '${_fontSize.toInt()}',
-                    style: TextStyle(color: colorController.textColor.value),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // Font Family Selector
-              Text(
-                'Font Family (${fontController.availableFonts.length} fonts)',
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  color: colorController.textColor.value,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 50,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: fontController.availableFonts.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 12),
-                  itemBuilder: (context, index) {
-                    final fontName = fontController.availableFonts[index];
-                    return _buildHorizontalFontOption(
-                      fontName,
-                      fontName,
-                      setModalState,
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Theme
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildThemeOption(
-                      ThemeMode.light, Icons.light_mode_rounded, 'Light'),
-                  _buildThemeOption(
-                      ThemeMode.dark, Icons.dark_mode_rounded, 'Dark'),
-                ],
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
+      builder: (context) => BibleSettingsBottomSheetWidget(
+        fontSize: _fontSize,
+        fontFamily: _fontFamily,
+        onSettingsChanged: (fontSize, fontFamily) {
+          setState(() {
+            _fontSize = fontSize;
+            _fontFamily = fontFamily;
+          });
+          _saveSettings();
+        },
       ),
     );
   }
 
-  Widget _buildHorizontalFontOption(
-      String family, String fontName, StateSetter setModalState) {
-    final isSelected = _fontFamily == family;
-    return GestureDetector(
-      onTap: () {
-        setState(() => _fontFamily = family);
-        setModalState(() {});
-        _saveSettings();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? colorController.primaryColor.value
-              : colorController.primaryColor.value.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(25),
-          border: Border.all(
-            color: isSelected
-                ? colorController.primaryColor.value
-                : colorController.textColor.value.withValues(alpha: 0.2),
-            width: 1.5,
-          ),
-        ),
-        child: Text(
-          fontName,
-          style: fontController.getFontStyle(
-            fontName,
-            TextStyle(
-              color:
-                  isSelected ? Colors.white : colorController.textColor.value,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 
-  Widget _buildThemeOption(ThemeMode mode, IconData icon, String label) {
-    return Obx(() {
-      final isSelected = colorController.themeMode == mode;
-      return GestureDetector(
-        onTap: () => colorController.setThemeMode(mode),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected
-                    ? colorController.primaryColor.value
-                    : colorController.textColor.value.withValues(alpha: 0.1),
-              ),
-              child: Icon(
-                icon,
-                color:
-                    isSelected ? Colors.white : colorController.textColor.value,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                color: colorController.textColor.value,
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-      );
-    });
-  }
 
   // Helper methods
   Map<String, List<String>> _getFilteredBooksByTestament() {
