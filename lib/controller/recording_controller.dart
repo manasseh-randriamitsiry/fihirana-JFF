@@ -64,20 +64,19 @@ class RecordingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    
+    // Initialize critical services first for fast response
     _initializeDriveService();
     _initServices();
-    _loadGuestName();
-    _loadShareAudioPreference();
-    // _setupAudioPlayerListeners(); // No longer needed
-
-    // Auto-refresh recordings when page is accessed
-    _autoRefreshRecordings();
-
-    // Load public recordings from Firestore
-    refreshPublicRecordings();
-
-    // Start periodic refresh to keep recordings in sync
-    _startPeriodicRefresh();
+    
+    // Defer non-critical operations to avoid blocking UI
+    Future.microtask(() async {
+      _loadGuestName();
+      _loadShareAudioPreference();
+      _autoRefreshRecordings();
+      refreshPublicRecordings();
+      _startPeriodicRefresh();
+    });
   }
 
   // Separate method to initialize Drive service - can be called multiple times

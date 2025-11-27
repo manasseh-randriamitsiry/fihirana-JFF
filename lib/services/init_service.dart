@@ -62,7 +62,8 @@ class InitService {
     Get.put(FirebaseSyncService());
     Get.put(AudioForegroundService());
     Get.put(PlaylistController());
-    Get.put(RecordingController());
+    // Initialize recording controller with minimal blocking
+    Get.put(RecordingController(), permanent: true);
 
     // Initialize security service (critical - runs on app startup)
     Get.put(SecurityService());

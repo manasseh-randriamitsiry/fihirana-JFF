@@ -26,9 +26,8 @@ class RecordingOverlay extends StatefulWidget {
 
 class _RecordingOverlayState extends State<RecordingOverlay>
     with TickerProviderStateMixin {
-  final RecordingController _controller =
-      Get.put(RecordingController(), permanent: true);
-  final ColorController _colorController = Get.find<ColorController>();
+  late final RecordingController _controller;
+  late final ColorController _colorController;
 
   late AnimationController _countdownController;
   late AnimationController _pulseController;
@@ -46,6 +45,11 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   void initState() {
     super.initState();
 
+    // Cache controller references for faster access
+    _controller = Get.find<RecordingController>();
+    _colorController = Get.find<ColorController>();
+
+    // Initialize animation controllers
     _countdownController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
@@ -54,16 +58,26 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
-    )..repeat(reverse: true);
+    );
 
-    // Auto-generate recording name with better format
+    // Defer non-critical initialization
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Start pulse animation after first frame
+      _pulseController.repeat(reverse: true);
+      
+      // Generate recording name asynchronously
+      _generateRecordingName();
+      
+      // Update controller state
+      _controller.showOverlay(widget.hymnId, widget.hymnTitle);
+    });
+  }
+
+  void _generateRecordingName() {
     final now = DateTime.now();
     final timestamp =
         '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     _nameController.text = '${widget.hymnTitle} - $timestamp';
-
-    // Update controller state
-    _controller.showOverlay(widget.hymnId, widget.hymnTitle);
   }
 
   @override
