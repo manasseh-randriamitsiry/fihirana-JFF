@@ -809,12 +809,12 @@ class RecordingController extends GetxController {
 
           // Refresh quota after upload
           fetchStorageQuota();
-} else {
+        } else {
           return PublishRecordingResult.uploadFailed;
         }
       }
 
-// 4. Check for duplicate title before publishing
+      // 4. Check for duplicate title before publishing (only after Drive upload succeeds)
       final titleExists = await _publicService.titleExistsForHymn(
         recordingToPublish.hymnId, 
         recordingToPublish.title,
@@ -856,8 +856,10 @@ class RecordingController extends GetxController {
       return PublishRecordingResult.unknownError;
     } finally {
       isUploading.value = false;
-    }
-  }
+}
+
+  
+}
 
   // Helper method to check if a recording is currently uploading
   bool isUploadingRecording(String recordingId) {
@@ -1695,30 +1697,52 @@ class RecordingController extends GetxController {
         throw Exception('Failed to upload or get public link');
       }
 
-      // Update recording
-      final updatedRecording = recording.copyWith(
+// Update recording
+      var updatedRecording = recording.copyWith(
         isPublic: true,
         driveFileId: driveFileId,
         publicLink: publicLink,
         userName: userName,
       );
 
-// Check for duplicate title before publishing
-      final titleExists = await _publicService.titleExistsForHymn(
-        updatedRecording.hymnId, 
-        updatedRecording.title,
+      // Check for duplicate title before publishing (allow multiple attempts)
+      // Only check after Drive upload succeeds
+      UserRecording currentRecording = updatedRecording;
+      bool titleExists = await _publicService.titleExistsForHymn(
+        currentRecording.hymnId, 
+        currentRecording.title,
       );
-      if (titleExists) {
+      
+      while (titleExists) {
         Get.back(); // Close progress
+        
+        // Show dialog to allow title editing
+        final newTitle = await _showDuplicateTitleDialog(currentRecording);
+        if (newTitle == null) {
+          // User cancelled
+          return;
+        }
+        
+        // Update recording with new title
+        currentRecording = currentRecording.copyWith(title: newTitle);
+        
+        // Show progress again
         Get.snackbar(
-          'Duplicate Title',
-          'A recording with this title already exists for this hymn.',
+          'Publishing',
+          'Making recording public...',
+          showProgressIndicator: true,
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.orange.withValues(alpha: 0.1),
-          colorText: Colors.orange,
         );
-        return;
+        
+        // Check if new title still exists
+        titleExists = await _publicService.titleExistsForHymn(
+          currentRecording.hymnId, 
+          currentRecording.title,
+        );
       }
+      
+      // Use the final recording (with potentially updated title)
+      updatedRecording = currentRecording;
 
       // Save to Firestore
       final success = await _publicService.publishRecording(updatedRecording);
@@ -1875,5 +1899,92 @@ class RecordingController extends GetxController {
         colorText: Colors.white,
       );
     }
+}
+
+  Future<String?> _showDuplicateTitleDialog(UserRecording recording) async {
+    final titleController = TextEditingController(text: recording.title);
+    String? errorMessage;
+
+    return await Get.dialog<String>(
+      StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: Get.theme.cardColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: const Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.orange, size: 24),
+              SizedBox(width: 12),
+              Text('Duplicate Title'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'A recording with this title already exists for this hymn. Please choose a different title:',
+                style: TextStyle(fontSize: 14),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: titleController,
+                decoration: InputDecoration(
+                  hintText: 'Enter new title',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  errorText: errorMessage,
+                ),
+                onChanged: (_) {
+                  // Clear error when user types
+                  if (errorMessage != null) {
+                    setState(() {
+                      errorMessage = null;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: null),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final title = titleController.text.trim();
+                if (title.isEmpty) {
+                  setState(() {
+                    errorMessage = 'Title cannot be empty';
+                  });
+                  return;
+                }
+
+                // Check if new title also exists
+                final titleExists = await _publicService.titleExistsForHymn(
+                  recording.hymnId,
+                  title,
+                );
+                if (titleExists) {
+                  setState(() {
+                    errorMessage = 'This title also exists';
+                  });
+                  return;
+                }
+
+                Get.back(result: title);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Use This Title'),
+            ),
+          ],
+        ),
+      ),
+      barrierDismissible: false,
+    );
   }
 }
