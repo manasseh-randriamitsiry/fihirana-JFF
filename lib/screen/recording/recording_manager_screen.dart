@@ -253,7 +253,7 @@ class RecordingManagerScreen extends StatelessWidget {
                   children: personalRecordings.asMap().entries.map((entry) {
                     final index = entry.key;
                     final recording = entry.value;
-return RecordingTileWidget(
+                    return RecordingTileWidget(
                       recording: recording,
                       controller: controller,
                       colorController: colorController,
@@ -301,7 +301,7 @@ return RecordingTileWidget(
                   children: publicRecordings.asMap().entries.map((entry) {
                     final index = entry.key;
                     final recording = entry.value;
-return RecordingTileWidget(
+                    return RecordingTileWidget(
                       recording: recording,
                       controller: controller,
                       colorController: colorController,
@@ -314,7 +314,7 @@ return RecordingTileWidget(
           ),
         );
       }),
-floatingActionButton: ContextAwareFAB(
+      floatingActionButton: ContextAwareFAB(
         onStartRecording: () {
           // Navigate to standalone recording screen
           Get.to(() => const StandaloneRecordingScreen());
@@ -322,8 +322,6 @@ floatingActionButton: ContextAwareFAB(
       ),
     );
   }
-
-
 
   void _showDriveDialog(BuildContext context, RecordingController controller,
       ColorController colorController) {
@@ -368,6 +366,51 @@ floatingActionButton: ContextAwareFAB(
                 fontWeight: FontWeight.w500,
               ),
             ),
+            const SizedBox(height: 16),
+            Obx(() {
+              final quota = controller.storageQuota.value;
+              if (quota == null || quota.usage == null || quota.limit == null) {
+                return const SizedBox.shrink();
+              }
+
+              final usage = int.tryParse(quota.usage!) ?? 0;
+              final limit = int.tryParse(quota.limit!) ?? 1;
+              final usageGB = (usage / (1024 * 1024 * 1024)).toStringAsFixed(2);
+              final limitGB = (limit / (1024 * 1024 * 1024)).toStringAsFixed(2);
+              final percent = (usage / limit).clamp(0.0, 1.0);
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Storage Usage',
+                    style: TextStyle(
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.7),
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: percent,
+                    backgroundColor: Colors.grey[300],
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      percent > 0.9
+                          ? Colors.red
+                          : colorController.primaryColor.value,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '$usageGB GB of $limitGB GB used',
+                    style: TextStyle(
+                      color: colorController.textColor.value,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              );
+            }),
           ],
         ),
         actions: [
@@ -419,5 +462,3 @@ floatingActionButton: ContextAwareFAB(
     );
   }
 }
-
-

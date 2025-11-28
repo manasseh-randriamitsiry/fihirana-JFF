@@ -27,7 +27,8 @@ class GoogleDriveService {
   void initialize(GoogleSignIn googleSignIn) {
     _googleSignIn = googleSignIn;
     if (kDebugMode) {
-      print('GoogleDriveService: Initialized with shared GoogleSignIn instance');
+      print(
+          'GoogleDriveService: Initialized with shared GoogleSignIn instance');
       print('GoogleDriveService: Scopes: ${googleSignIn.scopes}');
     }
   }
@@ -37,35 +38,39 @@ class GoogleDriveService {
       if (kDebugMode) {
         print('GoogleDriveService: Starting sign-in process...');
       }
-      
+
       // First try to get current user without prompting
       _currentUser = _googleSignIn.currentUser;
       if (_currentUser != null) {
         if (kDebugMode) {
-          print('GoogleDriveService: Found current user: ${_currentUser!.email}');
+          print(
+              'GoogleDriveService: Found current user: ${_currentUser!.email}');
         }
         await _initializeDriveApi();
         return _currentUser;
       }
-      
+
       // If no current user, try silent sign-in
       _currentUser = await _googleSignIn.signInSilently();
       if (_currentUser != null) {
         if (kDebugMode) {
-          print('GoogleDriveService: Silent sign-in successful: ${_currentUser!.email}');
+          print(
+              'GoogleDriveService: Silent sign-in successful: ${_currentUser!.email}');
         }
         await _initializeDriveApi();
         return _currentUser;
       }
-      
+
       // If still no user, prompt for sign-in with Drive scopes
       if (kDebugMode) {
-        print('GoogleDriveService: No current user, attempting interactive sign-in...');
+        print(
+            'GoogleDriveService: No current user, attempting interactive sign-in...');
       }
       _currentUser = await _googleSignIn.signIn();
       if (_currentUser != null) {
         if (kDebugMode) {
-          print('GoogleDriveService: Interactive sign-in successful: ${_currentUser!.email}');
+          print(
+              'GoogleDriveService: Interactive sign-in successful: ${_currentUser!.email}');
         }
         await _initializeDriveApi();
       }
@@ -116,7 +121,8 @@ class GoogleDriveService {
 
     try {
       if (kDebugMode) {
-        print('GoogleDriveService: Initializing Drive API for user: ${_currentUser!.email}');
+        print(
+            'GoogleDriveService: Initializing Drive API for user: ${_currentUser!.email}');
       }
       final httpClient = await _googleSignIn.authenticatedClient();
       if (httpClient != null) {
@@ -215,7 +221,8 @@ class GoogleDriveService {
     try {
       // Ensure proper file extension
       String fileName = title;
-      if (!fileName.toLowerCase().endsWith('.m4a') && !fileName.toLowerCase().endsWith('.mp3')) {
+      if (!fileName.toLowerCase().endsWith('.m4a') &&
+          !fileName.toLowerCase().endsWith('.mp3')) {
         fileName += '.m4a'; // Default to .m4a for recordings
       }
 
@@ -226,11 +233,11 @@ class GoogleDriveService {
         ..mimeType = 'audio/m4a'; // Explicitly set MIME type for audio
 
       final media = drive.Media(
-        file.openRead(), 
+        file.openRead(),
         await file.length(),
         contentType: 'audio/m4a', // Ensure correct content type
       );
-      
+
       final result = await _driveApi!.files.create(
         driveFile,
         uploadMedia: media,
@@ -238,7 +245,8 @@ class GoogleDriveService {
       );
 
       if (kDebugMode) {
-        print('GoogleDriveService: Uploaded file ${result.name} with MIME type ${result.mimeType}');
+        print(
+            'GoogleDriveService: Uploaded file ${result.name} with MIME type ${result.mimeType}');
       }
 
       // If public, set file permissions
@@ -274,7 +282,7 @@ class GoogleDriveService {
     }
   }
 
-Future<String?> getPublicLink(String fileId) async {
+  Future<String?> getPublicLink(String fileId) async {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null) return null;
 
@@ -283,7 +291,7 @@ Future<String?> getPublicLink(String fileId) async {
       final permission = drive.Permission()
         ..role = 'reader'
         ..type = 'anyone';
-      
+
       await _driveApi!.permissions.create(permission, fileId);
 
       // Get the file to construct direct download URL
@@ -294,12 +302,14 @@ Future<String?> getPublicLink(String fileId) async {
 
       // Construct direct download URL for public access
       // Format: https://drive.google.com/uc?export=download&id=FILE_ID
-      final directDownloadUrl = 'https://drive.google.com/uc?export=download&id=${file.id}';
-      
+      final directDownloadUrl =
+          'https://drive.google.com/uc?export=download&id=${file.id}';
+
       if (kDebugMode) {
-        print('GoogleDriveService: Generated public download URL: $directDownloadUrl');
+        print(
+            'GoogleDriveService: Generated public download URL: $directDownloadUrl');
       }
-      
+
       return directDownloadUrl;
     } catch (e) {
       if (kDebugMode) {
@@ -309,7 +319,7 @@ Future<String?> getPublicLink(String fileId) async {
     }
   }
 
-Future<String?> getWebViewLink(String fileId) async {
+  Future<String?> getWebViewLink(String fileId) async {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null) return null;
 
@@ -339,12 +349,14 @@ Future<String?> getWebViewLink(String fileId) async {
 
       // Construct authenticated download URL
       // This URL will work with the user's authentication tokens
-      final authenticatedUrl = 'https://drive.google.com/uc?export=download&id=${file.id}';
-      
+      final authenticatedUrl =
+          'https://drive.google.com/uc?export=download&id=${file.id}';
+
       if (kDebugMode) {
-        print('GoogleDriveService: Generated authenticated download URL: $authenticatedUrl');
+        print(
+            'GoogleDriveService: Generated authenticated download URL: $authenticatedUrl');
       }
-      
+
       return authenticatedUrl;
     } catch (e) {
       if (kDebugMode) {
@@ -382,21 +394,24 @@ Future<String?> getWebViewLink(String fileId) async {
       ) as drive.File;
 
       if (kDebugMode) {
-        print('GoogleDriveService: Downloading file ${fileMetadata.name} with MIME type ${fileMetadata.mimeType}');
+        print(
+            'GoogleDriveService: Downloading file ${fileMetadata.name} with MIME type ${fileMetadata.mimeType}');
       }
 
       // Check if it's a Google Docs file (which can't be downloaded directly)
-      if (fileMetadata.mimeType != null && 
+      if (fileMetadata.mimeType != null &&
           fileMetadata.mimeType!.startsWith('application/vnd.google-apps')) {
         if (kDebugMode) {
-          print('GoogleDriveService: Cannot download Google Docs file directly, need to export');
+          print(
+              'GoogleDriveService: Cannot download Google Docs file directly, need to export');
         }
-        
+
         // Try to export as audio if possible, otherwise fail
         try {
-          final exportMimeType = fileMetadata.mimeType!.contains('audio') ? 
-              fileMetadata.mimeType! : 'audio/mpeg';
-          
+          final exportMimeType = fileMetadata.mimeType!.contains('audio')
+              ? fileMetadata.mimeType!
+              : 'audio/mpeg';
+
           final media = await _driveApi!.files.export(
             fileId,
             exportMimeType,
@@ -416,7 +431,8 @@ Future<String?> getWebViewLink(String fileId) async {
           if (kDebugMode) {
             print('GoogleDriveService: Export failed: $exportError');
           }
-          throw Exception('File is stored as Google Docs format and cannot be downloaded as audio. Please re-upload the original audio file.');
+          throw Exception(
+              'File is stored as Google Docs format and cannot be downloaded as audio. Please re-upload the original audio file.');
         }
       }
 
@@ -462,6 +478,25 @@ Future<String?> getWebViewLink(String fileId) async {
         print('Error listing recordings from Drive: $e');
       }
       return [];
+    }
+  }
+
+  Future<drive.AboutStorageQuota?> getStorageQuota() async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) return null;
+
+    try {
+      final about = await _driveApi!.about.get($fields: 'storageQuota');
+      if (kDebugMode) {
+        print(
+            'GoogleDriveService: Storage quota - Limit: ${about.storageQuota?.limit}, Usage: ${about.storageQuota?.usage}');
+      }
+      return about.storageQuota;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error getting storage quota: $e');
+      }
+      return null;
     }
   }
 

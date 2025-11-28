@@ -12,6 +12,9 @@ class UserRecording {
   final String? driveWebLink;
   final String? publicLink;
   final String? userName;
+  final String? userId;
+  final String? userEmail;
+  final String? userPhotoUrl;
   final List<String> tags;
 
   UserRecording({
@@ -26,6 +29,9 @@ class UserRecording {
     this.driveWebLink,
     this.publicLink,
     this.userName,
+    this.userId,
+    this.userEmail,
+    this.userPhotoUrl,
     this.tags = const [],
   });
 
@@ -41,6 +47,9 @@ class UserRecording {
     String? driveWebLink,
     String? publicLink,
     String? userName,
+    String? userId,
+    String? userEmail,
+    String? userPhotoUrl,
     List<String>? tags,
   }) {
     return UserRecording(
@@ -55,6 +64,9 @@ class UserRecording {
       driveWebLink: driveWebLink ?? this.driveWebLink,
       publicLink: publicLink ?? this.publicLink,
       userName: userName ?? this.userName,
+      userId: userId ?? this.userId,
+      userEmail: userEmail ?? this.userEmail,
+      userPhotoUrl: userPhotoUrl ?? this.userPhotoUrl,
       tags: tags ?? this.tags,
     );
   }
@@ -72,6 +84,9 @@ class UserRecording {
       'driveWebLink': driveWebLink,
       'publicLink': publicLink,
       'userName': userName,
+      'userId': userId,
+      'userEmail': userEmail,
+      'userPhotoUrl': userPhotoUrl,
       'tags': tags,
     };
   }
@@ -89,6 +104,9 @@ class UserRecording {
       driveWebLink: map['driveWebLink'],
       publicLink: map['publicLink'],
       userName: map['userName'],
+      userId: map['userId'],
+      userEmail: map['userEmail'],
+      userPhotoUrl: map['userPhotoUrl'],
       tags: List<String>.from(map['tags'] ?? []),
     );
   }

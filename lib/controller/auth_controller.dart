@@ -16,16 +16,18 @@ class AuthController extends GetxController {
   final GoogleSignIn googleSignIn = GoogleSignIn(
     scopes: ['https://www.googleapis.com/auth/drive.file'],
   );
-  final Rx<bool> _canAddSongs = false.obs;
+final Rx<bool> _canAddSongs = false.obs;
   final Rx<bool> _isAdmin = false.obs;
+  final Rx<bool> _isSuperAdmin = false.obs;
   final RxInt _addedHymnsCount = 0.obs;
   final RxInt _monthlyHymnCount = 0.obs;
   final RxString _lastHymnAdditionMonth = ''.obs;
   StreamSubscription<DocumentSnapshot>? _permissionSubscription;
   late final GoogleDriveService _driveService;
 
-  bool get canAddSongs => _canAddSongs.value;
+bool get canAddSongs => _canAddSongs.value;
   bool get isAdmin => _isAdmin.value;
+  bool get isSuperAdmin => _isSuperAdmin.value;
   int get addedHymnsCount => _addedHymnsCount.value;
 
   int get effectiveMonthlyHymnCount {
@@ -84,10 +86,11 @@ class AuthController extends GetxController {
           }
         }
       } else {
-        _permissionSubscription?.cancel();
+_permissionSubscription?.cancel();
         _permissionSubscription = null;
         _canAddSongs.value = false;
         _isAdmin.value = false;
+        _isSuperAdmin.value = false;
 
         // Sign out from Google Drive when Firebase signs out
         try {
@@ -122,13 +125,14 @@ class AuthController extends GetxController {
           final dynamic isAdminData = data?['isAdmin'];
           final bool isAdminDb = isAdminData == true;
 
-          // Check isSuperAdmin from DB and Hardcoded Email
+// Check isSuperAdmin from DB and Hardcoded Email
           final bool isSuperAdminDb = data?['isSuperAdmin'] == true;
           final bool isSuperAdminEmail =
               user.email == 'manassehrandriamitsiry@gmail.com';
           final bool isSuperAdmin = isSuperAdminDb || isSuperAdminEmail;
 
           _isAdmin.value = isAdminDb || isSuperAdmin;
+          _isSuperAdmin.value = isSuperAdmin;
 
           // canAddSongs is true by default for new users, so we trust the DB value
           // If it's missing (null), we default to false, unless it's the super admin
@@ -143,21 +147,23 @@ class AuthController extends GetxController {
             print(
                 'Permission updated for ${user.email}: canAddSongs = ${_canAddSongs.value}, isAdmin = ${_isAdmin.value} (DB: $isAdminDb, Super: $isSuperAdmin)');
           }
-        } else {
+} else {
           _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
           _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+          _isSuperAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
           if (kDebugMode) {
             print(
                 'User document does not exist for ${user.email}. Defaulting permissions to false (unless super admin).');
           }
         }
       },
-      onError: (error) {
-        if (kDebugMode) {
-          print('Error listening to user permissions: $error');
-        }
-        _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
-        _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+onError: (error) {
+          if (kDebugMode) {
+            print('Error listening to user permissions: $error');
+          }
+          _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
+          _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+          _isSuperAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
       },
     );
   }

@@ -69,6 +69,7 @@ dependencies:
   debounce_throttle: ^2.0.0
   maplibre_gl: ^0.22.0
   flutter_contacts: ^1.1.9
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

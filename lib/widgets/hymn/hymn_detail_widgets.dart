@@ -128,6 +128,18 @@ class HymnPageWidget extends StatelessWidget {
               ),
             ],
             
+            // Add spacing and visual separator between last verse and notes
+            const SizedBox(height: 30),
+            
+            // Visual separator line
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 30),
+              height: 1,
+              color: colorController.textColor.value.withValues(alpha: 0.2),
+            ),
+            
+            const SizedBox(height: 20),
+            
             // Improved note section at the end
             ImprovedNoteSectionWidget(
               isUserAuthenticated: isUserAuthenticated,
@@ -138,6 +150,7 @@ class HymnPageWidget extends StatelessWidget {
                 id: '',
                 hymnId: hymn.id,
                 userId: '',
+                userEmail: '',
                 content: '',
                 createdAt: DateTime.now(),
                 updatedAt: DateTime.now(),

@@ -20,10 +20,11 @@ import '../../widgets/hymn/hymn_search_popup_widget.dart';
 import '../../widgets/player/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../../controller/recording_controller.dart';
-import '../../widgets/context_aware_fab.dart';
+
 import '../../widgets/hymn/hymn_detail_widgets.dart';
 import '../../widgets/hymn/hymn_improved_note_section_widget.dart';
 import '../../widgets/hymn/hymn_action_widgets.dart';
+import '../../widgets/hymn/hymn_detail_skeleton.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -86,6 +87,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     _loadUserNote();
 
     _hymnService.checkPendingSyncs();
+
+    // Show recording overlay immediately with placeholder data
+    // This ensures the FAB is visible during skeleton loading
+    // Defer to post-frame callback to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _recordingController.showOverlay(widget.hymnId, 'Loading...');
+    });
 
     _heartAnimationController = AnimationController(
       vsync: this,
@@ -430,7 +438,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               builder: (context, snapshot) {
                 final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
                 final isFavorite = favoriteStatus.isNotEmpty;
-                
+
                 return HymnPopupMenuWidget(
                   isFavorite: isFavorite,
                   canEditHymn: canEditHymn(),
@@ -448,7 +456,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                       _showSlider = !_showSlider;
                     });
                   },
-                  onShowColorPicker: () => ColorPickerWidget.showColorPickerDialog(context),
+                  onShowColorPicker: () =>
+                      ColorPickerWidget.showColorPickerDialog(context),
                   onShowAudioPlayer: () => _showAudioPlayerDialog(),
                   onAddToPlaylist: () => _showAddToPlaylistDialog(),
                 );
@@ -464,14 +473,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                       Center(
-                         child: HymnTitleWidget(
-                           title: _hymn?.title ?? '',
-                           hymnNumber: _hymn?.hymnNumber ?? '',
-                           fontSize: _fontSize,
-                           hymnId: _hymn?.id ?? widget.hymnId,
-                         ),
-                       ),
+                      Center(
+                        child: HymnTitleWidget(
+                          title: _hymn?.title ?? '',
+                          hymnNumber: _hymn?.hymnNumber ?? '',
+                          fontSize: _fontSize,
+                          hymnId: _hymn?.id ?? widget.hymnId,
+                        ),
+                      ),
                       if (isFirebaseHymn() && _hymn != null)
                         StreamBuilder(
                           stream: FirebaseAuth.instance.authStateChanges(),
@@ -500,55 +509,54 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               if (_hymn?.bridge != null &&
-                                   (_hymn?.bridge
-                                           ?.trim()
-                                           .toLowerCase()
-                                           .isNotEmpty ??
-                                       false))
-                                 HymnBridgeWidget(
-                                   bridge: _hymn!.bridge!,
-                                   isExpanded: _show,
-                                   fontSize: _fontSize,
-                                   onToggle: () {
-                                     setState(() {
-                                       _show = !_show;
-                                     });
-                                   },
-                                 ),
+                              if (_hymn?.bridge != null &&
+                                  (_hymn?.bridge
+                                          ?.trim()
+                                          .toLowerCase()
+                                          .isNotEmpty ??
+                                      false))
+                                HymnBridgeWidget(
+                                  bridge: _hymn!.bridge!,
+                                  isExpanded: _show,
+                                  fontSize: _fontSize,
+                                  onToggle: () {
+                                    setState(() {
+                                      _show = !_show;
+                                    });
+                                  },
+                                ),
                             ],
                           ),
                         ),
                       ),
-                       if (_showSlider)
-                         FontSizeSliderWidget(
-                           fontSize: _fontSize,
-                           onChanged: (double value) {
-                             setState(() {
-                               _fontSize = value;
-                               _countFontSize =
-                                   value * (_baseCountFontSize / _baseFontSize);
-                             });
-                           },
-                           onChangeEnd: (double value) async {
-                             final prefs = await SharedPreferences.getInstance();
-                             await prefs.setDouble('fontSize', value);
-                             if (mounted) {
-                               setState(() {
-                                 _showSlider = false;
-                               });
-                             }
-                           },
-                         ),
+                      if (_showSlider)
+                        FontSizeSliderWidget(
+                          fontSize: _fontSize,
+                          onChanged: (double value) {
+                            setState(() {
+                              _fontSize = value;
+                              _countFontSize =
+                                  value * (_baseCountFontSize / _baseFontSize);
+                            });
+                          },
+                          onChangeEnd: (double value) async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setDouble('fontSize', value);
+                            if (mounted) {
+                              setState(() {
+                                _showSlider = false;
+                              });
+                            }
+                          },
+                        ),
                     ],
                   ),
                 ),
                 Expanded(
                   child: _isLoadingHymns
-                      ? Center(
-                          child: CircularProgressIndicator(
-                            color: colorController.primaryColor.value,
-                          ),
+                      ? HymnDetailSkeleton(
+                          fontSize: _fontSize,
+                          countFontSize: _countFontSize,
                         )
                       : _adjacentHymns.isEmpty
                           ? Center(
@@ -602,13 +610,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             ),
           ],
         ),
-        floatingActionButton: ContextAwareFAB(
-          onStartRecording: () {
-            if (_hymn != null) {
-              _recordingController.showOverlay(_hymn!.id, _hymn!.title);
-            }
-          },
-        ),
       ),
     );
   }
@@ -656,7 +657,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 });
               }
             } else {
-              final success = await _noteService.saveNote(widget.hymnId, content);
+              final success =
+                  await _noteService.saveNote(widget.hymnId, content);
               if (success) {
                 await _loadUserNote();
               }
@@ -676,25 +678,28 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               }
             }
           },
-          onDelete: note != null || _userNote != null ? () async {
-            if (note != null) {
-              await _noteService.deleteNote(note.id);
-            } else if (_userNote != null) {
-              await _noteService.deleteNote(_userNote!.id);
-              setState(() {
-                _userNote = null;
-              });
-            }
+          onDelete: note != null || _userNote != null
+              ? () async {
+                  if (note != null) {
+                    await _noteService.deleteNote(note.id);
+                  } else if (_userNote != null) {
+                    await _noteService.deleteNote(_userNote!.id);
+                    setState(() {
+                      _userNote = null;
+                    });
+                  }
 
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(AppLocalizations.of(context)!.noteDeleted),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            }
-          } : null,
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content:
+                            Text(AppLocalizations.of(context)!.noteDeleted),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                }
+              : null,
         );
       },
     );
@@ -758,8 +763,4 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       ),
     );
   }
-
-
 }
-
-

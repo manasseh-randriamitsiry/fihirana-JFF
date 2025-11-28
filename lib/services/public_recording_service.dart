@@ -11,7 +11,34 @@ class PublicRecordingService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String _collectionName = 'public_recordings';
 
-  /// Publish a recording to Firestore
+  /// Check if a recording title already exists for a specific hymn
+  /// Returns true if a duplicate is found
+  /// [excludeId] can be used to exclude a specific recording (for rename scenarios)
+  Future<bool> titleExistsForHymn(String hymnId, String title,
+      {String? excludeId}) async {
+    try {
+      Query query = _firestore
+          .collection(_collectionName)
+          .where('hymnId', isEqualTo: hymnId)
+          .where('title', isEqualTo: title);
+
+      final snapshot = await query.get();
+
+      // If excludeId is provided, filter out that recording
+      if (excludeId != null) {
+        return snapshot.docs.any((doc) => doc.id != excludeId);
+      }
+
+      return snapshot.docs.isNotEmpty;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error checking title existence: $e');
+      }
+      return false; // On error, allow the operation to proceed
+    }
+  }
+
+/// Publish a recording to Firestore
   Future<bool> publishRecording(UserRecording recording) async {
     try {
       await _firestore.collection(_collectionName).doc(recording.id).set({
@@ -30,6 +57,21 @@ class PublicRecordingService {
     } catch (e) {
       if (kDebugMode) {
         print('Error publishing recording to Firestore: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Update the title of a public recording
+  Future<bool> updateRecordingTitle(String recordingId, String newTitle) async {
+    try {
+      await _firestore.collection(_collectionName).doc(recordingId).update({
+        'title': newTitle,
+      });
+      return true;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating recording title: $e');
       }
       return false;
     }
