@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../controller/color_controller.dart';
 import '../../controller/recording_controller.dart';
+import '../../controller/auth_controller.dart';
 import '../../models/user_recording.dart';
 
 class RecordingTileWidget extends StatelessWidget {
@@ -580,6 +581,9 @@ class RecordingTileWidget extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
+    final authController = Get.find<AuthController>();
+    final isAdmin = authController.isAdmin;
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -603,10 +607,34 @@ class RecordingTileWidget extends StatelessWidget {
             ),
           ],
         ),
-        content: Text(
-          'Are you sure you want to delete "${recording.title}"?',
-          style:
-              TextStyle(color: colorController.textColor.value, fontSize: 14),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Are you sure you want to delete "${recording.title}"?',
+              style:
+                  TextStyle(color: colorController.textColor.value, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.orange.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+              ),
+              child: Text(
+                isAdmin 
+                    ? 'This recording will be moved to trash and can be restored from the admin panel.'
+                    : 'This recording will be moved to trash and can be restored.',
+                style: TextStyle(
+                  color: Colors.orange.withValues(alpha: 0.8),
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -620,13 +648,6 @@ class RecordingTileWidget extends StatelessWidget {
             onPressed: () {
               controller.deleteRecording(recording);
               Navigator.pop(context);
-              Get.snackbar(
-                'Deleted',
-                'Recording deleted successfully',
-                backgroundColor: Colors.red.withValues(alpha: 0.8),
-                colorText: Colors.white,
-                duration: const Duration(seconds: 2),
-              );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -634,7 +655,7 @@ class RecordingTileWidget extends StatelessWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Delete'),
+            child: const Text('Move to Trash'),
           ),
         ],
       ),

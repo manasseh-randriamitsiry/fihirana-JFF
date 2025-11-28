@@ -8,6 +8,7 @@ import 'package:fihirana/controller/shell_controller.dart';
 import 'package:fihirana/widgets/context_aware_fab.dart';
 import 'package:fihirana/widgets/recording/recording_tile_widget.dart';
 import 'package:fihirana/services/security_service.dart';
+import 'package:fihirana/models/user_recording.dart';
 import 'standalone_recording_screen.dart';
 
 class RecordingManagerScreen extends StatelessWidget {
@@ -21,6 +22,11 @@ class RecordingManagerScreen extends StatelessWidget {
             ? Get.find<RecordingController>()
             : Get.put(RecordingController(), permanent: true);
     final ColorController colorController = Get.find<ColorController>();
+
+    // Search and filter controllers
+    final TextEditingController searchController = TextEditingController();
+    final RxString searchQuery = ''.obs;
+    final RxString filterOption = 'all'.obs; // all, personal, public, uploaded, not_uploaded
 
     // Auto-refresh when page is accessed
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -98,7 +104,7 @@ class RecordingManagerScreen extends StatelessWidget {
           }),
         ],
       ),
-      body: Obx(() {
+body: Obx(() {
         // Security check - prevent banned users from accessing recordings
         final SecurityService securityService = SecurityService.instance;
         if (securityService.isSecurityChecked &&
@@ -162,6 +168,41 @@ class RecordingManagerScreen extends StatelessWidget {
           );
         }
 
+        // Apply search and filter
+        List<UserRecording> getFilteredRecordings() {
+          List<UserRecording> allRecordings = [];
+          
+          // Get recordings based on filter
+          switch (filterOption.value) {
+            case 'personal':
+              allRecordings = controller.recordings.where((r) => !r.isPublic).toList();
+              break;
+            case 'public':
+              allRecordings = controller.publicRecordings.toList();
+              break;
+            case 'uploaded':
+              allRecordings = controller.recordings.where((r) => r.driveFileId != null).toList();
+              break;
+            case 'not_uploaded':
+              allRecordings = controller.recordings.where((r) => r.driveFileId == null).toList();
+              break;
+            default: // 'all'
+              allRecordings = [...controller.recordings.where((r) => !r.isPublic).toList(), ...controller.publicRecordings.toList()];
+          }
+
+          // Apply search filter
+          if (searchQuery.value.isNotEmpty) {
+            allRecordings = allRecordings.where((recording) {
+              return recording.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
+                  (recording.userName?.toLowerCase().contains(searchQuery.value.toLowerCase()) ?? false) ||
+                  recording.hymnId.contains(searchQuery.value);
+            }).toList();
+          }
+
+          return allRecordings;
+        }
+
+        final filteredRecordings = getFilteredRecordings();
         final personalRecordings =
             controller.recordings.where((r) => !r.isPublic).toList();
         // Load community public recordings from Firestore
@@ -175,19 +216,19 @@ class RecordingManagerScreen extends StatelessWidget {
               'RecordingManager: Personal: ${personalRecordings.length}, Public: ${publicRecordings.length}');
         }
 
-        if (personalRecordings.isEmpty && publicRecordings.isEmpty) {
+if (filteredRecordings.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.mic_off_rounded,
+                  searchQuery.value.isNotEmpty ? Icons.search_off : Icons.mic_off_rounded,
                   size: 80,
                   color: colorController.iconColor.value.withValues(alpha: 0.3),
                 ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
                 const SizedBox(height: 16),
                 Text(
-                  'No recordings yet',
+                  searchQuery.value.isNotEmpty ? 'No recordings found' : 'No recordings yet',
                   style: TextStyle(
                     fontSize: 18,
                     color:
@@ -197,7 +238,9 @@ class RecordingManagerScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Start recording your favorite hymns',
+                  searchQuery.value.isNotEmpty 
+                      ? 'Try adjusting your search or filters'
+                      : 'Start recording your favorite hymns',
                   style: TextStyle(
                     fontSize: 14,
                     color:
@@ -209,107 +252,165 @@ class RecordingManagerScreen extends StatelessWidget {
           );
         }
 
-        return RefreshIndicator(
+return RefreshIndicator(
           onRefresh: () async {
             await controller.refreshRecordings();
             await controller.refreshPublicRecordings();
           },
           color: colorController.primaryColor.value,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
             children: [
-              // Personal Recordings Section
-              if (personalRecordings.isNotEmpty)
-                ExpansionTile(
-                  initiallyExpanded: false,
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: colorController.primaryColor.value,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.person,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+              // Search and Filter Section
+              Container(
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colorController.backgroundColor.value,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: colorController.primaryColor.value.withValues(alpha: 0.1),
                   ),
-                  title: Text(
-                    'Personal Recordings',
-                    style: TextStyle(
-                      color: colorController.textColor.value,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                  ),
-                  subtitle: Text(
-                    '${personalRecordings.length} recording${personalRecordings.length == 1 ? '' : 's'}',
-                    style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.7),
-                      fontSize: 14,
-                    ),
-                  ),
-                  children: personalRecordings.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final recording = entry.value;
-                    return RecordingTileWidget(
-                      recording: recording,
-                      controller: controller,
-                      colorController: colorController,
-                      index: index,
-                    );
-                  }).toList(),
+                  ],
                 ),
-
-              // Spacing between sections
-              if (personalRecordings.isNotEmpty && publicRecordings.isNotEmpty)
-                const SizedBox(height: 16),
-
-              // Public Recordings Section
-              if (publicRecordings.isNotEmpty)
-                ExpansionTile(
-                  initiallyExpanded: false,
-                  leading: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Search Field
+                    TextField(
+                      controller: searchController,
+                      style: TextStyle(color: colorController.textColor.value),
+                      decoration: InputDecoration(
+                        hintText: 'Search recordings...',
+                        hintStyle: TextStyle(
+                          color: colorController.textColor.value.withValues(alpha: 0.5),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: colorController.iconColor.value.withValues(alpha: 0.7),
+                        ),
+                        suffixIcon: searchQuery.value.isNotEmpty
+                            ? IconButton(
+                                icon: Icon(
+                                  Icons.clear,
+                                  color: colorController.iconColor.value.withValues(alpha: 0.7),
+                                ),
+                                onPressed: () {
+                                  searchController.clear();
+                                  searchQuery.value = '';
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(
+                            color: colorController.primaryColor.value,
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      onChanged: (value) => searchQuery.value = value,
                     ),
-                    child: const Icon(
-                      Icons.public,
-                      color: Colors.white,
-                      size: 20,
+                    const SizedBox(height: 12),
+                    
+                    // Filter Chips
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterChip(
+                            'All',
+                            'all',
+                            filterOption,
+                            colorController,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            'Personal',
+                            'personal',
+                            filterOption,
+                            colorController,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            'Public',
+                            'public',
+                            filterOption,
+                            colorController,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            'Uploaded',
+                            'uploaded',
+                            filterOption,
+                            colorController,
+                          ),
+                          const SizedBox(width: 8),
+                          _buildFilterChip(
+                            'Not Uploaded',
+                            'not_uploaded',
+                            filterOption,
+                            colorController,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  title: Text(
-                    'Public Recordings',
-                    style: TextStyle(
-                      color: colorController.textColor.value,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    '${publicRecordings.length} recording${publicRecordings.length == 1 ? '' : 's'}',
-                    style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.7),
-                      fontSize: 14,
-                    ),
-                  ),
-                  children: publicRecordings.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final recording = entry.value;
-                    return RecordingTileWidget(
-                      recording: recording,
-                      controller: controller,
-                      colorController: colorController,
-                      index: index + personalRecordings.length,
-                      isPublic: true,
-                    );
-                  }).toList(),
+                    
+                    // Results count
+                    if (searchQuery.value.isNotEmpty || filterOption.value != 'all')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          '${filteredRecordings.length} recording${filteredRecordings.length == 1 ? '' : 's'} found',
+                          style: TextStyle(
+                            color: colorController.textColor.value.withValues(alpha: 0.7),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
+              ),
+              
+              // Recordings List
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  children: [
+// Filtered Recordings List
+              ...filteredRecordings.asMap().entries.map((entry) {
+                final index = entry.key;
+                final recording = entry.value;
+                final isPublic = recording.isPublic;
+                
+                return RecordingTileWidget(
+                  recording: recording,
+                  controller: controller,
+                  colorController: colorController,
+                  index: index,
+                  isPublic: isPublic,
+                );
+              }).toList(),
+],
+                ),
+              ),
             ],
           ),
         );
@@ -459,6 +560,39 @@ class RecordingManagerScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
+);
+  }
+
+  Widget _buildFilterChip(
+    String label,
+    String value,
+    RxString selectedFilter,
+    ColorController colorController,
+  ) {
+    return Obx(() => FilterChip(
+      label: Text(
+        label,
+        style: TextStyle(
+          color: selectedFilter.value == value
+              ? Colors.white
+              : colorController.textColor.value,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      selected: selectedFilter.value == value,
+      onSelected: (isSelected) {
+        selectedFilter.value = isSelected ? value : 'all';
+      },
+      backgroundColor: colorController.backgroundColor.value,
+      selectedColor: colorController.primaryColor.value,
+      checkmarkColor: Colors.white,
+      side: BorderSide(
+        color: colorController.primaryColor.value.withValues(alpha: 0.3),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+    ));
   }
 }

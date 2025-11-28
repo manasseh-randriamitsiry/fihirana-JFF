@@ -14,6 +14,7 @@ import '../../controller/auth_controller.dart';
 import '../../widgets/skeleton_admin_list.dart';
 import '../../widgets/admin/admin_stats_widgets.dart';
 import '../../widgets/admin/admin_hymn_widgets.dart';
+import '../../widgets/admin/deleted_recordings_widget.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -31,10 +32,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   List<String> selectedHymns = [];
   bool isLoading = false;
 
-  @override
+@override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _checkAdminAccess();
   }
 
@@ -169,9 +170,10 @@ actions: [
             unselectedLabelColor: textColor.withValues(alpha: 0.5),
             indicatorColor: primaryColor,
             onTap: (index) => setState(() {}), // Rebuild to show/hide actions
-            tabs: [
+tabs: [
               Tab(text: l10n.userManagement), // Reuse string or add "Users"
               Tab(text: l10n.hymns), // Reuse string or add "Hymns"
+              Tab(text: 'Deleted Recordings'),
             ],
           ),
         ),
@@ -193,7 +195,7 @@ actions: [
               },
             ),
 
-            // Tab Content
+// Tab Content
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -204,6 +206,13 @@ actions: [
                   // Hymns Tab
                   _buildHymnsList(
                       l10n, textColor, primaryColor, backgroundColor),
+
+                  // Deleted Recordings Tab
+                  DeletedRecordingsWidget(
+                    textColor: textColor,
+                    primaryColor: primaryColor,
+                    backgroundColor: backgroundColor,
+                  ),
                 ],
               ),
             ),
