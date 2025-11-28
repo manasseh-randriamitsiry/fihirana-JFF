@@ -23,6 +23,17 @@ import '../widgets/player/compact_audio_player_widget.dart';
 import '../l10n/app_localizations.dart';
 import '../services/security_service.dart';
 
+enum PublishRecordingResult {
+  success,
+  duplicateTitle,
+  accessDenied,
+  signInRequired,
+  storageFull,
+  uploadFailed,
+  publishFailed,
+  unknownError,
+}
+
 class RecordingController extends GetxController {
   final UserRecordingService _recordingService = UserRecordingService();
   late final GoogleDriveService _driveService;
@@ -532,8 +543,11 @@ class RecordingController extends GetxController {
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
     final filePath = await _recordingService.stopRecording();
+    final duration = recordDuration.value; // Save duration before resetting
+
     isRecording.value = false;
     isPaused.value = false;
+    recordDuration.value = 0; // Reset timer display
     _timer?.cancel();
 
     if (filePath != null) {
@@ -564,7 +578,7 @@ class RecordingController extends GetxController {
         filePath: filePath,
         hymnId: hymnId,
         title: title,
-        durationSeconds: recordDuration.value,
+        durationSeconds: duration, // Use saved duration
         userId: currentUserId,
         userEmail: currentUserEmail,
         userPhotoUrl: currentUserPhotoUrl,
@@ -710,8 +724,8 @@ class RecordingController extends GetxController {
     await _recordingService.updateRecording(recording);
   }
 
-  Future<void> makeRecordingPublic(UserRecording recording) async {
-    // 1. Check if user can share
+  Future<PublishRecordingResult> makeRecordingPublic(UserRecording recording, {String? customTitle}) async {
+// 1. Check if user can share
     if (!allowToShareAudio.value) {
       Get.snackbar(
         'Access Denied',
@@ -719,10 +733,10 @@ class RecordingController extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
-      return;
+      return PublishRecordingResult.accessDenied;
     }
 
-    // 2. Ensure signed in to Drive
+// 2. Ensure signed in to Drive
     if (!isDriveSignedIn.value) {
       await signInToDrive();
       if (!isDriveSignedIn.value) {
@@ -732,11 +746,11 @@ class RecordingController extends GetxController {
           backgroundColor: Colors.orange,
           colorText: Colors.white,
         );
-        return;
+        return PublishRecordingResult.signInRequired;
       }
     }
 
-    // Check storage quota
+// Check storage quota
     await fetchStorageQuota();
     final quota = storageQuota.value;
     if (quota != null && quota.limit != null && quota.usage != null) {
@@ -752,13 +766,18 @@ class RecordingController extends GetxController {
           colorText: Colors.white,
           duration: const Duration(seconds: 5),
         );
-        return;
+        return PublishRecordingResult.storageFull;
       }
     }
 
     try {
       isUploading.value = true;
       UserRecording recordingToPublish = recording;
+      
+      // Use custom title if provided
+      if (customTitle != null && customTitle.isNotEmpty) {
+        recordingToPublish = recording.copyWith(title: customTitle);
+      }
 
       // 3. Upload to Drive if not already uploaded
       if (recording.driveFileId == null) {
@@ -790,12 +809,21 @@ class RecordingController extends GetxController {
 
           // Refresh quota after upload
           fetchStorageQuota();
-        } else {
-          throw Exception('Failed to upload to Drive');
+} else {
+          return PublishRecordingResult.uploadFailed;
         }
       }
 
-      // 4. Publish to Firestore
+// 4. Check for duplicate title before publishing
+      final titleExists = await _publicService.titleExistsForHymn(
+        recordingToPublish.hymnId, 
+        recordingToPublish.title,
+      );
+      if (titleExists) {
+        return PublishRecordingResult.duplicateTitle;
+      }
+
+      // 5. Publish to Firestore
       final success = await _publicService.publishRecording(recordingToPublish);
 
       if (success) {
@@ -813,8 +841,9 @@ class RecordingController extends GetxController {
           backgroundColor: Colors.green,
           colorText: Colors.white,
         );
+        return PublishRecordingResult.success;
       } else {
-        throw Exception('Failed to publish to database');
+        return PublishRecordingResult.publishFailed;
       }
     } catch (e) {
       Get.snackbar(
@@ -824,6 +853,7 @@ class RecordingController extends GetxController {
         colorText: Colors.white,
         duration: const Duration(seconds: 5),
       );
+      return PublishRecordingResult.unknownError;
     } finally {
       isUploading.value = false;
     }
@@ -1672,6 +1702,23 @@ class RecordingController extends GetxController {
         publicLink: publicLink,
         userName: userName,
       );
+
+// Check for duplicate title before publishing
+      final titleExists = await _publicService.titleExistsForHymn(
+        updatedRecording.hymnId, 
+        updatedRecording.title,
+      );
+      if (titleExists) {
+        Get.back(); // Close progress
+        Get.snackbar(
+          'Duplicate Title',
+          'A recording with this title already exists for this hymn.',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.orange.withValues(alpha: 0.1),
+          colorText: Colors.orange,
+        );
+        return;
+      }
 
       // Save to Firestore
       final success = await _publicService.publishRecording(updatedRecording);
