@@ -694,14 +694,18 @@ final UserRecordingService _recordingService = UserRecordingService();
 // Management Actions
   Future<void> deleteRecording(UserRecording recording) async {
     try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      
       // Save to deleted recordings before deleting
       await _deletedService.saveDeletedRecording(recording);
       
       // Delete from local storage
       await _recordingService.deleteRecording(recording.id);
       
-      // Delete from Google Drive if exists
-      if (recording.driveFileId != null) {
+      // Only delete from Google Drive if the current user is the owner
+      // Admins can't delete users' Drive files, only the link
+      if (recording.driveFileId != null && 
+          (recording.userId == currentUser?.uid || recording.userEmail == currentUser?.email)) {
         try {
           await _driveService.deleteFile(recording.driveFileId!);
         } catch (e) {
@@ -1750,8 +1754,12 @@ Future<void> renameRecording(UserRecording recording, String newTitle) async {
 
   Future<void> permanentlyDeleteRecording(UserRecording deletedRecording) async {
     try {
-      // Delete from Google Drive if exists
-      if (deletedRecording.driveFileId != null) {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      
+      // Only delete from Google Drive if the current user is the owner
+      // Admins can't delete users' Drive files, only the link
+      if (deletedRecording.driveFileId != null && 
+          (deletedRecording.userId == currentUser?.uid || deletedRecording.userEmail == currentUser?.email)) {
         try {
           await _driveService.deleteFile(deletedRecording.driveFileId!);
         } catch (e) {
@@ -1963,6 +1971,23 @@ Future<void> renameRecording(UserRecording recording, String newTitle) async {
 
   // Method to re-upload problematic Drive files
   Future<void> reuploadToDrive(UserRecording recording) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    
+    // Check if user is owner or admin
+    final isOwner = recording.userId == currentUser?.uid || recording.userEmail == currentUser?.email;
+    final authController = Get.find<AuthController>();
+    final isAdmin = authController.isAdmin || authController.isSuperAdmin;
+    
+    if (!isOwner && !isAdmin) {
+      Get.snackbar(
+        'Access Denied',
+        'You can only re-upload your own recordings',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+      return;
+    }
+    
     if (recording.filePath.isEmpty ||
         !await File(recording.filePath).exists()) {
       Get.snackbar(
@@ -1982,8 +2007,9 @@ Future<void> renameRecording(UserRecording recording, String newTitle) async {
         snackPosition: SnackPosition.BOTTOM,
       );
 
-      // Delete existing Drive file if it exists
-      if (recording.driveFileId != null) {
+      // Only delete existing Drive file if user is the owner
+      // Admins can't delete users' Drive files
+      if (recording.driveFileId != null && isOwner) {
         try {
           await _driveService.deleteFile(recording.driveFileId!);
         } catch (e) {

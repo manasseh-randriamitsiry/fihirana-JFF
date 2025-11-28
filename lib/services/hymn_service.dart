@@ -6,9 +6,11 @@ import 'package:flutter/scheduler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
 import '../models/hymn.dart';
 import '../utility/snackbar_utility.dart';
 import '../services/firebase_sync_service.dart';
+import '../controller/auth_controller.dart';
 import 'combined_hymn_service.dart';
 
 class HymnService {
@@ -16,6 +18,7 @@ class HymnService {
   final FirebaseSyncService _firebaseSyncService = FirebaseSyncService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final AuthController _authController = Get.find<AuthController>();
 
   Stream<List<Hymn>> getLocalHymnsStream() async* {
     final hymns = await _combinedHymnService.getAllHymns();
@@ -187,6 +190,36 @@ class HymnService {
         SnackbarUtility.showError(
           title: 'Tsy misy fifandraisan-tsara',
           message: 'Mila miditra aloha ianao mba hahafahana mamafa hira',
+        );
+        return;
+      }
+
+      // Get the hymn to check ownership
+      final hymnDoc = await _firestore.collection('hymns').doc(hymnId).get();
+      if (!hymnDoc.exists) {
+        SnackbarUtility.showError(
+          title: 'Hira ts hita',
+          message: 'Tsy hita ilay hira tianao hamafa',
+        );
+        return;
+      }
+
+      final data = hymnDoc.data();
+      if (data == null) {
+        SnackbarUtility.showError(
+          title: 'Nisy olana',
+          message: 'Tsy afaka voafafa ny hira: Data ts hita',
+        );
+        return;
+      }
+
+      final hymn = Hymn.fromJson(data, hymnId);
+
+      // Check if user is admin/superAdmin or owns the hymn
+      if (!_authController.isAdmin && !_authController.isSuperAdmin && hymn.createdByEmail != user.email) {
+        SnackbarUtility.showError(
+          title: 'Tsy manana alalana',
+          message: 'Tsy afaka mamafa io hira io afa-tsy ilay namorona azy na mpandrindra',
         );
         return;
       }

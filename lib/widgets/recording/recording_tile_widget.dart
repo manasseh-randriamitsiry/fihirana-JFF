@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controller/color_controller.dart';
 import '../../controller/recording_controller.dart';
@@ -28,6 +29,24 @@ class RecordingTileWidget extends StatelessWidget {
     final minutes = (seconds / 60).floor();
     final remainingSeconds = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  bool _canDeleteRecording() {
+    final authController = Get.find<AuthController>();
+    final currentUser = FirebaseAuth.instance.currentUser;
+    
+    // Admins and SuperAdmins can delete any public recording
+    if (authController.isAdmin || authController.isSuperAdmin) {
+      return true;
+    }
+    
+    // Users can delete their own recordings
+    if (currentUser != null && 
+        (recording.userId == currentUser.uid || recording.userEmail == currentUser.email)) {
+      return true;
+    }
+    
+    return false;
   }
 
   @override
@@ -282,7 +301,7 @@ class RecordingTileWidget extends StatelessWidget {
                     }
                     break;
                   case 'delete':
-                    if (!isPublic) {
+                    if (!isPublic || _canDeleteRecording()) {
                       _showDeleteConfirmation(context);
                     }
                     break;
@@ -395,21 +414,21 @@ class RecordingTileWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                if (!isPublic)
-                  const PopupMenuItem(
+                if (!isPublic || _canDeleteRecording())
+                  PopupMenuItem(
                     value: 'delete',
                     height: 40,
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.delete_outline,
                           color: Colors.red,
                           size: 18,
                         ),
-                        SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Text(
-                          'Delete',
-                          style: TextStyle(
+                          isPublic ? 'Remove from Public' : 'Delete',
+                          style: const TextStyle(
                             color: Colors.red,
                             fontSize: 13,
                           ),
@@ -582,7 +601,7 @@ class RecordingTileWidget extends StatelessWidget {
 
   void _showDeleteConfirmation(BuildContext context) {
     final authController = Get.find<AuthController>();
-    final isAdmin = authController.isAdmin;
+    final isAdmin = authController.isAdmin || authController.isSuperAdmin;
     
     showDialog(
       context: context,
