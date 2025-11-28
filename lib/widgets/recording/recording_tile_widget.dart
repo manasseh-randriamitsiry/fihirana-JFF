@@ -600,8 +600,8 @@ class RecordingTileWidget extends StatelessWidget {
   }
 
   void _showDeleteConfirmation(BuildContext context) {
-    final authController = Get.find<AuthController>();
-    final isAdmin = authController.isAdmin || authController.isSuperAdmin;
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final isOwner = recording.userId == currentUser?.uid || recording.userEmail == currentUser?.email;
     
     showDialog(
       context: context,
@@ -639,16 +639,24 @@ class RecordingTileWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
+                color: isOwner 
+                    ? Colors.red.withValues(alpha: 0.1)
+                    : Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: isOwner 
+                      ? Colors.red.withValues(alpha: 0.3)
+                      : Colors.orange.withValues(alpha: 0.3),
+                ),
               ),
               child: Text(
-                isAdmin 
-                    ? 'This recording will be moved to trash and can be restored from the admin panel.'
-                    : 'This recording will be moved to trash and can be restored.',
+                isOwner 
+                    ? 'This recording will be permanently deleted and cannot be recovered.'
+                    : 'This recording will be moved to trash and can be restored from the admin panel.',
                 style: TextStyle(
-                  color: Colors.orange.withValues(alpha: 0.8),
+                  color: isOwner 
+                      ? Colors.red.withValues(alpha: 0.8)
+                      : Colors.orange.withValues(alpha: 0.8),
                   fontSize: 12,
                 ),
               ),
@@ -669,12 +677,12 @@ class RecordingTileWidget extends StatelessWidget {
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: isOwner ? Colors.red : Colors.orange,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Move to Trash'),
+            child: Text(isOwner ? 'Delete Permanently' : 'Move to Trash'),
           ),
         ],
       ),

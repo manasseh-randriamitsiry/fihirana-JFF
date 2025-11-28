@@ -695,17 +695,37 @@ final UserRecordingService _recordingService = UserRecordingService();
   Future<void> deleteRecording(UserRecording recording) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
+      final authController = Get.find<AuthController>();
       
-      // Save to deleted recordings before deleting
-      await _deletedService.saveDeletedRecording(recording);
+      // Check if current user is the owner
+      final isOwner = recording.userId == currentUser?.uid || recording.userEmail == currentUser?.email;
+      final isAdmin = authController.isAdmin || authController.isSuperAdmin;
       
+      if (isOwner) {
+        // Owner deletion: permanent deletion (no trash)
+        await _deleteRecordingPermanently(recording, currentUser);
+      } else if (isAdmin) {
+        // Admin deletion: move to trash
+        await _moveRecordingToTrash(recording);
+      }
+      
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to delete recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> _deleteRecordingPermanently(UserRecording recording, User? currentUser) async {
+    try {
       // Delete from local storage
       await _recordingService.deleteRecording(recording.id);
       
-      // Only delete from Google Drive if the current user is the owner
-      // Admins can't delete users' Drive files, only the link
-      if (recording.driveFileId != null && 
-          (recording.userId == currentUser?.uid || recording.userEmail == currentUser?.email)) {
+      // Delete from Google Drive if exists
+      if (recording.driveFileId != null) {
         try {
           await _driveService.deleteFile(recording.driveFileId!);
         } catch (e) {
@@ -729,18 +749,44 @@ final UserRecordingService _recordingService = UserRecordingService();
       
       Get.snackbar(
         'Deleted',
+        'Recording permanently deleted',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> _moveRecordingToTrash(UserRecording recording) async {
+    try {
+      // Save to deleted recordings before deleting
+      await _deletedService.saveDeletedRecording(recording);
+      
+      // Delete from local storage
+      await _recordingService.deleteRecording(recording.id);
+      
+      // Unpublish from public recordings if it was public
+      if (recording.isPublic) {
+        try {
+          await _publicService.unpublishRecording(recording.id);
+        } catch (e) {
+          if (kDebugMode) {
+            print('Failed to unpublish recording: $e');
+          }
+        }
+      }
+      
+      Get.snackbar(
+        'Deleted',
         'Recording moved to trash and can be restored',
         backgroundColor: Colors.orange.withValues(alpha: 0.8),
         colorText: Colors.white,
         duration: const Duration(seconds: 3),
       );
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to delete recording: $e',
-        backgroundColor: Colors.red.withValues(alpha: 0.8),
-        colorText: Colors.white,
-      );
+      rethrow;
     }
   }
 
