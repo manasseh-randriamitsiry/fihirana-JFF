@@ -277,7 +277,7 @@ class RecordingTileWidget extends StatelessWidget {
                     break;
                   case 'make_public':
                     if (!isPublic) {
-                      _showMakePublicConfirmation(context);
+                      _showMakePublicDialog(context, recording);
                     }
                     break;
                   case 'delete':
@@ -434,70 +434,147 @@ class RecordingTileWidget extends StatelessWidget {
         .fadeIn(duration: 300.ms);
   }
 
-  void _showMakePublicConfirmation(BuildContext context) {
+  void _showMakePublicDialog(BuildContext context, UserRecording recording) {
+    final titleController = TextEditingController(text: recording.title);
+    String? errorMessage;
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colorController.backgroundColor.value,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const Icon(
-              Icons.public,
-              color: Colors.blue,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Make Public',
-              style: TextStyle(
-                color: colorController.textColor.value,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+      barrierDismissible: false,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: colorController.backgroundColor.value,
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(
+                Icons.public,
+                color: Colors.blue,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Make Recording Public',
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'This will upload the recording to Google Drive (if not already uploaded) and make it visible to everyone using the app.',
+                style: TextStyle(
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.7),
+                    fontSize: 12),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Recording Title:',
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: titleController,
+                style: TextStyle(color: colorController.textColor.value),
+                decoration: InputDecoration(
+                  hintText: 'Enter recording title',
+                  hintStyle: TextStyle(
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.5)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.3)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                  ),
+                  errorText: errorMessage,
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(color: Colors.red, width: 2),
+                  ),
+                ),
+                onChanged: (_) {
+                  // Clear error when user types
+                  if (errorMessage != null) {
+                    setState(() {
+                      errorMessage = null;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: colorController.textColor.value),
               ),
             ),
+            Obx(() => controller.isUploading.value
+                ? const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  )
+                : ElevatedButton(
+                    onPressed: () async {
+                      final title = titleController.text.trim();
+                      if (title.isEmpty) {
+                        setState(() {
+                          errorMessage = 'Title cannot be empty';
+                        });
+                        return;
+                      }
+
+                      // Attempt to make recording public
+                      final result = await controller.makeRecordingPublic(
+                        recording,
+                        customTitle: title != recording.title ? title : null,
+                      );
+
+                      // Only close dialog if successful
+                      if (result == PublishRecordingResult.success && dialogContext.mounted) {
+                        Navigator.pop(dialogContext);
+                      } else if (result == PublishRecordingResult.duplicateTitle) {
+                        // Show error in the text field
+                        setState(() {
+                          errorMessage =
+                              'This title already exists for this hymn';
+                        });
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text('Make Public'),
+                  )),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Are you sure you want to make "${recording.title}" public?',
-              style: TextStyle(
-                  color: colorController.textColor.value, fontSize: 14),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'This will upload the recording to Google Drive (if not already uploaded) and make it visible to everyone using the app.',
-              style: TextStyle(
-                  color: colorController.textColor.value.withValues(alpha: 0.7),
-                  fontSize: 12),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: colorController.textColor.value),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              controller.makeRecordingPublic(recording);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('Make Public'),
-          ),
-        ],
       ),
     );
   }
