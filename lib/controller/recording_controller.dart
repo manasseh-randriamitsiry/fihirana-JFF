@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'auth_controller.dart';
 import 'package:uuid/uuid.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:googleapis/drive/v3.dart' as drive;
 import '../models/user_recording.dart';
 import '../services/user_recording_service.dart';
 import '../services/google_drive_service.dart';
@@ -64,11 +65,11 @@ class RecordingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     // Initialize critical services first for fast response
     _initializeDriveService();
     _initServices();
-    
+
     // Defer non-critical operations to avoid blocking UI
     Future.microtask(() async {
       _loadGuestName();
@@ -124,10 +125,10 @@ class RecordingController extends GetxController {
         print('RecordingController: Manually refreshing recordings...');
       }
       await _recordingService.loadRecordings();
-      
+
       // Fix recordings with unknown hymnId
       await _fixUnknownHymnIds();
-      
+
       // Clean up ghost recordings
       await _cleanupGhostRecordings();
     } catch (e) {
@@ -141,27 +142,27 @@ class RecordingController extends GetxController {
   Future<void> _cleanupGhostRecordings() async {
     try {
       final ghostsToRemove = <UserRecording>[];
-      
+
       for (final recording in recordings) {
         // Check if this is a ghost recording:
         // 1. Duration is 0
         // 2. No local file
         // 3. Has Drive file ID
         // 4. HymnId is 'unknown' (indicating it couldn't be parsed properly)
-        if (recording.durationSeconds == 0 && 
-            recording.filePath.isEmpty && 
+        if (recording.durationSeconds == 0 &&
+            recording.filePath.isEmpty &&
             recording.driveFileId != null &&
             recording.hymnId == 'unknown') {
-          
           // This is likely a ghost recording from Drive sync that couldn't be properly parsed
           // These recordings serve no purpose since they have no audio and no identifiable hymn
           ghostsToRemove.add(recording);
           if (kDebugMode) {
-            print('Found ghost recording to remove: ${recording.title} (ID: ${recording.id})');
+            print(
+                'Found ghost recording to remove: ${recording.title} (ID: ${recording.id})');
           }
         }
       }
-      
+
       // Remove ghost recordings
       for (final ghost in ghostsToRemove) {
         await _recordingService.deleteRecording(ghost.id);
@@ -169,7 +170,7 @@ class RecordingController extends GetxController {
           print('Removed ghost recording: ${ghost.title}');
         }
       }
-      
+
       if (ghostsToRemove.isNotEmpty) {
         await _recordingService.loadRecordings(); // Refresh the list
         if (kDebugMode) {
@@ -188,36 +189,38 @@ class RecordingController extends GetxController {
     try {
       bool needsUpdate = false;
       final updatedRecordings = <UserRecording>[];
-      
+
       for (final recording in recordings) {
         if (recording.hymnId == 'unknown') {
           String newHymnId = 'unknown';
-          
+
           // Try to extract from title or filename
           final title = recording.title;
           final numberMatch = RegExp(r'(\d+)').firstMatch(title);
           if (numberMatch != null) {
             newHymnId = numberMatch.group(1)!;
           }
-          
+
           if (newHymnId != recording.hymnId) {
             final updated = recording.copyWith(hymnId: newHymnId);
             updatedRecordings.add(updated);
             needsUpdate = true;
-            
+
             if (kDebugMode) {
-              print('Fixed hymnId for recording "${recording.title}": ${recording.hymnId} -> $newHymnId');
+              print(
+                  'Fixed hymnId for recording "${recording.title}": ${recording.hymnId} -> $newHymnId');
             }
           }
         }
       }
-      
+
       if (needsUpdate) {
         for (final updated in updatedRecordings) {
           await _recordingService.updateRecording(updated);
         }
         if (kDebugMode) {
-          print('Updated ${updatedRecordings.length} recordings with corrected hymnId');
+          print(
+              'Updated ${updatedRecordings.length} recordings with corrected hymnId');
         }
       }
     } catch (e) {
@@ -283,7 +286,7 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('RecordingController: Periodic refresh triggered');
       }
-      
+
       // Only refresh if not already loading to avoid conflicts
       if (!isLoading.value) {
         _recordingService.loadRecordings();
@@ -522,7 +525,8 @@ class RecordingController extends GetxController {
 
     // Show overlay when recording starts (only for hymn recordings)
     if (hymnId != 'unknown') {
-      showOverlay(hymnId, 'Hymn $hymnId'); // You might want to pass actual title
+      showOverlay(
+          hymnId, 'Hymn $hymnId'); // You might want to pass actual title
     }
   }
 
@@ -533,11 +537,38 @@ class RecordingController extends GetxController {
     _timer?.cancel();
 
     if (filePath != null) {
+      // Get current user info
+      String? currentUserId;
+      String? currentUserEmail;
+      String? currentUserPhotoUrl;
+      String? currentUserName = guestName.value;
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        currentUserId = currentUser.uid;
+        currentUserEmail = currentUser.email;
+        currentUserPhotoUrl = currentUser.photoURL;
+        currentUserName = currentUser.displayName ?? currentUserName;
+      } else if (isDriveSignedIn.value && userEmail.value != null) {
+        // Fallback to Drive user info if not signed in to Firebase but signed in to Drive
+        final driveUser = _driveService.currentUser;
+        if (driveUser != null) {
+          currentUserId = driveUser.id;
+          currentUserEmail = driveUser.email;
+          currentUserPhotoUrl = driveUser.photoUrl;
+          currentUserName = driveUser.displayName ?? currentUserName;
+        }
+      }
+
       final recording = await _recordingService.saveRecording(
         filePath: filePath,
         hymnId: hymnId,
         title: title,
         durationSeconds: recordDuration.value,
+        userId: currentUserId,
+        userEmail: currentUserEmail,
+        userPhotoUrl: currentUserPhotoUrl,
+        userName: currentUserName,
       );
 
       // Update overlay title with actual title
@@ -581,11 +612,38 @@ class RecordingController extends GetxController {
     _timer?.cancel();
 
     if (filePath != null) {
+      // Get current user info
+      String? currentUserId;
+      String? currentUserEmail;
+      String? currentUserPhotoUrl;
+      String? currentUserName = guestName.value;
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        currentUserId = currentUser.uid;
+        currentUserEmail = currentUser.email;
+        currentUserPhotoUrl = currentUser.photoURL;
+        currentUserName = currentUser.displayName ?? currentUserName;
+      } else if (isDriveSignedIn.value && userEmail.value != null) {
+        // Fallback to Drive user info if not signed in to Firebase but signed in to Drive
+        final driveUser = _driveService.currentUser;
+        if (driveUser != null) {
+          currentUserId = driveUser.id;
+          currentUserEmail = driveUser.email;
+          currentUserPhotoUrl = driveUser.photoUrl;
+          currentUserName = driveUser.displayName ?? currentUserName;
+        }
+      }
+
       final recording = await _recordingService.saveRecording(
         filePath: filePath,
         hymnId: 'unknown',
         title: title,
         durationSeconds: recordDuration.value,
+        userId: currentUserId,
+        userEmail: currentUserEmail,
+        userPhotoUrl: currentUserPhotoUrl,
+        userName: currentUserName,
       );
 
       return recording;
@@ -631,152 +689,143 @@ class RecordingController extends GetxController {
     }
   }
 
+  // Storage quota state
+  final Rx<drive.AboutStorageQuota?> storageQuota =
+      Rx<drive.AboutStorageQuota?>(null);
+
+  Future<void> fetchStorageQuota() async {
+    if (!isDriveSignedIn.value) return;
+
+    try {
+      final quota = await _driveService.getStorageQuota();
+      storageQuota.value = quota;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching storage quota: $e');
+      }
+    }
+  }
+
   Future<void> updateRecording(UserRecording recording) async {
     await _recordingService.updateRecording(recording);
   }
 
-  Future<void> renameRecording(UserRecording recording, String newTitle) async {
-    final updated = recording.copyWith(title: newTitle);
-    await updateRecording(updated);
-
-    // If uploaded to Drive, we might want to rename there too, but that requires an extra API call.
-    // For now, we just rename locally.
-    recordings.refresh();
-  }
-
-  Future<String> getStorageUsage() async {
-    int totalBytes = 0;
-    for (var rec in recordings) {
-      try {
-        final file = File(rec.filePath);
-        if (await file.exists()) {
-          totalBytes += await file.length();
-        }
-      } catch (e) {
-        // ignore
-      }
-    }
-
-    if (totalBytes < 1024) return '$totalBytes B';
-    if (totalBytes < 1024 * 1024) {
-      return '${(totalBytes / 1024).toStringAsFixed(1)} KB';
-    }
-    return '${(totalBytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-
-  // Drive Actions
-  Future<void> signInToDrive() async {
-    try {
-      final account = await _driveService.signIn();
-      if (account != null) {
-        await _validateDriveUser(account);
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('RecordingController: Manual sign-in failed: $e');
-      }
-      isDriveSignedIn.value = false;
-      userEmail.value = null;
-      await _setShareAudioPreference(false);
-    }
-  }
-
-  Future<void> signOutFromDrive() async {
-    await _driveService.signOut();
-    isDriveSignedIn.value = false;
-    userEmail.value = null;
-    await _setShareAudioPreference(false);
-  }
-
-  Future<void> uploadToDrive(UserRecording recording) async {
-    // Security check first
-    if (!await _checkUserCanRecord()) {
-      return;
-    }
-
-    // Check if user is allowed to share audio
+  Future<void> makeRecordingPublic(UserRecording recording) async {
+    // 1. Check if user can share
     if (!allowToShareAudio.value) {
-      uploadErrors[recording.id] = 'You are not allowed to share audio content';
       Get.snackbar(
         'Access Denied',
-        'You are not allowed to share audio content. Please sign in with an authorized account.',
-        backgroundColor: Colors.orange,
+        'You are not allowed to share audio content.',
+        backgroundColor: Colors.red,
         colorText: Colors.white,
-        duration: const Duration(seconds: 3),
       );
       return;
     }
 
-    // Remove any existing error for this recording
-    uploadErrors.remove(recording.id);
-
+    // 2. Ensure signed in to Drive
     if (!isDriveSignedIn.value) {
       await signInToDrive();
       if (!isDriveSignedIn.value) {
-        uploadErrors[recording.id] = 'Failed to sign in to Google Drive';
+        Get.snackbar(
+          'Sign In Required',
+          'You must be signed in to Google Drive to share recordings.',
+          backgroundColor: Colors.orange,
+          colorText: Colors.white,
+        );
         return;
       }
     }
 
-    // Add to uploading set
-    uploadingRecordingIds.add(recording.id);
-    isUploading.value = true;
+    // Check storage quota
+    await fetchStorageQuota();
+    final quota = storageQuota.value;
+    if (quota != null && quota.limit != null && quota.usage != null) {
+      final limit = int.tryParse(quota.limit!) ?? 0;
+      final usage = int.tryParse(quota.usage!) ?? 0;
+      final fileSize = File(recording.filePath).lengthSync();
+
+      if (usage + fileSize > limit) {
+        Get.snackbar(
+          'Storage Full',
+          'Your Google Drive storage is full. Cannot upload recording.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+        return;
+      }
+    }
 
     try {
-      final file = File(recording.filePath);
-      if (!await file.exists()) {
-        throw Exception('Recording file not found');
-      }
+      isUploading.value = true;
+      UserRecording recordingToPublish = recording;
 
-      final fileId = await _driveService.uploadFile(
-        file,
-        '${recording.title}.m4a',
-        description: 'Hymn: ${recording.hymnId}',
-      );
-
-      if (fileId != null) {
-        final webLink = await _driveService.getWebViewLink(fileId);
-        final updated = recording.copyWith(
-          driveFileId: fileId,
-          driveWebLink: webLink,
+      // 3. Upload to Drive if not already uploaded
+      if (recording.driveFileId == null) {
+        Get.snackbar(
+          'Uploading',
+          'Uploading recording to Drive first...',
+          backgroundColor: Colors.blue,
+          colorText: Colors.white,
         );
-        await _recordingService.updateRecording(updated);
 
-        // Update the recordings list to reflect the change immediately
-        final index = recordings.indexWhere((r) => r.id == recording.id);
-        if (index != -1) {
-          recordings[index] = updated;
+        final file = File(recording.filePath);
+        if (!await file.exists()) {
+          throw Exception('Recording file not found');
         }
 
-        // Remove from uploading set on success
-        uploadingRecordingIds.remove(recording.id);
-        uploadErrors.remove(recording.id);
+        final fileId = await _driveService.uploadFile(
+          file,
+          '${recording.title}.m4a',
+          description: 'Hymn: ${recording.hymnId}',
+        );
+
+        if (fileId != null) {
+          final webLink = await _driveService.getWebViewLink(fileId);
+          recordingToPublish = recording.copyWith(
+            driveFileId: fileId,
+            driveWebLink: webLink,
+          );
+          await _recordingService.updateRecording(recordingToPublish);
+
+          // Refresh quota after upload
+          fetchStorageQuota();
+        } else {
+          throw Exception('Failed to upload to Drive');
+        }
+      }
+
+      // 4. Publish to Firestore
+      final success = await _publicService.publishRecording(recordingToPublish);
+
+      if (success) {
+        // 5. Update local state
+        final updated = recordingToPublish.copyWith(isPublic: true);
+        await _recordingService.updateRecording(updated);
+
+        // Refresh lists
+        await _recordingService.loadRecordings();
+        await refreshPublicRecordings();
 
         Get.snackbar(
           'Success',
-          'Recording uploaded to Drive successfully',
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          'Recording is now public!',
+          backgroundColor: Colors.green,
           colorText: Colors.white,
-          duration: const Duration(seconds: 3),
         );
       } else {
-        throw Exception('Upload failed - no file ID returned');
+        throw Exception('Failed to publish to database');
       }
     } catch (e) {
-      // Store error message
-      uploadErrors[recording.id] = e.toString();
-
       Get.snackbar(
-        'Upload Failed',
-        'Failed to upload recording: ${e.toString()}',
-        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        'Error',
+        'Failed to make recording public: $e',
+        backgroundColor: Colors.red,
         colorText: Colors.white,
         duration: const Duration(seconds: 5),
       );
     } finally {
-      // Remove from uploading set
-      uploadingRecordingIds.remove(recording.id);
-      isUploading.value = uploadingRecordingIds.isNotEmpty;
+      isUploading.value = false;
     }
   }
 
@@ -901,7 +950,8 @@ class RecordingController extends GetxController {
           // Create a local entry for it
           // Parse hymnId more safely from description or filename
           String hymnId = 'unknown';
-          if (driveFile.description != null && driveFile.description!.contains('Hymn:')) {
+          if (driveFile.description != null &&
+              driveFile.description!.contains('Hymn:')) {
             final parts = driveFile.description!.split('Hymn: ');
             if (parts.length > 1) {
               hymnId = parts.last.trim();
@@ -912,23 +962,30 @@ class RecordingController extends GetxController {
             }
           } else {
             // Try to extract hymnId from filename as fallback
-            final fileName = (driveFile.name ?? '').replaceAll('.m4a', '').replaceAll('.mp3', '');
+            final fileName = (driveFile.name ?? '')
+                .replaceAll('.m4a', '')
+                .replaceAll('.mp3', '');
             // Look for patterns like "rec_123_" or "Hymn 123" or just numbers
             final numberMatch = RegExp(r'(\d+)').firstMatch(fileName);
             if (numberMatch != null) {
               hymnId = numberMatch.group(1)!;
             }
           }
-          
+
           // Check if this recording already exists locally by comparing title and creation time
-          final fileName = (driveFile.name ?? '').replaceAll('.m4a', '').replaceAll('.mp3', '');
-          final driveCreatedTime = DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ?? DateTime.now();
-          
-          final existingLocalRecording = recordings.firstWhereOrNull((r) => 
-              r.title == fileName && 
+          final fileName = (driveFile.name ?? '')
+              .replaceAll('.m4a', '')
+              .replaceAll('.mp3', '');
+          final driveCreatedTime =
+              DateTime.tryParse(driveFile.createdTime?.toString() ?? '') ??
+                  DateTime.now();
+
+          final existingLocalRecording = recordings.firstWhereOrNull((r) =>
+              r.title == fileName &&
               r.driveFileId == null && // Only match local recordings
-              (r.createdAt.difference(driveCreatedTime).inSeconds.abs() < 300)); // Within 5 minutes
-          
+              (r.createdAt.difference(driveCreatedTime).inSeconds.abs() <
+                  300)); // Within 5 minutes
+
           if (existingLocalRecording != null) {
             // This is likely the same recording that was just uploaded
             // Update the existing recording instead of creating a duplicate
@@ -937,9 +994,10 @@ class RecordingController extends GetxController {
               driveWebLink: driveFile.webViewLink,
             );
             await _recordingService.updateRecording(updated);
-            
+
             if (kDebugMode) {
-              print('Updated existing recording with Drive info: ${existingLocalRecording.title}');
+              print(
+                  'Updated existing recording with Drive info: ${existingLocalRecording.title}');
             }
           } else {
             // Only create recording entry if we can properly identify the hymn
@@ -963,11 +1021,13 @@ class RecordingController extends GetxController {
               await _recordingService.saveDriveRecording(recording);
 
               if (kDebugMode) {
-                print('Added new recording from Drive: ${recording.title} (Hymn: $hymnId)');
+                print(
+                    'Added new recording from Drive: ${recording.title} (Hymn: $hymnId)');
               }
             } else {
               if (kDebugMode) {
-                print('Skipping unidentifiable Drive file: ${driveFile.name} - could not extract hymn ID');
+                print(
+                    'Skipping unidentifiable Drive file: ${driveFile.name} - could not extract hymn ID');
               }
             }
           }
@@ -1069,7 +1129,7 @@ class RecordingController extends GetxController {
     );
   }
 
-void _proceedWithPlayback(UserRecording recording) {
+  void _proceedWithPlayback(UserRecording recording) {
     // Create a hymn object from the recording
     final hymn = Hymn(
       id: recording.id,
@@ -1394,6 +1454,172 @@ void _proceedWithPlayback(UserRecording recording) {
     }
   }
 
+  Future<void> signInToDrive() async {
+    try {
+      final account = await _driveService.signIn();
+      if (account != null) {
+        await _validateDriveUser(account);
+        // Fetch storage quota after sign in
+        await fetchStorageQuota();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error signing in to Drive: $e');
+      }
+      Get.snackbar(
+        'Sign In Failed',
+        'Failed to sign in to Google Drive: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> signOutFromDrive() async {
+    try {
+      await _driveService.signOut();
+      isDriveSignedIn.value = false;
+      userEmail.value = null;
+      storageQuota.value = null;
+
+      // Clear Drive info from local recordings
+      // Note: We don't delete the local recordings, just unlink them
+      /*
+      for (final recording in recordings) {
+        if (recording.driveFileId != null) {
+          final updated = recording.copyWith(
+            driveFileId: null,
+            driveWebLink: null,
+          );
+          await _recordingService.updateRecording(updated);
+        }
+      }
+      await _recordingService.loadRecordings();
+      */
+
+      Get.snackbar(
+        'Signed Out',
+        'Signed out from Google Drive',
+        backgroundColor: Colors.grey[800],
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error signing out from Drive: $e');
+      }
+    }
+  }
+
+  Future<void> uploadToDrive(UserRecording recording) async {
+    if (!allowToShareAudio.value) {
+      Get.snackbar(
+        'Access Denied',
+        'You are not allowed to upload audio content.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    if (!isDriveSignedIn.value) {
+      await signInToDrive();
+      if (!isDriveSignedIn.value) return;
+    }
+
+    // Check storage quota
+    await fetchStorageQuota();
+    final quota = storageQuota.value;
+    if (quota != null && quota.limit != null && quota.usage != null) {
+      final limit = int.tryParse(quota.limit!) ?? 0;
+      final usage = int.tryParse(quota.usage!) ?? 0;
+      final fileSize = File(recording.filePath).lengthSync();
+
+      if (usage + fileSize > limit) {
+        Get.snackbar(
+          'Storage Full',
+          'Your Google Drive storage is full. Cannot upload recording.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+        return;
+      }
+    }
+
+    try {
+      isUploading.value = true;
+      uploadingRecordingIds.add(recording.id);
+      uploadErrors.remove(recording.id);
+
+      final file = File(recording.filePath);
+      if (!await file.exists()) {
+        throw Exception('Recording file not found');
+      }
+
+      final fileId = await _driveService.uploadFile(
+        file,
+        '${recording.title}.m4a',
+        description: 'Hymn: ${recording.hymnId}',
+      );
+
+      if (fileId != null) {
+        final webLink = await _driveService.getWebViewLink(fileId);
+        final updatedRecording = recording.copyWith(
+          driveFileId: fileId,
+          driveWebLink: webLink,
+        );
+        await _recordingService.updateRecording(updatedRecording);
+
+        // Update in list
+        final index = recordings.indexWhere((r) => r.id == recording.id);
+        if (index != -1) {
+          recordings[index] = updatedRecording;
+        }
+
+        // Refresh quota after upload
+        fetchStorageQuota();
+
+        Get.snackbar(
+          'Success',
+          'Recording uploaded to Drive',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+      } else {
+        throw Exception('Upload failed');
+      }
+    } catch (e) {
+      uploadErrors[recording.id] = e.toString();
+      Get.snackbar(
+        'Error',
+        'Failed to upload recording: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isUploading.value = false;
+      uploadingRecordingIds.remove(recording.id);
+    }
+  }
+
+  Future<void> renameRecording(UserRecording recording, String newTitle) async {
+    try {
+      final updated = recording.copyWith(title: newTitle);
+      await _recordingService.updateRecording(updated);
+
+      // Update in list
+      final index = recordings.indexWhere((r) => r.id == recording.id);
+      if (index != -1) {
+        recordings[index] = updated;
+      }
+
+      // If uploaded to Drive, rename there too (optional, but good for consistency)
+      // This would require a renameFile method in GoogleDriveService
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to rename recording: $e');
+    }
+  }
+
   Future<void> publishRecording(UserRecording recording) async {
     // Security check first
     if (!await _checkUserCanRecord()) {
@@ -1538,7 +1764,8 @@ void _proceedWithPlayback(UserRecording recording) {
 
   // Method to re-upload problematic Drive files
   Future<void> reuploadToDrive(UserRecording recording) async {
-    if (recording.filePath.isEmpty || !await File(recording.filePath).exists()) {
+    if (recording.filePath.isEmpty ||
+        !await File(recording.filePath).exists()) {
       Get.snackbar(
         'Error',
         'Original recording file not found. Cannot re-upload.',

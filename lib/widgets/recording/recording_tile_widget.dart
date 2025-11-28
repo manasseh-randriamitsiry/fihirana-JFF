@@ -32,27 +32,28 @@ class RecordingTileWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: colorController.primaryColor.value.withValues(alpha: 0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 4,
             offset: const Offset(0, 2),
           ),
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        dense: true,
         leading: Container(
-          width: 48,
-          height: 48,
+          width: 40,
+          height: 40,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: isPublic
@@ -67,216 +68,193 @@ class RecordingTileWidget extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius:
+                BorderRadius.circular(20), // Circular for user avatar feel
           ),
           child: Stack(
             children: [
-              const Center(
-                child: Icon(
-                  Icons.music_note_rounded,
-                  color: Colors.white,
-                  size: 24,
-                ),
+              Center(
+                child: recording.userPhotoUrl != null &&
+                        recording.userPhotoUrl!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.network(
+                          recording.userPhotoUrl!,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              const Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      )
+                    : const Icon(
+                        Icons.music_note_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
               ),
               if (isPublic)
                 Positioned(
-                  top: 0,
+                  bottom: 0,
                   right: 0,
                   child: Container(
-                    width: 16,
-                    height: 16,
-                    decoration: const BoxDecoration(
+                    width: 14,
+                    height: 14,
+                    decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
+                      border: Border.all(color: Colors.orange, width: 1),
                     ),
-                    child: const Icon(
-                      Icons.public,
-                      color: Colors.orange,
-                      size: 10,
+                    child: const Center(
+                      child: Icon(
+                        Icons.public,
+                        color: Colors.orange,
+                        size: 8,
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
         ),
-        title: Text(
-          recording.title,
-          style: TextStyle(
-            color: colorController.textColor.value,
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+        title: Row(
           children: [
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(
-                  Icons.music_video,
-                  size: 12,
-                  color: colorController.iconColor.value.withValues(alpha: 0.6),
+            Expanded(
+              child: Text(
+                recording.title,
+                style: TextStyle(
+                  color: colorController.textColor.value,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
                 ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    recording.hymnId == 'unknown'
-                        ? _formatDuration(recording.durationSeconds)
-                        : 'Hymn ${recording.hymnId} • ${_formatDuration(recording.durationSeconds)}',
-                    style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.7),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            const SizedBox(height: 2),
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_today,
-                  size: 12,
-                  color: colorController.iconColor.value.withValues(alpha: 0.6),
+            if (recording.userName != null &&
+                recording.userName!.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    DateFormat.yMMMd().add_jm().format(recording.createdAt),
-                    style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.5),
-                      fontSize: 11,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+                child: Text(
+                  recording.userName!,
+                  style: TextStyle(
+                    color: colorController.primaryColor.value,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
+            ],
+          ],
+        ),
+        subtitle: Row(
+          children: [
+            Icon(
+              Icons.access_time,
+              size: 10,
+              color: colorController.textColor.value.withValues(alpha: 0.5),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              _formatDuration(recording.durationSeconds),
+              style: TextStyle(
+                color: colorController.textColor.value.withValues(alpha: 0.5),
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '•',
+              style: TextStyle(
+                color: colorController.textColor.value.withValues(alpha: 0.3),
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                DateFormat.yMMMd().format(recording.createdAt),
+                style: TextStyle(
+                  color: colorController.textColor.value.withValues(alpha: 0.5),
+                  fontSize: 11,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Public indicator or Drive status
-            if (isPublic)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.3),
-                  ),
+            if (recording.driveFileId != null && !isPublic)
+              Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: Icon(
+                  Icons.cloud_done,
+                  size: 16,
+                  color: Colors.green.withValues(alpha: 0.7),
                 ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.public,
-                      size: 14,
-                      color: Colors.orange,
-                    ),
-                    SizedBox(width: 4),
-                    Text(
-                      'Public',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else if (recording.driveFileId != null)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (recording.filePath.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: Icon(
-                        Icons.check_circle,
-                        size: 16,
-                        color: colorController.primaryColor.value,
-                      ),
-                    ),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.cloud_done,
-                      size: 18,
-                      color: Colors.green,
-                    ),
-                  ),
-                ],
-              )
-            else
+              ),
+            if (!isPublic && recording.driveFileId == null)
               Obx(() {
                 final isUploading =
                     controller.isUploadingRecording(recording.id);
                 final uploadError = controller.getUploadError(recording.id);
 
                 if (isUploading) {
-                  return Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.blue,
-                        ),
-                      ),
+                  return const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                     ),
                   );
                 } else if (uploadError != null) {
-                  return IconButton(
-                    icon: const Icon(
+                  return GestureDetector(
+                    onTap: () => controller.retryUpload(recording),
+                    child: const Icon(
                       Icons.cloud_off,
                       color: Colors.red,
+                      size: 18,
                     ),
-                    onPressed: () => controller.retryUpload(recording),
-                    tooltip:
-                        'Upload failed. Tap to retry.\nError: $uploadError',
                   );
                 } else {
                   return IconButton(
                     icon: Icon(
                       Icons.cloud_upload_outlined,
-                      color: colorController.iconColor.value,
+                      color: colorController.iconColor.value
+                          .withValues(alpha: 0.5),
+                      size: 20,
                     ),
                     onPressed: () => controller.uploadToDrive(recording),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
                     tooltip: 'Upload to Drive',
                   );
                 }
               }),
-
-            // Menu button
+            const SizedBox(width: 8),
             PopupMenuButton<String>(
               icon: Icon(
                 Icons.more_vert,
-                color: colorController.iconColor.value,
+                color: colorController.iconColor.value.withValues(alpha: 0.7),
+                size: 20,
               ),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
               color: colorController.backgroundColor.value,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -297,6 +275,11 @@ class RecordingTileWidget extends StatelessWidget {
                       controller.reuploadToDrive(recording);
                     }
                     break;
+                  case 'make_public':
+                    if (!isPublic) {
+                      _showMakePublicConfirmation(context);
+                    }
+                    break;
                   case 'delete':
                     if (!isPublic) {
                       _showDeleteConfirmation(context);
@@ -307,39 +290,64 @@ class RecordingTileWidget extends StatelessWidget {
               itemBuilder: (context) => [
                 PopupMenuItem(
                   value: 'share',
+                  height: 40,
                   child: Row(
                     children: [
                       Icon(
                         Icons.share,
                         color: colorController.iconColor.value,
-                        size: 20,
+                        size: 18,
                       ),
                       const SizedBox(width: 12),
                       Text(
                         'Share',
-                        style:
-                            TextStyle(color: colorController.textColor.value),
+                        style: TextStyle(
+                            color: colorController.textColor.value,
+                            fontSize: 13),
                       ),
                     ],
                   ),
                 ),
+                if (!isPublic)
+                  PopupMenuItem(
+                    value: 'make_public',
+                    height: 40,
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.public,
+                          color: Colors.blue,
+                          size: 18,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Make Public',
+                          style: TextStyle(
+                              color: colorController.textColor.value,
+                              fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
                 if (isPublic ||
                     (recording.driveFileId != null &&
                         recording.filePath.isEmpty))
                   PopupMenuItem(
                     value: 'download',
+                    height: 40,
                     child: Row(
                       children: [
                         Icon(
                           Icons.download,
                           color: colorController.iconColor.value,
-                          size: 20,
+                          size: 18,
                         ),
                         const SizedBox(width: 12),
                         Text(
                           'Download',
-                          style:
-                              TextStyle(color: colorController.textColor.value),
+                          style: TextStyle(
+                              color: colorController.textColor.value,
+                              fontSize: 13),
                         ),
                       ],
                     ),
@@ -347,18 +355,20 @@ class RecordingTileWidget extends StatelessWidget {
                 if (!isPublic && recording.driveFileId != null)
                   PopupMenuItem(
                     value: 'reupload',
+                    height: 40,
                     child: Row(
                       children: [
                         const Icon(
                           Icons.cloud_upload,
                           color: Colors.orange,
-                          size: 20,
+                          size: 18,
                         ),
                         const SizedBox(width: 12),
                         Text(
                           'Fix Upload',
-                          style:
-                              TextStyle(color: colorController.textColor.value),
+                          style: TextStyle(
+                              color: colorController.textColor.value,
+                              fontSize: 13),
                         ),
                       ],
                     ),
@@ -366,18 +376,20 @@ class RecordingTileWidget extends StatelessWidget {
                 if (!isPublic)
                   PopupMenuItem(
                     value: 'export',
+                    height: 40,
                     child: Row(
                       children: [
                         Icon(
                           Icons.drive_file_move_outlined,
                           color: colorController.iconColor.value,
-                          size: 20,
+                          size: 18,
                         ),
                         const SizedBox(width: 12),
                         Text(
                           'Export to...',
-                          style:
-                              TextStyle(color: colorController.textColor.value),
+                          style: TextStyle(
+                              color: colorController.textColor.value,
+                              fontSize: 13),
                         ),
                       ],
                     ),
@@ -385,18 +397,20 @@ class RecordingTileWidget extends StatelessWidget {
                 if (!isPublic)
                   const PopupMenuItem(
                     value: 'delete',
+                    height: 40,
                     child: Row(
                       children: [
                         Icon(
                           Icons.delete_outline,
                           color: Colors.red,
-                          size: 20,
+                          size: 18,
                         ),
                         SizedBox(width: 12),
                         Text(
                           'Delete',
                           style: TextStyle(
                             color: Colors.red,
+                            fontSize: 13,
                           ),
                         ),
                       ],
@@ -420,6 +434,74 @@ class RecordingTileWidget extends StatelessWidget {
         .fadeIn(duration: 300.ms);
   }
 
+  void _showMakePublicConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: colorController.backgroundColor.value,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.public,
+              color: Colors.blue,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Make Public',
+              style: TextStyle(
+                color: colorController.textColor.value,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Are you sure you want to make "${recording.title}" public?',
+              style: TextStyle(
+                  color: colorController.textColor.value, fontSize: 14),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'This will upload the recording to Google Drive (if not already uploaded) and make it visible to everyone using the app.',
+              style: TextStyle(
+                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                  fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: colorController.textColor.value),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              controller.makeRecordingPublic(recording);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blue,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Make Public'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showDeleteConfirmation(BuildContext context) {
     showDialog(
       context: context,
@@ -439,13 +521,15 @@ class RecordingTileWidget extends StatelessWidget {
               style: TextStyle(
                 color: colorController.textColor.value,
                 fontWeight: FontWeight.bold,
+                fontSize: 16,
               ),
             ),
           ],
         ),
         content: Text(
-          'Are you sure you want to delete "${recording.title}"? This action cannot be undone.',
-          style: TextStyle(color: colorController.textColor.value),
+          'Are you sure you want to delete "${recording.title}"?',
+          style:
+              TextStyle(color: colorController.textColor.value, fontSize: 14),
         ),
         actions: [
           TextButton(

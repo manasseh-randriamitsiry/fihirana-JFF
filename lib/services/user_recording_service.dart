@@ -39,19 +39,20 @@ class UserRecordingService {
         print('UserRecordingService: Loading recordings from ${file.path}');
         print('UserRecordingService: File exists: ${await file.exists()}');
       }
-      
+
       if (await file.exists()) {
         final content = await file.readAsString();
         if (kDebugMode) {
           print('UserRecordingService: Content length: ${content.length}');
         }
-        
+
         if (content.isNotEmpty) {
           final List<dynamic> jsonList = json.decode(content);
           _recordings = jsonList.map((e) => UserRecording.fromMap(e)).toList();
           _recordings.sort((a, b) => b.createdAt.compareTo(a.createdAt));
           if (kDebugMode) {
-            print('UserRecordingService: Loaded ${_recordings.length} recordings');
+            print(
+                'UserRecordingService: Loaded ${_recordings.length} recordings');
           }
         } else {
           _recordings = [];
@@ -65,11 +66,12 @@ class UserRecordingService {
           print('UserRecordingService: File does not exist, empty list');
         }
       }
-      
+
       // Always add to stream, even if empty
       _recordingsController.add(_recordings);
       if (kDebugMode) {
-        print('UserRecordingService: Added ${_recordings.length} recordings to stream');
+        print(
+            'UserRecordingService: Added ${_recordings.length} recordings to stream');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -148,6 +150,10 @@ class UserRecordingService {
     required int durationSeconds,
     bool isPublic = false,
     List<String> tags = const [],
+    String? userId,
+    String? userEmail,
+    String? userPhotoUrl,
+    String? userName,
   }) async {
     final recording = UserRecording(
       id: _uuid.v4(),
@@ -158,6 +164,10 @@ class UserRecordingService {
       createdAt: DateTime.now(),
       isPublic: isPublic,
       tags: tags,
+      userId: userId,
+      userEmail: userEmail,
+      userPhotoUrl: userPhotoUrl,
+      userName: userName,
     );
 
     _recordings.insert(0, recording);
