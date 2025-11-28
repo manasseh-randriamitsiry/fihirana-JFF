@@ -12,6 +12,7 @@ import '../models/user_recording.dart';
 import '../services/user_recording_service.dart';
 import '../services/google_drive_service.dart';
 import '../services/public_recording_service.dart';
+import '../services/deleted_recording_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/hymn.dart';
 import '../services/audio_service.dart';
@@ -35,9 +36,10 @@ enum PublishRecordingResult {
 }
 
 class RecordingController extends GetxController {
-  final UserRecordingService _recordingService = UserRecordingService();
+final UserRecordingService _recordingService = UserRecordingService();
   late final GoogleDriveService _driveService;
   final PublicRecordingService _publicService = PublicRecordingService();
+  final DeletedRecordingService _deletedService = DeletedRecordingService();
   final _uuid = const Uuid();
 
   // Recording state
@@ -73,7 +75,7 @@ class RecordingController extends GetxController {
   // Audio sharing permission
   final RxBool allowToShareAudio = false.obs;
 
-  @override
+@override
   void onInit() {
     super.onInit();
 
@@ -88,6 +90,7 @@ class RecordingController extends GetxController {
       _autoRefreshRecordings();
       refreshPublicRecordings();
       _startPeriodicRefresh();
+      await _deletedService.initialize();
     });
   }
 
@@ -688,18 +691,52 @@ class RecordingController extends GetxController {
     await AudioService.instance.player.setSpeed(speed);
   }
 
-  // Management Actions
+// Management Actions
   Future<void> deleteRecording(UserRecording recording) async {
-    await _recordingService.deleteRecording(recording.id);
-    if (recording.driveFileId != null) {
-      try {
-        await _driveService.deleteFile(recording.driveFileId!);
-      } catch (e) {
-        // Log error but don't fail the deletion
-        if (kDebugMode) {
-          print('Failed to delete from Google Drive: $e');
+    try {
+      // Save to deleted recordings before deleting
+      await _deletedService.saveDeletedRecording(recording);
+      
+      // Delete from local storage
+      await _recordingService.deleteRecording(recording.id);
+      
+      // Delete from Google Drive if exists
+      if (recording.driveFileId != null) {
+        try {
+          await _driveService.deleteFile(recording.driveFileId!);
+        } catch (e) {
+          // Log error but don't fail the deletion
+          if (kDebugMode) {
+            print('Failed to delete from Google Drive: $e');
+          }
         }
       }
+      
+      // Unpublish from public recordings if it was public
+      if (recording.isPublic) {
+        try {
+          await _publicService.unpublishRecording(recording.id);
+        } catch (e) {
+          if (kDebugMode) {
+            print('Failed to unpublish recording: $e');
+          }
+        }
+      }
+      
+      Get.snackbar(
+        'Deleted',
+        'Recording moved to trash and can be restored',
+        backgroundColor: Colors.orange.withValues(alpha: 0.8),
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to delete recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -1634,7 +1671,7 @@ class RecordingController extends GetxController {
     }
   }
 
-  Future<void> renameRecording(UserRecording recording, String newTitle) async {
+Future<void> renameRecording(UserRecording recording, String newTitle) async {
     try {
       final updated = recording.copyWith(title: newTitle);
       await _recordingService.updateRecording(updated);
@@ -1649,6 +1686,97 @@ class RecordingController extends GetxController {
       // This would require a renameFile method in GoogleDriveService
     } catch (e) {
       Get.snackbar('Error', 'Failed to rename recording: $e');
+    }
+  }
+
+  // Deleted recordings management
+  Future<List<UserRecording>> getDeletedRecordings() async {
+    return await _deletedService.getDeletedRecordings();
+  }
+
+  Future<void> restoreRecording(UserRecording deletedRecording) async {
+    try {
+      // Create a new recording with original data but new ID
+      final restoredRecording = UserRecording(
+        id: _uuid.v4(),
+        hymnId: deletedRecording.hymnId,
+        title: deletedRecording.title,
+        filePath: deletedRecording.filePath,
+        durationSeconds: deletedRecording.durationSeconds,
+        createdAt: DateTime.now(), // Use current time for restored recording
+        isPublic: false, // Always restore as private
+        driveFileId: deletedRecording.driveFileId,
+        driveWebLink: deletedRecording.driveWebLink,
+        userName: deletedRecording.userName,
+        userId: deletedRecording.userId,
+        userEmail: deletedRecording.userEmail,
+        userPhotoUrl: deletedRecording.userPhotoUrl,
+        tags: deletedRecording.tags,
+      );
+
+      // Save to recordings
+      await _recordingService.saveRecording(
+        filePath: restoredRecording.filePath,
+        hymnId: restoredRecording.hymnId,
+        title: restoredRecording.title,
+        durationSeconds: restoredRecording.durationSeconds,
+        userId: restoredRecording.userId,
+        userEmail: restoredRecording.userEmail,
+        userPhotoUrl: restoredRecording.userPhotoUrl,
+        userName: restoredRecording.userName,
+      );
+
+      // Remove from deleted recordings
+      await _deletedService.restoreRecording(deletedRecording.id);
+
+      // Refresh recordings
+      await _recordingService.loadRecordings();
+
+      Get.snackbar(
+        'Restored',
+        'Recording restored successfully',
+        backgroundColor: Colors.green.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to restore recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> permanentlyDeleteRecording(UserRecording deletedRecording) async {
+    try {
+      // Delete from Google Drive if exists
+      if (deletedRecording.driveFileId != null) {
+        try {
+          await _driveService.deleteFile(deletedRecording.driveFileId!);
+        } catch (e) {
+          if (kDebugMode) {
+            print('Failed to delete from Google Drive: $e');
+          }
+        }
+      }
+
+      // Remove from deleted recordings permanently
+      await _deletedService.permanentlyDeleteRecording(deletedRecording.id);
+
+      Get.snackbar(
+        'Permanently Deleted',
+        'Recording has been permanently deleted',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to permanently delete recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
     }
   }
 
