@@ -8,6 +8,7 @@ import '../../utility/navigation_utility.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../controller/auth_controller.dart';
 
 class HymnListItem extends StatefulWidget {
   final Hymn hymn;
@@ -309,7 +310,8 @@ class _HymnListItemState extends State<HymnListItem>
     final l10n = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
     final isLoggedIn = user != null;
-    final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
+    final authController = Get.find<AuthController>();
+    final isAdmin = authController.isAdmin || authController.isSuperAdmin;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),

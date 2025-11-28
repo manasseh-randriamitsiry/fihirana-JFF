@@ -13,6 +13,7 @@ import 'edit_hymn_screen.dart';
 import '../../services/hymn_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
+import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
 import '../../services/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
@@ -485,9 +486,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                         StreamBuilder(
                           stream: FirebaseAuth.instance.authStateChanges(),
                           builder: (context, snapshot) {
-                            final user = FirebaseAuth.instance.currentUser;
-                            final isAdmin = user?.email ==
-                                'manassehrandriamitsiry@gmail.com';
+                            final authController = Get.find<AuthController>();
+                            final isAdmin = authController.isAdmin || authController.isSuperAdmin;
 
                             if (isAdmin) {
                               return Text(
@@ -630,7 +630,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     }
 
     final user = FirebaseAuth.instance.currentUser;
-    final isAdmin = user?.email == 'manassehrandriamitsiry@gmail.com';
+    final authController = Get.find<AuthController>();
+    final isAdmin = authController.isAdmin || authController.isSuperAdmin;
     final isCreator = _hymn!.createdByEmail == user?.email;
 
     return isAdmin || isCreator;
