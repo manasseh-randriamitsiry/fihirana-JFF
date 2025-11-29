@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/user_recording.dart';
 import '../../services/user_recording_service.dart';
-import '../../services/google_drive_service.dart';
+
 import '../../services/audio_service.dart';
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
@@ -408,11 +408,11 @@ class RecordingDriveSyncManager extends GetxController {
                   'https://drive.google.com/uc?export=download&id=${driveFile.id}';
               durationSeconds = await AudioService.getAudioUrlDuration(downloadUrl);
               if (kDebugMode) {
-                print('RecordingDriveSyncManager: Retrieved duration for ${fileName}: ${durationSeconds}s');
+                print('RecordingDriveSyncManager: Retrieved duration for $fileName: ${durationSeconds}s');
               }
             } catch (e) {
               if (kDebugMode) {
-                print('RecordingDriveSyncManager: Could not get duration for ${fileName}: $e');
+                print('RecordingDriveSyncManager: Could not get duration for $fileName: $e');
               }
             }
 

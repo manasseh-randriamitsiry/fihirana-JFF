@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
-import 'package:collection/collection.dart';
+
 import '../models/hymn.dart';
 import 'audio_cache_service.dart';
 import 'audio_file_mapping.dart';
@@ -675,7 +675,7 @@ class AudioService {
             if (!finalTargetPath.toLowerCase().endsWith('.m4a') && 
                 !finalTargetPath.toLowerCase().endsWith('.mp3') &&
                 !finalTargetPath.toLowerCase().endsWith('.wav')) {
-              finalTargetPath = '${finalTargetPath}.m4a'; // Default to .m4a
+              finalTargetPath = '$finalTargetPath.m4a'; // Default to .m4a
               if (kDebugMode) {
                 print('AudioService: Updated target path to: $finalTargetPath');
               }

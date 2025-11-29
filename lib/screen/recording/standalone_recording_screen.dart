@@ -27,13 +27,21 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
       _controller.hideOverlay();
       // Initialize recording service
       _controller.onPageVisible();
+      // Multiple checks to ensure overlay is hidden
+      for (int i = 0; i < 3; i++) {
+        Future.delayed(Duration(milliseconds: 100 * (i + 1)), () {
+          if (mounted) {
+            _controller.hideOverlay();
+          }
+        });
+      }
     });
   }
 
   void _initializeRecordingName() {
     final now = DateTime.now();
     final timestamp = '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    _recordingTitle = 'Unknown Recording - $timestamp';
+    _recordingTitle = 'Recording - $timestamp';
     _nameController.text = _recordingTitle;
   }
 
@@ -67,7 +75,15 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   void _stopRecording() async {
     try {
       print('StandaloneRecording: Stopping recording...');
-      final recording = await _controller.stopRecording('standalone', _recordingTitle);
+      // Use current text from name controller instead of _recordingTitle
+      final currentTitle = _nameController.text.trim().isNotEmpty 
+          ? _nameController.text.trim() 
+          : _recordingTitle;
+      print('StandaloneRecording: Using title: "$currentTitle"');
+      print('StandaloneRecording: Name controller text: "${_nameController.text}"');
+      
+      final recording = await _controller.stopRecording('standalone', currentTitle);
+      print('StandaloneRecording: Recording result title: ${recording?.title}');
       print('StandaloneRecording: Recording result: $recording');
       if (recording != null && mounted) {
         _showSaveDialog();
@@ -94,12 +110,16 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
       Navigator.pop(context);
     }
 
-    // Update recording name after dialog is closed
+    // Update recording name if user changed it after stopping recording
     try {
       final recordings = _controller.recordings;
       if (recordings.isNotEmpty) {
         final lastRecording = recordings.last;
-        await _controller.renameRecording(lastRecording, name);
+        // Only rename if the name is different from current recording title
+        if (lastRecording.title != name) {
+          print('StandaloneRecording: Renaming from "${lastRecording.title}" to "$name"');
+          await _controller.renameRecording(lastRecording, name);
+        }
       }
     } catch (e) {
       print('Error renaming recording: $e');
