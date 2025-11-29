@@ -142,12 +142,16 @@ class _RecordingOverlayState extends State<RecordingOverlay>
         setState(() => _showSaveDialog = false);
         _showUploadProgressDialog(_currentRecording!, isPublic: true);
       } else {
-        Navigator.pop(context);
-        _controller.hideOverlay();
-        widget.onClose();
+        if (mounted) {
+          Navigator.pop(context);
+          _controller.hideOverlay();
+          widget.onClose();
+        }
       }
     } else {
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
       _controller.hideOverlay();
       widget.onClose();
     }

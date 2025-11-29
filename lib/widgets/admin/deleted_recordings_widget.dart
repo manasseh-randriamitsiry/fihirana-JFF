@@ -7,7 +7,7 @@ import '../common/loading_widget.dart';
 import '../recording/recording_tile_widget.dart';
 
 class DeletedRecordingsWidget extends StatefulWidget {
-  const DeletedRecordingsWidget({Key? key}) : super(key: key);
+  const DeletedRecordingsWidget({super.key});
 
   @override
   State<DeletedRecordingsWidget> createState() =>

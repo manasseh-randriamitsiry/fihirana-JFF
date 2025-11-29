@@ -543,7 +543,8 @@ class GoogleDriveService {
           throw Exception('Downloaded file is empty (0 bytes). This may indicate a permission issue or file corruption.');
         }
         
-        if (fileAccessMetadata.size != null && totalBytes != fileAccessMetadata.size) {
+        final expectedSize = int.tryParse(fileAccessMetadata.size ?? '');
+        if (fileAccessMetadata.size != null && expectedSize != null && totalBytes != expectedSize) {
           if (kDebugMode) {
             print('GoogleDriveService: Warning - Size mismatch. Downloaded: $totalBytes, Expected: ${fileAccessMetadata.size}');
           }

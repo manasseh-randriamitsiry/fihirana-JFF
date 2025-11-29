@@ -208,7 +208,7 @@ tabs: [
                       l10n, textColor, primaryColor, backgroundColor),
 
                   // Deleted Recordings Tab
-DeletedRecordingsWidget(),
+const DeletedRecordingsWidget(),
                 ],
               ),
             ),

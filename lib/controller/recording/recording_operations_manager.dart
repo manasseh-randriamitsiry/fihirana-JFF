@@ -1,4 +1,4 @@
-import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -56,7 +56,7 @@ class RecordingOperationsManager extends GetxController {
     _stateManager.resetTimer();
     _stateManager.startTimer();
 
-    if (hymnId != 'unknown') {
+    if (hymnId != 'unknown' && hymnId != 'standalone') {
       _stateManager.showOverlay(hymnId, 'Hymn $hymnId');
     }
   }
