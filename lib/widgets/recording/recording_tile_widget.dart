@@ -40,39 +40,41 @@ class RecordingTileWidget extends StatelessWidget {
   bool _canDeleteRecording() {
     final authController = Get.find<AuthController>();
     final currentUser = FirebaseAuth.instance.currentUser;
-    
+
     // Admins and SuperAdmins can delete any public recording
     if (authController.isAdmin || authController.isSuperAdmin) {
       return true;
     }
-    
+
     // Users can delete their own recordings
-    if (currentUser != null && 
-        (recording.userId == currentUser.uid || recording.userEmail == currentUser.email)) {
+    if (currentUser != null &&
+        (recording.userId == currentUser.uid ||
+            recording.userEmail == currentUser.email)) {
       return true;
     }
-    
+
     return false;
   }
 
   bool _isAdminAndOwner() {
     final authController = Get.find<AuthController>();
     final currentUser = FirebaseAuth.instance.currentUser;
-    
+
     // Check if user is admin/super admin AND owner
     final isAdmin = authController.isAdmin || authController.isSuperAdmin;
-    final isOwner = currentUser != null && 
-        (recording.userId == currentUser.uid || recording.userEmail == currentUser.email);
-    
+    final isOwner = currentUser != null &&
+        (recording.userId == currentUser.uid ||
+            recording.userEmail == currentUser.email);
+
     return isAdmin && isOwner;
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     if (isDeleted) {
       return _buildDeletedTile(context);
     }
-    
+
     return _buildNormalTile(context);
   }
 
@@ -234,8 +236,8 @@ class RecordingTileWidget extends StatelessWidget {
                       Text(
                         'Restore',
                         style: TextStyle(
-                          color: colorController.textColor.value,
-                          fontSize: 13),
+                            color: colorController.textColor.value,
+                            fontSize: 13),
                       ),
                     ],
                   ),
@@ -253,9 +255,7 @@ class RecordingTileWidget extends StatelessWidget {
                       const SizedBox(width: 12),
                       Text(
                         'Delete Permanently',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 13),
+                        style: TextStyle(color: Colors.red, fontSize: 13),
                       ),
                     ],
                   ),
@@ -293,19 +293,23 @@ class RecordingTileWidget extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: isPublic
-                  ? [
-                      Colors.orange,
-                      Colors.orange.withValues(alpha: 0.7),
-                    ]
-                  : [
-                      colorController.primaryColor.value,
-                      colorController.primaryColor.value.withValues(alpha: 0.7),
-                    ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            gradient: recording.userPhotoUrl == null ||
+                    recording.userPhotoUrl!.isEmpty
+                ? LinearGradient(
+                    colors: isPublic
+                        ? [
+                            Colors.orange,
+                            Colors.orange.withValues(alpha: 0.7),
+                          ]
+                        : [
+                            colorController.primaryColor.value,
+                            colorController.primaryColor.value
+                                .withValues(alpha: 0.7),
+                          ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                : null,
             borderRadius:
                 BorderRadius.circular(20), // Circular for user avatar feel
           ),
@@ -321,16 +325,25 @@ class RecordingTileWidget extends StatelessWidget {
                           width: 40,
                           height: 40,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(
-                            Icons.person,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            isPublic ? Icons.person : Icons.music_note_rounded,
                             color: Colors.white,
                             size: 20,
                           ),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Icon(
+                              isPublic
+                                  ? Icons.person
+                                  : Icons.music_note_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            );
+                          },
                         ),
                       )
-                    : const Icon(
-                        Icons.music_note_rounded,
+                    : Icon(
+                        isPublic ? Icons.person : Icons.music_note_rounded,
                         color: Colors.white,
                         size: 20,
                       ),
@@ -682,7 +695,7 @@ class RecordingTileWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                ],
+              ],
             ),
           ],
         ),
@@ -821,9 +834,11 @@ class RecordingTileWidget extends StatelessWidget {
                       );
 
                       // Only close dialog if successful
-                      if (result == PublishRecordingResult.success && dialogContext.mounted) {
+                      if (result == PublishRecordingResult.success &&
+                          dialogContext.mounted) {
                         Navigator.pop(dialogContext);
-                      } else if (result == PublishRecordingResult.duplicateTitle) {
+                      } else if (result ==
+                          PublishRecordingResult.duplicateTitle) {
                         // Show error in the text field
                         setState(() {
                           errorMessage =
@@ -847,8 +862,9 @@ class RecordingTileWidget extends StatelessWidget {
 
   void _showDeleteConfirmation(BuildContext context) {
     final currentUser = FirebaseAuth.instance.currentUser;
-    final isOwner = recording.userId == currentUser?.uid || recording.userEmail == currentUser?.email;
-    
+    final isOwner = recording.userId == currentUser?.uid ||
+        recording.userEmail == currentUser?.email;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -878,29 +894,29 @@ class RecordingTileWidget extends StatelessWidget {
           children: [
             Text(
               'Are you sure you want to delete "${recording.title}"?',
-              style:
-                  TextStyle(color: colorController.textColor.value, fontSize: 14),
+              style: TextStyle(
+                  color: colorController.textColor.value, fontSize: 14),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isOwner 
+                color: isOwner
                     ? Colors.red.withValues(alpha: 0.1)
                     : Colors.orange.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: isOwner 
+                  color: isOwner
                       ? Colors.red.withValues(alpha: 0.3)
                       : Colors.orange.withValues(alpha: 0.3),
                 ),
               ),
               child: Text(
-                isOwner 
+                isOwner
                     ? 'This recording will be permanently deleted and cannot be recovered.'
                     : 'This recording will be moved to trash and can be restored from the admin panel.',
                 style: TextStyle(
-                  color: isOwner 
+                  color: isOwner
                       ? Colors.red.withValues(alpha: 0.8)
                       : Colors.orange.withValues(alpha: 0.8),
                   fontSize: 12,
@@ -965,17 +981,16 @@ class RecordingTileWidget extends StatelessWidget {
           children: [
             Text(
               'Are you sure you want to permanently delete "${recording.title}"?',
-              style:
-                  TextStyle(color: colorController.textColor.value, fontSize: 14),
+              style: TextStyle(
+                  color: colorController.textColor.value, fontSize: 14),
             ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.withValues(alpha: 0.3))
-              ),
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withValues(alpha: 0.3))),
               child: Text(
                 'This will permanently delete recording from Google Drive, Firebase, and local storage. This action cannot be undone.',
                 style: TextStyle(

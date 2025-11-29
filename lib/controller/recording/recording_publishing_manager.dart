@@ -116,8 +116,24 @@ class RecordingPublishingManager extends GetxController {
       _stateManager.isUploading.value = true;
       UserRecording recordingToPublish = recording;
 
+      // Get user info for the recording
+      final currentUser = _authManager.currentUser;
+      final photoUrl = currentUser?.photoUrl;
+      final prefs = await SharedPreferences.getInstance();
+      final userName =
+          prefs.getString('guest_name') ?? _authManager.guestName.value;
+
       if (customTitle != null && customTitle.isNotEmpty) {
         recordingToPublish = recording.copyWith(title: customTitle);
+      }
+
+      // Add user info if not already present
+      if (recordingToPublish.userPhotoUrl == null ||
+          recordingToPublish.userName == null) {
+        recordingToPublish = recordingToPublish.copyWith(
+          userName: userName.isNotEmpty ? userName : currentUser?.displayName,
+          userPhotoUrl: photoUrl,
+        );
       }
 
       if (recording.driveFileId == null) {
@@ -214,6 +230,10 @@ class RecordingPublishingManager extends GetxController {
       final userName =
           prefs.getString('guest_name') ?? _authManager.guestName.value;
 
+      // Get user photo URL from Drive account
+      final currentUser = _authManager.currentUser;
+      final photoUrl = currentUser?.photoUrl;
+
       String? driveFileId = recording.driveFileId;
       String? publicLink;
 
@@ -244,6 +264,7 @@ class RecordingPublishingManager extends GetxController {
         driveFileId: driveFileId,
         publicLink: publicLink,
         userName: userName,
+        userPhotoUrl: photoUrl,
       );
 
       UserRecording currentRecording = updatedRecording;
