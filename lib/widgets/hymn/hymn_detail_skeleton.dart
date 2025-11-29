@@ -17,8 +17,6 @@ class HymnDetailSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
     return GetBuilder<ColorController>(
       builder: (controller) {
         final isDark = ThemeData.estimateBrightnessForColor(
@@ -78,7 +76,7 @@ class HymnDetailSkeleton extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Column(
@@ -120,7 +118,7 @@ class HymnDetailSkeleton extends StatelessWidget {
                                   Container(
                                     width: countFontSize,
                                     height: countFontSize,
-                                    decoration: BoxDecoration(
+                                    decoration: const BoxDecoration(
                                       color: Colors.white,
                                       shape: BoxShape.circle,
                                     ),
