@@ -165,19 +165,90 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Stop Recording?'),
-        content: const Text('Are you sure you want to stop recording?'),
+        backgroundColor: _colorController.backgroundColor.value,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.stop_circle, color: Colors.red, size: 24),
+            const SizedBox(width: 12),
+            Text(
+              'Stop Recording?',
+              style: TextStyle(
+                color: _colorController.textColor.value,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'What would you like to do with this recording?',
+              style: TextStyle(
+                color: _colorController.textColor.value,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _colorController.primaryColor.value.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: _colorController.primaryColor.value.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.timer,
+                    color: _colorController.primaryColor.value,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _formatDuration(_controller.recordDuration.value),
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: _colorController.textColor.value),
+            ),
           ),
           TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
+              widget.onClose();
+              Get.snackbar('Discarded', 'Recording was not saved');
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.orange),
+            child: const Text('Discard'),
+          ),
+          ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               _stopRecording();
             },
-            child: const Text('Stop'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _colorController.primaryColor.value,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Save Recording'),
           ),
         ],
       ),

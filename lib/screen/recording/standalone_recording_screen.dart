@@ -24,6 +24,10 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   void initState() {
     super.initState();
     _initializeRecordingName();
+    // Ensure overlay is hidden when entering standalone recording
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.hideOverlay();
+    });
   }
 
   void _initializeRecordingName() {
@@ -36,21 +40,40 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   @override
   void dispose() {
     _nameController.dispose();
+    // Ensure overlay is hidden when leaving standalone recording
+    _controller.hideOverlay();
     super.dispose();
   }
 
   void _startRecording() async {
+    // Ensure we're not already recording and overlay is hidden
+    if (_controller.isRecording.value) {
+      Get.snackbar('Info', 'Recording already in progress');
+      return;
+    }
+    
+    // Hide any existing overlay and reset overlay state
+    _controller.hideOverlay();
+    
+    // Use a slight delay to ensure overlay is fully hidden
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Start recording
     await _controller.startRecording('unknown');
   }
 
   void _stopRecording() async {
+    // Ensure overlay doesn't interfere
+    _controller.hideOverlay();
+    
+    // Stop recording immediately and show save dialog
     final recording = await _controller.stopRecording('unknown', _recordingTitle);
     if (recording != null) {
       setState(() => _showSaveDialog = true);
     }
   }
 
-  void _saveRecording() async {
+  void _saveRecording({bool closeAfterSave = true}) async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       Get.snackbar('Error', 'Please enter a name for the recording');
@@ -64,8 +87,13 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     }
 
     setState(() => _showSaveDialog = false);
-    Get.back();
-    Get.snackbar('Success', 'Recording saved successfully');
+    
+    if (closeAfterSave) {
+      Get.back(); // Go back to recording list
+      Get.snackbar('Success', 'Recording saved successfully');
+    } else {
+      Get.snackbar('Success', 'Recording saved. You can start a new recording.');
+    }
   }
 
   @override
@@ -90,7 +118,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
           icon: Icon(Icons.close, color: _colorController.textColor.value),
           onPressed: () {
             if (_controller.isRecording.value) {
-              _showStopConfirmation();
+              _showCloseConfirmation();
             } else {
               Get.back();
             }
@@ -218,6 +246,30 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       onPause: _controller.pauseRecording,
                       onResume: _controller.resumeRecording,
                     ),
+
+                    // Dedicated stop button - always visible when recording
+                    Obx(() => _controller.isRecording.value
+                        ? Container(
+                            margin: const EdgeInsets.only(top: 32),
+                            child: ElevatedButton.icon(
+                              onPressed: _stopRecording,
+                              icon: const Icon(Icons.stop, size: 20),
+                              label: const Text('Stop Recording'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 32,
+                                  vertical: 16,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                elevation: 4,
+                              ),
+                            ),
+                          )
+                        : const SizedBox.shrink()),
                   ],
                 ),
               ),
@@ -234,34 +286,80 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  void _showStopConfirmation() {
+  void _showCloseConfirmation() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: _colorController.backgroundColor.value,
-        title: Text(
-          'Stop Recording?',
-          style: TextStyle(color: _colorController.textColor.value),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
+            const SizedBox(width: 12),
+            Text(
+              'Recording in Progress',
+              style: TextStyle(
+                color: _colorController.textColor.value,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
-        content: Text(
-          'Are you sure you want to stop recording? The recording will be lost if not saved.',
-          style: TextStyle(color: _colorController.textColor.value),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You have a recording in progress. What would you like to do?',
+              style: TextStyle(
+                color: _colorController.textColor.value,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _colorController.primaryColor.value.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.timer,
+                    color: _colorController.primaryColor.value,
+                    size: 16,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _formatDuration(_controller.recordDuration.value),
+                    style: TextStyle(
+                      color: _colorController.textColor.value,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              'Continue Recording',
               style: TextStyle(color: _colorController.primaryColor.value),
             ),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
-              _controller.stopRecording('unknown', _recordingTitle);
+              await _controller.stopRecording('unknown', _recordingTitle);
               Get.back();
+              Get.snackbar('Discarded', 'Recording was not saved');
             },
-            child: const Text('Stop & Discard', style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(foregroundColor: Colors.orange),
+            child: const Text('Discard & Exit'),
           ),
         ],
       ),
