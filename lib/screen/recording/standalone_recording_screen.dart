@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import '../../controller/recording_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../widgets/recording/recording_controls_widget.dart';
-import '../../widgets/recording/recording_save_dialog_widget.dart';
 
 class StandaloneRecordingScreen extends StatefulWidget {
   const StandaloneRecordingScreen({super.key});
@@ -17,7 +16,6 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   final ColorController _colorController = Get.find<ColorController>();
   final TextEditingController _nameController = TextEditingController();
   
-  bool _showSaveDialog = false;
   String _recordingTitle = '';
 
   @override
@@ -27,6 +25,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     // Ensure overlay is hidden when entering standalone recording
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _controller.hideOverlay();
+      // Initialize recording service
+      _controller.onPageVisible();
     });
   }
 
@@ -40,8 +40,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   @override
   void dispose() {
     _nameController.dispose();
-    // Ensure overlay is hidden when leaving standalone recording
-    _controller.hideOverlay();
+    // Don't call controller methods during dispose as they may trigger Obx updates
+    // _controller.hideOverlay(); // Remove this to prevent Obx updates during disposal
     super.dispose();
   }
 
@@ -52,63 +52,213 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
       return;
     }
     
-    // Hide any existing overlay and reset overlay state
     _controller.hideOverlay();
     
-    // Use a slight delay to ensure overlay is fully hidden
-    await Future.delayed(const Duration(milliseconds: 100));
-    
-    // Start recording
-    await _controller.startRecording('unknown');
-  }
-
-  void _stopRecording() async {
-    // Ensure overlay doesn't interfere
-    _controller.hideOverlay();
-    
-    // Stop recording immediately and show save dialog
-    final recording = await _controller.stopRecording('unknown', _recordingTitle);
-    if (recording != null) {
-      setState(() => _showSaveDialog = true);
+    // Start recording without hymn context
+    try {
+      await _controller.startRecording('standalone');
+    } catch (e) {
+      if (mounted) {
+        Get.snackbar('Error', 'Failed to start recording: $e');
+      }
     }
   }
 
-  void _saveRecording({bool closeAfterSave = true}) async {
+  void _stopRecording() async {
+    try {
+      print('StandaloneRecording: Stopping recording...');
+      final recording = await _controller.stopRecording('standalone', _recordingTitle);
+      print('StandaloneRecording: Recording result: $recording');
+      if (recording != null && mounted) {
+        _showSaveDialog();
+      } else if (mounted && recording == null) {
+        Get.snackbar('Error', 'Failed to save recording - no recording returned');
+      }
+    } catch (e) {
+      print('StandaloneRecording: Error stopping recording: $e');
+      if (mounted) {
+        Get.snackbar('Error', 'Failed to stop recording: $e');
+      }
+    }
+  }
+
+  void _saveRecording() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       Get.snackbar('Error', 'Please enter a name for the recording');
       return;
     }
 
-    // Update recording name if different
-    if (name != _recordingTitle) {
-      final lastRecording = _controller.recordings.last;
-      await _controller.renameRecording(lastRecording, name);
+    // Close dialog first to prevent widget tree conflicts
+    if (mounted) {
+      Navigator.pop(context);
     }
 
-    setState(() => _showSaveDialog = false);
-    
-    if (closeAfterSave) {
-      Get.back(); // Go back to recording list
-      Get.snackbar('Success', 'Recording saved successfully');
-    } else {
-      Get.snackbar('Success', 'Recording saved. You can start a new recording.');
+    // Update recording name after dialog is closed
+    try {
+      final recordings = _controller.recordings;
+      if (recordings.isNotEmpty) {
+        final lastRecording = recordings.last;
+        await _controller.renameRecording(lastRecording, name);
+      }
+    } catch (e) {
+      print('Error renaming recording: $e');
     }
+
+    // Navigate back after all operations are complete
+    if (mounted) {
+      // Add small delay to ensure widget tree is stable
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted) {
+          Get.back(); // Go back to previous screen
+        }
+      });
+    }
+  }
+
+  void _discardRecording() {
+    if (mounted) {
+      Navigator.pop(context);
+      Get.back(); // Go back to previous screen
+    }
+  }
+
+  void _showSaveDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          margin: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.1,
+            vertical: MediaQuery.of(context).size.height * 0.1,
+          ),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                _colorController.primaryColor.value,
+                _colorController.primaryColor.value.withValues(alpha: 0.8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+              maxWidth: MediaQuery.of(context).size.width * 0.8,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Success icon
+                  Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: Colors.green.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Icon(
+                      Icons.check_circle,
+                      size: 32,
+                      color: Colors.green,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 20),
+                  
+                  const Text(
+                    'Recording Complete!',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Name input
+                  TextField(
+                    controller: _nameController,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: 'Recording Name',
+                      labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white, width: 2),
+                      ),
+                      prefixIcon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.8)),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  
+                  // Action buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: _discardRecording,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+                          ),
+                          child: Text(
+                            'Discard',
+                            style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: _saveRecording,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: Colors.white,
+                            foregroundColor: _colorController.primaryColor.value,
+                          ),
+                          child: const Text('Save'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_showSaveDialog) {
-      return RecordingSaveDialogWidget(
-        nameController: _nameController,
-        onSave: _saveRecording,
-        onDiscard: () {
-          setState(() => _showSaveDialog = false);
-          Get.back();
-        },
-      );
-    }
-
     return Scaffold(
       backgroundColor: _colorController.backgroundColor.value,
       appBar: AppBar(
@@ -116,161 +266,73 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: _colorController.textColor.value),
-          onPressed: () {
-            if (_controller.isRecording.value) {
-              _showCloseConfirmation();
-            } else {
-              Get.back();
-            }
-          },
+          onPressed: () => Get.back(),
         ),
         title: Text(
-          'New Recording',
+          'Recording',
           style: TextStyle(
             color: _colorController.textColor.value,
             fontWeight: FontWeight.bold,
           ),
         ),
-        centerTitle: true,
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              // Recording name input
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: _colorController.backgroundColor.value,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: _colorController.primaryColor.value.withValues(alpha: 0.2),
+              // Recording title input
+              TextField(
+                controller: _nameController,
+                style: TextStyle(
+                  color: _colorController.textColor.value,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+                decoration: InputDecoration(
+                  labelText: 'Recording Name',
+                  labelStyle: TextStyle(
+                    color: _colorController.textColor.value.withValues(alpha: 0.7),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: _colorController.primaryColor.value.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: _colorController.primaryColor.value.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(
+                      color: _colorController.primaryColor.value,
+                      width: 2,
+                    ),
                   ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Recording Name',
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _nameController,
-                      style: TextStyle(
-                        color: _colorController.textColor.value,
-                        fontSize: 16,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Enter recording name...',
-                        hintStyle: TextStyle(
-                          color: _colorController.textColor.value.withValues(alpha: 0.5),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: _colorController.primaryColor.value.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: _colorController.primaryColor.value.withValues(alpha: 0.3),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: _colorController.primaryColor.value,
-                            width: 2,
-                          ),
-                        ),
-                        prefixIcon: Icon(
-                          Icons.edit,
-                          color: _colorController.primaryColor.value,
-                        ),
-                      ),
-                      onChanged: (value) {
-                        _recordingTitle = value.trim();
-                      },
-                    ),
-                  ],
-                ),
               ),
-
+              
               const SizedBox(height: 40),
-
-              // Recording visualizer and controls
+              
+              // Recording controls
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // Recording status
-                    Obx(() => Text(
-                      _controller.isRecording.value ? 'Recording...' : 'Ready to Record',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: _controller.isRecording.value 
-                            ? Colors.red 
-                            : _colorController.textColor.value,
-                      ),
-                    )),
-
-                    const SizedBox(height: 16),
-
-                    // Timer
-                    Obx(() => Text(
-                      _formatDuration(_controller.recordDuration.value),
-                      style: TextStyle(
-                        fontSize: 48,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'monospace',
-                        color: _colorController.primaryColor.value,
-                      ),
-                    )),
-
-                    const SizedBox(height: 40),
-
-                    // Recording controls
-                    RecordingControlsWidget(
+                child: Center(
+                  child: Obx(() {
+                    // Don't update if widget is not mounted
+                    if (!mounted) return const SizedBox.shrink();
+                    return RecordingControlsWidget(
                       isRecording: _controller.isRecording.value,
                       isPaused: _controller.isPaused.value,
                       onStart: _startRecording,
                       onStop: _stopRecording,
-                      onPause: _controller.pauseRecording,
-                      onResume: _controller.resumeRecording,
-                    ),
-
-                    // Dedicated stop button - always visible when recording
-                    Obx(() => _controller.isRecording.value
-                        ? Container(
-                            margin: const EdgeInsets.only(top: 32),
-                            child: ElevatedButton.icon(
-                              onPressed: _stopRecording,
-                              icon: const Icon(Icons.stop, size: 20),
-                              label: const Text('Stop Recording'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 32,
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                elevation: 4,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink()),
-                  ],
+                      onPause: () => _controller.pauseRecording(),
+                      onResume: () => _controller.resumeRecording(),
+                    );
+                  }),
                 ),
               ),
             ],
@@ -280,89 +342,5 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     );
   }
 
-  String _formatDuration(int seconds) {
-    final minutes = seconds ~/ 60;
-    final secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
 
-  void _showCloseConfirmation() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: _colorController.backgroundColor.value,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const Icon(Icons.warning_amber, color: Colors.orange, size: 24),
-            const SizedBox(width: 12),
-            Text(
-              'Recording in Progress',
-              style: TextStyle(
-                color: _colorController.textColor.value,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'You have a recording in progress. What would you like to do?',
-              style: TextStyle(
-                color: _colorController.textColor.value,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: _colorController.primaryColor.value.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.timer,
-                    color: _colorController.primaryColor.value,
-                    size: 16,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _formatDuration(_controller.recordDuration.value),
-                    style: TextStyle(
-                      color: _colorController.textColor.value,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Continue Recording',
-              style: TextStyle(color: _colorController.primaryColor.value),
-            ),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _controller.stopRecording('unknown', _recordingTitle);
-              Get.back();
-              Get.snackbar('Discarded', 'Recording was not saved');
-            },
-            style: TextButton.styleFrom(foregroundColor: Colors.orange),
-            child: const Text('Discard & Exit'),
-          ),
-        ],
-      ),
-    );
-  }
 }

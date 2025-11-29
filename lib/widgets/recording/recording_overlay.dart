@@ -142,10 +142,12 @@ class _RecordingOverlayState extends State<RecordingOverlay>
         setState(() => _showSaveDialog = false);
         _showUploadProgressDialog(_currentRecording!, isPublic: true);
       } else {
+        Navigator.pop(context);
         _controller.hideOverlay();
         widget.onClose();
       }
     } else {
+      Navigator.pop(context);
       _controller.hideOverlay();
       widget.onClose();
     }
@@ -259,12 +261,16 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // If showing save dialog, take up full screen
+    // If showing save dialog, show dialog without overlay
     if (_showSaveDialog) {
-      return Container(
-        color: Colors.black.withValues(alpha: 0.5),
-        child: _buildSaveDialog(l10n),
-      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => _buildSaveDialog(l10n),
+        );
+      });
+      return const SizedBox.shrink();
     }
 
     // Otherwise, position at bottom right
@@ -768,7 +774,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                   children: [
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: widget.onClose,
+                        onPressed: () {
+                          Navigator.pop(context);
+                          widget.onClose();
+                        },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           side: BorderSide(
