@@ -230,46 +230,6 @@ class RecordingManagerScreen extends StatelessWidget {
               'RecordingManager: Personal: ${personalRecordings.length}, Public: ${publicRecordings.length}');
         }
 
-        if (filteredRecordings.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  searchQuery.value.isNotEmpty
-                      ? Icons.search_off
-                      : Icons.mic_off_rounded,
-                  size: 80,
-                  color: colorController.iconColor.value.withValues(alpha: 0.3),
-                ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
-                const SizedBox(height: 16),
-                Text(
-                  searchQuery.value.isNotEmpty
-                      ? 'No recordings found'
-                      : 'No recordings yet',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  searchQuery.value.isNotEmpty
-                      ? 'Try adjusting your search or filters'
-                      : 'Start recording your favorite hymns',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.4),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-
         return RefreshIndicator(
           onRefresh: () async {
             await controller.refreshRecordings();
@@ -415,25 +375,65 @@ class RecordingManagerScreen extends StatelessWidget {
                 ),
               ),
 
-              // Recordings List
+              // Recordings List or Empty State
               Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  children: [
-// Filtered Recordings List
-                    ...filteredRecordings.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final recording = entry.value;
-                      final isPublic = recording.isPublic;
+                child: filteredRecordings.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              searchQuery.value.isNotEmpty
+                                  ? Icons.search_off
+                                  : Icons.mic_off_rounded,
+                              size: 80,
+                              color: colorController.iconColor.value
+                                  .withValues(alpha: 0.3),
+                            ).animate()
+                                .scale(duration: 600.ms, curve: Curves.elasticOut),
+                            const SizedBox(height: 16),
+                            Text(
+                              searchQuery.value.isNotEmpty
+                                  ? 'No recordings found'
+                                  : 'No recordings yet',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: colorController.textColor.value
+                                    .withValues(alpha: 0.6),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              searchQuery.value.isNotEmpty
+                                  ? 'Try adjusting your search or filters'
+                                  : 'Start recording your favorite hymns',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: colorController.textColor.value
+                                    .withValues(alpha: 0.4),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        children: [
+                          // Filtered Recordings List
+                          ...filteredRecordings.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final recording = entry.value;
+                            final isPublic = recording.isPublic;
 
-                      return RecordingTileWidget(
-                        recording: recording,
-                        index: index,
-                        isPublic: isPublic,
-                      );
-                    }),
-                  ],
-                ),
+                            return RecordingTileWidget(
+                              recording: recording,
+                              index: index,
+                              isPublic: isPublic,
+                            );
+                          }),
+                        ],
+                      ),
               ),
             ],
           ),
