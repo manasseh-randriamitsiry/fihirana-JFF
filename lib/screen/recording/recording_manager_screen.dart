@@ -26,7 +26,8 @@ class RecordingManagerScreen extends StatelessWidget {
     // Search and filter controllers
     final TextEditingController searchController = TextEditingController();
     final RxString searchQuery = ''.obs;
-    final RxString filterOption = 'all'.obs; // all, personal, public, uploaded, not_uploaded
+    final RxString filterOption =
+        'all'.obs; // all, personal, public, uploaded, not_uploaded
 
     // Auto-refresh when page is accessed
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -104,7 +105,7 @@ class RecordingManagerScreen extends StatelessWidget {
           }),
         ],
       ),
-body: Obx(() {
+      body: Obx(() {
         // Security check - prevent banned users from accessing recordings
         final SecurityService securityService = SecurityService.instance;
         if (securityService.isSecurityChecked &&
@@ -171,30 +172,43 @@ body: Obx(() {
         // Apply search and filter
         List<UserRecording> getFilteredRecordings() {
           List<UserRecording> allRecordings = [];
-          
+
           // Get recordings based on filter
           switch (filterOption.value) {
             case 'personal':
-              allRecordings = controller.recordings.where((r) => !r.isPublic).toList();
+              allRecordings =
+                  controller.recordings.where((r) => !r.isPublic).toList();
               break;
             case 'public':
               allRecordings = controller.publicRecordings.toList();
               break;
             case 'uploaded':
-              allRecordings = controller.recordings.where((r) => r.driveFileId != null).toList();
+              allRecordings = controller.recordings
+                  .where((r) => r.driveFileId != null)
+                  .toList();
               break;
             case 'not_uploaded':
-              allRecordings = controller.recordings.where((r) => r.driveFileId == null).toList();
+              allRecordings = controller.recordings
+                  .where((r) => r.driveFileId == null)
+                  .toList();
               break;
             default: // 'all'
-              allRecordings = [...controller.recordings.where((r) => !r.isPublic), ...controller.publicRecordings];
+              allRecordings = [
+                ...controller.recordings.where((r) => !r.isPublic),
+                ...controller.publicRecordings
+              ];
           }
 
           // Apply search filter
           if (searchQuery.value.isNotEmpty) {
             allRecordings = allRecordings.where((recording) {
-              return recording.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-                  (recording.userName?.toLowerCase().contains(searchQuery.value.toLowerCase()) ?? false) ||
+              return recording.title
+                      .toLowerCase()
+                      .contains(searchQuery.value.toLowerCase()) ||
+                  (recording.userName
+                          ?.toLowerCase()
+                          .contains(searchQuery.value.toLowerCase()) ??
+                      false) ||
                   recording.hymnId.contains(searchQuery.value);
             }).toList();
           }
@@ -216,19 +230,23 @@ body: Obx(() {
               'RecordingManager: Personal: ${personalRecordings.length}, Public: ${publicRecordings.length}');
         }
 
-if (filteredRecordings.isEmpty) {
+        if (filteredRecordings.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  searchQuery.value.isNotEmpty ? Icons.search_off : Icons.mic_off_rounded,
+                  searchQuery.value.isNotEmpty
+                      ? Icons.search_off
+                      : Icons.mic_off_rounded,
                   size: 80,
                   color: colorController.iconColor.value.withValues(alpha: 0.3),
                 ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
                 const SizedBox(height: 16),
                 Text(
-                  searchQuery.value.isNotEmpty ? 'No recordings found' : 'No recordings yet',
+                  searchQuery.value.isNotEmpty
+                      ? 'No recordings found'
+                      : 'No recordings yet',
                   style: TextStyle(
                     fontSize: 18,
                     color:
@@ -238,7 +256,7 @@ if (filteredRecordings.isEmpty) {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  searchQuery.value.isNotEmpty 
+                  searchQuery.value.isNotEmpty
                       ? 'Try adjusting your search or filters'
                       : 'Start recording your favorite hymns',
                   style: TextStyle(
@@ -252,7 +270,7 @@ if (filteredRecordings.isEmpty) {
           );
         }
 
-return RefreshIndicator(
+        return RefreshIndicator(
           onRefresh: () async {
             await controller.refreshRecordings();
             await controller.refreshPublicRecordings();
@@ -268,7 +286,8 @@ return RefreshIndicator(
                   color: colorController.backgroundColor.value,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: colorController.primaryColor.value.withValues(alpha: 0.1),
+                    color: colorController.primaryColor.value
+                        .withValues(alpha: 0.1),
                   ),
                   boxShadow: [
                     BoxShadow(
@@ -288,17 +307,20 @@ return RefreshIndicator(
                       decoration: InputDecoration(
                         hintText: 'Search recordings...',
                         hintStyle: TextStyle(
-                          color: colorController.textColor.value.withValues(alpha: 0.5),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.5),
                         ),
                         prefixIcon: Icon(
                           Icons.search,
-                          color: colorController.iconColor.value.withValues(alpha: 0.7),
+                          color: colorController.iconColor.value
+                              .withValues(alpha: 0.7),
                         ),
                         suffixIcon: searchQuery.value.isNotEmpty
                             ? IconButton(
                                 icon: Icon(
                                   Icons.clear,
-                                  color: colorController.iconColor.value.withValues(alpha: 0.7),
+                                  color: colorController.iconColor.value
+                                      .withValues(alpha: 0.7),
                                 ),
                                 onPressed: () {
                                   searchController.clear();
@@ -309,13 +331,15 @@ return RefreshIndicator(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                            color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                            color: colorController.primaryColor.value
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(
-                            color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                            color: colorController.primaryColor.value
+                                .withValues(alpha: 0.3),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -329,7 +353,7 @@ return RefreshIndicator(
                       onChanged: (value) => searchQuery.value = value,
                     ),
                     const SizedBox(height: 12),
-                    
+
                     // Filter Chips
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -372,15 +396,17 @@ return RefreshIndicator(
                         ],
                       ),
                     ),
-                    
+
                     // Results count
-                    if (searchQuery.value.isNotEmpty || filterOption.value != 'all')
+                    if (searchQuery.value.isNotEmpty ||
+                        filterOption.value != 'all')
                       Padding(
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           '${filteredRecordings.length} recording${filteredRecordings.length == 1 ? '' : 's'} found',
                           style: TextStyle(
-                            color: colorController.textColor.value.withValues(alpha: 0.7),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.7),
                             fontSize: 12,
                           ),
                         ),
@@ -388,27 +414,25 @@ return RefreshIndicator(
                   ],
                 ),
               ),
-              
+
               // Recordings List
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   children: [
 // Filtered Recordings List
-              ...filteredRecordings.asMap().entries.map((entry) {
-                final index = entry.key;
-                final recording = entry.value;
-                final isPublic = recording.isPublic;
-                
-                return RecordingTileWidget(
-                  recording: recording,
-                  controller: controller,
-                  colorController: colorController,
-                  index: index,
-                  isPublic: isPublic,
-                );
-              }),
-],
+                    ...filteredRecordings.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final recording = entry.value;
+                      final isPublic = recording.isPublic;
+
+                      return RecordingTileWidget(
+                        recording: recording,
+                        index: index,
+                        isPublic: isPublic,
+                      );
+                    }),
+                  ],
                 ),
               ),
             ],
@@ -560,7 +584,7 @@ return RefreshIndicator(
           ),
         ],
       ),
-);
+    );
   }
 
   Widget _buildFilterChip(
@@ -570,29 +594,29 @@ return RefreshIndicator(
     ColorController colorController,
   ) {
     return Obx(() => FilterChip(
-      label: Text(
-        label,
-        style: TextStyle(
-          color: selectedFilter.value == value
-              ? Colors.white
-              : colorController.textColor.value,
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      selected: selectedFilter.value == value,
-      onSelected: (isSelected) {
-        selectedFilter.value = isSelected ? value : 'all';
-      },
-      backgroundColor: colorController.backgroundColor.value,
-      selectedColor: colorController.primaryColor.value,
-      checkmarkColor: Colors.white,
-      side: BorderSide(
-        color: colorController.primaryColor.value.withValues(alpha: 0.3),
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-    ));
+          label: Text(
+            label,
+            style: TextStyle(
+              color: selectedFilter.value == value
+                  ? Colors.white
+                  : colorController.textColor.value,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          selected: selectedFilter.value == value,
+          onSelected: (isSelected) {
+            selectedFilter.value = isSelected ? value : 'all';
+          },
+          backgroundColor: colorController.backgroundColor.value,
+          selectedColor: colorController.primaryColor.value,
+          checkmarkColor: Colors.white,
+          side: BorderSide(
+            color: colorController.primaryColor.value.withValues(alpha: 0.3),
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ));
   }
 }

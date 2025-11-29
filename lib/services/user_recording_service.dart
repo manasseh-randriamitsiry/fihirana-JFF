@@ -7,6 +7,7 @@ import 'package:record/record.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
 import '../models/user_recording.dart';
+import 'google_drive_service.dart';
 
 class UserRecordingService {
   static final UserRecordingService _instance =
@@ -49,10 +50,29 @@ class UserRecordingService {
         if (content.isNotEmpty) {
           final List<dynamic> jsonList = json.decode(content);
           _recordings = jsonList.map((e) => UserRecording.fromMap(e)).toList();
+
+          // Deduplicate recordings based on driveFileId
+          final uniqueRecordings = <String, UserRecording>{};
+          final noDriveIdRecordings = <UserRecording>[];
+
+          for (final recording in _recordings) {
+            if (recording.driveFileId != null &&
+                recording.driveFileId!.isNotEmpty) {
+              // If duplicate exists, keep the one with more info or newer
+              if (!uniqueRecordings.containsKey(recording.driveFileId!)) {
+                uniqueRecordings[recording.driveFileId!] = recording;
+              }
+            } else {
+              noDriveIdRecordings.add(recording);
+            }
+          }
+
+          _recordings = [...uniqueRecordings.values, ...noDriveIdRecordings];
           _recordings.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
           if (kDebugMode) {
             print(
-                'UserRecordingService: Loaded ${_recordings.length} recordings');
+                'UserRecordingService: Loaded ${_recordings.length} recordings (after deduplication)');
           }
         } else {
           _recordings = [];
@@ -155,7 +175,7 @@ class UserRecordingService {
     String? userPhotoUrl,
     String? userName,
   }) async {
-    final recording = UserRecording(
+final recording = UserRecording(
       id: _uuid.v4(),
       hymnId: hymnId,
       title: title,
@@ -170,12 +190,37 @@ class UserRecordingService {
       userName: userName,
     );
 
+    if (kDebugMode) {
+      print('UserRecordingService: Saved recording with duration: $durationSeconds seconds');
+    }
+
     _recordings.insert(0, recording);
     await _saveMetadata();
     return recording;
   }
 
   Future<UserRecording> saveDriveRecording(UserRecording recording) async {
+    // Check for existing recording with same driveFileId
+    if (recording.driveFileId != null) {
+      final existingIndex =
+          _recordings.indexWhere((r) => r.driveFileId == recording.driveFileId);
+
+      if (existingIndex != -1) {
+        // Update existing instead of inserting new
+        _recordings[existingIndex] = recording;
+        await _saveMetadata();
+        return recording;
+      }
+    }
+
+    // Check for existing recording with same ID
+    final existingIdIndex = _recordings.indexWhere((r) => r.id == recording.id);
+    if (existingIdIndex != -1) {
+      _recordings[existingIdIndex] = recording;
+      await _saveMetadata();
+      return recording;
+    }
+
     _recordings.insert(0, recording);
     await _saveMetadata();
     return recording;
@@ -215,7 +260,54 @@ class UserRecordingService {
     return _recordings.where((r) => r.hymnId == hymnId).toList();
   }
 
-  List<UserRecording> getAllRecordings() {
+List<UserRecording> getAllRecordings() {
     return List.unmodifiable(_recordings);
+  }
+
+  /// Refresh public URLs for recordings that have driveFileId but expired publicLink
+  Future<void> refreshPublicUrls() async {
+    if (kDebugMode) {
+      print('UserRecordingService: Starting public URL refresh...');
+    }
+
+    final driveService = GoogleDriveService();
+    bool updated = false;
+
+    for (int i = 0; i < _recordings.length; i++) {
+      final recording = _recordings[i];
+      
+      // Only refresh recordings that are public and have driveFileId
+      if (recording.isPublic && recording.driveFileId != null) {
+        try {
+          final newUrl = await driveService.getPublicLink(recording.driveFileId!);
+          if (newUrl != null && newUrl != recording.publicLink) {
+            if (kDebugMode) {
+              print('UserRecordingService: Refreshed URL for ${recording.id}');
+              print('  Old: ${recording.publicLink}');
+              print('  New: $newUrl');
+            }
+            
+            _recordings[i] = recording.copyWith(publicLink: newUrl);
+            updated = true;
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('UserRecordingService: Failed to refresh URL for ${recording.id}: $e');
+          }
+        }
+      }
+    }
+
+    if (updated) {
+      await _saveMetadata();
+      _recordingsController.add(List.unmodifiable(_recordings));
+      if (kDebugMode) {
+        print('UserRecordingService: Public URL refresh completed and saved');
+      }
+    } else {
+      if (kDebugMode) {
+        print('UserRecordingService: No URLs needed refreshing');
+      }
+    }
   }
 }

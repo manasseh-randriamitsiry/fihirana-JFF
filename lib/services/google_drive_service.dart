@@ -254,23 +254,32 @@ class GoogleDriveService {
     if (targetFolderId == null) return null;
 
     try {
-      // Ensure proper file extension
+      // Ensure proper file extension and MIME type
       String fileName = title;
-      if (!fileName.toLowerCase().endsWith('.m4a') &&
-          !fileName.toLowerCase().endsWith('.mp3')) {
-        fileName += '.m4a'; // Default to .m4a for recordings
+      String mimeType = 'audio/m4a'; // Default MIME type
+      
+      if (fileName.toLowerCase().endsWith('.mp3')) {
+        mimeType = 'audio/mpeg';
+      } else if (fileName.toLowerCase().endsWith('.wav')) {
+        mimeType = 'audio/wav';
+      } else if (fileName.toLowerCase().endsWith('.m4a')) {
+        mimeType = 'audio/m4a';
+      } else {
+        // Default to .m4a for recordings without extension
+        fileName += '.m4a';
+        mimeType = 'audio/m4a';
       }
 
       final driveFile = drive.File()
         ..name = fileName
         ..parents = [targetFolderId]
         ..description = description
-        ..mimeType = 'audio/m4a'; // Explicitly set MIME type for audio
+        ..mimeType = mimeType; // Set correct MIME type based on file extension
 
       final media = drive.Media(
         file.openRead(),
         await file.length(),
-        contentType: 'audio/m4a', // Ensure correct content type
+        contentType: mimeType, // Ensure correct content type
       );
 
       final result = await _driveApi!.files.create(
@@ -422,6 +431,27 @@ class GoogleDriveService {
     if (_driveApi == null) return null;
 
     try {
+      // First verify file exists and is accessible
+      if (kDebugMode) {
+        print('GoogleDriveService: Verifying file accessibility for ID: $fileId');
+      }
+      
+      final fileAccessMetadata = await _driveApi!.files.get(
+        fileId,
+        $fields: 'name, mimeType, size, trashed',
+      ) as drive.File;
+      
+      if (fileAccessMetadata.trashed == true) {
+        throw Exception('File is in trash and cannot be accessed');
+      }
+      
+      if (fileAccessMetadata.size == null) {
+        throw Exception('File size is unknown - file may be corrupted');
+      }
+      
+      if (kDebugMode) {
+        print('GoogleDriveService: File verified - Name: ${fileAccessMetadata.name}, Size: ${fileAccessMetadata.size}, MIME: ${fileAccessMetadata.mimeType}');
+      }
       // First get file metadata to check MIME type
       final fileMetadata = await _driveApi!.files.get(
         fileId,
@@ -434,8 +464,8 @@ class GoogleDriveService {
       }
 
       // Check if it's a Google Docs file (which can't be downloaded directly)
-      if (fileMetadata.mimeType != null &&
-          fileMetadata.mimeType!.startsWith('application/vnd.google-apps')) {
+      if (fileAccessMetadata.mimeType != null &&
+          fileAccessMetadata.mimeType!.startsWith('application/vnd.google-apps')) {
         if (kDebugMode) {
           print(
               'GoogleDriveService: Cannot download Google Docs file directly, need to export');
@@ -443,9 +473,17 @@ class GoogleDriveService {
 
         // Try to export as audio if possible, otherwise fail
         try {
-          final exportMimeType = fileMetadata.mimeType!.contains('audio')
-              ? fileMetadata.mimeType!
-              : 'audio/mpeg';
+          String exportMimeType;
+          if (fileAccessMetadata.mimeType!.contains('audio')) {
+            exportMimeType = fileAccessMetadata.mimeType!;
+          } else {
+            // Default to MP3 for unknown audio formats
+            exportMimeType = 'audio/mpeg';
+          }
+          
+          if (kDebugMode) {
+            print('GoogleDriveService: Exporting as MIME type: $exportMimeType');
+          }
 
           final media = await _driveApi!.files.export(
             fileId,
@@ -482,12 +520,61 @@ class GoogleDriveService {
       await saveFile.parent.create(recursive: true);
 
       final List<int> dataStore = [];
-      await for (final data in file.stream) {
-        dataStore.addAll(data);
+      int totalBytes = 0;
+      
+      try {
+        await for (final data in file.stream) {
+          dataStore.addAll(data);
+          totalBytes += data.length;
+          
+          // Log progress for large files
+          if (kDebugMode && totalBytes > 0 && totalBytes % (1024 * 100) == 0) {
+            print('GoogleDriveService: Downloaded ${totalBytes ~/ 1024} KB...');
+          }
+        }
+        
+        if (kDebugMode) {
+          print('GoogleDriveService: Download completed. Total bytes: $totalBytes');
+          print('GoogleDriveService: Expected size: ${fileAccessMetadata.size}');
+        }
+        
+        // Validate download was successful
+        if (totalBytes == 0) {
+          throw Exception('Downloaded file is empty (0 bytes). This may indicate a permission issue or file corruption.');
+        }
+        
+        if (fileAccessMetadata.size != null && totalBytes != fileAccessMetadata.size) {
+          if (kDebugMode) {
+            print('GoogleDriveService: Warning - Size mismatch. Downloaded: $totalBytes, Expected: ${fileAccessMetadata.size}');
+          }
+          // Still try to use the file, but log the warning
+        }
+        
+        await saveFile.writeAsBytes(dataStore);
+        
+        // Verify file was written correctly
+        final writtenFile = File(savePath);
+        if (await writtenFile.exists()) {
+          final fileSize = await writtenFile.length();
+          if (kDebugMode) {
+            print('GoogleDriveService: File written successfully. Size on disk: $fileSize bytes');
+          }
+          
+          if (fileSize == 0) {
+            throw Exception('File was written but is empty (0 bytes). Download may have failed.');
+          }
+          
+          return writtenFile;
+        } else {
+          throw Exception('Failed to write downloaded file to disk');
+        }
+        
+      } catch (e) {
+        if (kDebugMode) {
+          print('GoogleDriveService: Error during download stream processing: $e');
+        }
+        throw Exception('Download failed: $e');
       }
-
-      await saveFile.writeAsBytes(dataStore);
-      return saveFile;
     } catch (e) {
       if (kDebugMode) {
         print('Error downloading file from Drive: $e');
@@ -574,7 +661,15 @@ class GoogleDriveService {
         print('GoogleDriveService: Found ${allFiles.length} files total');
       }
 
-      return allFiles;
+      // Deduplicate files based on ID
+      final uniqueFiles = <String, drive.File>{};
+      for (final file in allFiles) {
+        if (file.id != null) {
+          uniqueFiles[file.id!] = file;
+        }
+      }
+
+      return uniqueFiles.values.toList();
     } catch (e) {
       if (kDebugMode) {
         print('Error listing recordings from Drive: $e');

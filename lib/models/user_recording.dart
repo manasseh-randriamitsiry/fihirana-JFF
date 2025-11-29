@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 class UserRecording {
   final String id;
@@ -91,13 +92,25 @@ class UserRecording {
     };
   }
 
-  factory UserRecording.fromMap(Map<String, dynamic> map) {
+factory UserRecording.fromMap(Map<String, dynamic> map) {
+    // Handle different possible field names for duration
+    int duration = 0;
+    if (map.containsKey('durationSeconds')) {
+      duration = map['durationSeconds']?.toInt() ?? 0;
+    } else if (map.containsKey('duration')) {
+      duration = map['duration']?.toInt() ?? 0;
+    }
+    
+    if (kDebugMode) {
+      print('UserRecording.fromMap: Loaded recording with duration: $duration seconds from map');
+    }
+    
     return UserRecording(
       id: map['id'] ?? '',
       hymnId: map['hymnId'] ?? '',
       title: map['title'] ?? '',
       filePath: map['filePath'] ?? '',
-      durationSeconds: map['durationSeconds']?.toInt() ?? 0,
+      durationSeconds: duration,
       createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
       isPublic: map['isPublic'] ?? false,
       driveFileId: map['driveFileId'],

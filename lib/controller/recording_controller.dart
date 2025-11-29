@@ -273,8 +273,14 @@ class RecordingController extends GetxController {
       operationsManager.renameRecording(recording, newTitle);
   Future<List<UserRecording>> getDeletedRecordings() =>
       operationsManager.getDeletedRecordings();
-  Future<void> restoreRecording(UserRecording deletedRecording) =>
-      operationsManager.restoreRecording(deletedRecording);
+  Future<void> moveRecordingToTrash(UserRecording recording) async {
+    await operationsManager.moveRecordingToTrash(recording);
+  }
+
+  Future<void> restoreRecording(UserRecording deletedRecording) async {
+    await operationsManager.restoreRecording(deletedRecording);
+  }
+
   Future<void> permanentlyDeleteRecording(UserRecording deletedRecording) =>
       operationsManager.permanentlyDeleteRecording(deletedRecording);
 
