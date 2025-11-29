@@ -230,8 +230,8 @@ class RecordingTileMenu extends StatelessWidget {
               ],
             ),
           ),
-        // Show permanent delete option for admin owners
-        if (RecordingTileDialogs.isAdminAndOwner(recording))
+        // Show permanent delete option for any admin user
+        if (RecordingTileDialogs.isAdmin(recording))
           const PopupMenuItem(
             value: 'delete_permanently',
             height: 40,

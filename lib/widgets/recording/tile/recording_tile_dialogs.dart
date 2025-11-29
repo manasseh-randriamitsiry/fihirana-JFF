@@ -28,6 +28,11 @@ class RecordingTileDialogs {
     return isAdmin && isOwner;
   }
 
+  static bool isAdmin(UserRecording recording) {
+    // Check if user is admin/super admin (regardless of ownership)
+    return authController.isAdmin || authController.isSuperAdmin;
+  }
+
   static bool isOwner(UserRecording recording) {
     final currentUser = FirebaseAuth.instance.currentUser;
     return (currentUser != null &&
