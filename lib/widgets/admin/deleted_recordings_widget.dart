@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/recording_controller.dart';
-import '../../controller/color_controller.dart';
+
 import '../../models/user_recording.dart';
 import '../common/loading_widget.dart';
 import '../recording/recording_tile_widget.dart';
@@ -10,7 +10,8 @@ class DeletedRecordingsWidget extends StatefulWidget {
   const DeletedRecordingsWidget({Key? key}) : super(key: key);
 
   @override
-  State<DeletedRecordingsWidget> createState() => _DeletedRecordingsWidgetState();
+  State<DeletedRecordingsWidget> createState() =>
+      _DeletedRecordingsWidgetState();
 }
 
 class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
@@ -46,10 +47,11 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
 
   List<UserRecording> get filteredRecordings {
     if (searchQuery.isEmpty) return deletedRecordings;
-    return deletedRecordings.where((recording) =>
-        recording.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
-        recording.hymnId.toLowerCase().contains(searchQuery.toLowerCase())
-    ).toList();
+    return deletedRecordings
+        .where((recording) =>
+            recording.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+            recording.hymnId.toLowerCase().contains(searchQuery.toLowerCase()))
+        .toList();
   }
 
   @override
@@ -113,12 +115,11 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: RecordingTileWidget(
                             recording: recording,
-                            controller: Get.find<RecordingController>(),
-                            colorController: Get.find<ColorController>(),
                             index: 0,
                             isDeleted: true,
                             onRestore: () => _restoreRecording(recording),
-                            onPermanentDelete: () => _permanentDelete(recording),
+                            onPermanentDelete: () =>
+                                _permanentDelete(recording),
                           ),
                         );
                       },
@@ -140,19 +141,21 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
           ),
           const SizedBox(height: 16),
           Text(
-            searchQuery.isNotEmpty ? 'No deleted recordings found' : 'No deleted recordings',
+            searchQuery.isNotEmpty
+                ? 'No deleted recordings found'
+                : 'No deleted recordings',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Colors.grey[600],
-            ),
+                  color: Colors.grey[600],
+                ),
           ),
           const SizedBox(height: 8),
           Text(
-            searchQuery.isNotEmpty 
+            searchQuery.isNotEmpty
                 ? 'Try adjusting your search terms'
                 : 'Deleted recordings will appear here',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Colors.grey[500],
-            ),
+                  color: Colors.grey[500],
+                ),
           ),
           if (searchQuery.isNotEmpty) ...[
             const SizedBox(height: 16),
@@ -191,7 +194,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
   }
 
   Future<void> _permanentDelete(UserRecording recording) async {
-final confirmed = await Get.dialog(
+    final confirmed = await Get.dialog(
       AlertDialog(
         title: const Text('Permanent Delete'),
         content: Text(

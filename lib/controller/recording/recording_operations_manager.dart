@@ -259,6 +259,36 @@ class RecordingOperationsManager extends GetxController {
     }
   }
 
+  Future<void> moveRecordingToTrash(UserRecording recording) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      final authController = Get.find<AuthController>();
+
+      final isOwner = recording.userId == currentUser?.uid ||
+          recording.userEmail == currentUser?.email ||
+          recording.userEmail == _authManager.userEmail.value;
+      final isAdmin = authController.isAdmin || authController.isSuperAdmin;
+
+      if (isOwner || isAdmin) {
+        await _moveRecordingToTrash(recording);
+      } else {
+        Get.snackbar(
+          'Access Denied',
+          'You do not have permission to move this recording to trash',
+          backgroundColor: Colors.red.withValues(alpha: 0.8),
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to move recording to trash: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
   Future<void> _moveRecordingToTrash(UserRecording recording) async {
     try {
       await _deletedService.saveDeletedRecording(recording);

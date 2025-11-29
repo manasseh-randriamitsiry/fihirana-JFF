@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../models/user_recording.dart';
 import '../../models/hymn.dart';
 import '../../services/audio_service.dart';
+import '../../services/user_recording_service.dart';
 import '../../widgets/player/compact_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 import 'recording_state_manager.dart';
@@ -33,8 +34,19 @@ class RecordingPlaybackManager extends GetxController {
     await AudioService.instance.seekTo(position);
   }
 
-  Future<void> setPlaybackSpeed(double speed) async {
+Future<void> setPlaybackSpeed(double speed) async {
     await AudioService.instance.player.setSpeed(speed);
+  }
+
+  /// Refresh public URLs for all recordings
+  Future<void> refreshPublicUrls() async {
+    try {
+      final recordingService = UserRecordingService();
+      await recordingService.refreshPublicUrls();
+      Get.snackbar('Success', 'Public URLs refreshed successfully');
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to refresh URLs: $e');
+    }
   }
 
   // Player UI management

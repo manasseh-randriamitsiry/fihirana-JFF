@@ -6,6 +6,7 @@ import 'package:uuid/uuid.dart';
 import '../../models/user_recording.dart';
 import '../../services/user_recording_service.dart';
 import '../../services/google_drive_service.dart';
+import '../../services/audio_service.dart';
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
 
@@ -108,6 +109,9 @@ class RecordingDriveSyncManager extends GetxController {
       // Clean up ghost recordings
       await cleanupGhostRecordings();
 
+      // Update recordings with 0 duration
+      await updateRecordingDurations();
+
       // Force sync from Drive if signed in
       if (_authManager.isDriveSignedIn.value) {
         await syncFromDrive(force: true);
@@ -117,6 +121,73 @@ class RecordingDriveSyncManager extends GetxController {
         print('RecordingDriveSyncManager: Error refreshing recordings: $e');
       }
       _stateManager.lastError.value = 'Refresh failed: $e';
+    }
+  }
+
+  /// Update recordings with 0 duration by fetching actual duration
+  Future<void> updateRecordingDurations() async {
+    try {
+      final recordings = _recordingService.getAllRecordings();
+      int updatedCount = 0;
+
+      for (final recording in recordings) {
+        // Only update recordings that have 0 duration
+        if (recording.durationSeconds == 0) {
+          try {
+            int actualDuration = 0;
+            
+            // First try to get duration from local file if it exists
+            if (recording.filePath.isNotEmpty) {
+              actualDuration = await AudioService.getAudioFileDuration(recording.filePath);
+              if (kDebugMode && actualDuration > 0) {
+                print('RecordingDriveSyncManager: Got duration from local file for ${recording.title}: ${actualDuration}s');
+              }
+            }
+            
+            // If local file didn't work or doesn't exist, try Drive
+            if (actualDuration == 0 && recording.driveFileId != null) {
+              final downloadUrl = recording.publicLink ?? 
+                  'https://drive.google.com/uc?export=download&id=${recording.driveFileId}';
+              actualDuration = await AudioService.getAudioUrlDuration(downloadUrl);
+              if (kDebugMode && actualDuration > 0) {
+                print('RecordingDriveSyncManager: Got duration from Drive for ${recording.title}: ${actualDuration}s');
+              }
+            }
+            
+            if (actualDuration > 0) {
+              final updatedRecording = recording.copyWith(
+                durationSeconds: actualDuration,
+              );
+              
+              await _recordingService.updateRecording(updatedRecording);
+              updatedCount++;
+              
+              if (kDebugMode) {
+                print('RecordingDriveSyncManager: Updated duration for ${recording.title}: ${actualDuration}s');
+              }
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('RecordingDriveSyncManager: Could not update duration for ${recording.title}: $e');
+            }
+          }
+        }
+      }
+
+      if (updatedCount > 0) {
+        await _recordingService.loadRecordings();
+        if (kDebugMode) {
+          print('RecordingDriveSyncManager: Updated durations for $updatedCount recordings');
+        }
+      } else {
+        if (kDebugMode) {
+          print('RecordingDriveSyncManager: No recordings needed duration updates');
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingDriveSyncManager: Error updating recording durations: $e');
+      }
     }
   }
 
@@ -330,12 +401,27 @@ class RecordingDriveSyncManager extends GetxController {
                   'RecordingDriveSyncManager: Updated existing recording with Drive info: ${existingLocalRecording.title}');
             }
           } else {
+            // Try to get the actual duration from the Drive file
+            int durationSeconds = 0;
+            try {
+              final downloadUrl = driveFile.webContentLink ?? 
+                  'https://drive.google.com/uc?export=download&id=${driveFile.id}';
+              durationSeconds = await AudioService.getAudioUrlDuration(downloadUrl);
+              if (kDebugMode) {
+                print('RecordingDriveSyncManager: Retrieved duration for ${fileName}: ${durationSeconds}s');
+              }
+            } catch (e) {
+              if (kDebugMode) {
+                print('RecordingDriveSyncManager: Could not get duration for ${fileName}: $e');
+              }
+            }
+
             final recording = UserRecording(
               id: _uuid.v4(),
               hymnId: hymnId,
               title: fileName,
               filePath: '',
-              durationSeconds: 0,
+              durationSeconds: durationSeconds,
               createdAt: driveCreatedTime,
               isPublic: false,
               tags: [],
@@ -349,7 +435,7 @@ class RecordingDriveSyncManager extends GetxController {
 
             if (kDebugMode) {
               print(
-                  'RecordingDriveSyncManager: Added new recording from Drive: ${recording.title} (Hymn: $hymnId)');
+                  'RecordingDriveSyncManager: Added new recording from Drive: ${recording.title} (Hymn: $hymnId, Duration: ${durationSeconds}s)');
             }
           }
         }
