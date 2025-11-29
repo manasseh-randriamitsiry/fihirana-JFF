@@ -187,26 +187,14 @@ class RecordingSaveDialogWidget extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // Action buttons
-                  Row(
+                  Column(
                     children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: onDiscard,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
-                          ),
-                          child: Text(
-                            'Discard',
-                            style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
+                      // Primary save button
+                      SizedBox(
+                        width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () async {
-                            // Save the recording first
+                            // Save recording first
                             onSave();
                             
                             // Handle upload and public sharing if needed
@@ -221,12 +209,73 @@ class RecordingSaveDialogWidget extends StatelessWidget {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             backgroundColor: Colors.white,
                             foregroundColor: colorController.primaryColor.value,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
-                          child: const Text('Save'),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.save, size: 20),
+                              SizedBox(width: 8),
+                              Text('Save & Close', style: TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
                         ),
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Secondary options
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: onDiscard,
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                'Discard',
+                                style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () {
+                                // Save but don't close - allow new recording
+                                onSave();
+                              },
+                              style: OutlinedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.add, size: 16, color: Colors.white.withValues(alpha: 0.8)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Save & New',
+                                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

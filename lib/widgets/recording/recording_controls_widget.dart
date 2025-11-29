@@ -82,16 +82,28 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
         // Pause/Resume button
         GestureDetector(
           onTap: widget.isPaused ? widget.onResume : widget.onPause,
-          child: Container(
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: colorController.primaryColor.value.withValues(alpha: 0.1),
+              color: widget.isPaused 
+                  ? colorController.primaryColor.value
+                  : colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
+              boxShadow: widget.isPaused ? [
+                BoxShadow(
+                  color: colorController.primaryColor.value.withValues(alpha: 0.4),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ] : null,
             ),
             child: Icon(
               widget.isPaused ? Icons.play_arrow : Icons.pause,
-              color: colorController.primaryColor.value,
+              color: widget.isPaused 
+                  ? Colors.white 
+                  : colorController.primaryColor.value,
               size: 32,
             ),
           ),
@@ -99,7 +111,7 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
 
         const SizedBox(width: 32),
 
-        // Stop button
+        // Stop button with enhanced visual feedback
         GestureDetector(
           onTap: widget.onStop,
           child: AnimatedBuilder(
@@ -121,10 +133,28 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.stop,
-                    size: 40,
-                    color: Colors.white,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Outer ring effect
+                      Container(
+                        width: 70,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.3),
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                      // Stop icon
+                      const Icon(
+                        Icons.stop,
+                        size: 36,
+                        color: Colors.white,
+                      ),
+                    ],
                   ),
                 ),
               );
