@@ -173,7 +173,7 @@ actions: [
 tabs: [
               Tab(text: l10n.userManagement), // Reuse string or add "Users"
               Tab(text: l10n.hymns), // Reuse string or add "Hymns"
-              Tab(text: 'Deleted Recordings'),
+              const Tab(text: 'Deleted Recordings'),
             ],
           ),
         ),
@@ -208,11 +208,7 @@ tabs: [
                       l10n, textColor, primaryColor, backgroundColor),
 
                   // Deleted Recordings Tab
-                  DeletedRecordingsWidget(
-                    textColor: textColor,
-                    primaryColor: primaryColor,
-                    backgroundColor: backgroundColor,
-                  ),
+DeletedRecordingsWidget(),
                 ],
               ),
             ),

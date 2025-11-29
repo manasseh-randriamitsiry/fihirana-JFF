@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:collection/collection.dart';
 
 class GoogleDriveService {
   static final GoogleDriveService _instance = GoogleDriveService._internal();
@@ -147,15 +148,46 @@ class GoogleDriveService {
     if (_driveApi == null) return;
 
     try {
-      // Check if folder exists
+      if (kDebugMode) {
+        print('GoogleDriveService: Ensuring folder "$_folderName" exists...');
+      }
+
+      // Search for the folder, including trashed ones to see if we can restore or if we should create new
+      // We prioritize non-trashed folders
       final fileList = await _driveApi!.files.list(
-        q: "mimeType = 'application/vnd.google-apps.folder' and name = '$_folderName' and trashed = false",
-        $fields: "files(id, name)",
+        q: "mimeType = 'application/vnd.google-apps.folder' and name = '$_folderName'",
+        $fields: "files(id, name, trashed)",
       );
 
+      drive.File? targetFolder;
+
       if (fileList.files != null && fileList.files!.isNotEmpty) {
-        _folderId = fileList.files!.first.id;
+        // Prefer non-trashed folder
+        targetFolder =
+            fileList.files!.firstWhereOrNull((f) => f.trashed == false);
+
+        // If only trashed folders exist, we might want to create a new one or use the trashed one (restoring it)
+        // For now, let's just create a new one if all are trashed, to avoid confusion
+        if (targetFolder == null) {
+          if (kDebugMode) {
+            print(
+                'GoogleDriveService: Found only trashed folders, creating new one...');
+          }
+        } else {
+          if (kDebugMode) {
+            print(
+                'GoogleDriveService: Found existing folder ID: ${targetFolder.id}');
+          }
+        }
+      }
+
+      if (targetFolder != null) {
+        _folderId = targetFolder.id;
       } else {
+        if (kDebugMode) {
+          print(
+              'GoogleDriveService: Folder not found (or all trashed), creating new one...');
+        }
         // Create folder
         final folder = drive.File()
           ..name = _folderName
@@ -163,6 +195,9 @@ class GoogleDriveService {
 
         final createdFolder = await _driveApi!.files.create(folder);
         _folderId = createdFolder.id;
+        if (kDebugMode) {
+          print('GoogleDriveService: Created new folder ID: $_folderId');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -466,13 +501,80 @@ class GoogleDriveService {
     if (_driveApi == null || _folderId == null) return [];
 
     try {
-      final fileList = await _driveApi!.files.list(
-        q: "'$_folderId' in parents and trashed = false",
+      if (kDebugMode) {
+        print(
+            'GoogleDriveService: Listing recordings from folder ID: $_folderId');
+      }
+
+      // Ensure subfolders exist and are initialized
+      await _ensureSubfoldersExist();
+
+      if (kDebugMode) {
+        print('GoogleDriveService: Private folder ID: $_privateFolderId');
+        print('GoogleDriveService: Public folder ID: $_publicFolderId');
+      }
+
+      // List files in the main folder and its subfolders
+      // First, get the main folder content
+      final mainFolderList = await _driveApi!.files.list(
+        q: "'$_folderId' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'",
         $fields:
-            "files(id, name, description, webViewLink, createdTime, modifiedTime, size)",
+            "files(id, name, description, webViewLink, webContentLink, createdTime, modifiedTime, size, mimeType)",
       );
 
-      return fileList.files ?? [];
+      final allFiles = mainFolderList.files ?? [];
+
+      if (kDebugMode) {
+        print(
+            'GoogleDriveService: Found ${allFiles.length} files in main folder');
+      }
+
+      // Also check subfolders (Private and Public)
+      if (_privateFolderId != null) {
+        final privateList = await _driveApi!.files.list(
+          q: "'$_privateFolderId' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'",
+          $fields:
+              "files(id, name, description, webViewLink, webContentLink, createdTime, modifiedTime, size, mimeType)",
+        );
+        if (privateList.files != null) {
+          allFiles.addAll(privateList.files!);
+          if (kDebugMode) {
+            print(
+                'GoogleDriveService: Found ${privateList.files!.length} files in Private Recordings');
+          }
+        }
+      } else {
+        if (kDebugMode) {
+          print(
+              'GoogleDriveService: WARNING - Private folder ID is null, skipping private recordings');
+        }
+      }
+
+      if (_publicFolderId != null) {
+        final publicList = await _driveApi!.files.list(
+          q: "'$_publicFolderId' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'",
+          $fields:
+              "files(id, name, description, webViewLink, webContentLink, createdTime, modifiedTime, size, mimeType)",
+        );
+        if (publicList.files != null) {
+          allFiles.addAll(publicList.files!);
+          if (kDebugMode) {
+            print(
+                'GoogleDriveService: Found ${publicList.files!.length} files in Public Recordings');
+          }
+        }
+      } else {
+        if (kDebugMode) {
+          print(
+              'GoogleDriveService: WARNING - Public folder ID is null, skipping public recordings');
+        }
+      }
+
+      if (kDebugMode) {
+        print('GoogleDriveService: Found ${allFiles.length} files total');
+      }
+
+      return allFiles;
     } catch (e) {
       if (kDebugMode) {
         print('Error listing recordings from Drive: $e');

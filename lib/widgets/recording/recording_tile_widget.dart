@@ -15,6 +15,9 @@ class RecordingTileWidget extends StatelessWidget {
   final ColorController colorController;
   final int index;
   final bool isPublic;
+  final bool isDeleted;
+  final VoidCallback? onRestore;
+  final VoidCallback? onPermanentDelete;
 
   const RecordingTileWidget({
     super.key,
@@ -23,6 +26,9 @@ class RecordingTileWidget extends StatelessWidget {
     required this.colorController,
     required this.index,
     this.isPublic = false,
+    this.isDeleted = false,
+    this.onRestore,
+    this.onPermanentDelete,
   });
 
   String _formatDuration(int seconds) {
@@ -49,8 +55,220 @@ class RecordingTileWidget extends StatelessWidget {
     return false;
   }
 
-  @override
+  bool _isAdminAndOwner() {
+    final authController = Get.find<AuthController>();
+    final currentUser = FirebaseAuth.instance.currentUser;
+    
+    // Check if user is admin/super admin AND owner
+    final isAdmin = authController.isAdmin || authController.isSuperAdmin;
+    final isOwner = currentUser != null && 
+        (recording.userId == currentUser.uid || recording.userEmail == currentUser.email);
+    
+    return isAdmin && isOwner;
+  }
+
+@override
   Widget build(BuildContext context) {
+    if (isDeleted) {
+      return _buildDeletedTile(context);
+    }
+    
+    return _buildNormalTile(context);
+  }
+
+  Widget _buildDeletedTile(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: colorController.backgroundColor.value,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Colors.red.withValues(alpha: 0.2),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        dense: true,
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.grey,
+                Colors.grey.withValues(alpha: 0.7),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Stack(
+            children: [
+              Center(
+                child: Icon(
+                  Icons.delete_outline,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+            ],
+          ),
+        ),
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                recording.title,
+                style: TextStyle(
+                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'DELETED',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        subtitle: Row(
+          children: [
+            Icon(
+              Icons.access_time,
+              size: 10,
+              color: colorController.textColor.value.withValues(alpha: 0.3),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              _formatDuration(recording.durationSeconds),
+              style: TextStyle(
+                color: colorController.textColor.value.withValues(alpha: 0.3),
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '•',
+              style: TextStyle(
+                color: colorController.textColor.value.withValues(alpha: 0.3),
+                fontSize: 11,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                DateFormat.yMMMd().format(recording.createdAt),
+                style: TextStyle(
+                  color: colorController.textColor.value.withValues(alpha: 0.3),
+                  fontSize: 11,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(width: 8),
+            PopupMenuButton<String>(
+              icon: Icon(
+                Icons.more_vert,
+                color: colorController.iconColor.value.withValues(alpha: 0.7),
+                size: 20,
+              ),
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              color: colorController.backgroundColor.value,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              onSelected: (value) {
+                switch (value) {
+                  case 'restore':
+                    onRestore?.call();
+                    break;
+                  case 'permanent_delete':
+                    onPermanentDelete?.call();
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'restore',
+                  height: 40,
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.restore,
+                        color: Colors.green,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Restore',
+                        style: TextStyle(
+                          color: colorController.textColor.value,
+                          fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'permanent_delete',
+                  height: 40,
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.delete_forever,
+                        color: Colors.red,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Delete Permanently',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNormalTile(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
@@ -305,6 +523,11 @@ class RecordingTileWidget extends StatelessWidget {
                       _showDeleteConfirmation(context);
                     }
                     break;
+                  case 'delete_permanently':
+                    if (_isAdminAndOwner()) {
+                      _showPermanentDeleteConfirmation(context);
+                    }
+                    break;
                 }
               },
               itemBuilder: (context) => [
@@ -436,7 +659,30 @@ class RecordingTileWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-              ],
+                // Show permanent delete option for admin owners of public recordings
+                if (isPublic && _isAdminAndOwner())
+                  const PopupMenuItem(
+                    value: 'delete_permanently',
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete_forever,
+                          color: Colors.red,
+                          size: 18,
+                        ),
+                        SizedBox(width: 12),
+                        Text(
+                          'Delete Permanently',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
             ),
           ],
         ),
@@ -683,6 +929,83 @@ class RecordingTileWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8)),
             ),
             child: Text(isOwner ? 'Delete Permanently' : 'Move to Trash'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showPermanentDeleteConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: colorController.backgroundColor.value,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(
+              Icons.warning_amber_rounded,
+              color: Colors.red,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              'Delete Permanently',
+              style: TextStyle(
+                color: colorController.textColor.value,
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Are you sure you want to permanently delete "${recording.title}"?',
+              style:
+                  TextStyle(color: colorController.textColor.value, fontSize: 14),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.3))
+              ),
+              child: Text(
+                'This will permanently delete recording from Google Drive, Firebase, and local storage. This action cannot be undone.',
+                style: TextStyle(
+                  color: Colors.red.withValues(alpha: 0.8),
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: colorController.textColor.value),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              controller.deleteRecordingPermanentlyDirect(recording);
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Delete Permanently'),
           ),
         ],
       ),

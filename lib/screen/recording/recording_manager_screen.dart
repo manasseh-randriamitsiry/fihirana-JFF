@@ -187,7 +187,7 @@ body: Obx(() {
               allRecordings = controller.recordings.where((r) => r.driveFileId == null).toList();
               break;
             default: // 'all'
-              allRecordings = [...controller.recordings.where((r) => !r.isPublic).toList(), ...controller.publicRecordings.toList()];
+              allRecordings = [...controller.recordings.where((r) => !r.isPublic), ...controller.publicRecordings];
           }
 
           // Apply search filter
@@ -407,7 +407,7 @@ return RefreshIndicator(
                   index: index,
                   isPublic: isPublic,
                 );
-              }).toList(),
+              }),
 ],
                 ),
               ),

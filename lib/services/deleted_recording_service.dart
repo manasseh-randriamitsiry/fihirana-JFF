@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_recording.dart';
 import 'package:uuid/uuid.dart';
@@ -31,7 +32,7 @@ class DeletedRecordingService {
       
       await _prefs!.setString(_deletedKey, json.encode(deletedRecordings));
     } catch (e) {
-      print('Error saving deleted recording: $e');
+      developer.log('Error saving deleted recording: $e');
     }
   }
 
@@ -46,7 +47,7 @@ class DeletedRecordingService {
       final List<dynamic> decoded = json.decode(data);
       return decoded.cast<Map<String, dynamic>>();
     } catch (e) {
-      print('Error getting deleted recordings: $e');
+      developer.log('Error getting deleted recordings: $e');
       return [];
     }
   }
@@ -57,7 +58,7 @@ class DeletedRecordingService {
       final List<Map<String, dynamic>> data = await getDeletedRecordingsMap();
       return data.map((map) => UserRecording.fromMap(map)).toList();
     } catch (e) {
-      print('Error getting deleted recordings: $e');
+      developer.log('Error getting deleted recordings: $e');
       return [];
     }
   }
@@ -69,7 +70,7 @@ class DeletedRecordingService {
       deletedRecordings.removeWhere((recording) => recording['id'] == deletedRecordingId);
       await _prefs!.setString(_deletedKey, json.encode(deletedRecordings));
     } catch (e) {
-      print('Error restoring recording: $e');
+      developer.log('Error restoring recording: $e');
     }
   }
 
@@ -80,7 +81,7 @@ class DeletedRecordingService {
       deletedRecordings.removeWhere((recording) => recording['id'] == deletedRecordingId);
       await _prefs!.setString(_deletedKey, json.encode(deletedRecordings));
     } catch (e) {
-      print('Error permanently deleting recording: $e');
+      developer.log('Error permanently deleting recording: $e');
     }
   }
 
@@ -89,7 +90,7 @@ class DeletedRecordingService {
     try {
       await _prefs!.remove(_deletedKey);
     } catch (e) {
-      print('Error clearing deleted recordings: $e');
+      developer.log('Error clearing deleted recordings: $e');
     }
   }
 
@@ -108,7 +109,7 @@ class DeletedRecordingService {
         recording['title'] == originalRecordingId
       );
     } catch (e) {
-      print('Error checking if recording is deleted: $e');
+      developer.log('Error checking if recording is deleted: $e');
       return false;
     }
   }
