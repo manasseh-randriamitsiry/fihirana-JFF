@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../services/audio_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 
 class NowPlayingButtonWidget extends StatelessWidget {
   final VoidCallback onPressed;
@@ -28,9 +28,8 @@ class NowPlayingButtonWidget extends StatelessWidget {
           children: [
             Icon(
               Icons.play_circle,
-              color: isPlaying
-                  ? Theme.of(context).colorScheme.primary
-                  : iconColor,
+              color:
+                  isPlaying ? Theme.of(context).colorScheme.primary : iconColor,
             ),
             if (isPlaying)
               Positioned(

@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:open_file/open_file.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import '../widgets/common/download_notification.dart';
+import '../../widgets/common/download_notification.dart';
 
 class ApkDownloadService {
   static const int downloadNotificationd = 1001;

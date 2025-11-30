@@ -11,7 +11,7 @@ import '../../widgets/bible/bible_settings_bottom_sheet_widget.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/shell_controller.dart';
 import '../../widgets/common/mlkit_localization_provider.dart';
-import '../../services/translation_service.dart';
+import 'package:fihirana/services/core/translation_service.dart';
 import '../../controller/language_controller.dart';
 
 class BibleReaderScreen extends StatefulWidget {
@@ -131,7 +131,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     });
   }
 
-String _getAppBarTitle() {
+  String _getAppBarTitle() {
     if (bibleController.selectedBook.isNotEmpty &&
         bibleController.selectedChapter.value > 0) {
       return '${bibleController.selectedBook.value} ${bibleController.selectedChapter.value}';
@@ -197,7 +197,7 @@ String _getAppBarTitle() {
   }
 
   Widget _buildChapterSelectionView() {
-final chapters = bibleController.chapterList;
+    final chapters = bibleController.chapterList;
     if (chapters.isEmpty) {
       return Center(
         child: Text(
@@ -222,7 +222,7 @@ final chapters = bibleController.chapterList;
       _scrollToHighlightedVerse();
     });
 
-final verses = bibleController.getCurrentChapterVerses();
+    final verses = bibleController.getCurrentChapterVerses();
     return Stack(
       children: [
         Column(

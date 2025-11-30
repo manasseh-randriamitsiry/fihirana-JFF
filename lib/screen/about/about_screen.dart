@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:fihirana/services/version_check_service.dart';
-import 'package:fihirana/services/pubspec_service.dart';
+import 'package:fihirana/services/core/version_check_service.dart';
+import 'package:fihirana/services/core/pubspec_service.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
@@ -417,60 +417,62 @@ class _AboutScreenState extends State<AboutScreen> {
               ),
               color: colorController.backgroundColor.value,
               child: InkWell(
-                onTap: (_checkingForUpdates || _downloadingUpdate) ? null : _checkForUpdates,
+                onTap: (_checkingForUpdates || _downloadingUpdate)
+                    ? null
+                    : _checkForUpdates,
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                       child: Row(
-                         children: [
-                           Container(
-                             padding: const EdgeInsets.all(12),
-                             decoration: BoxDecoration(
-                               color: colorController.primaryColor.value
-                                   .withValues(alpha: 0.15),
-                               shape: BoxShape.circle,
-                             ),
-                             child: (_checkingForUpdates || _downloadingUpdate)
-                                 ? SizedBox(
-                                     width: 24,
-                                     height: 24,
-                                     child: CircularProgressIndicator(
-                                       strokeWidth: 2.5,
-                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                           colorController.primaryColor.value),
-                                     ),
-                                   )
-                                 : Icon(
-                                     Icons.system_update_rounded,
-                                     color: colorController.primaryColor.value,
-                                     size: 24,
-                                   ),
-                           ),
-                           const SizedBox(width: 16),
-                           Expanded(
-                             child: Text(
-                               _downloadingUpdate
-                                   ? l10n.downloading
-                                   : _checkingForUpdates
-                                       ? l10n.checkingForUpdates
-                                       : l10n.checkForUpdates,
-                               style: TextStyle(
-                                 color: colorController.textColor.value,
-                                 fontSize: 16,
-                                 fontWeight: FontWeight.w600,
-                               ),
-                             ),
-                           ),
-                           if (!_checkingForUpdates && !_downloadingUpdate)
-                             Icon(
-                               Icons.arrow_forward_ios,
-                               size: 16,
-                               color: colorController.textColor.value
-                                   .withValues(alpha: 0.3),
-                             ),
-                         ],
-                       ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorController.primaryColor.value
+                              .withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: (_checkingForUpdates || _downloadingUpdate)
+                            ? SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      colorController.primaryColor.value),
+                                ),
+                              )
+                            : Icon(
+                                Icons.system_update_rounded,
+                                color: colorController.primaryColor.value,
+                                size: 24,
+                              ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          _downloadingUpdate
+                              ? l10n.downloading
+                              : _checkingForUpdates
+                                  ? l10n.checkingForUpdates
+                                  : l10n.checkForUpdates,
+                          style: TextStyle(
+                            color: colorController.textColor.value,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      if (!_checkingForUpdates && !_downloadingUpdate)
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -481,7 +483,9 @@ class _AboutScreenState extends State<AboutScreen> {
                 .slideX(begin: -0.1, end: 0),
 
             // Show "Up to date" status when no updates available
-            if (!_updateAvailable && (VersionCheckService.isUpToDate() || VersionCheckService.hasCheckedManually())) ...[
+            if (!_updateAvailable &&
+                (VersionCheckService.isUpToDate() ||
+                    VersionCheckService.hasCheckedManually())) ...[
               const SizedBox(height: 12),
               Card(
                 elevation: 1,
@@ -679,11 +683,15 @@ class _AboutScreenState extends State<AboutScreen> {
               const SizedBox(height: 12),
 
               _buildActionCard(
-                icon: _downloadingUpdate ? Icons.downloading_rounded : Icons.download_rounded,
+                icon: _downloadingUpdate
+                    ? Icons.downloading_rounded
+                    : Icons.download_rounded,
                 label: _flexibleUpdateDownloaded
                     ? l10n.downloadAndInstall
                     : (_downloadingUpdate ? l10n.downloading : l10n.download),
-                onTap: (_checkingForUpdates || _downloadingUpdate) ? () {} : _downloadAndInstallUpdate,
+                onTap: (_checkingForUpdates || _downloadingUpdate)
+                    ? () {}
+                    : _downloadAndInstallUpdate,
                 iconColor: Colors.orange,
                 backgroundColor: Colors.orange.withValues(alpha: 0.05),
               )

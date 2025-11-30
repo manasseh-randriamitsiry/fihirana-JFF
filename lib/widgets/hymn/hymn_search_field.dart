@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../l10n/app_localizations.dart';
+
 import '../common/mlkit_localization_provider.dart';
 
 class HymnSearchField extends StatelessWidget {

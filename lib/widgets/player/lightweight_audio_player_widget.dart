@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../models/hymn.dart';
-import '../../services/audio_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 import '../../controller/color_controller.dart';
 import 'package:get/get.dart';
 
@@ -337,7 +337,8 @@ class _LightweightAudioPlayerWidgetState
             const RoundSliderThumbShape(enabledThumbRadius: 3), // Smaller thumb
         trackHeight: 1.5, // Thinner track
         activeTrackColor: colorController.primaryColor.value,
-        inactiveTrackColor: colorController.textColor.value.withValues(alpha:0.2),
+        inactiveTrackColor:
+            colorController.textColor.value.withValues(alpha: 0.2),
         thumbColor: colorController.primaryColor.value,
       ),
       child: Slider(
@@ -377,7 +378,8 @@ class _LightweightAudioPlayerWidgetState
                 'Hymn ${widget.hymn.hymnNumber}',
                 style: TextStyle(
                   fontSize: 12,
-                  color: _colorController.textColor.value.withValues(alpha:0.6),
+                  color:
+                      _colorController.textColor.value.withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -418,7 +420,7 @@ class _LightweightAudioPlayerWidgetState
             trackHeight: 2,
             activeTrackColor: _colorController.primaryColor.value,
             inactiveTrackColor:
-                _colorController.textColor.value.withValues(alpha:0.2),
+                _colorController.textColor.value.withValues(alpha: 0.2),
             thumbColor: _colorController.primaryColor.value,
           ),
           child: Slider(
@@ -441,14 +443,14 @@ class _LightweightAudioPlayerWidgetState
               _formatDuration(_position ?? Duration.zero),
               style: TextStyle(
                 fontSize: 10, // Smaller font
-                color: _colorController.textColor.value.withValues(alpha:0.6),
+                color: _colorController.textColor.value.withValues(alpha: 0.6),
               ),
             ),
             Text(
               _formatDuration(_duration ?? Duration.zero),
               style: TextStyle(
                 fontSize: 10,
-                color: _colorController.textColor.value.withValues(alpha:0.6),
+                color: _colorController.textColor.value.withValues(alpha: 0.6),
               ),
             ),
           ],

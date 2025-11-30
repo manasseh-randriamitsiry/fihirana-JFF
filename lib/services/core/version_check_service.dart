@@ -8,11 +8,11 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:in_app_update/in_app_update.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'apk_download_service.dart';
+import 'package:fihirana/services/features/apk_download_service.dart';
 import 'pubspec_service.dart';
-import 'admin_control_service.dart';
-import '../widgets/common/update_notification.dart';
-import '../widgets/common/notification_channels.dart';
+import 'package:fihirana/services/features/admin_control_service.dart';
+import 'package:fihirana/widgets/common/update_notification.dart';
+import 'package:fihirana/widgets/common/notification_channels.dart';
 
 class VersionCheckService {
   static const String githubApiUrl =

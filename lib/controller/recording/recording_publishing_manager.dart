@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_recording.dart';
-import '../../services/user_recording_service.dart';
-import '../../services/public_recording_service.dart';
+import '../../services/audio/user_recording_service.dart';
+import '../../services/audio/public_recording_service.dart';
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
 

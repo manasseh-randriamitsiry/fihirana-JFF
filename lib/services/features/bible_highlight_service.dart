@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import '../models/bible_highlight.dart';
-import '../controller/auth_controller.dart';
+import '../../models/bible_highlight.dart';
+import '../../controller/auth_controller.dart';
 
 class BibleHighlightService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

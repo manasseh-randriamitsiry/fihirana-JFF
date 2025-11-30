@@ -139,14 +139,15 @@ class DrawerWidgetState extends State<DrawerWidget>
         await prefs.setString('email', googleSignInAccount.email);
 
         _updateCurrentUser();
-         Get.snackbar(
-           context.translateWithMLKit((l) => l.welcome),
-           context.translateWithMLKit((l) => l.signedInSuccessfully),
-           backgroundColor: Colors.green.withValues(alpha: 0.2),
-           colorText: _colorController.textColor.value,
-         );
-
+        
         if (mounted) {
+          Get.snackbar(
+            context.translateWithMLKit((l) => l.welcome),
+            context.translateWithMLKit((l) => l.signedInSuccessfully),
+            backgroundColor: Colors.green.withValues(alpha: 0.2),
+            colorText: _colorController.textColor.value,
+          );
+
           Phoenix.rebirth(context);
         }
       }

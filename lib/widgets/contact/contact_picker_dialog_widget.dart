@@ -4,7 +4,7 @@ import 'package:maplibre_gl/maplibre_gl.dart' as maplibre;
 import '../../controller/color_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../../models/contact.dart';
-import '../../services/contact_service.dart';
+import 'package:fihirana/services/core/contact_service.dart';
 import '../../screen/contact/location_picker_screen.dart';
 
 class ContactPickerDialog extends StatefulWidget {
@@ -38,7 +38,9 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
     _nameController = TextEditingController(
         text: widget.importedContact?['name'] ?? widget.contact?.name ?? '');
     _phoneController = TextEditingController(
-        text: widget.importedContact?['phone'] ?? widget.contact?.phoneNumber ?? '');
+        text: widget.importedContact?['phone'] ??
+            widget.contact?.phoneNumber ??
+            '');
     _locationController =
         TextEditingController(text: widget.contact?.location ?? '');
     _selectedLat = widget.contact?.latitude;
@@ -85,11 +87,9 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
                       borderSide: BorderSide(
                           color: widget.colorController.primaryColor.value)),
                 ),
-                style:
-                    TextStyle(color: widget.colorController.textColor.value),
-                validator: (value) => value?.isEmpty ?? true
-                    ? l10n.enterNamePlease
-                    : null,
+                style: TextStyle(color: widget.colorController.textColor.value),
+                validator: (value) =>
+                    value?.isEmpty ?? true ? l10n.enterNamePlease : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -107,8 +107,7 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
                       borderSide: BorderSide(
                           color: widget.colorController.primaryColor.value)),
                 ),
-                style:
-                    TextStyle(color: widget.colorController.textColor.value),
+                style: TextStyle(color: widget.colorController.textColor.value),
                 keyboardType: TextInputType.phone,
                 validator: (value) =>
                     value?.isEmpty ?? true ? l10n.fillAllFields : null,
@@ -129,8 +128,7 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
                       borderSide: BorderSide(
                           color: widget.colorController.primaryColor.value)),
                 ),
-                style:
-                    TextStyle(color: widget.colorController.textColor.value),
+                style: TextStyle(color: widget.colorController.textColor.value),
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(

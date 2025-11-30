@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'audio_service.dart';
-import 'notification_service.dart';
-import '../models/hymn.dart';
+import 'package:fihirana/services/core/notification_service.dart';
+import 'package:fihirana/models/hymn.dart';
 
 /// Service to manage audio player notifications in foreground
 class AudioForegroundService extends GetxService {
@@ -24,10 +24,10 @@ class AudioForegroundService extends GetxService {
   @override
   void onInit() {
     super.onInit();
- 
+
     // Listen to audio service state changes
     _audioService = AudioService.instance;
- 
+
     // Listen to current hymn changes
     ever(_audioService.currentPlayingHymnIdRx, (String hymnId) {
       if (hymnId.isNotEmpty) {
@@ -40,7 +40,7 @@ class AudioForegroundService extends GetxService {
         }
       }
     });
- 
+
     // Listen to player state changes (playing/paused)
     _audioService.playerStateStream.listen((state) {
       if (_isForeground) {
@@ -64,7 +64,8 @@ class AudioForegroundService extends GetxService {
         final currentHymn = _audioService.currentHymn;
         if (currentHymn != null) {
           if (kDebugMode) {
-            print('AudioForegroundService: Position received: ${position.inMilliseconds}ms');
+            print(
+                'AudioForegroundService: Position received: ${position.inMilliseconds}ms');
           }
           // Update notification immediately with current position
           NotificationService.updateAudioPlayerProgress(
@@ -76,8 +77,6 @@ class AudioForegroundService extends GetxService {
         }
       }
     });
-
-
 
     // Listen to playlist changes to update button states
     ever(_audioService.playlistChangeNotifier, (int _) {
@@ -93,27 +92,25 @@ class AudioForegroundService extends GetxService {
           );
         }
       }
-     });
-   }
+    });
+  }
 
+  void _startForegroundService() {
+    if (kDebugMode) {
+      print('AudioForegroundService: Starting foreground service');
+    }
+    _isForeground = true;
+  }
 
-
-   void _startForegroundService() {
-     if (kDebugMode) {
-       print('AudioForegroundService: Starting foreground service');
-     }
-     _isForeground = true;
-   }
-
-   void _stopForegroundService() {
-     if (kDebugMode) {
-       print('AudioForegroundService: Stopping foreground service');
-     }
-     _isForeground = false;
-     _notificationUpdateTimer?.cancel();
-     _notificationUpdateTimer = null;
-     NotificationService.hideAudioPlayerNotification();
-   }
+  void _stopForegroundService() {
+    if (kDebugMode) {
+      print('AudioForegroundService: Stopping foreground service');
+    }
+    _isForeground = false;
+    _notificationUpdateTimer?.cancel();
+    _notificationUpdateTimer = null;
+    NotificationService.hideAudioPlayerNotification();
+  }
 
   /// Update notification when hymn changes
   void updateNotification(Hymn? hymn, bool isPlaying) {

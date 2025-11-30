@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../controller/daily_verse_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../l10n/app_localizations.dart';
-import '../../services/translation_service.dart';
+import 'package:fihirana/services/core/translation_service.dart';
 import '../../controller/language_controller.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {

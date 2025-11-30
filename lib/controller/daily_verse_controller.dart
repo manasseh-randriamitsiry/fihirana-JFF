@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/daily_verse.dart';
-import '../services/daily_verse_service.dart';
+import '../services/features/daily_verse_service.dart';
 
 class DailyVerseController extends GetxController {
   final DailyVerseService _dailyVerseService = DailyVerseService();

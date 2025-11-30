@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
 import '../../models/hymn.dart';
-import '../../services/audio_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 
 class ModernAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;
@@ -55,7 +55,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   StreamSubscription? _playlistChangeSubscription;
   StreamSubscription? _currentHymnSubscription;
 
-@override
+  @override
   void initState() {
     super.initState();
     _currentDisplayedHymn = widget.hymn;
@@ -72,11 +72,13 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     _updateCurrentState();
 
     // Listen to current hymn changes
-    _currentHymnSubscription = _audioService.currentPlayingHymnIdRx.listen((hymnId) {
+    _currentHymnSubscription =
+        _audioService.currentPlayingHymnIdRx.listen((hymnId) {
       if (!mounted) return;
-      
+
       final newCurrentHymn = _audioService.currentHymn;
-      if (newCurrentHymn != null && newCurrentHymn.id != _currentDisplayedHymn?.id) {
+      if (newCurrentHymn != null &&
+          newCurrentHymn.id != _currentDisplayedHymn?.id) {
         setState(() {
           _currentDisplayedHymn = newCurrentHymn;
         });
@@ -123,7 +125,8 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     });
 
     // Listen to playlist changes
-    _playlistChangeSubscription = _audioService.playlistChangeNotifier.listen((_) {
+    _playlistChangeSubscription =
+        _audioService.playlistChangeNotifier.listen((_) {
       if (!mounted) return;
       // Update UI when playlist changes
       setState(() {});
@@ -132,9 +135,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     // Listen to player errors via playerStateStream
     _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
-      
+
       // Handle error states
-      if (state.processingState == ProcessingState.idle && 
+      if (state.processingState == ProcessingState.idle &&
           _audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
         setState(() {
           _isLoading = false;
@@ -144,7 +147,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     });
   }
 
-void _updateCurrentState() {
+  void _updateCurrentState() {
     if (!mounted) return;
     final currentHymn = _audioService.currentHymn;
     if (currentHymn?.id == _currentDisplayedHymn?.id) {
@@ -284,7 +287,7 @@ void _updateCurrentState() {
                       Text(
                         'Now Playing',
                         style: TextStyle(
-                          color: primaryTextColor.withValues(alpha:0.9),
+                          color: primaryTextColor.withValues(alpha: 0.9),
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1,
@@ -311,7 +314,7 @@ void _updateCurrentState() {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha:0.3),
+                            color: Colors.black.withValues(alpha: 0.3),
                             blurRadius: 20,
                             offset: const Offset(0, 10),
                           ),
@@ -324,7 +327,7 @@ void _updateCurrentState() {
                             child: Icon(
                               Icons.music_note,
                               size: 120,
-                              color: Colors.brown.withValues(alpha:0.3),
+                              color: Colors.brown.withValues(alpha: 0.3),
                             ),
                           ),
                           // Hymn Number Overlay
@@ -335,16 +338,16 @@ void _updateCurrentState() {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha:0.1),
+                                color: Colors.black.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-child: Text(
-                                 '#${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
-                                 style: TextStyle(
-                                   color: Colors.brown.shade900,
-                                   fontWeight: FontWeight.bold,
-                                 ),
-                               ),
+                              child: Text(
+                                '#${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                                style: TextStyle(
+                                  color: Colors.brown.shade900,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -372,26 +375,27 @@ child: Text(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-Text(
-                                     _currentDisplayedHymn?.title ?? widget.hymn.title,
-                                     style: const TextStyle(
-                                       color: primaryTextColor,
-                                       fontSize: 24,
-                                       fontWeight: FontWeight.bold,
-                                     ),
-                                     maxLines: 1,
-                                     overflow: TextOverflow.ellipsis,
-                                   ),
-                                   const SizedBox(height: 4),
-                                   Text(
-                                     'Hymn ${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
-                                     style: const TextStyle(
-                                       color: secondaryTextColor,
-                                       fontSize: 16,
-                                     ),
-                                     maxLines: 1,
-                                     overflow: TextOverflow.ellipsis,
-                                   ),
+                                  Text(
+                                    _currentDisplayedHymn?.title ??
+                                        widget.hymn.title,
+                                    style: const TextStyle(
+                                      color: primaryTextColor,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Hymn ${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                                    style: const TextStyle(
+                                      color: secondaryTextColor,
+                                      fontSize: 16,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ],
                               ),
                             ),
@@ -616,7 +620,8 @@ Text(
                             itemCount: widget.playlist!.length,
                             itemBuilder: (context, index) {
                               final hymn = widget.playlist![index];
-                              final isCurrent = hymn.id == _currentDisplayedHymn?.id;
+                              final isCurrent =
+                                  hymn.id == _currentDisplayedHymn?.id;
                               final isDownloaded =
                                   widget.isDownloaded?.call(hymn) ?? false;
                               final downloadProgress =

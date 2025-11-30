@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/announcement.dart';
-import '../widgets/common/announcement_notification.dart';
-import '../utility/snackbar_utility.dart';
+import '../../models/announcement.dart';
+import '../../widgets/common/announcement_notification.dart';
+import '../../utility/snackbar_utility.dart';
 
 class AnnouncementService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

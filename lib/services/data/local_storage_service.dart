@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import '../models/hymn.dart';
+import 'package:fihirana/models/hymn.dart';
 
 class LocalStorageService {
   static const String hymnBoxName = 'hymns';
@@ -16,13 +16,13 @@ class LocalStorageService {
       hymns.map((hymn) => MapEntry(hymn.id, hymn.toMap())),
     );
     await hymnBox.putAll(batch);
-    await hymnBox.put(lastUpdateKey, {'timestamp': DateTime.now().toIso8601String()});
+    await hymnBox
+        .put(lastUpdateKey, {'timestamp': DateTime.now().toIso8601String()});
   }
 
   List<Hymn> getLocalHymns() {
-    final hymns = hymnBox.values
-        .where((value) => value['hymnNumber'] != null)
-        .toList();
+    final hymns =
+        hymnBox.values.where((value) => value['hymnNumber'] != null).toList();
 
     return hymns.map((data) {
       DateTime createdAt;
@@ -59,14 +59,13 @@ class LocalStorageService {
   }
 
   Future<bool> hasLocalHymns() async {
-
-    final hymnCount = hymnBox.values
-        .where((value) => value['hymnNumber'] != null)
-        .length;
+    final hymnCount =
+        hymnBox.values.where((value) => value['hymnNumber'] != null).length;
     return hymnCount > 0;
   }
 
   Future<void> setLastUpdate(DateTime timestamp) async {
-    await hymnBox.put(lastUpdateKey, {'timestamp': timestamp.toIso8601String()});
+    await hymnBox
+        .put(lastUpdateKey, {'timestamp': timestamp.toIso8601String()});
   }
 }

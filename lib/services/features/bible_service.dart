@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
-import '../models/bible.dart';
-import '../utility/bible_book_order.dart';
+import 'package:fihirana/models/bible.dart';
+import 'package:fihirana/utility/bible_book_order.dart';
 
 class BibleService {
   static final BibleService _instance = BibleService._internal();
@@ -52,19 +52,20 @@ class BibleService {
       _onLoadingMessage('Maka Baiboly iray manontolo...');
 
       // Load single bible.json file
-      final jsonString = await rootBundle.loadString('assets/baiboly/bible.json');
+      final jsonString =
+          await rootBundle.loadString('assets/baiboly/bible.json');
       _onLoadingMessage('Manakatra ny Baiboly...');
 
       // Parse JSON data
       final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-      
+
       if (!jsonData.containsKey('books')) {
         throw Exception('Invalid bible.json format: missing "books" key');
       }
 
       final booksData = jsonData['books'] as List<dynamic>;
       final totalBooks = booksData.length;
-      
+
       _onLoadingMessage('Mamaky boky $totalBooks...');
 
       // Parse all books in batches to avoid memory issues
@@ -81,13 +82,14 @@ class BibleService {
         final parseFutures = batch.map((bookData) async {
           try {
             final bookMap = bookData as Map<String, dynamic>;
-            
+
             // Extract book name from data
-            final originalBookName = bookMap['name'] as String? ?? 'Unknown Book';
-            
+            final originalBookName =
+                bookMap['name'] as String? ?? 'Unknown Book';
+
             // Translate English book names to Malagasy for consistency
             final bookName = BibleBookOrder.getDisplayName(originalBookName);
-            
+
             // Create BibleBook directly from book data
             final book = BibleBook.fromJson(bookMap, bookName);
             return book;
@@ -130,8 +132,8 @@ class BibleService {
     for (final chapter in book.chapterData.values) {
       for (final verseText in chapter.verses.values) {
         // Check if verse contains actual content (not just placeholder)
-        if (verseText.isNotEmpty && 
-            !verseText.contains('[Tsy misy soratra') && 
+        if (verseText.isNotEmpty &&
+            !verseText.contains('[Tsy misy soratra') &&
             !verseText.contains('Ampidiro eto ny teny malagasy')) {
           return true;
         }
@@ -153,12 +155,13 @@ class BibleService {
       _onLoadingMessage('Maka Baiboly (fallback)...');
 
       // Fallback method: Try to load single bible.json file directly
-      final jsonString = await rootBundle.loadString('assets/baiboly/bible.json');
+      final jsonString =
+          await rootBundle.loadString('assets/baiboly/bible.json');
       _onLoadingMessage('Manakatra ny Baiboly (fallback)...');
 
       // Parse JSON data
       final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-      
+
       if (!jsonData.containsKey('books')) {
         throw Exception('Invalid bible.json format: missing "books" key');
       }
@@ -174,11 +177,11 @@ class BibleService {
         try {
           final bookMap = bookData as Map<String, dynamic>;
           final bookName = bookMap['name'] as String? ?? 'Unknown Book';
-          
+
           final book = BibleBook.fromJson(bookMap, bookName);
           _bibleCache[book.name] = book;
           loadedBooks++;
-          
+
           if (loadedBooks % 3 == 0) {
             _onLoadingMessage('Voakija: $loadedBooks/$totalBooks boky');
           }
@@ -192,7 +195,8 @@ class BibleService {
 
       _onLoadingMessage('Vita ny famakiana Baiboly ($loadedBooks/$totalBooks)');
     } catch (e) {
-      _onLoadingMessage('Nisy olana tamin\'ny famakiana Baiboly (fallback): $e');
+      _onLoadingMessage(
+          'Nisy olana tamin\'ny famakiana Baiboly (fallback): $e');
     }
   }
 
@@ -220,7 +224,8 @@ class BibleService {
   List<String> getAllBookNames() {
     final allBooks = _bibleCache.keys.toList();
     // Sort by biblical order instead of alphabetical
-    allBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a).compareTo(BibleBookOrder.getBookOrderPosition(b)));
+    allBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a)
+        .compareTo(BibleBookOrder.getBookOrderPosition(b)));
     return allBooks;
   }
 
@@ -233,14 +238,16 @@ class BibleService {
   // Get only Old Testament books in order
   List<String> getOldTestamentBooks() {
     final allBooks = _bibleCache.keys.toList();
-    final oldTestamentBooks = allBooks.where(BibleBookOrder.isOldTestamentBook).toList();
+    final oldTestamentBooks =
+        allBooks.where(BibleBookOrder.isOldTestamentBook).toList();
     return BibleBookOrder.getSortedOldTestamentBooks(oldTestamentBooks);
   }
 
   // Get only New Testament books in order
   List<String> getNewTestamentBooks() {
     final allBooks = _bibleCache.keys.toList();
-    final newTestamentBooks = allBooks.where(BibleBookOrder.isNewTestamentBook).toList();
+    final newTestamentBooks =
+        allBooks.where(BibleBookOrder.isNewTestamentBook).toList();
     return BibleBookOrder.getSortedNewTestamentBooks(newTestamentBooks);
   }
 
@@ -269,9 +276,10 @@ class BibleService {
         .where(
             (bookName) => bookName.toLowerCase().contains(query.toLowerCase()))
         .toList();
-    
+
     // Sort by biblical order instead of alphabetical
-    filteredBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a).compareTo(BibleBookOrder.getBookOrderPosition(b)));
+    filteredBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a)
+        .compareTo(BibleBookOrder.getBookOrderPosition(b)));
     return filteredBooks;
   }
 
@@ -312,7 +320,7 @@ class BibleService {
   String getBookStatus(String bookName) {
     final book = _bibleCache[bookName];
     if (book == null) return 'Unknown';
-    
+
     if (_bookHasContent(book)) {
       return 'Complete';
     } else {
@@ -326,7 +334,7 @@ class BibleService {
       'Complete': [],
       'Placeholder': []
     };
-    
+
     _bibleCache.forEach((name, book) {
       if (_bookHasContent(book)) {
         result['Complete']!.add(name);
@@ -334,7 +342,7 @@ class BibleService {
         result['Placeholder']!.add(name);
       }
     });
-    
+
     return result;
   }
 }

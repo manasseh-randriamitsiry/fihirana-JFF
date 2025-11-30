@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'announcement_service.dart';
+import 'package:fihirana/services/features/announcement_service.dart';
 
 class BackgroundService extends GetxService {
   Timer? _announcementTimer;
@@ -16,7 +16,6 @@ class BackgroundService extends GetxService {
   }
 
   void _startAnnouncementChecks() {
-
     _announcementTimer = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _checkAnnouncements(),

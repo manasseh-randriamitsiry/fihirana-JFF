@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as path;
-import 'storage_manager.dart';
+import 'package:fihirana/services/data/storage_manager.dart';
 
 class LocalAudioService {
   static final LocalAudioService _instance = LocalAudioService._internal();
@@ -150,7 +150,7 @@ class LocalAudioService {
               // Log every 100KB
               if (kDebugMode) {
                 print(
-                  'LocalAudioService: Download progress for $hymnId: ${(progress * 100).toInt()}%');
+                    'LocalAudioService: Download progress for $hymnId: ${(progress * 100).toInt()}%');
               }
             }
             onProgress(progress);

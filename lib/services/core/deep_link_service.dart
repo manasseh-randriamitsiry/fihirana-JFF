@@ -1,7 +1,7 @@
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import '../controller/playlist_controller.dart';
+import '../../controller/playlist_controller.dart';
 
 class DeepLinkService {
   final AppLinks _appLinks = AppLinks();

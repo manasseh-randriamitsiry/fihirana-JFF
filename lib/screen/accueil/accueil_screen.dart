@@ -13,8 +13,8 @@ import '../../widgets/empty_state_widget.dart';
 import '../../widgets/accueil/accueil_action_widgets.dart';
 import '../player/audio_player_screen.dart';
 import '../../utility/navigation_utility.dart';
-import '../../services/version_check_service.dart';
-import '../../services/audio_service.dart';
+import '../../services/core/version_check_service.dart';
+import '../../services/audio/audio_service.dart';
 
 import '../../models/hymn.dart';
 import '../../widgets/common/mlkit_localization_provider.dart';

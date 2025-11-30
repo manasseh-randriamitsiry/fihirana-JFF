@@ -1,4 +1,4 @@
-import '../widgets/common/custom_snackbar.dart';
+import '../../widgets/common/custom_snackbar.dart';
 
 class SnackbarService {
   static void showSuccess(String message) {

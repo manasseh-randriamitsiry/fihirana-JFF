@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 import '../../controller/auth_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
-import '../../services/hymn_service.dart';
-import '../../services/audio_service.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 import '../../widgets/player/lightweight_audio_player_widget.dart';
 import '../../widgets/hymn/hymn_form_widgets.dart';
 
@@ -208,8 +208,6 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -358,7 +356,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         ],
                       ),
                     ),
-FormTextFieldWidget(
+                  FormTextFieldWidget(
                     controller: _hymnNumberController,
                     label: l10n.number,
                     keyboardType: TextInputType.number,
@@ -371,7 +369,7 @@ FormTextFieldWidget(
                     },
                   ),
                   const SizedBox(height: 16.0),
-FormTextFieldWidget(
+                  FormTextFieldWidget(
                     controller: _titleController,
                     label: l10n.title,
                     icon: Icons.title,
@@ -481,7 +479,7 @@ FormTextFieldWidget(
                   ),
                   const SizedBox(height: 16.0),
 
-FormTextFieldWidget(
+                  FormTextFieldWidget(
                     controller: _bridgeController,
                     label: l10n.bridgeOptional,
                     maxLines: 3,
@@ -489,7 +487,7 @@ FormTextFieldWidget(
                   ),
                   const SizedBox(height: 16.0),
 
-FormTextFieldWidget(
+                  FormTextFieldWidget(
                     controller: _hymnHintController,
                     label: l10n.hymnHint,
                     maxLines: 2,
@@ -584,5 +582,3 @@ FormTextFieldWidget(
     );
   }
 }
-
-

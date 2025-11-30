@@ -1,24 +1,12 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fihirana/controller/color_controller.dart';
 import 'package:fihirana/controller/font_controller.dart';
 import 'package:fihirana/controller/language_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/l10n/app_localizations_en.dart';
-import 'package:fihirana/screen/accueil/home_screen.dart';
-import 'package:fihirana/widgets/responsive_shell.dart';
-import 'package:fihirana/controller/shell_controller.dart';
-import 'package:fihirana/screen/intro/splash_screen1.dart';
-import 'package:fihirana/screen/loading/loading_screen.dart';
-import 'package:fihirana/services/version_check_service.dart';
-import 'package:fihirana/widgets/common/banned_page.dart';
-import 'package:fihirana/widgets/common/mlkit_localization_provider.dart';
-import 'package:fihirana/services/audio_service.dart';
-import 'package:fihirana/services/notification_service.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -28,16 +16,46 @@ import 'package:fihirana/screen/admin/admin_panel_screen.dart';
 import 'package:fihirana/screen/about/about_screen.dart';
 import 'package:fihirana/screen/history/history_screen.dart';
 import 'package:fihirana/screen/announcement/announcement_screen.dart';
+import 'package:fihirana/screen/accueil/home_screen.dart';
+import 'package:fihirana/services/core/version_check_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
+import 'package:fihirana/services/core/notification_service.dart';
+import 'package:fihirana/services/core/security_service.dart';
+import 'package:fihirana/controller/shell_controller.dart';
+import 'package:fihirana/screen/intro/splash_screen1.dart';
+import 'package:fihirana/screen/loading/loading_screen.dart';
 import 'package:fihirana/screen/hymn/create_hymn_page.dart';
 import 'package:fihirana/screen/hymn/firebase_hymns_screen.dart';
 import 'package:fihirana/screen/playlist/playlist_list_screen.dart';
+import 'package:fihirana/screen/recording/recording_manager_screen.dart';
 import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
 import 'package:fihirana/screen/settings/settings_screen.dart';
-import 'package:fihirana/screen/recording/recording_manager_screen.dart';
-import 'package:fihirana/services/security_service.dart';
 import 'package:fihirana/screen/contact/contact_list_screen.dart';
+import 'package:fihirana/widgets/common/banned_page.dart';
+import 'package:fihirana/widgets/common/mlkit_localization_provider.dart';
+import 'package:fihirana/widgets/responsive_shell.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
-// ... existing imports
+class _FallbackAppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _FallbackAppLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) {
+    // Support all locales to prevent warnings
+    return true;
+  }
+
+  @override
+  Future<AppLocalizations> load(Locale locale) async {
+    // For unsupported locales, fall back to English AppLocalizations
+    // Load English localizations as fallback
+    return await AppLocalizations.delegate.load(const Locale('en'));
+  }
+
+  @override
+  bool shouldReload(LocalizationsDelegate<AppLocalizations> old) => false;
+}
 
 // Fallback Material localization delegate for unsupported locales
 class _FallbackMaterialLocalizationsDelegate
@@ -263,6 +281,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               locale: currentLocale,
               localizationsDelegates: const [
                 AppLocalizations.delegate,
+                _FallbackAppLocalizationsDelegate(),
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate,
@@ -306,6 +325,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           locale: currentLocale,
           localizationsDelegates: const [
             AppLocalizations.delegate,
+            _FallbackAppLocalizationsDelegate(),
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,

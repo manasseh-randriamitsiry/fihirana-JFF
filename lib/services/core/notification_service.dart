@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import '../models/hymn.dart';
-import '../widgets/common/notification_styles.dart';
-import '../widgets/common/audio_player_notification.dart';
-import '../widgets/common/notification_channels.dart';
-import 'audio_service.dart';
+import 'package:fihirana/models/hymn.dart';
+import 'package:fihirana/widgets/common/notification_styles.dart';
+import 'package:fihirana/widgets/common/audio_player_notification.dart';
+import 'package:fihirana/widgets/common/notification_channels.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 import 'version_check_service.dart';
 
 class NotificationService {
@@ -29,7 +29,8 @@ class NotificationService {
   static void showAudioPlayerNotification(Hymn hymn, bool isPlaying,
       {Duration? position, Duration? duration}) {
     // Delegate to update method for consistency
-    updateAudioPlayerProgress(hymn, isPlaying, position: position, duration: duration);
+    updateAudioPlayerProgress(hymn, isPlaying,
+        position: position, duration: duration);
   }
 
   static void updateAudioPlayerProgress(Hymn hymn, bool isPlaying,
@@ -37,7 +38,7 @@ class NotificationService {
     final audioService = AudioService.instance;
     final canGoNext = audioService.canGoNext;
     final canGoPrev = audioService.canGoPrevious;
-    
+
     AudioPlayerNotificationBuilder.updateNotification(
       hymn: hymn,
       isPlaying: isPlaying,
@@ -87,7 +88,8 @@ class NotificationService {
       ReceivedAction receivedAction) async {
     try {
       if (kDebugMode) {
-        print('Notification action received: ${receivedAction.buttonKeyPressed}');
+        print(
+            'Notification action received: ${receivedAction.buttonKeyPressed}');
       }
 
       // Handle audio player actions
@@ -159,7 +161,8 @@ class NotificationService {
         final currentPosition = audioService.currentPosition;
         if (currentPosition != null) {
           final newPosition = currentPosition - const Duration(seconds: 10);
-          final seekPosition = newPosition.isNegative ? Duration.zero : newPosition;
+          final seekPosition =
+              newPosition.isNegative ? Duration.zero : newPosition;
           await audioService.seekTo(seekPosition);
         }
         break;

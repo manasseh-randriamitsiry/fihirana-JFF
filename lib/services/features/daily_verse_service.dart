@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/daily_verse.dart';
-import '../services/bible_service.dart';
-import '../data/inspiring_verses.dart';
-import '../utility/bible_book_order.dart';
-import '../widgets/common/daily_verse_notification.dart';
+import 'package:fihirana/models/daily_verse.dart';
+import 'package:fihirana/services/features/bible_service.dart';
+import 'package:fihirana/data/inspiring_verses.dart';
+import 'package:fihirana/utility/bible_book_order.dart';
+import 'package:fihirana/widgets/common/daily_verse_notification.dart';
 
 class DailyVerseService {
   static final DailyVerseService _instance = DailyVerseService._internal();

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/playlist_controller.dart';
-import '../../services/hymn_service.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
 import '../../models/hymn.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/playlist/playlist_detail_widgets.dart';
@@ -55,16 +55,16 @@ class PlaylistDetailScreen extends StatelessWidget {
               ),
             ],
           ),
-           body: Column(
-             children: [
-               // Header Info
-               PlaylistHeaderInfo(
-                 date: playlist.date,
-                 hymnCount: playlist.hymnIds.length,
-                 onDateChanged: (date) {
-                   playlistController.updatePlaylistDate(playlist.id, date);
-                 },
-               ),
+          body: Column(
+            children: [
+              // Header Info
+              PlaylistHeaderInfo(
+                date: playlist.date,
+                hymnCount: playlist.hymnIds.length,
+                onDateChanged: (date) {
+                  playlistController.updatePlaylistDate(playlist.id, date);
+                },
+              ),
 
               // Hymn List
               Expanded(
@@ -107,19 +107,21 @@ class PlaylistDetailScreen extends StatelessWidget {
                           return ListView.builder(
                             padding: const EdgeInsets.all(16),
                             itemCount: hymns.length,
-                             itemBuilder: (context, index) {
-                               final hymn = hymns[index];
-                               return PlaylistHymnItem(
-                                 hymn: hymn,
-                                 index: index,
-                                 onTap: () {
-                                   Get.to(() => HymnDetailScreen(hymnId: hymn.id));
-                                 },
-                                 onRemove: () {
-                                   playlistController.removeHymnFromPlaylist(playlist.id, hymn.id);
-                                 },
-                               );
-                             },
+                            itemBuilder: (context, index) {
+                              final hymn = hymns[index];
+                              return PlaylistHymnItem(
+                                hymn: hymn,
+                                index: index,
+                                onTap: () {
+                                  Get.to(
+                                      () => HymnDetailScreen(hymnId: hymn.id));
+                                },
+                                onRemove: () {
+                                  playlistController.removeHymnFromPlaylist(
+                                      playlist.id, hymn.id);
+                                },
+                              );
+                            },
                           );
                         },
                       ),

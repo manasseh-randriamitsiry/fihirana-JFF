@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
-import '../widgets/common/contact_snackbars.dart';
-import '../widgets/common/maps_snackbars.dart';
-import '../widgets/common/audio_snackbars.dart';
-import '../widgets/common/auth_snackbars.dart';
+import 'package:fihirana/widgets/common/contact_snackbars.dart';
+import 'package:fihirana/widgets/common/maps_snackbars.dart';
+import 'package:fihirana/widgets/common/audio_snackbars.dart';
+import 'package:fihirana/widgets/common/auth_snackbars.dart';
 
 /// Service to handle UI interactions from services
 /// This provides a clean separation between business logic and UI

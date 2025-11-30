@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/note.dart';
-import '../../services/note_service.dart';
+import 'package:fihirana/services/core/note_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class NoteEditorWidget extends StatefulWidget {
@@ -44,7 +44,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorController = Get.find<ColorController>();
-    
+
     return Container(
       color: colorController.backgroundColor.value,
       padding: EdgeInsets.only(
@@ -130,18 +130,21 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                         backgroundColor: colorController.backgroundColor.value,
                         title: Text(
                           l10n.deleteNoteConfirm,
-                          style: TextStyle(color: colorController.textColor.value),
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                         content: Text(
                           l10n.deleteNoteMessage,
-                          style: TextStyle(color: colorController.textColor.value),
+                          style:
+                              TextStyle(color: colorController.textColor.value),
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context, false),
                             child: Text(
                               l10n.no,
-                              style: TextStyle(color: colorController.textColor.value),
+                              style: TextStyle(
+                                  color: colorController.textColor.value),
                             ),
                           ),
                           TextButton(
@@ -213,7 +216,7 @@ class HymnTitleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return Hero(
       tag: 'hymn_title_$hymnId',
       child: Material(
@@ -249,7 +252,7 @@ class HymnNumberWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return GestureDetector(
       onTap: onTap,
       child: Hero(
@@ -292,7 +295,8 @@ class ImprovedNoteSectionWidget extends StatefulWidget {
   });
 
   @override
-  State<ImprovedNoteSectionWidget> createState() => _ImprovedNoteSectionWidgetState();
+  State<ImprovedNoteSectionWidget> createState() =>
+      _ImprovedNoteSectionWidgetState();
 }
 
 class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
@@ -311,7 +315,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -319,7 +323,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
       parent: _animationController,
       curve: Curves.easeInOut,
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.1),
       end: Offset.zero,
@@ -327,7 +331,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
       parent: _animationController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     _animationController.forward();
   }
 
@@ -341,13 +345,14 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final colorController = Get.find<ColorController>();
-    
+
     if (!widget.isUserAuthenticated && widget.publicNotes.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final totalNotes = (widget.userNote != null ? 1 : 0) + widget.publicNotes.length;
-    
+    final totalNotes =
+        (widget.userNote != null ? 1 : 0) + widget.publicNotes.length;
+
     return AnimatedBuilder(
       animation: _animationController,
       builder: (context, child) {
@@ -362,13 +367,15 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: colorController.textColor.value.withValues(alpha: 0.08),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.08),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
                 ],
                 border: Border.all(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.15),
+                  color: colorController.primaryColor.value
+                      .withValues(alpha: 0.15),
                   width: 1.5,
                 ),
               ),
@@ -377,14 +384,14 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 children: [
                   // Enhanced header section
                   _buildHeader(colorController, l10n, totalNotes),
-                  
+
                   // Notes content with animation
                   AnimatedSize(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
-                    child: _isExpanded 
-                      ? _buildNotesContent(colorController, l10n)
-                      : const SizedBox.shrink(),
+                    child: _isExpanded
+                        ? _buildNotesContent(colorController, l10n)
+                        : const SizedBox.shrink(),
                   ),
                 ],
               ),
@@ -395,7 +402,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
     );
   }
 
-  Widget _buildHeader(ColorController colorController, AppLocalizations l10n, int totalNotes) {
+  Widget _buildHeader(
+      ColorController colorController, AppLocalizations l10n, int totalNotes) {
     return Material(
       color: colorController.backgroundColor.value.withValues(alpha: 0.9),
       child: InkWell(
@@ -443,7 +451,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                         '$totalNotes ${totalNotes == 1 ? 'note' : 'notes'}',
                         style: TextStyle(
                           fontSize: widget.fontSize * 0.8,
-                          color: colorController.textColor.value.withValues(alpha: 0.6),
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.6),
                         ),
                       ),
                   ],
@@ -469,7 +478,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
     );
   }
 
-  Widget _buildAddNoteButton(ColorController colorController, AppLocalizations l10n) {
+  Widget _buildAddNoteButton(
+      ColorController colorController, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.only(right: 12),
       child: AnimatedContainer(
@@ -508,7 +518,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
     );
   }
 
-  Widget _buildNotesContent(ColorController colorController, AppLocalizations l10n) {
+  Widget _buildNotesContent(
+      ColorController colorController, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -519,7 +530,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
             _buildUserNote(context, widget.userNote!, colorController, l10n),
             if (widget.publicNotes.isNotEmpty) const SizedBox(height: 16),
           ],
-          
+
           // Public notes section with toggle
           if (widget.publicNotes.isNotEmpty) ...[
             _buildCommunityNotesHeader(colorController, l10n),
@@ -527,29 +538,36 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               child: _showCommunityNotes
-                ? Column(
-                    children: widget.publicNotes.asMap().entries.map((entry) {
-                      final index = entry.key;
-                      final note = entry.value;
-                      return Padding(
-                        padding: EdgeInsets.only(bottom: index < widget.publicNotes.length - 1 ? 12.0 : 0),
-                        child: _buildPublicNote(context, note, colorController, l10n),
-                      );
-                    }).toList(),
-                  )
-                : const SizedBox.shrink(),
+                  ? Column(
+                      children: widget.publicNotes.asMap().entries.map((entry) {
+                        final index = entry.key;
+                        final note = entry.value;
+                        return Padding(
+                          padding: EdgeInsets.only(
+                              bottom: index < widget.publicNotes.length - 1
+                                  ? 12.0
+                                  : 0),
+                          child: _buildPublicNote(
+                              context, note, colorController, l10n),
+                        );
+                      }).toList(),
+                    )
+                  : const SizedBox.shrink(),
             ),
           ],
-          
+
           // Empty state for authenticated users
-          if (widget.isUserAuthenticated && widget.userNote == null && widget.publicNotes.isEmpty)
+          if (widget.isUserAuthenticated &&
+              widget.userNote == null &&
+              widget.publicNotes.isEmpty)
             _buildEmptyState(context, colorController, l10n),
         ],
       ),
     );
   }
 
-  Widget _buildCommunityNotesHeader(ColorController colorController, AppLocalizations l10n) {
+  Widget _buildCommunityNotesHeader(
+      ColorController colorController, AppLocalizations l10n) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -571,7 +589,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                   style: TextStyle(
                     fontSize: widget.fontSize * 0.9,
                     fontWeight: FontWeight.w600,
-                    color: colorController.textColor.value.withValues(alpha: 0.7),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.7),
                   ),
                 ),
               ),
@@ -614,7 +633,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
             ),
             boxShadow: [
               BoxShadow(
-                color: colorController.primaryColor.value.withValues(alpha: 0.1),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -633,7 +653,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                       borderRadius: BorderRadius.circular(8),
                       boxShadow: [
                         BoxShadow(
-                          color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                          color: colorController.primaryColor.value
+                              .withValues(alpha: 0.3),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
@@ -663,14 +684,16 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                             Icon(
                               Icons.schedule,
                               size: widget.fontSize * 0.6,
-                              color: colorController.textColor.value.withValues(alpha: 0.5),
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.5),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               _formatDate(note.createdAt),
                               style: TextStyle(
                                 fontSize: widget.fontSize * 0.75,
-                                color: colorController.textColor.value.withValues(alpha: 0.6),
+                                color: colorController.textColor.value
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -683,7 +706,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                       color: colorController.backgroundColor.value,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                        color: colorController.primaryColor.value
+                            .withValues(alpha: 0.3),
                       ),
                     ),
                     child: IconButton(
@@ -767,9 +791,12 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 children: [
                   CircleAvatar(
                     radius: widget.fontSize * 0.4,
-                    backgroundColor: colorController.primaryColor.value.withValues(alpha: 0.2),
+                    backgroundColor: colorController.primaryColor.value
+                        .withValues(alpha: 0.2),
                     child: Text(
-                      note.userName.isNotEmpty ? note.userName[0].toUpperCase() : '?',
+                      note.userName.isNotEmpty
+                          ? note.userName[0].toUpperCase()
+                          : '?',
                       style: TextStyle(
                         fontSize: widget.fontSize * 0.5,
                         fontWeight: FontWeight.bold,
@@ -790,12 +817,14 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                             color: colorController.textColor.value,
                           ),
                         ),
-                        if (note.userEmail.isNotEmpty && note.userEmail != note.userName)
+                        if (note.userEmail.isNotEmpty &&
+                            note.userEmail != note.userName)
                           Text(
                             note.userEmail,
                             style: TextStyle(
                               fontSize: widget.fontSize * 0.75,
-                              color: colorController.textColor.value.withValues(alpha: 0.6),
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.6),
                             ),
                           ),
                         Row(
@@ -803,48 +832,52 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                             Icon(
                               Icons.schedule,
                               size: widget.fontSize * 0.6,
-                              color: colorController.textColor.value.withValues(alpha: 0.5),
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.5),
                             ),
                             const SizedBox(width: 4),
                             Text(
                               _formatDate(note.createdAt),
                               style: TextStyle(
                                 fontSize: widget.fontSize * 0.75,
-                                color: colorController.textColor.value.withValues(alpha: 0.6),
+                                color: colorController.textColor.value
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],
                         ),
                       ],
-),
-                   ),
-                   FutureBuilder<bool>(
-                     future: _canEditNote(note),
-                     builder: (context, snapshot) {
-                       final canEdit = snapshot.data ?? false;
-                       if (!canEdit) {
-                         return const SizedBox.shrink();
-                       }
-                       return Container(
-                         decoration: BoxDecoration(
-                           color: colorController.textColor.value.withValues(alpha: 0.05),
-                           borderRadius: BorderRadius.circular(8),
-                           border: Border.all(
-                             color: colorController.textColor.value.withValues(alpha: 0.2),
-                           ),
-                         ),
-                         child: IconButton(
-                           icon: Icon(
-                             Icons.edit,
-                             size: widget.fontSize * 0.8,
-                             color: colorController.primaryColor.value,
-                           ),
-                           onPressed: () => widget.onNoteEdit(note),
-                           tooltip: l10n.editNote,
-                         ),
-                       );
-                     },
-                   ),
+                    ),
+                  ),
+                  FutureBuilder<bool>(
+                    future: _canEditNote(note),
+                    builder: (context, snapshot) {
+                      final canEdit = snapshot.data ?? false;
+                      if (!canEdit) {
+                        return const SizedBox.shrink();
+                      }
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.2),
+                          ),
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.edit,
+                            size: widget.fontSize * 0.8,
+                            color: colorController.primaryColor.value,
+                          ),
+                          onPressed: () => widget.onNoteEdit(note),
+                          tooltip: l10n.editNote,
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -905,7 +938,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 duration: const Duration(milliseconds: 300),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.1),
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -935,7 +969,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: colorController.primaryColor.value,
                   borderRadius: BorderRadius.circular(20),

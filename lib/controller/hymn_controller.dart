@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import '../models/hymn.dart';
-import '../services/hymn_service.dart';
-import '../l10n/app_localizations.dart';
+import 'package:fihirana/models/hymn.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class HymnController extends GetxController {
   late final TextEditingController searchController;
@@ -66,7 +66,6 @@ class HymnController extends GetxController {
 
   List<Hymn> filterHymnList(List<Hymn> hymns) {
     hymns.sort((a, b) {
-
       String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
       String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
 
@@ -116,9 +115,9 @@ class HymnController extends GetxController {
       searchController.dispose();
     } catch (e) {
       // Controller already disposed, ignore
-        if (kDebugMode) {
-          debugPrint('SearchController already disposed: $e');
-        }
+      if (kDebugMode) {
+        debugPrint('SearchController already disposed: $e');
+      }
     }
     _favoriteStatusSubscription?.cancel();
     super.onClose();

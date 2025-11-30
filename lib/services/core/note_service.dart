@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import '../models/note.dart';
-import '../controller/auth_controller.dart';
+import 'package:fihirana/models/note.dart';
+import 'package:fihirana/controller/auth_controller.dart';
 
 class NoteService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -124,12 +124,14 @@ class NoteService {
 
       final data = noteDoc.data();
       if (data == null) return false;
-      
+
       data['id'] = noteDoc.id;
       final note = Note.fromJson(data);
 
 // Check if user is admin/superAdmin or owns the note
-      if (!_authController.isAdmin && !_authController.isSuperAdmin && note.userId != user.uid) {
+      if (!_authController.isAdmin &&
+          !_authController.isSuperAdmin &&
+          note.userId != user.uid) {
         return false; // Not authorized
       }
 

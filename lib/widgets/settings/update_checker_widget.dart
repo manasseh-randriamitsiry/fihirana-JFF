@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fihirana/services/version_check_service.dart';
+import 'package:fihirana/services/core/version_check_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class UpdateCheckerWidget extends StatefulWidget {

@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 import '../models/playlist.dart';
-import '../services/playlist_service.dart';
-import '../services/security_service.dart';
-import '../services/google_drive_service.dart';
-import '../services/translation_service.dart';
+import 'package:fihirana/services/features/playlist_service.dart';
+import 'package:fihirana/services/core/security_service.dart';
+import 'package:fihirana/services/data/google_drive_service.dart';
+import 'package:fihirana/services/core/translation_service.dart';
 
 class PlaylistController extends GetxController {
   final PlaylistService _playlistService = PlaylistService();
@@ -45,20 +45,28 @@ class PlaylistController extends GetxController {
     try {
       isLoading.value = true;
       final id = await _playlistService.createPlaylist(title, date);
-final translationService = TranslationService();
+      final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Playlist created successfully', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Playlist created successfully',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
       return id;
     } catch (e) {
-final translationService = TranslationService();
+      final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Failed to create playlist', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Failed to create playlist',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -72,11 +80,15 @@ final translationService = TranslationService();
   Future<void> updatePlaylistDate(String playlistId, DateTime newDate) async {
     final success =
         await _playlistService.updatePlaylist(playlistId, date: newDate);
-if (success) {
+    if (success) {
       final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Playlist date updated', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Playlist date updated',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
@@ -84,8 +96,12 @@ if (success) {
     } else {
       final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Failed to update playlist date', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Failed to update playlist date',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -96,11 +112,15 @@ if (success) {
   Future<void> addHymnToPlaylist(String playlistId, String hymnId) async {
     final success =
         await _playlistService.addHymnToPlaylist(playlistId, hymnId);
-if (success) {
+    if (success) {
       final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Hymn added to playlist', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Hymn added to playlist',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
@@ -108,8 +128,12 @@ if (success) {
     } else {
       final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Failed to add hymn to playlist', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Failed to add hymn to playlist',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -128,31 +152,36 @@ if (success) {
   Future<void> sharePlaylist(Playlist playlist) async {
     // Security check first
     final SecurityService securityService = SecurityService.instance;
-    
+
     // Check if user is authenticated via Firebase
     final isFirebaseAuthenticated = FirebaseAuth.instance.currentUser != null;
-    
+
     // Check if user is authenticated via Google Drive (need to get drive service)
     final GoogleDriveService driveService = GoogleDriveService();
     final isGoogleDriveAuthenticated = driveService.currentUser != null;
-    
+
     if (!isFirebaseAuthenticated && !isGoogleDriveAuthenticated) {
       // Guest user - block sharing for guests to prevent abuse
       if (kDebugMode) {
         print('🚫 Guest user attempted to share playlist');
       }
       final translationService = TranslationService();
-          Get.snackbar(
-            await translationService.translate(text: 'Access Denied', sourceLanguage: 'en', targetLanguage: 'en'),
-            await translationService.translate(text: 'Your account has been restricted. Sharing features are not available.', sourceLanguage: 'en', targetLanguage: 'en'),
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 5),
-          );
+      Get.snackbar(
+        await translationService.translate(
+            text: 'Access Denied', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text:
+                'Your account has been restricted. Sharing features are not available.',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        snackPosition: SnackPosition.BOTTOM,
+        duration: const Duration(seconds: 5),
+      );
       return;
     }
-    
+
     // Check Firebase user security if authenticated via Firebase
     if (isFirebaseAuthenticated) {
       await securityService.checkUserSecurity();
@@ -161,31 +190,47 @@ if (success) {
           print('🚫 Blocked Firebase user attempted to share playlist');
         }
         final translationService = TranslationService();
-          Get.snackbar(
-            await translationService.translate(text: 'Access Denied', sourceLanguage: 'en', targetLanguage: 'en'),
-            await translationService.translate(text: 'Your account has been restricted. Sharing features are not available.', sourceLanguage: 'en', targetLanguage: 'en'),
-            backgroundColor: Colors.red,
-            colorText: Colors.white,
-            snackPosition: SnackPosition.BOTTOM,
-            duration: const Duration(seconds: 5),
-          );
+        Get.snackbar(
+          await translationService.translate(
+              text: 'Access Denied',
+              sourceLanguage: 'en',
+              targetLanguage: 'en'),
+          await translationService.translate(
+              text:
+                  'Your account has been restricted. Sharing features are not available.',
+              sourceLanguage: 'en',
+              targetLanguage: 'en'),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          snackPosition: SnackPosition.BOTTOM,
+          duration: const Duration(seconds: 5),
+        );
         return;
       }
     }
-    
+
     // Check Google Drive user email if authenticated via Google Drive
     if (isGoogleDriveAuthenticated) {
       final googleUserEmail = driveService.currentUser?.email;
       if (googleUserEmail != null) {
-        final isEmailBlocked = await securityService.isEmailBlocked(googleUserEmail);
+        final isEmailBlocked =
+            await securityService.isEmailBlocked(googleUserEmail);
         if (isEmailBlocked) {
           if (kDebugMode) {
-            print('🚫 Blocked Google Drive user attempted to share playlist: $googleUserEmail');
+            print(
+                '🚫 Blocked Google Drive user attempted to share playlist: $googleUserEmail');
           }
-final translationService = TranslationService();
+          final translationService = TranslationService();
           Get.snackbar(
-            await translationService.translate(text: 'Access Denied', sourceLanguage: 'en', targetLanguage: 'en'),
-            await translationService.translate(text: 'Your account has been restricted. Sharing features are not available.', sourceLanguage: 'en', targetLanguage: 'en'),
+            await translationService.translate(
+                text: 'Access Denied',
+                sourceLanguage: 'en',
+                targetLanguage: 'en'),
+            await translationService.translate(
+                text:
+                    'Your account has been restricted. Sharing features are not available.',
+                sourceLanguage: 'en',
+                targetLanguage: 'en'),
             backgroundColor: Colors.red,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
@@ -195,7 +240,7 @@ final translationService = TranslationService();
         }
       }
     }
-    
+
     // Create a clickable HTTPS link using GitHub Pages
     final shareUrl =
         'https://manasseh-randriamitsiry.github.io/fihirana-share/?id=${playlist.id}';
@@ -227,10 +272,14 @@ final translationService = TranslationService();
         });
 
         if (isDuplicate) {
-final translationService = TranslationService();
+          final translationService = TranslationService();
           Get.snackbar(
-            await translationService.translate(text: 'Info', sourceLanguage: 'en', targetLanguage: 'en'),
-            await translationService.translate(text: 'Playlist "${playlist.title}" already exists', sourceLanguage: 'en', targetLanguage: 'en'),
+            await translationService.translate(
+                text: 'Info', sourceLanguage: 'en', targetLanguage: 'en'),
+            await translationService.translate(
+                text: 'Playlist "${playlist.title}" already exists',
+                sourceLanguage: 'en',
+                targetLanguage: 'en'),
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.blue,
             colorText: Colors.white,
@@ -252,30 +301,43 @@ final translationService = TranslationService();
           }
         }
 
-final translationService = TranslationService();
+        final translationService = TranslationService();
         Get.snackbar(
-          await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
-          await translationService.translate(text: 'Playlist "${playlist.title}" imported with ${playlist.hymnIds.length} hymns', sourceLanguage: 'en', targetLanguage: 'en'),
+          await translationService.translate(
+              text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+          await translationService.translate(
+              text:
+                  'Playlist "${playlist.title}" imported with ${playlist.hymnIds.length} hymns',
+              sourceLanguage: 'en',
+              targetLanguage: 'en'),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
           duration: const Duration(seconds: 3),
         );
       } else {
-final translationService = TranslationService();
+        final translationService = TranslationService();
         Get.snackbar(
-          await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
-          await translationService.translate(text: 'Playlist not found', sourceLanguage: 'en', targetLanguage: 'en'),
+          await translationService.translate(
+              text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+          await translationService.translate(
+              text: 'Playlist not found',
+              sourceLanguage: 'en',
+              targetLanguage: 'en'),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
-final translationService = TranslationService();
+      final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Failed to import playlist: $e', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Failed to import playlist: $e',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

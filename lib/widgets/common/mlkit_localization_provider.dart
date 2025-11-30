@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
-import '../../services/translation_service.dart';
+import 'package:fihirana/services/core/translation_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../l10n/app_localizations_en.dart';
 import '../../controller/language_controller.dart';
@@ -73,7 +73,7 @@ class MLKitLocalizationProvider extends ChangeNotifier {
         _isMLKitEnabled = true;
         _translationCache.clear(); // Clear cache when changing language
         _translationQueue.clear();
-        
+
         // Test ML Kit availability by attempting a simple translation
         try {
           await _translationService.translate(

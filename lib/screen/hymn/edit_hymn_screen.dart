@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/hymn.dart';
-import '../../services/hymn_service.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
 import '../../controller/color_controller.dart';
 import '../../l10n/app_localizations.dart';
 

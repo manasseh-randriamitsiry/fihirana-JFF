@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/language_controller.dart';
-import '../l10n/app_localizations.dart';
+
 import 'common/mlkit_localization_provider.dart';
 
 class LanguagePickerWidget extends StatelessWidget {
