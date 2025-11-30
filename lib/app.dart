@@ -3,6 +3,7 @@ import 'package:fihirana/controller/font_controller.dart';
 import 'package:fihirana/controller/language_controller.dart';
 import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/l10n/app_localizations_en.dart';
 import 'package:fihirana/screen/accueil/home_screen.dart';
 import 'package:fihirana/widgets/responsive_shell.dart';
 import 'package:fihirana/controller/shell_controller.dart';
@@ -10,6 +11,7 @@ import 'package:fihirana/screen/intro/splash_screen1.dart';
 import 'package:fihirana/screen/loading/loading_screen.dart';
 import 'package:fihirana/services/version_check_service.dart';
 import 'package:fihirana/widgets/common/banned_page.dart';
+import 'package:fihirana/widgets/common/mlkit_localization_provider.dart';
 import 'package:fihirana/services/audio_service.dart';
 import 'package:fihirana/services/notification_service.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -37,6 +39,35 @@ import 'package:fihirana/screen/contact/contact_list_screen.dart';
 
 // ... existing imports
 
+// Custom AppLocalizations delegate that always returns a value (never null)
+class _FallbackAppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _FallbackAppLocalizationsDelegate();
+
+  @override
+  bool isSupported(Locale locale) {
+    // Support all locales
+    return true;
+  }
+
+  @override
+  Future<AppLocalizations> load(Locale locale) async {
+    // Try to load the requested locale
+    const supported = ['en', 'fr', 'mg'];
+    if (supported.contains(locale.languageCode)) {
+      // For supported locales, use the standard delegate
+      return AppLocalizations.delegate.load(locale);
+    }
+
+    // For unsupported locales, return English
+    return SynchronousFuture<AppLocalizations>(AppLocalizationsEn());
+  }
+
+  @override
+  bool shouldReload(_FallbackAppLocalizationsDelegate old) => false;
+}
+
+// Fallback Material localization delegate for unsupported locales
 class _FallbackMaterialLocalizationsDelegate
     extends LocalizationsDelegate<MaterialLocalizations> {
   const _FallbackMaterialLocalizationsDelegate();
@@ -241,42 +272,55 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
       final currentLocale = languageController.currentLocale.value;
+      // Include refresh counter to force rebuild when language changes
+      languageController.refreshCounter.value;
 
       // Check if user is blocked before building the app
       final SecurityService securityService = Get.find<SecurityService>();
 
       // If user is blocked, show banned page instead of normal app
       if (securityService.isSecurityChecked && securityService.isUserBlocked) {
-        return GetMaterialApp(
-          debugShowCheckedModeBanner: false,
-          locale: currentLocale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            _FallbackMaterialLocalizationsDelegate(),
-            _FallbackCupertinoLocalizationsDelegate(),
-          ],
-          supportedLocales: const [
-            Locale('mg'), // Malagasy
-            Locale('en'), // English
-            Locale('fr'), // French
-          ],
-          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-          theme: _getThemeWithFont(
-              isDark
-                  ? colorController.getDarkTheme()
-                  : colorController.getLightTheme(),
-              currentFont),
-          darkTheme: _getThemeWithFont(
-              isDark
-                  ? colorController.getDarkTheme()
-                  : colorController.getLightTheme(),
-              currentFont),
-          home: const BannedPage(),
-          builder: (context, child) => ResponsiveShell(child: child!),
-        );
+        return Obx(() {
+          final currentLocale = languageController.currentLocale.value;
+          // Include refresh counter to force rebuild when language changes
+          languageController.refreshCounter.value;
+
+          return MLKitLocalizationWrapper(
+            child: GetMaterialApp(
+              debugShowCheckedModeBanner: false,
+              locale: currentLocale,
+              localizationsDelegates: const [
+                _FallbackAppLocalizationsDelegate(),
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                _FallbackMaterialLocalizationsDelegate(),
+                _FallbackCupertinoLocalizationsDelegate(),
+              ],
+              localeResolutionCallback: (locale, supportedLocales) {
+                debugPrint(
+                    'Banned page locale resolution: using controller locale=${languageController.currentLocale.value.languageCode}');
+                // Always use the language controller's selected locale
+                return languageController.currentLocale.value;
+              },
+              supportedLocales: languageController.supportedLocales,
+              themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+              theme: _getThemeWithFont(
+                  isDark
+                      ? colorController.getDarkTheme()
+                      : colorController.getLightTheme(),
+                  currentFont),
+              darkTheme: _getThemeWithFont(
+                  isDark
+                      ? colorController.getDarkTheme()
+                      : colorController.getLightTheme(),
+                  currentFont),
+              home: const BannedPage(),
+              builder: (context, child) => ResponsiveShell(child: child!),
+            ),
+          );
+        });
       }
 
       ThemeData baseTheme = isDark
@@ -285,69 +329,77 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       final themeWithFont = _getThemeWithFont(baseTheme, currentFont);
 
-      return GetMaterialApp(
-        debugShowCheckedModeBanner: false,
-        locale: currentLocale,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          // Add fallback delegates for unsupported locales
-          _FallbackMaterialLocalizationsDelegate(),
-          _FallbackCupertinoLocalizationsDelegate(),
-        ],
-        supportedLocales: const [
-          Locale('mg'), // Malagasy
-          Locale('en'), // English
-          Locale('fr'), // French
-        ],
-        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-        theme: themeWithFont,
-        darkTheme: themeWithFont,
-        builder: (context, child) {
-          return ResponsiveShell(child: child!);
-        },
-        initialRoute: initialRoute,
-        routingCallback: (routing) {
-          if (routing != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              final shellController = Get.find<ShellController>();
-              shellController.currentRoute.value = routing.current;
+      return MLKitLocalizationWrapper(
+        child: GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          locale: currentLocale,
+          localizationsDelegates: const [
+            _FallbackAppLocalizationsDelegate(),
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            // Add fallback delegates for unsupported locales
+            _FallbackMaterialLocalizationsDelegate(),
+            _FallbackCupertinoLocalizationsDelegate(),
+          ],
+          localeResolutionCallback: (locale, supportedLocales) {
+            debugPrint(
+                'Locale resolution: using controller locale=${languageController.currentLocale.value.languageCode}');
+            // Always use the language controller's selected locale
+            // ML Kit will handle translation for locales without AppLocalizations
+            return languageController.currentLocale.value;
+          },
+          supportedLocales: languageController.supportedLocales,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          theme: themeWithFont,
+          darkTheme: themeWithFont,
+          builder: (context, child) {
+            return ResponsiveShell(child: child!);
+          },
+          initialRoute: initialRoute,
+          routingCallback: (routing) {
+            if (routing != null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final shellController = Get.find<ShellController>();
+                shellController.currentRoute.value = routing.current;
 
-              // Disable drawer on splash and loading screens
-              if (routing.current == '/splash' ||
-                  routing.current == '/loading') {
-                shellController.setDrawerEnabled(false);
-              } else {
-                shellController.setDrawerEnabled(true);
-              }
-            });
-          }
-        },
-        getPages: [
-          GetPage(name: '/splash', page: () => const SplashScreen1()),
-          GetPage(name: '/loading', page: () => const LoadingScreen()),
-          GetPage(name: '/home', page: () => const HomeScreen()),
-          GetPage(name: '/create_hymn', page: () => const CreateHymnPage()),
-          GetPage(
-              name: '/firebase_hymns', page: () => const FirebaseHymnsScreen()),
-          GetPage(name: '/bible', page: () => const BibleReaderScreen()),
-          GetPage(name: '/favorites', page: () => const FavoritesPage()),
-          GetPage(name: '/history', page: () => HistoryScreen()),
-          GetPage(name: '/playlists', page: () => const PlaylistListScreen()),
-          GetPage(
-              name: '/recordings', page: () => const RecordingManagerScreen()),
-          GetPage(
-              name: '/daily_verse_settings',
-              page: () => DailyVerseSettingsScreen()),
-          GetPage(name: '/settings', page: () => const SettingsScreen()),
-          GetPage(
-              name: '/announcements', page: () => const AnnouncementScreen()),
-          GetPage(name: '/admin', page: () => const AdminPanelScreen()),
-          GetPage(name: '/about', page: () => const AboutScreen()),
-          GetPage(name: '/contacts', page: () => const ContactListScreen()),
-        ],
+                // Disable drawer on splash and loading screens
+                if (routing.current == '/splash' ||
+                    routing.current == '/loading') {
+                  shellController.setDrawerEnabled(false);
+                } else {
+                  shellController.setDrawerEnabled(true);
+                }
+              });
+            }
+          },
+          getPages: [
+            GetPage(name: '/splash', page: () => const SplashScreen1()),
+            GetPage(name: '/loading', page: () => const LoadingScreen()),
+            GetPage(name: '/home', page: () => const HomeScreen()),
+            GetPage(name: '/create_hymn', page: () => const CreateHymnPage()),
+            GetPage(
+                name: '/firebase_hymns',
+                page: () => const FirebaseHymnsScreen()),
+            GetPage(name: '/bible', page: () => const BibleReaderScreen()),
+            GetPage(name: '/favorites', page: () => const FavoritesPage()),
+            GetPage(name: '/history', page: () => HistoryScreen()),
+            GetPage(name: '/playlists', page: () => const PlaylistListScreen()),
+            GetPage(
+                name: '/recordings',
+                page: () => const RecordingManagerScreen()),
+            GetPage(
+                name: '/daily_verse_settings',
+                page: () => DailyVerseSettingsScreen()),
+            GetPage(name: '/settings', page: () => const SettingsScreen()),
+            GetPage(
+                name: '/announcements', page: () => const AnnouncementScreen()),
+            GetPage(name: '/admin', page: () => const AdminPanelScreen()),
+            GetPage(name: '/about', page: () => const AboutScreen()),
+            GetPage(name: '/contacts', page: () => const ContactListScreen()),
+          ],
+        ),
       );
     });
   }

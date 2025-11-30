@@ -7,8 +7,9 @@ import '../../models/hymn.dart';
 import '../../utility/navigation_utility.dart';
 import '../../services/hymn_service.dart';
 import '../../services/audio_service.dart';
-import '../../l10n/app_localizations.dart';
+
 import '../../controller/auth_controller.dart';
+import '../common/mlkit_localization_provider.dart';
 
 class HymnListItem extends StatefulWidget {
   final Hymn hymn;
@@ -99,7 +100,6 @@ class _HymnListItemState extends State<HymnListItem>
   Future<bool> _confirmDeletion(BuildContext context) async {
     final confirmationController = TextEditingController();
     bool isConfirmed = false;
-    final l10n = AppLocalizations.of(context)!;
 
     await showDialog<void>(
       context: context,
@@ -110,14 +110,14 @@ class _HymnListItemState extends State<HymnListItem>
             return AlertDialog(
               backgroundColor: widget.backgroundColor,
               title: Text(
-                l10n.deleteHymnQuestion,
+                context.translateWithMLKit((l) => l.deleteHymnQuestion),
                 style: TextStyle(color: widget.textColor),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    l10n.confirmDeleteHymn(widget.hymn.title),
+                    context.translateWithMLKit((l) => l.confirmDeleteHymn(widget.hymn.title)),
                     style: TextStyle(color: widget.textColor),
                   ),
                   const SizedBox(height: 16),
@@ -125,7 +125,7 @@ class _HymnListItemState extends State<HymnListItem>
                     controller: confirmationController,
                     style: TextStyle(color: widget.textColor),
                     decoration: InputDecoration(
-                      hintText: l10n.yesLowercase,
+                      hintText: context.translateWithMLKit((l) => l.yesLowercase),
                       hintStyle: TextStyle(
                           color: widget.textColor.withValues(alpha: 0.5)),
                       border: OutlineInputBorder(
@@ -152,7 +152,7 @@ class _HymnListItemState extends State<HymnListItem>
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              l10n.typeYesToConfirm,
+                              context.translateWithMLKit((l) => l.typeYesToConfirm),
                               style: const TextStyle(color: Colors.white),
                             ),
                             backgroundColor: Colors.red,
@@ -164,27 +164,27 @@ class _HymnListItemState extends State<HymnListItem>
                 ],
               ),
               actions: <Widget>[
-                TextButton(
-                  child: Text(l10n.cancel,
-                      style: TextStyle(color: widget.textColor)),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                TextButton(
-                  child: Text(l10n.delete,
-                      style: const TextStyle(color: Colors.red)),
-                  onPressed: () {
+                 TextButton(
+                   child: Text(context.translateWithMLKit((l) => l.cancel),
+                       style: TextStyle(color: widget.textColor)),
+                   onPressed: () => Navigator.of(context).pop(),
+                 ),
+                 TextButton(
+                   child: Text(context.translateWithMLKit((l) => l.delete),
+                       style: const TextStyle(color: Colors.red)),
+                   onPressed: () {
                     if (confirmationController.text.toLowerCase() == 'eny') {
                       isConfirmed = true;
                       Navigator.of(context).pop();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            l10n.typeYesToConfirm,
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
+                         SnackBar(
+                           content: Text(
+                             context.translateWithMLKit((l) => l.typeYesToConfirm),
+                             style: const TextStyle(color: Colors.white),
+                           ),
+                           backgroundColor: Colors.red,
+                         ),
                       );
                     }
                   },
@@ -200,26 +200,25 @@ class _HymnListItemState extends State<HymnListItem>
   }
 
   Future<void> _showDeleteConfirmation(BuildContext context) async {
-    final l10n = AppLocalizations.of(context)!;
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: widget.backgroundColor,
-          title: Text(l10n.deleteHymnQuestion,
+          title: Text(context.translateWithMLKit((l) => l.deleteHymnQuestion),
               style: TextStyle(color: widget.textColor)),
           content: Text(
-            l10n.confirmDeleteHymn(widget.hymn.title),
+            context.translateWithMLKit((l) => l.confirmDeleteHymn(widget.hymn.title)),
             style: TextStyle(color: widget.textColor),
           ),
           actions: <Widget>[
-            TextButton(
-              child: Text(l10n.no, style: TextStyle(color: widget.textColor)),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
-              onPressed: () async {
+             TextButton(
+               child: Text(context.translateWithMLKit((l) => l.no), style: TextStyle(color: widget.textColor)),
+               onPressed: () => Navigator.of(context).pop(),
+             ),
+             TextButton(
+               child: Text(context.translateWithMLKit((l) => l.yes), style: const TextStyle(color: Colors.red)),
+               onPressed: () async {
                 // Capture the context before any async operations
                 final navigator = Navigator.of(context);
                 final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -232,12 +231,12 @@ class _HymnListItemState extends State<HymnListItem>
                 if (!mounted) return;
 
                 if (!confirmed) {
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.deleteHymnFailed),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                   scaffoldMessenger.showSnackBar(
+                     SnackBar(
+                       content: Text(context.translateWithMLKit((l) => l.deleteHymnFailed)),
+                       backgroundColor: Colors.red,
+                     ),
+                   );
                   return;
                 }
 
@@ -247,22 +246,22 @@ class _HymnListItemState extends State<HymnListItem>
                   // Check if widget is still mounted after async operation
                   if (!mounted) return;
 
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text(l10n.hymnDeletedSuccess),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                   scaffoldMessenger.showSnackBar(
+                     SnackBar(
+                       content: Text(context.translateWithMLKit((l) => l.hymnDeletedSuccess)),
+                       backgroundColor: Colors.green,
+                     ),
+                   );
                 } catch (e) {
                   // Check if widget is still mounted before showing error
                   if (!mounted) return;
 
-                  scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text('${l10n.error}: $e'),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
+                   scaffoldMessenger.showSnackBar(
+                     SnackBar(
+                       content: Text('${context.translateWithMLKit((l) => l.error)}: $e'),
+                       backgroundColor: Colors.red,
+                     ),
+                   );
                 }
               },
             ),
@@ -272,7 +271,7 @@ class _HymnListItemState extends State<HymnListItem>
     );
   }
 
-  Future<void> _playHymnAudio(AppLocalizations l10n) async {
+  Future<void> _playHymnAudio(BuildContext context) async {
     try {
       if (kDebugMode) {
         print('HymnListItem: Playing audio for ${widget.hymn.id}');
@@ -297,7 +296,7 @@ class _HymnListItemState extends State<HymnListItem>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(l10n.errorPlayingAudio(e.toString())),
+            content: Text(context.translateWithMLKit((l) => l.errorPlayingAudio(e.toString()))),
             backgroundColor: Colors.red,
           ),
         );
@@ -307,7 +306,6 @@ class _HymnListItemState extends State<HymnListItem>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final user = FirebaseAuth.instance.currentUser;
     final isLoggedIn = user != null;
     final authController = Get.find<AuthController>();
@@ -359,11 +357,11 @@ class _HymnListItemState extends State<HymnListItem>
                     ),
                   if (isAdmin && widget.isFirebaseHymn)
                     Text(
-                      l10n.createdByLabel(
+                      context.translateWithMLKit((l) => l.createdByLabel(
                           widget.hymn.createdBy,
                           widget.hymn.createdByEmail != null
                               ? ' (${widget.hymn.createdByEmail})'
-                              : ''),
+                              : '')),
                       style: TextStyle(
                         color: widget.textColor.withValues(alpha: 0.5),
                         fontSize: 12,
@@ -401,11 +399,11 @@ class _HymnListItemState extends State<HymnListItem>
                               'Hymn ${widget.hymn.id} playing status: $isPlaying');
                         }
                         return IconButton(
-                          onPressed: widget.onMusicPressed ??
-                              () {
-                                // Default audio play behavior if no callback provided
-                                _playHymnAudio(l10n);
-                              },
+                           onPressed: widget.onMusicPressed ??
+                               () {
+                                 // Default audio play behavior if no callback provided
+                                 _playHymnAudio(context);
+                               },
                           style: IconButton.styleFrom(
                             backgroundColor: isPlaying
                                 ? widget.textColor.withValues(alpha: 0.2)

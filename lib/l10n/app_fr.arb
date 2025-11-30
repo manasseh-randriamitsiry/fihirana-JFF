@@ -825,5 +825,9 @@
   },
   "portfolio":"Portfolio",
   "playFirstHymn": "Lire le premier cantique",
-  "nowPlaying": "En lecture"
+  "nowPlaying": "En lecture",
+  "accessDenied": "Accès refusé",
+  "accountRestricted": "Votre compte a été restreint",
+  "reason": "Raison",
+  "alternativeAccess": "Accès alternatif"
 }

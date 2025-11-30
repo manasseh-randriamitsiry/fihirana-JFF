@@ -17,7 +17,7 @@ import '../../services/version_check_service.dart';
 import '../../services/audio_service.dart';
 
 import '../../models/hymn.dart';
-import '../../l10n/app_localizations.dart';
+import '../../widgets/common/mlkit_localization_provider.dart';
 
 class AccueilScreen extends StatefulWidget {
   final Function() openDrawer;
@@ -131,10 +131,9 @@ class AccueilScreenState extends State<AccueilScreen> {
         });
 
         if (context.mounted) {
-          final l10n = AppLocalizations.of(context)!;
-          ScaffoldMessenger.of(context).showSnackBar(
+ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${l10n.errorDownloadingUpdate}: ${e.toString()}'),
+              content: Text('${context.translateWithMLKit((l) => l.errorDownloadingUpdate)}: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -180,8 +179,8 @@ class AccueilScreenState extends State<AccueilScreen> {
                           onPressed: widget.openDrawer,
                         )
                       : null,
-                  title: Text(
-                    AppLocalizations.of(context)!.appTitleShort,
+title: Text(
+                    context.translateWithMLKit((l) => l.appTitleShort),
                     style: defaultTextStyle.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 26,
@@ -249,10 +248,9 @@ class AccueilScreenState extends State<AccueilScreen> {
                     if (snapshot.hasError) {
                       return SliverFillRemaining(
                         child: Center(
-                          child: Text(
-                            AppLocalizations.of(context)!
-                                .errorOccurredWithDetails(
-                                    snapshot.error.toString()),
+child: Text(
+                            context.translateWithMLKit((l) => 
+                                l.errorOccurredWithDetails(snapshot.error.toString())),
                             style: defaultTextStyle,
                           ),
                         ),
@@ -267,11 +265,11 @@ class AccueilScreenState extends State<AccueilScreen> {
                         _hymnController.filterHymnList(snapshot.data ?? []);
                     if (hymns.isEmpty) {
                       return SliverFillRemaining(
-                        child: EmptyStateWidget(
-                          message: AppLocalizations.of(context)!.noHymnsFound,
+child: EmptyStateWidget(
+                          message: context.translateWithMLKit((l) => l.noHymnsFound),
                           icon: Icons.music_off_rounded,
                           actionLabel:
-                              AppLocalizations.of(context)!.clearSearch,
+                              context.translateWithMLKit((l) => l.clearSearch),
                           onActionPressed: () {
                             if (!_hymnController.isDisposed) {
                               _hymnController.safeSearchController.clear();

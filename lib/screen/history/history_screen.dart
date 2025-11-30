@@ -6,6 +6,7 @@ import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/history/history_item_card.dart';
+import '../../widgets/common/mlkit_localization_provider.dart';
 import '../../l10n/app_localizations.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -29,10 +30,10 @@ class HistoryScreen extends StatelessWidget {
           backgroundColor: backgroundColor,
           elevation: 0,
           scrolledUnderElevation: 0,
-          title: Text(
+title: Text(
             historyController.isSelectionMode.value
-                ? '${historyController.selectedItems.length} voafidy'
-                : 'Tantara',
+                ? '${historyController.selectedItems.length} ${context.translateWithMLKit((l) => l.selected)}'
+                : context.translateWithMLKit((l) => l.history),
             style: TextStyle(
               color: textColor,
               fontWeight: FontWeight.bold,
@@ -125,58 +126,56 @@ class HistoryScreen extends StatelessWidget {
     });
   }
 
-  void _showClearHistoryDialog(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+void _showClearHistoryDialog(BuildContext context) {
     final textColor = colorController.textColor.value;
     final backgroundColor = colorController.backgroundColor.value;
 
     Get.dialog(
       AlertDialog(
         backgroundColor: backgroundColor,
-        title: Text(l10n.clearAllHistoryQuestion,
+        title: Text(context.translateWithMLKit((l) => l.clearAllHistoryQuestion),
             style: TextStyle(color: textColor)),
-        content: Text(l10n.historyCannotBeUndone,
+        content: Text(context.translateWithMLKit((l) => l.historyCannotBeUndone),
             style: TextStyle(color: textColor)),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text(l10n.no, style: TextStyle(color: textColor)),
+            child: Text(context.translateWithMLKit((l) => l.no), style: TextStyle(color: textColor)),
           ),
           TextButton(
             onPressed: () {
               historyController.clearHistory();
               Get.back();
             },
-            child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
+            child: Text(context.translateWithMLKit((l) => l.yes), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
   }
 
-  void _showDeleteSelectedDialog(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+void _showDeleteSelectedDialog(BuildContext context) {
     final textColor = colorController.textColor.value;
     final backgroundColor = colorController.backgroundColor.value;
 
     Get.dialog(
       AlertDialog(
         backgroundColor: backgroundColor,
-        title: Text(l10n.deleteSelectedHistoryQuestion,
+        title: Text(context.translateWithMLKit((l) => l.deleteSelectedHistoryQuestion),
             style: TextStyle(color: textColor)),
-        content: Text(l10n.historyCannotBeUndone,
+        content: Text(context.translateWithMLKit((l) => l.historyCannotBeUndone),
             style: TextStyle(color: textColor)),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text(l10n.no, style: TextStyle(color: textColor)),
+            child: Text(context.translateWithMLKit((l) => l.no), style: TextStyle(color: textColor)),
           ),
           TextButton(
             onPressed: () {
               historyController.deleteSelectedItems();
               Get.back();
             },
-            child: Text(l10n.yes, style: const TextStyle(color: Colors.red)),
+            child: Text(context.translateWithMLKit((l) => l.yes), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

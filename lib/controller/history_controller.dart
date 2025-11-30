@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../services/firebase_sync_service.dart';
-import '../l10n/app_localizations.dart';
+import '../services/translation_service.dart';
 
 class HistoryController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -80,20 +80,20 @@ class HistoryController extends GetxController {
       selectedItems.clear();
       isSelectionMode.value = false;
 
-      // Get the localization instance
-      final l10n = AppLocalizations.of(Get.context!)!;
+// Get the translation service
+      final translationService = TranslationService();
 
       Get.snackbar(
-        l10n.success,
-        l10n.deleteHistorySuccess,
+        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'History deleted successfully', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
-    } catch (e) {
-      final l10n = AppLocalizations.of(Get.context!)!;
+} catch (e) {
+      final translationService = TranslationService();
       Get.snackbar(
-        l10n.error,
-        l10n.deleteHistoryError,
+        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Failed to delete history', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );
@@ -185,18 +185,18 @@ class HistoryController extends GetxController {
 
       userHistory.clear();
 
-      final l10n = AppLocalizations.of(Get.context!)!;
+final translationService = TranslationService();
       Get.snackbar(
-        l10n.success,
-        l10n.clearHistorySuccess,
+        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'History cleared successfully', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
-    } catch (e) {
-      final l10n = AppLocalizations.of(Get.context!)!;
+} catch (e) {
+      final translationService = TranslationService();
       Get.snackbar(
-        l10n.error,
-        l10n.clearHistoryError,
+        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Failed to clear history', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 3),
       );

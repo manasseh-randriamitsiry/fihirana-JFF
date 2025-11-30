@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../services/security_service.dart';
 
+import 'mlkit_localization_provider.dart';
+
 class BannedPage extends StatelessWidget {
   const BannedPage({super.key});
 
@@ -47,31 +49,39 @@ class BannedPage extends StatelessWidget {
                   const SizedBox(height: 40),
                   
                   // Title
-                  Text(
-                    securityService.isPermanentlyBlocked 
-                        ? 'PERMANENTLY BANNED' 
-                        : 'TSY MAHAZO MAMPIASA KAONTY',
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Builder(
+                    builder: (context) {
+                      return Text(
+                        securityService.isPermanentlyBlocked 
+                            ? 'PERMANENTLY BANNED' 
+                            : context.translateWithMLKit((l) => l.accessDenied),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      );
+                    }
                   ),
 
                   const SizedBox(height: 20),
                   
                   // Message
-                  Text(
-                    securityService.isPermanentlyBlocked
-                        ? 'Your account has been permanently banned due to violations of our terms of service. All your data has been removed from the platform.'
-                        : 'Tsy afaka mampiasa ity application fihirana miaraka @ kaonty ity intsony ianao satria tsy nanara-dalana.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      fontSize: 16,
-                      height: 1.5,
-                    ),
+                  Builder(
+                    builder: (context) {
+                      return Text(
+                        securityService.isPermanentlyBlocked
+                            ? 'Your account has been permanently banned due to violations of our terms of service. All your data has been removed from the platform.'
+                            : context.translateWithMLKit((l) => l.accountRestricted),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 16,
+                          height: 1.5,
+                        ),
+                      );
+                    }
                   ),
                   
                   const SizedBox(height: 30),
@@ -87,13 +97,17 @@ class BannedPage extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          Text(
-                            'Reason:',
-                            style: TextStyle(
-                              color: Colors.red.shade300,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                          Builder(
+                            builder: (context) {
+                              return Text(
+                                '${context.translateWithMLKit((l) => l.reason)}:',
+                                style: TextStyle(
+                                  color: Colors.red.shade300,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -123,14 +137,18 @@ class BannedPage extends StatelessWidget {
                         Icon(Icons.warning, color: Colors.orange.shade300),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: Text(
-                            securityService.isPermanentlyBlocked
-                                ? 'This action is permanent and cannot be reversed.'
-                                : 'Mbola afaka mampiasa ny fihirana tsy misy kaonty na andramo kaonty Google hafa',
-                            style: TextStyle(
-                              color: Colors.orange.shade300,
-                              fontSize: 13,
-                            ),
+                          child: Builder(
+                            builder: (context) {
+                              return Text(
+                                securityService.isPermanentlyBlocked
+                                    ? 'This action is permanent and cannot be reversed.'
+                                    : context.translateWithMLKit((l) => l.alternativeAccess),
+                                style: TextStyle(
+                                  color: Colors.orange.shade300,
+                                  fontSize: 13,
+                                ),
+                              );
+                            }
                           ),
                         ),
                       ],

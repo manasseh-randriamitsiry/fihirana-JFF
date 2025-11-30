@@ -1749,4 +1749,16 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get nowPlaying => 'En lecture';
+
+  @override
+  String get accessDenied => 'Accès refusé';
+
+  @override
+  String get accountRestricted => 'Votre compte a été restreint';
+
+  @override
+  String get reason => 'Raison';
+
+  @override
+  String get alternativeAccess => 'Accès alternatif';
 }

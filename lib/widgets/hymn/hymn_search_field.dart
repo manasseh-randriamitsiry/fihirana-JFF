@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/mlkit_localization_provider.dart';
 
 class HymnSearchField extends StatelessWidget {
   final TextEditingController controller;
@@ -21,7 +22,6 @@ class HymnSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -36,9 +36,9 @@ class HymnSearchField extends StatelessWidget {
             controller: controller,
             style: defaultTextStyle,
             decoration: InputDecoration(
-              labelText: l10n.searchHymnsHint,
+              labelText: context.translateWithMLKit((l) => l.searchHymnsHint),
               labelStyle: defaultTextStyle.copyWith(
-                color: textColor.withValues(alpha:0.7),
+                color: textColor.withValues(alpha: 0.7),
               ),
               prefixIcon: Icon(
                 Icons.search,

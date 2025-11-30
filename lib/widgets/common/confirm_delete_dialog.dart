@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../controller/color_controller.dart';
-import '../../l10n/app_localizations.dart';
+import 'mlkit_localization_provider.dart';
 
 class ConfirmDeleteDialog extends StatelessWidget {
   final ColorController colorController;
@@ -22,8 +22,6 @@ class ConfirmDeleteDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    
     return AlertDialog(
       backgroundColor: colorController.backgroundColor.value,
       title: Text(
@@ -38,7 +36,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            cancelText ?? l10n.cancel,
+            cancelText ?? context.translateWithMLKit((l) => l.cancel),
             style: TextStyle(color: colorController.textColor.value),
           ),
         ),
@@ -48,7 +46,7 @@ class ConfirmDeleteDialog extends StatelessWidget {
             onConfirm();
           },
           child: Text(
-            confirmText ?? l10n.delete,
+            confirmText ?? context.translateWithMLKit((l) => l.delete),
             style: const TextStyle(color: Colors.red),
           ),
         ),

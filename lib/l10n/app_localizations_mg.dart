@@ -1749,4 +1749,16 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get nowPlaying => 'Mamaky';
+
+  @override
+  String get accessDenied => 'Tsy misy fidirana';
+
+  @override
+  String get accountRestricted => 'Ny kaontinao voasakidy';
+
+  @override
+  String get reason => 'Antony';
+
+  @override
+  String get alternativeAccess => 'Fidirana hafa';
 }

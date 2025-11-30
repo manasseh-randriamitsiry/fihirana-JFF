@@ -9,7 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../controller/color_controller.dart';
 import '../controller/shell_controller.dart';
 import '../controller/auth_controller.dart';
-import '../l10n/app_localizations.dart';
+
+import 'common/mlkit_localization_provider.dart';
 
 class DrawerWidget extends StatefulWidget {
   final Function() openDrawer;
@@ -115,7 +116,6 @@ class DrawerWidgetState extends State<DrawerWidget>
 
   Future<void> _signInWithGoogle() async {
     try {
-      final l10n = AppLocalizations.of(context)!;
       await _googleSignIn.signOut();
       await _firebaseAuth.signOut();
 
@@ -139,12 +139,12 @@ class DrawerWidgetState extends State<DrawerWidget>
         await prefs.setString('email', googleSignInAccount.email);
 
         _updateCurrentUser();
-        Get.snackbar(
-          l10n.welcome,
-          l10n.signedInSuccessfully,
-          backgroundColor: Colors.green.withValues(alpha: 0.2),
-          colorText: _colorController.textColor.value,
-        );
+         Get.snackbar(
+           context.translateWithMLKit((l) => l.welcome),
+           context.translateWithMLKit((l) => l.signedInSuccessfully),
+           backgroundColor: Colors.green.withValues(alpha: 0.2),
+           colorText: _colorController.textColor.value,
+         );
 
         if (mounted) {
           Phoenix.rebirth(context);
@@ -239,7 +239,6 @@ class DrawerWidgetState extends State<DrawerWidget>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
 
     return Material(
       color: _colorController.drawerColor.value,
@@ -307,7 +306,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                                 _firebaseAuth.currentUser?.displayName ??
                                 _username ??
                                 'User')
-                            : (_username ?? l10n.guest),
+                             : (_username ?? context.translateWithMLKit((l) => l.guest)),
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 22,
@@ -350,14 +349,14 @@ class DrawerWidgetState extends State<DrawerWidget>
                               color: _colorController.primaryColor.value,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Text(
-                              l10n.signIn,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                             child: Text(
+                               context.translateWithMLKit((l) => l.signIn),
+                               style: const TextStyle(
+                                 color: Colors.white,
+                                 fontSize: 14,
+                                 fontWeight: FontWeight.w600,
+                               ),
+                             ),
                           ),
                         ),
                       ],
@@ -375,95 +374,95 @@ class DrawerWidgetState extends State<DrawerWidget>
               return ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                  _buildSectionHeader(l10n.library),
-                  _buildDrawerItem(
-                    icon: Icons.home_rounded,
-                    title: l10n.home,
-                    isActive: currentRoute == '/home',
-                    onTap: () => Get.offAllNamed('/home'),
-                  ),
-                  if (_isAuthenticated)
-                    _buildDrawerItem(
-                      icon: Icons.add_circle_outline,
-                      title: l10n.createHymn,
-                      isActive: currentRoute == '/create_hymn',
-                      onTap: () => Get.toNamed('/create_hymn'),
-                    ),
-                  _buildDrawerItem(
-                    icon: Icons.library_music_outlined,
-                    title: l10n.additionalHymns,
-                    isActive: currentRoute == '/firebase_hymns',
-                    onTap: () => Get.toNamed('/firebase_hymns'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.menu_book_rounded,
-                    title: l10n.bible,
-                    isActive: currentRoute == '/bible',
-                    onTap: () => Get.toNamed('/bible'),
-                  ),
-                  _buildSectionHeader(l10n.personal),
-                  _buildDrawerItem(
-                    icon: Icons.favorite_border_rounded,
-                    title: l10n.favoriteHymns,
-                    isActive: currentRoute == '/favorites',
-                    onTap: () => Get.toNamed('/favorites'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.history_rounded,
-                    title: l10n.hymnHistory,
-                    isActive: currentRoute == '/history',
-                    onTap: () => Get.toNamed('/history'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.mic_rounded,
-                    title: 'Recordings',
-                    isActive: currentRoute == '/recordings',
-                    onTap: () => Get.toNamed('/recordings'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.contacts_rounded,
-                    title: l10n.contacts,
-                    isActive: currentRoute == '/contacts',
-                    onTap: () => Get.toNamed('/contacts'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.playlist_play_rounded,
-                    title: l10n.playlists,
-                    isActive: currentRoute == '/playlists',
-                    onTap: () => Get.toNamed('/playlists'),
-                  ),
-                  _buildSectionHeader(l10n.appSection),
-                  _buildDrawerItem(
-                    icon: Icons.notifications_none_rounded,
-                    title: l10n.announcements,
-                    isActive: currentRoute == '/announcements',
-                    onTap: () => Get.toNamed('/announcements'),
-                  ),
-                  if (Get.find<AuthController>().isAdmin)
-                    _buildDrawerItem(
-                      icon: Icons.admin_panel_settings_outlined,
-                      title: l10n.adminPanel,
-                      isActive: currentRoute == '/admin',
-                      onTap: () => Get.toNamed('/admin'),
-                    ),
-                  _buildDrawerItem(
-                    icon: Icons.settings_outlined,
-                    title: l10n.settings,
-                    isActive: currentRoute == '/settings',
-                    onTap: () => Get.toNamed('/settings'),
-                  ),
-                  _buildDrawerItem(
-                    icon: Icons.info_outline_rounded,
-                    title: l10n.aboutUs,
-                    isActive: currentRoute == '/about',
-                    onTap: () => Get.toNamed('/about'),
-                  ),
-                  if (_isAuthenticated)
-                    _buildDrawerItem(
-                      icon: Icons.logout_rounded,
-                      title: l10n.signOut,
-                      color: _colorController.iconColor.value,
-                      onTap: () {
+                   _buildSectionHeader(context.translateWithMLKit((l) => l.library)),
+                   _buildDrawerItem(
+                     icon: Icons.home_rounded,
+                     title: context.translateWithMLKit((l) => l.home),
+                     isActive: currentRoute == '/home',
+                     onTap: () => Get.offAllNamed('/home'),
+                   ),
+                   if (_isAuthenticated)
+                     _buildDrawerItem(
+                       icon: Icons.add_circle_outline,
+                       title: context.translateWithMLKit((l) => l.createHymn),
+                       isActive: currentRoute == '/create_hymn',
+                       onTap: () => Get.toNamed('/create_hymn'),
+                     ),
+                   _buildDrawerItem(
+                     icon: Icons.library_music_outlined,
+                     title: context.translateWithMLKit((l) => l.additionalHymns),
+                     isActive: currentRoute == '/firebase_hymns',
+                     onTap: () => Get.toNamed('/firebase_hymns'),
+                   ),
+                   _buildDrawerItem(
+                     icon: Icons.menu_book_rounded,
+                     title: context.translateWithMLKit((l) => l.bible),
+                     isActive: currentRoute == '/bible',
+                     onTap: () => Get.toNamed('/bible'),
+                   ),
+                   _buildSectionHeader(context.translateWithMLKit((l) => l.personal)),
+                   _buildDrawerItem(
+                     icon: Icons.favorite_border_rounded,
+                     title: context.translateWithMLKit((l) => l.favoriteHymns),
+                     isActive: currentRoute == '/favorites',
+                     onTap: () => Get.toNamed('/favorites'),
+                   ),
+                   _buildDrawerItem(
+                     icon: Icons.history_rounded,
+                     title: context.translateWithMLKit((l) => l.hymnHistory),
+                     isActive: currentRoute == '/history',
+                     onTap: () => Get.toNamed('/history'),
+                   ),
+                   _buildDrawerItem(
+                     icon: Icons.mic_rounded,
+                     title: 'Recordings',
+                     isActive: currentRoute == '/recordings',
+                     onTap: () => Get.toNamed('/recordings'),
+                   ),
+                   _buildDrawerItem(
+                     icon: Icons.contacts_rounded,
+                     title: context.translateWithMLKit((l) => l.contacts),
+                     isActive: currentRoute == '/contacts',
+                     onTap: () => Get.toNamed('/contacts'),
+                   ),
+                   _buildDrawerItem(
+                     icon: Icons.playlist_play_rounded,
+                     title: context.translateWithMLKit((l) => l.playlists),
+                     isActive: currentRoute == '/playlists',
+                     onTap: () => Get.toNamed('/playlists'),
+                   ),
+                   _buildSectionHeader(context.translateWithMLKit((l) => l.appSection)),
+                   _buildDrawerItem(
+                     icon: Icons.notifications_none_rounded,
+                     title: context.translateWithMLKit((l) => l.announcements),
+                     isActive: currentRoute == '/announcements',
+                     onTap: () => Get.toNamed('/announcements'),
+                   ),
+                   if (Get.find<AuthController>().isAdmin)
+                     _buildDrawerItem(
+                       icon: Icons.admin_panel_settings_outlined,
+                       title: context.translateWithMLKit((l) => l.adminPanel),
+                       isActive: currentRoute == '/admin',
+                       onTap: () => Get.toNamed('/admin'),
+                     ),
+                   _buildDrawerItem(
+                     icon: Icons.settings_outlined,
+                     title: context.translateWithMLKit((l) => l.settings),
+                     isActive: currentRoute == '/settings',
+                     onTap: () => Get.toNamed('/settings'),
+                   ),
+                   _buildDrawerItem(
+                     icon: Icons.info_outline_rounded,
+                     title: context.translateWithMLKit((l) => l.aboutUs),
+                     isActive: currentRoute == '/about',
+                     onTap: () => Get.toNamed('/about'),
+                   ),
+                   if (_isAuthenticated)
+                     _buildDrawerItem(
+                       icon: Icons.logout_rounded,
+                       title: context.translateWithMLKit((l) => l.signOut),
+                       color: _colorController.iconColor.value,
+                       onTap: () {
                         FirebaseAuth.instance.signOut();
                         setState(() {
                           _isAuthenticated = false;

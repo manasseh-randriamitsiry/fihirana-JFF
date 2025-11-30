@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../services/translation_service.dart';
 
 class SnackbarStyles {
   static const Color successColor = Colors.green;
@@ -74,13 +75,14 @@ class CustomSnackbar {
 
   static void success({
     required String message,
-    String title = 'Success',
+    String? title,
     Duration? duration,
     IconData? icon,
     Widget? mainButton,
-  }) {
+  }) async {
+    final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title,
+      title: title ?? await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.successColor,
       duration: duration ?? SnackbarStyles.defaultDuration,
@@ -91,13 +93,14 @@ class CustomSnackbar {
 
   static void error({
     required String message,
-    String title = 'Error',
+    String? title,
     Duration? duration,
     IconData? icon,
     Widget? mainButton,
-  }) {
+  }) async {
+    final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title,
+      title: title ?? await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.errorColor,
       duration: duration ?? const Duration(seconds: 5), // Longer for errors
@@ -108,13 +111,14 @@ class CustomSnackbar {
 
   static void info({
     required String message,
-    String title = 'Info',
+    String? title,
     Duration? duration,
     IconData? icon,
     Widget? mainButton,
-  }) {
+  }) async {
+    final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title,
+      title: title ?? await translationService.translate(text: 'Info', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.infoColor,
       duration: duration ?? SnackbarStyles.defaultDuration,
@@ -125,13 +129,14 @@ class CustomSnackbar {
 
   static void warning({
     required String message,
-    String title = 'Warning',
+    String? title,
     Duration? duration,
     IconData? icon,
     Widget? mainButton,
-  }) {
+  }) async {
+    final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title,
+      title: title ?? await translationService.translate(text: 'Warning', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.warningColor,
       duration: duration ?? SnackbarStyles.defaultDuration,
@@ -164,11 +169,12 @@ class CustomSnackbar {
 
   static void loading({
     required String message,
-    String title = 'Loading',
+    String? title,
     Duration? duration,
-  }) {
+  }) async {
+    final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title,
+      title: title ?? await translationService.translate(text: 'Loading', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.infoColor,
       showProgressIndicator: true,

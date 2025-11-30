@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
-import '../../l10n/app_localizations.dart';
+
+import '../common/mlkit_localization_provider.dart';
 
 class FontSizeSliderWidget extends StatelessWidget {
   final double fontSize;
@@ -18,7 +19,7 @@ class FontSizeSliderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return Slider(
       value: fontSize,
       min: 12,
@@ -44,6 +45,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
   final VoidCallback onShowColorPicker;
   final VoidCallback onShowAudioPlayer;
   final VoidCallback onAddToPlaylist;
+  final VoidCallback onShowTranslation;
 
   const HymnPopupMenuWidget({
     super.key,
@@ -58,13 +60,13 @@ class HymnPopupMenuWidget extends StatelessWidget {
     required this.onShowColorPicker,
     required this.onShowAudioPlayer,
     required this.onAddToPlaylist,
+    required this.onShowTranslation,
   });
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final colorController = Get.find<ColorController>();
-    
+
     return PopupMenuButton<String>(
       color: colorController.primaryColor.value,
       icon: Icon(
@@ -91,6 +93,9 @@ class HymnPopupMenuWidget extends StatelessWidget {
           case 'add_to_playlist':
             onAddToPlaylist();
             break;
+          case 'translation':
+            onShowTranslation();
+            break;
         }
       },
       itemBuilder: (BuildContext context) {
@@ -105,7 +110,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
                     color: colorController.textColor.value,
                   ),
                   const SizedBox(width: 8),
-                  Text(l10n.edit),
+                   Text(context.translateWithMLKit((l) => l.edit)),
                 ],
               ),
             ),
@@ -119,7 +124,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
                     color: colorController.textColor.value,
                   ),
                   const SizedBox(width: 8),
-                  Text(hasUserNote ? l10n.editNote : l10n.add),
+                   Text(hasUserNote ? context.translateWithMLKit((l) => l.editNote) : context.translateWithMLKit((l) => l.add)),
                 ],
               ),
             ),
@@ -132,7 +137,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
                   color: colorController.textColor.value,
                 ),
                 const SizedBox(width: 8),
-                Text(l10n.font),
+                 Text(context.translateWithMLKit((l) => l.font)),
               ],
             ),
           ),
@@ -145,7 +150,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
                   color: colorController.textColor.value,
                 ),
                 const SizedBox(width: 8),
-                Text(l10n.color),
+                 Text(context.translateWithMLKit((l) => l.color)),
               ],
             ),
           ),
@@ -158,7 +163,20 @@ class HymnPopupMenuWidget extends StatelessWidget {
                   color: colorController.textColor.value,
                 ),
                 const SizedBox(width: 8),
-                Text(l10n.addToPlaylist),
+                 Text(context.translateWithMLKit((l) => l.addToPlaylist)),
+              ],
+            ),
+          ),
+          PopupMenuItem<String>(
+            value: 'translation',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.translate,
+                  color: colorController.textColor.value,
+                ),
+                const SizedBox(width: 8),
+                 Text(context.translateWithMLKit((l) => l.viewTranslation)),
               ],
             ),
           ),
@@ -183,7 +201,7 @@ class FavoriteButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return IconButton(
       icon: Icon(
         isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -213,7 +231,7 @@ class AudioButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!hasAudio) return const SizedBox.shrink();
-    
+
     return IconButton(
       icon: Stack(
         children: [
