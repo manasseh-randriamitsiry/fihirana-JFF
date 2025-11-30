@@ -5,6 +5,7 @@ import '../../../models/user_recording.dart';
 import '../../../controller/recording_controller.dart';
 import '../../../controller/auth_controller.dart';
 import '../../../controller/color_controller.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RecordingTileDialogs {
   static final ColorController colorController = Get.find<ColorController>();
@@ -44,6 +45,7 @@ class RecordingTileDialogs {
 
   static void showDeleteConfirmation(
       BuildContext context, UserRecording recording) {
+    final l10n = AppLocalizations.of(context)!;
     final bool owner = isOwner(recording);
     final bool adminAndOwner = isAdminAndOwner(recording);
 
@@ -62,8 +64,8 @@ class RecordingTileDialogs {
             const SizedBox(width: 12),
             Text(
               adminAndOwner
-                  ? 'Delete Recording'
-                  : (owner ? 'Delete Permanently' : 'Move to Trash'),
+                  ? l10n.deleteRecording
+                  : (owner ? l10n.deletePermanently : l10n.moveToTrash),
               style: TextStyle(
                 color: colorController.textColor.value,
                 fontWeight: FontWeight.bold,
@@ -78,8 +80,8 @@ class RecordingTileDialogs {
           children: [
             Text(
               adminAndOwner
-                  ? 'Choose how you want to delete "${recording.title}"'
-                  : 'Are you sure you want to delete "${recording.title}"?',
+                  ? l10n.chooseHowToDelete.replaceAll('{title}', recording.title)
+                  : l10n.sureToDelete.replaceAll('{title}', recording.title),
               style: TextStyle(
                   color: colorController.textColor.value, fontSize: 14),
             ),
@@ -99,10 +101,10 @@ class RecordingTileDialogs {
               ),
               child: Text(
                 adminAndOwner
-                    ? 'You can move this recording to trash (recoverable) or delete it permanently.'
+                    ? l10n.chooseHowToDelete.replaceAll('{title}', recording.title)
                     : (owner
-                        ? 'This recording will be permanently deleted and cannot be recovered.'
-                        : 'This recording will be moved to trash and can be restored from the admin panel.'),
+                        ? l10n.historyCannotBeUndone
+                        : l10n.deleteRecordingQuestion),
                 style: TextStyle(
                   color: owner
                       ? Colors.red.withValues(alpha: 0.8)
@@ -133,7 +135,7 @@ class RecordingTileDialogs {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Move to Trash'),
+              child: Text(l10n.moveToTrash),
             ),
             ElevatedButton(
               onPressed: () {
@@ -146,7 +148,7 @@ class RecordingTileDialogs {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              child: const Text('Delete Permanently'),
+              child: Text(l10n.deletePermanently),
             ),
           ] else
             ElevatedButton(
@@ -160,7 +162,7 @@ class RecordingTileDialogs {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
-              child: Text(owner ? 'Delete Permanently' : 'Move to Trash'),
+              child: Text(owner ? l10n.deletePermanently : l10n.moveToTrash),
             ),
         ],
       ),
@@ -237,7 +239,7 @@ class RecordingTileDialogs {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Delete Permanently'),
+            child: Text(l10n.deletePermanently),
           ),
         ],
       ),
@@ -246,6 +248,7 @@ class RecordingTileDialogs {
 
   static void showMakePublicDialog(
       BuildContext context, UserRecording recording) {
+    final l10n = AppLocalizations.of(context)!;
     final titleController = TextEditingController(text: recording.title);
     String? errorMessage;
 
@@ -335,10 +338,10 @@ class RecordingTileDialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-              child: Text(
-                'Cancel',
-                style: TextStyle(color: colorController.textColor.value),
-              ),
+            child: Text(
+              l10n.cancel,
+              style: TextStyle(color: colorController.textColor.value),
+            ),
             ),
             Obx(() => controller.isUploading.value
                 ? const Padding(
@@ -384,7 +387,7 @@ class RecordingTileDialogs {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Make Public'),
+                    child: Text(l10n.makePublic),
                   )),
           ],
         ),
@@ -393,6 +396,7 @@ class RecordingTileDialogs {
   }
 
   static void showRenameDialog(BuildContext context, UserRecording recording) {
+    final l10n = AppLocalizations.of(context)!;
     final titleController = TextEditingController(text: recording.title);
 
     showDialog(
@@ -401,7 +405,7 @@ class RecordingTileDialogs {
         backgroundColor: colorController.backgroundColor.value,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Rename Recording',
+          l10n.renameRecording,
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
@@ -411,7 +415,7 @@ class RecordingTileDialogs {
           controller: titleController,
           style: TextStyle(color: colorController.textColor.value),
           decoration: InputDecoration(
-            hintText: 'Enter new name',
+            hintText: l10n.enterNewName,
             hintStyle: TextStyle(
                 color: colorController.textColor.value.withValues(alpha: 0.5)),
             border: OutlineInputBorder(
@@ -451,7 +455,7 @@ class RecordingTileDialogs {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Rename'),
+            child: Text(l10n.rename),
           ),
         ],
       ),

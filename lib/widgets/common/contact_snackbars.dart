@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import '../../l10n/app_localizations.dart';
 
 class ContactPermissionSnackBar {
   static void show(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Contacts permission is required to import contacts.'),
+        content: Text(l10n.contactsPermissionRequired),
         backgroundColor: Colors.red,
         action: SnackBarAction(
-          label: 'Settings',
+          label: l10n.settings,
           textColor: Colors.white,
           onPressed: () => openAppSettings(),
         ),
@@ -19,9 +21,10 @@ class ContactPermissionSnackBar {
 
 class NoContactsSnackBar {
   static void show(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('No contacts found on your device.'),
+      SnackBar(
+        content: Text(l10n.noContactsFound),
         backgroundColor: Colors.orange,
       ),
     );
@@ -30,9 +33,10 @@ class NoContactsSnackBar {
 
 class ContactsErrorSnackBar {
   static void show(BuildContext context, String error) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Error accessing contacts: $error'),
+        content: Text(l10n.errorAccessingContacts.replaceAll('{error}', error)),
         backgroundColor: Colors.red,
       ),
     );

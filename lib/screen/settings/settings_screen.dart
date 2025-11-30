@@ -7,7 +7,7 @@ import '../../widgets/font_picker_widget.dart';
 import '../../widgets/settings/settings_section_header.dart';
 import '../../widgets/settings/settings_card.dart';
 import '../../widgets/settings/audio_cache_dialog.dart';
-import '../../widgets/common/mlkit_localization_provider.dart';
+import '../../widgets/common/localization_extension.dart';
 import '../../widgets/language_picker_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -37,7 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           elevation: 0,
           scrolledUnderElevation: 0,
           title: Text(
-            context.translateWithMLKit((l) => l.settings),
+            context.translate((l) => l.settings),
             style: TextStyle(
               color: colorController.textColor.value,
               fontWeight: FontWeight.bold,
@@ -59,13 +59,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               // Appearance Section
               SettingsSectionHeader(
-                title: context.translateWithMLKit((l) => l.theme),
+                title: context.translate((l) => l.theme),
                 animationDelay: 0,
               ),
 
               SettingsCard(
                 icon: Icons.color_lens_outlined,
-                label: context.translateWithMLKit((l) => l.changeColor),
+                label: context.translate((l) => l.changeColor),
                 onTap: () => Get.dialog(
                   Dialog(
                     backgroundColor: colorController.backgroundColor.value,
@@ -79,7 +79,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               SettingsCard(
                 icon: Icons.language,
-                label: context.translateWithMLKit((l) => l.language),
+                label: context.translate((l) => l.language),
                 onTap: () => showDialog(
                   context: context,
                   builder: (context) => const LanguagePickerDialog(),
@@ -91,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               SettingsCard(
                 icon: Icons.font_download_outlined,
-                label: context.translateWithMLKit((l) => l.fontStyle),
+                label: context.translate((l) => l.fontStyle),
                 onTap: () => Get.dialog(
                   Dialog(
                     backgroundColor: colorController.backgroundColor.value,
@@ -103,13 +103,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // Bible Section
               SettingsSectionHeader(
-                title: context.translateWithMLKit((l) => l.bible),
+                title: context.translate((l) => l.bible),
                 animationDelay: 200,
               ),
 
               SettingsCard(
                 icon: Icons.auto_stories,
-                label: context.translateWithMLKit((l) => l.dailyBibleVerse),
+                label: context.translate((l) => l.dailyBibleVerse),
                 onTap: () => Get.toNamed('/daily_verse_settings'),
                 iconColor: Colors.purple,
                 animationDelay: 250,
@@ -123,7 +123,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               SettingsCard(
                 icon: Icons.storage_rounded,
-                label: context.translateWithMLKit((l) => l.audioCache),
+                label: context.translate((l) => l.audioCache),
                 onTap: () => _showAudioCacheDialog(),
                 iconColor: Colors.orange,
                 animationDelay: 350,

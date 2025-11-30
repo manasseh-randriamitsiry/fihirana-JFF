@@ -1761,4 +1761,343 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get alternativeAccess => 'Fidirana hafa';
+
+  @override
+  String get autoTranslate => 'Fandikana Aotomatika';
+
+  @override
+  String get translationEnabled => 'Fandikana voalefa';
+
+  @override
+  String get translationDisabled => 'Fandikana voatery';
+
+  @override
+  String get translating => 'Mandika...';
+
+  @override
+  String get translationError => 'Hadisoan\'ny fandikana';
+
+  @override
+  String get selectTranslationLanguage => 'Safidio ny fitenin\'ny fandikana';
+
+  @override
+  String get translated => 'Voasoratra';
+
+  @override
+  String get showOriginal => 'Asehoy ny teny fototra';
+
+  @override
+  String get showTranslation => 'Asehoy ny fandikana';
+
+  @override
+  String get translationSettings => 'Fikirakirana momba ny fandikana';
+
+  @override
+  String get automaticTranslation => 'Fandikana Aotomatika';
+
+  @override
+  String get automaticTranslationDescription => 'Mandika aotomatika ny votoatin\'ny hira amin\'ny fiteny tianao';
+
+  @override
+  String get translationModelsLoading => 'Miandrasa kely fa mandra-pahatongavan\'ny modely fandikana...';
+
+  @override
+  String get translationNotAvailable => 'Tsy misy fandikana ho an\'ity fiteny roa ity';
+
+  @override
+  String get clearTranslationCache => 'Hamafy ny cache-n\'ny fandikana';
+
+  @override
+  String get translationCacheCleared => 'Voafafa ny cache-n\'ny fandikana';
+
+  @override
+  String get translationStatistics => 'Statistika momba ny fandikana';
+
+  @override
+  String get cacheSize => 'Haben\'ny cache';
+
+  @override
+  String get currentlyTranslating => 'Mandika ankehitriny';
+
+  @override
+  String get supportedLanguages => 'Fiteny manohana';
+
+  @override
+  String get detectLanguage => 'Avereno ny fiteny';
+
+  @override
+  String get detectedLanguage => 'Fiteny voasoratra';
+
+  @override
+  String get sourceLanguage => 'Fiteny loharano';
+
+  @override
+  String get targetLanguage => 'Fiteny tandrify';
+
+  @override
+  String get translateFrom => 'Mandika avy amin\'ny';
+
+  @override
+  String get translateTo => 'Mandika ho';
+
+  @override
+  String get emergencyModeActive => 'EMERGENCY MODE ACTIVE';
+
+  @override
+  String get allUpdatesDisabled => 'All updates are currently disabled';
+
+  @override
+  String get appStatistics => 'App Statistics';
+
+  @override
+  String get activeUsers => 'Active Users';
+
+  @override
+  String get updateStatus => 'Update Status';
+
+  @override
+  String get updateControl => 'Update Control';
+
+  @override
+  String get manage => 'Manage';
+
+  @override
+  String get updatesEnabled => 'Updates are enabled';
+
+  @override
+  String get updatesDisabled => 'Updates are disabled';
+
+  @override
+  String versionBlocked(Object version) {
+    return 'Version $version is blocked';
+  }
+
+  @override
+  String get quickActions => 'Quick Actions';
+
+  @override
+  String get emergencyStop => 'Emergency Stop';
+
+  @override
+  String get emergencyStopConfirm => 'This will immediately disable all updates. Continue?';
+
+  @override
+  String get forceUpdateCheck => 'Force Update Check';
+
+  @override
+  String get clearCache => 'Clear Cache';
+
+  @override
+  String get recentActivity => 'Recent Activity';
+
+  @override
+  String get configurationUpdated => 'Configuration Updated';
+
+  @override
+  String get updateCheckPerformed => 'Update Check Performed';
+
+  @override
+  String get systemCheckCompleted => 'System check completed';
+
+  @override
+  String get dashboardLoaded => 'Dashboard Loaded';
+
+  @override
+  String get adminDashboardInitialized => 'Admin dashboard initialized';
+
+  @override
+  String get emergencyModeCleared => 'Emergency mode cleared';
+
+  @override
+  String get saving => 'Saving...';
+
+  @override
+  String get saveConfiguration => 'Save Configuration';
+
+  @override
+  String get enableUpdates => 'Enable Updates';
+
+  @override
+  String get allowUsersToDownloadUpdates => 'Allow users to download updates';
+
+  @override
+  String get forceUpdate => 'Force Update';
+
+  @override
+  String get forceUsersToUpdate => 'Force users to update when available';
+
+  @override
+  String get blockedVersion => 'Blocked Version';
+
+  @override
+  String get minimumSupportedVersion => 'Minimum Supported Version';
+
+  @override
+  String get recommendedVersion => 'Recommended Version';
+
+  @override
+  String get allowedVersions => 'Allowed Versions';
+
+  @override
+  String get adminMessage => 'Admin Message';
+
+  @override
+  String get messageToDisplayToAllUsers => 'Message to display to all users';
+
+  @override
+  String get versionEG => 'e.g., 1.0.15';
+
+  @override
+  String get versionsEG => 'e.g., 1.0.10, 1.0.11, 1.0.12';
+
+  @override
+  String get searchDeletedRecordings => 'Search deleted recordings...';
+
+  @override
+  String get refresh => 'Refresh';
+
+  @override
+  String get restoreRecording => 'Restore Recording';
+
+  @override
+  String get permanentDelete => 'Permanent Delete';
+
+  @override
+  String get deletePermanently => 'Delete Permanently';
+
+  @override
+  String get deleteRecordingQuestion => 'Delete recording?';
+
+  @override
+  String chooseHowToDelete(Object title) {
+    return 'Choose how you want to delete \"$title\"';
+  }
+
+  @override
+  String sureToDelete(Object title) {
+    return 'Are you sure you want to delete \"$title\"?';
+  }
+
+  @override
+  String get moveToTrash => 'Move to Trash';
+
+  @override
+  String get makePublic => 'Make Public';
+
+  @override
+  String get enterRecordingTitle => 'Enter recording title';
+
+  @override
+  String get enterNewName => 'Enter new name';
+
+  @override
+  String get contactsPermissionRequired => 'Contacts permission is required to import contacts.';
+
+  @override
+  String errorAccessingContacts(Object error) {
+    return 'Error accessing contacts: $error';
+  }
+
+  @override
+  String get couldNotOpenMaps => 'Could not open maps. Please install a maps application.';
+
+  @override
+  String get redirectingToGoogleMaps => 'Redirecting to Google Maps download...';
+
+  @override
+  String errorPlayingNextHymn(Object error) {
+    return 'Error playing next hymn: $error';
+  }
+
+  @override
+  String errorPlayingPreviousHymn(Object error) {
+    return 'Error playing previous hymn: $error';
+  }
+
+  @override
+  String get importContact => 'Import Contact';
+
+  @override
+  String get record => 'Record';
+
+  @override
+  String get playerStats => 'Player Stats';
+
+  @override
+  String get startRecording => 'Start Recording';
+
+  @override
+  String get recordingStats => 'Recording Stats';
+
+  @override
+  String get addAnnouncement => 'Add Announcement';
+
+  @override
+  String errorLoadingUsers(Object error) {
+    return 'Error loading users: $error';
+  }
+
+  @override
+  String errorUpdatingUser(Object error) {
+    return 'Error updating user: $error';
+  }
+
+  @override
+  String get pleaseTypeYesToConfirm => 'Please type \"YES\" to confirm';
+
+  @override
+  String get deletingAllUserData => 'Deleting all user data...';
+
+  @override
+  String errorDeletingUserData(Object error) {
+    return 'Error deleting user data: $error';
+  }
+
+  @override
+  String get searchUsers => 'Search users...';
+
+  @override
+  String get duplicateTitle => 'Duplicate Title';
+
+  @override
+  String get searchRecordings => 'Search recordings...';
+
+  @override
+  String get searchForAPlace => 'Search for a place...';
+
+  @override
+  String get searchLanguage => 'Search language...';
+
+  @override
+  String get testTranslation => 'Test Translation';
+
+  @override
+  String get enterTextToTranslate => 'Enter text to translate';
+
+  @override
+  String get translate => 'Translate';
+
+  @override
+  String get exampleTranslatedTexts => 'Example Translated Texts';
+
+  @override
+  String get cacheManagement => 'Cache Management';
+
+  @override
+  String get currentLocale => 'Current Locale';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get saveRecording => 'Save Recording';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get recordingNotSaved => 'Recording was not saved';
 }

@@ -1005,7 +1005,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sortBySongs => 'Par nombre de cantiques';
 
   @override
-  String get typeYesToConfirm => 'Tapez \"oui\" pour confirmer la suppression';
+  String get typeYesToConfirm => 'Tapez \"OUI\" pour confirmer';
 
   @override
   String get downloading2 => 'Téléchargement...';
@@ -1713,10 +1713,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get editContact => 'Modifier le contact';
 
   @override
-  String get noContactsFound => 'Aucun contact trouvé';
+  String get noContactsFound => 'Aucun contact trouvé sur votre appareil.';
 
   @override
-  String get searchContacts => 'Rechercher des contacts';
+  String get searchContacts => 'Rechercher des contacts...';
 
   @override
   String get contactName => 'Nom';
@@ -1761,4 +1761,343 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get alternativeAccess => 'Accès alternatif';
+
+  @override
+  String get autoTranslate => 'Traduction automatique';
+
+  @override
+  String get translationEnabled => 'Traduction activée';
+
+  @override
+  String get translationDisabled => 'Traduction désactivée';
+
+  @override
+  String get translating => 'Traduction en cours...';
+
+  @override
+  String get translationError => 'Erreur de traduction';
+
+  @override
+  String get selectTranslationLanguage => 'Sélectionner la langue de traduction';
+
+  @override
+  String get translated => 'Traduit';
+
+  @override
+  String get showOriginal => 'Afficher l\'original';
+
+  @override
+  String get showTranslation => 'Afficher la traduction';
+
+  @override
+  String get translationSettings => 'Paramètres de traduction';
+
+  @override
+  String get automaticTranslation => 'Traduction automatique';
+
+  @override
+  String get automaticTranslationDescription => 'Traduire automatiquement le contenu des cantiques dans votre langue préférée';
+
+  @override
+  String get translationModelsLoading => 'Veuillez patienter pendant le chargement des modèles de traduction...';
+
+  @override
+  String get translationNotAvailable => 'Traduction non disponible pour cette paire de langues';
+
+  @override
+  String get clearTranslationCache => 'Vider le cache de traduction';
+
+  @override
+  String get translationCacheCleared => 'Cache de traduction vidé';
+
+  @override
+  String get translationStatistics => 'Statistiques de traduction';
+
+  @override
+  String get cacheSize => 'Taille du cache';
+
+  @override
+  String get currentlyTranslating => 'Traduction en cours';
+
+  @override
+  String get supportedLanguages => 'Langues prises en charge:';
+
+  @override
+  String get detectLanguage => 'Détecter la langue';
+
+  @override
+  String get detectedLanguage => 'Langue détectée';
+
+  @override
+  String get sourceLanguage => 'Langue source';
+
+  @override
+  String get targetLanguage => 'Langue cible';
+
+  @override
+  String get translateFrom => 'Traduire de';
+
+  @override
+  String get translateTo => 'Traduire vers';
+
+  @override
+  String get emergencyModeActive => 'MODE D\'URGENCE ACTIF';
+
+  @override
+  String get allUpdatesDisabled => 'Toutes les mises à jour sont actuellement désactivées';
+
+  @override
+  String get appStatistics => 'Statistiques de l\'application';
+
+  @override
+  String get activeUsers => 'Utilisateurs actifs';
+
+  @override
+  String get updateStatus => 'Statut de mise à jour';
+
+  @override
+  String get updateControl => 'Contrôle de mise à jour';
+
+  @override
+  String get manage => 'Gérer';
+
+  @override
+  String get updatesEnabled => 'Les mises à jour sont activées';
+
+  @override
+  String get updatesDisabled => 'Les mises à jour sont désactivées';
+
+  @override
+  String versionBlocked(Object version) {
+    return 'La version $version est bloquée';
+  }
+
+  @override
+  String get quickActions => 'Actions rapides';
+
+  @override
+  String get emergencyStop => 'Arrêt d\'urgence';
+
+  @override
+  String get emergencyStopConfirm => 'Cela désactivera immédiatement toutes les mises à jour. Continuer?';
+
+  @override
+  String get forceUpdateCheck => 'Forcer la vérification des mises à jour';
+
+  @override
+  String get clearCache => 'Vider le cache';
+
+  @override
+  String get recentActivity => 'Activité récente';
+
+  @override
+  String get configurationUpdated => 'Configuration mise à jour';
+
+  @override
+  String get updateCheckPerformed => 'Vérification de mise à jour effectuée';
+
+  @override
+  String get systemCheckCompleted => 'Vérification système terminée';
+
+  @override
+  String get dashboardLoaded => 'Tableau de bord chargé';
+
+  @override
+  String get adminDashboardInitialized => 'Tableau de bord administrateur initialisé';
+
+  @override
+  String get emergencyModeCleared => 'Mode d\'urgence effacé';
+
+  @override
+  String get saving => 'Enregistrement...';
+
+  @override
+  String get saveConfiguration => 'Enregistrer la configuration';
+
+  @override
+  String get enableUpdates => 'Activer les mises à jour';
+
+  @override
+  String get allowUsersToDownloadUpdates => 'Permettre aux utilisateurs de télécharger les mises à jour';
+
+  @override
+  String get forceUpdate => 'Forcer la mise à jour';
+
+  @override
+  String get forceUsersToUpdate => 'Forcer les utilisateurs à mettre à jour';
+
+  @override
+  String get blockedVersion => 'Version bloquée';
+
+  @override
+  String get minimumSupportedVersion => 'Version minimale prise en charge';
+
+  @override
+  String get recommendedVersion => 'Version recommandée';
+
+  @override
+  String get allowedVersions => 'Versions autorisées';
+
+  @override
+  String get adminMessage => 'Message d\'administrateur';
+
+  @override
+  String get messageToDisplayToAllUsers => 'Message à afficher à tous les utilisateurs';
+
+  @override
+  String get versionEG => 'ex: 1.0.15';
+
+  @override
+  String get versionsEG => 'ex: 1.0.10, 1.0.11, 1.0.12';
+
+  @override
+  String get searchDeletedRecordings => 'Rechercher les enregistrements supprimés...';
+
+  @override
+  String get refresh => 'Actualiser';
+
+  @override
+  String get restoreRecording => 'Restaurer l\'enregistrement';
+
+  @override
+  String get permanentDelete => 'Suppression permanente';
+
+  @override
+  String get deletePermanently => 'Supprimer définitivement';
+
+  @override
+  String get deleteRecordingQuestion => 'Supprimer l\'enregistrement?';
+
+  @override
+  String chooseHowToDelete(Object title) {
+    return 'Choisissez comment supprimer \"$title\"';
+  }
+
+  @override
+  String sureToDelete(Object title) {
+    return 'Êtes-vous sûr de vouloir supprimer \"$title\"?';
+  }
+
+  @override
+  String get moveToTrash => 'Déplacer vers la corbeille';
+
+  @override
+  String get makePublic => 'Rendre public';
+
+  @override
+  String get enterRecordingTitle => 'Entrer le titre de l\'enregistrement';
+
+  @override
+  String get enterNewName => 'Entrer un nouveau nom';
+
+  @override
+  String get contactsPermissionRequired => 'L\'autorisation des contacts est requise pour importer les contacts.';
+
+  @override
+  String errorAccessingContacts(Object error) {
+    return 'Erreur lors de l\'accès aux contacts: $error';
+  }
+
+  @override
+  String get couldNotOpenMaps => 'Impossible d\'ouvrir les cartes. Veuillez installer une application de cartes.';
+
+  @override
+  String get redirectingToGoogleMaps => 'Redirection vers le téléchargement de Google Maps...';
+
+  @override
+  String errorPlayingNextHymn(Object error) {
+    return 'Erreur lors de la lecture du cantique suivant: $error';
+  }
+
+  @override
+  String errorPlayingPreviousHymn(Object error) {
+    return 'Erreur lors de la lecture du cantique précédent: $error';
+  }
+
+  @override
+  String get importContact => 'Importer le contact';
+
+  @override
+  String get record => 'Enregistrer';
+
+  @override
+  String get playerStats => 'Statistiques du lecteur';
+
+  @override
+  String get startRecording => 'Commencer l\'enregistrement';
+
+  @override
+  String get recordingStats => 'Statistiques d\'enregistrement';
+
+  @override
+  String get addAnnouncement => 'Ajouter une annonce';
+
+  @override
+  String errorLoadingUsers(Object error) {
+    return 'Erreur lors du chargement des utilisateurs: $error';
+  }
+
+  @override
+  String errorUpdatingUser(Object error) {
+    return 'Erreur lors de la mise à jour de l\'utilisateur: $error';
+  }
+
+  @override
+  String get pleaseTypeYesToConfirm => 'Veuillez taper \"OUI\" pour confirmer';
+
+  @override
+  String get deletingAllUserData => 'Suppression de toutes les données utilisateur...';
+
+  @override
+  String errorDeletingUserData(Object error) {
+    return 'Erreur lors de la suppression des données utilisateur: $error';
+  }
+
+  @override
+  String get searchUsers => 'Rechercher des utilisateurs...';
+
+  @override
+  String get duplicateTitle => 'Titre en double';
+
+  @override
+  String get searchRecordings => 'Rechercher des enregistrements...';
+
+  @override
+  String get searchForAPlace => 'Rechercher un lieu...';
+
+  @override
+  String get searchLanguage => 'Rechercher une langue...';
+
+  @override
+  String get testTranslation => 'Test de traduction';
+
+  @override
+  String get enterTextToTranslate => 'Entrer le texte à traduire';
+
+  @override
+  String get translate => 'Traduire';
+
+  @override
+  String get exampleTranslatedTexts => 'Exemples de textes traduits';
+
+  @override
+  String get cacheManagement => 'Gestion du cache';
+
+  @override
+  String get currentLocale => 'Locale actuelle';
+
+  @override
+  String get discard => 'Annuler';
+
+  @override
+  String get saveRecording => 'Enregistrer l\'enregistrement';
+
+  @override
+  String get skip => 'Ignorer';
+
+  @override
+  String get done => 'Terminé';
+
+  @override
+  String get recordingNotSaved => 'L\'enregistrement n\'a pas été sauvegardé';
 }

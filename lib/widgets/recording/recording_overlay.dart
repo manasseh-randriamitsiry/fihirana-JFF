@@ -240,10 +240,10 @@ class _RecordingOverlayState extends State<RecordingOverlay>
               Navigator.pop(context);
               await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
               widget.onClose();
-              Get.snackbar('Discarded', 'Recording was not saved');
+              Get.snackbar(l10n.discard, l10n.recordingNotSaved);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.orange),
-            child: const Text('Discard'),
+            child: Text(l10n.discard),
           ),
           ElevatedButton(
             onPressed: () {
@@ -254,7 +254,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
               backgroundColor: _colorController.primaryColor.value,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Save Recording'),
+            child: Text(l10n.saveRecording),
           ),
         ],
       ),
@@ -803,7 +803,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                           backgroundColor: Colors.white,
                           foregroundColor: _colorController.primaryColor.value,
                         ),
-                        child: const Text('Save'),
+                        child: Text(l10n.save),
                       ),
                     ),
                   ],
@@ -946,7 +946,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                                     foregroundColor:
                                         _colorController.primaryColor.value,
                                   ),
-                                  child: const Text('Retry'),
+                                  child: Text(l10n.retry),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -962,7 +962,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                                         Colors.white.withValues(alpha: 0.2),
                                     foregroundColor: Colors.white,
                                   ),
-                                  child: const Text('Skip'),
+                                  child: Text(l10n.skip),
                                 ),
                               ),
                             ],
@@ -995,7 +995,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                               foregroundColor:
                                   _colorController.primaryColor.value,
                             ),
-                            child: const Text('Done'),
+                            child: Text(l10n.done),
                           ),
                         ],
                       );

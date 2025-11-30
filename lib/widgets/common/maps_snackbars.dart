@@ -2,15 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'dart:io' show Platform;
+import '../../l10n/app_localizations.dart';
 
 class MapsErrorSnackBar {
   static void show(BuildContext context, dynamic error) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Could not open maps. Please install a maps application.'),
+        content: Text(l10n.couldNotOpenMaps),
         backgroundColor: Colors.red,
         action: SnackBarAction(
-          label: 'Download',
+          label: l10n.download,
           textColor: Colors.white,
           onPressed: () async {
             if (Platform.isAndroid) {
@@ -36,9 +38,10 @@ class MapsErrorSnackBar {
 
 class MapsRedirectSnackBar {
   static void show(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Redirecting to Google Maps download...'),
+      SnackBar(
+        content: Text(l10n.redirectingToGoogleMaps),
         backgroundColor: Colors.blue,
         duration: Duration(seconds: 3),
       ),

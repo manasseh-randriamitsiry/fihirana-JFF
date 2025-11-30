@@ -265,7 +265,7 @@ class RecordingManagerScreen extends StatelessWidget {
                       controller: searchController,
                       style: TextStyle(color: colorController.textColor.value),
                       decoration: InputDecoration(
-                        hintText: 'Search recordings...',
+                        hintText: AppLocalizations.of(context)!.searchRecordings,
                         hintStyle: TextStyle(
                           color: colorController.textColor.value
                               .withValues(alpha: 0.5),
@@ -561,7 +561,7 @@ class RecordingManagerScreen extends StatelessWidget {
                     await controller.syncFromDrive();
                   },
                   icon: const Icon(Icons.sync, size: 18),
-                  label: const Text('Sync'),
+                  label: Text(AppLocalizations.of(context)!.sync),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorController.primaryColor.value,
                     foregroundColor: Colors.white,
@@ -580,7 +580,7 @@ class RecordingManagerScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8)),
             ),
-            child: const Text('Sign Out'),
+            child: Text(AppLocalizations.of(context)!.signOut),
           ),
         ],
       ),

@@ -6,7 +6,7 @@ import '../../models/hymn.dart';
 import 'package:fihirana/services/audio/audio_service.dart';
 import '../player/lightweight_audio_player_widget.dart';
 
-import '../common/mlkit_localization_provider.dart';
+import '../common/localization_extension.dart';
 
 class FavoriteHymnCard extends StatelessWidget {
   final Hymn hymn;
@@ -51,7 +51,7 @@ class FavoriteHymnCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      context.translateWithMLKit((l) => l.audioPlayer),
+                      context.translate((l) => l.audioPlayer),
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -169,7 +169,7 @@ class FavoriteHymnCard extends StatelessWidget {
                       ],
                     ),
                     onPressed: () => _showAudioPlayerDialog(context),
-                    tooltip: context.translateWithMLKit((l) => l.playAudio),
+                    tooltip: context.translate((l) => l.playAudio),
                   ),
                 );
               }),
@@ -183,8 +183,8 @@ class FavoriteHymnCard extends StatelessWidget {
               ),
               onPressed: onFavoritePressed,
               tooltip: isFavorite
-                  ? context.translateWithMLKit((l) => l.removeFromFavorites)
-                  : context.translateWithMLKit((l) => l.addToFavorites),
+                   ? context.translate((l) => l.removeFromFavorites)
+                   : context.translate((l) => l.addToFavorites),
             ),
           ],
         ),

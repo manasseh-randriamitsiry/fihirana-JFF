@@ -9,7 +9,7 @@ import 'package:fihirana/services/audio/audio_service.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/favorites/favorites_search_bar.dart';
 import '../../widgets/favorites/favorite_hymn_card.dart';
-import '../../widgets/common/mlkit_localization_provider.dart';
+import '../../widgets/common/localization_extension.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -53,7 +53,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
         title: Text(
-          context.translateWithMLKit((l) => l.favorites),
+          context.translate((l) => l.favorites),
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
@@ -98,7 +98,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          '${context.translateWithMLKit((l) => l.error)}: ${snapshot.error}',
+                          '${context.translate((l) => l.error)}: ${snapshot.error}',
                           style:
                               TextStyle(color: colorController.textColor.value),
                           textAlign: TextAlign.center,
@@ -127,7 +127,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                 curve: Curves.easeInOut),
                         const SizedBox(height: 16),
                         Text(
-                          context.translateWithMLKit((l) => l.noHymnsAddedYet),
+                          context.translate((l) => l.noHymnsAddedYet),
                           style: TextStyle(
                             color: colorController.textColor.value,
                             fontSize: 18,
@@ -137,7 +137,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         const SizedBox(height: 8),
                         Text(
                           context
-                              .translateWithMLKit((l) => l.createFirstPlaylist),
+                              .translate((l) => l.createFirstPlaylist),
                           style: TextStyle(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.6),
@@ -174,7 +174,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            context.translateWithMLKit((l) => l.noResults),
+                            context.translate((l) => l.noResults),
                             style: TextStyle(
                               color: colorController.textColor.value,
                               fontSize: 16,

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_fr.dart';
+import 'app_localizations_it.dart';
 import 'app_localizations_mg.dart';
 
 // ignore_for_file: type=lint
@@ -94,6 +95,7 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('fr'),
+    Locale('it'),
     Locale('mg')
   ];
 
@@ -2020,7 +2022,7 @@ abstract class AppLocalizations {
   /// No description provided for @typeYesToConfirm.
   ///
   /// In en, this message translates to:
-  /// **'Type \"yes\" to confirm deletion'**
+  /// **'Type \"YES\" to confirm'**
   String get typeYesToConfirm;
 
   /// No description provided for @downloading2.
@@ -2740,7 +2742,7 @@ abstract class AppLocalizations {
   /// No description provided for @clearSearch.
   ///
   /// In en, this message translates to:
-  /// **'Clear search'**
+  /// **'Clear Search'**
   String get clearSearch;
 
   /// No description provided for @appSection.
@@ -3298,13 +3300,13 @@ abstract class AppLocalizations {
   /// No description provided for @noContactsFound.
   ///
   /// In en, this message translates to:
-  /// **'No contacts found'**
+  /// **'No contacts found on your device.'**
   String get noContactsFound;
 
   /// No description provided for @searchContacts.
   ///
   /// In en, this message translates to:
-  /// **'Search Contacts'**
+  /// **'Search contacts...'**
   String get searchContacts;
 
   /// No description provided for @contactName.
@@ -3390,6 +3392,648 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Alternative Access'**
   String get alternativeAccess;
+
+  /// No description provided for @autoTranslate.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-Translate'**
+  String get autoTranslate;
+
+  /// No description provided for @translationEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation enabled'**
+  String get translationEnabled;
+
+  /// No description provided for @translationDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation disabled'**
+  String get translationDisabled;
+
+  /// No description provided for @translating.
+  ///
+  /// In en, this message translates to:
+  /// **'Translating...'**
+  String get translating;
+
+  /// No description provided for @translationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation error'**
+  String get translationError;
+
+  /// No description provided for @selectTranslationLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Translation Language'**
+  String get selectTranslationLanguage;
+
+  /// No description provided for @translated.
+  ///
+  /// In en, this message translates to:
+  /// **'Translated'**
+  String get translated;
+
+  /// No description provided for @showOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Original'**
+  String get showOriginal;
+
+  /// No description provided for @showTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Show Translation'**
+  String get showTranslation;
+
+  /// No description provided for @translationSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation Settings'**
+  String get translationSettings;
+
+  /// No description provided for @automaticTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic Translation'**
+  String get automaticTranslation;
+
+  /// No description provided for @automaticTranslationDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically translate hymn content to your preferred language'**
+  String get automaticTranslationDescription;
+
+  /// No description provided for @translationModelsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait while translation models load...'**
+  String get translationModelsLoading;
+
+  /// No description provided for @translationNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation not available for this language pair'**
+  String get translationNotAvailable;
+
+  /// No description provided for @clearTranslationCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Translation Cache'**
+  String get clearTranslationCache;
+
+  /// No description provided for @translationCacheCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation cache cleared'**
+  String get translationCacheCleared;
+
+  /// No description provided for @translationStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation Statistics'**
+  String get translationStatistics;
+
+  /// No description provided for @cacheSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache Size'**
+  String get cacheSize;
+
+  /// No description provided for @currentlyTranslating.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently Translating'**
+  String get currentlyTranslating;
+
+  /// No description provided for @supportedLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Supported Languages:'**
+  String get supportedLanguages;
+
+  /// No description provided for @detectLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Detect Language'**
+  String get detectLanguage;
+
+  /// No description provided for @detectedLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected Language'**
+  String get detectedLanguage;
+
+  /// No description provided for @sourceLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Source Language'**
+  String get sourceLanguage;
+
+  /// No description provided for @targetLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Target Language'**
+  String get targetLanguage;
+
+  /// No description provided for @translateFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate from'**
+  String get translateFrom;
+
+  /// No description provided for @translateTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate to'**
+  String get translateTo;
+
+  /// No description provided for @emergencyModeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'EMERGENCY MODE ACTIVE'**
+  String get emergencyModeActive;
+
+  /// No description provided for @allUpdatesDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'All updates are currently disabled'**
+  String get allUpdatesDisabled;
+
+  /// No description provided for @appStatistics.
+  ///
+  /// In en, this message translates to:
+  /// **'App Statistics'**
+  String get appStatistics;
+
+  /// No description provided for @activeUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Users'**
+  String get activeUsers;
+
+  /// No description provided for @updateStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Status'**
+  String get updateStatus;
+
+  /// No description provided for @updateControl.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Control'**
+  String get updateControl;
+
+  /// No description provided for @manage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get manage;
+
+  /// No description provided for @updatesEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates are enabled'**
+  String get updatesEnabled;
+
+  /// No description provided for @updatesDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Updates are disabled'**
+  String get updatesDisabled;
+
+  /// No description provided for @versionBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} is blocked'**
+  String versionBlocked(Object version);
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quickActions;
+
+  /// No description provided for @emergencyStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency Stop'**
+  String get emergencyStop;
+
+  /// No description provided for @emergencyStopConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'This will immediately disable all updates. Continue?'**
+  String get emergencyStopConfirm;
+
+  /// No description provided for @forceUpdateCheck.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Update Check'**
+  String get forceUpdateCheck;
+
+  /// No description provided for @clearCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Cache'**
+  String get clearCache;
+
+  /// No description provided for @recentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get recentActivity;
+
+  /// No description provided for @configurationUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration Updated'**
+  String get configurationUpdated;
+
+  /// No description provided for @updateCheckPerformed.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Check Performed'**
+  String get updateCheckPerformed;
+
+  /// No description provided for @systemCheckCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'System check completed'**
+  String get systemCheckCompleted;
+
+  /// No description provided for @dashboardLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard Loaded'**
+  String get dashboardLoaded;
+
+  /// No description provided for @adminDashboardInitialized.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin dashboard initialized'**
+  String get adminDashboardInitialized;
+
+  /// No description provided for @emergencyModeCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency mode cleared'**
+  String get emergencyModeCleared;
+
+  /// No description provided for @saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get saving;
+
+  /// No description provided for @saveConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Configuration'**
+  String get saveConfiguration;
+
+  /// No description provided for @enableUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Updates'**
+  String get enableUpdates;
+
+  /// No description provided for @allowUsersToDownloadUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow users to download updates'**
+  String get allowUsersToDownloadUpdates;
+
+  /// No description provided for @forceUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Force Update'**
+  String get forceUpdate;
+
+  /// No description provided for @forceUsersToUpdate.
+  ///
+  /// In en, this message translates to:
+  /// **'Force users to update when available'**
+  String get forceUsersToUpdate;
+
+  /// No description provided for @blockedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked Version'**
+  String get blockedVersion;
+
+  /// No description provided for @minimumSupportedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum Supported Version'**
+  String get minimumSupportedVersion;
+
+  /// No description provided for @recommendedVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended Version'**
+  String get recommendedVersion;
+
+  /// No description provided for @allowedVersions.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed Versions'**
+  String get allowedVersions;
+
+  /// No description provided for @adminMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Message'**
+  String get adminMessage;
+
+  /// No description provided for @messageToDisplayToAllUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Message to display to all users'**
+  String get messageToDisplayToAllUsers;
+
+  /// No description provided for @versionEG.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 1.0.15'**
+  String get versionEG;
+
+  /// No description provided for @versionsEG.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., 1.0.10, 1.0.11, 1.0.12'**
+  String get versionsEG;
+
+  /// No description provided for @searchDeletedRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Search deleted recordings...'**
+  String get searchDeletedRecordings;
+
+  /// No description provided for @refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get refresh;
+
+  /// No description provided for @restoreRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore Recording'**
+  String get restoreRecording;
+
+  /// No description provided for @permanentDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanent Delete'**
+  String get permanentDelete;
+
+  /// No description provided for @deletePermanently.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Permanently'**
+  String get deletePermanently;
+
+  /// No description provided for @deleteRecordingQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete recording?'**
+  String get deleteRecordingQuestion;
+
+  /// No description provided for @chooseHowToDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you want to delete \"{title}\"'**
+  String chooseHowToDelete(Object title);
+
+  /// No description provided for @sureToDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{title}\"?'**
+  String sureToDelete(Object title);
+
+  /// No description provided for @moveToTrash.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Trash'**
+  String get moveToTrash;
+
+  /// No description provided for @makePublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Public'**
+  String get makePublic;
+
+  /// No description provided for @enterRecordingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter recording title'**
+  String get enterRecordingTitle;
+
+  /// No description provided for @enterNewName.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter new name'**
+  String get enterNewName;
+
+  /// No description provided for @contactsPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts permission is required to import contacts.'**
+  String get contactsPermissionRequired;
+
+  /// No description provided for @errorAccessingContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'Error accessing contacts: {error}'**
+  String errorAccessingContacts(Object error);
+
+  /// No description provided for @couldNotOpenMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open maps. Please install a maps application.'**
+  String get couldNotOpenMaps;
+
+  /// No description provided for @redirectingToGoogleMaps.
+  ///
+  /// In en, this message translates to:
+  /// **'Redirecting to Google Maps download...'**
+  String get redirectingToGoogleMaps;
+
+  /// No description provided for @errorPlayingNextHymn.
+  ///
+  /// In en, this message translates to:
+  /// **'Error playing next hymn: {error}'**
+  String errorPlayingNextHymn(Object error);
+
+  /// No description provided for @errorPlayingPreviousHymn.
+  ///
+  /// In en, this message translates to:
+  /// **'Error playing previous hymn: {error}'**
+  String errorPlayingPreviousHymn(Object error);
+
+  /// No description provided for @importContact.
+  ///
+  /// In en, this message translates to:
+  /// **'Import Contact'**
+  String get importContact;
+
+  /// No description provided for @record.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get record;
+
+  /// No description provided for @playerStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Player Stats'**
+  String get playerStats;
+
+  /// No description provided for @startRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Recording'**
+  String get startRecording;
+
+  /// No description provided for @recordingStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording Stats'**
+  String get recordingStats;
+
+  /// No description provided for @addAnnouncement.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Announcement'**
+  String get addAnnouncement;
+
+  /// No description provided for @errorLoadingUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading users: {error}'**
+  String errorLoadingUsers(Object error);
+
+  /// No description provided for @errorUpdatingUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Error updating user: {error}'**
+  String errorUpdatingUser(Object error);
+
+  /// No description provided for @pleaseTypeYesToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Please type \"YES\" to confirm'**
+  String get pleaseTypeYesToConfirm;
+
+  /// No description provided for @deletingAllUserData.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleting all user data...'**
+  String get deletingAllUserData;
+
+  /// No description provided for @errorDeletingUserData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error deleting user data: {error}'**
+  String errorDeletingUserData(Object error);
+
+  /// No description provided for @searchUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users...'**
+  String get searchUsers;
+
+  /// No description provided for @duplicateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicate Title'**
+  String get duplicateTitle;
+
+  /// No description provided for @searchRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Search recordings...'**
+  String get searchRecordings;
+
+  /// No description provided for @searchForAPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a place...'**
+  String get searchForAPlace;
+
+  /// No description provided for @searchLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Search language...'**
+  String get searchLanguage;
+
+  /// No description provided for @testTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'Test Translation'**
+  String get testTranslation;
+
+  /// No description provided for @enterTextToTranslate.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter text to translate'**
+  String get enterTextToTranslate;
+
+  /// No description provided for @translate.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate'**
+  String get translate;
+
+  /// No description provided for @exampleTranslatedTexts.
+  ///
+  /// In en, this message translates to:
+  /// **'Example Translated Texts'**
+  String get exampleTranslatedTexts;
+
+  /// No description provided for @cacheManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Cache Management'**
+  String get cacheManagement;
+
+  /// No description provided for @currentLocale.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Locale'**
+  String get currentLocale;
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @saveRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Recording'**
+  String get saveRecording;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @recordingNotSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording was not saved'**
+  String get recordingNotSaved;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
@@ -3401,7 +4045,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'fr', 'mg'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'fr', 'it', 'mg'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -3414,6 +4058,7 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en': return AppLocalizationsEn();
     case 'fr': return AppLocalizationsFr();
+    case 'it': return AppLocalizationsIt();
     case 'mg': return AppLocalizationsMg();
   }
 

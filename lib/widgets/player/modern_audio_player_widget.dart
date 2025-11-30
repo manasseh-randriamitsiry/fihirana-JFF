@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 
 import '../../models/hymn.dart';
 import 'package:fihirana/services/audio/audio_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class ModernAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;
@@ -166,8 +167,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
       await _audioService.playNext();
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error playing next hymn: $e')),
+          SnackBar(content: Text(l10n.errorPlayingNextHymn.replaceAll('{error}', e.toString()))),
         );
       }
     }
@@ -179,8 +181,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
       await _audioService.playPrevious();
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error playing previous hymn: $e')),
+          SnackBar(content: Text(l10n.errorPlayingPreviousHymn.replaceAll('{error}', e.toString()))),
         );
       }
     }
@@ -206,8 +209,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
           _isLoading = false;
           _isPlaying = false;
         });
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error playing audio: $e')),
+          SnackBar(content: Text(l10n.errorPlayingAudio.replaceAll('{error}', e.toString()))),
         );
       }
     }

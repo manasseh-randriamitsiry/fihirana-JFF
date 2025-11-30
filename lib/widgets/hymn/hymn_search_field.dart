@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../common/mlkit_localization_provider.dart';
+import '../common/localization_extension.dart';
 
 class HymnSearchField extends StatelessWidget {
   final TextEditingController controller;
@@ -36,7 +36,7 @@ class HymnSearchField extends StatelessWidget {
             controller: controller,
             style: defaultTextStyle,
             decoration: InputDecoration(
-              labelText: context.translateWithMLKit((l) => l.searchHymnsHint),
+              labelText: context.translate((l) => l.searchHymnsHint),
               labelStyle: defaultTextStyle.copyWith(
                 color: textColor.withValues(alpha: 0.7),
               ),

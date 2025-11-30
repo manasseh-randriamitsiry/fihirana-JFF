@@ -4,15 +4,15 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+/// The translations for Italian (`it`).
+class AppLocalizationsIt extends AppLocalizations {
+  AppLocalizationsIt([String locale = 'it']) : super(locale);
 
   @override
-  String get appTitle => 'Hymns App';
+  String get appTitle => 'Fihirana JFF';
 
   @override
-  String get home => 'Home';
+  String get home => 'Casa';
 
   @override
   String get hymns => 'Hymns';
@@ -21,10 +21,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get favorites => 'Favorites';
 
   @override
-  String get search => 'Search';
+  String get search => 'Cerca';
 
   @override
-  String get settings => 'Settings';
+  String get settings => 'Impostazioni';
 
   @override
   String get language => 'Language';
@@ -99,13 +99,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get send => 'Send';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'Annulla';
 
   @override
   String get ok => 'OK';
 
   @override
-  String get save => 'Save';
+  String get save => 'Salva';
 
   @override
   String get delete => 'Delete';
@@ -132,7 +132,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get select => 'Select';
 
   @override
-  String get selected => 'Selected';
+  String get selected => 'selected';
 
   @override
   String get no => 'No';
@@ -198,7 +198,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmLogout => 'Are you sure you want to logout?';
 
   @override
-  String get noResults => 'No results found';
+  String get noResults => 'No results';
 
   @override
   String get searchHint => 'Search hymns, titles, or numbers...';
@@ -224,16 +224,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get view => 'View';
 
   @override
-  String get download => 'Download';
+  String get download => 'Scarica';
 
   @override
   String get hymnNotDownloaded => 'Hymn not downloaded';
 
   @override
-  String get addToFavorites => 'Add to favorites';
+  String get addToFavorites => 'Add to Favorites';
 
   @override
-  String get removeFromFavorites => 'Remove from favorites';
+  String get removeFromFavorites => 'Remove from Favorites';
 
   @override
   String get shareHymn => 'Share hymn';
@@ -245,7 +245,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get viewOriginal => 'View original';
 
   @override
-  String get viewTranslation => 'View translation';
+  String get viewTranslation => 'View Translation';
 
   @override
   String get hymnNotFound => 'Hymn not found';
@@ -308,13 +308,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknownError => 'Unknown error occurred';
 
   @override
-  String get retry => 'Retry';
+  String get retry => 'Riprova';
 
   @override
   String get tryAgain => 'Try again';
 
   @override
-  String get close => 'Close';
+  String get close => 'Chiudi';
 
   @override
   String get back => 'Back';
@@ -500,7 +500,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backup => 'Backup';
 
   @override
-  String get restore => 'Restore';
+  String get restore => 'Ripristina';
 
   @override
   String get dataBackup => 'Data backup';
@@ -542,7 +542,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chooseFont => 'Choose a Font';
 
   @override
-  String get chooseLanguage => 'Choose language';
+  String get chooseLanguage => 'Choose Language';
 
   @override
   String get searchHymnsHint => 'Search hymns';
@@ -709,7 +709,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noCancel => 'No, cancel';
 
   @override
-  String get appTitleShort => 'JFF';
+  String get appTitleShort => 'Fihirana';
 
   @override
   String get checkUpdateError => 'Cannot check for updates';
@@ -841,7 +841,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signedInSuccessfully => 'You have signed in successfully.';
 
   @override
-  String get favoriteHymns => 'Favorite Hymns';
+  String get favoriteHymns => 'Hymni Preferiti';
 
   @override
   String get hymnHistory => 'Hymn History';
@@ -859,10 +859,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bible => 'Bible';
 
   @override
-  String get signOut => 'Sign Out';
+  String get signOut => 'Esci';
 
   @override
-  String get aboutUs => 'About';
+  String get aboutUs => 'About Us';
 
   @override
   String get cannotUpdate => 'Cannot update';
@@ -1005,7 +1005,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sortBySongs => 'By number of songs';
 
   @override
-  String get typeYesToConfirm => 'Type \"YES\" to confirm';
+  String get typeYesToConfirm => 'Digita \"SI\" per confermare';
 
   @override
   String get downloading2 => 'Downloading...';
@@ -1142,10 +1142,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearAllHistoryQuestion => 'Clear all history?';
 
   @override
-  String get historyCannotBeUndone => 'History cannot be undone once deleted.';
+  String get historyCannotBeUndone => 'This action cannot be undone';
 
   @override
-  String get deleteSelectedHistoryQuestion => 'Delete selected history?';
+  String get deleteSelectedHistoryQuestion => 'Delete selected history items?';
 
   @override
   String selectedItems(int count) {
@@ -1249,7 +1249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deletePlaylist => 'Delete Playlist';
 
   @override
-  String get addToPlaylist => 'Playlist';
+  String get addToPlaylist => 'Add to Playlist';
 
   @override
   String get createNewPlaylist => 'Create New Playlist';
@@ -1284,11 +1284,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get playlistExampleHint => 'e.g., Sunday Service';
+  String get playlistExampleHint => 'My Favorite Hymns';
 
   @override
   String confirmDeletePlaylist(String playlistTitle) {
-    return 'Are you sure you want to delete \"$playlistTitle\"?';
+    return 'Are you sure you want to delete this playlist?';
   }
 
   @override
@@ -1304,7 +1304,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get audioPlayer => 'Audio Player';
 
   @override
-  String get playAudio => 'Play audio';
+  String get playAudio => 'Play Audio';
 
   @override
   String get audioCacheManagement => 'Audio Cache Management';
@@ -1394,7 +1394,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get clearSearch => 'Clear Search';
+  String get clearSearch => 'Cancella ricerca';
 
   @override
   String get appSection => 'App';
@@ -1418,10 +1418,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get currentVersion => 'Current Version';
+  String get currentVersion => 'Versione attuale';
 
   @override
-  String get latestVersion => 'Latest Version';
+  String get latestVersion => 'Ultima versione';
 
   @override
   String get whatsNew => 'What\'s New';
@@ -1479,7 +1479,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signedInAsLabel => 'Signed in as:';
 
   @override
-  String get sync => 'Sync';
+  String get sync => 'Sincronizza';
 
   @override
   String hymnDuration(String hymnId, String duration) {
@@ -1498,7 +1498,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get deleteRecording => 'Delete Recording';
+  String get deleteRecording => 'Elimina registrazione';
 
   @override
   String deleteRecordingConfirmation(String title) {
@@ -1617,7 +1617,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterNewTitle => 'Enter new title';
 
   @override
-  String get rename => 'Rename';
+  String get rename => 'Rinomina';
 
   @override
   String get recordingRenamed => 'Recording renamed successfully';
@@ -1707,16 +1707,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contacts => 'Contacts';
 
   @override
-  String get addContact => 'Add Contact';
+  String get addContact => 'Aggiungi contatto';
 
   @override
   String get editContact => 'Edit Contact';
 
   @override
-  String get noContactsFound => 'No contacts found on your device.';
+  String get noContactsFound => 'Nessun contatto trovato sul tuo dispositivo.';
 
   @override
-  String get searchContacts => 'Search contacts...';
+  String get searchContacts => 'Cerca contatti...';
 
   @override
   String get contactName => 'Name';
@@ -1763,7 +1763,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alternativeAccess => 'Alternative Access';
 
   @override
-  String get autoTranslate => 'Auto-Translate';
+  String get autoTranslate => 'Traduzione automatica';
 
   @override
   String get translationEnabled => 'Translation enabled';
@@ -1772,7 +1772,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get translationDisabled => 'Translation disabled';
 
   @override
-  String get translating => 'Translating...';
+  String get translating => 'Traduzione in corso...';
 
   @override
   String get translationError => 'Translation error';
@@ -1808,19 +1808,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearTranslationCache => 'Clear Translation Cache';
 
   @override
-  String get translationCacheCleared => 'Translation cache cleared';
+  String get translationCacheCleared => 'Cache traduzione svuotata';
 
   @override
-  String get translationStatistics => 'Translation Statistics';
+  String get translationStatistics => 'Statistiche traduzione';
 
   @override
-  String get cacheSize => 'Cache Size';
+  String get cacheSize => 'Dimensione cache';
 
   @override
-  String get currentlyTranslating => 'Currently Translating';
+  String get currentlyTranslating => 'Traduzione in corso';
 
   @override
-  String get supportedLanguages => 'Supported Languages:';
+  String get supportedLanguages => 'Lingue supportate:';
 
   @override
   String get detectLanguage => 'Detect Language';
@@ -1841,263 +1841,263 @@ class AppLocalizationsEn extends AppLocalizations {
   String get translateTo => 'Translate to';
 
   @override
-  String get emergencyModeActive => 'EMERGENCY MODE ACTIVE';
+  String get emergencyModeActive => 'MODO EMERGENZA ATTIVO';
 
   @override
-  String get allUpdatesDisabled => 'All updates are currently disabled';
+  String get allUpdatesDisabled => 'Tutti gli aggiornamenti sono attualmente disabilitati';
 
   @override
-  String get appStatistics => 'App Statistics';
+  String get appStatistics => 'Statistiche dell\'app';
 
   @override
-  String get activeUsers => 'Active Users';
+  String get activeUsers => 'Utenti attivi';
 
   @override
-  String get updateStatus => 'Update Status';
+  String get updateStatus => 'Stato aggiornamento';
 
   @override
-  String get updateControl => 'Update Control';
+  String get updateControl => 'Controllo aggiornamento';
 
   @override
-  String get manage => 'Manage';
+  String get manage => 'Gestisci';
 
   @override
-  String get updatesEnabled => 'Updates are enabled';
+  String get updatesEnabled => 'Gli aggiornamenti sono abilitati';
 
   @override
-  String get updatesDisabled => 'Updates are disabled';
+  String get updatesDisabled => 'Gli aggiornamenti sono disabilitati';
 
   @override
   String versionBlocked(Object version) {
-    return 'Version $version is blocked';
+    return 'La versione $version è bloccata';
   }
 
   @override
-  String get quickActions => 'Quick Actions';
+  String get quickActions => 'Azioni rapide';
 
   @override
-  String get emergencyStop => 'Emergency Stop';
+  String get emergencyStop => 'Arresto di emergenza';
 
   @override
-  String get emergencyStopConfirm => 'This will immediately disable all updates. Continue?';
+  String get emergencyStopConfirm => 'Questo disabiliterà immediatamente tutti gli aggiornamenti. Continuare?';
 
   @override
-  String get forceUpdateCheck => 'Force Update Check';
+  String get forceUpdateCheck => 'Forza verifica aggiornamenti';
 
   @override
-  String get clearCache => 'Clear Cache';
+  String get clearCache => 'Svuota cache';
 
   @override
-  String get recentActivity => 'Recent Activity';
+  String get recentActivity => 'Attività recente';
 
   @override
-  String get configurationUpdated => 'Configuration Updated';
+  String get configurationUpdated => 'Configurazione aggiornata';
 
   @override
-  String get updateCheckPerformed => 'Update Check Performed';
+  String get updateCheckPerformed => 'Verifica aggiornamento eseguita';
 
   @override
-  String get systemCheckCompleted => 'System check completed';
+  String get systemCheckCompleted => 'Verifica sistema completata';
 
   @override
-  String get dashboardLoaded => 'Dashboard Loaded';
+  String get dashboardLoaded => 'Dashboard caricata';
 
   @override
-  String get adminDashboardInitialized => 'Admin dashboard initialized';
+  String get adminDashboardInitialized => 'Dashboard amministratore inizializzata';
 
   @override
-  String get emergencyModeCleared => 'Emergency mode cleared';
+  String get emergencyModeCleared => 'Modalità emergenza cancellata';
 
   @override
-  String get saving => 'Saving...';
+  String get saving => 'Salvataggio...';
 
   @override
-  String get saveConfiguration => 'Save Configuration';
+  String get saveConfiguration => 'Salva configurazione';
 
   @override
-  String get enableUpdates => 'Enable Updates';
+  String get enableUpdates => 'Abilita aggiornamenti';
 
   @override
-  String get allowUsersToDownloadUpdates => 'Allow users to download updates';
+  String get allowUsersToDownloadUpdates => 'Consenti agli utenti di scaricare aggiornamenti';
 
   @override
-  String get forceUpdate => 'Force Update';
+  String get forceUpdate => 'Forza aggiornamento';
 
   @override
-  String get forceUsersToUpdate => 'Force users to update when available';
+  String get forceUsersToUpdate => 'Forza gli utenti ad aggiornare';
 
   @override
-  String get blockedVersion => 'Blocked Version';
+  String get blockedVersion => 'Versione bloccata';
 
   @override
-  String get minimumSupportedVersion => 'Minimum Supported Version';
+  String get minimumSupportedVersion => 'Versione minima supportata';
 
   @override
-  String get recommendedVersion => 'Recommended Version';
+  String get recommendedVersion => 'Versione raccomandata';
 
   @override
-  String get allowedVersions => 'Allowed Versions';
+  String get allowedVersions => 'Versioni consentite';
 
   @override
-  String get adminMessage => 'Admin Message';
+  String get adminMessage => 'Messaggio amministratore';
 
   @override
-  String get messageToDisplayToAllUsers => 'Message to display to all users';
+  String get messageToDisplayToAllUsers => 'Messaggio da visualizzare a tutti gli utenti';
 
   @override
-  String get versionEG => 'e.g., 1.0.15';
+  String get versionEG => 'es: 1.0.15';
 
   @override
-  String get versionsEG => 'e.g., 1.0.10, 1.0.11, 1.0.12';
+  String get versionsEG => 'es: 1.0.10, 1.0.11, 1.0.12';
 
   @override
-  String get searchDeletedRecordings => 'Search deleted recordings...';
+  String get searchDeletedRecordings => 'Cerca registrazioni eliminate...';
 
   @override
-  String get refresh => 'Refresh';
+  String get refresh => 'Aggiorna';
 
   @override
-  String get restoreRecording => 'Restore Recording';
+  String get restoreRecording => 'Ripristina registrazione';
 
   @override
-  String get permanentDelete => 'Permanent Delete';
+  String get permanentDelete => 'Eliminazione permanente';
 
   @override
-  String get deletePermanently => 'Delete Permanently';
+  String get deletePermanently => 'Elimina permanentemente';
 
   @override
-  String get deleteRecordingQuestion => 'Delete recording?';
+  String get deleteRecordingQuestion => 'Eliminare registrazione?';
 
   @override
   String chooseHowToDelete(Object title) {
-    return 'Choose how you want to delete \"$title\"';
+    return 'Scegli come eliminare \"$title\"';
   }
 
   @override
   String sureToDelete(Object title) {
-    return 'Are you sure you want to delete \"$title\"?';
+    return 'Sei sicuro di voler eliminare \"$title\"?';
   }
 
   @override
-  String get moveToTrash => 'Move to Trash';
+  String get moveToTrash => 'Sposta nel cestino';
 
   @override
-  String get makePublic => 'Make Public';
+  String get makePublic => 'Rendi pubblico';
 
   @override
-  String get enterRecordingTitle => 'Enter recording title';
+  String get enterRecordingTitle => 'Inserisci titolo registrazione';
 
   @override
-  String get enterNewName => 'Enter new name';
+  String get enterNewName => 'Inserisci nuovo nome';
 
   @override
-  String get contactsPermissionRequired => 'Contacts permission is required to import contacts.';
+  String get contactsPermissionRequired => 'Il permesso dei contatti è richiesto per importare i contatti.';
 
   @override
   String errorAccessingContacts(Object error) {
-    return 'Error accessing contacts: $error';
+    return 'Errore nell\'accesso ai contatti: $error';
   }
 
   @override
-  String get couldNotOpenMaps => 'Could not open maps. Please install a maps application.';
+  String get couldNotOpenMaps => 'Impossibile aprire le mappe. Installa un\'applicazione di mappe.';
 
   @override
-  String get redirectingToGoogleMaps => 'Redirecting to Google Maps download...';
+  String get redirectingToGoogleMaps => 'Reindirizzamento al download di Google Maps...';
 
   @override
   String errorPlayingNextHymn(Object error) {
-    return 'Error playing next hymn: $error';
+    return 'Errore nella riproduzione dell\'inno successivo: $error';
   }
 
   @override
   String errorPlayingPreviousHymn(Object error) {
-    return 'Error playing previous hymn: $error';
+    return 'Errore nella riproduzione dell\'inno precedente: $error';
   }
 
   @override
-  String get importContact => 'Import Contact';
+  String get importContact => 'Importa contatto';
 
   @override
-  String get record => 'Record';
+  String get record => 'Registra';
 
   @override
-  String get playerStats => 'Player Stats';
+  String get playerStats => 'Statistiche lettore';
 
   @override
-  String get startRecording => 'Start Recording';
+  String get startRecording => 'Inizia registrazione';
 
   @override
-  String get recordingStats => 'Recording Stats';
+  String get recordingStats => 'Statistiche registrazione';
 
   @override
-  String get addAnnouncement => 'Add Announcement';
+  String get addAnnouncement => 'Aggiungi annuncio';
 
   @override
   String errorLoadingUsers(Object error) {
-    return 'Error loading users: $error';
+    return 'Errore nel caricamento degli utenti: $error';
   }
 
   @override
   String errorUpdatingUser(Object error) {
-    return 'Error updating user: $error';
+    return 'Errore nell\'aggiornamento dell\'utente: $error';
   }
 
   @override
-  String get pleaseTypeYesToConfirm => 'Please type \"YES\" to confirm';
+  String get pleaseTypeYesToConfirm => 'Per favore digita \"SI\" per confermare';
 
   @override
-  String get deletingAllUserData => 'Deleting all user data...';
+  String get deletingAllUserData => 'Eliminazione di tutti i dati utente...';
 
   @override
   String errorDeletingUserData(Object error) {
-    return 'Error deleting user data: $error';
+    return 'Errore nell\'eliminazione dei dati utente: $error';
   }
 
   @override
-  String get searchUsers => 'Search users...';
+  String get searchUsers => 'Cerca utenti...';
 
   @override
-  String get duplicateTitle => 'Duplicate Title';
+  String get duplicateTitle => 'Titolo duplicato';
 
   @override
-  String get searchRecordings => 'Search recordings...';
+  String get searchRecordings => 'Cerca registrazioni...';
 
   @override
-  String get searchForAPlace => 'Search for a place...';
+  String get searchForAPlace => 'Cerca un posto...';
 
   @override
-  String get searchLanguage => 'Search language...';
+  String get searchLanguage => 'Cerca lingua...';
 
   @override
-  String get testTranslation => 'Test Translation';
+  String get testTranslation => 'Test traduzione';
 
   @override
-  String get enterTextToTranslate => 'Enter text to translate';
+  String get enterTextToTranslate => 'Inserisci testo da tradurre';
 
   @override
-  String get translate => 'Translate';
+  String get translate => 'Traduci';
 
   @override
-  String get exampleTranslatedTexts => 'Example Translated Texts';
+  String get exampleTranslatedTexts => 'Testi tradotti di esempio';
 
   @override
-  String get cacheManagement => 'Cache Management';
+  String get cacheManagement => 'Gestione cache';
 
   @override
-  String get currentLocale => 'Current Locale';
+  String get currentLocale => 'Locale attuale';
 
   @override
-  String get discard => 'Discard';
+  String get discard => 'Scarta';
 
   @override
-  String get saveRecording => 'Save Recording';
+  String get saveRecording => 'Salva registrazione';
 
   @override
-  String get skip => 'Skip';
+  String get skip => 'Salta';
 
   @override
-  String get done => 'Done';
+  String get done => 'Fatto';
 
   @override
-  String get recordingNotSaved => 'Recording was not saved';
+  String get recordingNotSaved => 'La registrazione non è stata salvata';
 }

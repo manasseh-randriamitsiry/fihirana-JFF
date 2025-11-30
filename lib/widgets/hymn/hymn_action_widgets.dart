@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 
-import '../common/mlkit_localization_provider.dart';
+import '../common/localization_extension.dart';
 
 class FontSizeSliderWidget extends StatelessWidget {
   final double fontSize;
@@ -110,7 +110,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
                     color: colorController.textColor.value,
                   ),
                   const SizedBox(width: 8),
-                   Text(context.translateWithMLKit((l) => l.edit)),
+                   Text(context.translate((l) => l.edit)),
                 ],
               ),
             ),

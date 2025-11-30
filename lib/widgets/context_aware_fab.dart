@@ -263,11 +263,12 @@ return Row(
 
   /// Contact screen actions
   List<FABAction> _getContactActions() {
+    final l10n = AppLocalizations.of(context)!;
     final actions = <FABAction>[];
 
     if (widget.onImportContact != null) {
       actions.add(FABAction(
-        label: 'Import Contact',
+        label: l10n.importContact,
         icon: Icons.contacts,
         onTap: widget.onImportContact!,
         backgroundColor:
@@ -277,7 +278,7 @@ return Row(
 
     if (widget.onAddContact != null) {
       actions.add(FABAction(
-        label: 'Add Contact',
+        label: l10n.addContact,
         icon: Icons.add,
         onTap: widget.onAddContact!,
       ));
@@ -288,11 +289,12 @@ return Row(
 
   /// Player/Hymn screen actions (for future use)
   List<FABAction> _getPlayerActions() {
+    final l10n = AppLocalizations.of(context)!;
     final actions = <FABAction>[];
 
     if (widget.onStartRecording != null) {
       actions.add(FABAction(
-        label: 'Record',
+        label: l10n.record,
         icon: Icons.mic,
         onTap: widget.onStartRecording!,
         backgroundColor: Colors.red.withValues(alpha: 0.9),
@@ -301,7 +303,7 @@ return Row(
 
     if (widget.onViewPlayerStats != null) {
       actions.add(FABAction(
-        label: 'Player Stats',
+        label: l10n.playerStats,
         icon: Icons.analytics,
         onTap: widget.onViewPlayerStats!,
       ));
@@ -310,13 +312,14 @@ return Row(
     return actions;
   }
 
-/// Recording screen actions (for future use)
+ /// Recording screen actions (for future use)
   List<FABAction> _getRecordingActions() {
+    final l10n = AppLocalizations.of(context)!;
     final actions = <FABAction>[];
 
     if (widget.onStartRecording != null) {
       actions.add(FABAction(
-        label: 'Start Recording',
+        label: l10n.startRecording,
         icon: Icons.mic,
         onTap: widget.onStartRecording!,
         backgroundColor: Colors.red.withValues(alpha: 0.9),
@@ -325,7 +328,7 @@ return Row(
 
     if (widget.onViewRecordingStats != null) {
       actions.add(FABAction(
-        label: 'Recording Stats',
+        label: l10n.recordingStats,
         icon: Icons.analytics,
         onTap: widget.onViewRecordingStats!,
         backgroundColor: Colors.red.withValues(alpha: 0.8),
@@ -337,11 +340,12 @@ return Row(
 
   /// Announcement screen actions
   List<FABAction> _getAnnouncementActions() {
+    final l10n = AppLocalizations.of(context)!;
     final actions = <FABAction>[];
 
     if (widget.onAddAnnouncement != null) {
       actions.add(FABAction(
-        label: 'Add Announcement',
+        label: l10n.addAnnouncement,
         icon: Icons.add,
         onTap: widget.onAddAnnouncement!,
       ));
@@ -349,7 +353,7 @@ return Row(
 
     if (widget.onRefreshAnnouncements != null) {
       actions.add(FABAction(
-        label: 'Refresh',
+        label: l10n.refresh,
         icon: Icons.refresh,
         onTap: widget.onRefreshAnnouncements!,
         backgroundColor:

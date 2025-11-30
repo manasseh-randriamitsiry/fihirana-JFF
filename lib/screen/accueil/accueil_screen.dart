@@ -17,7 +17,7 @@ import '../../services/core/version_check_service.dart';
 import '../../services/audio/audio_service.dart';
 
 import '../../models/hymn.dart';
-import '../../widgets/common/mlkit_localization_provider.dart';
+import '../../widgets/common/localization_extension.dart';
 
 class AccueilScreen extends StatefulWidget {
   final Function() openDrawer;
@@ -133,7 +133,7 @@ class AccueilScreenState extends State<AccueilScreen> {
         if (context.mounted) {
 ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${context.translateWithMLKit((l) => l.errorDownloadingUpdate)}: ${e.toString()}'),
+              content: Text('${context.translate((l) => l.errorDownloadingUpdate)}: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -180,7 +180,7 @@ ScaffoldMessenger.of(context).showSnackBar(
                         )
                       : null,
 title: Text(
-                    context.translateWithMLKit((l) => l.appTitleShort),
+                    context.translate((l) => l.appTitleShort),
                     style: defaultTextStyle.copyWith(
                       fontWeight: FontWeight.bold,
                       fontSize: 26,
@@ -249,7 +249,7 @@ title: Text(
                       return SliverFillRemaining(
                         child: Center(
 child: Text(
-                            context.translateWithMLKit((l) => 
+                            context.translate((l) => 
                                 l.errorOccurredWithDetails(snapshot.error.toString())),
                             style: defaultTextStyle,
                           ),
@@ -266,10 +266,10 @@ child: Text(
                     if (hymns.isEmpty) {
                       return SliverFillRemaining(
 child: EmptyStateWidget(
-                          message: context.translateWithMLKit((l) => l.noHymnsFound),
+                          message: context.translate((l) => l.noHymnsFound),
                           icon: Icons.music_off_rounded,
                           actionLabel:
-                              context.translateWithMLKit((l) => l.clearSearch),
+                              context.translate((l) => l.clearSearch),
                           onActionPressed: () {
                             if (!_hymnController.isDisposed) {
                               _hymnController.safeSearchController.clear();

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/services/core/security_service.dart';
 
-import 'mlkit_localization_provider.dart';
+import 'localization_extension.dart';
 
 class BannedPage extends StatelessWidget {
   const BannedPage({super.key});
@@ -53,7 +53,7 @@ class BannedPage extends StatelessWidget {
                     return Text(
                       securityService.isPermanentlyBlocked
                           ? 'PERMANENTLY BANNED'
-                          : context.translateWithMLKit((l) => l.accessDenied),
+                           : context.translate((l) => l.accessDenied),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -70,8 +70,8 @@ class BannedPage extends StatelessWidget {
                     return Text(
                       securityService.isPermanentlyBlocked
                           ? 'Your account has been permanently banned due to violations of our terms of service. All your data has been removed from the platform.'
-                          : context
-                              .translateWithMLKit((l) => l.accountRestricted),
+                           : context
+                               .translate((l) => l.accountRestricted),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
@@ -97,7 +97,7 @@ class BannedPage extends StatelessWidget {
                         children: [
                           Builder(builder: (context) {
                             return Text(
-                              '${context.translateWithMLKit((l) => l.reason)}:',
+                              '${context.translate((l) => l.reason)}:',
                               style: TextStyle(
                                 color: Colors.red.shade300,
                                 fontSize: 14,
@@ -138,8 +138,8 @@ class BannedPage extends StatelessWidget {
                             return Text(
                               securityService.isPermanentlyBlocked
                                   ? 'This action is permanent and cannot be reversed.'
-                                  : context.translateWithMLKit(
-                                      (l) => l.alternativeAccess),
+                                   : context.translate(
+                                       (l) => l.alternativeAccess),
                               style: TextStyle(
                                 color: Colors.orange.shade300,
                                 fontSize: 13,

@@ -274,7 +274,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                             backgroundColor: Colors.white,
                             foregroundColor: _colorController.primaryColor.value,
                           ),
-                          child: const Text('Save'),
+                          child: Text(AppLocalizations.of(context)!.save),
                         ),
                       ),
                     ],
