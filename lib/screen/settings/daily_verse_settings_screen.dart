@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../../controller/daily_verse_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/translation_service.dart';
+import '../../controller/language_controller.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {
   DailyVerseSettingsScreen({super.key});
@@ -291,6 +293,12 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                               ),
                             ),
                           ),
+                          IconButton(
+                            icon: Icon(Icons.translate,
+                                color: colorController.iconColor.value),
+                            onPressed: () =>
+                                _showTranslationDialog(context, verse.text),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -367,5 +375,153 @@ class DailyVerseSettingsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _showTranslationDialog(BuildContext context, String text) async {
+    final l10n = AppLocalizations.of(context)!;
+    final languageController = Get.find<LanguageController>();
+
+    // Determine target language
+    String targetLang = languageController.currentLocale.value.languageCode;
+    if (targetLang == 'mg') {
+      targetLang = 'en';
+    }
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final translationService = TranslationService();
+
+      // Check if model is downloaded
+      final isDownloaded =
+          await translationService.isModelDownloaded(targetLang);
+
+      if (!isDownloaded) {
+        if (context.mounted) {
+          Navigator.pop(context); // Close loading
+
+          final shouldDownload = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(l10n.download),
+              content: Text(
+                  'Mila maka ny modelin\'ny teny $targetLang aloha. Te hanohy ve ianao?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(l10n.cancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(l10n.download),
+                ),
+              ],
+            ),
+          );
+
+          if (shouldDownload != true) return;
+
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) =>
+                  const Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          final success = await translationService.downloadModel(targetLang);
+          if (!success) {
+            if (context.mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.downloadFailed)),
+              );
+            }
+            return;
+          }
+        }
+      }
+
+      // Translate text
+      final translatedText = await translationService.translate(
+        text: text,
+        sourceLanguage: 'mg', // Assuming verse is in Malagasy
+        targetLanguage: targetLang,
+      );
+
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (context) => DraggableScrollableSheet(
+            initialChildSize: 0.5,
+            minChildSize: 0.3,
+            maxChildSize: 0.9,
+            expand: false,
+            builder: (context, scrollController) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Get.find<ColorController>().backgroundColor.value,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.viewTranslation,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Get.find<ColorController>().textColor.value,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: Text(
+                        translatedText,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Get.find<ColorController>().textColor.value,
+                          height: 1.6,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        Navigator.pop(context); // Close loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.errorOccurred)),
+        );
+      }
+    }
   }
 }

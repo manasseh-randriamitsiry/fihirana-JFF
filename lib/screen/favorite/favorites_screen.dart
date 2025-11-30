@@ -9,7 +9,7 @@ import '../../services/audio_service.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/favorites/favorites_search_bar.dart';
 import '../../widgets/favorites/favorite_hymn_card.dart';
-import '../../l10n/app_localizations.dart';
+import '../../widgets/common/mlkit_localization_provider.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -41,9 +41,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
     }
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
@@ -55,8 +54,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
               Icon(Icons.menu_rounded, color: colorController.iconColor.value),
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
-        title: Text(
-          l10n.favorites,
+title: Text(
+          context.translateWithMLKit((l) => l.favorites),
           style: TextStyle(
             color: colorController.textColor.value,
             fontWeight: FontWeight.bold,
@@ -100,8 +99,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                           color: Colors.red.withValues(alpha: 0.5),
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          '${l10n.error}: ${snapshot.error}',
+Text(
+                          '${context.translateWithMLKit((l) => l.error)}: ${snapshot.error}',
                           style:
                               TextStyle(color: colorController.textColor.value),
                           textAlign: TextAlign.center,
@@ -129,8 +128,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                 end: const Offset(1.1, 1.1),
                                 curve: Curves.easeInOut),
                         const SizedBox(height: 16),
-                        Text(
-                          l10n.noHymnsAddedYet,
+Text(
+                          context.translateWithMLKit((l) => l.noHymnsAddedYet),
                           style: TextStyle(
                             color: colorController.textColor.value,
                             fontSize: 18,
@@ -139,7 +138,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          l10n.createFirstPlaylist,
+                          context.translateWithMLKit((l) => l.createFirstPlaylist),
                           style: TextStyle(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.6),
@@ -175,8 +174,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
                                 .withValues(alpha: 0.3),
                           ),
                           const SizedBox(height: 16),
-                          Text(
-                            l10n.noResults,
+Text(
+                            context.translateWithMLKit((l) => l.noResults),
                             style: TextStyle(
                               color: colorController.textColor.value,
                               fontSize: 16,

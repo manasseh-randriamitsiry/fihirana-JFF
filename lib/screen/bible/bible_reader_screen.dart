@@ -10,6 +10,9 @@ import '../../widgets/bible/bible_reader_widgets.dart';
 import '../../widgets/bible/bible_settings_bottom_sheet_widget.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/shell_controller.dart';
+import '../../widgets/common/mlkit_localization_provider.dart';
+import '../../services/translation_service.dart';
+import '../../controller/language_controller.dart';
 
 class BibleReaderScreen extends StatefulWidget {
   const BibleReaderScreen({super.key});
@@ -110,6 +113,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           ),
           actions: [
             IconButton(
+              icon: Icon(Icons.translate, color: iconColor),
+              onPressed: _showTranslationDialog,
+            ),
+            IconButton(
               icon: Icon(Icons.search_rounded, color: iconColor),
               onPressed: _showSearchDialog,
             ),
@@ -124,15 +131,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     });
   }
 
-  String _getAppBarTitle() {
-    final l10n = AppLocalizations.of(context)!;
+String _getAppBarTitle() {
     if (bibleController.selectedBook.isNotEmpty &&
         bibleController.selectedChapter.value > 0) {
       return '${bibleController.selectedBook.value} ${bibleController.selectedChapter.value}';
     } else if (bibleController.selectedBook.isNotEmpty) {
       return bibleController.selectedBook.value;
     }
-    return l10n.bibleReader;
+    return context.translateWithMLKit((l) => l.bibleReader);
   }
 
   Widget _buildContentArea() {
@@ -180,25 +186,22 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               ),
             ),
             ...books.map((book) => BibleBookItemWidget(
-              bookName: book,
-              chapterCount: bibleController.getChapterCountForBook(book),
-              onTap: () => bibleController.selectBook(book),
-            )),
+                  bookName: book,
+                  chapterCount: bibleController.getChapterCountForBook(book),
+                  onTap: () => bibleController.selectBook(book),
+                )),
           ],
         );
       },
     );
   }
 
-
-
   Widget _buildChapterSelectionView() {
-    final chapters = bibleController.chapterList;
-    final l10n = AppLocalizations.of(context)!;
+final chapters = bibleController.chapterList;
     if (chapters.isEmpty) {
       return Center(
         child: Text(
-          l10n.noChaptersFound,
+          context.translateWithMLKit((l) => l.noChaptersFound),
           style: TextStyle(color: colorController.textColor.value),
         ),
       );
@@ -219,8 +222,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       _scrollToHighlightedVerse();
     });
 
-    final verses = bibleController.getCurrentChapterVerses();
-    final l10n = AppLocalizations.of(context)!;
+final verses = bibleController.getCurrentChapterVerses();
     return Stack(
       children: [
         Column(
@@ -247,9 +249,12 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     verseStyle: _verseStyle,
                     fontSize: _fontSize,
                     isSelected: bibleController.isVerseSelected(verseNumber),
-                    isHighlighted: bibleController.isVerseHighlighted(verseNumber),
-                    isSearchHighlighted: bibleController.isVerseSearchHighlighted(verseNumber),
-                    onTap: () => bibleController.toggleVerseSelection(verseNumber),
+                    isHighlighted:
+                        bibleController.isVerseHighlighted(verseNumber),
+                    isSearchHighlighted:
+                        bibleController.isVerseSearchHighlighted(verseNumber),
+                    onTap: () =>
+                        bibleController.toggleVerseSelection(verseNumber),
                   );
                 },
               ),
@@ -258,6 +263,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ),
         // Selection Action Bar
         Obx(() {
+          final l10n = AppLocalizations.of(context)!;
           if (!bibleController.isSelecting.value) {
             return const SizedBox.shrink();
           }
@@ -315,10 +321,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
   }
 
-
-
-
-
   void _showSettingsBottomSheet() {
     showModalBottomSheet(
       context: context,
@@ -337,8 +339,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       ),
     );
   }
-
-
 
   // Helper methods
   Map<String, List<String>> _getFilteredBooksByTestament() {
@@ -391,6 +391,191 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  Future<void> _showTranslationDialog() async {
+    if (bibleController.selectedBook.isEmpty ||
+        bibleController.selectedChapter.value == 0) {
+      return;
+    }
+
+    final l10n = AppLocalizations.of(context)!;
+    final languageController = Get.find<LanguageController>();
+
+    // Determine target language
+    String targetLang = languageController.currentLocale.value.languageCode;
+    if (targetLang == 'mg') {
+      targetLang = 'en';
+    }
+
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final translationService = TranslationService();
+
+      // Check if model is downloaded
+      final isDownloaded =
+          await translationService.isModelDownloaded(targetLang);
+
+      if (!isDownloaded) {
+        if (mounted) {
+          Navigator.pop(context); // Close loading
+
+          final shouldDownload = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text(l10n.download),
+              content: Text(
+                  'Mila maka ny modelin\'ny teny $targetLang aloha. Te hanohy ve ianao?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: Text(l10n.cancel),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: Text(l10n.download),
+                ),
+              ],
+            ),
+          );
+
+          if (shouldDownload != true) return;
+
+          if (mounted) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) =>
+                  const Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          final success = await translationService.downloadModel(targetLang);
+          if (!success) {
+            if (mounted) {
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.downloadFailed)),
+              );
+            }
+            return;
+          }
+        }
+      }
+
+      // Translate verses
+      final verses = bibleController.getCurrentChapterVerses();
+      final List<String> translatedVerses = [];
+
+      for (final verse in verses) {
+        final translatedVerse = await translationService.translate(
+          text: verse,
+          sourceLanguage: 'mg', // Assuming Bible is in Malagasy
+          targetLanguage: targetLang,
+        );
+        translatedVerses.add(translatedVerse);
+      }
+
+      if (mounted) {
+        Navigator.pop(context); // Close loading
+
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (context) => DraggableScrollableSheet(
+            initialChildSize: 0.7,
+            minChildSize: 0.5,
+            maxChildSize: 0.95,
+            expand: false,
+            builder: (context, scrollController) => Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Get.find<ColorController>().backgroundColor.value,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        l10n.viewTranslation,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Get.find<ColorController>().textColor.value,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
+                  const Divider(),
+                  Expanded(
+                    child: ListView.builder(
+                      controller: scrollController,
+                      itemCount: translatedVerses.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${index + 1}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Get.find<ColorController>()
+                                      .primaryColor
+                                      .value
+                                      .withValues(alpha: 0.7),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  translatedVerses[index],
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Get.find<ColorController>()
+                                        .textColor
+                                        .value,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context); // Close loading
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.errorOccurred)),
+        );
+      }
     }
   }
 }

@@ -3366,6 +3366,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Now Playing'**
   String get nowPlaying;
+
+  /// No description provided for @accessDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Access Denied'**
+  String get accessDenied;
+
+  /// No description provided for @accountRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account has been restricted'**
+  String get accountRestricted;
+
+  /// No description provided for @reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reason;
+
+  /// No description provided for @alternativeAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Alternative Access'**
+  String get alternativeAccess;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

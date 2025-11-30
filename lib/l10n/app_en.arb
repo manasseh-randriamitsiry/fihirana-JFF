@@ -825,5 +825,9 @@
   },
   "portfolio":"Portfolio",
   "playFirstHymn": "Play First Hymn",
-  "nowPlaying": "Now Playing"
+  "nowPlaying": "Now Playing",
+  "accessDenied": "Access Denied",
+  "accountRestricted": "Your account has been restricted",
+  "reason": "Reason",
+  "alternativeAccess": "Alternative Access"
 }

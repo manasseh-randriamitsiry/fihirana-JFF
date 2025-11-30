@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../controller/recording_controller.dart';
 import '../../controller/color_controller.dart';
@@ -74,24 +75,32 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
   void _stopRecording() async {
     try {
-      print('StandaloneRecording: Stopping recording...');
+      if (kDebugMode) {
+        print('StandaloneRecording: Stopping recording...');
+      }
       // Use current text from name controller instead of _recordingTitle
       final currentTitle = _nameController.text.trim().isNotEmpty 
           ? _nameController.text.trim() 
           : _recordingTitle;
-      print('StandaloneRecording: Using title: "$currentTitle"');
-      print('StandaloneRecording: Name controller text: "${_nameController.text}"');
+      if (kDebugMode) {
+        print('StandaloneRecording: Using title: "$currentTitle"');
+        print('StandaloneRecording: Name controller text: "${_nameController.text}"');
+      }
       
       final recording = await _controller.stopRecording('standalone', currentTitle);
-      print('StandaloneRecording: Recording result title: ${recording?.title}');
-      print('StandaloneRecording: Recording result: $recording');
+      if (kDebugMode) {
+        print('StandaloneRecording: Recording result title: ${recording?.title}');
+        print('StandaloneRecording: Recording result: $recording');
+      }
       if (recording != null && mounted) {
         _showSaveDialog();
       } else if (mounted && recording == null) {
         Get.snackbar('Error', 'Failed to save recording - no recording returned');
       }
     } catch (e) {
-      print('StandaloneRecording: Error stopping recording: $e');
+      if (kDebugMode) {
+        print('StandaloneRecording: Error stopping recording: $e');
+      }
       if (mounted) {
         Get.snackbar('Error', 'Failed to stop recording: $e');
       }
@@ -117,7 +126,9 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         final lastRecording = recordings.last;
         // Only rename if the name is different from current recording title
         if (lastRecording.title != name) {
-          print('StandaloneRecording: Renaming from "${lastRecording.title}" to "$name"');
+          if (kDebugMode) {
+            print('StandaloneRecording: Renaming from "${lastRecording.title}" to "$name"');
+          }
           await _controller.renameRecording(lastRecording, name);
         }
       }

@@ -5,7 +5,8 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../services/audio_service.dart';
 import '../player/lightweight_audio_player_widget.dart';
-import '../../l10n/app_localizations.dart';
+
+import '../common/mlkit_localization_provider.dart';
 
 class FavoriteHymnCard extends StatelessWidget {
   final Hymn hymn;
@@ -31,7 +32,6 @@ class FavoriteHymnCard extends StatelessWidget {
 
   void _showAudioPlayerDialog(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    final l10n = AppLocalizations.of(context)!;
     
     showDialog(
       context: context,
@@ -50,14 +50,14 @@ class FavoriteHymnCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      l10n.audioPlayer,
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: colorController.textColor.value,
-                      ),
-                    ),
+                     Text(
+                       context.translateWithMLKit((l) => l.audioPlayer),
+                       style: TextStyle(
+                         fontSize: 20,
+                         fontWeight: FontWeight.bold,
+                         color: colorController.textColor.value,
+                       ),
+                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
                       icon: Icon(
@@ -83,7 +83,6 @@ class FavoriteHymnCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final audioService = AudioService.instance;
-    final l10n = AppLocalizations.of(context)!;
 
     return Card(
       elevation: 2,
@@ -168,8 +167,8 @@ class FavoriteHymnCard extends StatelessWidget {
                           ),
                       ],
                     ),
-                    onPressed: () => _showAudioPlayerDialog(context),
-                    tooltip: l10n.playAudio,
+                     onPressed: () => _showAudioPlayerDialog(context),
+                     tooltip: context.translateWithMLKit((l) => l.playAudio),
                   ),
                 );
               }),
@@ -180,8 +179,8 @@ class FavoriteHymnCard extends StatelessWidget {
                 color: isFavorite ? Colors.red : colorController.iconColor.value,
                 size: 24,
               ),
-              onPressed: onFavoritePressed,
-              tooltip: isFavorite ? l10n.removeFromFavorites : l10n.addToFavorites,
+               onPressed: onFavoritePressed,
+               tooltip: isFavorite ? context.translateWithMLKit((l) => l.removeFromFavorites) : context.translateWithMLKit((l) => l.addToFavorites),
             ),
           ],
         ),

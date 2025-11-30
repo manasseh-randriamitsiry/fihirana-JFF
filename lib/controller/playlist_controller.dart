@@ -7,6 +7,7 @@ import '../models/playlist.dart';
 import '../services/playlist_service.dart';
 import '../services/security_service.dart';
 import '../services/google_drive_service.dart';
+import '../services/translation_service.dart';
 
 class PlaylistController extends GetxController {
   final PlaylistService _playlistService = PlaylistService();
@@ -44,18 +45,20 @@ class PlaylistController extends GetxController {
     try {
       isLoading.value = true;
       final id = await _playlistService.createPlaylist(title, date);
+final translationService = TranslationService();
       Get.snackbar(
-        'Success',
-        'Playlist created successfully',
+        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Playlist created successfully', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
       return id;
     } catch (e) {
+final translationService = TranslationService();
       Get.snackbar(
-        'Error',
-        'Failed to create playlist',
+        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Failed to create playlist', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -69,18 +72,20 @@ class PlaylistController extends GetxController {
   Future<void> updatePlaylistDate(String playlistId, DateTime newDate) async {
     final success =
         await _playlistService.updatePlaylist(playlistId, date: newDate);
-    if (success) {
+if (success) {
+      final translationService = TranslationService();
       Get.snackbar(
-        'Success',
-        'Playlist date updated',
+        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Playlist date updated', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
     } else {
+      final translationService = TranslationService();
       Get.snackbar(
-        'Error',
-        'Failed to update playlist date',
+        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Failed to update playlist date', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -91,18 +96,20 @@ class PlaylistController extends GetxController {
   Future<void> addHymnToPlaylist(String playlistId, String hymnId) async {
     final success =
         await _playlistService.addHymnToPlaylist(playlistId, hymnId);
-    if (success) {
+if (success) {
+      final translationService = TranslationService();
       Get.snackbar(
-        'Success',
-        'Hymn added to playlist',
+        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Hymn added to playlist', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
     } else {
+      final translationService = TranslationService();
       Get.snackbar(
-        'Error',
-        'Failed to add hymn to playlist',
+        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Failed to add hymn to playlist', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,
@@ -134,14 +141,15 @@ class PlaylistController extends GetxController {
       if (kDebugMode) {
         print('🚫 Guest user attempted to share playlist');
       }
-      Get.snackbar(
-        'Authentication Required',
-        'Please sign in to access sharing features.',
-        backgroundColor: Colors.orange,
-        colorText: Colors.white,
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 5),
-      );
+      final translationService = TranslationService();
+          Get.snackbar(
+            await translationService.translate(text: 'Access Denied', sourceLanguage: 'en', targetLanguage: 'en'),
+            await translationService.translate(text: 'Your account has been restricted. Sharing features are not available.', sourceLanguage: 'en', targetLanguage: 'en'),
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 5),
+          );
       return;
     }
     
@@ -152,14 +160,15 @@ class PlaylistController extends GetxController {
         if (kDebugMode) {
           print('🚫 Blocked Firebase user attempted to share playlist');
         }
-        Get.snackbar(
-          'Access Denied',
-          'Your account has been restricted. Sharing features are not available.',
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-          snackPosition: SnackPosition.BOTTOM,
-          duration: const Duration(seconds: 5),
-        );
+        final translationService = TranslationService();
+          Get.snackbar(
+            await translationService.translate(text: 'Access Denied', sourceLanguage: 'en', targetLanguage: 'en'),
+            await translationService.translate(text: 'Your account has been restricted. Sharing features are not available.', sourceLanguage: 'en', targetLanguage: 'en'),
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            snackPosition: SnackPosition.BOTTOM,
+            duration: const Duration(seconds: 5),
+          );
         return;
       }
     }
@@ -173,9 +182,10 @@ class PlaylistController extends GetxController {
           if (kDebugMode) {
             print('🚫 Blocked Google Drive user attempted to share playlist: $googleUserEmail');
           }
+final translationService = TranslationService();
           Get.snackbar(
-            'Access Denied',
-            'Your account has been restricted. Sharing features are not available.',
+            await translationService.translate(text: 'Access Denied', sourceLanguage: 'en', targetLanguage: 'en'),
+            await translationService.translate(text: 'Your account has been restricted. Sharing features are not available.', sourceLanguage: 'en', targetLanguage: 'en'),
             backgroundColor: Colors.red,
             colorText: Colors.white,
             snackPosition: SnackPosition.BOTTOM,
@@ -217,9 +227,10 @@ class PlaylistController extends GetxController {
         });
 
         if (isDuplicate) {
+final translationService = TranslationService();
           Get.snackbar(
-            'Info',
-            'Playlist "${playlist.title}" already exists',
+            await translationService.translate(text: 'Info', sourceLanguage: 'en', targetLanguage: 'en'),
+            await translationService.translate(text: 'Playlist "${playlist.title}" already exists', sourceLanguage: 'en', targetLanguage: 'en'),
             snackPosition: SnackPosition.BOTTOM,
             backgroundColor: Colors.blue,
             colorText: Colors.white,
@@ -241,27 +252,30 @@ class PlaylistController extends GetxController {
           }
         }
 
+final translationService = TranslationService();
         Get.snackbar(
-          'Success',
-          'Playlist "${playlist.title}" imported with ${playlist.hymnIds.length} hymns',
+          await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+          await translationService.translate(text: 'Playlist "${playlist.title}" imported with ${playlist.hymnIds.length} hymns', sourceLanguage: 'en', targetLanguage: 'en'),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.green,
           colorText: Colors.white,
           duration: const Duration(seconds: 3),
         );
       } else {
+final translationService = TranslationService();
         Get.snackbar(
-          'Error',
-          'Playlist not found',
+          await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+          await translationService.translate(text: 'Playlist not found', sourceLanguage: 'en', targetLanguage: 'en'),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
       }
     } catch (e) {
+final translationService = TranslationService();
       Get.snackbar(
-        'Error',
-        'Failed to import playlist: $e',
+        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(text: 'Failed to import playlist: $e', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.red,
         colorText: Colors.white,

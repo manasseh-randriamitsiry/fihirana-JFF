@@ -825,5 +825,9 @@
   },
   "portfolio":"Mombamomban'ny mpamorona ?",
   "playFirstHymn": "Alefaso ny hira voalohany",
-  "nowPlaying": "Mamaky"
+  "nowPlaying": "Mamaky",
+  "accessDenied": "Tsy misy fidirana",
+  "accountRestricted": "Ny kaontinao voasakidy",
+  "reason": "Antony",
+  "alternativeAccess": "Fidirana hafa"
 }
