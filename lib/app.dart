@@ -32,7 +32,7 @@ import 'package:fihirana/screen/settings/daily_verse_settings_screen.dart';
 import 'package:fihirana/screen/settings/settings_screen.dart';
 import 'package:fihirana/screen/contact/contact_list_screen.dart';
 import 'package:fihirana/widgets/common/banned_page.dart';
-import 'package:fihirana/widgets/common/mlkit_localization_provider.dart';
+
 import 'package:fihirana/widgets/responsive_shell.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
@@ -275,8 +275,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           // Include refresh counter to force rebuild when language changes
           languageController.refreshCounter.value;
 
-          return MLKitLocalizationWrapper(
-            child: GetMaterialApp(
+          return GetMaterialApp(
               debugShowCheckedModeBanner: false,
               locale: currentLocale,
               localizationsDelegates: const [
@@ -308,8 +307,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                   currentFont),
               home: const BannedPage(),
               builder: (context, child) => ResponsiveShell(child: child!),
-            ),
-          );
+            );
         });
       }
 
@@ -319,8 +317,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       final themeWithFont = _getThemeWithFont(baseTheme, currentFont);
 
-      return MLKitLocalizationWrapper(
-        child: GetMaterialApp(
+      return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           locale: currentLocale,
           localizationsDelegates: const [
@@ -337,7 +334,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             debugPrint(
                 'Locale resolution: using controller locale=${languageController.currentLocale.value.languageCode}');
             // Always use the language controller's selected locale
-            // ML Kit will handle translation for locales without AppLocalizations
             return languageController.currentLocale.value;
           },
           supportedLocales: languageController.supportedLocales,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/recording_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 import '../../models/user_recording.dart';
 import '../common/loading_widget.dart';
@@ -63,7 +64,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
           padding: const EdgeInsets.all(16.0),
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'Search deleted recordings...',
+              hintText: AppLocalizations.of(context)!.searchDeletedRecordings,
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -87,7 +88,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
               ElevatedButton.icon(
                 onPressed: _loadDeletedRecordings,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Refresh'),
+                label: Text(AppLocalizations.of(context)!.refresh),
               ),
               const SizedBox(width: 8),
               Text(
@@ -161,7 +162,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => setState(() => searchQuery = ''),
-              child: const Text('Clear Search'),
+              child: Text(AppLocalizations.of(context)!.clearSearch),
             ),
           ],
         ],
@@ -172,16 +173,16 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
   Future<void> _restoreRecording(UserRecording recording) async {
     final confirmed = await Get.dialog(
       AlertDialog(
-        title: const Text('Restore Recording'),
-        content: Text('Are you sure you want to restore "${recording.title}"?'),
+        title: Text(AppLocalizations.of(context)!.restoreRecording),
+        content: Text(AppLocalizations.of(context)!.sureToDelete.replaceAll('{title}', recording.title)),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: const Text('Restore'),
+            child: Text(AppLocalizations.of(context)!.restoreRecording),
           ),
         ],
       ),
@@ -196,19 +197,19 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
   Future<void> _permanentDelete(UserRecording recording) async {
     final confirmed = await Get.dialog(
       AlertDialog(
-        title: const Text('Permanent Delete'),
+        title: Text(AppLocalizations.of(context)!.permanentDelete),
         content: Text(
-          'Are you sure you want to permanently delete "${recording.title}"? '
-          'This action cannot be undone.',
+          AppLocalizations.of(context)!.sureToDelete.replaceAll('{title}', recording.title) +
+          ' ' + AppLocalizations.of(context)!.historyCannotBeUndone,
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: const Text('Delete Permanently'),
+            child: Text(AppLocalizations.of(context)!.deletePermanently),
           ),
         ],
       ),

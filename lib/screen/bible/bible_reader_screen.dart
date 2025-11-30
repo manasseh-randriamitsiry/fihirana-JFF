@@ -10,7 +10,7 @@ import '../../widgets/bible/bible_reader_widgets.dart';
 import '../../widgets/bible/bible_settings_bottom_sheet_widget.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/shell_controller.dart';
-import '../../widgets/common/mlkit_localization_provider.dart';
+import '../../widgets/common/localization_extension.dart';
 import 'package:fihirana/services/core/translation_service.dart';
 import '../../controller/language_controller.dart';
 
@@ -138,7 +138,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     } else if (bibleController.selectedBook.isNotEmpty) {
       return bibleController.selectedBook.value;
     }
-    return context.translateWithMLKit((l) => l.bibleReader);
+    return context.translate((l) => l.bibleReader);
   }
 
   Widget _buildContentArea() {
@@ -201,7 +201,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     if (chapters.isEmpty) {
       return Center(
         child: Text(
-          context.translateWithMLKit((l) => l.noChaptersFound),
+          context.translate((l) => l.noChaptersFound),
           style: TextStyle(color: colorController.textColor.value),
         ),
       );

@@ -8,6 +8,7 @@ import '../../services/audio/user_recording_service.dart';
 import '../../services/audio/public_recording_service.dart';
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
+import '../../l10n/app_localizations.dart';
 
 enum PublishRecordingResult {
   success,
@@ -318,20 +319,21 @@ class RecordingPublishingManager extends GetxController {
     final TextEditingController controller =
         TextEditingController(text: recording.title);
     String? result;
+    final l10n = AppLocalizations.of(Get.context!)!;
 
     await Get.dialog(
       AlertDialog(
-        title: const Text('Duplicate Title'),
+        title: Text(l10n.duplicateTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-                'A recording with this title already exists. Please choose a different title:'),
+            Text(
+                l10n.chooseHowToDelete.replaceAll('{title}', recording.title)),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'New Title',
+              decoration: InputDecoration(
+                labelText: l10n.enterNewName,
                 border: OutlineInputBorder(),
               ),
               autofocus: true,
@@ -341,14 +343,14 @@ class RecordingPublishingManager extends GetxController {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
               result = controller.text.trim();
               Get.back();
             },
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),

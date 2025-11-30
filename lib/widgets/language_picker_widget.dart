@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controller/language_controller.dart';
 
-import 'common/mlkit_localization_provider.dart';
+import '../../l10n/app_localizations.dart';
+import 'common/localization_extension.dart';
 
 class LanguagePickerWidget extends StatelessWidget {
   const LanguagePickerWidget({super.key});
@@ -41,7 +42,7 @@ class LanguagePickerWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  context.translateWithMLKit((l) => l.language),
+                  context.translate((l) => l.language),
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(context).textTheme.titleLarge?.color,
@@ -186,7 +187,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              context.translateWithMLKit((l) => l.chooseLanguage),
+              context.translate((l) => l.chooseLanguage),
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).textTheme.titleLarge?.color,
@@ -197,7 +198,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search language...',
+                hintText: AppLocalizations.of(context)!.searchLanguage,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -267,7 +268,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
               ),
-              child: Text(context.translateWithMLKit((l) => l.cancel)),
+              child: Text(context.translate((l) => l.cancel)),
             ),
           ],
         ),

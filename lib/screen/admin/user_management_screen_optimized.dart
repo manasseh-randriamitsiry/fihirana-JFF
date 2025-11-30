@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
 import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class OptimizedUserManagementScreen extends StatefulWidget {
   const OptimizedUserManagementScreen({super.key});
@@ -157,9 +158,10 @@ class _OptimizedUserManagementScreenState
       if (!_disposed) {
         setState(() => _isLoadingMore = false);
         if (mounted) {
+          final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text('Error loading users: $e'),
+                content: Text(l10n.errorLoadingUsers.replaceAll('{error}', e.toString())),
                 backgroundColor: Colors.red),
           );
         }
@@ -250,9 +252,10 @@ class _OptimizedUserManagementScreenState
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Error updating user: $e'),
+              content: Text(l10n.errorUpdatingUser.replaceAll('{error}', e.toString())),
               backgroundColor: Colors.red),
         );
       }
@@ -370,7 +373,7 @@ class _OptimizedUserManagementScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -429,8 +432,8 @@ class _OptimizedUserManagementScreenState
                     const SizedBox(height: 12),
                     TextField(
                       controller: confirmationController,
-                      decoration: const InputDecoration(
-                        hintText: 'Type "YES" to confirm',
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.typeYesToConfirm,
                         border: OutlineInputBorder(),
                         hintStyle: TextStyle(color: Colors.grey),
                       ),
@@ -441,7 +444,7 @@ class _OptimizedUserManagementScreenState
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel',
+                  child: Text(AppLocalizations.of(context)!.cancel,
                       style: TextStyle(color: Colors.grey)),
                 ),
                 TextButton(
@@ -451,8 +454,8 @@ class _OptimizedUserManagementScreenState
                       Navigator.of(context).pop();
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Please type "YES" to confirm'),
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context)!.pleaseTypeYesToConfirm),
                           backgroundColor: Colors.orange,
                         ),
                       );
@@ -481,7 +484,7 @@ class _OptimizedUserManagementScreenState
           children: [
             CircularProgressIndicator(),
             SizedBox(width: 20),
-            Text('Deleting all user data...'),
+            Text(AppLocalizations.of(context)!.deletingAllUserData),
           ],
         ),
       ),
@@ -655,7 +658,7 @@ class _OptimizedUserManagementScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('❌ Error deleting user data: $e'),
+          content: Text('❌ ${AppLocalizations.of(context)!.errorDeletingUserData.replaceAll('{error}', e.toString())}'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
         ),
@@ -942,7 +945,7 @@ class _OptimizedUserManagementScreenState
                       controller: _searchController,
                       style: TextStyle(color: textColor, fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Search users...',
+                        hintText: AppLocalizations.of(context)!.searchUsers,
                         hintStyle: TextStyle(
                             color: textColor.withValues(alpha: 0.5),
                             fontSize: 14),

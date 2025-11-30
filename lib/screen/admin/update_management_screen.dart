@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/services/features/admin_control_service.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class UpdateManagementScreen extends StatefulWidget {
   const UpdateManagementScreen({super.key});
@@ -92,20 +93,19 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
   Future<void> _emergencyStop() async {
     final confirmed = await Get.dialog(
       AlertDialog(
-        title: const Text('Emergency Stop'),
-        content: const Text(
-          'This will immediately disable all updates for all users. '
-          'Are you sure you want to continue?',
+        title: Text(AppLocalizations.of(context)!.emergencyStop),
+        content: Text(
+          AppLocalizations.of(context)!.emergencyStopConfirm,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Emergency Stop'),
+            child: Text(AppLocalizations.of(context)!.emergencyStop),
           ),
         ],
       ),
@@ -115,9 +115,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       try {
         await AdminControlService.emergencyStop();
         await _loadConfig();
-        Get.snackbar('Success', 'Emergency stop activated');
+        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
       } catch (e) {
-        Get.snackbar('Error', 'Failed to activate emergency stop: $e');
+        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails.replaceAll('{error}', e.toString()));
       }
     }
   }
@@ -126,9 +126,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     try {
       await AdminControlService.clearEmergencyMode();
       await _loadConfig();
-      Get.snackbar('Success', 'Emergency mode cleared');
+      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
     } catch (e) {
-      Get.snackbar('Error', 'Failed to clear emergency mode: $e');
+      Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails.replaceAll('{error}', e.toString()));
     }
   }
 
@@ -142,7 +142,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Update Management'),
+        title: Text(AppLocalizations.of(context)!.updateControl),
         backgroundColor: Colors.red.shade700,
         foregroundColor: Colors.white,
         actions: [
@@ -150,12 +150,12 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             IconButton(
               icon: const Icon(Icons.warning, color: Colors.yellow),
               onPressed: _clearEmergencyMode,
-              tooltip: 'Clear Emergency Mode',
+              tooltip: AppLocalizations.of(context)!.clearCache,
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadConfig,
-            tooltip: 'Refresh',
+            tooltip: AppLocalizations.of(context)!.refresh,
           ),
         ],
       ),
@@ -200,10 +200,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                             ),
                           ),
                           SizedBox(width: 8),
-                          Text('Saving...'),
+                          Text(AppLocalizations.of(context)!.saving),
                         ],
                       )
-                    : const Text('Save Configuration'),
+                    : Text(AppLocalizations.of(context)!.saveConfiguration),
               ),
             ),
           ],
@@ -321,7 +321,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _emergencyStop,
                     icon: const Icon(Icons.emergency),
-                    label: const Text('Emergency Stop'),
+                    label: Text(AppLocalizations.of(context)!.emergencyStop),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
@@ -333,10 +333,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       await AdminControlService.clearCache();
-                      Get.snackbar('Success', 'Cache cleared');
+                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
                     },
                     icon: const Icon(Icons.clear),
-                    label: const Text('Clear Cache'),
+                    label: Text(AppLocalizations.of(context)!.clearCache),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       foregroundColor: Colors.white,
@@ -368,8 +368,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
             // Toggle Switches
             SwitchListTile(
-              title: const Text('Enable Updates'),
-              subtitle: const Text('Allow users to download updates'),
+              title: Text(AppLocalizations.of(context)!.enableUpdates),
+              subtitle: Text(AppLocalizations.of(context)!.allowUsersToDownloadUpdates),
               value: config.updatesEnabled,
               onChanged: (value) {
                 setState(() {
@@ -387,8 +387,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               },
             ),
             SwitchListTile(
-              title: const Text('Force Update'),
-              subtitle: const Text('Force users to update when available'),
+              title: Text(AppLocalizations.of(context)!.forceUpdate),
+              subtitle: Text(AppLocalizations.of(context)!.forceUsersToUpdate),
               value: config.forceUpdate,
               onChanged: (value) {
                 setState(() {
@@ -413,9 +413,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             // Text Fields
             TextFormField(
               controller: _blockedVersionController,
-              decoration: const InputDecoration(
-                labelText: 'Blocked Version',
-                hintText: 'e.g., 1.0.15',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.blockedVersion,
+                hintText: AppLocalizations.of(context)!.versionEG,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.block),
               ),
@@ -424,9 +424,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
             TextFormField(
               controller: _minVersionController,
-              decoration: const InputDecoration(
-                labelText: 'Minimum Supported Version',
-                hintText: 'e.g., 1.0.10',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.minimumSupportedVersion,
+                hintText: AppLocalizations.of(context)!.versionEG,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.verified),
               ),
@@ -435,9 +435,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
             TextFormField(
               controller: _recommendedVersionController,
-              decoration: const InputDecoration(
-                labelText: 'Recommended Version',
-                hintText: 'e.g., 1.0.20',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.recommendedVersion,
+                hintText: AppLocalizations.of(context)!.versionEG,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.thumb_up),
               ),
@@ -446,9 +446,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
             TextFormField(
               controller: _allowedVersionsController,
-              decoration: const InputDecoration(
-                labelText: 'Allowed Versions',
-                hintText: 'e.g., 1.0.10, 1.0.11, 1.0.12',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.allowedVersions,
+                hintText: AppLocalizations.of(context)!.versionsEG,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.list),
               ),
@@ -457,9 +457,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
             TextFormField(
               controller: _adminMessageController,
-              decoration: const InputDecoration(
-                labelText: 'Admin Message',
-                hintText: 'Message to display to all users',
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.adminMessage,
+                hintText: AppLocalizations.of(context)!.messageToDisplayToAllUsers,
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.message),
               ),

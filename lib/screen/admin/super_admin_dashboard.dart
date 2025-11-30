@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/services/features/admin_control_service.dart';
 import 'package:fihirana/services/core/version_check_service.dart';
 import 'package:fihirana/services/core/pubspec_service.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 import 'update_management_screen.dart';
 
 class SuperAdminDashboard extends StatefulWidget {
@@ -116,9 +117,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Access Denied')),
-        body: const Center(
-          child: Text('You must be logged in to access this page'),
+        appBar: AppBar(title: Text(AppLocalizations.of(context)!.accessDenied)),
+        body: Center(
+          child: Text(AppLocalizations.of(context)!.notLoggedInMessage),
         ),
       );
     }
@@ -145,7 +146,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           if (!isSuperAdmin && !isSuperAdminFallback) {
             return Scaffold(
               appBar: AppBar(
-                title: const Text('Access Denied'),
+                title: Text(AppLocalizations.of(context)!.accessDenied),
                 backgroundColor: Colors.red.shade900,
                 foregroundColor: Colors.white,
               ),
@@ -155,20 +156,20 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   children: [
                     Icon(Icons.block, size: 64, color: Colors.red.shade900),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Access Denied',
+                    Text(
+                      AppLocalizations.of(context)!.accessDenied,
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'You do not have super admin privileges',
+                    Text(
+                      AppLocalizations.of(context)!.noPermissionAdmin,
                       style: TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Go Back'),
+                      child: Text(AppLocalizations.of(context)!.back),
                     ),
                   ],
                 ),
@@ -185,7 +186,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
 
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Super Admin Dashboard'),
+              title: Text(AppLocalizations.of(context)!.adminPanel),
               backgroundColor: Colors.red.shade900,
               foregroundColor: Colors.white,
               actions: [
@@ -250,8 +251,8 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'EMERGENCY MODE ACTIVE',
+                Text(
+                  AppLocalizations.of(context)!.emergencyModeActive,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -260,7 +261,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'All updates are currently disabled',
+                  AppLocalizations.of(context)!.allUpdatesDisabled,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: 14,
@@ -273,13 +274,13 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
             onPressed: () async {
               await AdminControlService.clearEmergencyMode();
               await _loadDashboardData();
-              Get.snackbar('Success', 'Emergency mode cleared');
+              Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: Colors.red.shade600,
             ),
-            child: const Text('Clear'),
+            child: Text(AppLocalizations.of(context)!.clearCache),
           ),
         ],
       ),
@@ -293,8 +294,8 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'App Statistics',
+            Text(
+              AppLocalizations.of(context)!.appStatistics,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -302,7 +303,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    'Current Version',
+                    AppLocalizations.of(context)!.currentVersion,
                     _appStats['currentVersion'] ?? 'Unknown',
                     Icons.info,
                     Colors.blue,
@@ -311,7 +312,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildStatCard(
-                    'Latest Version',
+                    AppLocalizations.of(context)!.latestVersion,
                     _appStats['latestVersion'] ?? 'Unknown',
                     Icons.new_releases,
                     Colors.green,
@@ -324,7 +325,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               children: [
                 Expanded(
                   child: _buildStatCard(
-                    'Active Users',
+                    AppLocalizations.of(context)!.activeUsers,
                     '${_appStats['userCount'] ?? 0}',
                     Icons.people,
                     Colors.purple,
@@ -333,10 +334,10 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: _buildStatCard(
-                    'Update Status',
+                    AppLocalizations.of(context)!.updateStatus,
                     _adminConfig?.updatesEnabled == true
-                        ? 'Enabled'
-                        : 'Disabled',
+                        ? AppLocalizations.of(context)!.enabled
+                        : AppLocalizations.of(context)!.disabled,
                     _adminConfig?.updatesEnabled == true
                         ? Icons.check_circle
                         : Icons.block,
@@ -404,8 +405,8 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           children: [
             Row(
               children: [
-                const Text(
-                  'Update Control',
+                Text(
+                  AppLocalizations.of(context)!.updateControl,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
@@ -414,7 +415,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                     Get.to(() => const UpdateManagementScreen());
                   },
                   icon: const Icon(Icons.settings),
-                  label: const Text('Manage'),
+                  label: Text(AppLocalizations.of(context)!.manage),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
@@ -454,7 +455,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Updates are ${_adminConfig?.updatesEnabled == true ? "enabled" : "disabled"}',
+                          _adminConfig?.updatesEnabled == true 
+                              ? AppLocalizations.of(context)!.updatesEnabled
+                              : AppLocalizations.of(context)!.updatesDisabled,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: _adminConfig?.updatesEnabled == true
@@ -493,7 +496,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Version ${_adminConfig!.blockedVersion} is blocked',
+                        AppLocalizations.of(context)!.versionBlocked.replaceAll('{version}', _adminConfig!.blockedVersion!),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,
@@ -517,8 +520,8 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Quick Actions',
+            Text(
+              AppLocalizations.of(context)!.quickActions,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -531,26 +534,24 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               childAspectRatio: 1.2,
               children: [
                 _buildActionButton(
-                  'Emergency Stop',
+                  AppLocalizations.of(context)!.emergencyStop,
                   Icons.emergency,
                   Colors.red,
                   () async {
                     final confirmed = await Get.dialog(
                       AlertDialog(
-                        title: const Text('Emergency Stop'),
-                        content: const Text(
-                          'This will immediately disable all updates. Continue?',
-                        ),
+                        title: Text(AppLocalizations.of(context)!.emergencyStop),
+                        content: Text(AppLocalizations.of(context)!.emergencyStopConfirm),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
-                            child: const Text('Cancel'),
+                            child: Text(AppLocalizations.of(context)!.cancel),
                           ),
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(true),
                             style: TextButton.styleFrom(
                                 foregroundColor: Colors.red),
-                            child: const Text('Stop'),
+                            child: Text(AppLocalizations.of(context)!.stop),
                           ),
                         ],
                       ),
@@ -558,27 +559,27 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                     if (confirmed == true) {
                       await AdminControlService.emergencyStop();
                       await _loadDashboardData();
-                      Get.snackbar('Success', 'Emergency stop activated');
+                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
                     }
                   },
                 ),
                 _buildActionButton(
-                  'Force Update Check',
+                  AppLocalizations.of(context)!.forceUpdateCheck,
                   Icons.refresh,
                   Colors.blue,
                   () async {
                     await VersionCheckService.checkForUpdateManually();
-                    Get.snackbar('Success', 'Update check triggered');
+                    Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.checkForUpdates);
                   },
                 ),
                 _buildActionButton(
-                  'Clear Cache',
+                  AppLocalizations.of(context)!.clearCache,
                   Icons.clear,
                   Colors.orange,
                   () async {
                     await AdminControlService.clearCache();
                     await _loadDashboardData();
-                    Get.snackbar('Success', 'Cache cleared');
+                    Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
                   },
                 ),
               ],
@@ -628,29 +629,29 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Recent Activity',
+            Text(
+              AppLocalizations.of(context)!.recentActivity,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             if (_adminConfig?.configTimestamp != null)
               ListTile(
                 leading: const Icon(Icons.settings, color: Colors.blue),
-                title: const Text('Configuration Updated'),
+                title: Text(AppLocalizations.of(context)!.configurationUpdated),
                 subtitle: Text(
-                  'Last updated: ${_adminConfig!.configTimestamp!.toString().substring(0, 19)}',
+                  '${AppLocalizations.of(context)!.lastUpdated}: ${_adminConfig!.configTimestamp!.toString().substring(0, 19)}',
                 ),
               ),
-            const ListTile(
-              leading: Icon(Icons.download, color: Colors.green),
-              title: Text('Update Check Performed'),
-              subtitle: Text('System check completed'),
-            ),
-            const ListTile(
-              leading: Icon(Icons.info, color: Colors.grey),
-              title: Text('Dashboard Loaded'),
-              subtitle: Text('Admin dashboard initialized'),
-            ),
+              ListTile(
+                leading: Icon(Icons.download, color: Colors.green),
+                title: Text(AppLocalizations.of(context)!.updateCheckPerformed),
+                subtitle: Text(AppLocalizations.of(context)!.systemCheckCompleted),
+              ),
+              ListTile(
+                leading: Icon(Icons.info, color: Colors.grey),
+                title: Text(AppLocalizations.of(context)!.dashboardLoaded),
+                subtitle: Text(AppLocalizations.of(context)!.adminDashboardInitialized),
+              ),
           ],
         ),
       ),
