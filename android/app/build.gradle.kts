@@ -34,18 +34,19 @@ android {
 
     signingConfigs {
         register("release") {
-            keyAlias = "fihirana"
-            keyPassword = "fihirana2024"
-            storeFile = file("fihirana.jks")
-            storePassword = "fihirana2024"
+            // Use environment variables for security
+            keyAlias = System.getenv("KEY_ALIAS") ?: project.findProperty("KEY_ALIAS") as String? ?: "fihirana"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: project.findProperty("KEY_PASSWORD") as String? ?: "fihirana2024"
+            storeFile = file(System.getenv("KEYSTORE_FILE") ?: project.findProperty("KEYSTORE_FILE") as String? ?: "fihirana.jks")
+            storePassword = System.getenv("STORE_PASSWORD") ?: project.findProperty("STORE_PASSWORD") as String? ?: "fihirana2024"
         }
     }
 
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             isDebuggable = false
             
             // Ensure assets are properly included in release builds

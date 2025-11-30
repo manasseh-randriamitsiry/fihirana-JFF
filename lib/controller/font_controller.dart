@@ -12,35 +12,21 @@ class FontController extends GetxController {
   final RxString currentFont = 'Lato'.obs;
 
   final Map<String, String> fontMap = {
-    // Sans-Serif (Clean & Modern)
+    // Primary fonts (heavily used)
+    'Roboto': 'Roboto',
     'Lato': 'Lato',
+    
+    // Secondary fonts (clean & modern)
     'Poppins': 'Poppins',
     'Open Sans': 'OpenSans',
-    'Roboto': 'Roboto',
     'Montserrat': 'Montserrat',
-    'Raleway': 'Raleway',
-    'Titillium Web': 'TitilliumWeb',
-    'Museo Sans Rounded': 'MuseoSansRounded',
 
-    // Serif (Traditional & Elegant)
-    'Source Serif Pro': 'SourceSerifPro',
+    // Special purpose fonts
+    'Hack': 'Hack', // Monospace for code-like display
+    'GoBold': 'GoBold', // Display font
 
-    // Monospace (Code-like)
-    'Hack': 'Hack',
-
-    // Display / Decorative
-    'GoBold': 'GoBold',
-    'Soda Fountain': 'SodaFountain',
-
-    // Handwriting
-    'Breathing': 'Breathing',
-
-    // Edu Fonts (Handwriting / School)
+    // Educational font (representative)
     'Edu NSW ACT Foundation': 'EduNSWACTFoundation',
-    'Edu QLD Beginner': 'EduQLDBeginner',
-    'Edu SA Beginner': 'EduSABeginner',
-    'Edu TAS Beginner': 'EduTASBeginner',
-    'Edu VIC WANT Beginner': 'EduVICWANTBeginner',
   };
 
   final RxList<String> customFonts = <String>[].obs;
