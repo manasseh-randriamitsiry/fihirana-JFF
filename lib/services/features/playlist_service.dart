@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
-import '../models/playlist.dart';
+import 'package:fihirana/models/playlist.dart';
 
 class PlaylistService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

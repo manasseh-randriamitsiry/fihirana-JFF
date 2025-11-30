@@ -5,8 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/bible_highlight.dart';
 import '../models/bible_search.dart';
-import '../services/bible_service.dart';
-import '../services/bible_highlight_service.dart';
+import 'package:fihirana/services/features/bible_service.dart';
+import 'package:fihirana/services/features/bible_highlight_service.dart';
 import '../utility/bible_book_order.dart';
 
 class BibleController extends GetxController {
@@ -417,8 +417,7 @@ class BibleController extends GetxController {
       // Show success message
       Get.snackbar('Filazana', 'Voatahiry soa aman-tsara!');
     } else {
-      Get.snackbar(
-          'Filazana', 'Nisy olana teo am-pametrahana.');
+      Get.snackbar('Filazana', 'Nisy olana teo am-pametrahana.');
     }
   }
 

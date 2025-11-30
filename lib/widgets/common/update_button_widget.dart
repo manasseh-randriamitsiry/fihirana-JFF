@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../services/version_check_service.dart';
+import 'package:fihirana/services/core/version_check_service.dart';
 
 class UpdateButtonWidget extends StatelessWidget {
   final Color iconColor;
@@ -13,9 +13,9 @@ class UpdateButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const IconButton(
-          key: ValueKey('update_button'),
-          icon: Icon(Icons.system_update, color: Colors.orange),
-          onPressed: VersionCheckService.downloadAndInstallLatestVersion,
-        );
+      key: ValueKey('update_button'),
+      icon: Icon(Icons.system_update, color: Colors.orange),
+      onPressed: VersionCheckService.downloadAndInstallLatestVersion,
+    );
   }
 }

@@ -6,12 +6,12 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
 
-import '../models/hymn.dart';
+import 'package:fihirana/models/hymn.dart';
 import 'audio_cache_service.dart';
 import 'audio_file_mapping.dart';
 import 'local_audio_service.dart';
-import 'google_drive_service.dart';
-import 'ui_service.dart';
+import 'package:fihirana/services/data/google_drive_service.dart';
+import 'package:fihirana/services/core/ui_service.dart';
 import 'user_recording_service.dart';
 
 class AudioService {
@@ -258,16 +258,20 @@ class AudioService {
 
 // Set the audio source with buffering
       try {
-        await _player.setAudioSource(
+        await _player
+            .setAudioSource(
           audioSource,
           preload: true, // Preload the audio for faster seeking
-        ).timeout(
+        )
+            .timeout(
           const Duration(seconds: 30),
           onTimeout: () {
             if (kDebugMode) {
-              print('AudioService: Timeout setting audio source for ${hymn.id}');
+              print(
+                  'AudioService: Timeout setting audio source for ${hymn.id}');
             }
-            throw Exception('Timeout loading audio. Please check your internet connection.');
+            throw Exception(
+                'Timeout loading audio. Please check your internet connection.');
           },
         );
 
@@ -287,24 +291,28 @@ class AudioService {
       } on TimeoutException catch (e) {
         _currentPlayingHymnId.value = '';
         if (kDebugMode) {
-          print('AudioService: TimeoutException for hymn ${hymn.id}: ${e.message}');
+          print(
+              'AudioService: TimeoutException for hymn ${hymn.id}: ${e.message}');
         }
-        throw Exception('Audio loading timeout. Please check your internet connection and try again.');
+        throw Exception(
+            'Audio loading timeout. Please check your internet connection and try again.');
       }
-      
+
       // Add debugging to check player state after play
       await Future.delayed(const Duration(milliseconds: 100));
       final stateAfterPlay = _player.playerState;
       if (kDebugMode) {
         print('AudioService: Started playing hymn ${hymn.id}');
-        print('AudioService: Player state after play - playing: ${stateAfterPlay.playing}, processingState: ${stateAfterPlay.processingState}');
+        print(
+            'AudioService: Player state after play - playing: ${stateAfterPlay.playing}, processingState: ${stateAfterPlay.processingState}');
       }
-} on PlayerException catch (e) {
+    } on PlayerException catch (e) {
       _currentPlayingHymnId.value = '';
       if (kDebugMode) {
         print(
             'AudioService: PlayerException playing hymn ${hymn.id}: ${e.code} - ${e.message}');
-        print('AudioService: Exception details - URL: $audioUrl, isLocalFile: $isLocalFile');
+        print(
+            'AudioService: Exception details - URL: $audioUrl, isLocalFile: $isLocalFile');
       }
 
       // Provide more user-friendly error messages
@@ -323,7 +331,8 @@ class AudioService {
             'Audio format not supported or file corrupted for hymn ${hymn.id}';
       } else if (message.toLowerCase().contains('unsupported') ||
           message.toLowerCase().contains('format')) {
-        userMessage = 'Unsupported audio format or corrupted file for hymn ${hymn.id}';
+        userMessage =
+            'Unsupported audio format or corrupted file for hymn ${hymn.id}';
       } else {
         userMessage = 'Failed to play hymn ${hymn.id}: $message';
       }
@@ -574,7 +583,7 @@ class AudioService {
     // Check if recording has a public link (fallback)
     else if (recording.publicLink != null && recording.publicLink!.isNotEmpty) {
       audioUrl = recording.publicLink!;
-      
+
       // Fix URL format - ensure correct Google Drive download URL format
       if (audioUrl!.contains('drive.google.com')) {
         // Extract file ID from various URL formats
@@ -583,7 +592,7 @@ class AudioService {
         if (idMatch != null) {
           fileId = idMatch.group(1);
         }
-        
+
         if (fileId != null) {
           // Create clean, correct URL format
           audioUrl = 'https://drive.google.com/uc?export=download&id=$fileId';
@@ -592,7 +601,7 @@ class AudioService {
           }
         }
       }
-      
+
       if (kDebugMode) {
         print(
             'AudioService: Streaming public recording from publicLink: $audioUrl');
@@ -638,7 +647,8 @@ class AudioService {
       if (kDebugMode) {
         print(
             'AudioService: Private recording - attempting authenticated URL from Drive...');
-        print('AudioService: Recording ID: ${recording.id}, DriveFileId: ${recording.driveFileId}');
+        print(
+            'AudioService: Recording ID: ${recording.id}, DriveFileId: ${recording.driveFileId}');
       }
 
       try {
@@ -672,7 +682,7 @@ class AudioService {
 
             // Ensure target path has correct extension
             String finalTargetPath = targetPath;
-            if (!finalTargetPath.toLowerCase().endsWith('.m4a') && 
+            if (!finalTargetPath.toLowerCase().endsWith('.m4a') &&
                 !finalTargetPath.toLowerCase().endsWith('.mp3') &&
                 !finalTargetPath.toLowerCase().endsWith('.wav')) {
               finalTargetPath = '$finalTargetPath.m4a'; // Default to .m4a
@@ -692,40 +702,48 @@ class AudioService {
                 print('AudioService: Download successful: $audioUrl');
                 print('AudioService: File size: $fileSize bytes');
               }
-              
+
               // Validate file is not empty
               if (fileSize > 0) {
                 audioUrl = downloadedFile.path;
               } else {
                 // Try alternative approach - maybe the file was corrupted during download
                 if (kDebugMode) {
-                  print('AudioService: Downloaded file is empty, trying alternative approach...');
+                  print(
+                      'AudioService: Downloaded file is empty, trying alternative approach...');
                 }
-                
+
                 // Try with a different filename
-                final alternativePath = finalTargetPath.replaceAll('.m4a', '_alt.m4a');
+                final alternativePath =
+                    finalTargetPath.replaceAll('.m4a', '_alt.m4a');
                 final altDownloadedFile = await driveService.downloadFile(
                   recording.driveFileId!,
                   alternativePath,
                 );
-                
-                if (altDownloadedFile != null && await altDownloadedFile.exists()) {
+
+                if (altDownloadedFile != null &&
+                    await altDownloadedFile.exists()) {
                   final altFileSize = await altDownloadedFile.length();
                   if (altFileSize > 0) {
                     audioUrl = altDownloadedFile.path;
                     if (kDebugMode) {
-                      print('AudioService: Alternative download successful: $audioUrl');
-                      print('AudioService: Alternative file size: $altFileSize bytes');
+                      print(
+                          'AudioService: Alternative download successful: $audioUrl');
+                      print(
+                          'AudioService: Alternative file size: $altFileSize bytes');
                     }
                   } else {
-                    throw Exception('Both download attempts resulted in empty files');
+                    throw Exception(
+                        'Both download attempts resulted in empty files');
                   }
                 } else {
-                  throw Exception('Download failed - both attempts resulted in empty files');
+                  throw Exception(
+                      'Download failed - both attempts resulted in empty files');
                 }
               }
             } else {
-              throw Exception('Download failed - file not found after download');
+              throw Exception(
+                  'Download failed - file not found after download');
             }
           }
         } else {
@@ -772,7 +790,7 @@ class AudioService {
               'AudioService: URL type: ${audioUrl.startsWith('http') ? 'Remote' : 'Local'}');
         }
         await playHymn(hymn, customAudioUrl: audioUrl);
-} catch (e) {
+      } catch (e) {
         if (kDebugMode) {
           print('AudioService: Error playing recording: $e');
           print(
@@ -786,7 +804,7 @@ class AudioService {
         if (e.toString().contains('404') ||
             e.toString().contains('Source error')) {
           errorMessage = 'Recording file not found or link expired';
-          
+
           // Try to regenerate the URL if we have a driveFileId
           if (recording.driveFileId != null && recording.isPublic) {
             if (kDebugMode) {
@@ -794,7 +812,8 @@ class AudioService {
             }
             try {
               final driveService = GoogleDriveService();
-              final newUrl = await driveService.getPublicLink(recording.driveFileId!);
+              final newUrl =
+                  await driveService.getPublicLink(recording.driveFileId!);
               if (newUrl != null) {
                 if (kDebugMode) {
                   print('AudioService: Generated new URL: $newUrl');
@@ -817,15 +836,19 @@ class AudioService {
             try {
               final recordingService = UserRecordingService();
               await recordingService.refreshPublicUrls();
-              
+
               // Try to get the updated recording and retry
               final recordings = recordingService.getAllRecordings();
-              final updatedRecording = recordings.firstWhereOrNull((r) => r.id == recording.id);
-              if (updatedRecording != null && updatedRecording.publicLink != null) {
+              final updatedRecording =
+                  recordings.firstWhereOrNull((r) => r.id == recording.id);
+              if (updatedRecording != null &&
+                  updatedRecording.publicLink != null) {
                 if (kDebugMode) {
-                  print('AudioService: Found updated recording, retrying with new URL: ${updatedRecording.publicLink}');
+                  print(
+                      'AudioService: Found updated recording, retrying with new URL: ${updatedRecording.publicLink}');
                 }
-                await playHymn(hymn, customAudioUrl: updatedRecording.publicLink!);
+                await playHymn(hymn,
+                    customAudioUrl: updatedRecording.publicLink!);
                 return; // Success, exit function
               }
             } catch (refreshError) {
@@ -877,13 +900,14 @@ class AudioService {
       try {
         // Set the audio source and wait for it to load
         await tempPlayer.setFilePath(filePath);
-        
+
         // Get the duration
         final duration = tempPlayer.duration;
         if (duration != null) {
           final durationInSeconds = duration.inSeconds;
           if (kDebugMode) {
-            print('AudioService: Duration for $filePath: ${durationInSeconds}s');
+            print(
+                'AudioService: Duration for $filePath: ${durationInSeconds}s');
           }
           return durationInSeconds;
         } else {
@@ -917,7 +941,7 @@ class AudioService {
       try {
         // Set the audio source and wait for it to load
         await tempPlayer.setUrl(url);
-        
+
         // Get the duration
         final duration = tempPlayer.duration;
         if (duration != null) {

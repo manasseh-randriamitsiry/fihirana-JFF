@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'ui_service.dart';
+import 'package:fihirana/services/core/ui_service.dart';
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,8 +13,7 @@ class FirebaseAuthService {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
         UIService.showAuthEmailAlreadyInUseSnackBar();
-      } else {
-      }
+      } else {}
     }
     return null;
   }
@@ -28,8 +27,7 @@ class FirebaseAuthService {
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         UIService.showAuthInvalidCredentialsSnackBar();
-      } else {
-      }
+      } else {}
     }
     return null;
   }

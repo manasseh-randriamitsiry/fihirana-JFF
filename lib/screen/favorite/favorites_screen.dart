@@ -4,8 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../models/hymn.dart';
-import '../../services/hymn_service.dart';
-import '../../services/audio_service.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/favorites/favorites_search_bar.dart';
 import '../../widgets/favorites/favorite_hymn_card.dart';
@@ -27,8 +27,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-
-
   Future<void> _checkAudioAvailability(String hymnId) async {
     if (!_checkedAudioHymns.contains(hymnId)) {
       _checkedAudioHymns.add(hymnId);
@@ -41,7 +39,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
@@ -54,7 +52,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
               Icon(Icons.menu_rounded, color: colorController.iconColor.value),
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
-title: Text(
+        title: Text(
           context.translateWithMLKit((l) => l.favorites),
           style: TextStyle(
             color: colorController.textColor.value,
@@ -63,17 +61,17 @@ title: Text(
           ),
         ),
       ),
-       body: Column(
-         children: [
-           // Search bar
-           FavoritesSearchBar(
-             controller: _searchController,
-             onChanged: (value) {
-               setState(() {
-                 _searchQuery = value.toLowerCase();
-               });
-             },
-           ),
+      body: Column(
+        children: [
+          // Search bar
+          FavoritesSearchBar(
+            controller: _searchController,
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value.toLowerCase();
+              });
+            },
+          ),
           // Favorites list
           Expanded(
             child: StreamBuilder<List<Hymn>>(
@@ -99,7 +97,7 @@ title: Text(
                           color: Colors.red.withValues(alpha: 0.5),
                         ),
                         const SizedBox(height: 16),
-Text(
+                        Text(
                           '${context.translateWithMLKit((l) => l.error)}: ${snapshot.error}',
                           style:
                               TextStyle(color: colorController.textColor.value),
@@ -128,7 +126,7 @@ Text(
                                 end: const Offset(1.1, 1.1),
                                 curve: Curves.easeInOut),
                         const SizedBox(height: 16),
-Text(
+                        Text(
                           context.translateWithMLKit((l) => l.noHymnsAddedYet),
                           style: TextStyle(
                             color: colorController.textColor.value,
@@ -138,7 +136,8 @@ Text(
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          context.translateWithMLKit((l) => l.createFirstPlaylist),
+                          context
+                              .translateWithMLKit((l) => l.createFirstPlaylist),
                           style: TextStyle(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.6),
@@ -174,7 +173,7 @@ Text(
                                 .withValues(alpha: 0.3),
                           ),
                           const SizedBox(height: 16),
-Text(
+                          Text(
                             context.translateWithMLKit((l) => l.noResults),
                             style: TextStyle(
                               color: colorController.textColor.value,
@@ -201,33 +200,36 @@ Text(
                         });
                       }
 
-                       return StreamBuilder<List<String>>(
-                         stream: _hymnService.getFavoriteHymnIdsStream(),
-                         builder: (context, favoriteSnapshot) {
-                           final isFavorite = favoriteSnapshot.data?.contains(hymn.id) ?? false;
-                           final isPlaying = _audioService.isHymnPlaying(hymn.id);
-                           
-                           return FavoriteHymnCard(
-                             hymn: hymn,
-                             hasAudio: _audioAvailability[hymn.id] == true,
-                             isPlaying: isPlaying,
-                             isFavorite: isFavorite,
-                             index: index,
-                             onTap: () {
-                               Navigator.push(
-                                 context,
-                                 MaterialPageRoute(
-                                   builder: (context) => HymnDetailScreen(hymnId: hymn.id),
-                                 ),
-                               );
-                             },
-                             onAudioPressed: () {},
-                             onFavoritePressed: () {
-                               _hymnService.toggleFavorite(hymn);
-                             },
-                           );
-                         },
-                       );
+                      return StreamBuilder<List<String>>(
+                        stream: _hymnService.getFavoriteHymnIdsStream(),
+                        builder: (context, favoriteSnapshot) {
+                          final isFavorite =
+                              favoriteSnapshot.data?.contains(hymn.id) ?? false;
+                          final isPlaying =
+                              _audioService.isHymnPlaying(hymn.id);
+
+                          return FavoriteHymnCard(
+                            hymn: hymn,
+                            hasAudio: _audioAvailability[hymn.id] == true,
+                            isPlaying: isPlaying,
+                            isFavorite: isFavorite,
+                            index: index,
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      HymnDetailScreen(hymnId: hymn.id),
+                                ),
+                              );
+                            },
+                            onAudioPressed: () {},
+                            onFavoritePressed: () {
+                              _hymnService.toggleFavorite(hymn);
+                            },
+                          );
+                        },
+                      );
                     },
                   );
                 }

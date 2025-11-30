@@ -529,7 +529,7 @@ class GoogleDriveService {
           
           // Log progress for large files
           if (kDebugMode && totalBytes > 0 && totalBytes % (1024 * 100) == 0) {
-            print('GoogleDriveService: Downloaded ${totalBytes ~/ 1024} KB...');
+            debugPrint('GoogleDriveService: Downloaded ${totalBytes ~/ 1024} KB...');
           }
         }
         

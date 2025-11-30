@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
-import '../models/hymn.dart';
+import 'package:fihirana/models/hymn.dart';
 
 class LocalHymnService {
   static final LocalHymnService _instance = LocalHymnService._internal();
@@ -22,9 +22,10 @@ class LocalHymnService {
         if (kDebugMode) {
           print('Attempting to load custom hymn manifest...');
         }
-        final manifestContent = await rootBundle.loadString('assets/hymn_manifest.json');
+        final manifestContent =
+            await rootBundle.loadString('assets/hymn_manifest.json');
         final Map<String, dynamic> hymnManifest = json.decode(manifestContent);
-        
+
         if (hymnManifest.isNotEmpty) {
           return await _loadFromCustomManifest(hymnManifest);
         }
@@ -57,7 +58,8 @@ class LocalHymnService {
             print('First few assets: ${jsonAssets.take(5).join(', ')}');
           } else {
             print('No JSON assets found! Available asset types:');
-            final assetTypes = manifestMap.keys.map((k) => k.split('.').last).toSet();
+            final assetTypes =
+                manifestMap.keys.map((k) => k.split('.').last).toSet();
             print('Asset extensions: ${assetTypes.take(10).join(', ')}');
             print('Sample keys: ${manifestMap.keys.take(20).toList()}');
           }
@@ -109,8 +111,8 @@ class LocalHymnService {
       } catch (manifestError) {
         // If manifest loading fails, try fallback method for release mode
         if (kDebugMode) {
-            print(
-                'AssetManifest loading failed, trying fallback method: $manifestError');
+          print(
+              'AssetManifest loading failed, trying fallback method: $manifestError');
         }
         return await _loadHymnsFallback();
       }
@@ -123,9 +125,10 @@ class LocalHymnService {
     }
   }
 
-  Future<List<Hymn>> _loadFromCustomManifest(Map<String, dynamic> hymnManifest) async {
+  Future<List<Hymn>> _loadFromCustomManifest(
+      Map<String, dynamic> hymnManifest) async {
     final List<Hymn> hymns = [];
-    
+
     if (kDebugMode) {
       print('Loading ${hymnManifest.length} hymns from custom manifest');
     }
@@ -133,20 +136,20 @@ class LocalHymnService {
     try {
       int successCount = 0;
       int failureCount = 0;
-      
+
       for (final entry in hymnManifest.entries) {
         try {
           final hymnId = entry.key;
           final assetPath = entry.value.toString();
-          
+
           final jsonString = await rootBundle.loadString(assetPath);
           final jsonData = json.decode(jsonString);
           final hymn = _parseHymnFromJson(jsonData, hymnId);
-          
+
           hymns.add(hymn);
           _hymnCache[hymn.id] = hymn;
           successCount++;
-          
+
           if (kDebugMode && successCount <= 5) {
             if (kDebugMode) {
               print('Loaded hymn $hymnId from $assetPath: ${hymn.title}');
@@ -160,13 +163,13 @@ class LocalHymnService {
             }
           }
         }
-        
+
         // Add a small delay every 50 hymns to prevent overwhelming the system
         if (hymns.length % 50 == 0) {
           await Future.delayed(const Duration(milliseconds: 5));
         }
       }
-      
+
       if (hymns.isNotEmpty) {
         hymns.sort((a, b) {
           final numA = int.tryParse(a.hymnNumber) ?? 0;
@@ -175,14 +178,15 @@ class LocalHymnService {
         });
 
         _allHymns = hymns;
-        
+
         if (kDebugMode) {
-          print('Successfully loaded ${hymns.length} hymns from custom manifest');
+          print(
+              'Successfully loaded ${hymns.length} hymns from custom manifest');
           print('Success rate: $successCount loaded, $failureCount failed');
           print('First hymn: ${hymns.first.title} (${hymns.first.hymnNumber})');
           print('Last hymn: ${hymns.last.title} (${hymns.last.hymnNumber})');
         }
-        
+
         return hymns;
       }
     } catch (e) {
@@ -190,7 +194,7 @@ class LocalHymnService {
         print('Custom manifest loading failed: $e');
       }
     }
-    
+
     return [];
   }
 
@@ -206,7 +210,7 @@ class LocalHymnService {
       // We know there are 829 JSON files from our check
       int successCount = 0;
       int failureCount = 0;
-      
+
       for (int i = 1; i <= 1000; i++) {
         try {
           // Try different naming patterns
@@ -217,7 +221,7 @@ class LocalHymnService {
 
           Hymn? hymn;
           String? successfulPath;
-          
+
           for (final path in possiblePaths) {
             try {
               final jsonString = await rootBundle.loadString(path);
@@ -234,7 +238,7 @@ class LocalHymnService {
             hymns.add(hymn);
             _hymnCache[hymn.id] = hymn;
             successCount++;
-            
+
             if (kDebugMode && successCount <= 5) {
               if (kDebugMode) {
                 print('Loaded hymn $i from $successfulPath: ${hymn.title}');
@@ -253,19 +257,21 @@ class LocalHymnService {
         if (i % 50 == 0) {
           await Future.delayed(const Duration(milliseconds: 5));
           if (kDebugMode) {
-            print('Progress: $i hymns checked, $successCount loaded, $failureCount failed');
+            print(
+                'Progress: $i hymns checked, $successCount loaded, $failureCount failed');
           }
         }
       }
 
       if (hymns.isNotEmpty) {
         if (kDebugMode) {
-          print('Successfully loaded ${hymns.length} hymns using fallback method');
+          print(
+              'Successfully loaded ${hymns.length} hymns using fallback method');
           print('Success rate: $successCount loaded, $failureCount failed');
           print('First hymn: ${hymns.first.title} (${hymns.first.hymnNumber})');
           print('Last hymn: ${hymns.last.title} (${hymns.last.hymnNumber})');
         }
-        
+
         hymns.sort((a, b) {
           final numA = int.tryParse(a.hymnNumber) ?? 0;
           final numB = int.tryParse(b.hymnNumber) ?? 0;

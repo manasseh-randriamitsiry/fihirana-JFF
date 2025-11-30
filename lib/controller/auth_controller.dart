@@ -6,8 +6,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
 
 import '../utility/snackbar_utility.dart';
-import '../services/google_drive_service.dart';
-import '../services/security_service.dart';
+import 'package:fihirana/services/data/google_drive_service.dart';
+import 'package:fihirana/services/core/security_service.dart';
 
 class AuthController extends GetxController {
   static AuthController get instance => Get.find();
@@ -16,7 +16,7 @@ class AuthController extends GetxController {
   final GoogleSignIn googleSignIn = GoogleSignIn(
     scopes: ['https://www.googleapis.com/auth/drive.file'],
   );
-final Rx<bool> _canAddSongs = false.obs;
+  final Rx<bool> _canAddSongs = false.obs;
   final Rx<bool> _isAdmin = false.obs;
   final Rx<bool> _isSuperAdmin = false.obs;
   final RxInt _addedHymnsCount = 0.obs;
@@ -25,7 +25,7 @@ final Rx<bool> _canAddSongs = false.obs;
   StreamSubscription<DocumentSnapshot>? _permissionSubscription;
   late final GoogleDriveService _driveService;
 
-bool get canAddSongs => _canAddSongs.value;
+  bool get canAddSongs => _canAddSongs.value;
   bool get isAdmin => _isAdmin.value;
   bool get isSuperAdmin => _isSuperAdmin.value;
   int get addedHymnsCount => _addedHymnsCount.value;
@@ -86,7 +86,7 @@ bool get canAddSongs => _canAddSongs.value;
           }
         }
       } else {
-_permissionSubscription?.cancel();
+        _permissionSubscription?.cancel();
         _permissionSubscription = null;
         _canAddSongs.value = false;
         _isAdmin.value = false;
@@ -147,23 +147,24 @@ _permissionSubscription?.cancel();
             print(
                 'Permission updated for ${user.email}: canAddSongs = ${_canAddSongs.value}, isAdmin = ${_isAdmin.value} (DB: $isAdminDb, Super: $isSuperAdmin)');
           }
-} else {
+        } else {
           _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
           _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
-          _isSuperAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+          _isSuperAdmin.value =
+              user.email == 'manassehrandriamitsiry@gmail.com';
           if (kDebugMode) {
             print(
                 'User document does not exist for ${user.email}. Defaulting permissions to false (unless super admin).');
           }
         }
       },
-onError: (error) {
-          if (kDebugMode) {
-            print('Error listening to user permissions: $error');
-          }
-          _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
-          _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
-          _isSuperAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+      onError: (error) {
+        if (kDebugMode) {
+          print('Error listening to user permissions: $error');
+        }
+        _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
+        _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+        _isSuperAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
       },
     );
   }

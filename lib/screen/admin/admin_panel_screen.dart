@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/hymn.dart';
-import '../../services/hymn_service.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
 
 import './user_management_screen_optimized.dart';
 import './super_admin_dashboard.dart';
@@ -32,7 +32,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   List<String> selectedHymns = [];
   bool isLoading = false;
 
-@override
+  @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
@@ -96,11 +96,16 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
 
   Stream<Map<String, dynamic>> _getStats() {
     // Optimized stats using counters and aggregated queries
-    return _firestore.collection('stats').doc('global').snapshots().asyncMap((statsDoc) async {
+    return _firestore
+        .collection('stats')
+        .doc('global')
+        .snapshots()
+        .asyncMap((statsDoc) async {
       // Get user counts efficiently
-      final totalUsersQuery = await _firestore.collection('users').count().get();
+      final totalUsersQuery =
+          await _firestore.collection('users').count().get();
       final totalUsers = totalUsersQuery.count ?? 0;
-      
+
       // Active users count using query instead of loading all documents
       final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
       final activeUsersQuery = await _firestore
@@ -152,7 +157,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
               fontWeight: FontWeight.bold,
             ),
           ),
-actions: [
+          actions: [
             IconButton(
               icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
               onPressed: () => Get.to(() => const SuperAdminDashboard()),
@@ -170,7 +175,7 @@ actions: [
             unselectedLabelColor: textColor.withValues(alpha: 0.5),
             indicatorColor: primaryColor,
             onTap: (index) => setState(() {}), // Rebuild to show/hide actions
-tabs: [
+            tabs: [
               Tab(text: l10n.userManagement), // Reuse string or add "Users"
               Tab(text: l10n.hymns), // Reuse string or add "Hymns"
               const Tab(text: 'Deleted Recordings'),
@@ -208,7 +213,7 @@ tabs: [
                       l10n, textColor, primaryColor, backgroundColor),
 
                   // Deleted Recordings Tab
-const DeletedRecordingsWidget(),
+                  const DeletedRecordingsWidget(),
                 ],
               ),
             ),
@@ -217,8 +222,6 @@ const DeletedRecordingsWidget(),
       );
     });
   }
-
-
 
   Widget _buildHymnsList(AppLocalizations l10n, Color textColor,
       Color primaryColor, Color backgroundColor) {

@@ -4,9 +4,9 @@ import 'package:flutter_contacts/flutter_contacts.dart' as flutter_contacts;
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../models/contact.dart';
-import '../../services/contact_service.dart';
-import '../../services/maps_launcher_service.dart';
-import '../../services/contact_import_service.dart';
+import 'package:fihirana/services/core/contact_service.dart';
+import 'package:fihirana/services/core/maps_launcher_service.dart';
+import 'package:fihirana/services/core/contact_import_service.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/context_aware_fab.dart';
 import '../../widgets/contact/contact_picker_dialog_widget.dart';
@@ -63,8 +63,6 @@ class _ContactListScreenState extends State<ContactListScreen> {
     );
   }
 
-
-
   void _confirmDelete(BuildContext context, Contact contact) {
     final l10n = AppLocalizations.of(context)!;
     ConfirmDeleteDialog.show(
@@ -117,11 +115,11 @@ class _ContactListScreenState extends State<ContactListScreen> {
       floatingActionButton: ContextAwareFAB(
         onImportContact: _importContact,
         onAddContact: () => showDialog(
-                      context: context,
-                      builder: (context) => ContactPickerDialog(
-                        colorController: colorController,
-                      ),
-                    ),
+          context: context,
+          builder: (context) => ContactPickerDialog(
+            colorController: colorController,
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -192,17 +190,23 @@ class _ContactListScreenState extends State<ContactListScreen> {
                         return ContactListItemWidget(
                           contact: contact,
                           canEdit: canEdit,
-                          onDirections: (contact.latitude != null && contact.longitude != null)
-                              ? () => _launchMaps(contact.latitude!, contact.longitude!)
+                          onDirections: (contact.latitude != null &&
+                                  contact.longitude != null)
+                              ? () => _launchMaps(
+                                  contact.latitude!, contact.longitude!)
                               : null,
-                          onEdit: canEdit ? () => showDialog(
-                            context: context,
-                            builder: (context) => ContactPickerDialog(
-                              colorController: colorController,
-                              contact: contact,
-                            ),
-                          ) : null,
-                          onDelete: canEdit ? () => _confirmDelete(context, contact) : null,
+                          onEdit: canEdit
+                              ? () => showDialog(
+                                    context: context,
+                                    builder: (context) => ContactPickerDialog(
+                                      colorController: colorController,
+                                      contact: contact,
+                                    ),
+                                  )
+                              : null,
+                          onDelete: canEdit
+                              ? () => _confirmDelete(context, contact)
+                              : null,
                         );
                       },
                     );

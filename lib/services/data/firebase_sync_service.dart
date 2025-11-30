@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../models/favorite.dart';
+import 'package:fihirana/models/favorite.dart';
 
 class FirebaseSyncService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -125,7 +125,9 @@ class FirebaseSyncService {
       int maxItemsToSync = 50;
       int itemsSynced = 0;
 
-      for (var i = localHistory.length - 1; i >= 0 && itemsSynced < maxItemsToSync; i--) {
+      for (var i = localHistory.length - 1;
+          i >= 0 && itemsSynced < maxItemsToSync;
+          i--) {
         final item = localHistory[i];
         if (item is Map<String, dynamic>) {
           final hymnId = item['hymnId'] as String?;
@@ -280,7 +282,8 @@ class FirebaseSyncService {
     }
   }
 
-  Future<void> addHistoryToFirebase(String hymnId, String title, String number) async {
+  Future<void> addHistoryToFirebase(
+      String hymnId, String title, String number) async {
     try {
       final user = _auth.currentUser;
       if (user == null) return;
@@ -297,7 +300,6 @@ class FirebaseSyncService {
         'number': number,
         'timestamp': FieldValue.serverTimestamp(),
       });
-
     } catch (e) {
       if (kDebugMode) {
         print(e);

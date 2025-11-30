@@ -6,8 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
-import '../models/user_recording.dart';
-import 'google_drive_service.dart';
+import 'package:fihirana/models/user_recording.dart';
+import 'package:fihirana/services/data/google_drive_service.dart';
 
 class UserRecordingService {
   static final UserRecordingService _instance =
@@ -175,7 +175,7 @@ class UserRecordingService {
     String? userPhotoUrl,
     String? userName,
   }) async {
-final recording = UserRecording(
+    final recording = UserRecording(
       id: _uuid.v4(),
       hymnId: hymnId,
       title: title,
@@ -191,7 +191,8 @@ final recording = UserRecording(
     );
 
     if (kDebugMode) {
-      print('UserRecordingService: Saved recording with duration: $durationSeconds seconds');
+      print(
+          'UserRecordingService: Saved recording with duration: $durationSeconds seconds');
     }
 
     _recordings.insert(0, recording);
@@ -260,7 +261,7 @@ final recording = UserRecording(
     return _recordings.where((r) => r.hymnId == hymnId).toList();
   }
 
-List<UserRecording> getAllRecordings() {
+  List<UserRecording> getAllRecordings() {
     return List.unmodifiable(_recordings);
   }
 
@@ -275,24 +276,26 @@ List<UserRecording> getAllRecordings() {
 
     for (int i = 0; i < _recordings.length; i++) {
       final recording = _recordings[i];
-      
+
       // Only refresh recordings that are public and have driveFileId
       if (recording.isPublic && recording.driveFileId != null) {
         try {
-          final newUrl = await driveService.getPublicLink(recording.driveFileId!);
+          final newUrl =
+              await driveService.getPublicLink(recording.driveFileId!);
           if (newUrl != null && newUrl != recording.publicLink) {
             if (kDebugMode) {
               print('UserRecordingService: Refreshed URL for ${recording.id}');
               print('  Old: ${recording.publicLink}');
               print('  New: $newUrl');
             }
-            
+
             _recordings[i] = recording.copyWith(publicLink: newUrl);
             updated = true;
           }
         } catch (e) {
           if (kDebugMode) {
-            print('UserRecordingService: Failed to refresh URL for ${recording.id}: $e');
+            print(
+                'UserRecordingService: Failed to refresh URL for ${recording.id}: $e');
           }
         }
       }

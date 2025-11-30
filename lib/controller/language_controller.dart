@@ -28,8 +28,8 @@ class LanguageController extends GetxController {
   }
 
   Future<void> _loadAllSupportedLanguages() async {
-    // Start with Malagasy as it's our primary language
-    final Set<String> uniqueLanguageCodes = {'mg'};
+    // Start with native supported locales (mg, en, fr)
+    final Set<String> uniqueLanguageCodes = {'mg', 'en', 'fr'};
 
     // Add all ML Kit supported languages
     for (final language in TranslateLanguage.values) {
@@ -116,8 +116,8 @@ class LanguageController extends GetxController {
       // Show loading overlay for ML Kit languages
       if (isMLKitLanguage && Get.context != null) {
         Get.dialog(
-          WillPopScope(
-            onWillPop: () async => false, // Prevent dismissing
+          PopScope(
+            canPop: false, // Prevent dismissing
             child: Container(
               color: Colors.black54,
               child: Center(

@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import '../services/firebase_sync_service.dart';
-import '../services/translation_service.dart';
+import '../services/data/firebase_sync_service.dart';
+import '../services/core/translation_service.dart';
 
 class HistoryController extends GetxController {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

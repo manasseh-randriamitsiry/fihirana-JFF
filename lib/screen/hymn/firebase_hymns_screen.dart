@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../models/hymn.dart';
-import '../../services/hymn_service.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
 import '../../widgets/hymn/hymn_list_item.dart';
 import '../../widgets/player/lightweight_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';

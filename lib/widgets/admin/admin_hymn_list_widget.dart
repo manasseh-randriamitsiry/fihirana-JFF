@@ -6,7 +6,7 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/skeleton_admin_list.dart';
-import '../../services/hymn_service.dart';
+import 'package:fihirana/services/features/hymn_service.dart';
 
 class AdminHymnListWidget extends StatelessWidget {
   final List<String> selectedHymns;
@@ -22,7 +22,7 @@ class AdminHymnListWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final l10n = AppLocalizations.of(context)!;
-    
+
     return StreamBuilder<List<Hymn>>(
       stream: HymnService().getFirebaseHymnsStream(),
       builder: (context, snapshot) {
@@ -45,7 +45,9 @@ class AdminHymnListWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.library_books_outlined,
-                        size: 64, color: colorController.textColor.value.withValues(alpha: 0.3))
+                        size: 64,
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.3))
                     .animate(
                         onPlay: (controller) =>
                             controller.repeat(reverse: true))
@@ -58,7 +60,9 @@ class AdminHymnListWidget extends StatelessWidget {
                 Text(
                   l10n.noHymns,
                   style: TextStyle(
-                      color: colorController.textColor.value.withValues(alpha: 0.7), fontSize: 16),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.7),
+                      fontSize: 16),
                 ),
               ],
             ),
@@ -73,66 +77,71 @@ class AdminHymnListWidget extends StatelessWidget {
             final isSelected = selectedHymns.contains(hymn.id);
 
             return Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                color: colorController.backgroundColor.value,
-                child: ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  leading: Checkbox(
-                    value: isSelected,
-                    activeColor: colorController.primaryColor.value,
-                    side: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.5)),
-                    onChanged: (bool? value) {
-                      onSelectionChanged(hymn.id);
-                    },
-                  ),
-                  title: Text(
-                    '${hymn.hymnNumber} - ${hymn.title}',
-                    style: TextStyle(
-                      color: colorController.textColor.value,
-                      fontWeight: FontWeight.bold,
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  color: colorController.backgroundColor.value,
+                  child: ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    leading: Checkbox(
+                      value: isSelected,
+                      activeColor: colorController.primaryColor.value,
+                      side: BorderSide(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.5)),
+                      onChanged: (bool? value) {
+                        onSelectionChanged(hymn.id);
+                      },
                     ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      Text(
-                        '${l10n.createdBy}: ${hymn.createdBy}',
-                        style:
-                            TextStyle(color: colorController.textColor.value.withValues(alpha: 0.7)),
+                    title: Text(
+                      '${hymn.hymnNumber} - ${hymn.title}',
+                      style: TextStyle(
+                        color: colorController.textColor.value,
+                        fontWeight: FontWeight.bold,
                       ),
-                      if (hymn.createdByEmail != null)
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 4),
                         Text(
-                          l10n.emailLabel(hymn.createdByEmail!),
+                          '${l10n.createdBy}: ${hymn.createdBy}',
                           style: TextStyle(
-                              color: colorController.textColor.value.withValues(alpha: 0.6),
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.7)),
+                        ),
+                        if (hymn.createdByEmail != null)
+                          Text(
+                            l10n.emailLabel(hymn.createdByEmail!),
+                            style: TextStyle(
+                                color: colorController.textColor.value
+                                    .withValues(alpha: 0.6),
+                                fontSize: 12),
+                          ),
+                        Text(
+                          '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}',
+                          style: TextStyle(
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.5),
                               fontSize: 12),
                         ),
-                      Text(
-                        '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}',
-                        style: TextStyle(
-                            color: colorController.textColor.value.withValues(alpha: 0.5),
-                            fontSize: 12),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              )
-                .animate()
-                .fadeIn(
-                    duration: const Duration(milliseconds: 300),
-                    delay: Duration(milliseconds: 50 * index))
-                .slideY(
-                    begin: 0.1,
-                    end: 0,
-                    duration: const Duration(milliseconds: 300),
-                    delay: Duration(milliseconds: 50 * index),
-                    curve: Curves.easeOut));
+                )
+                    .animate()
+                    .fadeIn(
+                        duration: const Duration(milliseconds: 300),
+                        delay: Duration(milliseconds: 50 * index))
+                    .slideY(
+                        begin: 0.1,
+                        end: 0,
+                        duration: const Duration(milliseconds: 300),
+                        delay: Duration(milliseconds: 50 * index),
+                        curve: Curves.easeOut));
           },
         );
       },

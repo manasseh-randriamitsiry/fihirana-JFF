@@ -7,10 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import '../models/hymn.dart';
-import '../utility/snackbar_utility.dart';
-import '../services/firebase_sync_service.dart';
-import '../controller/auth_controller.dart';
+import 'package:fihirana/models/hymn.dart';
+import 'package:fihirana/utility/snackbar_utility.dart';
+import 'package:fihirana/services/data/firebase_sync_service.dart';
+import 'package:fihirana/controller/auth_controller.dart';
 import 'combined_hymn_service.dart';
 
 class HymnService {
@@ -216,10 +216,13 @@ class HymnService {
       final hymn = Hymn.fromJson(data, hymnId);
 
       // Check if user is admin/superAdmin or owns the hymn
-      if (!_authController.isAdmin && !_authController.isSuperAdmin && hymn.createdByEmail != user.email) {
+      if (!_authController.isAdmin &&
+          !_authController.isSuperAdmin &&
+          hymn.createdByEmail != user.email) {
         SnackbarUtility.showError(
           title: 'Tsy manana alalana',
-          message: 'Tsy afaka mamafa io hira io afa-tsy ilay namorona azy na mpandrindra',
+          message:
+              'Tsy afaka mamafa io hira io afa-tsy ilay namorona azy na mpandrindra',
         );
         return;
       }

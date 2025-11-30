@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
-import '../../services/audio_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 import '../../l10n/app_localizations.dart';
 
 class AudioCacheDialogWidget extends StatelessWidget {
@@ -47,13 +47,15 @@ class AudioCacheDialogWidget extends StatelessWidget {
               Text(
                 l10n.withAudio(withAudio),
                 style: TextStyle(
-                    color: colorController.textColor.value.withValues(alpha: 0.8)),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.8)),
               ),
               const SizedBox(height: 4),
               Text(
                 l10n.withoutAudio(withoutAudio),
                 style: TextStyle(
-                    color: colorController.textColor.value.withValues(alpha: 0.8)),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.8)),
               ),
             ],
           );
@@ -88,8 +90,7 @@ class AudioCacheDialogWidget extends StatelessWidget {
               );
             }
           },
-          child: Text(l10n.clearAll,
-              style: const TextStyle(color: Colors.red)),
+          child: Text(l10n.clearAll, style: const TextStyle(color: Colors.red)),
         ),
       ],
     );

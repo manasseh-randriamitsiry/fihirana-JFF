@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../models/announcement.dart';
-import '../../services/announcement_service.dart';
+import 'package:fihirana/services/features/announcement_service.dart';
 import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
@@ -30,8 +30,6 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
     final user = FirebaseAuth.instance.currentUser;
     return user?.email == 'manassehrandriamitsiry@gmail.com';
   }
-
-
 
   void _showCreateAnnouncementDialog() {
     final l10n = AppLocalizations.of(context)!;
@@ -83,8 +81,6 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
       ),
     );
   }
-
-
 
   @override
   void initState() {
@@ -165,7 +161,8 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                   announcement: announcement,
                   isAdmin: isAdmin(),
                   onEdit: () => _showEditAnnouncementDialog(announcement),
-                  onDelete: () => _announcementService.deleteAnnouncement(announcement.id),
+                  onDelete: () =>
+                      _announcementService.deleteAnnouncement(announcement.id),
                 );
               },
             );
@@ -174,6 +171,4 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
       ),
     );
   }
-
-
 }

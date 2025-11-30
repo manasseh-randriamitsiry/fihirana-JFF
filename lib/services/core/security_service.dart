@@ -5,24 +5,24 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../controller/auth_controller.dart';
-import '../widgets/common/banned_page.dart';
+import 'package:fihirana/controller/auth_controller.dart';
+import 'package:fihirana/widgets/common/banned_page.dart';
 
 class SecurityService extends GetxService {
   static SecurityService get instance => Get.find<SecurityService>();
-  
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  
+
   // Security check status
   final RxBool _isSecurityChecked = false.obs;
   final RxBool _isUserBlocked = false.obs;
   final RxString _blockReason = ''.obs;
   final RxBool _isPermanentlyBlocked = false.obs;
-  
+
   // Timer for periodic security checks
   Timer? _securityTimer;
-  
+
   bool get isSecurityChecked => _isSecurityChecked.value;
   bool get isUserBlocked => _isUserBlocked.value;
   String get blockReason => _blockReason.value;
@@ -31,7 +31,7 @@ class SecurityService extends GetxService {
   @override
   Future<void> onInit() async {
     super.onInit();
-    
+
     // Listen to auth state changes
     _auth.authStateChanges().listen((User? user) async {
       if (user != null) {
@@ -42,17 +42,17 @@ class SecurityService extends GetxService {
         _resetSecurityStatus();
       }
     });
-    
+
     // Also perform initial check if user is already logged in
     if (_auth.currentUser != null) {
       await Future.delayed(const Duration(milliseconds: 2000));
       await _performSecurityCheck();
     }
-    
+
     // Start periodic security checks every 30 seconds
     _startPeriodicSecurityCheck();
   }
-  
+
   void _startPeriodicSecurityCheck() {
     _securityTimer?.cancel();
     _securityTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
@@ -61,7 +61,7 @@ class SecurityService extends GetxService {
       }
     });
   }
-  
+
   @override
   void onClose() {
     _securityTimer?.cancel();
@@ -95,9 +95,11 @@ class SecurityService extends GetxService {
 
       final userData = userDoc.data() as Map<String, dynamic>;
       final isDisabled = userData['disabled'] as bool? ?? false;
-      final isPermanentlyBlocked = userData['permanentlyBlocked'] as bool? ?? false;
+      final isPermanentlyBlocked =
+          userData['permanentlyBlocked'] as bool? ?? false;
       final isAdmin = userData['isAdmin'] as bool? ?? false;
-      final blockedReason = userData['blockedReason'] as String? ?? 'Account suspended';
+      final blockedReason =
+          userData['blockedReason'] as String? ?? 'Account suspended';
 
       // SECURITY: Admin privileges do not override ban status
       // Ban status ALWAYS overrides admin privileges
@@ -116,7 +118,8 @@ class SecurityService extends GetxService {
         print('   Permanently Blocked: $isPermanentlyBlocked');
         print('   Was Blocked: $wasBlocked');
         print('   Now Blocked: ${_isUserBlocked.value}');
-        print('   Final Status: ${_isUserBlocked.value ? "🚫 BLOCKED" : "✅ ALLOWED"}');
+        print(
+            '   Final Status: ${_isUserBlocked.value ? "🚫 BLOCKED" : "✅ ALLOWED"}');
         if (_isUserBlocked.value) {
           print('   ⚠️ Ban status overrides admin privileges!');
         }
@@ -131,13 +134,12 @@ class SecurityService extends GetxService {
         // Ensure user stays signed out
         await _ensureUserStaysSignedOut();
       }
-
     } catch (e) {
       if (kDebugMode) print('🔒 Security check error: $e');
       // Don't reset status on error, keep previous state
     }
   }
-  
+
   Future<void> _ensureUserStaysSignedOut() async {
     try {
       // Double check user is still signed out
@@ -157,10 +159,9 @@ class SecurityService extends GetxService {
       // Clear any stored auth state using AuthController's signOut method
       final AuthController authController = Get.find<AuthController>();
       await authController.signOut();
-      
+
       // Navigate to banned page
       Get.offAll(() => const BannedPage(), transition: Transition.fadeIn);
-      
     } catch (e) {
       if (kDebugMode) {
         print('Error handling blocked user: $e');
@@ -182,28 +183,28 @@ class SecurityService extends GetxService {
     if (kDebugMode) print('🔒 Manual security check triggered');
     await _performSecurityCheck();
   }
-  
+
   // Check if an email is blocked (for Google Drive users)
   Future<bool> isEmailBlocked(String email) async {
     try {
       if (kDebugMode) {
         print('🔒 Checking if email is blocked: $email');
       }
-      
+
       // Check blocked emails collection first
       final blockedEmailDoc = await _firestore
           .collection('blocked_emails')
           .doc(email.toLowerCase().trim())
           .get(const GetOptions(source: Source.server))
           .timeout(const Duration(seconds: 10));
-      
+
       if (blockedEmailDoc.exists) {
         if (kDebugMode) {
           print('🔒 Email found in blocked_emails collection: $email');
         }
         return true;
       }
-      
+
       // Also check users collection in case user has Firebase document
       final userQuery = await _firestore
           .collection('users')
@@ -211,19 +212,21 @@ class SecurityService extends GetxService {
           .limit(1)
           .get(const GetOptions(source: Source.server))
           .timeout(const Duration(seconds: 10));
-      
+
       if (userQuery.docs.isNotEmpty) {
         final userData = userQuery.docs.first.data();
         final isDisabled = userData['disabled'] as bool? ?? false;
-        final isPermanentlyBlocked = userData['permanentlyBlocked'] as bool? ?? false;
-        
+        final isPermanentlyBlocked =
+            userData['permanentlyBlocked'] as bool? ?? false;
+
         if (kDebugMode) {
-          print('🔒 Email found in users collection - disabled: $isDisabled, permanentlyBlocked: $isPermanentlyBlocked');
+          print(
+              '🔒 Email found in users collection - disabled: $isDisabled, permanentlyBlocked: $isPermanentlyBlocked');
         }
-        
+
         return isDisabled || isPermanentlyBlocked;
       }
-      
+
       if (kDebugMode) {
         print('🔒 Email not found in any block list: $email');
       }
@@ -236,12 +239,12 @@ class SecurityService extends GetxService {
       return false;
     }
   }
-  
+
   // Force immediate security check for specific user (admin use)
   Future<void> forceSecurityCheckForUser(String userId) async {
     try {
       if (kDebugMode) print('🔒 Force security check for user: $userId');
-      
+
       final DocumentSnapshot userDoc = await _firestore
           .collection('users')
           .doc(userId)
@@ -251,18 +254,22 @@ class SecurityService extends GetxService {
       if (userDoc.exists) {
         final userData = userDoc.data() as Map<String, dynamic>;
         final isDisabled = userData['disabled'] as bool? ?? false;
-        final isPermanentlyBlocked = userData['permanentlyBlocked'] as bool? ?? false;
-        
+        final isPermanentlyBlocked =
+            userData['permanentlyBlocked'] as bool? ?? false;
+
         if (kDebugMode) {
           print('🔒 Force check results for $userId:');
           print('   Disabled: $isDisabled');
           print('   Permanently Blocked: $isPermanentlyBlocked');
           print('   Should be blocked: ${isDisabled || isPermanentlyBlocked}');
         }
-        
+
         // If this user is currently logged in and should be blocked
-        if (_auth.currentUser?.uid == userId && (isDisabled || isPermanentlyBlocked)) {
-          if (kDebugMode) print('🚨 Current user should be blocked! Taking action...');
+        if (_auth.currentUser?.uid == userId &&
+            (isDisabled || isPermanentlyBlocked)) {
+          if (kDebugMode) {
+            debugPrint('🚨 Current user should be blocked! Taking action...');
+          }
           await _handleBlockedUser();
         }
       }
@@ -287,5 +294,5 @@ class SecurityService extends GetxService {
       // For iOS, we can't force exit, so we just show the banned page
       Get.offAll(() => const BannedPage(), transition: Transition.fadeIn);
     }
-}
+  }
 }

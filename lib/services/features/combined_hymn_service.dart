@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
-import '../models/hymn.dart';
+import 'package:fihirana/models/hymn.dart';
 import 'local_hymn_service.dart';
 
 class CombinedHymnService {
@@ -19,12 +19,13 @@ class CombinedHymnService {
     if (_isInitializing) return;
 
     _isInitializing = true;
-    
+
     try {
       await _loadCombinedHymns();
       _isInitialized = true;
       if (kDebugMode) {
-        print('CombinedHymnService initialized with ${_allHymns?.length ?? 0} hymns');
+        print(
+            'CombinedHymnService initialized with ${_allHymns?.length ?? 0} hymns');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -43,22 +44,25 @@ class CombinedHymnService {
       if (kDebugMode) {
         print('Loading combined hymn file...');
       }
-      
-      final jsonString = await rootBundle.loadString('assets/hymns_combined.json');
+
+      final jsonString =
+          await rootBundle.loadString('assets/hymns_combined.json');
       final jsonData = json.decode(jsonString) as Map<String, dynamic>;
-      
+
       if (!jsonData.containsKey('hymns')) {
-        throw Exception('Invalid hymns_combined.json format: missing "hymns" key');
+        throw Exception(
+            'Invalid hymns_combined.json format: missing "hymns" key');
       }
 
       final hymnsData = jsonData['hymns'] as List<dynamic>;
       final List<Hymn> hymns = [];
-      
+
       for (final hymnData in hymnsData) {
         try {
           final hymnMap = hymnData as Map<String, dynamic>;
           // Use filename as ID (without .json extension) for audio compatibility
-          final fileName = hymnMap['file_path'] as String? ?? '${hymnMap['number']}.json';
+          final fileName =
+              hymnMap['file_path'] as String? ?? '${hymnMap['number']}.json';
           final hymnId = fileName.replaceAll('.json', '');
           final hymn = _parseHymnFromJson(hymnMap, hymnId);
           hymns.add(hymn);
@@ -69,7 +73,7 @@ class CombinedHymnService {
           }
         }
       }
-      
+
       // Sort by hymn number
       hymns.sort((a, b) {
         final numA = int.tryParse(a.hymnNumber) ?? 0;
@@ -78,7 +82,7 @@ class CombinedHymnService {
       });
 
       _allHymns = hymns;
-      
+
       if (kDebugMode) {
         print('Successfully loaded ${hymns.length} hymns from combined file');
         if (hymns.isNotEmpty) {
@@ -98,11 +102,11 @@ class CombinedHymnService {
     if (kDebugMode) {
       print('Falling back to individual hymn file loading...');
     }
-    
+
     // Use the existing LocalHymnService as fallback
     final localService = LocalHymnService();
     _allHymns = await localService.getAllHymns();
-    
+
     for (final hymn in _allHymns!) {
       _hymnCache[hymn.id] = hymn;
     }
@@ -119,7 +123,7 @@ class CombinedHymnService {
     if (!_isInitialized) {
       await initialize();
     }
-    
+
     if (_hymnCache.containsKey(id)) {
       return _hymnCache[id];
     }

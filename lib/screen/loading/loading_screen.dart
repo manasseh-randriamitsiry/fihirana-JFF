@@ -7,7 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
-import '../../services/local_storage_service.dart';
+import 'package:fihirana/services/data/local_storage_service.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../accueil/home_screen.dart';
 

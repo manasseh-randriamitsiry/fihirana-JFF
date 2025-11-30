@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
-import '../../services/audio_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
 import '../player/lightweight_audio_player_widget.dart';
 
 import '../common/mlkit_localization_provider.dart';
@@ -32,7 +32,7 @@ class FavoriteHymnCard extends StatelessWidget {
 
   void _showAudioPlayerDialog(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -50,14 +50,14 @@ class FavoriteHymnCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                     Text(
-                       context.translateWithMLKit((l) => l.audioPlayer),
-                       style: TextStyle(
-                         fontSize: 20,
-                         fontWeight: FontWeight.bold,
-                         color: colorController.textColor.value,
-                       ),
-                     ),
+                    Text(
+                      context.translateWithMLKit((l) => l.audioPlayer),
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: colorController.textColor.value,
+                      ),
+                    ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
                       icon: Icon(
@@ -138,7 +138,8 @@ class FavoriteHymnCard extends StatelessWidget {
                 return Container(
                   decoration: BoxDecoration(
                     color: isCurrentlyPlaying
-                        ? colorController.primaryColor.value.withValues(alpha: 0.15)
+                        ? colorController.primaryColor.value
+                            .withValues(alpha: 0.15)
                         : Colors.transparent,
                     shape: BoxShape.circle,
                   ),
@@ -167,8 +168,8 @@ class FavoriteHymnCard extends StatelessWidget {
                           ),
                       ],
                     ),
-                     onPressed: () => _showAudioPlayerDialog(context),
-                     tooltip: context.translateWithMLKit((l) => l.playAudio),
+                    onPressed: () => _showAudioPlayerDialog(context),
+                    tooltip: context.translateWithMLKit((l) => l.playAudio),
                   ),
                 );
               }),
@@ -176,24 +177,24 @@ class FavoriteHymnCard extends StatelessWidget {
             IconButton(
               icon: Icon(
                 isFavorite ? Icons.favorite : Icons.favorite_border,
-                color: isFavorite ? Colors.red : colorController.iconColor.value,
+                color:
+                    isFavorite ? Colors.red : colorController.iconColor.value,
                 size: 24,
               ),
-               onPressed: onFavoritePressed,
-               tooltip: isFavorite ? context.translateWithMLKit((l) => l.removeFromFavorites) : context.translateWithMLKit((l) => l.addToFavorites),
+              onPressed: onFavoritePressed,
+              tooltip: isFavorite
+                  ? context.translateWithMLKit((l) => l.removeFromFavorites)
+                  : context.translateWithMLKit((l) => l.addToFavorites),
             ),
           ],
         ),
         onTap: onTap,
       ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms, delay: (50 * index).ms)
-        .slideY(
-            begin: 0.1,
-            end: 0,
-            duration: 300.ms,
-            delay: (50 * index).ms,
-            curve: Curves.easeOut);
+    ).animate().fadeIn(duration: 300.ms, delay: (50 * index).ms).slideY(
+        begin: 0.1,
+        end: 0,
+        duration: 300.ms,
+        delay: (50 * index).ms,
+        curve: Curves.easeOut);
   }
 }

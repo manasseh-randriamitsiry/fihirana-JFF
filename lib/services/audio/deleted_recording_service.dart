@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/user_recording.dart';
+import 'package:fihirana/models/user_recording.dart';
 import 'package:uuid/uuid.dart';
 
 class DeletedRecordingService {
-  static final DeletedRecordingService _instance = DeletedRecordingService._internal();
+  static final DeletedRecordingService _instance =
+      DeletedRecordingService._internal();
   factory DeletedRecordingService() => _instance;
   DeletedRecordingService._internal();
 
@@ -22,14 +23,15 @@ class DeletedRecordingService {
   Future<void> saveDeletedRecording(UserRecording recording) async {
     try {
       if (_prefs == null) await initialize();
-      
+
       final deletedRecording = recording.copyWith(
         id: _uuid.v4(), // Generate new ID for deleted recording
       );
-      
-      final List<Map<String, dynamic>> deletedRecordings = await getDeletedRecordingsMap();
+
+      final List<Map<String, dynamic>> deletedRecordings =
+          await getDeletedRecordingsMap();
       deletedRecordings.add(deletedRecording.toMap());
-      
+
       await _prefs!.setString(_deletedKey, json.encode(deletedRecordings));
     } catch (e) {
       developer.log('Error saving deleted recording: $e');
@@ -40,10 +42,10 @@ class DeletedRecordingService {
   Future<List<Map<String, dynamic>>> getDeletedRecordingsMap() async {
     try {
       if (_prefs == null) await initialize();
-      
+
       final String? data = _prefs!.getString(_deletedKey);
       if (data == null || data.isEmpty) return [];
-      
+
       final List<dynamic> decoded = json.decode(data);
       return decoded.cast<Map<String, dynamic>>();
     } catch (e) {
@@ -66,8 +68,10 @@ class DeletedRecordingService {
   // Restore a deleted recording
   Future<void> restoreRecording(String deletedRecordingId) async {
     try {
-      final List<Map<String, dynamic>> deletedRecordings = await getDeletedRecordingsMap();
-      deletedRecordings.removeWhere((recording) => recording['id'] == deletedRecordingId);
+      final List<Map<String, dynamic>> deletedRecordings =
+          await getDeletedRecordingsMap();
+      deletedRecordings
+          .removeWhere((recording) => recording['id'] == deletedRecordingId);
       await _prefs!.setString(_deletedKey, json.encode(deletedRecordings));
     } catch (e) {
       developer.log('Error restoring recording: $e');
@@ -77,8 +81,10 @@ class DeletedRecordingService {
   // Permanently delete a recording from deleted list
   Future<void> permanentlyDeleteRecording(String deletedRecordingId) async {
     try {
-      final List<Map<String, dynamic>> deletedRecordings = await getDeletedRecordingsMap();
-      deletedRecordings.removeWhere((recording) => recording['id'] == deletedRecordingId);
+      final List<Map<String, dynamic>> deletedRecordings =
+          await getDeletedRecordingsMap();
+      deletedRecordings
+          .removeWhere((recording) => recording['id'] == deletedRecordingId);
       await _prefs!.setString(_deletedKey, json.encode(deletedRecordings));
     } catch (e) {
       developer.log('Error permanently deleting recording: $e');
@@ -103,11 +109,11 @@ class DeletedRecordingService {
   // Check if a recording exists in deleted list
   Future<bool> isRecordingDeleted(String originalRecordingId) async {
     try {
-      final List<Map<String, dynamic>> deletedRecordings = await getDeletedRecordingsMap();
-      return deletedRecordings.any((recording) => 
-        recording['id'] == originalRecordingId || 
-        recording['title'] == originalRecordingId
-      );
+      final List<Map<String, dynamic>> deletedRecordings =
+          await getDeletedRecordingsMap();
+      return deletedRecordings.any((recording) =>
+          recording['id'] == originalRecordingId ||
+          recording['title'] == originalRecordingId);
     } catch (e) {
       developer.log('Error checking if recording is deleted: $e');
       return false;

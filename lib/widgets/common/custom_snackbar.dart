@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../services/translation_service.dart';
+import 'package:fihirana/services/core/translation_service.dart';
 
 class SnackbarStyles {
   static const Color successColor = Colors.green;
@@ -53,7 +53,7 @@ class CustomSnackbar {
       duration: config.duration,
       borderRadius: config.borderRadius,
       margin: config.margin,
-      icon: config.icon != null 
+      icon: config.icon != null
           ? Icon(config.icon, color: config.colorText)
           : null,
       isDismissible: true,
@@ -64,7 +64,7 @@ class CustomSnackbar {
       barBlur: 10,
       overlayBlur: 0,
       showProgressIndicator: config.showProgressIndicator,
-      mainButton: config.mainButton != null 
+      mainButton: config.mainButton != null
           ? TextButton(
               onPressed: () => Get.closeCurrentSnackbar(),
               child: config.mainButton!,
@@ -82,7 +82,9 @@ class CustomSnackbar {
   }) async {
     final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title ?? await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+      title: title ??
+          await translationService.translate(
+              text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.successColor,
       duration: duration ?? SnackbarStyles.defaultDuration,
@@ -100,7 +102,9 @@ class CustomSnackbar {
   }) async {
     final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title ?? await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
+      title: title ??
+          await translationService.translate(
+              text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.errorColor,
       duration: duration ?? const Duration(seconds: 5), // Longer for errors
@@ -118,7 +122,9 @@ class CustomSnackbar {
   }) async {
     final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title ?? await translationService.translate(text: 'Info', sourceLanguage: 'en', targetLanguage: 'en'),
+      title: title ??
+          await translationService.translate(
+              text: 'Info', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.infoColor,
       duration: duration ?? SnackbarStyles.defaultDuration,
@@ -136,7 +142,9 @@ class CustomSnackbar {
   }) async {
     final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title ?? await translationService.translate(text: 'Warning', sourceLanguage: 'en', targetLanguage: 'en'),
+      title: title ??
+          await translationService.translate(
+              text: 'Warning', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.warningColor,
       duration: duration ?? SnackbarStyles.defaultDuration,
@@ -174,7 +182,9 @@ class CustomSnackbar {
   }) async {
     final translationService = TranslationService();
     show(SnackbarConfig(
-      title: title ?? await translationService.translate(text: 'Loading', sourceLanguage: 'en', targetLanguage: 'en'),
+      title: title ??
+          await translationService.translate(
+              text: 'Loading', sourceLanguage: 'en', targetLanguage: 'en'),
       message: message,
       backgroundColor: SnackbarStyles.infoColor,
       showProgressIndicator: true,

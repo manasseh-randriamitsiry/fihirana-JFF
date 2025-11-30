@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import '../models/user_recording.dart';
+import 'package:fihirana/models/user_recording.dart';
 
 class PublicRecordingService {
   static final PublicRecordingService _instance =
@@ -38,7 +38,7 @@ class PublicRecordingService {
     }
   }
 
-/// Publish a recording to Firestore
+  /// Publish a recording to Firestore
   Future<bool> publishRecording(UserRecording recording) async {
     try {
       await _firestore.collection(_collectionName).doc(recording.id).set({

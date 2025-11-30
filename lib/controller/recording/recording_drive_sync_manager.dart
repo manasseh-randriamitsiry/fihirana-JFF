@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 import '../../models/user_recording.dart';
-import '../../services/user_recording_service.dart';
+import '../../services/audio/user_recording_service.dart';
 
-import '../../services/audio_service.dart';
+import '../../services/audio/audio_service.dart';
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
 
@@ -140,7 +140,7 @@ class RecordingDriveSyncManager extends GetxController {
             if (recording.filePath.isNotEmpty) {
               actualDuration = await AudioService.getAudioFileDuration(recording.filePath);
               if (kDebugMode && actualDuration > 0) {
-                print('RecordingDriveSyncManager: Got duration from local file for ${recording.title}: ${actualDuration}s');
+                debugPrint('RecordingDriveSyncManager: Got duration from local file for ${recording.title}: ${actualDuration}s');
               }
             }
             
@@ -150,7 +150,7 @@ class RecordingDriveSyncManager extends GetxController {
                   'https://drive.google.com/uc?export=download&id=${recording.driveFileId}';
               actualDuration = await AudioService.getAudioUrlDuration(downloadUrl);
               if (kDebugMode && actualDuration > 0) {
-                print('RecordingDriveSyncManager: Got duration from Drive for ${recording.title}: ${actualDuration}s');
+                debugPrint('RecordingDriveSyncManager: Got duration from Drive for ${recording.title}: ${actualDuration}s');
               }
             }
             

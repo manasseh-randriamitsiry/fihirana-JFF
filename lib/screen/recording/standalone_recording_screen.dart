@@ -133,7 +133,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         }
       }
     } catch (e) {
-      print('Error renaming recording: $e');
+      debugPrint('Error renaming recording: $e');
     }
 
     // Navigate back after all operations are complete
