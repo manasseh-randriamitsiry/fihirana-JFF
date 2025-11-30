@@ -39,34 +39,6 @@ import 'package:fihirana/screen/contact/contact_list_screen.dart';
 
 // ... existing imports
 
-// Custom AppLocalizations delegate that always returns a value (never null)
-class _FallbackAppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
-  const _FallbackAppLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) {
-    // Support all locales
-    return true;
-  }
-
-  @override
-  Future<AppLocalizations> load(Locale locale) async {
-    // Try to load the requested locale
-    const supported = ['en', 'fr', 'mg'];
-    if (supported.contains(locale.languageCode)) {
-      // For supported locales, use the standard delegate
-      return AppLocalizations.delegate.load(locale);
-    }
-
-    // For unsupported locales, return English
-    return SynchronousFuture<AppLocalizations>(AppLocalizationsEn());
-  }
-
-  @override
-  bool shouldReload(_FallbackAppLocalizationsDelegate old) => false;
-}
-
 // Fallback Material localization delegate for unsupported locales
 class _FallbackMaterialLocalizationsDelegate
     extends LocalizationsDelegate<MaterialLocalizations> {
@@ -290,7 +262,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
               debugShowCheckedModeBanner: false,
               locale: currentLocale,
               localizationsDelegates: const [
-                _FallbackAppLocalizationsDelegate(),
                 AppLocalizations.delegate,
                 GlobalMaterialLocalizations.delegate,
                 GlobalWidgetsLocalizations.delegate,
@@ -334,7 +305,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           debugShowCheckedModeBanner: false,
           locale: currentLocale,
           localizationsDelegates: const [
-            _FallbackAppLocalizationsDelegate(),
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

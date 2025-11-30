@@ -172,8 +172,6 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Dialog(
       backgroundColor: Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
@@ -269,7 +267,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
               style: TextButton.styleFrom(
                 foregroundColor: Theme.of(context).textTheme.bodyMedium?.color,
               ),
-              child: Text(l10n.cancel),
+              child: Text(context.translateWithMLKit((l) => l.cancel)),
             ),
           ],
         ),
