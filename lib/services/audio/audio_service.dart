@@ -23,6 +23,9 @@ class AudioService {
   }
 
   factory AudioService() => instance;
+  // Initialize player immediately to prevent LateInitializationError
+  AudioPlayer _player = AudioPlayer();
+
   AudioService._internal() {
     _initializePlayer();
     _initializePlayerOnStartup();
@@ -33,16 +36,20 @@ class AudioService {
     final config = await AudioConfig.getAudioPlayerConfig();
     final effects = config['androidAudioEffects'] as List<dynamic>?;
     final androidEffects = effects?.cast<AndroidAudioEffect>() ?? [];
+
+    // Dispose old player and create new one with config
+    await _player.dispose();
     _player = AudioPlayer(
       audioPipeline: AudioPipeline(
         androidAudioEffects: androidEffects,
       ),
     );
-    
+
     if (kDebugMode) {
       print('AudioService: Initialized player with config: $config');
       print('AudioService: Is emulator: ${await AudioConfig.isEmulator}');
-      print('AudioService: Preferred format: ${await AudioConfig.preferredFormat}');
+      print(
+          'AudioService: Preferred format: ${await AudioConfig.preferredFormat}');
     }
   }
 
@@ -105,7 +112,6 @@ class AudioService {
     });
   }
 
-  late final AudioPlayer _player;
   Hymn? _currentHymn;
   dynamic _currentRecording; // Track current recording
   List<Hymn> _playlist = [];
@@ -120,19 +126,23 @@ class AudioService {
   AudioPlayer get player => _player;
   Hymn? get currentHymn => _currentHymn;
   dynamic get currentRecording => _currentRecording;
-  bool get isPlayingRecording => _currentRecording != null && _currentHymn?.id.startsWith('recording_') == true;
-  
+  bool get isPlayingRecording =>
+      _currentRecording != null &&
+      _currentHymn?.id.startsWith('recording_') == true;
+
   /// Get display title for current playing item (hymn or recording)
   String get currentDisplayTitle {
-    if (_currentHymn?.id.startsWith('recording_') == true && _currentRecording != null) {
+    if (_currentHymn?.id.startsWith('recording_') == true &&
+        _currentRecording != null) {
       return _currentRecording.title ?? 'Unknown Recording';
     }
     return _currentHymn?.title ?? '';
   }
-  
+
   /// Get display subtitle for current playing item
   String get currentDisplaySubtitle {
-    if (_currentHymn?.id.startsWith('recording_') == true && _currentRecording != null) {
+    if (_currentHymn?.id.startsWith('recording_') == true &&
+        _currentRecording != null) {
       return 'Recording by ${_currentRecording.userName ?? 'User'}';
     }
     return _currentHymn != null ? 'Hymn ${_currentHymn!.hymnNumber}' : '';
@@ -210,7 +220,7 @@ class AudioService {
     }
 
     _currentHymn = hymn;
-    
+
     // Handle recording state properly
     if (hymn.id.startsWith('recording_')) {
       // This is a recording, keep the recording state
@@ -221,16 +231,18 @@ class AudioService {
       // This is a regular hymn, clear recording state if different
       if (_currentRecording != null) {
         if (kDebugMode) {
-          print('AudioService: Clearing recording, playing regular hymn ${hymn.id}');
+          print(
+              'AudioService: Clearing recording, playing regular hymn ${hymn.id}');
         }
         _currentRecording = null;
       }
     }
-    
+
     _currentPlayingHymnId.value = hymn.id; // Ensure reactive update
-    
+
     if (kDebugMode) {
-      print('AudioService: Set current hymn $hymn.id, isPlayingRecording: $isPlayingRecording');
+      print(
+          'AudioService: Set current hymn $hymn.id, isPlayingRecording: $isPlayingRecording');
     }
 
     // Update playlist index if this hymn is in the current playlist
@@ -640,7 +652,8 @@ class AudioService {
       if (kDebugMode) {
         print(
             'AudioService: Streaming public recording from generated URL: $audioUrl');
-        print('AudioService: Recording isPublic: ${recording.isPublic}, driveFileId: ${recording.driveFileId}');
+        print(
+            'AudioService: Recording isPublic: ${recording.isPublic}, driveFileId: ${recording.driveFileId}');
       }
     }
     // Check if recording has a public link (fallback)
@@ -848,13 +861,15 @@ class AudioService {
       // Prevent using GitHub URLs for user recordings
       if (audioUrl.contains('github.com') && audioUrl.contains(recording.id)) {
         if (kDebugMode) {
-          print('AudioService: ERROR - GitHub URL detected for user recording, this should not happen!');
-          print('AudioService: Recording ID: ${recording.id}, GitHub URL: $audioUrl');
+          print(
+              'AudioService: ERROR - GitHub URL detected for user recording, this should not happen!');
+          print(
+              'AudioService: Recording ID: ${recording.id}, GitHub URL: $audioUrl');
         }
         UIService.showAudioNotAvailableSnackBar();
         return;
       }
-      
+
       try {
         if (kDebugMode) {
           print(
@@ -862,7 +877,7 @@ class AudioService {
           print(
               'AudioService: URL type: ${audioUrl.startsWith('http') ? 'Remote' : 'Local'}');
         }
-        
+
         // Set the recording before playing to ensure proper state tracking
         _currentRecording = recording;
         await playHymn(hymn, customAudioUrl: audioUrl);

@@ -4,33 +4,37 @@ import 'package:get/get.dart';
 import '../../controller/recording_controller.dart';
 import 'recording_overlay.dart';
 
-class RecordingOverlayManager extends StatelessWidget {
+class RecordingOverlayManager extends GetView<RecordingController> {
   const RecordingOverlayManager({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Get controller inside build to avoid calling Get.put during widget creation
-    final RecordingController controller = Get.put(RecordingController());
+    // Use GetView's controller property instead of Get.put
+    // This prevents calling Get.put during build
+    return GetBuilder<RecordingController>(
+      init: RecordingController(),
+      builder: (controller) {
+        return Obx(() {
+          // Early return for better performance
+          if (!controller.overlayVisible.value) {
+            return const SizedBox.shrink();
+          }
 
-    return Obx(() {
-      // Early return for better performance
-      if (!controller.overlayVisible.value) {
-        return const SizedBox.shrink();
-      }
+          // Show mini player if overlay is minimized
+          if (controller.isOverlayMinimized.value) {
+            return const RecordingMiniPlayer();
+          }
 
-      // Show mini player if overlay is minimized
-      if (controller.isOverlayMinimized.value) {
-        return const RecordingMiniPlayer();
-      }
-
-      // Show full overlay if visible and not minimized
-      return RecordingOverlay(
-        hymnId: controller.currentHymnId.value,
-        hymnTitle: controller.currentHymnTitle.value,
-        onClose: () => controller.hideOverlay(),
-        onMinimize: () => controller.minimizeOverlay(),
-      );
-    });
+          // Show full overlay if visible and not minimized
+          return RecordingOverlay(
+            hymnId: controller.currentHymnId.value,
+            hymnTitle: controller.currentHymnTitle.value,
+            onClose: () => controller.hideOverlay(),
+            onMinimize: () => controller.minimizeOverlay(),
+          );
+        });
+      },
+    );
   }
 
   // Static method to show recording overlay from anywhere
