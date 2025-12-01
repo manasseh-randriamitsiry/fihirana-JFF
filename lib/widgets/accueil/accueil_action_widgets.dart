@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
-
-
-import '../common/mlkit_localization_provider.dart';
+import '../common/localization_extension.dart';
 
 class UpdateButtonWidget extends StatelessWidget {
   final bool isDownloading;
@@ -39,7 +37,7 @@ class UpdateButtonWidget extends StatelessWidget {
             )
           : Icon(Icons.system_update, color: iconColor),
       onPressed: onPressed,
-      tooltip: context.translateWithMLKit((l) => l.updateAvailable),
+      tooltip: context.translate((l) => l.updateAvailable),
     );
   }
 }
@@ -66,7 +64,7 @@ class NowPlayingButtonWidget extends StatelessWidget {
         key: const ValueKey('play_first_button'),
         icon: Icon(Icons.play_circle_outline, color: iconColor),
         onPressed: onPressed,
-        tooltip: context.translateWithMLKit((l) => l.playFirstHymn),
+        tooltip: context.translate((l) => l.playFirstHymn),
       );
     }
 
@@ -76,7 +74,7 @@ class NowPlayingButtonWidget extends StatelessWidget {
           ? Icon(Icons.play_circle_filled, color: iconColor)
           : Icon(Icons.play_circle_outline, color: iconColor),
       onPressed: onPressed,
-      tooltip: context.translateWithMLKit((l) => l.nowPlaying),
+      tooltip: context.translate((l) => l.nowPlaying),
     );
   }
 }

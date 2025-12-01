@@ -168,6 +168,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   void _showCloseConfirmation() {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -816,8 +817,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     );
   }
 
-  void _showUploadProgressDialog(UserRecording recording,
+void _showUploadProgressDialog(UserRecording recording,
       {bool isPublic = false}) {
+    final l10n = AppLocalizations.of(context)!;
     // Trigger upload when dialog is shown
     _controller.uploadToDrive(recording).then((_) async {
       // If marked as public, publish to Firestore after upload

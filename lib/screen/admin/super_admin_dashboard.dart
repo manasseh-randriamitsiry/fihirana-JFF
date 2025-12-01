@@ -496,7 +496,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        AppLocalizations.of(context)!.versionBlocked.replaceAll('{version}', _adminConfig!.blockedVersion!),
+                        AppLocalizations.of(context)!.versionBlocked(_adminConfig!.blockedVersion!),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,

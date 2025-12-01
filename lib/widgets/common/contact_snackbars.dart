@@ -36,7 +36,7 @@ class ContactsErrorSnackBar {
     final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(l10n.errorAccessingContacts.replaceAll('{error}', error)),
+        content: Text(l10n.errorAccessingContacts(error)),
         backgroundColor: Colors.red,
       ),
     );

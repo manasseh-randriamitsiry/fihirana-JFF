@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as flutter_contacts;
 import '../../controller/color_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class ContactImportDialogWidget extends StatefulWidget {
   final List<flutter_contacts.Contact> contacts;

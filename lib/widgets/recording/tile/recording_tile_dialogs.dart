@@ -80,8 +80,8 @@ class RecordingTileDialogs {
           children: [
             Text(
               adminAndOwner
-                  ? l10n.chooseHowToDelete.replaceAll('{title}', recording.title)
-                  : l10n.sureToDelete.replaceAll('{title}', recording.title),
+                  ? l10n.chooseHowToDelete(recording.title)
+                  : l10n.sureToDelete(recording.title),
               style: TextStyle(
                   color: colorController.textColor.value, fontSize: 14),
             ),
@@ -101,7 +101,7 @@ class RecordingTileDialogs {
               ),
               child: Text(
                 adminAndOwner
-                    ? l10n.chooseHowToDelete.replaceAll('{title}', recording.title)
+                    ? l10n.chooseHowToDelete(recording.title)
                     : (owner
                         ? l10n.historyCannotBeUndone
                         : l10n.deleteRecordingQuestion),
@@ -171,6 +171,7 @@ class RecordingTileDialogs {
 
   static void showPermanentDeleteConfirmation(
       BuildContext context, UserRecording recording) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(

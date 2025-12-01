@@ -169,7 +169,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorPlayingNextHymn.replaceAll('{error}', e.toString()))),
+          SnackBar(content: Text(l10n.errorPlayingNextHymn(e.toString()))),
         );
       }
     }
@@ -183,7 +183,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorPlayingPreviousHymn.replaceAll('{error}', e.toString()))),
+          SnackBar(content: Text(l10n.errorPlayingPreviousHymn(e.toString()))),
         );
       }
     }
@@ -211,7 +211,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
         });
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorPlayingAudio.replaceAll('{error}', e.toString()))),
+          SnackBar(content: Text(l10n.errorPlayingAudio(e.toString()))),
         );
       }
     }

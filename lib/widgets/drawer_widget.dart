@@ -373,10 +373,10 @@ class DrawerWidgetState extends State<DrawerWidget>
             child: Obx(() {
               final currentRoute =
                   Get.find<ShellController>().currentRoute.value;
+final l10n = AppLocalizations.of(context)!;
               return ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                   final l10n = AppLocalizations.of(context)!;
                    _buildSectionHeader(l10n.library),
                    _buildDrawerItem(
                      icon: Icons.home_rounded,

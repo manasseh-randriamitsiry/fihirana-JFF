@@ -83,7 +83,7 @@ class TranslationController extends ChangeNotifier {
       // Detect source language if not provided
       String fromLang = sourceLanguage ?? 'en';
       if (sourceLanguage == null) {
-        fromLang = await _languageDetectionService.getSourceLanguage(text, _currentLocale);
+        fromLang = await _languageDetectionService.getSourceLanguage(text);
       }
 
       final toLang = targetLanguage ?? _currentLocale;
@@ -178,7 +178,7 @@ class TranslationController extends ChangeNotifier {
 
   /// Get supported languages
   List<String> getSupportedLanguages() {
-    return _translationService.supportedLanguages;
+    return _translationService.supportedLanguagesMap.keys.toList();
   }
 
   /// Check if language is supported

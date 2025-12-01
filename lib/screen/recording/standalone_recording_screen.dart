@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../controller/recording_controller.dart';
 import '../../controller/color_controller.dart';
 import '../../widgets/recording/recording_controls_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 class StandaloneRecordingScreen extends StatefulWidget {
   const StandaloneRecordingScreen({super.key});

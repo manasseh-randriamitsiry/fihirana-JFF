@@ -9,6 +9,7 @@ import 'package:fihirana/widgets/context_aware_fab.dart';
 import 'package:fihirana/widgets/recording/recording_tile_widget.dart';
 import 'package:fihirana/services/core/security_service.dart';
 import 'package:fihirana/models/user_recording.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 import 'standalone_recording_screen.dart';
 
 class RecordingManagerScreen extends StatelessWidget {

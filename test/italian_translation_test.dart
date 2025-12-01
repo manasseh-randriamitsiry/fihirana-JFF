@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/widgets/common/mlkit_localization_provider.dart';
+
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -46,9 +46,7 @@ void main() {
       expect(itLocalizations.signOut, equals('Sign Out'));
     });
 
-    test('ML Kit provider should recognize Italian as native language', () {
-      final provider = MLKitLocalizationProvider();
-      
+    test('Italian should be considered natively supported', () {
       // Italian should be considered natively supported
       const nativelySupported = ['mg', 'en', 'fr', 'it'];
       expect(nativelySupported.contains('it'), isTrue);

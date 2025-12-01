@@ -7,7 +7,7 @@ import '../../models/playlist.dart';
 import 'playlist_detail_screen.dart';
 import '../../widgets/playlist/playlist_item_card.dart';
 import '../../widgets/playlist/create_playlist_dialog.dart';
-import '../../widgets/common/mlkit_localization_provider.dart';
+import '../../widgets/common/localization_extension.dart';
 import '../../l10n/app_localizations.dart';
 
 class PlaylistListScreen extends StatelessWidget {
@@ -23,7 +23,7 @@ class PlaylistListScreen extends StatelessWidget {
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
 title: Text(
-          context.translateWithMLKit((l) => l.myPlaylists),
+          context.translate((l) => l.myPlaylists),
           style: TextStyle(color: colorController.textColor.value),
         ),
         backgroundColor: colorController.backgroundColor.value,
@@ -107,8 +107,8 @@ title: Text(
     showDialog(
       context: context,
       builder: (context) => CreatePlaylistDialog(
-        title: context.translateWithMLKit((l) => l.newPlaylist),
-        hint: context.translateWithMLKit((l) => l.playlistExampleHint),
+        title: context.translate((l) => l.newPlaylist),
+        hint: context.translate((l) => l.playlistExampleHint),
         onCreate: (title, date) {
           Get.find<PlaylistController>().createPlaylist(title, date);
         },
@@ -123,17 +123,17 @@ void _confirmDelete(BuildContext context, Playlist playlist) {
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
         title: Text(
-          context.translateWithMLKit((l) => l.deletePlaylist),
+          context.translate((l) => l.deletePlaylist),
           style: TextStyle(color: colorController.textColor.value),
         ),
         content: Text(
-          context.translateWithMLKit((l) => l.confirmDeletePlaylist(playlist.title)),
+          context.translate((l) => l.confirmDeletePlaylist(playlist.title)),
           style: TextStyle(color: colorController.textColor.value),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(context.translateWithMLKit((l) => l.cancel),
+            child: Text(context.translate((l) => l.cancel),
                 style: TextStyle(color: colorController.textColor.value)),
           ),
           TextButton(
@@ -141,7 +141,7 @@ void _confirmDelete(BuildContext context, Playlist playlist) {
               Get.find<PlaylistController>().deletePlaylist(playlist.id);
               Navigator.pop(context);
             },
-            child: Text(context.translateWithMLKit((l) => l.delete), style: const TextStyle(color: Colors.red)),
+            child: Text(context.translate((l) => l.delete), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

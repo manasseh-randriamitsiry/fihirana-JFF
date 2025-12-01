@@ -7,7 +7,6 @@ import '../../models/hymn.dart';
 import '../../utility/navigation_utility.dart';
 import 'package:fihirana/services/features/hymn_service.dart';
 import 'package:fihirana/services/audio/audio_service.dart';
-
 import '../../controller/auth_controller.dart';
 import '../common/localization_extension.dart';
 import '../../l10n/app_localizations.dart';
@@ -184,8 +183,8 @@ class _HymnListItemState extends State<HymnListItem>
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            context
-                                .translateWithMLKit((l) => l.typeYesToConfirm),
+context
+                                .translate((l) => l.typeYesToConfirm),
                             style: const TextStyle(color: Colors.white),
                           ),
                           backgroundColor: Colors.red,
