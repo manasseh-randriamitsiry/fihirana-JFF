@@ -43,7 +43,7 @@ class MapsRedirectSnackBar {
       SnackBar(
         content: Text(l10n.redirectingToGoogleMaps),
         backgroundColor: Colors.blue,
-        duration: Duration(seconds: 3),
+        duration: const Duration(seconds: 3),
       ),
     );
   }

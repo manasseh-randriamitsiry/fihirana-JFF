@@ -207,7 +207,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                     ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
@@ -216,7 +216,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                                   AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           ),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(AppLocalizations.of(context)!.saving),
                         ],
                       )
@@ -262,11 +262,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                       : config.updatesEnabled
                           ? 'Updates Enabled'
                           : 'Updates Disabled',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: statusColor,
-                  ),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
@@ -436,8 +432,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.blockedVersion,
                 hintText: AppLocalizations.of(context)!.versionEG,
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.block),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.block),
               ),
             ),
             const SizedBox(height: 12),
@@ -447,8 +443,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.minimumSupportedVersion,
                 hintText: AppLocalizations.of(context)!.versionEG,
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.verified),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.verified),
               ),
             ),
             const SizedBox(height: 12),
@@ -458,8 +454,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.recommendedVersion,
                 hintText: AppLocalizations.of(context)!.versionEG,
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.thumb_up),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.thumb_up),
               ),
             ),
             const SizedBox(height: 12),
@@ -469,8 +465,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.allowedVersions,
                 hintText: AppLocalizations.of(context)!.versionsEG,
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.list),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.list),
               ),
             ),
             const SizedBox(height: 12),
@@ -480,8 +476,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.adminMessage,
                 hintText: AppLocalizations.of(context)!.messageToDisplayToAllUsers,
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.message),
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.message),
               ),
               maxLines: 3,
             ),

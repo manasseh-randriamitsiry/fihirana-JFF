@@ -159,12 +159,12 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                     Text(
                       AppLocalizations.of(context)!.accessDenied,
                       style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppLocalizations.of(context)!.noPermissionAdmin,
-                      style: TextStyle(fontSize: 16),
+                      style: const TextStyle(fontSize: 16),
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
@@ -253,7 +253,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.emergencyModeActive,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -299,7 +299,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           children: [
             Text(
               AppLocalizations.of(context)!.appStatistics,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Row(
@@ -410,7 +410,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.updateControl,
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 ElevatedButton.icon(
@@ -471,9 +471,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                         if (_adminConfig?.adminMessage != null)
                           Text(
                             _adminConfig!.adminMessage!,
-                            style: TextStyle(
+                  style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.grey.shade600,
+                              color: Colors.grey,
                             ),
                           ),
                       ],
@@ -525,7 +525,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           children: [
             Text(
               AppLocalizations.of(context)!.quickActions,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             GridView.count(
@@ -648,7 +648,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           children: [
             Text(
               AppLocalizations.of(context)!.recentActivity,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             if (_adminConfig?.configTimestamp != null)
@@ -660,12 +660,12 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                 ),
               ),
               ListTile(
-                leading: Icon(Icons.download, color: Colors.green),
+                leading: const Icon(Icons.download, color: Colors.green),
                 title: Text(AppLocalizations.of(context)!.updateCheckPerformed),
                 subtitle: Text(AppLocalizations.of(context)!.systemCheckCompleted),
               ),
               ListTile(
-                leading: Icon(Icons.info, color: Colors.grey),
+                leading: const Icon(Icons.info, color: Colors.grey),
                 title: Text(AppLocalizations.of(context)!.dashboardLoaded),
                 subtitle: Text(AppLocalizations.of(context)!.adminDashboardInitialized),
               ),

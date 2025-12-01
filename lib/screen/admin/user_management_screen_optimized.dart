@@ -434,8 +434,8 @@ class _OptimizedUserManagementScreenState
                       controller: confirmationController,
                       decoration: InputDecoration(
                         hintText: AppLocalizations.of(context)!.typeYesToConfirm,
-                        border: OutlineInputBorder(),
-                        hintStyle: TextStyle(color: Colors.grey),
+                        border: const OutlineInputBorder(),
+                        hintStyle: const TextStyle(color: Colors.grey),
                       ),
                     ),
                   ],
@@ -445,7 +445,7 @@ class _OptimizedUserManagementScreenState
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(AppLocalizations.of(context)!.cancel,
-                      style: TextStyle(color: Colors.grey)),
+                      style: const TextStyle(color: Colors.grey)),
                 ),
                 TextButton(
                   onPressed: () {
@@ -482,8 +482,8 @@ class _OptimizedUserManagementScreenState
       builder: (context) => AlertDialog(
         content: Row(
           children: [
-            CircularProgressIndicator(),
-            SizedBox(width: 20),
+            const CircularProgressIndicator(),
+            const SizedBox(width: 20),
             Text(AppLocalizations.of(context)!.deletingAllUserData),
           ],
         ),

@@ -45,7 +45,7 @@ class TranslationToggleWidget extends StatelessWidget {
                 ),
                 if (translationController.isTranslating) ...[
                   const SizedBox(height: 12),
-                  LinearProgressIndicator(),
+                  const LinearProgressIndicator(),
                   const SizedBox(height: 4),
                   Text(
                     'Translating...',

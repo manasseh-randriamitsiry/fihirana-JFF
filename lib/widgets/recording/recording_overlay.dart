@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../controller/recording_controller.dart';
@@ -112,12 +113,27 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   void _stopRecording() async {
+    if (kDebugMode) print('RecordingOverlay: _stopRecording called for hymnId: ${widget.hymnId}');
+    
     final recording =
         await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
+    
+    if (kDebugMode) print('RecordingOverlay: Recording returned from controller: $recording');
+    
     if (recording != null) {
-      // Store the current recording for later reference
+      // Store's current recording for later reference
       _currentRecording = recording;
       setState(() => _showSaveDialog = true);
+      if (kDebugMode) print('RecordingOverlay: Save dialog should show now');
+    } else {
+      if (kDebugMode) print('RecordingOverlay: No recording returned, cannot show save dialog');
+      // Show error message to user
+      Get.snackbar(
+        'Error',
+        'Failed to save recording. Please try again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -817,7 +833,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     );
   }
 
-void _showUploadProgressDialog(UserRecording recording,
+  void _showUploadProgressDialog(UserRecording recording,
       {bool isPublic = false}) {
     final l10n = AppLocalizations.of(context)!;
     // Trigger upload when dialog is shown
@@ -1008,7 +1024,7 @@ void _showUploadProgressDialog(UserRecording recording,
             ),
           ),
         ),
-      ),
+       ),
     );
   }
 }

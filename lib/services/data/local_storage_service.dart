@@ -185,7 +185,7 @@ class LocalStorageService implements IStorageService {
     final itemCount = keys.length;
     // Simplified storage calculation
     final usedBytes = itemCount * 1024; // Estimate 1KB per item
-    final totalBytes = 100 * 1024 * 1024; // 100MB estimate
+    const totalBytes = 100 * 1024 * 1024; // 100MB estimate
     final freeBytes = totalBytes - usedBytes;
     
     return StorageInfo(
