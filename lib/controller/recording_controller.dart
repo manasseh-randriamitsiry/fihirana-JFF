@@ -275,7 +275,10 @@ class RecordingController extends GetxController {
   // Additional delegation methods for backward compatibility
   void setGuestName(String name) => authManager.setGuestName(name);
 
-  void onPageVisible() => syncManager.loadRecordings();
+  void onPageVisible() {
+    syncManager.loadRecordings();
+    publishingManager.refreshPublicRecordings();
+  }
 
   bool shouldShowOverlay() => stateManager.shouldShowOverlay();
 

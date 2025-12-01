@@ -218,12 +218,21 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> loadPublicRecordings() async {
-    // Implementation needed
+    try {
+      final recordings = await getPublicRecordings();
+      publicRecordings.assignAll(recordings);
+      if (kDebugMode) {
+        print('RecordingService: Loaded ${recordings.length} public recordings');
+      }
+    } catch (e) {
+      if (kDebugMode) print('Error loading public recordings: $e');
+      publicRecordings.clear();
+    }
   }
 
   @override
   Future<void> loadDeletedRecordings() async {
-    // Implementation needed
+    await _loadDeletedRecordings();
   }
 
   @override
@@ -253,8 +262,40 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<bool> uploadToGoogleDrive(UserRecording recording) async {
-    // Implementation needed
-    return false;
+    try {
+      final driveService = GoogleDriveService();
+      final file = File(recording.filePath);
+      
+      if (!await file.exists()) {
+        if (kDebugMode) print('Recording file not found: ${recording.filePath}');
+        return false;
+      }
+      
+      final fileId = await driveService.uploadFile(
+        file,
+        '${recording.title}.m4a',
+        description: 'Hymn: ${recording.hymnId}',
+      );
+      
+      if (fileId != null) {
+        final publicLink = await driveService.getPublicLink(fileId);
+        final webLink = await driveService.getWebViewLink(fileId);
+        
+        final updatedRecording = recording.copyWith(
+          driveFileId: fileId,
+          driveWebLink: webLink,
+          publicLink: publicLink,
+        );
+        
+        await updateRecording(updatedRecording);
+        return true;
+      }
+      
+      return false;
+    } catch (e) {
+      if (kDebugMode) print('Error uploading to Google Drive: $e');
+      return false;
+    }
   }
 
   @override
