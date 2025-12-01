@@ -11,14 +11,16 @@ import 'package:fihirana/models/hymn.dart';
 import 'package:fihirana/utility/snackbar_utility.dart';
 import 'package:fihirana/services/data/firebase_sync_service.dart';
 import 'package:fihirana/controller/auth_controller.dart';
+import 'package:fihirana/services/interfaces/ihymn_service.dart';
 import 'combined_hymn_service.dart';
 
-class HymnService {
+class HymnService implements IHymnService {
   final CombinedHymnService _combinedHymnService = CombinedHymnService();
   final FirebaseSyncService _firebaseSyncService = FirebaseSyncService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthController _authController = Get.find<AuthController>();
+  
 
   Stream<List<Hymn>> getLocalHymnsStream() async* {
     final hymns = await _combinedHymnService.getAllHymns();
@@ -34,11 +36,17 @@ class HymnService {
     });
   }
 
+  @override
   Future<List<Hymn>> getAllHymns() async {
     return await _combinedHymnService.getAllHymns();
   }
 
-  Future<Hymn?> getHymnById(String hymnId) async {
+  @override
+  Future<Hymn?> getHymnById(int id) async {
+    return await _combinedHymnService.getHymnById(id.toString());
+  }
+
+  Future<Hymn?> getHymnByIdAsync(String hymnId) async {
     var hymn = await _combinedHymnService.getHymnById(hymnId);
     if (hymn != null) return hymn;
 
@@ -54,14 +62,19 @@ class HymnService {
     return null;
   }
 
+  @override
   Future<List<Hymn>> searchHymns(String query) async {
+    return await _combinedHymnService.searchHymns(query);
+  }
+
+  Future<List<Hymn>> searchHymnsAsync(String query) async {
     return await _combinedHymnService.searchHymns(query);
   }
 
   Future<List<Hymn>> getHymnsByIds(List<String> ids) async {
     final List<Hymn> hymns = [];
     for (final id in ids) {
-      final hymn = await getHymnById(id);
+      final hymn = await getHymnById(int.tryParse(id) ?? 0);
       if (hymn != null) {
         hymns.add(hymn);
       }
@@ -318,7 +331,7 @@ class HymnService {
           try {
             final List<Hymn> favoriteHymns = [];
             for (final hymnId in favoriteStatus.keys) {
-              final hymn = await getHymnById(hymnId);
+              final hymn = await getHymnById(int.tryParse(hymnId) ?? 0);
               if (hymn != null) {
                 favoriteHymns.add(hymn);
               }
@@ -413,5 +426,147 @@ class HymnService {
     } catch (e) {
       return;
     }
+  }
+
+  @override
+  Future<Hymn?> getHymnByTitle(String title) async {
+    final allHymns = await getAllHymns();
+    try {
+      return allHymns.firstWhere((hymn) => hymn.title.toLowerCase() == title.toLowerCase());
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<List<Hymn>> getHymnsByCategory(String category) async {
+    final allHymns = await getAllHymns();
+    return allHymns.where((hymn) => hymn.title.contains(category)).toList();
+  }
+
+  @override
+  Future<List<Hymn>> getHymnsByAuthor(String author) async {
+    final allHymns = await getAllHymns();
+    return allHymns.where((hymn) => hymn.createdBy == author).toList();
+  }
+
+  @override
+  Future<List<Hymn>> getFavoriteHymns() async {
+    final allHymns = await getAllHymns();
+    final favoriteIds = await getLocalFavorites();
+    return allHymns.where((hymn) => favoriteIds.contains(hymn.id)).toList();
+  }
+
+  @override
+  Future<void> addToFavorites(int hymnId) async {
+    final favorites = await getLocalFavorites();
+    if (!favorites.contains(hymnId.toString())) {
+      favorites.add(hymnId.toString());
+      await saveLocalFavorites(favorites);
+    }
+  }
+
+  @override
+  Future<void> removeFromFavorites(int hymnId) async {
+    final favorites = await getLocalFavorites();
+    favorites.remove(hymnId.toString());
+    await saveLocalFavorites(favorites);
+  }
+
+  @override
+  Future<bool> isFavorite(int hymnId) async {
+    final favoriteIds = await getLocalFavorites();
+    return favoriteIds.contains(hymnId.toString());
+  }
+
+  @override
+  Future<List<Hymn>> getRecentlyViewed() async {
+    // TODO: Implement recently viewed functionality
+    return [];
+  }
+
+  @override
+  Future<void> markAsViewed(int hymnId) async {
+    // TODO: Implement mark as viewed functionality
+  }
+
+  @override
+  Future<Hymn?> getRandomHymn() async {
+    final allHymns = await getAllHymns();
+    if (allHymns.isEmpty) return null;
+    final random = DateTime.now().millisecondsSinceEpoch % allHymns.length;
+    return allHymns[random];
+  }
+
+  @override
+  Future<List<Hymn>> getHymnsByNumberRange(int start, int end) async {
+    final allHymns = await getAllHymns();
+    return allHymns.where((hymn) {
+      final hymnNumber = int.tryParse(hymn.hymnNumber) ?? 0;
+      return hymnNumber >= start && hymnNumber <= end;
+    }).toList();
+  }
+
+  @override
+  Future<int> get hymnCount async => (await getAllHymns()).length;
+
+  @override
+  Future<List<String>> getCategories() async {
+    final allHymns = await getAllHymns();
+    final categories = <String>{};
+    for (final hymn in allHymns) {
+      if (hymn.title.isNotEmpty) {
+        categories.add('General');
+      }
+    }
+    final sortedCategories = categories.toList();
+    sortedCategories.sort();
+    return sortedCategories;
+  }
+
+  @override
+  Future<List<String>> getAuthors() async {
+    final allHymns = await getAllHymns();
+    final authors = <String>{};
+    for (final hymn in allHymns) {
+      if (hymn.createdBy.isNotEmpty) {
+        authors.add(hymn.createdBy);
+      }
+    }
+    final sortedAuthors = authors.toList();
+    sortedAuthors.sort();
+    return sortedAuthors;
+  }
+
+  @override
+  Future<void> initialize() async {
+    await _combinedHymnService.initialize();
+  }
+
+  @override
+  Future<void> refresh() async {
+    // Refresh implemented by clearing cache and reloading
+    clearCache();
+    await initialize();
+  }
+
+  @override
+  void clearCache() {
+    _combinedHymnService.clearCache();
+  }
+
+  @override
+  Future<Map<String, dynamic>> exportData() async {
+    final allHymns = await getAllHymns();
+    return {
+      'hymns': allHymns.map((hymn) => hymn.toMap()).toList(),
+      'exportDate': DateTime.now().toIso8601String(),
+      'version': '1.0',
+    };
+  }
+
+  @override
+  Future<void> importData(Map<String, dynamic> data) async {
+    // TODO: Implement import functionality
   }
 }

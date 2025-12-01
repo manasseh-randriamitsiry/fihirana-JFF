@@ -30,15 +30,16 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
     super.initState();
     _loadHymns();
   }
-
   Future<void> _loadHymns() async {
     try {
       final hymns = await _hymnService.searchHymns('');
+      if (!mounted) return;
       setState(() {
         _hymns = hymns;
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
@@ -53,11 +54,13 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
     Future.delayed(const Duration(milliseconds: 300), () async {
       try {
         final hymns = await _hymnService.searchHymns(query);
+        if (!mounted) return;
         setState(() {
           _hymns = hymns;
           _isLoading = false;
         });
       } catch (e) {
+        if (!mounted) return;
         setState(() {
           _isLoading = false;
         });

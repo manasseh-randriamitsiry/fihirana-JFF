@@ -84,7 +84,7 @@ class DailyVerseService {
         // Translate book name to Malagasy (or whatever BibleService uses)
         final bookName = BibleBookOrder.getDisplayName(englishBook);
 
-        final book = await _bibleService.getBook(bookName);
+        final book = _bibleService.getBook(bookName);
         if (book == null) {
           if (kDebugMode) {
             print('Book not found: $bookName (English: $englishBook)');
@@ -146,7 +146,7 @@ class DailyVerseService {
     final randomChapter = chapters[random.nextInt(chapters.length)];
 
     // Get the book and chapter
-    final book = await _bibleService.getBook(randomBook);
+    final book = _bibleService.getBook(randomBook);
     if (book == null) {
       throw Exception('Book not found: $randomBook');
     }

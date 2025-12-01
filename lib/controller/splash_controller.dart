@@ -163,7 +163,7 @@ class SplashController extends GetxController {
       }
 
       final recordingController = Get.find<RecordingController>();
-      await recordingController.setGuestName(username);
+      recordingController.setGuestName(username);
 
       await Future.delayed(const Duration(milliseconds: 300));
 
@@ -191,7 +191,7 @@ class SplashController extends GetxController {
       await prefs.setBool('is_google_user', true);
 
       final recordingController = Get.find<RecordingController>();
-      await recordingController.setGuestName(googleUserName.value);
+      recordingController.setGuestName(googleUserName.value);
 
       await Future.delayed(const Duration(milliseconds: 300));
 

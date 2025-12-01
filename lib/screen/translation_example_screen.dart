@@ -8,7 +8,7 @@ import '../l10n/app_localizations.dart';
 
 /// Example screen showing how to use the translation functionality
 class TranslationExampleScreen extends StatefulWidget {
-  const TranslationExampleScreen({Key? key}) : super(key: key);
+  const TranslationExampleScreen({super.key});
 
   @override
   State<TranslationExampleScreen> createState() => _TranslationExampleScreenState();
@@ -16,7 +16,7 @@ class TranslationExampleScreen extends StatefulWidget {
 
 class _TranslationExampleScreenState extends State<TranslationExampleScreen> {
   final TextEditingController _textController = TextEditingController();
-  String _selectedSourceLanguage = 'auto';
+
   String _selectedTargetLanguage = 'en';
 
   @override
@@ -39,7 +39,7 @@ class _TranslationExampleScreenState extends State<TranslationExampleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.translationSettings ?? 'Translation Settings'),
+        title: Text(AppLocalizations.of(context)!.translationSettings),
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -65,7 +65,7 @@ class _TranslationExampleScreenState extends State<TranslationExampleScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.selectTranslationLanguage ?? 'Select Translation Language',
+                      AppLocalizations.of(context)!.selectTranslationLanguage,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),

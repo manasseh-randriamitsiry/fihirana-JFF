@@ -12,7 +12,7 @@ import 'audio_file_mapping.dart';
 import 'local_audio_service.dart';
 import 'package:fihirana/services/data/google_drive_service.dart';
 import 'package:fihirana/services/core/ui_service.dart';
-import 'user_recording_service.dart';
+import 'recording_service.dart';
 
 class AudioService {
   static AudioService? _instance;
@@ -834,11 +834,11 @@ class AudioService {
               print('AudioService: Attempting to refresh all public URLs...');
             }
             try {
-              final recordingService = UserRecordingService();
+              final recordingService = RecordingService.to;
               await recordingService.refreshPublicUrls();
 
               // Try to get the updated recording and retry
-              final recordings = recordingService.getAllRecordings();
+              final recordings = recordingService.recordings;
               final updatedRecording =
                   recordings.firstWhereOrNull((r) => r.id == recording.id);
               if (updatedRecording != null &&

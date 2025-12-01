@@ -134,6 +134,45 @@ jobs:
           fi
           echo "✅ Keystore created successfully"
           ls -l android/app/fihirana.jks
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+
+      # ----------------------
+      # Verify Required Secrets
+      # ----------------------
+      - name: Verify Required Secrets
+        run: |
+          echo "Verifying required secrets are available..."
+          
+          # Check if required secrets exist
+          if [ -z "${{ secrets.GOOGLE_JSON_BASE64 }}" ]; then
+            echo "❌ GOOGLE_JSON_BASE64 secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "❌ KEYSTORE_BASE64 secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEY_ALIAS }}" ]; then
+            echo "❌ KEY_ALIAS secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
+            echo "❌ KEY_PASSWORD secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEY_STORE_PASSWORD }}" ]; then
+            echo "❌ KEY_STORE_PASSWORD secret is missing"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are available"
 
       # ----------------------
       # Setup Google Services JSON (Firebase)
@@ -203,6 +242,10 @@ jobs:
           
           echo "APKs built successfully"
           ls -la build/app/outputs/flutter-apk/
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
 
       # ----------------------
       # Rename APKs to Fihirana-JFF

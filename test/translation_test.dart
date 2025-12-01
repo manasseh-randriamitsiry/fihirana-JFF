@@ -4,9 +4,9 @@ import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:provider/provider.dart';
 
-import '../lib/controller/translation_controller.dart';
-import '../lib/services/translation_service.dart';
-import '../lib/services/language_detection_service.dart';
+import 'package:fihirana/controller/translation_controller.dart';
+import 'package:fihirana/services/translation_service.dart';
+import 'package:fihirana/services/language_detection_service.dart';
 
 // Generate mocks
 @GenerateMocks([TranslationService, LanguageDetectionService])

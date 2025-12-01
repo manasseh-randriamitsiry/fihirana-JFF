@@ -9,11 +9,11 @@ class LanguageSelectorWidget extends StatelessWidget {
   final String? title;
 
   const LanguageSelectorWidget({
-    Key? key,
+    super.key,
     this.selectedLanguage,
     required this.onLanguageSelected,
     this.title,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class LanguageSelectorWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title ?? AppLocalizations.of(context)!.chooseLanguage ?? 'Choose Language',
+                  title ?? AppLocalizations.of(context)!.chooseLanguage,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 16),
@@ -40,7 +40,7 @@ class LanguageSelectorWidget extends StatelessWidget {
                     subtitle: Text(
                       languageCode.toUpperCase(),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                        color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                       ),
                     ),
                     value: languageCode,
@@ -82,10 +82,10 @@ class LanguageSelectorDialog extends StatelessWidget {
   final Function(String) onLanguageSelected;
 
   const LanguageSelectorDialog({
-    Key? key,
+    super.key,
     this.currentLanguage,
     required this.onLanguageSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -111,10 +111,10 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
   final Function(String) onLanguageSelected;
 
   const LanguageSelectorBottomSheet({
-    Key? key,
+    super.key,
     this.currentLanguage,
     required this.onLanguageSelected,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -148,11 +148,11 @@ class LanguageSelectorButton extends StatelessWidget {
   final bool useBottomSheet;
 
   const LanguageSelectorButton({
-    Key? key,
+    super.key,
     this.currentLanguage,
     required this.onLanguageSelected,
     this.useBottomSheet = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

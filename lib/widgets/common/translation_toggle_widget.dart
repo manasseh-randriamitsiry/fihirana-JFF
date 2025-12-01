@@ -4,7 +4,7 @@ import '../../controller/translation_controller.dart';
 import '../../l10n/app_localizations.dart';
 
 class TranslationToggleWidget extends StatelessWidget {
-  const TranslationToggleWidget({Key? key}) : super(key: key);
+  const TranslationToggleWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,7 @@ class TranslationToggleWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.autoTranslate ?? 'Auto-Translate',
+                      AppLocalizations.of(context)!.autoTranslate,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     Switch(
@@ -40,7 +40,7 @@ class TranslationToggleWidget extends StatelessWidget {
                 Text(
                   'Automatically translate hymn content to your preferred language',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.7),
+                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                   ),
                 ),
                 if (translationController.isTranslating) ...[

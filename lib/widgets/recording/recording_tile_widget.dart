@@ -45,7 +45,11 @@ class RecordingTileWidget extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () {
-          controller.showPlayer(recording);
+          controller.showPlayer(
+            recording,
+            isRecording: false,
+            onStopRecording: () {},
+          );
         },
         child: Container(
           padding: const EdgeInsets.all(12),

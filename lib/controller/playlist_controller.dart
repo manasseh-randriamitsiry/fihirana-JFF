@@ -249,7 +249,7 @@ class PlaylistController extends GetxController {
         'Tap to open in Fihirana app:\n$shareUrl\n\n'
         'Or manually import using ID: ${playlist.id}';
 
-    await Share.share(text);
+    await SharePlus.instance.share(ShareParams(text: text));
   }
 
   Future<void> importPlaylist(String playlistId) async {

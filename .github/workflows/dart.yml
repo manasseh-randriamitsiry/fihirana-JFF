@@ -88,6 +88,41 @@ jobs:
           ls assets/json/*.json | head -5
 
       # ----------------------
+      # Verify Required Secrets
+      # ----------------------
+      - name: Verify Required Secrets
+        run: |
+          echo "Verifying required secrets are available..."
+          
+          # Check if required secrets exist
+          if [ -z "${{ secrets.GOOGLE_JSON_BASE64 }}" ]; then
+            echo "❌ GOOGLE_JSON_BASE64 secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "❌ KEYSTORE_BASE64 secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEY_ALIAS }}" ]; then
+            echo "❌ KEY_ALIAS secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEY_PASSWORD }}" ]; then
+            echo "❌ KEY_PASSWORD secret is missing"
+            exit 1
+          fi
+          
+          if [ -z "${{ secrets.KEY_STORE_PASSWORD }}" ]; then
+            echo "❌ KEY_STORE_PASSWORD secret is missing"
+            exit 1
+          fi
+          
+          echo "✅ All required secrets are available"
+
+      # ----------------------
       # Setup Google Services JSON (Firebase)
       # ----------------------
       - name: Setup Google Services JSON
@@ -116,6 +151,10 @@ jobs:
             exit 1
           fi
           echo "✅ Keystore created successfully"
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
 
       # ----------------------
       # Build APKs (Check only)
@@ -126,3 +165,7 @@ jobs:
           flutter build apk --release --split-per-abi
           flutter build apk --release
           echo "APKs built successfully"
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}

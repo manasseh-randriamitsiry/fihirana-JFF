@@ -13,7 +13,7 @@ class TranslatedTextWidget extends StatefulWidget {
   final Widget? errorWidget;
 
   const TranslatedTextWidget({
-    Key? key,
+    super.key,
     required this.text,
     this.style,
     this.textAlign,
@@ -22,7 +22,7 @@ class TranslatedTextWidget extends StatefulWidget {
     this.showTranslationIndicator = true,
     this.loadingWidget,
     this.errorWidget,
-  }) : super(key: key);
+  });
 
   @override
   State<TranslatedTextWidget> createState() => _TranslatedTextWidgetState();
@@ -123,7 +123,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                       widget.text,
                       style: widget.style?.copyWith(
                         color: (widget.style?.color ?? Theme.of(context).textTheme.bodyLarge?.color)
-                            ?.withOpacity(0.6),
+                            ?.withValues(alpha: 0.6),
                       ),
                       textAlign: widget.textAlign,
                       maxLines: widget.maxLines,
@@ -171,8 +171,8 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
               displayText,
               style: widget.style?.copyWith(
                 color: isTranslated && widget.showTranslationIndicator
-                    ? (widget.style?.color ?? Theme.of(context).textTheme.bodyLarge?.color)
-                        ?.withOpacity(0.8)
+                     ? (widget.style?.color ?? Theme.of(context).textTheme.bodyLarge?.color)
+                        ?.withValues(alpha: 0.8)
                     : widget.style?.color,
                 fontStyle: isTranslated && widget.showTranslationIndicator
                     ? FontStyle.italic
@@ -232,13 +232,13 @@ class SimpleTranslatedText extends StatelessWidget {
   final TextOverflow? overflow;
 
   const SimpleTranslatedText({
-    Key? key,
+    super.key,
     required this.text,
     this.style,
     this.textAlign,
     this.maxLines,
     this.overflow,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
