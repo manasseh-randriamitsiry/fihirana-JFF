@@ -9,7 +9,6 @@ class TranslationService implements ITranslationService {
   Map<String, String> get supportedLanguages => {
     'en': 'English',
     'fr': 'Français',
-    'it': 'Italiano',
     'mg': 'Malagasy',
   };
 

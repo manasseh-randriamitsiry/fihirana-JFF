@@ -18,7 +18,6 @@ class LanguageController extends GetxController {
     const Locale('mg'), // Malagasy
     const Locale('en'), // English
     const Locale('fr'), // French
-    const Locale('it'), // Italian
   ].obs;
 
   @override
@@ -125,8 +124,6 @@ class LanguageController extends GetxController {
         return 'English';
       case 'fr':
         return 'Français';
-      case 'it':
-        return 'Italiano';
       default:
         // Fallback to uppercase code if not found
         return locale.languageCode.toUpperCase();
@@ -141,8 +138,6 @@ class LanguageController extends GetxController {
         return '🇬🇧';
       case 'fr':
         return '🇫🇷';
-      case 'it':
-        return '🇮🇹';
       default:
         return '🌐';
     }
