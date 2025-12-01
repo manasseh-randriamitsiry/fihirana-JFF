@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/models/hymn.dart';
 import 'local_hymn_service.dart';
 
@@ -13,8 +15,10 @@ class CombinedHymnService {
   List<Hymn>? _allHymns;
   bool _isInitialized = false;
   bool _isInitializing = false;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  Future<void> initialize() async {
+Future<void> initialize() async {
     if (_isInitialized) return;
     if (_isInitializing) return;
 
@@ -22,6 +26,7 @@ class CombinedHymnService {
 
     try {
       await _loadCombinedHymns();
+      await _loadFirebaseHymns();
       _isInitialized = true;
       if (kDebugMode) {
         print(
@@ -33,6 +38,7 @@ class CombinedHymnService {
       }
       // Fallback to individual file loading
       await _loadIndividualHymns();
+      await _loadFirebaseHymns();
       _isInitialized = true;
     } finally {
       _isInitializing = false;
@@ -98,6 +104,51 @@ class CombinedHymnService {
     }
   }
 
+Future<void> _loadFirebaseHymns() async {
+    try {
+      if (kDebugMode) {
+        print('Loading Firebase hymns...');
+      }
+
+      final snapshot = await _firestore.collection('hymns').get();
+      final firebaseHymns = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Hymn.fromJson(data, doc.id);
+      }).toList();
+
+      if (_allHymns == null) {
+        _allHymns = firebaseHymns;
+      } else {
+        // Combine with existing hymns, avoiding duplicates
+        final existingIds = _allHymns!.map((h) => h.id).toSet();
+        final newHymns = firebaseHymns.where((h) => !existingIds.contains(h.id)).toList();
+        _allHymns!.addAll(newHymns);
+      }
+
+      // Add to cache
+      for (final hymn in firebaseHymns) {
+        _hymnCache[hymn.id] = hymn;
+      }
+
+      // Sort all hymns by number
+      _allHymns!.sort((a, b) {
+        final numA = int.tryParse(a.hymnNumber) ?? 0;
+        final numB = int.tryParse(b.hymnNumber) ?? 0;
+        return numA.compareTo(numB);
+      });
+
+      if (kDebugMode) {
+        print('Successfully loaded ${firebaseHymns.length} Firebase hymns');
+        print('Total hymns after combining: ${_allHymns!.length}');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to load Firebase hymns: $e');
+      }
+      // Don't rethrow - Firebase hymns are optional
+    }
+  }
+
   Future<void> _loadIndividualHymns() async {
     if (kDebugMode) {
       print('Falling back to individual hymn file loading...');
@@ -119,7 +170,7 @@ class CombinedHymnService {
     return _allHymns ?? [];
   }
 
-  Future<Hymn?> getHymnById(String id) async {
+Future<Hymn?> getHymnById(String id) async {
     if (!_isInitialized) {
       await initialize();
     }
@@ -134,14 +185,42 @@ class CombinedHymnService {
       final hymn = await localService.getHymnById(id);
       if (hymn != null) {
         _hymnCache[id] = hymn;
+        return hymn;
       }
-      return hymn;
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to load hymn $id: $e');
+        print('Failed to load local hymn $id: $e');
       }
-      return null;
     }
+
+    // Try Firebase if not found locally
+    try {
+      final doc = await _firestore.collection('hymns').doc(id).get();
+      if (doc.exists) {
+        final hymn = Hymn.fromJson(doc.data()!, doc.id);
+        _hymnCache[id] = hymn;
+        // Add to the all hymns list if it exists
+        if (_allHymns != null) {
+          final existingIds = _allHymns!.map((h) => h.id).toSet();
+          if (!existingIds.contains(hymn.id)) {
+            _allHymns!.add(hymn);
+            // Re-sort
+            _allHymns!.sort((a, b) {
+              final numA = int.tryParse(a.hymnNumber) ?? 0;
+              final numB = int.tryParse(b.hymnNumber) ?? 0;
+              return numA.compareTo(numB);
+            });
+          }
+        }
+        return hymn;
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to load Firebase hymn $id: $e');
+      }
+    }
+
+    return null;
   }
 
   Future<List<Hymn>> searchHymns(String query) async {

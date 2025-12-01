@@ -405,7 +405,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
   Widget _buildHeader(
       ColorController colorController, AppLocalizations l10n, int totalNotes) {
     return Material(
-      color: colorController.backgroundColor.value.withValues(alpha: 0.9),
+      color: Colors.transparent,
       child: InkWell(
         onTap: () => setState(() => _isExpanded = !_isExpanded),
         borderRadius: const BorderRadius.only(
@@ -415,7 +415,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: colorController.primaryColor.value.withValues(alpha: 0.08),
+            color: Colors.transparent,
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
@@ -429,7 +429,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 duration: const Duration(milliseconds: 300),
                 child: Icon(
                   Icons.note_alt_outlined,
-                  color: colorController.primaryColor.value,
+                  color: colorController.primaryColor.value.withValues(alpha: 0.5),
                   size: widget.fontSize * 1.2,
                 ),
               ),

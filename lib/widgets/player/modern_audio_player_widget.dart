@@ -321,10 +321,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                           letterSpacing: 1,
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.more_horiz, color: Colors.white),
-                        onPressed: () => _showPlaylist(context),
-                      ),
                     ],
                   ),
                 ),
@@ -514,7 +510,15 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            // Previous (30 Sec Back style)
+                            Switch(
+                              value: widget.autoPlayNext,
+                              onChanged: widget.onAutoPlayNextChange,
+                              activeThumbColor: Colors.white,
+                              activeTrackColor: Colors.lightBlue,
+                              inactiveThumbColor: Colors.white54,
+                              inactiveTrackColor: Colors.white10,
+
+                            ),
                             IconButton(
                               icon: const Icon(Icons.skip_previous_rounded,
                                   color: Colors.white, size: 32),
@@ -555,35 +559,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                                   color: Colors.white, size: 32),
                               onPressed: _playNext,
                             ),
-                          ],
-                        ),
-
-                        // Bottom Actions (Shuffle/Repeat/List)
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Autoplay Toggle
-                            Row(
-                              children: [
-                                Text(
-                                  'Autoplay',
-                                  style: TextStyle(
-                                    color: widget.autoPlayNext
-                                        ? Colors.white
-                                        : Colors.white54,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                Switch(
-                                  value: widget.autoPlayNext,
-                                  onChanged: widget.onAutoPlayNextChange,
-                                  activeThumbColor: Colors.white,
-                                  activeTrackColor: Colors.white24,
-                                  inactiveThumbColor: Colors.white54,
-                                  inactiveTrackColor: Colors.white10,
-                                ),
-                              ],
+                            IconButton(
+                              icon: const Icon(Icons.playlist_add_check_circle, color: Colors.white),
+                              onPressed: () => _showPlaylist(context),
                             ),
                           ],
                         ),

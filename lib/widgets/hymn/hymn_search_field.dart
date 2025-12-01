@@ -22,34 +22,41 @@ class HymnSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        color: backgroundColor,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: TextField(
-            controller: controller,
-            style: defaultTextStyle,
-            decoration: InputDecoration(
-              labelText: context.translate((l) => l.searchHymnsHint),
-              labelStyle: defaultTextStyle.copyWith(
-                color: textColor.withValues(alpha: 0.7),
-              ),
-              prefixIcon: Icon(
-                Icons.search,
-                color: iconColor,
-              ),
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
+    return Card(
+      elevation: 4,
+      shadowColor:iconColor.withValues(alpha: 0.8) ,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(30),
+      ),
+      color: backgroundColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: TextField(
+          controller: controller,
+          style: defaultTextStyle,
+    decoration: InputDecoration(
+            labelText: context.translate((l) => l.searchHymnsHint),
+            labelStyle: defaultTextStyle.copyWith(
+              color: textColor.withValues(alpha: 0.7),
             ),
-            onChanged: (_) => onChanged(),
+            prefixIcon: Icon(
+              Icons.search,
+              color: iconColor,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide(color: iconColor.withValues(alpha: 0)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide(color: iconColor.withValues(alpha: 0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(30),
+              borderSide: BorderSide(color: iconColor.withValues(alpha: 0), width: 2),
+            ),
           ),
+          onChanged: (_) => onChanged(),
         ),
       ),
     );

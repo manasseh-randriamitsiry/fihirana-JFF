@@ -69,15 +69,15 @@ class Hymn {
       createdAt = DateTime.now();
     }
 
-    return Hymn(
+return Hymn(
       id: id,
-      hymnNumber: (json['hymnNumber'] ?? json['number']).toString(),
-      title: json['title'].toString(),
+      hymnNumber: (json['hymnNumber'] ?? json['number'] ?? '').toString(),
+      title: json['title']?.toString() ?? '',
       verses: verses,
       bridge: bridge,
       hymnHint: json['hymnHint']?.toString(),
       createdAt: createdAt,
-      createdBy: json['createdBy'].toString(),
+      createdBy: json['createdBy']?.toString() ?? 'Unknown',
       createdByEmail: json['createdByEmail']?.toString(),
     );
   }
