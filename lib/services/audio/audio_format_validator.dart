@@ -19,23 +19,27 @@ class AudioFormatValidator {
     '.flac': 'audio/flac',
   };
 
-  static Future<bool> isFormatCompatible(String format, {String? deviceType}) async {
+  static Future<bool> isFormatCompatible(String format,
+      {String? deviceType}) async {
     deviceType ??= await _getDeviceType();
-    final compatibleFormats = _formatCompatibility[deviceType] ?? _formatCompatibility['android']!;
+    final compatibleFormats =
+        _formatCompatibility[deviceType] ?? _formatCompatibility['android']!;
     return compatibleFormats.contains(format.toLowerCase());
   }
 
-  static Future<String> getBestCompatibleFormat(List<String> availableFormats) async {
+  static Future<String> getBestCompatibleFormat(
+      List<String> availableFormats) async {
     final deviceType = await _getDeviceType();
-    final compatibleFormats = _formatCompatibility[deviceType] ?? _formatCompatibility['android']!;
-    
+    final compatibleFormats =
+        _formatCompatibility[deviceType] ?? _formatCompatibility['android']!;
+
     // Find the first compatible format from available formats
     for (String format in availableFormats) {
       if (compatibleFormats.contains(format.toLowerCase())) {
         return format;
       }
     }
-    
+
     // Fallback to most compatible format
     if (deviceType == 'emulator') {
       return '.wav';
@@ -49,7 +53,7 @@ class AudioFormatValidator {
   static Future<String> _getDeviceType() async {
     final isEmulator = await AudioConfig.isEmulator;
     final isAndroidDevice = await AudioConfig.isAndroidDevice;
-    
+
     if (isEmulator) return 'emulator';
     if (AudioConfig.isIOSDevice) return 'ios';
     if (isAndroidDevice) return 'android';
@@ -86,7 +90,7 @@ class AudioFormatValidator {
       // Check file extension
       final extension = _getFileExtension(filePath);
       final mimeType = getMimeType(filePath);
-      
+
       if (mimeType == null) {
         if (kDebugMode) {
           print('AudioFormatValidator: Unsupported format: $extension');
@@ -98,7 +102,8 @@ class AudioFormatValidator {
       if (!(await isFormatCompatible(extension))) {
         if (kDebugMode) {
           final deviceType = await _getDeviceType();
-          print('AudioFormatValidator: Format $extension not compatible with $deviceType');
+          print(
+              'AudioFormatValidator: Format $extension not compatible with $deviceType');
         }
         return false;
       }
@@ -108,7 +113,7 @@ class AudioFormatValidator {
         final tempPlayer = AudioPlayer();
         await tempPlayer.setFilePath(filePath);
         await tempPlayer.dispose();
-        
+
         if (kDebugMode) {
           print('AudioFormatValidator: File validation passed: $filePath');
         }
@@ -127,7 +132,8 @@ class AudioFormatValidator {
     }
   }
 
-  static Future<String?> convertFormat(String inputPath, String targetFormat) async {
+  static Future<String?> convertFormat(
+      String inputPath, String targetFormat) async {
     try {
       if (kDebugMode) {
         print('AudioFormatValidator: Converting $inputPath to $targetFormat');
@@ -136,11 +142,12 @@ class AudioFormatValidator {
       // For now, we'll just validate and return the original path
       // In a full implementation, you would use an audio conversion library
       // like ffmpeg or flutter_audio_converter
-      
+
       final isValid = await validateAudioFile(inputPath);
       if (!isValid) {
         if (kDebugMode) {
-          print('AudioFormatValidator: Cannot convert invalid file: $inputPath');
+          print(
+              'AudioFormatValidator: Cannot convert invalid file: $inputPath');
         }
         return null;
       }
@@ -149,7 +156,8 @@ class AudioFormatValidator {
       final currentFormat = _getFileExtension(inputPath);
       if (currentFormat == targetFormat.toLowerCase()) {
         if (kDebugMode) {
-          print('AudioFormatValidator: No conversion needed, format already matches');
+          print(
+              'AudioFormatValidator: No conversion needed, format already matches');
         }
         return inputPath;
       }
@@ -197,8 +205,8 @@ class AudioFormatValidator {
       final stat = await file.stat();
       final extension = _getFileExtension(filePath);
       final mimeType = getMimeType(filePath);
-      
-        return {
+
+      return {
         'path': filePath,
         'size': stat.size,
         'modified': stat.modified,
