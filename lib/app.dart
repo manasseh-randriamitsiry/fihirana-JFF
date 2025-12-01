@@ -113,15 +113,42 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late final FontController fontController;
   late final ColorController colorController;
   late final ThemeController themeController;
+  late final LanguageController languageController;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    colorController = Get.find<ColorController>();
-    themeController = Get.find<ThemeController>();
-    fontController = Get.find<FontController>();
+    try {
+      colorController = Get.find<ColorController>();
+    } catch (_) {
+      colorController = Get.put(ColorController());
+    }
+
+    try {
+      themeController = Get.find<ThemeController>();
+    } catch (_) {
+      themeController = Get.put(ThemeController());
+    }
+
+    try {
+      fontController = Get.find<FontController>();
+    } catch (_) {
+      fontController = Get.put(FontController());
+    }
+
+    try {
+      languageController = Get.find<LanguageController>();
+    } catch (_) {
+      languageController = Get.put(LanguageController());
+    }
+
+    try {
+      Get.find<SecurityService>();
+    } catch (_) {
+      Get.put(SecurityService());
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await VersionCheckService.initializeNotifications();

@@ -22,7 +22,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
 
   @override
   Widget build(BuildContext context) {
-    final shellController = Get.find<ShellController>();
+    final shellController = Get.put(ShellController());
 
     return Obx(() {
       final width = MediaQuery.of(context).size.width;

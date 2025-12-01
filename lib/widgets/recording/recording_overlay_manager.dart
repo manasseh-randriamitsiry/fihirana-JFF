@@ -11,7 +11,7 @@ class RecordingOverlayManager extends StatelessWidget {
   static RecordingController? _cachedController;
 
   static RecordingController get _controller {
-    _cachedController ??= Get.find<RecordingController>();
+    _cachedController ??= Get.put(RecordingController());
     return _cachedController!;
   }
 
