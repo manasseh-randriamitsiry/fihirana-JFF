@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/models/hymn.dart';
 import 'audio_cache_service.dart';
 import 'audio_file_mapping.dart';
+import 'audio_config.dart';
 import 'local_audio_service.dart';
 import 'package:fihirana/services/data/google_drive_service.dart';
 import 'package:fihirana/services/core/ui_service.dart';
@@ -23,8 +24,24 @@ class AudioService {
 
   factory AudioService() => instance;
   AudioService._internal() {
+    _initializePlayer();
     _initializePlayerStateListener();
     _initializePlayerOnStartup();
+  }
+
+  Future<void> _initializePlayer() async {
+    final config = await AudioConfig.getAudioPlayerConfig();
+    _player = AudioPlayer(
+      audioPipeline: AudioPipeline(
+        androidAudioEffects: config['androidAudioEffects'] ?? [],
+      ),
+    );
+    
+    if (kDebugMode) {
+      print('AudioService: Initialized player with config: $config');
+      print('AudioService: Is emulator: ${await AudioConfig.isEmulator}');
+      print('AudioService: Preferred format: ${await AudioConfig.preferredFormat}');
+    }
   }
 
   void _initializePlayerOnStartup() {
@@ -86,11 +103,7 @@ class AudioService {
     });
   }
 
-  final AudioPlayer _player = AudioPlayer(
-    audioPipeline: AudioPipeline(
-      androidAudioEffects: [],
-    ),
-  );
+  late final AudioPlayer _player;
   Hymn? _currentHymn;
   dynamic _currentRecording; // Track current recording
   List<Hymn> _playlist = [];

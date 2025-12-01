@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 import 'package:fihirana/models/user_recording.dart';
 import 'package:fihirana/services/data/google_drive_service.dart';
 import 'package:fihirana/services/interfaces/irecording_service.dart';
+import 'audio_config.dart';
 
 class RecordingService extends GetxService implements IRecordingService {
   static RecordingService get to => Get.find();
@@ -127,18 +128,86 @@ class RecordingService extends GetxService implements IRecordingService {
         await recordingsDir.create(recursive: true);
       }
 
-      final fileName =
-          'rec_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      // Enhanced format selection based on device type
+      String fileName;
+      RecordConfig config;
+      
+      if (await AudioConfig.isEmulator) {
+        // Use WAV format for emulator compatibility
+        fileName = 'rec_${DateTime.now().millisecondsSinceEpoch}.wav';
+        config = const RecordConfig(
+          encoder: AudioEncoder.wav,
+          sampleRate: 44100,
+          bitRate: 128000,
+        );
+        if (kDebugMode) {
+          print('RecordingService: Using WAV format for emulator');
+        }
+      } else {
+        // Use AAC format for physical devices
+        final format = await AudioConfig.preferredFormat;
+        fileName = 'rec_${DateTime.now().millisecondsSinceEpoch}$format';
+        config = RecordConfig(
+          encoder: AudioEncoder.aacLc,
+          sampleRate: 44100,
+          bitRate: 128000,
+        );
+        if (kDebugMode) {
+          print('RecordingService: Using AAC format for physical device: $format');
+        }
+      }
+
       final filePath = path.join(recordingsDir.path, fileName);
 
-      await _audioRecorder.start(
-          const RecordConfig(encoder: AudioEncoder.aacLc),
-          path: filePath);
-      _isRecording.value = true;
-      _currentRecordingPath = filePath; // Store the current recording path
+      // Enhanced recording with retry logic
+      int retryCount = 0;
+      const maxRetries = 3;
       
-      if (kDebugMode) print('RecordingService: Recording started successfully at: $filePath');
-      return filePath;
+      while (retryCount < maxRetries) {
+        try {
+          await _audioRecorder.start(config, path: filePath);
+          _isRecording.value = true;
+          _currentRecordingPath = filePath;
+          
+          if (kDebugMode) {
+            print('RecordingService: Recording started successfully at: $filePath');
+            print('RecordingService: Config - encoder: ${config.encoder}, sampleRate: ${config.sampleRate}');
+          }
+          return filePath;
+        } catch (e) {
+          retryCount++;
+          if (kDebugMode) {
+            print('RecordingService: Recording attempt $retryCount failed: $e');
+          }
+          
+          if (retryCount >= maxRetries) {
+            // Try fallback format for emulator
+            if (await AudioConfig.isEmulator && config.encoder != AudioEncoder.wav) {
+              if (kDebugMode) {
+                print('RecordingService: Trying fallback to WAV format...');
+              }
+              final fallbackFileName = 'rec_${DateTime.now().millisecondsSinceEpoch}.wav';
+              final fallbackPath = path.join(recordingsDir.path, fallbackFileName);
+              final fallbackConfig = const RecordConfig(encoder: AudioEncoder.wav);
+              
+              await _audioRecorder.start(fallbackConfig, path: fallbackPath);
+              _isRecording.value = true;
+              _currentRecordingPath = fallbackPath;
+              
+              if (kDebugMode) {
+                print('RecordingService: Fallback recording started at: $fallbackPath');
+              }
+              return fallbackPath;
+            }
+            rethrow;
+          }
+          
+          // Brief delay before retry
+          await Future.delayed(Duration(milliseconds: 500 * retryCount));
+        }
+      }
+      
+      throw Exception('Failed to start recording after $maxRetries attempts');
     } catch (e) {
       if (kDebugMode) print('RecordingService: Error starting recording: $e');
       _isRecording.value = false;
