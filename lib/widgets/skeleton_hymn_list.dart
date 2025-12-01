@@ -10,8 +10,9 @@ class SkeletonHymnList extends StatelessWidget {
   Widget build(BuildContext context) {
     final ColorController colorController = Get.find();
 
-    return Column(
-      children: List.generate(8, (index) => // Show enough items to fill the screen
+    return SingleChildScrollView(
+      child: Column(
+        children: List.generate(8, (index) =>
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
           child: Card(
@@ -91,7 +92,7 @@ class SkeletonHymnList extends StatelessWidget {
                   color: colorController.textColor.value.withValues(alpha:0.05))
               .animate() // Separate animation for fade in
               .fadeIn(duration: 600.ms, curve: Curves.easeOut),
-        ),
+        )),
       ),
     );
   }

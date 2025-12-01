@@ -7,17 +7,10 @@ import 'recording_overlay.dart';
 class RecordingOverlayManager extends StatelessWidget {
   const RecordingOverlayManager({super.key});
 
-  // Cache controller reference to avoid repeated Get.find() calls
-  static RecordingController? _cachedController;
-
-  static RecordingController get _controller {
-    _cachedController ??= Get.put(RecordingController());
-    return _cachedController!;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final RecordingController controller = _controller;
+    // Get controller inside build to avoid calling Get.put during widget creation
+    final RecordingController controller = Get.find<RecordingController>();
 
     return Obx(() {
       // Early return for better performance
@@ -42,16 +35,19 @@ class RecordingOverlayManager extends StatelessWidget {
 
   // Static method to show recording overlay from anywhere
   static void showRecordingOverlay(String hymnId, String hymnTitle) {
-    _controller.showOverlay(hymnId, hymnTitle);
+    final controller = Get.find<RecordingController>();
+    controller.showOverlay(hymnId, hymnTitle);
   }
 
   // Static method to check if overlay is visible
   static bool isOverlayVisible() {
-    return _controller.shouldShowOverlay();
+    final controller = Get.find<RecordingController>();
+    return controller.shouldShowOverlay();
   }
 
   // Static method to restore overlay if minimized
   static void restoreOverlay() {
-    _controller.restoreOverlay();
+    final controller = Get.find<RecordingController>();
+    controller.restoreOverlay();
   }
 }

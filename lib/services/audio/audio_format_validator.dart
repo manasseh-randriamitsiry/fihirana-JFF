@@ -191,7 +191,7 @@ class AudioFormatValidator {
     }
   }
 
-  static Map<String, dynamic> getAudioFileInfo(String filePath) async {
+  static Future<Map<String, dynamic>> getAudioFileInfo(String filePath) async {
     try {
       final file = File(filePath);
       final stat = await file.stat();
