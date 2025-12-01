@@ -149,7 +149,7 @@ class BibleController extends GetxController {
     loadingMessage.value =
         'Maka andininy any amin\'i ${selectedBook.value} ${selectedChapter.value}...';
     try {
-      final book = await _bibleService.getBook(selectedBook.value);
+      final book = _bibleService.getBook(selectedBook.value);
       final chapter = book?.getChapter(selectedChapter.value);
 
       if (chapter != null) {
@@ -271,7 +271,8 @@ class BibleController extends GetxController {
   }
 
   void searchBooks(String query) {
-    bookList.value = _bibleService.searchBooks(query);
+    final books = _bibleService.searchBooks(query);
+    bookList.value = books.map((book) => book.name).toList();
   }
 
   void filterBooks(String query) {

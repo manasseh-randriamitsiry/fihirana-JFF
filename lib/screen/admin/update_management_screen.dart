@@ -115,9 +115,13 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       try {
         await AdminControlService.emergencyStop();
         await _loadConfig();
-        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
+        if (context.mounted) {
+          Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
+        }
       } catch (e) {
-        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails(e.toString()));
+        if (context.mounted) {
+          Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails(e.toString()));
+        }
       }
     }
   }
@@ -126,9 +130,13 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     try {
       await AdminControlService.clearEmergencyMode();
       await _loadConfig();
-      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
+      if (context.mounted) {
+        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
+      }
     } catch (e) {
+      if (context.mounted) {
         Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails(e.toString()));
+      }
     }
   }
 
@@ -333,7 +341,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       await AdminControlService.clearCache();
-                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
+                      if (context.mounted) {
+                        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
+                      }
                     },
                     icon: const Icon(Icons.clear),
                     label: Text(AppLocalizations.of(context)!.clearCache),

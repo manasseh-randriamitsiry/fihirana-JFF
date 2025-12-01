@@ -40,7 +40,11 @@ class RecordingTileMenu extends StatelessWidget {
       onSelected: (value) {
         switch (value) {
           case 'play':
-            controller.showPlayer(recording);
+            controller.showPlayer(
+              recording,
+              isRecording: false,
+              onStopRecording: () {},
+            );
             break;
           case 'rename':
             RecordingTileDialogs.showRenameDialog(context, recording);

@@ -161,13 +161,13 @@ class TranslationController extends ChangeNotifier {
 
   /// Check if text is currently being translated
   bool isTranslatingText(String text) {
-    final cacheKey = '${text.hashCode}_${_currentLocale}';
+    final cacheKey = '${text.hashCode}_$_currentLocale';
     return _translationStatus[cacheKey] ?? false;
   }
 
   /// Get translated version of text if available
   String? getTranslatedText(String text) {
-    final cacheKey = '${text.hashCode}_${_currentLocale}';
+    final cacheKey = '${text.hashCode}_$_currentLocale';
     return _translatedTexts[cacheKey];
   }
 

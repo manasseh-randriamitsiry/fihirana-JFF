@@ -274,7 +274,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
             onPressed: () async {
               await AdminControlService.clearEmergencyMode();
               await _loadDashboardData();
-              Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
+              if (context.mounted) {
+                Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -559,7 +561,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                     if (confirmed == true) {
                       await AdminControlService.emergencyStop();
                       await _loadDashboardData();
-                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
+                      if (context.mounted) {
+                        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
+                      }
                     }
                   },
                 ),
@@ -569,7 +573,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   Colors.blue,
                   () async {
                     await VersionCheckService.checkForUpdateManually();
-                    Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.checkForUpdates);
+                    if (context.mounted) {
+                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.checkForUpdates);
+                    }
                   },
                 ),
                 _buildActionButton(
@@ -579,7 +585,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   () async {
                     await AdminControlService.clearCache();
                     await _loadDashboardData();
-                    Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
+                    if (context.mounted) {
+                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
+                    }
                   },
                 ),
               ],

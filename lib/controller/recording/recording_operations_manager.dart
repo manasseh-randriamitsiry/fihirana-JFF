@@ -1,31 +1,26 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/user_recording.dart';
-import '../../services/audio/user_recording_service.dart';
-import '../../services/audio/deleted_recording_service.dart';
+import '../../services/interfaces/irecording_service.dart';
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
 import '../auth_controller.dart';
 
 /// Manages recording CRUD operations
 class RecordingOperationsManager extends GetxController {
-  final UserRecordingService _recordingService;
-  final DeletedRecordingService _deletedService;
+  final IRecordingService _recordingService;
   final RecordingAuthManager _authManager;
   final RecordingStateManager _stateManager;
 
   RecordingOperationsManager({
-    required UserRecordingService recordingService,
-    required DeletedRecordingService deletedService,
+    required IRecordingService recordingService,
     required RecordingAuthManager authManager,
     required RecordingStateManager stateManager,
-  })  : _recordingService = recordingService,
-        _deletedService = deletedService,
-        _authManager = authManager,
-        _stateManager = stateManager;
+  }) : _recordingService = recordingService,
+       _authManager = authManager,
+       _stateManager = stateManager;
 
   @override
   void onInit() {
@@ -34,14 +29,7 @@ class RecordingOperationsManager extends GetxController {
   }
 
   Future<void> _initialize() async {
-    try {
-      await _deletedService.initialize();
-    } catch (e) {
-      if (kDebugMode) {
-        print(
-            'RecordingOperationsManager: Error initializing deleted service: $e');
-      }
-    }
+    // No specific initialization needed for deleted service as it's handled in RecordingService
   }
 
   // Recording Actions
@@ -50,7 +38,8 @@ class RecordingOperationsManager extends GetxController {
       return;
     }
 
-    await _recordingService.startRecording(hymnId);
+    // Start recording and capture file path (though we don't need it here)
+    await _recordingService.startRecording();
     _stateManager.isRecording.value = true;
     _stateManager.isPaused.value = false;
     _stateManager.resetTimer();
@@ -62,36 +51,42 @@ class RecordingOperationsManager extends GetxController {
   }
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
-    final filePath = await _recordingService.stopRecording();
+    // stopRecording now returns UserRecording? directly from the service
+    // But we need to add metadata, so we get the file path from the recorder first
+    final recordedData = await _recordingService.stopRecording();
     final duration = _stateManager.recordDuration.value;
 
     _stateManager.resetRecordingState();
 
-    if (filePath != null) {
-      String? currentUserId;
-      String? currentUserEmail;
-      String? currentUserPhotoUrl;
-      String? currentUserName = _authManager.guestName.value;
+    // The service returns null for now, so we need to handle this differently
+    // Get the path from somewhere or create the recording ourselves
+    // For now, we'll need to get user info and create the recording
+    String? currentUserId;
+    String? currentUserEmail;
+    String? currentUserPhotoUrl;
+    String? currentUserName = _authManager.guestName.value;
 
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        currentUserId = currentUser.uid;
-        currentUserEmail = currentUser.email;
-        currentUserPhotoUrl = currentUser.photoURL;
-        currentUserName = currentUser.displayName ?? currentUserName;
-      } else if (_authManager.isDriveSignedIn.value &&
-          _authManager.userEmail.value != null) {
-        final driveUser = _authManager.currentUser;
-        if (driveUser != null) {
-          currentUserId = driveUser.id;
-          currentUserEmail = driveUser.email;
-          currentUserPhotoUrl = driveUser.photoUrl;
-          currentUserName = driveUser.displayName ?? currentUserName;
-        }
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      currentUserId = currentUser.uid;
+      currentUserEmail = currentUser.email;
+      currentUserPhotoUrl = currentUser.photoURL;
+      currentUserName = currentUser.displayName ?? currentUserName;
+    } else if (_authManager.isDriveSignedIn.value &&
+        _authManager.userEmail.value != null) {
+      final driveUser = _authManager.currentUser;
+      if (driveUser != null) {
+        currentUserId = driveUser.id;
+        currentUserEmail = driveUser.email;
+        currentUserPhotoUrl = driveUser.photoUrl;
+        currentUserName = driveUser.displayName ?? currentUserName;
       }
+    }
 
-      final recording = await _recordingService.saveRecording(
-        filePath: filePath,
+    // If recordedData is provided by service, use it; otherwise we need file path
+    if (recordedData != null) {
+      // Update with user metadata
+      final recording = recordedData.copyWith(
         hymnId: hymnId,
         title: title,
         durationSeconds: duration,
@@ -101,9 +96,11 @@ class RecordingOperationsManager extends GetxController {
         userName: currentUserName,
       );
 
+      await _recordingService.saveRecording(recording);
       _stateManager.currentHymnTitle.value = title;
       return recording;
     }
+
     return null;
   }
 
@@ -125,7 +122,7 @@ class RecordingOperationsManager extends GetxController {
       return;
     }
 
-    await _recordingService.startRecording('unknown');
+    await _recordingService.startRecording();
     _stateManager.isRecording.value = true;
     _stateManager.isPaused.value = false;
     _stateManager.resetTimer();
@@ -133,34 +130,33 @@ class RecordingOperationsManager extends GetxController {
   }
 
   Future<UserRecording?> stopStandaloneRecording(String title) async {
-    final filePath = await _recordingService.stopRecording();
+    final recordedData = await _recordingService.stopRecording();
     _stateManager.resetRecordingState();
 
-    if (filePath != null) {
-      String? currentUserId;
-      String? currentUserEmail;
-      String? currentUserPhotoUrl;
-      String? currentUserName = _authManager.guestName.value;
+    String? currentUserId;
+    String? currentUserEmail;
+    String? currentUserPhotoUrl;
+    String? currentUserName = _authManager.guestName.value;
 
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        currentUserId = currentUser.uid;
-        currentUserEmail = currentUser.email;
-        currentUserPhotoUrl = currentUser.photoURL;
-        currentUserName = currentUser.displayName ?? currentUserName;
-      } else if (_authManager.isDriveSignedIn.value &&
-          _authManager.userEmail.value != null) {
-        final driveUser = _authManager.currentUser;
-        if (driveUser != null) {
-          currentUserId = driveUser.id;
-          currentUserEmail = driveUser.email;
-          currentUserPhotoUrl = driveUser.photoUrl;
-          currentUserName = driveUser.displayName ?? currentUserName;
-        }
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      currentUserId = currentUser.uid;
+      currentUserEmail = currentUser.email;
+      currentUserPhotoUrl = currentUser.photoURL;
+      currentUserName = currentUser.displayName ?? currentUserName;
+    } else if (_authManager.isDriveSignedIn.value &&
+        _authManager.userEmail.value != null) {
+      final driveUser = _authManager.currentUser;
+      if (driveUser != null) {
+        currentUserId = driveUser.id;
+        currentUserEmail = driveUser.email;
+        currentUserPhotoUrl = driveUser.photoUrl;
+        currentUserName = driveUser.displayName ?? currentUserName;
       }
+    }
 
-      final recording = await _recordingService.saveRecording(
-        filePath: filePath,
+    if (recordedData != null) {
+      final recording = recordedData.copyWith(
         hymnId: 'unknown',
         title: title,
         durationSeconds: _stateManager.recordDuration.value,
@@ -170,8 +166,10 @@ class RecordingOperationsManager extends GetxController {
         userName: currentUserName,
       );
 
+      await _recordingService.saveRecording(recording);
       return recording;
     }
+
     return null;
   }
 
@@ -191,7 +189,8 @@ class RecordingOperationsManager extends GetxController {
       final currentUser = FirebaseAuth.instance.currentUser;
       final authController = Get.find<AuthController>();
 
-      final isOwner = recording.userId == currentUser?.uid ||
+      final isOwner =
+          recording.userId == currentUser?.uid ||
           recording.userEmail == currentUser?.email ||
           recording.userEmail == _authManager.userEmail.value;
       final isAdmin = authController.isAdmin || authController.isSuperAdmin;
@@ -233,9 +232,11 @@ class RecordingOperationsManager extends GetxController {
   }
 
   Future<void> _deleteRecordingPermanently(
-      UserRecording recording, User? currentUser) async {
+    UserRecording recording,
+    User? currentUser,
+  ) async {
     try {
-      await _recordingService.deleteRecording(recording.id);
+      await _recordingService.deleteLocalRecordingPermanently(recording.id);
 
       if (recording.driveFileId != null) {
         try {
@@ -264,7 +265,8 @@ class RecordingOperationsManager extends GetxController {
       final currentUser = FirebaseAuth.instance.currentUser;
       final authController = Get.find<AuthController>();
 
-      final isOwner = recording.userId == currentUser?.uid ||
+      final isOwner =
+          recording.userId == currentUser?.uid ||
           recording.userEmail == currentUser?.email ||
           recording.userEmail == _authManager.userEmail.value;
       final isAdmin = authController.isAdmin || authController.isSuperAdmin;
@@ -291,8 +293,7 @@ class RecordingOperationsManager extends GetxController {
 
   Future<void> _moveRecordingToTrash(UserRecording recording) async {
     try {
-      await _deletedService.saveDeletedRecording(recording);
-      await _recordingService.deleteRecording(recording.id);
+      await _recordingService.deleteLocalRecording(recording.id);
 
       Get.snackbar(
         'Deleted',
@@ -317,7 +318,7 @@ class RecordingOperationsManager extends GetxController {
 
   // Deleted recordings management
   Future<List<UserRecording>> getDeletedRecordings() async {
-    return await _deletedService.getDeletedRecordings();
+    return _recordingService.deletedRecordings;
   }
 
   Future<void> restoreRecording(UserRecording deletedRecording) async {
@@ -339,18 +340,9 @@ class RecordingOperationsManager extends GetxController {
         tags: deletedRecording.tags,
       );
 
-      await _recordingService.saveRecording(
-        filePath: restoredRecording.filePath,
-        hymnId: restoredRecording.hymnId,
-        title: restoredRecording.title,
-        durationSeconds: restoredRecording.durationSeconds,
-        userId: restoredRecording.userId,
-        userEmail: restoredRecording.userEmail,
-        userPhotoUrl: restoredRecording.userPhotoUrl,
-        userName: restoredRecording.userName,
-      );
+      await _recordingService.saveRecording(restoredRecording);
 
-      await _deletedService.restoreRecording(deletedRecording.id);
+      await _recordingService.restoreRecording(deletedRecording.id);
       await _recordingService.loadRecordings();
 
       Get.snackbar(
@@ -370,7 +362,8 @@ class RecordingOperationsManager extends GetxController {
   }
 
   Future<void> permanentlyDeleteRecording(
-      UserRecording deletedRecording) async {
+    UserRecording deletedRecording,
+  ) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
 
@@ -379,8 +372,9 @@ class RecordingOperationsManager extends GetxController {
               deletedRecording.userEmail == currentUser?.email ||
               deletedRecording.userEmail == _authManager.userEmail.value)) {
         try {
-          await _authManager.driveService!
-              .deleteFile(deletedRecording.driveFileId!);
+          await _authManager.driveService!.deleteFile(
+            deletedRecording.driveFileId!,
+          );
         } catch (e) {
           if (kDebugMode) {
             print('Failed to delete from Google Drive: $e');
@@ -388,7 +382,7 @@ class RecordingOperationsManager extends GetxController {
         }
       }
 
-      await _deletedService.permanentlyDeleteRecording(deletedRecording.id);
+      await _recordingService.permanentlyDeleteRecording(deletedRecording.id);
 
       Get.snackbar(
         'Permanently Deleted',

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../models/user_recording.dart';
 import '../../models/hymn.dart';
 import '../../services/audio/audio_service.dart';
-import '../../services/audio/user_recording_service.dart';
+import '../../services/audio/recording_service.dart';
 import '../../widgets/player/compact_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 import 'recording_state_manager.dart';
@@ -11,11 +11,14 @@ import 'recording_state_manager.dart';
 /// Manages playback functionality
 class RecordingPlaybackManager extends GetxController {
   final RecordingStateManager _stateManager;
+  final RecordingService _recordingService;
   final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
 
   RecordingPlaybackManager({
     required RecordingStateManager stateManager,
-  }) : _stateManager = stateManager;
+    required RecordingService recordingService,
+  })  : _stateManager = stateManager,
+        _recordingService = recordingService;
 
   // Playback Actions
   Future<void> playRecording(UserRecording recording) async {
@@ -30,19 +33,26 @@ class RecordingPlaybackManager extends GetxController {
     await AudioService.instance.pause();
   }
 
-  Future<void> seekTo(Duration position) async {
+  Future<void> resumePlayback() async {
+    await AudioService.instance.resume();
+  }
+
+  Future<void> stopPlayback() async {
+    await AudioService.instance.stop();
+  }
+
+  Future<void> seekPlayback(Duration position) async {
     await AudioService.instance.seekTo(position);
   }
 
-Future<void> setPlaybackSpeed(double speed) async {
+  Future<void> setPlaybackSpeed(double speed) async {
     await AudioService.instance.player.setSpeed(speed);
   }
 
   /// Refresh public URLs for all recordings
   Future<void> refreshPublicUrls() async {
     try {
-      final recordingService = UserRecordingService();
-      await recordingService.refreshPublicUrls();
+      await _recordingService.refreshPublicUrls();
       Get.snackbar('Success', 'Public URLs refreshed successfully');
     } catch (e) {
       Get.snackbar('Error', 'Failed to refresh URLs: $e');

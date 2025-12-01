@@ -1,6 +1,8 @@
 import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/services/core/init_service.dart';
+import 'package:fihirana/services/core/service_locator.dart';
+import 'package:fihirana/services/core/init_progress_tracker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'dart:async';
 
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key});
@@ -18,61 +21,47 @@ class AppBootstrap extends StatefulWidget {
 
 class _AppBootstrapState extends State<AppBootstrap> {
   double _progress = 0.0;
-  final String _currentTask = '...';
+  String _currentTask = 'Initializing app...';
+  StreamSubscription<InitProgressEvent>? _progressSubscription;
 
-  @override
+@override
   void initState() {
     super.initState();
     _initialize();
   }
 
-  void _updateProgress(double progress) {
-    if (mounted) {
-      setState(() {
-        _progress = progress;
-      });
-    }
+  @override
+  void dispose() {
+    _progressSubscription?.cancel();
+    super.dispose();
   }
 
-  Future<void> _initialize() async {
-    try {
-      // Step 1: Initialize Firebase (0% -> 40%)
-      _updateProgress(0.0);
 
+
+Future<void> _initialize() async {
+    try {
+      // Listen to detailed progress events
+      _progressSubscription = initProgressTracker.progressStream.listen((event) {
+        if (mounted) {
+          setState(() {
+            _progress = event.progress;
+            _currentTask = event.step.description;
+          });
+        }
+      });
+
+      // Step 1: Initialize Firebase (0% -> 20%)
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      _updateProgress(0.4);
+      // Step 2: Initialize Service Locator (20% -> 30%)
+      await serviceLocator.initialize();
 
-      // Step 2: Initialize Notifications (40% -> 60%)
-      _updateProgress(0.4);
+      // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
+      await InitService.initializeApp();
 
-      await InitService.initializeNotifications();
-
-      _updateProgress(0.6);
-
-      // Step 3: Initialize Controllers (60% -> 90%)
-      _updateProgress(0.6);
-
-      await InitService.initControllers();
-
-      _updateProgress(0.9);
-
-      // Initialize deep links for playlist sharing
-      await InitService.initDeepLinks();
-
-      // Step 4: Security Check (90% -> 95%)
-      _updateProgress(0.9);
-
-      // Security check will run automatically when SecurityService is initialized
-      // This ensures blocked users are handled before app fully loads
-      await Future.delayed(const Duration(
-          milliseconds: 500)); // Allow security check to complete
-
-      // Step 5: Get SharedPreferences (95% -> 100%)
-      _updateProgress(0.95);
-
+      // Step 4: Get SharedPreferences (90% -> 95%)
       final prefs = await SharedPreferences.getInstance();
 
       // Track installation
@@ -93,7 +82,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
         }
       }
 
-      _updateProgress(1.0);
+      // Step 5: Final security check (95% -> 100%)
+      // Allow security service to complete its checks
+      await Future.delayed(const Duration(milliseconds: 500));
 
       // Small delay to show completion
       await Future.delayed(const Duration(milliseconds: 300));
@@ -108,10 +99,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
     } catch (e) {
       if (kDebugMode) {
         print('Error during bootstrap: $e');
+        print('Initialization summary: ${initProgressTracker.getSummary()}');
       }
-      _updateProgress(1.0);
-      await Future.delayed(const Duration(milliseconds: 300));
-
+      
       // Try to continue anyway
       final prefs = await SharedPreferences.getInstance();
       if (mounted) {
@@ -121,6 +111,8 @@ class _AppBootstrapState extends State<AppBootstrap> {
           ),
         );
       }
+    } finally {
+      await _progressSubscription?.cancel();
     }
   }
 

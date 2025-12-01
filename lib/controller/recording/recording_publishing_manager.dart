@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_recording.dart';
-import '../../services/audio/user_recording_service.dart';
-import '../../services/audio/public_recording_service.dart';
+import '../../services/audio/recording_service.dart';
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
 import '../../l10n/app_localizations.dart';
@@ -23,18 +22,15 @@ enum PublishRecordingResult {
 
 /// Manages public recording features
 class RecordingPublishingManager extends GetxController {
-  final UserRecordingService _recordingService;
-  final PublicRecordingService _publicService;
+  final RecordingService _recordingService;
   final RecordingAuthManager _authManager;
   final RecordingStateManager _stateManager;
 
   RecordingPublishingManager({
-    required UserRecordingService recordingService,
-    required PublicRecordingService publicService,
+    required RecordingService recordingService,
     required RecordingAuthManager authManager,
     required RecordingStateManager stateManager,
   })  : _recordingService = recordingService,
-        _publicService = publicService,
         _authManager = authManager,
         _stateManager = stateManager;
 
@@ -42,7 +38,7 @@ class RecordingPublishingManager extends GetxController {
 
   Future<List<UserRecording>> loadPublicRecordings({String? hymnId}) async {
     try {
-      return await _publicService.getPublicRecordings(hymnId: hymnId);
+      return await _recordingService.getPublicRecordings(hymnId: hymnId);
     } catch (e) {
       if (kDebugMode) {
         print('RecordingPublishingManager: Load public recordings error: $e');
@@ -54,7 +50,7 @@ class RecordingPublishingManager extends GetxController {
   Future<void> refreshPublicRecordings({String? hymnId}) async {
     try {
       final recordings =
-          await _publicService.getPublicRecordings(hymnId: hymnId);
+          await _recordingService.getPublicRecordings(hymnId: hymnId);
       publicRecordings.value = recordings;
       if (kDebugMode) {
         print(
@@ -174,7 +170,7 @@ class RecordingPublishingManager extends GetxController {
         }
       }
 
-      final titleExists = await _publicService.titleExistsForHymn(
+      final titleExists = await _recordingService.titleExistsForHymn(
         recordingToPublish.hymnId,
         recordingToPublish.title,
       );
@@ -182,7 +178,8 @@ class RecordingPublishingManager extends GetxController {
         return PublishRecordingResult.duplicateTitle;
       }
 
-      final success = await _publicService.publishRecording(recordingToPublish);
+      final success =
+          await _recordingService.publishRecording(recordingToPublish);
 
       if (success) {
         final updated = recordingToPublish.copyWith(isPublic: true);
@@ -269,7 +266,7 @@ class RecordingPublishingManager extends GetxController {
       );
 
       UserRecording currentRecording = updatedRecording;
-      bool titleExists = await _publicService.titleExistsForHymn(
+      bool titleExists = await _recordingService.titleExistsForHymn(
         currentRecording.hymnId,
         currentRecording.title,
       );
@@ -281,13 +278,14 @@ class RecordingPublishingManager extends GetxController {
           return;
         }
         currentRecording = currentRecording.copyWith(title: newTitle);
-        titleExists = await _publicService.titleExistsForHymn(
+        titleExists = await _recordingService.titleExistsForHymn(
           currentRecording.hymnId,
           currentRecording.title,
         );
       }
 
-      final success = await _publicService.publishRecording(currentRecording);
+      final success =
+          await _recordingService.publishRecording(currentRecording);
       if (success) {
         final finalRecording = currentRecording.copyWith(isPublic: true);
         await _recordingService.updateRecording(finalRecording);
@@ -327,8 +325,7 @@ class RecordingPublishingManager extends GetxController {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-                l10n.chooseHowToDelete(recording.title)),
+            Text(l10n.chooseHowToDelete(recording.title)),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
@@ -361,7 +358,7 @@ class RecordingPublishingManager extends GetxController {
 
   Future<void> unpublishRecording(UserRecording recording) async {
     try {
-      await _publicService.unpublishRecording(recording.id);
+      await _recordingService.unpublishRecording(recording.id);
       final updated = recording.copyWith(isPublic: false);
       await _recordingService.updateRecording(updated);
       await _recordingService.loadRecordings();

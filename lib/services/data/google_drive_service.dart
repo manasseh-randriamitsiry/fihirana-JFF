@@ -2,8 +2,22 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
+import 'package:http/http.dart' as http;
+
 import 'package:collection/collection.dart';
+
+/// Custom HTTP client for Google APIs
+class GoogleHttpClient extends http.BaseClient {
+  final String accessToken;
+  
+  GoogleHttpClient(this.accessToken);
+  
+  @override
+  Future<http.StreamedResponse> send(http.BaseRequest request) {
+    request.headers['Authorization'] = 'Bearer $accessToken';
+    return request.send();
+  }
+}
 
 class GoogleDriveService {
   static final GoogleDriveService _instance = GoogleDriveService._internal();
@@ -30,7 +44,7 @@ class GoogleDriveService {
     if (kDebugMode) {
       print(
           'GoogleDriveService: Initialized with shared GoogleSignIn instance');
-      print('GoogleDriveService: Scopes: ${googleSignIn.scopes}');
+      print('GoogleDriveService: Initialized with shared GoogleSignIn instance');
     }
   }
 
@@ -125,8 +139,9 @@ class GoogleDriveService {
         print(
             'GoogleDriveService: Initializing Drive API for user: ${_currentUser!.email}');
       }
-      final httpClient = await _googleSignIn.authenticatedClient();
-      if (httpClient != null) {
+      final auth = await _googleSignIn.currentUser?.authentication;
+      if (auth?.accessToken != null) {
+        final httpClient = GoogleHttpClient(auth!.accessToken!);
         _driveApi = drive.DriveApi(httpClient);
         await _ensureFolderExists();
         if (kDebugMode) {

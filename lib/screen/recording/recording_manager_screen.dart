@@ -495,12 +495,12 @@ class RecordingManagerScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Obx(() {
               final quota = controller.storageQuota.value;
-              if (quota == null || quota.usage == null || quota.limit == null) {
+              if (quota == null) {
                 return const SizedBox.shrink();
               }
 
-              final usage = int.tryParse(quota.usage!) ?? 0;
-              final limit = int.tryParse(quota.limit!) ?? 1;
+              final usage = quota['usage'] as int? ?? 0;
+              final limit = quota['limit'] as int? ?? 1;
               final usageGB = (usage / (1024 * 1024 * 1024)).toStringAsFixed(2);
               final limitGB = (limit / (1024 * 1024 * 1024)).toStringAsFixed(2);
               final percent = (usage / limit).clamp(0.0, 1.0);

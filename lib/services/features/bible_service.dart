@@ -4,8 +4,9 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
 import 'package:fihirana/models/bible.dart';
 import 'package:fihirana/utility/bible_book_order.dart';
+import 'package:fihirana/services/interfaces/ibible_service.dart';
 
-class BibleService {
+class BibleService implements IBibleService {
   static final BibleService _instance = BibleService._internal();
   factory BibleService() => _instance;
   BibleService._internal();
@@ -16,6 +17,7 @@ class BibleService {
   Function(String)? onLoadingMessage; // Callback for loading messages
   Completer<void>? _initializationCompleter;
 
+  @override
   Future<void> initialize([Function(String)? loadingCallback]) async {
     // If already initialized, return immediately
     if (_isInitialized) return;
@@ -208,6 +210,7 @@ class BibleService {
   }
 
   // Get all Bible books
+  @override
   List<BibleBook> getAllBooks() {
     return _bibleCache.values.toList();
   }
@@ -218,6 +221,7 @@ class BibleService {
   }
 
   // Check if service is initialized
+  @override
   bool get isInitialized => _isInitialized;
 
   // New methods needed by BibleController
@@ -251,7 +255,8 @@ class BibleService {
     return BibleBookOrder.getSortedNewTestamentBooks(newTestamentBooks);
   }
 
-  Future<BibleBook?> getBook(String bookName) async {
+  @override
+  BibleBook? getBook(String bookName) {
     return _bibleCache[bookName];
   }
 
@@ -267,22 +272,23 @@ class BibleService {
     return [];
   }
 
-  List<String> searchBooks(String query) {
+  @override
+  List<BibleBook> searchBooks(String query) {
     if (query.isEmpty) {
-      return getAllBookNames();
+      return _bibleCache.values.toList();
     }
 
-    final filteredBooks = _bibleCache.keys
-        .where(
-            (bookName) => bookName.toLowerCase().contains(query.toLowerCase()))
+    final filteredBooks = _bibleCache.values
+        .where((book) => book.name.toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     // Sort by biblical order instead of alphabetical
-    filteredBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a)
-        .compareTo(BibleBookOrder.getBookOrderPosition(b)));
+    filteredBooks.sort((a, b) => BibleBookOrder.getBookOrderPosition(a.name)
+        .compareTo(BibleBookOrder.getBookOrderPosition(b.name)));
     return filteredBooks;
   }
 
+  @override
   void clearCache() {
     _bibleCache.clear();
     _isInitialized = false;
@@ -344,5 +350,130 @@ class BibleService {
     });
 
     return result;
+  }
+
+  @override
+  BibleChapter? getChapter(String bookName, int chapterNumber) {
+    final book = _bibleCache[bookName];
+    if (book == null) return null;
+    return book.getChapter(chapterNumber);
+  }
+
+  @override
+  String? getVerse(String bookName, int chapterNumber, int verseNumber) {
+    final chapter = getChapter(bookName, chapterNumber);
+    if (chapter == null) return null;
+    return chapter.verses[verseNumber];
+  }
+
+  @override
+  List<VerseSearchResult> searchVerses(String query) {
+    final results = <VerseSearchResult>[];
+    for (final book in _bibleCache.values) {
+      for (int chapter = 1; chapter <= book.chapters; chapter++) {
+        final chapterData = book.getChapter(chapter);
+        if (chapterData != null) {
+          for (final entry in chapterData.verses.entries) {
+            if (entry.value.toLowerCase().contains(query.toLowerCase())) {
+              results.add(VerseSearchResult(
+                bookName: book.name,
+                chapter: chapter,
+                verse: entry.key,
+                text: entry.value,
+              ));
+            }
+          }
+        }
+      }
+    }
+    return results;
+  }
+
+  @override
+  int get bookCount => _bibleCache.length;
+
+  @override
+  int getChapterCount(String bookName) {
+    final book = _bibleCache[bookName];
+    return book?.chapters ?? 0;
+  }
+
+  @override
+  int getVerseCount(String bookName, int chapterNumber) {
+    final chapter = getChapter(bookName, chapterNumber);
+    return chapter?.verses.length ?? 0;
+  }
+
+  @override
+  VerseSearchResult? getRandomVerse() {
+    final books = _bibleCache.values.where(_bookHasContent).toList();
+    if (books.isEmpty) return null;
+    
+    books.shuffle();
+    final book = books.first;
+    final chapterNumber = (book.chapters * (DateTime.now().millisecond % 1000) / 1000).floor() + 1;
+    final chapter = book.getChapter(chapterNumber);
+    
+    if (chapter == null || chapter.verses.isEmpty) return getRandomVerse();
+    
+    final verseEntries = chapter.verses.entries.toList();
+    verseEntries.shuffle();
+    final verse = verseEntries.first;
+    
+    return VerseSearchResult(
+      bookName: book.name,
+      chapter: chapterNumber,
+      verse: verse.key,
+      text: verse.value,
+    );
+  }
+
+  @override
+  List<VerseSearchResult> getVerseRange(String bookName, int chapterNumber, int startVerse, int endVerse) {
+    final results = <VerseSearchResult>[];
+    final chapter = getChapter(bookName, chapterNumber);
+    if (chapter == null) return results;
+    
+    for (int verse = startVerse; verse <= endVerse; verse++) {
+      final text = chapter.verses[verse];
+      if (text != null) {
+        results.add(VerseSearchResult(
+          bookName: bookName,
+          chapter: chapterNumber,
+          verse: verse,
+          text: text,
+        ));
+      }
+    }
+    return results;
+  }
+
+  @override
+  bool hasBook(String bookName) {
+    return _bibleCache.containsKey(bookName);
+  }
+
+  @override
+  bool hasChapter(String bookName, int chapterNumber) {
+    final book = _bibleCache[bookName];
+    if (book == null) return false;
+    return chapterNumber >= 1 && chapterNumber <= book.chapters;
+  }
+
+  @override
+  bool hasVerse(String bookName, int chapterNumber, int verseNumber) {
+    final chapter = getChapter(bookName, chapterNumber);
+    return chapter?.verses.containsKey(verseNumber) ?? false;
+  }
+
+  @override
+  int getBookOrder(String bookName) {
+    return BibleBookOrder.getBookOrderPosition(bookName);
+  }
+
+  @override
+  Future<void> preloadBooks(List<String> bookNames) async {
+    // Books are already loaded during initialization
+    // This method can be used for future optimization
   }
 }

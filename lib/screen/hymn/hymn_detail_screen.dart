@@ -182,7 +182,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       }
 
       // Try to load the hymn individually (e.g. from Firebase)
-      final hymn = await _hymnService.getHymnById(widget.hymnId);
+      final hymn = await _hymnService.getHymnById(int.tryParse(widget.hymnId) ?? 0);
 
       if (mounted) {
         if (hymn != null) {

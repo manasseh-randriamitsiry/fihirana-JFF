@@ -199,8 +199,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
       AlertDialog(
         title: Text(AppLocalizations.of(context)!.permanentDelete),
         content: Text(
-          AppLocalizations.of(context)!.sureToDelete(recording.title) +
-          ' ' + AppLocalizations.of(context)!.historyCannotBeUndone,
+          '${AppLocalizations.of(context)!.sureToDelete(recording.title)} ${AppLocalizations.of(context)!.historyCannotBeUndone}',
         ),
         actions: [
           TextButton(

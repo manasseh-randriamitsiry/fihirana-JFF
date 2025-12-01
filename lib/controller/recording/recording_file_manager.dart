@@ -6,7 +6,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path/path.dart' as path;
 import 'package:file_picker/file_picker.dart';
 import '../../models/user_recording.dart';
-import '../../services/audio/user_recording_service.dart';
+import '../../services/audio/recording_service.dart';
 import '../../services/data/google_drive_service.dart';
 import 'package:fihirana/services/audio/local_audio_service.dart';
 import 'recording_auth_manager.dart';
@@ -14,12 +14,12 @@ import 'recording_state_manager.dart';
 
 /// Manages file operations for recordings
 class RecordingFileManager extends GetxController {
-  final UserRecordingService _recordingService;
+  final RecordingService _recordingService;
   final RecordingAuthManager _authManager;
   final RecordingStateManager _stateManager;
 
   RecordingFileManager({
-    required UserRecordingService recordingService,
+    required RecordingService recordingService,
     required RecordingAuthManager authManager,
     required RecordingStateManager stateManager,
   })  : _recordingService = recordingService,
@@ -264,8 +264,7 @@ class RecordingFileManager extends GetxController {
           text: 'Check out my recording of ${recording.title}',
         );
       } else if (recording.driveWebLink != null) {
-        await Share.share(
-            'Check out this recording: ${recording.driveWebLink}');
+        await Share.share('Check out this recording: ${recording.driveWebLink}');
       } else {
         Get.snackbar('Error', 'Could not share recording. File not found.');
       }
