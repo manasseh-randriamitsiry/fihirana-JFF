@@ -21,9 +21,6 @@ import '../../widgets/hymn/hymn_search_popup_widget.dart';
 import '../../widgets/player/compact_audio_player_widget.dart';
 import '../../widgets/add_to_playlist_sheet.dart';
 import '../../controller/recording_controller.dart';
-import 'package:fihirana/services/core/translation_service.dart';
-import '../../controller/language_controller.dart';
-
 import '../../widgets/hymn/hymn_detail_widgets.dart';
 import '../../widgets/hymn/hymn_improved_note_section_widget.dart';
 import '../../widgets/hymn/hymn_action_widgets.dart';
@@ -182,7 +179,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       }
 
       // Try to load the hymn individually (e.g. from Firebase)
-      final hymn = await _hymnService.getHymnById(int.tryParse(widget.hymnId) ?? 0);
+      final hymn = await _hymnService.getHymnById(widget.hymnId);
 
       if (mounted) {
         if (hymn != null) {
@@ -463,7 +460,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                       ColorPickerWidget.showColorPickerDialog(context),
                   onShowAudioPlayer: () => _showAudioPlayerDialog(),
                   onAddToPlaylist: () => _showAddToPlaylistDialog(),
-                  onShowTranslation: _showTranslationDialog,
                 );
               },
             ),
@@ -474,7 +470,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Column(
                     children: [
                       Center(
@@ -769,204 +765,4 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     );
   }
 
-  Future<void> _showTranslationDialog() async {
-    if (_hymn == null) return;
-
-    final l10n = AppLocalizations.of(context)!;
-    final languageController = Get.find<LanguageController>();
-
-    // Determine target language
-    // If current locale is MG, default to EN. Otherwise use current locale.
-    String targetLang = languageController.currentLocale.value.languageCode;
-    if (targetLang == 'mg') {
-      targetLang = 'en';
-    }
-
-    // Show loading dialog
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
-
-    try {
-      final translationService = TranslationService();
-
-      // Check if model is downloaded
-      final isDownloaded =
-          await translationService.isModelDownloaded(targetLang);
-
-      if (!isDownloaded) {
-        // Ask user to download
-        if (mounted) {
-          Navigator.pop(context); // Close loading
-
-          final shouldDownload = await showDialog<bool>(
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text(l10n.download),
-              content: Text(
-                  'Mila maka ny modelin\'ny teny $targetLang aloha. Te hanohy ve ianao?'), // "Need to download model first. Continue?"
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: Text(l10n.cancel),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: Text(l10n.download),
-                ),
-              ],
-            ),
-          );
-
-          if (shouldDownload != true) return;
-
-          // Show loading again
-          if (mounted) {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) =>
-                  const Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          final success = await translationService.downloadModel(targetLang);
-          if (!success) {
-            if (mounted) {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.downloadFailed)),
-              );
-            }
-            return;
-          }
-        }
-      }
-
-      // Translate title
-      final translatedTitle = await translationService.translate(
-        text: _hymn!.title,
-        sourceLanguage: 'mg', // Assuming hymns are in Malagasy
-        targetLanguage: targetLang,
-      );
-
-      // Translate verses
-      final List<String> translatedVerses = [];
-      for (final verse in _hymn!.verses) {
-        final translatedVerse = await translationService.translate(
-          text: verse,
-          sourceLanguage: 'mg',
-          targetLanguage: targetLang,
-        );
-        translatedVerses.add(translatedVerse);
-      }
-
-      if (mounted) {
-        Navigator.pop(context); // Close loading
-
-        // Show translation result
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          builder: (context) => DraggableScrollableSheet(
-            initialChildSize: 0.7,
-            minChildSize: 0.5,
-            maxChildSize: 0.95,
-            expand: false,
-            builder: (context, scrollController) => Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Get.find<ColorController>().backgroundColor.value,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l10n.viewTranslation,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Get.find<ColorController>().textColor.value,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const Divider(),
-                  Expanded(
-                    child: ListView(
-                      controller: scrollController,
-                      children: [
-                        Text(
-                          translatedTitle,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color:
-                                Get.find<ColorController>().primaryColor.value,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        ...translatedVerses.asMap().entries.map((entry) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${entry.key + 1}',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Get.find<ColorController>()
-                                        .primaryColor
-                                        .value
-                                        .withValues(alpha: 0.7),
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  entry.value,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Get.find<ColorController>()
-                                        .textColor
-                                        .value,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        Navigator.pop(context); // Close loading
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.errorOccurred)),
-        );
-      }
-    }
-  }
 }

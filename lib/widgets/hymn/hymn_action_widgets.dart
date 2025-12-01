@@ -45,7 +45,6 @@ class HymnPopupMenuWidget extends StatelessWidget {
   final VoidCallback onShowColorPicker;
   final VoidCallback onShowAudioPlayer;
   final VoidCallback onAddToPlaylist;
-  final VoidCallback onShowTranslation;
 
   const HymnPopupMenuWidget({
     super.key,
@@ -60,7 +59,6 @@ class HymnPopupMenuWidget extends StatelessWidget {
     required this.onShowColorPicker,
     required this.onShowAudioPlayer,
     required this.onAddToPlaylist,
-    required this.onShowTranslation,
   });
 
   @override
@@ -68,7 +66,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
     final colorController = Get.find<ColorController>();
 
     return PopupMenuButton<String>(
-      color: colorController.primaryColor.value,
+      color: colorController.primaryColor.value.withValues(alpha: 0.9),
       icon: Icon(
         Icons.menu_sharp,
         color: colorController.iconColor.value,
@@ -92,9 +90,6 @@ class HymnPopupMenuWidget extends StatelessWidget {
             break;
           case 'add_to_playlist':
             onAddToPlaylist();
-            break;
-          case 'translation':
-            onShowTranslation();
             break;
         }
       },
@@ -164,19 +159,6 @@ class HymnPopupMenuWidget extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                  Text(context.translate((l) => l.addToPlaylist)),
-              ],
-            ),
-          ),
-          PopupMenuItem<String>(
-            value: 'translation',
-            child: Row(
-              children: [
-                Icon(
-                  Icons.translate,
-                  color: colorController.textColor.value,
-                ),
-                const SizedBox(width: 8),
-                 Text(context.translate((l) => l.viewTranslation)),
               ],
             ),
           ),

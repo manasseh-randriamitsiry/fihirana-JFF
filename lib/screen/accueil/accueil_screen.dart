@@ -15,7 +15,7 @@ import '../../widgets/common/localization_extension.dart';
 import '../../widgets/empty_state_widget.dart';
 import '../../widgets/hymn/hymn_list_item.dart';
 import '../../widgets/hymn/hymn_search_field.dart';
-import '../../widgets/language_picker_widget.dart';
+import '../../widgets/simple_language_picker.dart';
 import '../../widgets/skeleton_hymn_list.dart';
 import '../player/audio_player_screen.dart';
 
@@ -224,7 +224,7 @@ class AccueilScreenState extends State<AccueilScreen> {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (context) => const LanguagePickerDialog(),
+                    builder: (context) => const SimpleLanguagePickerDialog(),
                   );
                 },
               ),
