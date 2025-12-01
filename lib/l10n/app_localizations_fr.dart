@@ -1180,7 +1180,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get term2 => 'Je n\'ajouterai pas de cantiques qui ne correspondent pas à l\'adoration JFF';
 
   @override
-  String get agreement => 'J\'accepte les conditions ci-dessus';
+  String get agreement => 'J\'accepte les conditions ci-dessous';
 
   @override
   String get enterYourName => 'Entrez votre nom';
