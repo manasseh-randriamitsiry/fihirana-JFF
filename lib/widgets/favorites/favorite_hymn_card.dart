@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import 'package:fihirana/services/audio/audio_service.dart';
-import '../player/lightweight_audio_player_widget.dart';
+
 
 import '../common/localization_extension.dart';
 
@@ -66,10 +66,6 @@ class FavoriteHymnCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                LightweightAudioPlayerWidget(
-                  hymn: hymn,
                 ),
               ],
             ),

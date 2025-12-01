@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 
 class ColorController extends GetxController {
   static ColorController get to => Get.find();
@@ -459,50 +459,6 @@ class ColorController extends GetxController {
       ).apply(
         bodyColor: Colors.white,
         displayColor: Colors.white,
-      ),
-    );
-  }
-
-  NeumorphicThemeData getNeumorphicLightTheme() {
-    return _getNeumorphicTheme();
-  }
-
-  NeumorphicThemeData getNeumorphicDarkTheme() {
-    return _getNeumorphicTheme();
-  }
-
-  void setThemeMode(ThemeMode mode) {
-    if (mode == ThemeMode.dark) {
-      updateColors(
-        background: const Color(0xFF121212),
-        text: const Color(0xFFFFFFFF),
-      );
-    } else {
-      updateColors(
-        background: const Color(0xFFFFFFFF),
-        text: const Color(0xFF000000),
-      );
-    }
-  }
-
-  NeumorphicThemeData _getNeumorphicTheme() {
-    final isDarkBg = _isDark(backgroundColor.value);
-    return NeumorphicThemeData(
-      baseColor: backgroundColor.value,
-      accentColor: accentColor.value,
-      lightSource: LightSource.topLeft,
-      depth: 4,
-      intensity: 1.0,
-      shadowLightColor: isDarkBg
-          ? Colors.white.withValues(alpha: 0.25)
-          : Colors.white.withValues(alpha: 1.0),
-      shadowDarkColor: isDarkBg
-          ? Colors.black.withValues(alpha: 0.8)
-          : Colors.black.withValues(alpha: 0.3),
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(color: textColor.value),
-        bodyMedium: TextStyle(color: textColor.value),
-        titleLarge: TextStyle(color: textColor.value),
       ),
     );
   }

@@ -8,9 +8,8 @@ import '../../controller/color_controller.dart';
 import '../../models/hymn.dart';
 import 'package:fihirana/services/features/hymn_service.dart';
 import 'package:fihirana/services/audio/audio_service.dart';
-import '../../widgets/player/lightweight_audio_player_widget.dart';
-import '../../widgets/hymn/hymn_form_widgets.dart';
 
+import '../../widgets/hymn/hymn_form_widgets.dart';
 import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -149,18 +148,6 @@ class CreateHymnPageState extends State<CreateHymnPage> {
     final l10n = AppLocalizations.of(context)!;
     if (_hymnNumberController.text.trim().isEmpty) return;
 
-    final hymn = Hymn(
-      id: '',
-      hymnNumber: _hymnNumberController.text.trim(),
-      title: _titleController.text.trim().isEmpty
-          ? l10n.newHymn
-          : _titleController.text.trim(),
-      verses: [],
-      createdAt: DateTime.now(),
-      createdBy: '',
-      createdByEmail: '',
-    );
-
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -194,11 +181,6 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       ),
                     ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                LightweightAudioPlayerWidget(
-                  hymn: hymn,
-                  isCompact: true,
                 ),
               ],
             ),

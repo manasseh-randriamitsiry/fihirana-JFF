@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../models/hymn.dart';
 import 'package:fihirana/services/audio/audio_service.dart';
 import '../../controller/color_controller.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
 class LightweightAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;
@@ -238,74 +238,39 @@ class _LightweightAudioPlayerWidgetState
       return _buildCompactPlayer();
     }
 
-    return GetBuilder<ColorController>(
-      builder: (colorController) => NeumorphicTheme(
-        themeMode: colorController.themeMode,
-        theme: colorController.getNeumorphicLightTheme(),
-        darkTheme: colorController.getNeumorphicDarkTheme(),
-        child: Neumorphic(
-          style: NeumorphicStyle(
-            depth: 6, // Reduced depth for performance
-            intensity: 0.6, // Reduced intensity
-            color: colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(16)),
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(12), // Reduced padding
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildHeader(),
-                const SizedBox(height: 8), // Reduced spacing
-                _buildProgressBar(),
-                const SizedBox(height: 8), // Reduced spacing
-                _buildMainControls(),
-              ],
-            ),
-          ),
-        ),
+    return Container(
+      padding: const EdgeInsets.all(12), // Reduced padding
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildHeader(),
+          const SizedBox(height: 8), // Reduced spacing
+          _buildProgressBar(),
+          const SizedBox(height: 8), // Reduced spacing
+          _buildMainControls(),
+        ],
       ),
     );
   }
 
   Widget _buildCompactPlayer() {
-    return GetBuilder<ColorController>(
-      builder: (colorController) => NeumorphicTheme(
-        themeMode: colorController.themeMode,
-        theme: colorController.getNeumorphicLightTheme(),
-        darkTheme: colorController.getNeumorphicDarkTheme(),
-        child: Neumorphic(
-          style: NeumorphicStyle(
-            depth: 3, // Reduced depth
-            intensity: 0.6,
-            color: colorController.backgroundColor.value,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(10)),
+    return Container(
+      padding: const EdgeInsets.all(8), // Reduced padding
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildPlayButton(_colorController),
+          const SizedBox(width: 8),
+          Expanded(
+            child: _buildMinimalSlider(_colorController),
           ),
-          child: Container(
-            padding: const EdgeInsets.all(8), // Reduced padding
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildPlayButton(colorController),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _buildMinimalSlider(colorController),
-                ),
-              ],
-            ),
-          ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildPlayButton(ColorController colorController) {
-    return NeumorphicButton(
-      style: NeumorphicStyle(
-        depth: 1, // Minimal depth
-        color: colorController.backgroundColor.value,
-        boxShape: const NeumorphicBoxShape.circle(),
-      ),
+    return TextButton(
       onPressed: _isLoading ? null : _togglePlayPause,
       child: SizedBox(
         width: 32,
@@ -396,12 +361,7 @@ class _LightweightAudioPlayerWidgetState
   }
 
   Widget _buildNavigationButton(IconData icon, VoidCallback onPressed) {
-    return NeumorphicButton(
-      style: NeumorphicStyle(
-        depth: 1,
-        color: _colorController.backgroundColor.value,
-        boxShape: const NeumorphicBoxShape.circle(),
-      ),
+    return TextButton(
       onPressed: _isLoading ? null : onPressed,
       child: Icon(
         icon,
@@ -463,13 +423,7 @@ class _LightweightAudioPlayerWidgetState
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        NeumorphicButton(
-          style: NeumorphicStyle(
-            depth: 2, // Reduced depth
-            intensity: 0.6,
-            color: _colorController.backgroundColor.value,
-            boxShape: const NeumorphicBoxShape.circle(),
-          ),
+        TextButton(
           onPressed: _isLoading ? null : _togglePlayPause,
           child: SizedBox(
             width: 48, // Smaller button

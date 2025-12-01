@@ -4,7 +4,7 @@ import '../controller/shell_controller.dart';
 import 'drawer_widget.dart';
 import 'recording/recording_overlay_manager.dart';
 
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 
 class ResponsiveShell extends StatefulWidget {
@@ -49,7 +49,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
               }
             }
           },
-          child: NeumorphicBackground(
+          child: Container(
             child: ZoomDrawer(
               controller: shellController.zoomDrawerController,
               style: DrawerStyle.defaultStyle,
