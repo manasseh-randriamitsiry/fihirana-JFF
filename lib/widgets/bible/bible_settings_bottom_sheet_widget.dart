@@ -179,7 +179,7 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
     return Obx(() {
       final isSelected = colorController.themeMode == mode;
       return GestureDetector(
-        onTap: () => colorController.setThemeMode(mode),
+        onTap: () => colorController..setColorScheme(mode as int),
         child: Column(
           children: [
             Container(

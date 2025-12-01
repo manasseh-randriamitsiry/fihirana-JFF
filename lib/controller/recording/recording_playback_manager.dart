@@ -130,8 +130,8 @@ class RecordingPlaybackManager extends GetxController {
     // Check if recording has a public link (fallback)
     else if (recording.publicLink != null && recording.publicLink!.isNotEmpty) {
       audioUrl = recording.publicLink!;
-      if (audioUrl!.contains('drive.google.com')) {
-        final idMatch = RegExp(r'[?&]id=([^&]+)').firstMatch(audioUrl!);
+      if (audioUrl.contains('drive.google.com')) {
+        final idMatch = RegExp(r'[?&]id=([^&]+)').firstMatch(audioUrl);
         if (idMatch != null) {
           audioUrl =
               'https://drive.google.com/uc?export=download&id=${idMatch.group(1)}';

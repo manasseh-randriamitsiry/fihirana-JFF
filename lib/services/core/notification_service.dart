@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:get/get.dart';
 import 'package:fihirana/models/hymn.dart';
 import 'package:fihirana/widgets/common/notification_styles.dart';
 import 'package:fihirana/widgets/common/audio_player_notification.dart';
 import 'package:fihirana/widgets/common/notification_channels.dart';
 import 'package:fihirana/services/audio/audio_service.dart';
+import 'package:fihirana/controller/recording_controller.dart';
 import 'version_check_service.dart';
 
 class NotificationService {
@@ -124,6 +126,83 @@ class NotificationService {
 
   /// Handle audio player notification actions
   static Future<void> _handleAudioPlayerAction(
+      ReceivedAction receivedAction) async {
+    // Check if a recording is currently playing
+    bool isRecordingPlaying = false;
+    RecordingController? recordingController;
+
+    try {
+      if (Get.isRegistered<RecordingController>()) {
+        recordingController = Get.find<RecordingController>();
+        isRecordingPlaying =
+            recordingController.playbackManager.currentRecording.value != null;
+      }
+    } catch (e) {
+      // RecordingController not initialized, fall back to AudioService
+      if (kDebugMode) print('RecordingController not available: $e');
+    }
+
+    if (isRecordingPlaying && recordingController != null) {
+      // Route to RecordingPlaybackManager
+      await _handleRecordingPlayerAction(receivedAction, recordingController);
+    } else {
+      // Route to AudioService for hymn playback
+      await _handleHymnPlayerAction(receivedAction);
+    }
+  }
+
+  /// Handle notification actions for recording playback
+  static Future<void> _handleRecordingPlayerAction(
+      ReceivedAction receivedAction,
+      RecordingController recordingController) async {
+    final playbackManager = recordingController.playbackManager;
+
+    switch (receivedAction.buttonKeyPressed) {
+      case 'play':
+        if (kDebugMode) print('Resuming recording playback');
+        await playbackManager.resumePlayback();
+        break;
+
+      case 'pause':
+        if (kDebugMode) print('Pausing recording playback');
+        await playbackManager.pausePlayback();
+        break;
+
+      case 'stop':
+        if (kDebugMode) print('Stopping recording playback');
+        await playbackManager.stopPlayback();
+        hideAudioPlayerNotification();
+        break;
+
+      case 'rewind':
+        if (kDebugMode) print('Rewinding recording 10 seconds');
+        final currentPos = playbackManager.position;
+        final newPos = currentPos - const Duration(seconds: 10);
+        await playbackManager
+            .seekPlayback(newPos.isNegative ? Duration.zero : newPos);
+        break;
+
+      case 'forward':
+        if (kDebugMode) print('Forwarding recording 10 seconds');
+        final currentPos = playbackManager.position;
+        final duration = playbackManager.duration;
+        if (duration != null) {
+          final newPos = currentPos + const Duration(seconds: 10);
+          await playbackManager
+              .seekPlayback(newPos > duration ? duration : newPos);
+        }
+        break;
+
+      // Note: prev/next not supported for single recording playback
+      case 'prev':
+      case 'next':
+        if (kDebugMode) print('Prev/Next not supported for recording playback');
+        break;
+    }
+  }
+
+  /// Handle notification actions for hymn playback
+  static Future<void> _handleHymnPlayerAction(
       ReceivedAction receivedAction) async {
     final audioService = AudioService.instance;
 

@@ -1,6 +1,5 @@
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
-
 import '../../utility/screen_util.dart';
+import 'package:flutter/material.dart';
 
 class BtnWidget extends StatelessWidget {
   final double inputWidth;
@@ -20,23 +19,14 @@ class BtnWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final textColor = theme.dividerColor;
-    final backgroundColor = theme.scaffoldBackgroundColor;
 
     return Column(
       children: [
-        NeumorphicButton(
+        TextButton(
           onPressed: () {
             getHaptics();
             onTap();
           },
-          style: NeumorphicStyle(
-            shape: NeumorphicShape.flat,
-            boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(15)),
-            depth: 8,
-            intensity: 0.65,
-            color: backgroundColor,
-          ),
-          padding: EdgeInsets.zero,
           child: SizedBox(
             width: inputWidth,
             height: inputHeight,

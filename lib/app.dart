@@ -9,7 +9,6 @@ import 'package:fihirana/controller/theme_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:fihirana/screen/bible/bible_reader_screen.dart';
 import 'package:fihirana/screen/favorite/favorites_screen.dart';
 import 'package:fihirana/screen/admin/admin_panel_screen.dart';

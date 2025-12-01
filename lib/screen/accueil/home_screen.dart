@@ -1,10 +1,9 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 import '../../controller/color_controller.dart';
-
 import '../../widgets/settings/update_checker_widget.dart';
 import '../../controller/shell_controller.dart';
 import 'accueil_screen.dart';
