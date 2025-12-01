@@ -36,6 +36,13 @@ class RecordingPublishingManager extends GetxController {
 
   final RxList<UserRecording> publicRecordings = <UserRecording>[].obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    // Load public recordings when manager is initialized
+    refreshPublicRecordings();
+  }
+
   Future<List<UserRecording>> loadPublicRecordings({String? hymnId}) async {
     try {
       return await _recordingService.getPublicRecordings(hymnId: hymnId);
