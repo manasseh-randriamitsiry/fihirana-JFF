@@ -17,6 +17,8 @@ class UserRecording {
   final String? userEmail;
   final String? userPhotoUrl;
   final List<String> tags;
+  final String? format; // Audio format (e.g., 'm4a', 'wav', 'mp3')
+  final int? fileSize; // File size in bytes
 
   UserRecording({
     required this.id,
@@ -34,6 +36,8 @@ class UserRecording {
     this.userEmail,
     this.userPhotoUrl,
     this.tags = const [],
+    this.format,
+    this.fileSize,
   });
 
   UserRecording copyWith({
@@ -52,6 +56,8 @@ class UserRecording {
     String? userEmail,
     String? userPhotoUrl,
     List<String>? tags,
+    String? format,
+    int? fileSize,
   }) {
     return UserRecording(
       id: id ?? this.id,
@@ -69,6 +75,8 @@ class UserRecording {
       userEmail: userEmail ?? this.userEmail,
       userPhotoUrl: userPhotoUrl ?? this.userPhotoUrl,
       tags: tags ?? this.tags,
+      format: format ?? this.format,
+      fileSize: fileSize ?? this.fileSize,
     );
   }
 
@@ -89,6 +97,8 @@ class UserRecording {
       'userEmail': userEmail,
       'userPhotoUrl': userPhotoUrl,
       'tags': tags,
+      'format': format,
+      'fileSize': fileSize,
     };
   }
 
@@ -120,6 +130,8 @@ factory UserRecording.fromMap(Map<String, dynamic> map) {
       userId: map['userId'],
       userEmail: map['userEmail'],
       userPhotoUrl: map['userPhotoUrl'],
+      format: map['format'],
+      fileSize: map['fileSize'],
       tags: List<String>.from(map['tags'] ?? []),
     );
   }
