@@ -259,12 +259,13 @@ class RecordingFileManager extends GetxController {
       }
 
       if (await File(filePath).exists()) {
-        await Share.shareXFiles(
-          [XFile(filePath)],
-          text: 'Check out my recording of ${recording.title}',
+        await SharePlus.instance.share(
+          ShareParams(text: 'Check out my recording of ${recording.title}', files: [XFile(filePath)]),
         );
       } else if (recording.driveWebLink != null) {
-        await Share.share('Check out this recording: ${recording.driveWebLink}');
+        await SharePlus.instance.share(
+          ShareParams(text: 'Check out this recording: ${recording.driveWebLink}'),
+        );
       } else {
         Get.snackbar('Error', 'Could not share recording. File not found.');
       }

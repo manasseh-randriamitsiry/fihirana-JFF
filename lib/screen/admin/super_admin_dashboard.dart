@@ -272,11 +272,12 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final successText = AppLocalizations.of(context)!.success;
+              final clearedText = AppLocalizations.of(context)!.emergencyModeCleared;
               await AdminControlService.clearEmergencyMode();
               await _loadDashboardData();
-              if (context.mounted) {
-                Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
-              }
+              if (!mounted) return;
+              Get.snackbar(successText, clearedText);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
@@ -540,30 +541,36 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   Icons.emergency,
                   Colors.red,
                   () async {
+                    final emergencyTitle = AppLocalizations.of(context)!.emergencyStop;
+                    final emergencyConfirm = AppLocalizations.of(context)!.emergencyStopConfirm;
+                    final cancelText = AppLocalizations.of(context)!.cancel;
+                    final stopText = AppLocalizations.of(context)!.stop;
+                    final successText = AppLocalizations.of(context)!.success;
+
                     final confirmed = await Get.dialog(
                       AlertDialog(
-                        title: Text(AppLocalizations.of(context)!.emergencyStop),
-                        content: Text(AppLocalizations.of(context)!.emergencyStopConfirm),
+                        title: Text(emergencyTitle),
+                        content: Text(emergencyConfirm),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(false),
-                            child: Text(AppLocalizations.of(context)!.cancel),
+                            child: Text(cancelText),
                           ),
                           TextButton(
                             onPressed: () => Navigator.of(context).pop(true),
                             style: TextButton.styleFrom(
                                 foregroundColor: Colors.red),
-                            child: Text(AppLocalizations.of(context)!.stop),
+                            child: Text(stopText),
                           ),
                         ],
                       ),
                     );
                     if (confirmed == true) {
+                      final stoppedText = emergencyTitle;
                       await AdminControlService.emergencyStop();
                       await _loadDashboardData();
-                      if (context.mounted) {
-                        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
-                      }
+                      if (!mounted) return;
+                      Get.snackbar(successText, stoppedText);
                     }
                   },
                 ),
@@ -572,10 +579,11 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   Icons.refresh,
                   Colors.blue,
                   () async {
+                    final successText = AppLocalizations.of(context)!.success;
+                    final checkText = AppLocalizations.of(context)!.checkForUpdates;
                     await VersionCheckService.checkForUpdateManually();
-                    if (context.mounted) {
-                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.checkForUpdates);
-                    }
+                    if (!mounted) return;
+                    Get.snackbar(successText, checkText);
                   },
                 ),
                 _buildActionButton(
@@ -583,11 +591,12 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                   Icons.clear,
                   Colors.orange,
                   () async {
+                    final successText = AppLocalizations.of(context)!.success;
+                    final clearedText = AppLocalizations.of(context)!.allCacheCleared;
                     await AdminControlService.clearCache();
                     await _loadDashboardData();
-                    if (context.mounted) {
-                      Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
-                    }
+                    if (!mounted) return;
+                    Get.snackbar(successText, clearedText);
                   },
                 ),
               ],
