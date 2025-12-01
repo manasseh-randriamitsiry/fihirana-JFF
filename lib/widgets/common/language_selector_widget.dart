@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widget_previews.dart';
+
 import 'package:provider/provider.dart';
 import '../../controller/translation_controller.dart';
 import '../../l10n/app_localizations.dart';

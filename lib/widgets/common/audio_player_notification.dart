@@ -17,7 +17,7 @@ class AudioPlayerNotificationBuilder {
     
     // Check if this is a recording
     if (hymn.id.startsWith('recording_')) {
-      body = 'Recording by ${hymn.createdBy?.replaceAll('User: ', '') ?? 'User'}';
+      body = 'Recording by ${hymn.createdBy.replaceAll('User: ', '')}';
     } else {
       body = 'Hira faha ${hymn.hymnNumber}';
     }

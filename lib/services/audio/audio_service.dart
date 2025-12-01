@@ -215,7 +215,7 @@ class AudioService {
     _currentPlayingHymnId.value = hymn.id; // Ensure reactive update
     
     if (kDebugMode) {
-      print('AudioService: Set current hymn ${hymn.id}, isPlayingRecording: ${isPlayingRecording}');
+      print('AudioService: Set current hymn $hymn.id, isPlayingRecording: $isPlayingRecording');
     }
 
     // Update playlist index if this hymn is in the current playlist
