@@ -72,18 +72,20 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   void _initializePlayer() {
     _updateCurrentState();
 
-    // Listen to current hymn changes
+    // Listen to current hymn changes (only for regular hymns, not recordings)
     _currentHymnSubscription =
         _audioService.currentPlayingHymnIdRx.listen((hymnId) {
       if (!mounted) return;
 
       final newCurrentHymn = _audioService.currentHymn;
+      // Only update if this is a regular hymn (not a recording) and different from current
       if (newCurrentHymn != null &&
+          !newCurrentHymn.id.startsWith('recording_') &&
           newCurrentHymn.id != _currentDisplayedHymn?.id) {
         setState(() {
           _currentDisplayedHymn = newCurrentHymn;
         });
-        // Notify parent of the change
+        // Notify parent of change
         widget.onHymnChange?.call(newCurrentHymn);
       }
     });
@@ -91,7 +93,11 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
 
-      if (_audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
+      // Only respond to state changes for regular hymns, not recordings
+      final currentHymn = _audioService.currentHymn;
+      if (currentHymn != null &&
+          !currentHymn.id.startsWith('recording_') &&
+          currentHymn.id == _currentDisplayedHymn?.id) {
         final wasPlaying = _isPlaying;
         final isLoading = state.processingState == ProcessingState.loading ||
             state.processingState == ProcessingState.buffering;
@@ -113,16 +119,24 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
 
     _positionSubscription = _audioService.positionStream.listen((position) {
       if (!mounted || _isDraggingSlider) return;
-      setState(() {
-        _position = position;
-      });
+      // Only update position for regular hymns, not recordings
+      final currentHymn = _audioService.currentHymn;
+      if (currentHymn != null && !currentHymn.id.startsWith('recording_')) {
+        setState(() {
+          _position = position;
+        });
+      }
     });
 
     _durationSubscription = _audioService.durationStream.listen((duration) {
       if (!mounted) return;
-      setState(() {
-        _duration = duration;
-      });
+      // Only update duration for regular hymns, not recordings
+      final currentHymn = _audioService.currentHymn;
+      if (currentHymn != null && !currentHymn.id.startsWith('recording_')) {
+        setState(() {
+          _duration = duration;
+        });
+      }
     });
 
     // Listen to playlist changes
@@ -137,9 +151,12 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
 
-      // Handle error states
+      // Handle error states for regular hymns only
+      final currentHymn = _audioService.currentHymn;
       if (state.processingState == ProcessingState.idle &&
-          _audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
+          currentHymn != null &&
+          !currentHymn.id.startsWith('recording_') &&
+          currentHymn.id == _currentDisplayedHymn?.id) {
         setState(() {
           _isLoading = false;
           _isPlaying = false;
@@ -151,7 +168,10 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   void _updateCurrentState() {
     if (!mounted) return;
     final currentHymn = _audioService.currentHymn;
-    if (currentHymn?.id == _currentDisplayedHymn?.id) {
+    // Only update state for regular hymns, not recordings
+    if (currentHymn != null &&
+        !currentHymn.id.startsWith('recording_') &&
+        currentHymn.id == _currentDisplayedHymn?.id) {
       setState(() {
         _isPlaying = _audioService.isPlaying;
         _isLoading = false;
@@ -191,7 +211,11 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
 
   Future<void> _togglePlayPause() async {
     try {
-      if (_audioService.currentHymn?.id == _currentDisplayedHymn?.id) {
+      final currentHymn = _audioService.currentHymn;
+      // Only handle play/pause for regular hymns, not recordings
+      if (currentHymn != null &&
+          !currentHymn.id.startsWith('recording_') &&
+          currentHymn.id == _currentDisplayedHymn?.id) {
         if (_isPlaying) {
           await _audioService.pause();
         } else {
@@ -379,30 +403,26 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    _audioService.currentDisplayTitle.isNotEmpty 
-                                        ? _audioService.currentDisplayTitle
-                                        : widget.hymn.title,
-                                    style: const TextStyle(
-                                      color: primaryTextColor,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _audioService.currentDisplaySubtitle.isNotEmpty
-                                        ? _audioService.currentDisplaySubtitle
-                                        : 'Hymn ${widget.hymn.hymnNumber}',
-                                    style: const TextStyle(
-                                      color: secondaryTextColor,
-                                      fontSize: 16,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                   Text(
+                                     _currentDisplayedHymn?.title ?? widget.hymn.title,
+                                     style: const TextStyle(
+                                       color: primaryTextColor,
+                                       fontSize: 24,
+                                       fontWeight: FontWeight.bold,
+                                     ),
+                                     maxLines: 1,
+                                     overflow: TextOverflow.ellipsis,
+                                   ),
+                                   const SizedBox(height: 4),
+                                   Text(
+                                     'Hymn ${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                                     style: const TextStyle(
+                                       color: secondaryTextColor,
+                                       fontSize: 16,
+                                     ),
+                                     maxLines: 1,
+                                     overflow: TextOverflow.ellipsis,
+                                   ),
                                 ],
                               ),
                             ),
@@ -627,8 +647,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                             itemCount: widget.playlist!.length,
                             itemBuilder: (context, index) {
                               final hymn = widget.playlist![index];
-                              final isCurrent =
-                                  hymn.id == _currentDisplayedHymn?.id;
+                               final isCurrent =
+                                   hymn.id == _currentDisplayedHymn?.id &&
+                                   !hymn.id.startsWith('recording_');
                               final isDownloaded =
                                   widget.isDownloaded?.call(hymn) ?? false;
                               final downloadProgress =

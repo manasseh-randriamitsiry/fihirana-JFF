@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../models/user_recording.dart';
-import '../../models/hymn.dart';
 import '../../services/audio/audio_service.dart';
 import '../../services/audio/recording_service.dart';
-import '../../widgets/player/compact_audio_player_widget.dart';
 import '../../l10n/app_localizations.dart';
 import 'recording_state_manager.dart';
 
