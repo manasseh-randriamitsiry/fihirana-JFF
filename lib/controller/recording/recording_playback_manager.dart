@@ -5,12 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as path;
+import '../../models/hymn.dart';
 import '../../models/user_recording.dart';
 import '../../services/audio/audio_service.dart';
 import '../../services/audio/recording_service.dart';
 import '../../services/audio/local_audio_service.dart';
 import '../../services/data/google_drive_service.dart';
 import '../../services/core/ui_service.dart';
+import '../../services/core/notification_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'recording_state_manager.dart';
 
@@ -43,12 +45,47 @@ class RecordingPlaybackManager extends GetxController {
   }
 
   void _initializePlayerListeners() {
-    // Listen to player state to update UI if needed
+    // Listen to player state to update UI and notifications
     _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        // Handle completion if needed
+        // Handle completion - hide notification
+        NotificationService.hideAudioPlayerNotification();
+      }
+
+      // Update notification when play/pause state changes
+      final recording = currentRecording.value;
+      if (recording != null) {
+        _updateNotification(recording, state.playing);
       }
     });
+
+    // Listen to position changes to update notification progress
+    _player.positionStream.listen((position) {
+      final recording = currentRecording.value;
+      if (recording != null) {
+        _updateNotification(recording, _player.playing);
+      }
+    });
+  }
+
+  /// Update or create notification for recording playback
+  void _updateNotification(UserRecording recording, bool isPlaying) {
+    // Create a Hymn object to use with the notification system
+    final hymn = Hymn(
+      id: 'recording_${recording.id}',
+      hymnNumber: recording.hymnId,
+      title: recording.title,
+      verses: [],
+      createdAt: recording.createdAt,
+      createdBy: 'User: ${recording.userName ?? 'Anonymous'}',
+    );
+
+    NotificationService.updateAudioPlayerProgress(
+      hymn,
+      isPlaying,
+      position: _player.position,
+      duration: _player.duration,
+    );
   }
 
   // Playback Actions
@@ -169,9 +206,7 @@ class RecordingPlaybackManager extends GetxController {
 
   Future<void> stopPlayback() async {
     await _player.stop();
-    // Do NOT clear currentRecording here if you want to keep the player visible/paused
-    // But if "stop" means "close", then maybe.
-    // Usually stop just stops audio.
+    NotificationService.hideAudioPlayerNotification();
   }
 
   Future<void> seekPlayback(Duration position) async {
@@ -211,6 +246,7 @@ class RecordingPlaybackManager extends GetxController {
     _stateManager.hidePlayerOverlay();
     currentRecording.value = null;
     stopPlayback();
+    NotificationService.hideAudioPlayerNotification();
   }
 
   void minimizePlayer() {
