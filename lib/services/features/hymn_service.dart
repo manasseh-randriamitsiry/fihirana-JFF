@@ -20,7 +20,6 @@ class HymnService implements IHymnService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final AuthController _authController = Get.find<AuthController>();
-  
 
   Stream<List<Hymn>> getLocalHymnsStream() async* {
     final hymns = await _combinedHymnService.getAllHymns();
@@ -42,8 +41,8 @@ class HymnService implements IHymnService {
   }
 
   @override
-  Future<Hymn?> getHymnById(int id) async {
-    return await _combinedHymnService.getHymnById(id.toString());
+  Future<Hymn?> getHymnById(String id) async {
+    return await _combinedHymnService.getHymnById(id);
   }
 
   Future<Hymn?> getHymnByIdAsync(String hymnId) async {
@@ -74,7 +73,7 @@ class HymnService implements IHymnService {
   Future<List<Hymn>> getHymnsByIds(List<String> ids) async {
     final List<Hymn> hymns = [];
     for (final id in ids) {
-      final hymn = await getHymnById(int.tryParse(id) ?? 0);
+      final hymn = await getHymnById(id);
       if (hymn != null) {
         hymns.add(hymn);
       }
@@ -331,7 +330,7 @@ class HymnService implements IHymnService {
           try {
             final List<Hymn> favoriteHymns = [];
             for (final hymnId in favoriteStatus.keys) {
-              final hymn = await getHymnById(int.tryParse(hymnId) ?? 0);
+              final hymn = await getHymnById(hymnId);
               if (hymn != null) {
                 favoriteHymns.add(hymn);
               }
@@ -432,7 +431,8 @@ class HymnService implements IHymnService {
   Future<Hymn?> getHymnByTitle(String title) async {
     final allHymns = await getAllHymns();
     try {
-      return allHymns.firstWhere((hymn) => hymn.title.toLowerCase() == title.toLowerCase());
+      return allHymns.firstWhere(
+          (hymn) => hymn.title.toLowerCase() == title.toLowerCase());
     } catch (e) {
       return null;
     }
@@ -458,25 +458,25 @@ class HymnService implements IHymnService {
   }
 
   @override
-  Future<void> addToFavorites(int hymnId) async {
+  Future<void> addToFavorites(String hymnId) async {
     final favorites = await getLocalFavorites();
-    if (!favorites.contains(hymnId.toString())) {
-      favorites.add(hymnId.toString());
+    if (!favorites.contains(hymnId)) {
+      favorites.add(hymnId);
       await saveLocalFavorites(favorites);
     }
   }
 
   @override
-  Future<void> removeFromFavorites(int hymnId) async {
+  Future<void> removeFromFavorites(String hymnId) async {
     final favorites = await getLocalFavorites();
-    favorites.remove(hymnId.toString());
+    favorites.remove(hymnId);
     await saveLocalFavorites(favorites);
   }
 
   @override
-  Future<bool> isFavorite(int hymnId) async {
+  Future<bool> isFavorite(String hymnId) async {
     final favoriteIds = await getLocalFavorites();
-    return favoriteIds.contains(hymnId.toString());
+    return favoriteIds.contains(hymnId);
   }
 
   @override
@@ -486,7 +486,7 @@ class HymnService implements IHymnService {
   }
 
   @override
-  Future<void> markAsViewed(int hymnId) async {
+  Future<void> markAsViewed(String hymnId) async {
     // TODO: Implement mark as viewed functionality
   }
 
