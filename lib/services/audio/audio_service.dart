@@ -558,6 +558,17 @@ class AudioService {
     // but ideally we should import UserRecording.
     // Assuming recording has: id, title, hymnId, filePath
 
+    if (kDebugMode) {
+      print('AudioService: playRecording called with:');
+      print('  - Recording ID: ${recording.id}');
+      print('  - Hymn ID: ${recording.hymnId}');
+      print('  - Title: ${recording.title}');
+      print('  - Is Public: ${recording.isPublic}');
+      print('  - Drive File ID: ${recording.driveFileId}');
+      print('  - Public Link: ${recording.publicLink}');
+      print('  - File Path: ${recording.filePath}');
+    }
+
     final hymn = Hymn(
       id: recording.id,
       hymnNumber: recording.hymnId,
@@ -578,6 +589,7 @@ class AudioService {
       if (kDebugMode) {
         print(
             'AudioService: Streaming public recording from generated URL: $audioUrl');
+        print('AudioService: Recording isPublic: ${recording.isPublic}, driveFileId: ${recording.driveFileId}');
       }
     }
     // Check if recording has a public link (fallback)
@@ -782,6 +794,16 @@ class AudioService {
     }
 
     if (audioUrl != null) {
+      // Prevent using GitHub URLs for user recordings
+      if (audioUrl.contains('github.com') && audioUrl.contains(recording.id)) {
+        if (kDebugMode) {
+          print('AudioService: ERROR - GitHub URL detected for user recording, this should not happen!');
+          print('AudioService: Recording ID: ${recording.id}, GitHub URL: $audioUrl');
+        }
+        UIService.showAudioNotAvailableSnackBar();
+        return;
+      }
+      
       try {
         if (kDebugMode) {
           print(
