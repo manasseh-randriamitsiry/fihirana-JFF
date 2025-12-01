@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../controller/color_controller.dart';
+import '../l10n/app_localizations.dart';
 
 /// Action model for FAB actions
 class FABAction {

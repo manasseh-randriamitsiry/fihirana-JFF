@@ -385,8 +385,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             GetPage(name: '/about', page: () => const AboutScreen()),
             GetPage(name: '/contacts', page: () => const ContactListScreen()),
           ],
-        ),
-      );
+        );
     });
   }
 }

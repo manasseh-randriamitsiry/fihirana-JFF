@@ -117,7 +117,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
         await _loadConfig();
         Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
       } catch (e) {
-        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails.replaceAll('{error}', e.toString()));
+        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails(e.toString()));
       }
     }
   }
@@ -128,7 +128,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       await _loadConfig();
       Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
     } catch (e) {
-      Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails.replaceAll('{error}', e.toString()));
+        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails(e.toString()));
     }
   }
 
@@ -187,7 +187,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isSaving
-                    ? const Row(
+                    ? Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(

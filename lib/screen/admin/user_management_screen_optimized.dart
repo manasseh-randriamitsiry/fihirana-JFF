@@ -161,7 +161,7 @@ class _OptimizedUserManagementScreenState
           final l10n = AppLocalizations.of(context)!;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-                content: Text(l10n.errorLoadingUsers.replaceAll('{error}', e.toString())),
+                content: Text(l10n.errorLoadingUsers(e.toString())),
                 backgroundColor: Colors.red),
           );
         }
@@ -255,7 +255,7 @@ class _OptimizedUserManagementScreenState
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(l10n.errorUpdatingUser.replaceAll('{error}', e.toString())),
+              content: Text(l10n.errorUpdatingUser(e.toString())),
               backgroundColor: Colors.red),
         );
       }
@@ -479,7 +479,7 @@ class _OptimizedUserManagementScreenState
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Row(
           children: [
             CircularProgressIndicator(),
@@ -658,7 +658,7 @@ class _OptimizedUserManagementScreenState
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('❌ ${AppLocalizations.of(context)!.errorDeletingUserData.replaceAll('{error}', e.toString())}'),
+          content: Text('❌ ${AppLocalizations.of(context)!.errorDeletingUserData(e.toString())}'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 5),
         ),

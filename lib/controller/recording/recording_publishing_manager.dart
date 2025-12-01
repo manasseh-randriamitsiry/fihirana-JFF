@@ -328,13 +328,13 @@ class RecordingPublishingManager extends GetxController {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-                l10n.chooseHowToDelete.replaceAll('{title}', recording.title)),
+                l10n.chooseHowToDelete(recording.title)),
             const SizedBox(height: 16),
             TextField(
               controller: controller,
               decoration: InputDecoration(
                 labelText: l10n.enterNewName,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
               autofocus: true,
             ),

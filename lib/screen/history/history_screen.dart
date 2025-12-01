@@ -6,7 +6,7 @@ import '../../controller/color_controller.dart';
 import '../../controller/shell_controller.dart';
 import '../hymn/hymn_detail_screen.dart';
 import '../../widgets/history/history_item_card.dart';
-import '../../widgets/common/mlkit_localization_provider.dart';
+import '../../widgets/common/localization_extension.dart';
 import '../../l10n/app_localizations.dart';
 
 class HistoryScreen extends StatelessWidget {
@@ -32,8 +32,8 @@ class HistoryScreen extends StatelessWidget {
           scrolledUnderElevation: 0,
 title: Text(
             historyController.isSelectionMode.value
-                ? '${historyController.selectedItems.length} ${context.translateWithMLKit((l) => l.selected)}'
-                : context.translateWithMLKit((l) => l.history),
+                ? '${historyController.selectedItems.length} ${context.translate((l) => l.selected)}'
+                : context.translate((l) => l.history),
             style: TextStyle(
               color: textColor,
               fontWeight: FontWeight.bold,
@@ -133,21 +133,21 @@ void _showClearHistoryDialog(BuildContext context) {
     Get.dialog(
       AlertDialog(
         backgroundColor: backgroundColor,
-        title: Text(context.translateWithMLKit((l) => l.clearAllHistoryQuestion),
+        title: Text(context.translate((l) => l.clearAllHistoryQuestion),
             style: TextStyle(color: textColor)),
-        content: Text(context.translateWithMLKit((l) => l.historyCannotBeUndone),
+        content: Text(context.translate((l) => l.historyCannotBeUndone),
             style: TextStyle(color: textColor)),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text(context.translateWithMLKit((l) => l.no), style: TextStyle(color: textColor)),
+            child: Text(context.translate((l) => l.no), style: TextStyle(color: textColor)),
           ),
           TextButton(
             onPressed: () {
               historyController.clearHistory();
               Get.back();
             },
-            child: Text(context.translateWithMLKit((l) => l.yes), style: const TextStyle(color: Colors.red)),
+            child: Text(context.translate((l) => l.yes), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -161,21 +161,21 @@ void _showDeleteSelectedDialog(BuildContext context) {
     Get.dialog(
       AlertDialog(
         backgroundColor: backgroundColor,
-        title: Text(context.translateWithMLKit((l) => l.deleteSelectedHistoryQuestion),
+        title: Text(context.translate((l) => l.deleteSelectedHistoryQuestion),
             style: TextStyle(color: textColor)),
-        content: Text(context.translateWithMLKit((l) => l.historyCannotBeUndone),
+        content: Text(context.translate((l) => l.historyCannotBeUndone),
             style: TextStyle(color: textColor)),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text(context.translateWithMLKit((l) => l.no), style: TextStyle(color: textColor)),
+            child: Text(context.translate((l) => l.no), style: TextStyle(color: textColor)),
           ),
           TextButton(
             onPressed: () {
               historyController.deleteSelectedItems();
               Get.back();
             },
-            child: Text(context.translateWithMLKit((l) => l.yes), style: const TextStyle(color: Colors.red)),
+            child: Text(context.translate((l) => l.yes), style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

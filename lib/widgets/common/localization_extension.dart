@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../l10n/app_localizations.dart';
+import '../../l10n/app_localizations.dart';
 
 extension BuildContextLocalization on BuildContext {
   /// Get localized text using AppLocalizations

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../controller/translation_controller.dart';
-import '../l10n/app_localizations.dart';
+import '../../controller/translation_controller.dart';
+import '../../l10n/app_localizations.dart';
 
 class TranslationToggleWidget extends StatelessWidget {
   const TranslationToggleWidget({Key? key}) : super(key: key);

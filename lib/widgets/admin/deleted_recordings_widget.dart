@@ -174,7 +174,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
     final confirmed = await Get.dialog(
       AlertDialog(
         title: Text(AppLocalizations.of(context)!.restoreRecording),
-        content: Text(AppLocalizations.of(context)!.sureToDelete.replaceAll('{title}', recording.title)),
+        content: Text(AppLocalizations.of(context)!.sureToDelete(recording.title)),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
@@ -199,7 +199,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
       AlertDialog(
         title: Text(AppLocalizations.of(context)!.permanentDelete),
         content: Text(
-          AppLocalizations.of(context)!.sureToDelete.replaceAll('{title}', recording.title) +
+          AppLocalizations.of(context)!.sureToDelete(recording.title) +
           ' ' + AppLocalizations.of(context)!.historyCannotBeUndone,
         ),
         actions: [

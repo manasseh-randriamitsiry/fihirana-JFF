@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../controller/translation_controller.dart';
+import '../../controller/translation_controller.dart';
 
 class TranslatedTextWidget extends StatefulWidget {
   final String text;
