@@ -393,7 +393,9 @@ class RecordingTileDialogs {
           ],
         ),
       ),
-    );
+    ).then((_) {
+      titleController.dispose();
+    });
   }
 
   static void showRenameDialog(BuildContext context, UserRecording recording) {
@@ -460,6 +462,8 @@ class RecordingTileDialogs {
           ),
         ],
       ),
-    );
+    ).then((_) {
+      titleController.dispose();
+    });
   }
 }

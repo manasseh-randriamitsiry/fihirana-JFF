@@ -326,39 +326,43 @@ class RecordingPublishingManager extends GetxController {
     String? result;
     final l10n = AppLocalizations.of(Get.context!)!;
 
-    await Get.dialog(
-      AlertDialog(
-        title: Text(l10n.duplicateTitle),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.chooseHowToDelete(recording.title)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: l10n.enterNewName,
-                border: const OutlineInputBorder(),
+    try {
+      await Get.dialog(
+        AlertDialog(
+          title: Text(l10n.duplicateTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(l10n.chooseHowToDelete(recording.title)),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                decoration: InputDecoration(
+                  labelText: l10n.enterNewName,
+                  border: const OutlineInputBorder(),
+                ),
+                autofocus: true,
               ),
-              autofocus: true,
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () {
+                result = controller.text.trim();
+                Get.back();
+              },
+              child: Text(l10n.ok),
             ),
           ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              result = controller.text.trim();
-              Get.back();
-            },
-            child: Text(l10n.ok),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      controller.dispose();
+    }
 
     return result?.isEmpty == true ? null : result;
   }
