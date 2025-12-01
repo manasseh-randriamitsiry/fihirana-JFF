@@ -34,6 +34,9 @@ class RecordingService extends GetxService implements IRecordingService {
   @override
   bool get isRecording => _isRecording.value;
   final RxBool _isRecording = false.obs;
+  
+  // Track current recording file path
+  String? _currentRecordingPath;
 
 @override
   void onInit() {
@@ -112,7 +115,12 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<String> startRecording() async {
-    if (await hasPermission()) {
+    try {
+      if (!await hasPermission()) {
+        if (kDebugMode) print('RecordingService: No recording permission');
+        throw Exception('Recording permission not granted');
+      }
+
       final directory = await getApplicationDocumentsDirectory();
       final recordingsDir = Directory(path.join(directory.path, 'recordings'));
       if (!await recordingsDir.exists()) {
@@ -127,17 +135,58 @@ class RecordingService extends GetxService implements IRecordingService {
           const RecordConfig(encoder: AudioEncoder.aacLc),
           path: filePath);
       _isRecording.value = true;
+      _currentRecordingPath = filePath; // Store the current recording path
+      
+      if (kDebugMode) print('RecordingService: Recording started successfully at: $filePath');
       return filePath;
+    } catch (e) {
+      if (kDebugMode) print('RecordingService: Error starting recording: $e');
+      _isRecording.value = false;
+      _currentRecordingPath = null;
+      rethrow;
     }
-    return '';
   }
 
   @override
   Future<UserRecording?> stopRecording() async {
-    await _audioRecorder.stop();
-    _isRecording.value = false;
-    // For now, return null - this needs proper implementation
-    return null;
+    try {
+      if (kDebugMode) print('RecordingService: Stopping recording, current path: $_currentRecordingPath');
+      
+      await _audioRecorder.stop();
+      _isRecording.value = false;
+      
+      // Create a UserRecording object if we have a file path
+      if (_currentRecordingPath != null) {
+        // Verify the file exists
+        final file = File(_currentRecordingPath!);
+        if (await file.exists()) {
+          final recording = UserRecording(
+            id: _uuid.v4(),
+            hymnId: '', // Will be set by operations manager
+            title: '', // Will be set by operations manager
+            filePath: _currentRecordingPath!,
+            durationSeconds: 0, // Will be set by operations manager
+            createdAt: DateTime.now(),
+          );
+          
+          _currentRecordingPath = null; // Clear path
+          if (kDebugMode) print('RecordingService: Recording stopped and UserRecording created');
+          return recording;
+        } else {
+          if (kDebugMode) print('RecordingService: Recording file does not exist at path: $_currentRecordingPath');
+          _currentRecordingPath = null;
+          return null;
+        }
+      } else {
+        if (kDebugMode) print('RecordingService: No current recording path available');
+        return null;
+      }
+    } catch (e) {
+      if (kDebugMode) print('RecordingService: Error stopping recording: $e');
+      _isRecording.value = false;
+      _currentRecordingPath = null;
+      return null;
+    }
   }
 
 
@@ -152,6 +201,19 @@ class RecordingService extends GetxService implements IRecordingService {
   Future<void> cancelRecording() async {
     await _audioRecorder.stop();
     _isRecording.value = false;
+    
+    // Clean up the recording file if it exists
+    if (_currentRecordingPath != null) {
+      try {
+        final file = File(_currentRecordingPath!);
+        if (await file.exists()) {
+          await file.delete();
+        }
+      } catch (e) {
+        if (kDebugMode) print('Error deleting cancelled recording: $e');
+      }
+      _currentRecordingPath = null;
+    }
   }
 
   @override

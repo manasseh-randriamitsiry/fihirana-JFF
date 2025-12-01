@@ -34,33 +34,45 @@ class RecordingOperationsManager extends GetxController {
 
   // Recording Actions
   Future<void> startRecording(String hymnId) async {
+    if (kDebugMode) print('RecordingOperationsManager: startRecording called for hymnId: $hymnId');
+    
     if (!await _authManager.checkUserCanRecord()) {
+      if (kDebugMode) print('RecordingOperationsManager: User cannot record, returning');
       return;
     }
 
-    // Start recording and capture file path (though we don't need it here)
-    await _recordingService.startRecording();
-    _stateManager.isRecording.value = true;
-    _stateManager.isPaused.value = false;
-    _stateManager.resetTimer();
-    _stateManager.startTimer();
+    try {
+      // Start recording and capture file path (though we don't need it here)
+      await _recordingService.startRecording();
+      _stateManager.isRecording.value = true;
+      _stateManager.isPaused.value = false;
+      _stateManager.resetTimer();
+      _stateManager.startTimer();
 
-    if (hymnId != 'unknown' && hymnId != 'standalone') {
-      _stateManager.showOverlay(hymnId, 'Hymn $hymnId');
+      if (hymnId != 'unknown' && hymnId != 'standalone') {
+        _stateManager.showOverlay(hymnId, 'Hymn $hymnId');
+      }
+      
+      if (kDebugMode) print('RecordingOperationsManager: Recording started successfully');
+    } catch (e) {
+      if (kDebugMode) print('RecordingOperationsManager: Error starting recording: $e');
+      _stateManager.isRecording.value = false;
     }
   }
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
+    if (kDebugMode) print('RecordingOperationsManager: stopRecording called for hymnId: $hymnId, title: $title');
+    
     // stopRecording now returns UserRecording? directly from the service
-    // But we need to add metadata, so we get the file path from the recorder first
+    // But we need to add metadata, so we get -> file path from recorder first
     final recordedData = await _recordingService.stopRecording();
     final duration = _stateManager.recordDuration.value;
 
     _stateManager.resetRecordingState();
 
-    // The service returns null for now, so we need to handle this differently
-    // Get the path from somewhere or create the recording ourselves
-    // For now, we'll need to get user info and create the recording
+    if (kDebugMode) print('RecordingOperationsManager: recordedData from service: $recordedData');
+
+    // Get user info for metadata
     String? currentUserId;
     String? currentUserEmail;
     String? currentUserPhotoUrl;
@@ -85,6 +97,8 @@ class RecordingOperationsManager extends GetxController {
 
     // If recordedData is provided by service, use it; otherwise we need file path
     if (recordedData != null) {
+      if (kDebugMode) print('RecordingOperationsManager: Creating recording with metadata');
+      
       // Update with user metadata
       final recording = recordedData.copyWith(
         hymnId: hymnId,
@@ -96,9 +110,17 @@ class RecordingOperationsManager extends GetxController {
         userName: currentUserName,
       );
 
-      await _recordingService.saveRecording(recording);
-      _stateManager.currentHymnTitle.value = title;
-      return recording;
+      try {
+        await _recordingService.saveRecording(recording);
+        _stateManager.currentHymnTitle.value = title;
+        if (kDebugMode) print('RecordingOperationsManager: Recording saved successfully');
+        return recording;
+      } catch (e) {
+        if (kDebugMode) print('RecordingOperationsManager: Error saving recording: $e');
+        return null;
+      }
+    } else {
+      if (kDebugMode) print('RecordingOperationsManager: No recorded data returned from service');
     }
 
     return null;
@@ -183,6 +205,87 @@ class RecordingOperationsManager extends GetxController {
     }
   }
 
+  Future<void> moveRecordingToTrash(UserRecording recording) async {
+    try {
+      await _recordingService.deleteRecording(recording.id);
+      Get.snackbar(
+        'Moved to Trash',
+        'Recording has been moved to trash',
+        backgroundColor: Colors.orange.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to move recording to trash: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> renameRecording(UserRecording recording, String newTitle) async {
+    try {
+      final updatedRecording = recording.copyWith(title: newTitle);
+      await _recordingService.updateRecording(updatedRecording);
+      Get.snackbar(
+        'Renamed',
+        'Recording has been renamed',
+        backgroundColor: Colors.green.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to rename recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<List<UserRecording>> getDeletedRecordings() async {
+    return _recordingService.deletedRecordings;
+  }
+
+  Future<void> restoreRecording(UserRecording deletedRecording) async {
+    try {
+      await _recordingService.restoreRecording(deletedRecording.id);
+      Get.snackbar(
+        'Restored',
+        'Recording has been restored from trash',
+        backgroundColor: Colors.green.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to restore recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> permanentlyDeleteRecording(UserRecording deletedRecording) async {
+    try {
+      await _recordingService.permanentlyDeleteRecording(deletedRecording.id);
+      Get.snackbar(
+        'Permanently Deleted',
+        'Recording has been permanently deleted',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to permanently delete recording: $e',
+        backgroundColor: Colors.red.withValues(alpha: 0.8),
+        colorText: Colors.white,
+      );
+    }
+  }
+
   // Recording management methods
   Future<void> deleteRecording(UserRecording recording) async {
     try {
@@ -196,9 +299,9 @@ class RecordingOperationsManager extends GetxController {
       final isAdmin = authController.isAdmin || authController.isSuperAdmin;
 
       if (isOwner) {
-        await _deleteRecordingPermanently(recording, currentUser);
+        await deleteRecordingPermanentlyDirect(recording);
       } else if (isAdmin) {
-        await _moveRecordingToTrash(recording);
+        await moveRecordingToTrash(recording);
       } else {
         Get.snackbar(
           'Access Denied',
@@ -220,7 +323,7 @@ class RecordingOperationsManager extends GetxController {
   Future<void> deleteRecordingPermanentlyDirect(UserRecording recording) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
-      await _deleteRecordingPermanently(recording, currentUser);
+      await deleteRecordingPermanently(recording, currentUser);
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -231,7 +334,7 @@ class RecordingOperationsManager extends GetxController {
     }
   }
 
-  Future<void> _deleteRecordingPermanently(
+  Future<void> deleteRecordingPermanently(
     UserRecording recording,
     User? currentUser,
   ) async {
@@ -260,7 +363,7 @@ class RecordingOperationsManager extends GetxController {
     }
   }
 
-  Future<void> moveRecordingToTrash(UserRecording recording) async {
+  Future<void> moveRecordingToTrashWithPermission(UserRecording recording) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       final authController = Get.find<AuthController>();
@@ -272,7 +375,7 @@ class RecordingOperationsManager extends GetxController {
       final isAdmin = authController.isAdmin || authController.isSuperAdmin;
 
       if (isOwner || isAdmin) {
-        await _moveRecordingToTrash(recording);
+        await moveRecordingToTrash(recording);
       } else {
         Get.snackbar(
           'Access Denied',
@@ -291,37 +394,7 @@ class RecordingOperationsManager extends GetxController {
     }
   }
 
-  Future<void> _moveRecordingToTrash(UserRecording recording) async {
-    try {
-      await _recordingService.deleteLocalRecording(recording.id);
-
-      Get.snackbar(
-        'Deleted',
-        'Recording moved to trash and can be restored',
-        backgroundColor: Colors.orange.withValues(alpha: 0.8),
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
-      );
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  Future<void> renameRecording(UserRecording recording, String newTitle) async {
-    try {
-      final updated = recording.copyWith(title: newTitle);
-      await _recordingService.updateRecording(updated);
-    } catch (e) {
-      Get.snackbar('Error', 'Failed to rename recording: $e');
-    }
-  }
-
-  // Deleted recordings management
-  Future<List<UserRecording>> getDeletedRecordings() async {
-    return _recordingService.deletedRecordings;
-  }
-
-  Future<void> restoreRecording(UserRecording deletedRecording) async {
+  Future<void> restoreRecordingWithNewId(UserRecording deletedRecording) async {
     try {
       final restoredRecording = UserRecording(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -361,7 +434,7 @@ class RecordingOperationsManager extends GetxController {
     }
   }
 
-  Future<void> permanentlyDeleteRecording(
+  Future<void> permanentlyDeleteRecordingWithDrive(
     UserRecording deletedRecording,
   ) async {
     try {

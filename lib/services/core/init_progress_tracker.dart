@@ -59,7 +59,7 @@ class InitProgressTracker {
 
   final List<InitStepDetail> _steps = [
     // Firebase Phase (20%)
-    InitStepDetail(
+    const InitStepDetail(
       id: 'firebase_init',
       name: 'Firebase Initialization',
       description: 'Initializing Firebase services',
@@ -69,7 +69,7 @@ class InitProgressTracker {
     ),
 
     // Services Phase (30%)
-    InitStepDetail(
+    const InitStepDetail(
       id: 'service_locator',
       name: 'Service Locator',
       description: 'Setting up dependency injection',
@@ -77,7 +77,7 @@ class InitProgressTracker {
       phase: InitPhase.services,
       isCritical: true,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'notifications',
       name: 'Notifications',
       description: 'Initializing notification system',
@@ -85,7 +85,7 @@ class InitProgressTracker {
       phase: InitPhase.services,
       isCritical: true,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'audio_services',
       name: 'Audio Services',
       description: 'Setting up audio playback',
@@ -93,7 +93,7 @@ class InitProgressTracker {
       phase: InitPhase.services,
       isCritical: true,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'data_services',
       name: 'Data Services',
       description: 'Initializing data management',
@@ -103,7 +103,7 @@ class InitProgressTracker {
     ),
 
     // Controllers Phase (30%)
-    InitStepDetail(
+    const InitStepDetail(
       id: 'critical_controllers',
       name: 'Critical Controllers',
       description: 'Loading essential UI controllers',
@@ -111,7 +111,7 @@ class InitProgressTracker {
       phase: InitPhase.controllers,
       isCritical: true,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'theme_setup',
       name: 'Theme Setup',
       description: 'Loading theme and colors',
@@ -119,7 +119,7 @@ class InitProgressTracker {
       phase: InitPhase.controllers,
       isCritical: true,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'font_setup',
       name: 'Font Setup',
       description: 'Initializing custom fonts',
@@ -127,7 +127,7 @@ class InitProgressTracker {
       phase: InitPhase.controllers,
       isCritical: true,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'non_critical_controllers',
       name: 'Additional Controllers',
       description: 'Loading remaining controllers',
@@ -137,7 +137,7 @@ class InitProgressTracker {
     ),
 
     // Security Phase (10%)
-    InitStepDetail(
+    const InitStepDetail(
       id: 'security_checks',
       name: 'Security Checks',
       description: 'Running security validations',
@@ -145,7 +145,7 @@ class InitProgressTracker {
       phase: InitPhase.security,
       isCritical: true,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'deep_links',
       name: 'Deep Links',
       description: 'Setting up deep link handling',
@@ -155,7 +155,7 @@ class InitProgressTracker {
     ),
 
     // Background Phase (10%)
-    InitStepDetail(
+    const InitStepDetail(
       id: 'background_tasks',
       name: 'Background Tasks',
       description: 'Scheduling background operations',
@@ -163,7 +163,7 @@ class InitProgressTracker {
       phase: InitPhase.background,
       isCritical: false,
     ),
-    InitStepDetail(
+    const InitStepDetail(
       id: 'lazy_loading',
       name: 'Lazy Loading',
       description: 'Configuring lazy service loading',
@@ -216,7 +216,7 @@ class InitProgressTracker {
     _stepErrors.clear();
 
     _emitProgress(
-      InitStepDetail(
+      const InitStepDetail(
         id: 'start',
         name: 'Initialization Started',
         description: 'Starting app initialization',
@@ -296,7 +296,7 @@ class InitProgressTracker {
     _currentStep = null;
 
     _emitProgress(
-      InitStepDetail(
+      const InitStepDetail(
         id: 'complete',
         name: 'Initialization Complete',
         description: 'App initialization finished successfully',
