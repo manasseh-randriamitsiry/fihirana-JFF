@@ -159,14 +159,14 @@ class _RecordingOverlayState extends State<RecordingOverlay>
         _showUploadProgressDialog(_currentRecording!, isPublic: true);
       } else {
         if (mounted) {
-          Navigator.pop(context);
+          Get.back();
           _controller.hideOverlay();
           widget.onClose();
         }
       }
     } else {
       if (mounted) {
-        Navigator.pop(context);
+        Get.back();
       }
       _controller.hideOverlay();
       widget.onClose();
@@ -254,7 +254,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
           ),
           TextButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Get.back();
               await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
               widget.onClose();
               Get.snackbar(l10n.discard, l10n.recordingNotSaved);
@@ -264,7 +264,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context);
+              Get.back();
               _stopRecording();
             },
             style: ElevatedButton.styleFrom(
@@ -284,12 +284,14 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
     // If showing save dialog, show dialog without overlay
     if (_showSaveDialog) {
+      // Use GetX dialog system which doesn't require context
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => _buildSaveDialog(l10n),
-        );
+        if (mounted) {
+          Get.dialog(
+            _buildSaveDialog(l10n),
+            barrierDismissible: false,
+          );
+        }
       });
       return const SizedBox.shrink();
     }
@@ -796,7 +798,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          Navigator.pop(context);
+                          Get.back();
                           widget.onClose();
                         },
                         style: OutlinedButton.styleFrom(
@@ -971,7 +973,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pop(context);
+                                    Get.back();
                                     _controller.hideOverlay();
                                     widget.onClose();
                                   },
@@ -1004,7 +1006,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: () {
-                              Navigator.pop(context);
+                              Get.back();
                               _controller.hideOverlay();
                               widget.onClose();
                             },
