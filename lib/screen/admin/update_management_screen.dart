@@ -91,21 +91,30 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
   }
 
   Future<void> _emergencyStop() async {
+    final emergencyTitle = AppLocalizations.of(context)!.emergencyStop;
+    final emergencyConfirm = AppLocalizations.of(context)!.emergencyStopConfirm;
+    final cancelText = AppLocalizations.of(context)!.cancel;
+    final stopText = AppLocalizations.of(context)!.emergencyStop;
+    final successText = AppLocalizations.of(context)!.success;
+    final stoppedText = AppLocalizations.of(context)!.emergencyStop;
+    final errorTitle = AppLocalizations.of(context)!.error;
+    final errorFn = AppLocalizations.of(context)!.errorOccurredWithDetails;
+
     final confirmed = await Get.dialog(
       AlertDialog(
-        title: Text(AppLocalizations.of(context)!.emergencyStop),
+        title: Text(emergencyTitle),
         content: Text(
-          AppLocalizations.of(context)!.emergencyStopConfirm,
+          emergencyConfirm,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(cancelText),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(AppLocalizations.of(context)!.emergencyStop),
+            child: Text(stopText),
           ),
         ],
       ),
@@ -115,28 +124,28 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       try {
         await AdminControlService.emergencyStop();
         await _loadConfig();
-        if (context.mounted) {
-          Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyStop);
-        }
+        if (!mounted) return;
+        Get.snackbar(successText, stoppedText);
       } catch (e) {
-        if (context.mounted) {
-          Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails(e.toString()));
-        }
+        if (!mounted) return;
+        Get.snackbar(errorTitle, errorFn(e.toString()));
       }
     }
   }
 
   Future<void> _clearEmergencyMode() async {
+    final successText2 = AppLocalizations.of(context)!.success;
+    final clearedText = AppLocalizations.of(context)!.emergencyModeCleared;
+    final errorTitle2 = AppLocalizations.of(context)!.error;
+    final errorFn2 = AppLocalizations.of(context)!.errorOccurredWithDetails;
     try {
       await AdminControlService.clearEmergencyMode();
       await _loadConfig();
-      if (context.mounted) {
-        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.emergencyModeCleared);
-      }
+      if (!mounted) return;
+      Get.snackbar(successText2, clearedText);
     } catch (e) {
-      if (context.mounted) {
-        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.errorOccurredWithDetails(e.toString()));
-      }
+      if (!mounted) return;
+      Get.snackbar(errorTitle2, errorFn2(e.toString()));
     }
   }
 
@@ -340,10 +349,11 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () async {
+                      final successText = AppLocalizations.of(context)!.success;
+                      final clearedText = AppLocalizations.of(context)!.allCacheCleared;
                       await AdminControlService.clearCache();
-                      if (context.mounted) {
-                        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.allCacheCleared);
-                      }
+                      if (!mounted) return;
+                      Get.snackbar(successText, clearedText);
                     },
                     icon: const Icon(Icons.clear),
                     label: Text(AppLocalizations.of(context)!.clearCache),
