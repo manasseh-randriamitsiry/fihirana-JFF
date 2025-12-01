@@ -3,7 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../controller/recording_controller.dart';
 import '../../controller/color_controller.dart';
+import '../../controller/hymn_controller.dart';
+import '../../models/hymn.dart';
 import '../../widgets/recording/recording_controls_widget.dart';
+import '../../widgets/hymn/hymn_search_field.dart';
+import '../../widgets/hymn/hymn_list_item.dart';
+import '../../widgets/common/localization_extension.dart';
+import '../../widgets/empty_state_widget.dart';
+import '../../widgets/skeleton_hymn_list.dart';
 import '../../l10n/app_localizations.dart';
 
 class StandaloneRecordingScreen extends StatefulWidget {
@@ -16,9 +23,11 @@ class StandaloneRecordingScreen extends StatefulWidget {
 class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   final RecordingController _controller = Get.find<RecordingController>();
   final ColorController _colorController = Get.find<ColorController>();
+  final HymnController _hymnController = Get.find<HymnController>();
   final TextEditingController _nameController = TextEditingController();
   
   String _recordingTitle = '';
+  bool _showHymnList = false;
 
   @override
   void initState() {
@@ -291,88 +300,194 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _colorController.backgroundColor.value,
-      appBar: AppBar(
-        backgroundColor: _colorController.backgroundColor.value,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.close, color: _colorController.textColor.value),
-          onPressed: () => Get.back(),
-        ),
-        title: Text(
-          'Recording',
-          style: TextStyle(
-            color: _colorController.textColor.value,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              // Recording title input
-              TextField(
-                controller: _nameController,
-                style: TextStyle(
-                  color: _colorController.textColor.value,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                decoration: InputDecoration(
-                  labelText: 'Recording Name',
-                  labelStyle: TextStyle(
-                    color: _colorController.textColor.value.withValues(alpha: 0.7),
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: _colorController.primaryColor.value.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: _colorController.primaryColor.value.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                      color: _colorController.primaryColor.value,
-                      width: 2,
-                    ),
-                  ),
-                ),
+    return GetBuilder<ColorController>(
+      builder: (colorController) => Obx(() {
+        final textColor = colorController.textColor.value;
+        final backgroundColor = colorController.backgroundColor.value;
+        final iconColor = colorController.iconColor.value;
+        final defaultTextStyle = TextStyle(color: textColor, inherit: true);
+
+        return Scaffold(
+          backgroundColor: backgroundColor,
+          appBar: AppBar(
+            backgroundColor: backgroundColor,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            leading: IconButton(
+              icon: Icon(Icons.close, color: iconColor),
+              onPressed: () => Get.back(),
+            ),
+            title: Text(
+              'Recording',
+              style: defaultTextStyle.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 26,
               ),
-              
-              const SizedBox(height: 40),
-              
-              // Recording controls
-              Expanded(
-                child: Center(
-                  child: Obx(() {
-                    // Don't update if widget is not mounted
-                    if (!mounted) return const SizedBox.shrink();
-                    return RecordingControlsWidget(
-                      isRecording: _controller.isRecording.value,
-                      isPaused: _controller.isPaused.value,
-                      onStart: _startRecording,
-                      onStop: _stopRecording,
-                      onPause: () => _controller.pauseRecording(),
-                      onResume: () => _controller.resumeRecording(),
-                    );
-                  }),
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _showHymnList ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  color: iconColor,
                 ),
+                onPressed: () {
+                  setState(() {
+                    _showHymnList = !_showHymnList;
+                  });
+                },
               ),
             ],
           ),
+          body: Column(
+            children: [
+              // Search bar for hymns
+              if (_showHymnList)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: HymnSearchField(
+                    controller: _hymnController.safeSearchController,
+                    defaultTextStyle: defaultTextStyle,
+                    textColor: textColor,
+                    iconColor: iconColor,
+                    backgroundColor: backgroundColor,
+                    onChanged: () {
+                      if (mounted && !_hymnController.isDisposed) {
+                        setState(() {});
+                      }
+                    },
+                  ),
+                ),
+              
+              // Recording title input
+              if (!_showHymnList)
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: TextField(
+                    controller: _nameController,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    decoration: InputDecoration(
+                      labelText: 'Recording Name',
+                      labelStyle: TextStyle(
+                        color: textColor.withValues(alpha: 0.7),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: colorController.primaryColor.value,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              
+              // Content area - either hymn list or recording controls
+              Expanded(
+                child: _showHymnList
+                    ? _buildHymnList(defaultTextStyle, textColor, backgroundColor)
+                    : _buildRecordingControls(),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildRecordingControls() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: Obx(() {
+            // Don't update if widget is not mounted
+            if (!mounted) return const SizedBox.shrink();
+            return RecordingControlsWidget(
+              isRecording: _controller.isRecording.value,
+              isPaused: _controller.isPaused.value,
+              onStart: _startRecording,
+              onStop: _stopRecording,
+              onPause: () => _controller.pauseRecording(),
+              onResume: () => _controller.resumeRecording(),
+            );
+          }),
         ),
       ),
     );
   }
 
+  Widget _buildHymnList(TextStyle defaultTextStyle, Color textColor, Color backgroundColor) {
+    return StreamBuilder<List<Hymn>>(
+      stream: _hymnController.hymnsStream,
+      builder: (context, snapshot) {
+        // Early return if widget is not mounted
+        if (!mounted) return const SizedBox.shrink();
+        if (snapshot.hasError) {
+          return Center(
+            child: Text(
+              context.translate((l) => l.errorOccurredWithDetails(snapshot.error.toString())),
+              style: defaultTextStyle,
+            ),
+          );
+        }
 
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SkeletonHymnList();
+        }
+
+        final hymns = _hymnController.filterHymnList(snapshot.data ?? []);
+        if (hymns.isEmpty) {
+          return EmptyStateWidget(
+            message: context.translate((l) => l.noHymnsFound),
+            icon: Icons.music_off_rounded,
+            actionLabel: context.translate((l) => l.clearSearch),
+            onActionPressed: () {
+              if (!_hymnController.isDisposed) {
+                _hymnController.safeSearchController.clear();
+                setState(() {});
+              }
+            },
+          );
+        }
+
+        return ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          itemCount: hymns.length,
+          itemBuilder: (context, index) {
+            final hymn = hymns[index];
+            return HymnListItem(
+              key: ValueKey(hymn.id),
+              hymn: hymn,
+              textColor: textColor,
+              backgroundColor: backgroundColor,
+              onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
+              onMusicPressed: () {
+                // Set the recording name to the selected hymn title
+                setState(() {
+                  _nameController.text = hymn.title;
+                  _showHymnList = false;
+                });
+              },
+            );
+          },
+        );
+      },
+    );
+  }
 }
