@@ -1,6 +1,5 @@
-// Ignore use of legacy Radio APIs until migration to RadioGroup is performed
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter/widget_previews.dart';
 import 'package:provider/provider.dart';
 import '../../controller/translation_controller.dart';
 import '../../l10n/app_localizations.dart';

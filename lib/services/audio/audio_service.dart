@@ -60,9 +60,8 @@ class AudioService {
       // Handle completion state
       if (state.processingState == ProcessingState.completed) {
         _currentPlayingHymnId.value = '';
-        _currentHymn = null;
-        _currentRecording = null;
-        _currentRecording = null;
+        // Keep _currentHymn and _currentRecording for potential replay
+        // They will be cleared when playing something different
       }
     });
 
@@ -106,11 +105,11 @@ class AudioService {
   AudioPlayer get player => _player;
   Hymn? get currentHymn => _currentHymn;
   dynamic get currentRecording => _currentRecording;
-  bool get isPlayingRecording => _currentRecording != null;
+  bool get isPlayingRecording => _currentRecording != null && _currentHymn?.id.startsWith('recording_') == true;
   
   /// Get display title for current playing item (hymn or recording)
   String get currentDisplayTitle {
-    if (isPlayingRecording && _currentRecording != null) {
+    if (_currentHymn?.id.startsWith('recording_') == true && _currentRecording != null) {
       return _currentRecording.title ?? 'Unknown Recording';
     }
     return _currentHymn?.title ?? '';
@@ -118,7 +117,7 @@ class AudioService {
   
   /// Get display subtitle for current playing item
   String get currentDisplaySubtitle {
-    if (isPlayingRecording && _currentRecording != null) {
+    if (_currentHymn?.id.startsWith('recording_') == true && _currentRecording != null) {
       return 'Recording by ${_currentRecording.userName ?? 'User'}';
     }
     return _currentHymn != null ? 'Hymn ${_currentHymn!.hymnNumber}' : '';
@@ -196,8 +195,28 @@ class AudioService {
     }
 
     _currentHymn = hymn;
-    _currentRecording = null; // Clear recording when playing hymn
+    
+    // Handle recording state properly
+    if (hymn.id.startsWith('recording_')) {
+      // This is a recording, keep the recording state
+      if (kDebugMode) {
+        print('AudioService: Playing recording ${hymn.id}');
+      }
+    } else {
+      // This is a regular hymn, clear recording state if different
+      if (_currentRecording != null) {
+        if (kDebugMode) {
+          print('AudioService: Clearing recording, playing regular hymn ${hymn.id}');
+        }
+        _currentRecording = null;
+      }
+    }
+    
     _currentPlayingHymnId.value = hymn.id; // Ensure reactive update
+    
+    if (kDebugMode) {
+      print('AudioService: Set current hymn ${hymn.id}, isPlayingRecording: ${isPlayingRecording}');
+    }
 
     // Update playlist index if this hymn is in the current playlist
     if (_playlist.isNotEmpty) {
@@ -585,8 +604,9 @@ class AudioService {
       print('  - File Path: ${recording.filePath}');
     }
 
+    // Create a hymn object for the recording with special recording identifier
     final hymn = Hymn(
-      id: recording.id,
+      id: 'recording_${recording.id}', // Prefix to distinguish from regular hymns
       hymnNumber: recording.hymnId,
       title: recording.title,
       verses: [],
@@ -827,6 +847,9 @@ class AudioService {
           print(
               'AudioService: URL type: ${audioUrl.startsWith('http') ? 'Remote' : 'Local'}');
         }
+        
+        // Set the recording before playing to ensure proper state tracking
+        _currentRecording = recording;
         await playHymn(hymn, customAudioUrl: audioUrl);
       } catch (e) {
         if (kDebugMode) {
