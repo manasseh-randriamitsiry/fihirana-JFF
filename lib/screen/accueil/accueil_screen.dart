@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
@@ -36,6 +38,7 @@ class AccueilScreenState extends State<AccueilScreen> {
   bool _updateAvailable = false;
   bool _isDownloading = false;
   final Set<String> _checkedHymnIds = <String>{};
+  StreamSubscription? _hymnSubscription;
 
   @override
   void initState() {
@@ -43,6 +46,9 @@ class AccueilScreenState extends State<AccueilScreen> {
     // Initialize the controller properly to avoid disposal issues
     _hymnController =
         Get.put<HymnController>(HymnController(), permanent: true);
+
+    // Listen to hymn updates to perform batch checks safely
+    _hymnSubscription = _hymnController.hymnsStream.listen(_onHymnsUpdated);
 
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
@@ -80,6 +86,51 @@ class AccueilScreenState extends State<AccueilScreen> {
     if (hymns.isNotEmpty && context.mounted) {
       _showAudioPlayerDialog(hymns.first);
     }
+  }
+
+  void _batchCheckAudioFiles(List<Hymn> hymns) {
+    final audioService = AudioService.instance;
+    final List<String> uncheckedIds = [];
+
+    for (final hymn in hymns) {
+      if (!_checkedHymnIds.contains(hymn.id)) {
+        uncheckedIds.add(hymn.id);
+      }
+    }
+
+    if (uncheckedIds.isNotEmpty) {
+      // Use new cache service for efficient batch checking
+      audioService.checkAudioFilesExist(uncheckedIds).then((results) {
+        _checkedHymnIds.addAll(results.keys);
+        if (kDebugMode) {
+          print(
+              'AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
+        }
+      }).catchError((error) {
+        // Silently handle errors to not affect UI
+        if (kDebugMode) {
+          print('Batch audio check error: $error');
+        }
+      });
+    }
+  }
+
+  void _preloadCommonHymns(List<Hymn> hymns) {
+    // Preload first 20 hymns to improve user experience
+    final commonHymnIds = hymns.take(20).map((h) => h.id).toList();
+    AudioService.instance.preloadCommonHymns(commonHymnIds);
+  }
+
+  void _onHymnsUpdated(List<Hymn> hymns) {
+    if (!mounted) return;
+
+    // Check first 10 items
+    final List<Hymn> firstTen =
+        hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
+    _batchCheckAudioFiles(firstTen);
+
+    // Preload common hymns
+    _preloadCommonHymns(hymns);
   }
 
   Future<void> _downloadAndInstallUpdate() async {
@@ -276,6 +327,7 @@ class AccueilScreenState extends State<AccueilScreen> {
   @override
   void dispose() {
     // Cancel any pending operations
+    _hymnSubscription?.cancel();
     _checkedHymnIds.clear();
     // Don't dispose the controller here since it's managed by GetX
     // Just clean up any local resources
