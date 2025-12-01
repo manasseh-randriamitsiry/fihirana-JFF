@@ -89,12 +89,13 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       if (!mounted) return;
 
       final newCurrentHymn = _audioService.currentHymn;
-      if (newCurrentHymn != null &&
-          newCurrentHymn.id != _currentDisplayedHymn?.id) {
-        setState(() {
-          _currentDisplayedHymn = newCurrentHymn;
-        });
-        // Notify parent of the change
+      
+      setState(() {
+        _currentDisplayedHymn = newCurrentHymn;
+      });
+      
+      // Notify parent of the change
+      if (newCurrentHymn != null) {
         widget.onHymnChange?.call(newCurrentHymn);
       }
 
@@ -296,7 +297,9 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _currentDisplayedHymn?.title ?? widget.hymn.title,
+                            _audioService.currentDisplayTitle.isNotEmpty 
+                                ? _audioService.currentDisplayTitle
+                                : widget.hymn.title,
                             style: const TextStyle(
                               color: primaryTextColor,
                               fontSize: 18,
@@ -307,7 +310,9 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Hymn ${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                            _audioService.currentDisplaySubtitle.isNotEmpty
+                                ? _audioService.currentDisplaySubtitle
+                                : 'Hymn ${widget.hymn.hymnNumber}',
                             style: const TextStyle(
                               color: secondaryTextColor,
                               fontSize: 14,

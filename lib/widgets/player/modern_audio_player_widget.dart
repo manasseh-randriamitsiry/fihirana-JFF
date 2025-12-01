@@ -380,8 +380,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    _currentDisplayedHymn?.title ??
-                                        widget.hymn.title,
+                                    _audioService.currentDisplayTitle.isNotEmpty 
+                                        ? _audioService.currentDisplayTitle
+                                        : widget.hymn.title,
                                     style: const TextStyle(
                                       color: primaryTextColor,
                                       fontSize: 24,
@@ -392,7 +393,9 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Hymn ${_currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber}',
+                                    _audioService.currentDisplaySubtitle.isNotEmpty
+                                        ? _audioService.currentDisplaySubtitle
+                                        : 'Hymn ${widget.hymn.hymnNumber}',
                                     style: const TextStyle(
                                       color: secondaryTextColor,
                                       fontSize: 16,
