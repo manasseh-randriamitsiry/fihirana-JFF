@@ -10,7 +10,7 @@ class RecordingOverlayManager extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Get controller inside build to avoid calling Get.put during widget creation
-    final RecordingController controller = Get.find<RecordingController>();
+    final RecordingController controller = Get.put(RecordingController());
 
     return Obx(() {
       // Early return for better performance
@@ -35,19 +35,19 @@ class RecordingOverlayManager extends StatelessWidget {
 
   // Static method to show recording overlay from anywhere
   static void showRecordingOverlay(String hymnId, String hymnTitle) {
-    final controller = Get.find<RecordingController>();
+    final controller = Get.put(RecordingController());
     controller.showOverlay(hymnId, hymnTitle);
   }
 
   // Static method to check if overlay is visible
   static bool isOverlayVisible() {
-    final controller = Get.find<RecordingController>();
+    final controller = Get.put(RecordingController());
     return controller.shouldShowOverlay();
   }
 
   // Static method to restore overlay if minimized
   static void restoreOverlay() {
-    final controller = Get.find<RecordingController>();
+    final controller = Get.put(RecordingController());
     controller.restoreOverlay();
   }
 }

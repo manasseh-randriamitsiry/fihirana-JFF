@@ -148,45 +148,54 @@ class AccueilScreenState extends State<AccueilScreen> {
                     fontSize: 26,
                   ),
                 ),
-                actions: [
-                  UpdateButtonWidget(
-                    isDownloading: _isDownloading,
-                    updateAvailable: _updateAvailable,
-                    onPressed:
-                    _isDownloading ? null : _downloadAndInstallUpdate,
-                  ),
-                  Obx(() {
-                    final audioService = AudioService.instance;
-                    final currentHymnId = audioService.currentPlayingHymnId;
-                    final isPlaying =
-                        currentHymnId.isNotEmpty && audioService.isPlaying;
+actions: [
+                  SizedBox(
+                    width: 200,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        UpdateButtonWidget(
+                          isDownloading: _isDownloading,
+                          updateAvailable: _updateAvailable,
+                          onPressed:
+                          _isDownloading ? null : _downloadAndInstallUpdate,
+                        ),
+                        Obx(() {
+                          final audioService = AudioService.instance;
+                          final currentHymnId = audioService.currentPlayingHymnId;
+                          final isPlaying =
+                              currentHymnId.isNotEmpty && audioService.isPlaying;
 
-                    return NowPlayingButtonWidget(
-                      currentHymnId: currentHymnId,
-                      isPlaying: isPlaying,
-                      onPressed: () async {
-                        if (isPlaying) {
-                          _showCurrentPlayingDialog();
-                        } else {
-                          await _showAudioPlayerWithFirstHymn();
-                        }
-                      },
-                    );
-                  }),
-                  IconButton(
-                    key: const ValueKey('language_button'),
-                    icon: Icon(Icons.language, color: iconColor),
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => const LanguagePickerDialog(),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    key: const ValueKey('favorites_button'),
-                    icon: Icon(Icons.favorite, color: iconColor),
-                    onPressed: () => NavigationUtility.navigateToFavorites(),
+                          return NowPlayingButtonWidget(
+                            currentHymnId: currentHymnId,
+                            isPlaying: isPlaying,
+                            onPressed: () async {
+                              if (isPlaying) {
+                                _showCurrentPlayingDialog();
+                              } else {
+                                await _showAudioPlayerWithFirstHymn();
+                              }
+                            },
+                          );
+                        }),
+IconButton(
+                          key: const ValueKey('language_button'),
+                          icon: Icon(Icons.language, color: iconColor),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => const LanguagePickerDialog(),
+                            );
+                          },
+                        ),
+                        IconButton(
+                          key: const ValueKey('favorites_button'),
+                          icon: Icon(Icons.favorite, color: iconColor),
+                          onPressed: () => NavigationUtility.navigateToFavorites(),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
