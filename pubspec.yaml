@@ -7,63 +7,64 @@ publish_to: 'none'
 version: 1.0.19
 
 environment:
-  sdk: '>=3.9.0 <4.0.0'
+  sdk: '>=3.2.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  sqflite: ^2.4.1
-  provider: ^6.1.2
-  http: ^1.2.2
-  shared_preferences: ^2.3.3
-  font_awesome_flutter: ^10.7.0
-  get: ^4.7.3
-  google_fonts: ^6.3.2
+  sqflite: ^2.0.0+4
+  provider: ^6.0.3
+  http: ^1.1.0
+  shared_preferences: ^2.0.13
+  font_awesome_flutter: ^10.5.0
+  get: ^4.6.6
+  google_fonts: ^4.0.4
   flutter_secure_storage: ^9.2.2
-
+  filter_list: ^1.0.3
+  curved_navigation_bar: ^1.0.6
   liquid_swipe: ^3.1.0
   flutter_zoom_drawer: ^3.2.0
-  firebase_core: ^4.2.1
-  cloud_firestore: ^6.1.0
-  firebase_auth: ^6.1.2
-  google_sign_in: ^6.3.0
-  flutter_launcher_icons: ^0.14.4
-  cached_network_image: ^3.4.1
-  local_auth: ^3.0.0
-  android_intent_plus: ^6.0.0
-  path_provider: ^2.1.5
-  dots_indicator: ^4.0.1
-  flutter_svg: ^2.2.3
-  flutter_colorpicker: ^1.1.0
-  url_launcher: ^6.3.1
-  package_info_plus: ^9.0.0
+  firebase_core: ^2.24.2
+  cloud_firestore: ^4.13.6
+  firebase_auth: ^4.16.0
+  google_sign_in: ^6.2.1
+  flutter_launcher_icons: ^0.13.1
+  cached_network_image: ^3.3.0
+  local_auth: ^2.1.7
+  android_intent_plus: ^4.0.3
+  path_provider: ^2.1.2
+  dots_indicator: ^3.0.0
+  flutter_svg: ^2.0.9
+  flutter_colorpicker: ^1.0.3
+  url_launcher: ^6.2.2
+  package_info_plus: ^4.2.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
-  loading_animation_widget: ^1.2.1
+  loading_animation_widget: ^1.2.0+4
   intl: ^0.20.2
   flutter_phoenix: ^1.1.1
   awesome_notifications: ^0.10.1
-  syncfusion_flutter_sliders: ^31.2.15
+  syncfusion_flutter_sliders: ^31.2.3
   in_app_update: ^4.2.5
   flutter_neumorphic_plus: ^3.3.0
-  open_file: ^3.5.0
-  permission_handler: ^12.0.1
-  dio: ^5.7.0
-  just_audio: ^0.10.5
+  open_file: ^3.3.2
+  permission_handler: ^11.3.1
+  dio: ^5.4.3+1
+  just_audio: ^0.9.36
   simple_gesture_detector: ^0.2.1
-  path: ^1.9.0
+  path: ^1.8.3
   share_plus: ^12.0.1
-  rive: ^0.13.13
-  flutter_animate: ^4.5.2
+  rive: ^0.13.1
+  flutter_animate: ^4.5.0
   file_picker: ^10.3.7
   app_links: ^6.4.1
   collection: ^1.19.1
   record: ^6.1.2
   googleapis: ^15.0.0
-  extension_google_sign_in_as_googleapis_auth: ^2.0.13
-  googleapis_auth: ^2.0.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+  googleapis_auth: ^1.6.0
   uuid: ^4.5.2
   debounce_throttle: ^2.0.0
   maplibre_gl: ^0.22.0
@@ -73,9 +74,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
-  mockito: ^5.4.4
-  build_runner: ^2.4.13
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true
@@ -92,23 +91,13 @@ flutter:
     - assets/hymns_combined.json
     - pubspec.yaml
 
-  # Optimized font set - reduced from 125+ files to essential fonts only
+  # Explicitly include common asset files to ensure they're not tree-shaken in release mode
   fonts:
-    # Primary fonts (heavily used)
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Roboto-Italic.ttf
-          style: italic
     - family: Lato
       fonts:
         - asset: assets/fonts/Lato-Regular.ttf
         - asset: assets/fonts/Lato-Bold.ttf
           weight: 700
-    
-    # Secondary fonts (used in font controller)
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins-Regular.ttf
@@ -121,13 +110,25 @@ flutter:
           weight: 700
         - asset: assets/fonts/OpenSans-Italic.ttf
           style: italic
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Roboto-Italic.ttf
+          style: italic
     - family: Montserrat
       fonts:
         - asset: assets/fonts/Montserrat-Regular.ttf
         - asset: assets/fonts/Montserrat-Bold.ttf
           weight: 700
-    
-    # Special purpose fonts
+        - asset: assets/fonts/Montserrat-Italic.ttf
+          style: italic
+    - family: Raleway
+      fonts:
+        - asset: assets/fonts/Raleway-Regular.ttf
+        - asset: assets/fonts/Raleway-Bold.ttf
+          weight: 700
     - family: Hack
       fonts:
         - asset: assets/fonts/Hack-Regular.ttf
@@ -139,12 +140,67 @@ flutter:
           weight: 700
         - asset: assets/fonts/GoBold-Light.otf
           weight: 300
-    
-    # Educational fonts (keep one representative)
+    - family: SodaFountain
+      fonts:
+        - asset: assets/fonts/SodaFountain-Regular.otf
+    - family: MuseoSansRounded
+      fonts:
+        - asset: assets/fonts/MuseoSansRounded-500.otf
+        - asset: assets/fonts/MuseoSansRounded-700.otf
+          weight: 700
+    - family: TitilliumWeb
+      fonts:
+        - asset: assets/fonts/TitilliumWeb-Regular.ttf
+        - asset: assets/fonts/TitilliumWeb-Bold.ttf
+          weight: 700
+    - family: SourceSerifPro
+      fonts:
+        - asset: assets/fonts/SourceSerifPro-Bold.ttf
+          weight: 700
     - family: EduNSWACTFoundation
       fonts:
         - asset: assets/fonts/EduNSWACTFoundation-Regular.ttf
+        - asset: assets/fonts/EduNSWACTFoundation-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduNSWACTFoundation-SemiBold.ttf
+          weight: 600
         - asset: assets/fonts/EduNSWACTFoundation-Bold.ttf
+          weight: 700
+    - family: EduQLDBeginner
+      fonts:
+        - asset: assets/fonts/EduQLDBeginner-Regular.ttf
+        - asset: assets/fonts/EduQLDBeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduQLDBeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduQLDBeginner-Bold.ttf
+          weight: 700
+    - family: EduSABeginner
+      fonts:
+        - asset: assets/fonts/EduSABeginner-Regular.ttf
+        - asset: assets/fonts/EduSABeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduSABeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduSABeginner-Bold.ttf
+          weight: 700
+    - family: EduTASBeginner
+      fonts:
+        - asset: assets/fonts/EduTASBeginner-Regular.ttf
+        - asset: assets/fonts/EduTASBeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduTASBeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduTASBeginner-Bold.ttf
+          weight: 700
+    - family: EduVICWANTBeginner
+      fonts:
+        - asset: assets/fonts/EduVICWANTBeginner-Regular.ttf
+        - asset: assets/fonts/EduVICWANTBeginner-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/EduVICWANTBeginner-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/EduVICWANTBeginner-Bold.ttf
           weight: 700
 
 flutter_launcher_icons:
