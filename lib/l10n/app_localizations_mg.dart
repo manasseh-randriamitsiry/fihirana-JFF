@@ -1180,10 +1180,10 @@ class AppLocalizationsMg extends AppLocalizations {
   String get term2 => 'Tsy hampiditra hira tsy mifanaraka amin\'ny fivavahana JFF';
 
   @override
-  String get agreement => 'Manaiky ireo fepetra ireo aho';
+  String get agreement => 'Manaiky ny fepetra voalaza eto ambany aho';
 
   @override
-  String get enterYourName => 'Ampidiro ny anaranao';
+  String get enterYourName => 'Iza no anaranao?';
 
   @override
   String get continueText => 'Hanohy';
