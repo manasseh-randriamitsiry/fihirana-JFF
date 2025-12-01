@@ -26,11 +26,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
         final ColorController colorController = Get.find<ColorController>();
         return Dialog(
           backgroundColor: colorController.backgroundColor.value,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.9,
             padding: const EdgeInsets.all(16),
             child: Column(
               mainAxisSize: MainAxisSize.min,

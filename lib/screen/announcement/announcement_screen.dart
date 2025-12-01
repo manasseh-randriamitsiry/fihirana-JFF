@@ -22,62 +22,311 @@ class AnnouncementScreen extends StatefulWidget {
 class _AnnouncementScreenState extends State<AnnouncementScreen> {
   final AnnouncementService _announcementService = AnnouncementService();
   final ColorController colorController = Get.find<ColorController>();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _messageController = TextEditingController();
-  DateTime? _selectedExpirationDate;
 
   bool isAdmin() {
     final user = FirebaseAuth.instance.currentUser;
     return user?.email == 'manassehrandriamitsiry@gmail.com';
   }
 
-  void _showCreateAnnouncementDialog() {
+void _showCreateAnnouncementDialog() {
     final l10n = AppLocalizations.of(context)!;
+    String title = '';
+    String message = '';
+    DateTime? expiresAt;
 
     showDialog(
       context: context,
-      builder: (context) => AnnouncementFormWidget(
-        title: l10n.createAnnouncement,
-        submitButtonText: l10n.create,
-        onSubmit: () {
-          _announcementService.createAnnouncement(
-            _titleController.text,
-            _messageController.text,
-            expiresAt: _selectedExpirationDate,
-          );
-          _titleController.clear();
-          _messageController.clear();
-          _selectedExpirationDate = null;
-        },
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: colorController.backgroundColor.value,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            l10n.createAnnouncement,
+            style: TextStyle(
+              color: colorController.textColor.value,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: l10n.title,
+                    labelStyle: TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                    ),
+                  ),
+                  style: TextStyle(color: colorController.textColor.value),
+                  onChanged: (value) => title = value,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: l10n.message,
+                    labelStyle: TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                    ),
+                  ),
+                  style: TextStyle(color: colorController.textColor.value),
+                  maxLines: 4,
+                  onChanged: (value) => message = value,
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: expiresAt ?? DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        expiresAt = picked;
+                      });
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_today, color: colorController.iconColor.value, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.expirationDate,
+                                style: TextStyle(
+                                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                expiresAt != null
+                                    ? '${expiresAt!.day}/${expiresAt!.month}/${expiresAt!.year}'
+                                    : l10n.noDate,
+                                style: TextStyle(
+                                  color: colorController.textColor.value,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel2, style: TextStyle(color: colorController.textColor.value)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (title.trim().isEmpty || message.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.fillAllFields)),
+                  );
+                  return;
+                }
+                _announcementService.createAnnouncement(
+                  title,
+                  message,
+                  expiresAt: expiresAt,
+                );
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorController.primaryColor.value,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(l10n.create),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  void _showEditAnnouncementDialog(Announcement announcement) {
-    _titleController.text = announcement.title;
-    _messageController.text = announcement.message;
-    _selectedExpirationDate = announcement.expiresAt;
+void _showEditAnnouncementDialog(Announcement announcement) {
+    String title = announcement.title;
+    String message = announcement.message;
+    DateTime? expiresAt = announcement.expiresAt;
     final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
-      builder: (context) => AnnouncementFormWidget(
-        title: l10n.editAnnouncement,
-        submitButtonText: l10n.update,
-        initialTitle: announcement.title,
-        initialMessage: announcement.message,
-        initialExpirationDate: announcement.expiresAt,
-        onSubmit: () {
-          _announcementService.updateAnnouncement(
-            announcement.id,
-            _titleController.text,
-            _messageController.text,
-            expiresAt: _selectedExpirationDate,
-          );
-          _titleController.clear();
-          _messageController.clear();
-          _selectedExpirationDate = null;
-        },
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          backgroundColor: colorController.backgroundColor.value,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(
+            l10n.editAnnouncement,
+            style: TextStyle(
+              color: colorController.textColor.value,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: l10n.title,
+                    labelStyle: TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                    ),
+                  ),
+                  style: TextStyle(color: colorController.textColor.value),
+                  controller: TextEditingController(text: title)..selection = TextSelection.fromPosition(TextPosition(offset: title.length)),
+                  onChanged: (value) => title = value,
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: l10n.message,
+                    labelStyle: TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                    ),
+                  ),
+                  style: TextStyle(color: colorController.textColor.value),
+                  maxLines: 4,
+                  controller: TextEditingController(text: message)..selection = TextSelection.fromPosition(TextPosition(offset: message.length)),
+                  onChanged: (value) => message = value,
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () async {
+                    final DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: expiresAt ?? DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        expiresAt = picked;
+                      });
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.calendar_today, color: colorController.iconColor.value, size: 20),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.expirationDate,
+                                style: TextStyle(
+                                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                expiresAt != null
+                                    ? '${expiresAt!.day}/${expiresAt!.month}/${expiresAt!.year}'
+                                    : l10n.noDate,
+                                style: TextStyle(
+                                  color: colorController.textColor.value,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(l10n.cancel2, style: TextStyle(color: colorController.textColor.value)),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (title.trim().isEmpty || message.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l10n.fillAllFields)),
+                  );
+                  return;
+                }
+                _announcementService.updateAnnouncement(
+                  announcement.id,
+                  title,
+                  message,
+                  expiresAt: expiresAt,
+                );
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorController.primaryColor.value,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              child: Text(l10n.update),
+            ),
+          ],
+        ),
       ),
     );
   }
