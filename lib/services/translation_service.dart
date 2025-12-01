@@ -64,7 +64,6 @@ class TranslationService {
   Map<String, String> get supportedLanguagesMap => {
     'en': 'English',
     'fr': 'Français',
-    'it': 'Italiano',
     'mg': 'Malagasy',
   };
 

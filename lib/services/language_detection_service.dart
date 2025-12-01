@@ -26,11 +26,7 @@ class LanguageDetectionService {
         return 'fr';
       }
       
-      // Check for Italian characters/words
-      if (RegExp(r'[àèéìíîòóù]').hasMatch(text) ||
-          text.toLowerCase().contains(RegExp(r'\b(il|lo|la|le|gli|un|uno|una|di|da|a|in|con|su|per|tra|che|e|è|sono|ha)\b'))) {
-        return 'it';
-      }
+
       
       // Check for Malagasy characters/words
       if (text.toLowerCase().contains(RegExp(r'\b(ny|ho|dia|amin|tsy|mitovy)\b'))) {
@@ -75,9 +71,7 @@ class LanguageDetectionService {
         case 'fr':
           if (RegExp(r'[àâäéèêëïîôöùûüÿç]').hasMatch(text)) confidence += 0.3;
           break;
-        case 'it':
-          if (RegExp(r'[àèéìíîòóù]').hasMatch(text)) confidence += 0.3;
-          break;
+
         case 'mg':
           if (text.toLowerCase().contains('ny') || text.toLowerCase().contains('ho')) {
             confidence += 0.3;
@@ -111,7 +105,7 @@ class LanguageDetectionService {
         // Add other languages with lower confidence
         'en': detectedLanguage == 'en' ? confidence : 0.1,
         'fr': detectedLanguage == 'fr' ? confidence : 0.1,
-        'it': detectedLanguage == 'it' ? confidence : 0.1,
+
         'mg': detectedLanguage == 'mg' ? confidence : 0.1,
       };
     } catch (e) {
@@ -126,7 +120,6 @@ class LanguageDetectionService {
   Map<String, String> get supportedLanguages => {
     'en': 'English',
     'fr': 'Français',
-    'it': 'Italiano',
     'mg': 'Malagasy',
   };
 

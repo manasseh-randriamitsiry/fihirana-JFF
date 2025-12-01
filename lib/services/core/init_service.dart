@@ -54,6 +54,7 @@ class InitService {
     final fontController = Get.put(FontController());
     Get.put(LanguageController());
     Get.put(ShellController());
+    Get.put(AuthController());
 
     // Load theme and colors (fast, from local storage)
     await Future.wait([
@@ -67,9 +68,6 @@ class InitService {
 
   /// Initialize non-critical controllers with lazy loading
   static Future<void> initNonCriticalControllers() async {
-    // Initialize critical controllers that are needed immediately
-    Get.put(AuthController());
-    
     // Initialize recording controller with minimal blocking
     Get.put(RecordingController(), permanent: true);
 

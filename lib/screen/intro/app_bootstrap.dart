@@ -2,6 +2,8 @@ import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/services/core/init_service.dart';
 import 'package:fihirana/services/core/service_locator.dart';
+import 'package:get/get.dart';
+import 'package:fihirana/controller/auth_controller.dart';
 import 'package:fihirana/services/core/init_progress_tracker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -55,7 +57,18 @@ Future<void> _initialize() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Step 2: Initialize Service Locator (20% -> 30%)
+      // Step 2: Ensure minimal controllers required by services are registered,
+      // then initialize Service Locator (20% -> 30%)
+      try {
+        if (!Get.isRegistered<AuthController>()) {
+          Get.put(AuthController());
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error pre-registering AuthController: $e');
+        }
+      }
+
       await serviceLocator.initialize();
 
       // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
