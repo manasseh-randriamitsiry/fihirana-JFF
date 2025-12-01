@@ -39,6 +39,7 @@ class AudioService {
           }
           _currentPlayingHymnId.value = '';
           _currentHymn = null;
+          _currentRecording = null;
         }
       } catch (e) {
         if (kDebugMode) {
@@ -60,6 +61,8 @@ class AudioService {
       if (state.processingState == ProcessingState.completed) {
         _currentPlayingHymnId.value = '';
         _currentHymn = null;
+        _currentRecording = null;
+        _currentRecording = null;
       }
     });
 
@@ -90,6 +93,7 @@ class AudioService {
     ),
   );
   Hymn? _currentHymn;
+  dynamic _currentRecording; // Track current recording
   List<Hymn> _playlist = [];
   int _currentPlaylistIndex = -1;
 
@@ -101,6 +105,24 @@ class AudioService {
 
   AudioPlayer get player => _player;
   Hymn? get currentHymn => _currentHymn;
+  dynamic get currentRecording => _currentRecording;
+  bool get isPlayingRecording => _currentRecording != null;
+  
+  /// Get display title for current playing item (hymn or recording)
+  String get currentDisplayTitle {
+    if (isPlayingRecording && _currentRecording != null) {
+      return _currentRecording.title ?? 'Unknown Recording';
+    }
+    return _currentHymn?.title ?? '';
+  }
+  
+  /// Get display subtitle for current playing item
+  String get currentDisplaySubtitle {
+    if (isPlayingRecording && _currentRecording != null) {
+      return 'Recording by ${_currentRecording.userName ?? 'User'}';
+    }
+    return _currentHymn != null ? 'Hymn ${_currentHymn!.hymnNumber}' : '';
+  }
 
   // ... (keep existing methods)
 
@@ -174,6 +196,7 @@ class AudioService {
     }
 
     _currentHymn = hymn;
+    _currentRecording = null; // Clear recording when playing hymn
     _currentPlayingHymnId.value = hymn.id; // Ensure reactive update
 
     // Update playlist index if this hymn is in the current playlist
@@ -376,18 +399,10 @@ class AudioService {
   }
 
   Future<void> stop() async {
-    if (kDebugMode) {
-      print('AudioService: Stopping playback');
-    }
-    try {
-      await _player.stop();
-    } catch (e) {
-      if (kDebugMode) {
-        print('AudioService: Error stopping player: $e');
-      }
-    }
-    _currentHymn = null;
+    await _player.stop();
     _currentPlayingHymnId.value = '';
+    _currentHymn = null;
+    _currentRecording = null;
   }
 
   Future<void> stopCurrentAndPlayNew(Hymn newHymn) async {
@@ -487,6 +502,7 @@ class AudioService {
     if (currentId.isNotEmpty && !currentlyPlaying) {
       _currentPlayingHymnId.value = '';
       _currentHymn = null;
+      _currentRecording = null;
     }
   }
 
@@ -575,7 +591,7 @@ class AudioService {
       title: recording.title,
       verses: [],
       createdAt: recording.createdAt,
-      createdBy: 'User',
+      createdBy: 'User: ${recording.userName ?? 'Anonymous'}',
     );
 
     String? audioUrl;
