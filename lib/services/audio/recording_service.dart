@@ -147,7 +147,7 @@ class RecordingService extends GetxService implements IRecordingService {
         // Use AAC format for physical devices
         final format = await AudioConfig.preferredFormat;
         fileName = 'rec_${DateTime.now().millisecondsSinceEpoch}$format';
-        config = RecordConfig(
+        config = const RecordConfig(
           encoder: AudioEncoder.aacLc,
           sampleRate: 44100,
           bitRate: 128000,

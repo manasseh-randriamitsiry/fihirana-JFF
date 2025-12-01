@@ -25,15 +25,17 @@ class AudioService {
   factory AudioService() => instance;
   AudioService._internal() {
     _initializePlayer();
-    _initializePlayerStateListener();
     _initializePlayerOnStartup();
+    _initializePlayerStateListener();
   }
 
   Future<void> _initializePlayer() async {
     final config = await AudioConfig.getAudioPlayerConfig();
+    final effects = config['androidAudioEffects'] as List<dynamic>?;
+    final androidEffects = effects?.cast<AndroidAudioEffect>() ?? [];
     _player = AudioPlayer(
       audioPipeline: AudioPipeline(
-        androidAudioEffects: config['androidAudioEffects'] ?? [],
+        androidAudioEffects: androidEffects,
       ),
     );
     

@@ -49,8 +49,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
               }
             }
           },
-          child: Container(
-            child: ZoomDrawer(
+          child: ZoomDrawer(
               controller: shellController.zoomDrawerController,
               style: DrawerStyle.defaultStyle,
               menuScreen: DrawerWidget(
@@ -67,7 +66,6 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
               openCurve: Curves.fastOutSlowIn,
               closeCurve: Curves.bounceIn,
             ),
-          ),
         );
       } else {
         // Tablet/Desktop Layout: Use Row with Side Drawer
