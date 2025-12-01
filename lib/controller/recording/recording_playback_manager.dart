@@ -1,8 +1,16 @@
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:path/path.dart' as path;
 import '../../models/user_recording.dart';
 import '../../services/audio/audio_service.dart';
 import '../../services/audio/recording_service.dart';
+import '../../services/audio/local_audio_service.dart';
+import '../../services/data/google_drive_service.dart';
+import '../../services/core/ui_service.dart';
 import '../../l10n/app_localizations.dart';
 import 'recording_state_manager.dart';
 
@@ -12,39 +20,166 @@ class RecordingPlaybackManager extends GetxController {
   final RecordingService _recordingService;
   final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
 
+  // Dedicated player for recordings to avoid affecting the main AudioService state
+  final AudioPlayer _player = AudioPlayer();
+  final LocalAudioService _localAudioService = LocalAudioService();
+
   RecordingPlaybackManager({
     required RecordingStateManager stateManager,
     required RecordingService recordingService,
   })  : _stateManager = stateManager,
         _recordingService = recordingService;
 
+  @override
+  void onInit() {
+    super.onInit();
+    _initializePlayerListeners();
+  }
+
+  @override
+  void onClose() {
+    _player.dispose();
+    super.onClose();
+  }
+
+  void _initializePlayerListeners() {
+    // Listen to player state to update UI if needed
+    _player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        // Handle completion if needed
+      }
+    });
+  }
+
   // Playback Actions
   Future<void> playRecording(UserRecording recording) async {
     try {
-      await AudioService.instance.playRecording(recording);
+      // Pause the main audio service to avoid playing both at the same time
+      // but DO NOT change its state (current hymn, etc.)
+      if (AudioService.instance.isPlaying) {
+        await AudioService.instance.pause();
+      }
+
+      currentRecording.value = recording;
+
+      final audioUrl = await _resolveAudioUrl(recording);
+      if (audioUrl == null) {
+        throw Exception('Could not resolve audio URL for recording');
+      }
+
+      // Play using the local player
+      if (audioUrl.startsWith('http')) {
+        await _player.setUrl(audioUrl);
+      } else {
+        await _player.setFilePath(audioUrl);
+      }
+
+      await _player.play();
     } catch (e) {
+      if (kDebugMode) print('Error playing recording: $e');
       Get.snackbar('Error', 'Failed to play recording: $e');
     }
   }
 
+  Future<String?> _resolveAudioUrl(UserRecording recording) async {
+    String? audioUrl;
+    String targetPath = recording.filePath;
+
+    // PRIORITY 1: Check if recording is public and has a Drive ID
+    if (recording.isPublic && recording.driveFileId != null) {
+      audioUrl =
+          'https://drive.google.com/uc?export=download&id=${recording.driveFileId}';
+    }
+    // Check if recording has a public link (fallback)
+    else if (recording.publicLink != null && recording.publicLink!.isNotEmpty) {
+      audioUrl = recording.publicLink!;
+      if (audioUrl!.contains('drive.google.com')) {
+        final idMatch = RegExp(r'[?&]id=([^&]+)').firstMatch(audioUrl!);
+        if (idMatch != null) {
+          audioUrl =
+              'https://drive.google.com/uc?export=download&id=${idMatch.group(1)}';
+        }
+      }
+    }
+    // PRIORITY 2: Check if local file exists
+    else if (targetPath.isNotEmpty) {
+      final file = File(targetPath);
+      if (await file.exists()) {
+        audioUrl = targetPath;
+      }
+    } else {
+      // Generate a path if one doesn't exist
+      final stats = await _localAudioService.getStorageStats();
+      final dir = stats['directory'] as String;
+      targetPath = path.join(dir, 'recording_${recording.id}.m4a');
+
+      final file = File(targetPath);
+      if (await file.exists()) {
+        audioUrl = targetPath;
+      }
+    }
+
+    // PRIORITY 3: If no local file and no public link, try authenticated URL for private recordings
+    if (audioUrl == null && recording.driveFileId != null) {
+      try {
+        final driveService = GoogleDriveService();
+        if (!driveService.isSignedIn) {
+          await driveService.signInSilently();
+        }
+
+        if (driveService.isSignedIn) {
+          final authenticatedUrl = await driveService
+              .getAuthenticatedDownloadUrl(recording.driveFileId!);
+          if (authenticatedUrl != null) {
+            audioUrl = authenticatedUrl;
+          } else {
+            // Fallback to downloading
+            UIService.showAudioDownloadingSnackBar();
+
+            String finalTargetPath = targetPath;
+            if (!finalTargetPath.toLowerCase().endsWith('.m4a')) {
+              finalTargetPath = '$finalTargetPath.m4a';
+            }
+
+            final downloadedFile = await driveService.downloadFile(
+              recording.driveFileId!,
+              finalTargetPath,
+            );
+
+            if (downloadedFile != null && await downloadedFile.exists()) {
+              audioUrl = downloadedFile.path;
+            }
+          }
+        }
+      } catch (e) {
+        if (kDebugMode) print('Error resolving Drive URL: $e');
+      }
+    }
+
+    return audioUrl;
+  }
+
   Future<void> pausePlayback() async {
-    await AudioService.instance.pause();
+    await _player.pause();
   }
 
   Future<void> resumePlayback() async {
-    await AudioService.instance.resume();
+    await _player.play();
   }
 
   Future<void> stopPlayback() async {
-    await AudioService.instance.stop();
+    await _player.stop();
+    // Do NOT clear currentRecording here if you want to keep the player visible/paused
+    // But if "stop" means "close", then maybe.
+    // Usually stop just stops audio.
   }
 
   Future<void> seekPlayback(Duration position) async {
-    await AudioService.instance.seekTo(position);
+    await _player.seek(position);
   }
 
   Future<void> setPlaybackSpeed(double speed) async {
-    await AudioService.instance.player.setSpeed(speed);
+    await _player.setSpeed(speed);
   }
 
   /// Refresh public URLs for all recordings
@@ -75,7 +210,7 @@ class RecordingPlaybackManager extends GetxController {
   void hidePlayer() {
     _stateManager.hidePlayerOverlay();
     currentRecording.value = null;
-    pausePlayback();
+    stopPlayback();
   }
 
   void minimizePlayer() {
@@ -120,7 +255,7 @@ class RecordingPlaybackManager extends GetxController {
     // Play recording directly without showing the compact player widget
     // This avoids conflicts with the main audio player
     playRecording(recording);
-    
+
     // Show a simple snackbar to indicate playback started
     Get.snackbar(
       'Playing Recording',
@@ -129,4 +264,12 @@ class RecordingPlaybackManager extends GetxController {
       snackPosition: SnackPosition.BOTTOM,
     );
   }
+
+  // Expose player state for UI
+  Stream<PlayerState> get playerStateStream => _player.playerStateStream;
+  Stream<Duration> get positionStream => _player.positionStream;
+  Stream<Duration?> get durationStream => _player.durationStream;
+  bool get isPlaying => _player.playing;
+  Duration get position => _player.position;
+  Duration? get duration => _player.duration;
 }
