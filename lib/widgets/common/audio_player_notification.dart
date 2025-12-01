@@ -13,7 +13,14 @@ class AudioPlayerNotificationBuilder {
   }
 
   static String buildNotificationBody(Hymn hymn, {Duration? position, Duration? duration}) {
-    String body = 'Hira faha ${hymn.hymnNumber}';
+    String body;
+    
+    // Check if this is a recording
+    if (hymn.id.startsWith('recording_')) {
+      body = 'Recording by ${hymn.createdBy?.replaceAll('User: ', '') ?? 'User'}';
+    } else {
+      body = 'Hira faha ${hymn.hymnNumber}';
+    }
     
     if (position != null && duration != null) {
       final positionText = formatDuration(position);

@@ -119,29 +119,16 @@ class RecordingPlaybackManager extends GetxController {
   }
 
   void _proceedWithPlayback(UserRecording recording) {
-    final hymn = Hymn(
-      id: recording.id,
-      hymnNumber: recording.hymnId,
-      title: recording.title,
-      verses: [],
-      createdAt: recording.createdAt,
-      createdBy: 'User',
-    );
-
-    _showCompactAudioPlayer(hymn, recording);
+    // Play recording directly without showing the compact player widget
+    // This avoids conflicts with the main audio player
     playRecording(recording);
-  }
-
-  void _showCompactAudioPlayer(Hymn hymn, UserRecording recording) {
-    Get.bottomSheet(
-      CompactAudioPlayerWidget(
-        hymn: hymn,
-        playlist: [hymn],
-        onClose: () => Get.back(),
-      ),
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      enableDrag: false,
+    
+    // Show a simple snackbar to indicate playback started
+    Get.snackbar(
+      'Playing Recording',
+      recording.title,
+      duration: const Duration(seconds: 2),
+      snackPosition: SnackPosition.BOTTOM,
     );
   }
 }
