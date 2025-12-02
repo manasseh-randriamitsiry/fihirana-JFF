@@ -65,26 +65,29 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Start pulse animation after first frame
       _pulseController.repeat(reverse: true);
-      
+
       // Generate recording name asynchronously
       _generateRecordingName();
-      
+
       // Update controller state
       _controller.showOverlay(widget.hymnId, widget.hymnTitle);
     });
   }
 
-  void _generateRecordingName() {
+void _generateRecordingName() {
+    if (!mounted) return;
+    
     final now = DateTime.now();
     final timestamp =
         '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     _nameController.text = '${widget.hymnTitle} - $timestamp';
   }
 
-  @override
+@override
   void dispose() {
     _countdownController.dispose();
     _pulseController.dispose();
+    // Dispose text controller last to avoid issues
     _nameController.dispose();
     // Only hide overlay if not minimized (recording continues in background)
     if (!_controller.isOverlayMinimized.value) {
@@ -113,20 +116,33 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   void _stopRecording() async {
-    if (kDebugMode) print('RecordingOverlay: _stopRecording called for hymnId: ${widget.hymnId}');
-    
+    if (kDebugMode)
+      print(
+          'RecordingOverlay: _stopRecording called for hymnId: ${widget.hymnId}');
+
     final recording =
         await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
-    
-    if (kDebugMode) print('RecordingOverlay: Recording returned from controller: $recording');
-    
+
+    if (kDebugMode)
+      print('RecordingOverlay: Recording returned from controller: $recording');
+
     if (recording != null) {
       // Store's current recording for later reference
       _currentRecording = recording;
       setState(() => _showSaveDialog = true);
       if (kDebugMode) print('RecordingOverlay: Save dialog should show now');
+
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        await Get.dialog(
+          _buildSaveDialog(l10n),
+          barrierDismissible: false,
+        );
+      }
     } else {
-      if (kDebugMode) print('RecordingOverlay: No recording returned, cannot show save dialog');
+      if (kDebugMode)
+        print(
+            'RecordingOverlay: No recording returned, cannot show save dialog');
       // Show error message to user
       Get.snackbar(
         'Error',
@@ -137,7 +153,13 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     }
   }
 
-  void _saveRecording() async {
+void _saveRecording() async {
+    // Check if controller is still valid before accessing text
+    if (!mounted || !_nameController.text.isNotEmpty) {
+      Get.snackbar('Error', 'Please enter a name for the recording');
+      return;
+    }
+    
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       Get.snackbar('Error', 'Please enter a name for the recording');
@@ -150,14 +172,17 @@ class _RecordingOverlayState extends State<RecordingOverlay>
       await _controller.renameRecording(_currentRecording!, name);
 
       if (_uploadToDrive) {
+        // Close save dialog
+        Get.back();
         // Show upload progress in dialog
-        setState(() => _showSaveDialog = false);
         _showUploadProgressDialog(_currentRecording!, isPublic: _isPublic);
       } else if (_isPublic) {
+        // Close save dialog
+        Get.back();
         // If marked as public but not uploading to Drive, we need to upload it
-        setState(() => _showSaveDialog = false);
         _showUploadProgressDialog(_currentRecording!, isPublic: true);
       } else {
+        // Auto-close overlay when save is complete
         if (mounted) {
           Get.back();
           _controller.hideOverlay();
@@ -165,6 +190,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
         }
       }
     } else {
+      // Auto-close overlay even if no recording
       if (mounted) {
         Get.back();
       }
@@ -218,10 +244,12 @@ class _RecordingOverlayState extends State<RecordingOverlay>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _colorController.primaryColor.value.withValues(alpha: 0.1),
+                color:
+                    _colorController.primaryColor.value.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: _colorController.primaryColor.value.withValues(alpha: 0.3),
+                  color: _colorController.primaryColor.value
+                      .withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
@@ -282,17 +310,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // If showing save dialog, show dialog without overlay
+    // If showing save dialog, hide the overlay UI (FAB/Card)
     if (_showSaveDialog) {
-      // Use GetX dialog system which doesn't require context
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          Get.dialog(
-            _buildSaveDialog(l10n),
-            barrierDismissible: false,
-          );
-        }
-      });
       return const SizedBox.shrink();
     }
 
@@ -627,238 +646,248 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.zero,
-      child: Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.1,
-          vertical: MediaQuery.of(context).size.height * 0.1,
-        ),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              _colorController.primaryColor.value,
-              _colorController.primaryColor.value.withValues(alpha: 0.8),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+      child: StatefulBuilder(
+        builder: (context, setDialogState) {
+          return Container(
+            margin: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.1,
+              vertical: MediaQuery.of(context).size.height * 0.1,
             ),
-          ],
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.7,
-            maxWidth: MediaQuery.of(context).size.width * 0.8,
-          ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Success icon
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Icon(
-                    Icons.check_circle,
-                    size: 32,
-                    color: Colors.green,
-                  ),
-                ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
-
-                const SizedBox(height: 20),
-
-                const Text(
-                  'Recording Complete!',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  _colorController.primaryColor.value,
+                  _colorController.primaryColor.value.withValues(alpha: 0.8),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
+              ],
+            ),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.7,
+                maxWidth: MediaQuery.of(context).size.width * 0.8,
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Success icon
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.green.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: const Icon(
+                        Icons.check_circle,
+                        size: 32,
+                        color: Colors.green,
+                      ),
+                    )
+                        .animate()
+                        .scale(duration: 400.ms, curve: Curves.elasticOut),
 
-                const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
-                // Name input
-                TextField(
-                  controller: _nameController,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                  decoration: InputDecoration(
-                    labelText: 'Recording Name',
-                    labelStyle:
-                        TextStyle(color: Colors.white.withValues(alpha: 0.8)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.3)),
+                    const Text(
+                      'Recording Complete!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.3)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide:
-                          const BorderSide(color: Colors.white, width: 2),
-                    ),
-                    prefixIcon: Icon(Icons.edit,
-                        color: Colors.white.withValues(alpha: 0.8)),
-                  ),
-                ),
 
-                const SizedBox(height: 20),
+                    const SizedBox(height: 24),
 
-                // Privacy toggle
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: SwitchListTile(
-                    title: Text(
-                      _isPublic ? 'Public Recording' : 'Private Recording',
+// Name input
+                    TextField(
+                      controller: _nameController,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: 'Recording Name',
+                        labelStyle: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.8)),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.3)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                              color: Colors.white.withValues(alpha: 0.3)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              const BorderSide(color: Colors.white, width: 2),
+                        ),
+                        prefixIcon: Icon(Icons.edit,
+                            color: Colors.white.withValues(alpha: 0.8)),
                       ),
                     ),
-                    subtitle: Text(
-                      _isPublic
-                          ? 'Anyone can listen to this recording'
-                          : 'Only you can listen to this recording',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontSize: 12,
-                      ),
-                    ),
-                    value: _isPublic,
-                    onChanged: (value) {
-                      setState(() => _isPublic = value);
-                    },
-                    activeTrackColor: Colors.white,
-                    inactiveThumbColor: Colors.grey.withValues(alpha: 0.5),
-                    inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
-                  ),
-                ),
 
-                const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
-                // Upload to Drive checkbox
-                Obx(() => Container(
+                    // Privacy toggle
+                    Container(
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: CheckboxListTile(
-                        title: const Text(
-                          'Upload to Google Drive',
-                          style: TextStyle(color: Colors.white),
+                      child: SwitchListTile(
+                        title: Text(
+                          _isPublic ? 'Public Recording' : 'Private Recording',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                        subtitle: _controller.isDriveSignedIn.value
-                            ? Text(
-                                'Signed in as ${_controller.userEmail.value}',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                              )
-                            : Text(
-                                'You will be prompted to sign in',
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                ),
-                              ),
-                        value: _uploadToDrive,
-                        onChanged: (value) {
-                          setState(() => _uploadToDrive = value ?? false);
-                        },
-                        checkColor: Colors.white,
-                        fillColor: WidgetStateProperty.all(
-                            Colors.white.withValues(alpha: 0.2)),
-                      ),
-                    )),
-
-                const SizedBox(height: 24),
-
-                // Action buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Get.back();
-                          widget.onClose();
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          side: BorderSide(
-                              color: Colors.white.withValues(alpha: 0.5)),
-                        ),
-                        child: Text(
-                          'Discard',
+                        subtitle: Text(
+                          _isPublic
+                              ? 'Anyone can listen to this recording'
+                              : 'Only you can listen to this recording',
                           style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8)),
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 12,
+                          ),
                         ),
+                        value: _isPublic,
+                        onChanged: (value) {
+                          setDialogState(() => _isPublic = value);
+                        },
+                        activeTrackColor: Colors.white,
+                        inactiveThumbColor: Colors.grey.withValues(alpha: 0.5),
+                        inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _saveRecording,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          backgroundColor: Colors.white,
-                          foregroundColor: _colorController.primaryColor.value,
+
+                    const SizedBox(height: 16),
+
+                    // Upload to Drive checkbox
+                    Obx(() => Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: CheckboxListTile(
+                            title: const Text(
+                              'Upload to Google Drive',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            subtitle: _controller.isDriveSignedIn.value
+                                ? Text(
+                                    'Signed in as ${_controller.userEmail.value}',
+                                    style: TextStyle(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
+                                    ),
+                                  )
+                                : Text(
+                                    'You will be prompted to sign in',
+                                    style: TextStyle(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
+                                    ),
+                                  ),
+                            value: _uploadToDrive,
+                            onChanged: (value) {
+                              setDialogState(
+                                  () => _uploadToDrive = value ?? false);
+                            },
+                            checkColor: Colors.white,
+                            fillColor: WidgetStateProperty.all(
+                                Colors.white.withValues(alpha: 0.2)),
+                          ),
+                        )),
+
+                    const SizedBox(height: 24),
+
+                    // Action buttons
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Get.back();
+                              widget.onClose();
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.5)),
+                            ),
+                            child: Text(
+                              'Discard',
+                              style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.8)),
+                            ),
+                          ),
                         ),
-                        child: Text(l10n.save),
-                      ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _saveRecording,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              backgroundColor: Colors.white,
+                              foregroundColor:
+                                  _colorController.primaryColor.value,
+                            ),
+                            child: Text(l10n.save),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
   void _showUploadProgressDialog(UserRecording recording,
       {bool isPublic = false}) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(Get.context!)!;
     // Trigger upload when dialog is shown
     _controller.uploadToDrive(recording).then((_) async {
       // If marked as public, publish to Firestore after upload
       if (isPublic) {
         // Get the updated recording with Drive info
-        final updatedRecording = _controller.recordings.firstWhereOrNull((r) => r.id == recording.id);
+        final updatedRecording = _controller.recordings
+            .firstWhereOrNull((r) => r.id == recording.id);
         if (updatedRecording != null) {
           await _controller.publishRecording(updatedRecording);
         }
       }
     });
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
+    // Use Get.dialog instead of showDialog to avoid context issues
+    Get.dialog(
+      Dialog(
         backgroundColor: Colors.transparent,
         child: Container(
           margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.15,
-            vertical: MediaQuery.of(context).size.height * 0.2,
+            horizontal: MediaQuery.of(Get.context!).size.width * 0.15,
+            vertical: MediaQuery.of(Get.context!).size.height * 0.2,
           ),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -880,8 +909,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
           ),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.5,
-              maxWidth: MediaQuery.of(context).size.width * 0.7,
+              maxHeight: MediaQuery.of(Get.context!).size.height * 0.5,
+              maxWidth: MediaQuery.of(Get.context!).size.width * 0.7,
             ),
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -1026,7 +1055,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
             ),
           ),
         ),
-       ),
+      ),
     );
   }
 }
