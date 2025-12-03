@@ -301,7 +301,7 @@ jobs:
           git config --global user.email "actions@github.com"
           
           # Add specific files we want to track
-          git add pubspec.yaml android/app/build.gradle.kts lib/services/pubspec_service.dart
+          git add pubspec.yaml android/app/build.gradle.kts
           
           # Check if there are staged changes to commit
           if ! git diff --staged --quiet; then

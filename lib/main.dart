@@ -1,4 +1,4 @@
-import 'package:fihirana/screen/intro/app_bootstrap.dart';
+import 'package:fihirana/features/intro/presentation/pages/app_bootstrap.dart';
 import 'package:flutter/material.dart';
 
 void main() {
