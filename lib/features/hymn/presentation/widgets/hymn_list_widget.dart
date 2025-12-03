@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:get/get.dart';
 
 import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
 import 'hymn_list_item.dart';
@@ -7,12 +8,15 @@ import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/features/audio/presentation/pages/audio_player_screen.dart';
 
 class HymnListWidget extends StatelessWidget {
   final HymnController hymnController;
   final TextStyle defaultTextStyle;
   final Color textColor;
   final Color backgroundColor;
+  final List<Hymn>? playlist;
+  final int? initialIndex;
 
   const HymnListWidget({
     super.key,
@@ -20,6 +24,8 @@ class HymnListWidget extends StatelessWidget {
     required this.defaultTextStyle,
     required this.textColor,
     required this.backgroundColor,
+    this.playlist,
+    this.initialIndex,
   });
 
   @override
@@ -96,8 +102,12 @@ class HymnListWidget extends StatelessWidget {
   }
 
   void _showAudioPlayerDialog(Hymn hymn) {
-    // This method should be provided by the parent screen
-    // For now, we'll use a navigation utility
-    // TODO: Make this more flexible
+    // Navigate to enhanced audio player with flexible options
+    AudioPlayerNavigator.navigateToEnhancedPlayer(
+      Get.context!,
+      hymn: hymn,
+      playlist: playlist, // Use provided playlist if available
+      initialIndex: initialIndex, // Use provided initial index if available
+    );
   }
 }

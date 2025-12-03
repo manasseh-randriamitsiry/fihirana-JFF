@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
 import 'package:fihirana/features/hymn/domain/repositories/hymn_repository.dart';
+import 'package:fihirana/core/utils/local_storage_service.dart';
 import 'combined_hymn_service.dart';
 import 'package:fihirana/features/hymn/data/services/favorites_service.dart';
 import 'package:fihirana/features/hymn/data/services/firebase_hymn_service.dart';
@@ -13,6 +14,7 @@ class HymnService implements IHymnService {
   final FirebaseSyncService _firebaseSyncService = FirebaseSyncService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final LocalStorageService _localStorageService = LocalStorageService();
   
   late final FavoritesService _favoritesService;
   late final FirebaseHymnService _firebaseHymnService;
@@ -239,8 +241,62 @@ class HymnService implements IHymnService {
     };
   }
 
-  @override
+@override
   Future<void> importData(Map<String, dynamic> data) async {
-    // TODO: Implement import functionality
+    try {
+      // Validate data structure
+      if (!data.containsKey('hymns') || data['hymns'] is! List) {
+        throw Exception('Invalid import data format: missing or invalid hymns array');
+      }
+
+      final hymnsData = data['hymns'] as List;
+      final List<Hymn> importedHymns = [];
+
+      // Convert each hymn data back to Hymn objects
+      for (final hymnData in hymnsData) {
+        if (hymnData is Map<String, dynamic>) {
+          try {
+            // Generate a unique ID for the imported hymn
+            final id = 'imported_${DateTime.now().millisecondsSinceEpoch}_${importedHymns.length}';
+            final hymn = Hymn.fromJson(hymnData, id);
+            importedHymns.add(hymn);
+          } catch (e) {
+            // Skip invalid hymn data but continue with others
+            print('Warning: Failed to parse hymn data: $e');
+            continue;
+          }
+        }
+      }
+
+      if (importedHymns.isEmpty) {
+        throw Exception('No valid hymns found in import data');
+      }
+
+      // Save imported hymns to local storage
+      await _localStorageService.saveHymns(importedHymns);
+
+      // Also save to Firebase if user is authenticated
+      try {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final firestore = FirebaseFirestore.instance;
+          final batch = firestore.batch();
+
+          for (final hymn in importedHymns) {
+            final docRef = firestore.collection('hymns').doc(hymn.id);
+            batch.set(docRef, hymn.toMap());
+          }
+
+          await batch.commit();
+        }
+      } catch (e) {
+        // Firebase import is optional, don't fail the whole operation
+        print('Warning: Failed to import to Firebase: $e');
+      }
+
+      print('Successfully imported ${importedHymns.length} hymns');
+    } catch (e) {
+      throw Exception('Failed to import hymns: $e');
+    }
   }
 }
