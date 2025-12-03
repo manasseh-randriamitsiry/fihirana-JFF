@@ -9,6 +9,7 @@ import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/utils/translation_service_interface.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
+import 'package:fihirana/features/admin/di/admin_di.dart';
 
 /// Service locator for dependency injection
 /// This provides a centralized way to manage service instances and their dependencies
@@ -68,6 +69,9 @@ class ServiceLocator {
     final recordingService = RecordingService();
     await recordingService.initialize();
     Get.put<IRecordingService>(recordingService);
+
+    // Admin Feature
+    AdminDI.initialize();
   }
 
   /// Register data services
