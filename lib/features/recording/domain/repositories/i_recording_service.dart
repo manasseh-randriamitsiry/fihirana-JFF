@@ -1,8 +1,8 @@
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 
-/// Abstract interface for recording repository operations
+/// Abstract interface for recording service operations
 /// This allows for dependency injection and better testability
-abstract class RecordingRepository {
+abstract class IRecordingService {
   /// Observable list of user recordings
   List<UserRecording> get recordings;
   

@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
-import 'package:fihirana/features/recording/data/services/recording_service.dart';
+import 'package:fihirana/features/recording/domain/usecases/recording_usecases.dart';
+import 'package:fihirana/features/recording/data/repositories/recording_repository_impl.dart';
 import 'recording_state_manager.dart';
 import 'recording_auth_manager.dart';
 import 'recording_drive_sync_manager.dart';
@@ -16,11 +17,30 @@ export 'recording_publishing_manager.dart'
     show PublishRecordingResult;
 
 /// Main controller that coordinates all recording-related managers
+/// Now uses DI pattern with use cases
 class RecordingController extends GetxController {
-  // Services
-  final RecordingService _recordingService = Get.put(RecordingService());
+  // Use cases (injected via DI)
+  final StartRecordingUseCase startRecordingUseCase;
+  final StopRecordingUseCase stopRecordingUseCase;
+  final CancelRecordingUseCase cancelRecordingUseCase;
+  final LoadRecordingsUseCase loadRecordingsUseCase;
+  final SaveRecordingUseCase saveRecordingUseCase;
+  final UpdateRecordingUseCase updateRecordingUseCase;
+  final DeleteRecordingUseCase deleteRecordingUseCase;
+  final GetRecordingByIdUseCase getRecordingByIdUseCase;
+  final LoadPublicRecordingsUseCase loadPublicRecordingsUseCase;
+  final PublishRecordingUseCase publishRecordingUseCase;
+  final UnpublishRecordingUseCase unpublishRecordingUseCase;
+  final ToggleRecordingPrivacyUseCase toggleRecordingPrivacyUseCase;
+  final SearchRecordingsUseCase searchRecordingsUseCase;
+  final GetRecordingsByHymnIdUseCase getRecordingsByHymnIdUseCase;
+  final UploadToGoogleDriveUseCase uploadToGoogleDriveUseCase;
+  final SyncFromDriveUseCase syncFromDriveUseCase;
+  final LoadDeletedRecordingsUseCase loadDeletedRecordingsUseCase;
+  final RestoreRecordingUseCase restoreRecordingUseCase;
+  final PermanentlyDeleteRecordingUseCase permanentlyDeleteRecordingUseCase;
 
-  // Managers
+  // Legacy managers (for backward compatibility)
   late final RecordingStateManager stateManager;
   late final RecordingAuthManager authManager;
   late final RecordingDriveSyncManager syncManager;
@@ -28,6 +48,47 @@ class RecordingController extends GetxController {
   late final RecordingPlaybackManager playbackManager;
   late final RecordingPublishingManager publishingManager;
   late final RecordingFileManager fileManager;
+
+  // Constructor for DI (with optional parameters for backward compatibility)
+  RecordingController({
+    StartRecordingUseCase? startRecordingUseCase,
+    StopRecordingUseCase? stopRecordingUseCase,
+    CancelRecordingUseCase? cancelRecordingUseCase,
+    LoadRecordingsUseCase? loadRecordingsUseCase,
+    SaveRecordingUseCase? saveRecordingUseCase,
+    UpdateRecordingUseCase? updateRecordingUseCase,
+    DeleteRecordingUseCase? deleteRecordingUseCase,
+    GetRecordingByIdUseCase? getRecordingByIdUseCase,
+    LoadPublicRecordingsUseCase? loadPublicRecordingsUseCase,
+    PublishRecordingUseCase? publishRecordingUseCase,
+    UnpublishRecordingUseCase? unpublishRecordingUseCase,
+    ToggleRecordingPrivacyUseCase? toggleRecordingPrivacyUseCase,
+    SearchRecordingsUseCase? searchRecordingsUseCase,
+    GetRecordingsByHymnIdUseCase? getRecordingsByHymnIdUseCase,
+    UploadToGoogleDriveUseCase? uploadToGoogleDriveUseCase,
+    SyncFromDriveUseCase? syncFromDriveUseCase,
+    LoadDeletedRecordingsUseCase? loadDeletedRecordingsUseCase,
+    RestoreRecordingUseCase? restoreRecordingUseCase,
+    PermanentlyDeleteRecordingUseCase? permanentlyDeleteRecordingUseCase,
+  })  : startRecordingUseCase = startRecordingUseCase ?? StartRecordingUseCase(RecordingRepositoryImpl()),
+        stopRecordingUseCase = stopRecordingUseCase ?? StopRecordingUseCase(RecordingRepositoryImpl()),
+        cancelRecordingUseCase = cancelRecordingUseCase ?? CancelRecordingUseCase(RecordingRepositoryImpl()),
+        loadRecordingsUseCase = loadRecordingsUseCase ?? LoadRecordingsUseCase(RecordingRepositoryImpl()),
+        saveRecordingUseCase = saveRecordingUseCase ?? SaveRecordingUseCase(RecordingRepositoryImpl()),
+        updateRecordingUseCase = updateRecordingUseCase ?? UpdateRecordingUseCase(RecordingRepositoryImpl()),
+        deleteRecordingUseCase = deleteRecordingUseCase ?? DeleteRecordingUseCase(RecordingRepositoryImpl()),
+        getRecordingByIdUseCase = getRecordingByIdUseCase ?? GetRecordingByIdUseCase(RecordingRepositoryImpl()),
+        loadPublicRecordingsUseCase = loadPublicRecordingsUseCase ?? LoadPublicRecordingsUseCase(RecordingRepositoryImpl()),
+        publishRecordingUseCase = publishRecordingUseCase ?? PublishRecordingUseCase(RecordingRepositoryImpl()),
+        unpublishRecordingUseCase = unpublishRecordingUseCase ?? UnpublishRecordingUseCase(RecordingRepositoryImpl()),
+        toggleRecordingPrivacyUseCase = toggleRecordingPrivacyUseCase ?? ToggleRecordingPrivacyUseCase(RecordingRepositoryImpl()),
+        searchRecordingsUseCase = searchRecordingsUseCase ?? SearchRecordingsUseCase(RecordingRepositoryImpl()),
+        getRecordingsByHymnIdUseCase = getRecordingsByHymnIdUseCase ?? GetRecordingsByHymnIdUseCase(RecordingRepositoryImpl()),
+        uploadToGoogleDriveUseCase = uploadToGoogleDriveUseCase ?? UploadToGoogleDriveUseCase(RecordingRepositoryImpl()),
+        syncFromDriveUseCase = syncFromDriveUseCase ?? SyncFromDriveUseCase(RecordingRepositoryImpl()),
+        loadDeletedRecordingsUseCase = loadDeletedRecordingsUseCase ?? LoadDeletedRecordingsUseCase(RecordingRepositoryImpl()),
+        restoreRecordingUseCase = restoreRecordingUseCase ?? RestoreRecordingUseCase(RecordingRepositoryImpl()),
+        permanentlyDeleteRecordingUseCase = permanentlyDeleteRecordingUseCase ?? PermanentlyDeleteRecordingUseCase(RecordingRepositoryImpl());
 
   // Delegated properties for backward compatibility
   // Recording state
@@ -79,14 +140,15 @@ class RecordingController extends GetxController {
     });
   }
 
-  @override
+@override
   void onInit() {
     super.onInit();
     _initializeManagers();
+    _loadInitialData();
   }
 
   void _initializeManagers() {
-    // Initialize managers in dependency order
+    // Initialize managers in dependency order (for backward compatibility)
     stateManager = Get.put(RecordingStateManager(), tag: 'recording');
 
     authManager = Get.put(
@@ -94,9 +156,11 @@ class RecordingController extends GetxController {
       tag: 'recording',
     );
 
+    // Note: These managers would need to be updated to use use cases
+    // For now, they're kept for backward compatibility
     syncManager = Get.put(
       RecordingDriveSyncManager(
-        recordingService: _recordingService,
+        recordingService: Get.find(),
         authManager: authManager,
         stateManager: stateManager,
       ),
@@ -105,7 +169,7 @@ class RecordingController extends GetxController {
 
     operationsManager = Get.put(
       RecordingOperationsManager(
-        recordingService: _recordingService,
+        recordingService: Get.find(),
         authManager: authManager,
         stateManager: stateManager,
       ),
@@ -115,14 +179,14 @@ class RecordingController extends GetxController {
     playbackManager = Get.put(
       RecordingPlaybackManager(
         stateManager: stateManager,
-        recordingService: _recordingService,
+        recordingService: Get.find(),
       ),
       tag: 'recording',
     );
 
     publishingManager = Get.put(
       RecordingPublishingManager(
-        recordingService: _recordingService,
+        recordingService: Get.find(),
         authManager: authManager,
         stateManager: stateManager,
       ),
@@ -131,7 +195,7 @@ class RecordingController extends GetxController {
 
     fileManager = Get.put(
       RecordingFileManager(
-        recordingService: _recordingService,
+        recordingService: Get.find(),
         authManager: authManager,
         stateManager: stateManager,
       ),
@@ -139,17 +203,62 @@ class RecordingController extends GetxController {
     );
   }
 
+  Future<void> _loadInitialData() async {
+    try {
+      await Future.wait([
+        loadRecordingsUseCase(),
+        loadPublicRecordingsUseCase(),
+        loadDeletedRecordingsUseCase(),
+      ]);
+    } catch (e) {
+      // Error loading initial data: $e
+    }
+  }
+
   // Delegated methods for backward compatibility
-  // Recording Actions
-  Future<void> startRecording(String hymnId) =>
-      operationsManager.startRecording(hymnId);
+// Recording Actions (using use cases)
+  Future<void> startRecording(String hymnId) async {
+    try {
+      await startRecordingUseCase();
+      // Update state manager for backward compatibility
+      stateManager.isRecording.value = true;
+      stateManager.showOverlay(hymnId, '');
+      stateManager.startTimer();
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to start recording: $e';
+    }
+  }
 
-  Future<UserRecording?> stopRecording(String hymnId, String title) =>
-      operationsManager.stopRecording(hymnId, title);
+  Future<UserRecording?> stopRecording(String hymnId, String title) async {
+    try {
+      final recording = await stopRecordingUseCase();
+      if (recording != null) {
+        final updatedRecording = recording.copyWith(
+          hymnId: hymnId,
+          title: title,
+        );
+        await saveRecordingUseCase(updatedRecording);
+        // Update state manager for backward compatibility
+        stateManager.isRecording.value = false;
+        stateManager.hideOverlay();
+        stateManager.stopTimer();
+        stateManager.resetTimer();
+        return updatedRecording;
+      }
+      return null;
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to stop recording: $e';
+      return null;
+    }
+  }
 
-  Future<void> pauseRecording() => operationsManager.pauseRecording();
+  Future<void> pauseRecording() async {
+    await operationsManager.pauseRecording();
+  }
 
-  Future<void> resumeRecording() => operationsManager.resumeRecording();
+  Future<void> resumeRecording() async {
+    await operationsManager.resumeRecording();
+  }
 
   // Standalone recording methods
   Future<void> startStandaloneRecording() =>
@@ -171,12 +280,24 @@ class RecordingController extends GetxController {
   Future<void> syncFromDrive({bool force = false}) =>
       syncManager.syncFromDrive(force: force);
 
-  // CRUD methods
-  Future<void> updateRecording(UserRecording recording) =>
-      operationsManager.updateRecording(recording);
+// CRUD methods (using use cases)
+  Future<void> updateRecording(UserRecording recording) async {
+    try {
+      await updateRecordingUseCase(recording);
+      await operationsManager.updateRecording(recording); // Keep for backward compatibility
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to update recording: $e';
+    }
+  }
 
-  Future<void> deleteRecording(UserRecording recording) =>
-      operationsManager.deleteRecording(recording);
+  Future<void> deleteRecording(UserRecording recording) async {
+    try {
+      await deleteRecordingUseCase(recording.id);
+      await operationsManager.deleteRecording(recording); // Keep for backward compatibility
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to delete recording: $e';
+    }
+  }
 
   Future<void> deleteRecordingPermanentlyDirect(UserRecording recording) =>
       operationsManager.deleteRecordingPermanentlyDirect(recording);
@@ -200,23 +321,48 @@ class RecordingController extends GetxController {
   Future<void> seekPlayback(Duration position) =>
       playbackManager.seekPlayback(position);
 
-  // Public recording methods
-  Future<List<UserRecording>> loadPublicRecordings({String? hymnId}) =>
-      publishingManager.loadPublicRecordings(hymnId: hymnId);
+// Public recording methods (using use cases)
+  Future<List<UserRecording>> loadPublicRecordings({String? hymnId}) async {
+    try {
+      await loadPublicRecordingsUseCase();
+      return publishingManager.loadPublicRecordings(hymnId: hymnId); // Keep for backward compatibility
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to load public recordings: $e';
+      return [];
+    }
+  }
 
-  Future<void> refreshPublicRecordings({String? hymnId}) =>
-      publishingManager.refreshPublicRecordings(hymnId: hymnId);
+  Future<void> refreshPublicRecordings({String? hymnId}) async {
+    try {
+      await loadPublicRecordingsUseCase();
+      await publishingManager.refreshPublicRecordings(hymnId: hymnId); // Keep for backward compatibility
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to refresh public recordings: $e';
+    }
+  }
 
   Future<PublishRecordingResult> makeRecordingPublic(UserRecording recording,
           {String? customTitle}) =>
       publishingManager.makeRecordingPublic(recording,
           customTitle: customTitle);
 
-  Future<void> publishRecording(UserRecording recording) =>
-      publishingManager.publishRecording(recording);
+  Future<void> publishRecording(UserRecording recording) async {
+    try {
+      await publishRecordingUseCase(recording);
+      await publishingManager.publishRecording(recording); // Keep for backward compatibility
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to publish recording: $e';
+    }
+  }
 
-  Future<void> unpublishRecording(UserRecording recording) =>
-      publishingManager.unpublishRecording(recording);
+  Future<void> unpublishRecording(UserRecording recording) async {
+    try {
+      await unpublishRecordingUseCase(recording.id);
+      await publishingManager.unpublishRecording(recording); // Keep for backward compatibility
+    } catch (e) {
+      stateManager.lastError.value = 'Failed to unpublish recording: $e';
+    }
+  }
 
   // File management methods
   bool isUploadingRecording(String recordingId) =>

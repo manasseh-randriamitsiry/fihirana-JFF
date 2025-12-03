@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
+
 import 'package:fihirana/features/bible/domain/repositories/bible_repository.dart';
 import 'package:fihirana/features/hymn/domain/repositories/hymn_repository.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
@@ -10,6 +10,7 @@ import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/utils/translation_service_interface.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
 import 'package:fihirana/features/admin/di/admin_di.dart';
+import 'package:fihirana/features/recording/di/recording_di.dart';
 
 /// Service locator for dependency injection
 /// This provides a centralized way to manage service instances and their dependencies
@@ -68,10 +69,13 @@ class ServiceLocator {
     // Recording Service
     final recordingService = RecordingService();
     await recordingService.initialize();
-    Get.put<IRecordingService>(recordingService);
+    Get.put<RecordingService>(recordingService);
 
     // Admin Feature
     AdminDI.initialize();
+    
+    // Recording Feature
+    RecordingDI.initialize();
   }
 
   /// Register data services
@@ -147,7 +151,7 @@ class ServiceLocator {
   List<String> getRegisteredServices() {
     try {
       // Return a simple list since getAllDependencies is not available
-      return ['IRecordingService', 'IBibleService', 'ITranslationService', 'IHymnService', 'LocalStorageService'];
+      return ['IRecordingService', 'IBibleService', 'ITranslationService', 'IHymnService', 'LocalStorageService', 'RecordingRepository', 'RecordingController'];
     } catch (e) {
       return [];
     }
@@ -160,7 +164,7 @@ class ServiceLocator {
 /// Extension methods for easy service access
 extension ServiceLocatorExtensions on ServiceLocator {
   /// Get Recording Service
-  IRecordingService get recordingService => getService<IRecordingService>();
+  RecordingService get recordingService => getService<RecordingService>();
   
   /// Get Bible Service
   IBibleService get bibleService => getService<IBibleService>();
@@ -173,6 +177,12 @@ extension ServiceLocatorExtensions on ServiceLocator {
   
   /// Get Storage Service
   LocalStorageService get storageService => getService<LocalStorageService>();
+  
+  /// Get Recording Controller (via DI)
+  dynamic get recordingController => RecordingDI.recordingController;
+  
+  /// Get Recording Repository (via DI)
+  dynamic get recordingRepository => RecordingDI.recordingRepository;
 }
 
 /// Global service locator instance
