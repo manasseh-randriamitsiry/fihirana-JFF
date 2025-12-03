@@ -6,7 +6,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 
 
-import './user_management_screen_clean.dart';
+import './user_management_screen.dart';
 import './super_admin_dashboard.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
@@ -195,7 +195,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
                 controller: _tabController,
                 children: [
                   // Users Tab
-                  const UserManagementScreenClean(),
+                  const UserManagementScreen(),
 
                   // Hymns Tab
                   _buildHymnsList(

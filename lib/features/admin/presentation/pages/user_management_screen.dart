@@ -7,9 +7,8 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_admin_list.dart';
 
-/// Simplified user management screen using clean architecture
-class UserManagementScreenClean extends StatelessWidget {
-  const UserManagementScreenClean({super.key});
+class UserManagementScreen extends StatelessWidget {
+  const UserManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
