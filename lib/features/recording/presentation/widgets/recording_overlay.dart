@@ -11,6 +11,13 @@ import 'recording_save_dialog.dart';
 import 'recording_upload_dialog.dart';
 import 'recording_close_confirmation.dart';
 
+enum RecordingOverlayState {
+  idle,
+  recording,
+  saving,
+  uploading,
+}
+
 class RecordingOverlay extends StatefulWidget {
   final String hymnId;
   final String hymnTitle;
@@ -38,7 +45,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   late AnimationController _pulseController;
   int _countdown = 3;
   bool _isCountingDown = false;
-  bool _showSaveDialog = false;
+  RecordingOverlayState _state = RecordingOverlayState.idle;
   bool _isExpanded = false; // Default to collapsed (FAB)
 
   final TextEditingController _nameController = TextEditingController();
@@ -76,16 +83,16 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     });
   }
 
-void _generateRecordingName() {
+  void _generateRecordingName() {
     if (!mounted) return;
-    
+
     final now = DateTime.now();
     final timestamp =
         '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     _nameController.text = '${widget.hymnTitle} - $timestamp';
   }
 
-@override
+  @override
   void dispose() {
     _countdownController.dispose();
     _pulseController.dispose();
@@ -133,17 +140,9 @@ void _generateRecordingName() {
     if (recording != null) {
       // Store's current recording for later reference
       _currentRecording = recording;
-      setState(() => _showSaveDialog = true);
+      setState(() => _state = RecordingOverlayState.saving);
       if (kDebugMode) {
-        print('RecordingOverlay: Save dialog should show now');
-      }
-
-      if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
-        await Get.dialog(
-          _buildSaveDialog(l10n),
-          barrierDismissible: false,
-        );
+        print('RecordingOverlay: State changed to saving');
       }
     } else {
       if (kDebugMode) {
@@ -160,7 +159,7 @@ void _generateRecordingName() {
     }
   }
 
-void _saveRecording(bool uploadToDrive, bool isPublic) async {
+  void _saveRecording(bool uploadToDrive, bool isPublic) async {
     // Check if controller is still valid before accessing text
     if (!mounted || !_nameController.text.isNotEmpty) {
       Get.snackbar('Error', 'Please enter a name for the recording');
@@ -179,38 +178,47 @@ void _saveRecording(bool uploadToDrive, bool isPublic) async {
       await _controller.renameRecording(_currentRecording!, name);
 
       if (uploadToDrive) {
-        // Close save dialog
-        Get.back();
-        // Show upload progress in dialog
-        _showUploadProgressDialog(_currentRecording!, isPublic: isPublic);
+        // Transition to uploading state
+        setState(() => _state = RecordingOverlayState.uploading);
+        // Start upload
+        _startUpload(_currentRecording!, isPublic: isPublic);
       } else if (isPublic) {
-        // Close save dialog
-        Get.back();
+        // Transition to uploading state (even if just publishing, we show progress)
+        setState(() => _state = RecordingOverlayState.uploading);
         // If marked as public but not uploading to Drive, we need to upload it
-        _showUploadProgressDialog(_currentRecording!, isPublic: true);
+        _startUpload(_currentRecording!, isPublic: true);
       } else {
         // Auto-close overlay when save is complete
         if (mounted) {
-          Get.back();
           _controller.hideOverlay();
           widget.onClose();
         }
       }
     } else {
       // Auto-close overlay even if no recording
-      if (mounted) {
-        Get.back();
-      }
       _controller.hideOverlay();
       widget.onClose();
     }
   }
 
+  void _startUpload(UserRecording recording, {bool isPublic = false}) {
+    // Trigger upload
+    _controller.uploadToDrive(recording).then((_) async {
+      // If marked as public, publish to Firestore after upload
+      if (isPublic) {
+        // Get the updated recording with Drive info
+        final updatedRecording = _controller.recordings
+            .firstWhereOrNull((r) => r.id == recording.id);
+        if (updatedRecording != null) {
+          await _controller.publishRecording(updatedRecording);
+        }
+      }
+    });
+  }
+
   void _toggleExpand() {
     setState(() => _isExpanded = !_isExpanded);
   }
-
-
 
   void _showCloseConfirmation() {
     final l10n = AppLocalizations.of(context)!;
@@ -238,21 +246,42 @@ void _saveRecording(bool uploadToDrive, bool isPublic) async {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
-    // If showing save dialog, hide the overlay UI (FAB/Card)
-    if (_showSaveDialog) {
-      return const SizedBox.shrink();
-    }
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Modal Dimmer (only for saving/uploading)
+        if (_state == RecordingOverlayState.saving ||
+            _state == RecordingOverlayState.uploading)
+          GestureDetector(
+            onTap: () {
+              // Prevent closing by tapping outside for now, or implement specific behavior
+            },
+            child: Container(
+              color: Colors.black54,
+            ),
+          ),
 
-    // Otherwise, position at bottom right
-    return Positioned(
-      bottom: 20,
-      right: 20,
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        alignment: Alignment.bottomRight,
-        child: _isExpanded ? _buildExpandedCard(l10n) : _buildFab(l10n),
-      ),
+        // Content
+        if (_state == RecordingOverlayState.saving)
+          Center(
+            child: _buildSaveDialog(l10n),
+          )
+        else if (_state == RecordingOverlayState.uploading)
+          Center(
+            child: _buildUploadDialog(l10n),
+          )
+        else
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              alignment: Alignment.bottomRight,
+              child: _isExpanded ? _buildExpandedCard(l10n) : _buildFab(l10n),
+            ),
+          ),
+      ],
     );
   }
 
@@ -283,12 +312,6 @@ void _saveRecording(bool uploadToDrive, bool isPublic) async {
     );
   }
 
-
-
-
-
-
-
   Widget _buildSaveDialog(AppLocalizations l10n) {
     return RecordingSaveDialog(
       controller: _controller,
@@ -297,39 +320,22 @@ void _saveRecording(bool uploadToDrive, bool isPublic) async {
       nameController: _nameController,
       onSave: _saveRecording,
       onDiscard: () {
-        Get.back();
         widget.onClose();
       },
     );
   }
 
-  void _showUploadProgressDialog(UserRecording recording,
-      {bool isPublic = false}) {
-    // Trigger upload when dialog is shown
-    _controller.uploadToDrive(recording).then((_) async {
-      // If marked as public, publish to Firestore after upload
-      if (isPublic) {
-        // Get the updated recording with Drive info
-        final updatedRecording = _controller.recordings
-            .firstWhereOrNull((r) => r.id == recording.id);
-        if (updatedRecording != null) {
-          await _controller.publishRecording(updatedRecording);
-        }
-      }
-    });
+  Widget _buildUploadDialog(AppLocalizations l10n) {
+    if (_currentRecording == null) return const SizedBox.shrink();
 
-    // Use Get.dialog instead of showDialog to avoid context issues
-    Get.dialog(
-      RecordingUploadDialog(
-        controller: _controller,
-        colorController: _colorController,
-        recording: recording,
-        onDone: () {
-          Get.back();
-          _controller.hideOverlay();
-          widget.onClose();
-        },
-      ),
+    return RecordingUploadDialog(
+      controller: _controller,
+      colorController: _colorController,
+      recording: _currentRecording!,
+      onDone: () {
+        _controller.hideOverlay();
+        widget.onClose();
+      },
     );
   }
 }
