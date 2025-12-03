@@ -33,12 +33,6 @@ abstract class IHymnService {
   /// Check if hymn is favorite
   Future<bool> isFavorite(String hymnId);
 
-  /// Get recently viewed hymns
-  Future<List<Hymn>> getRecentlyViewed();
-
-  /// Mark hymn as recently viewed
-  Future<void> markAsViewed(String hymnId);
-
   /// Get random hymn
   Future<Hymn?> getRandomHymn();
 

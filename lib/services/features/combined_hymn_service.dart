@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/models/hymn.dart';
 import 'local_hymn_service.dart';
 
@@ -16,7 +15,6 @@ class CombinedHymnService {
   bool _isInitialized = false;
   bool _isInitializing = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
 
 Future<void> initialize() async {
     if (_isInitialized) return;

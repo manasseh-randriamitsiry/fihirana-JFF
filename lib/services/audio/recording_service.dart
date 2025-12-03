@@ -188,7 +188,7 @@ class RecordingService extends GetxService implements IRecordingService {
               }
               final fallbackFileName = 'rec_${DateTime.now().millisecondsSinceEpoch}.wav';
               final fallbackPath = path.join(recordingsDir.path, fallbackFileName);
-              final fallbackConfig = const RecordConfig(encoder: AudioEncoder.wav);
+              const fallbackConfig = RecordConfig(encoder: AudioEncoder.wav);
               
               await _audioRecorder.start(fallbackConfig, path: fallbackPath);
               _isRecording.value = true;

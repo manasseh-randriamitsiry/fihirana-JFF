@@ -31,30 +31,38 @@ class LanguageSelectorWidget extends StatelessWidget {
                   title ?? AppLocalizations.of(context)!.chooseLanguage,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(height: 16),
-                ...translationController.getSupportedLanguages().map(
-                  (languageCode) => RadioListTile<String>(
-                    title: Text(
-                      translationController.getLanguageName(languageCode),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    subtitle: Text(
-                      languageCode.toUpperCase(),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    value: languageCode,
-                    groupValue: selectedLanguage ?? translationController.currentLocale,
-                    onChanged: (value) {
-                      if (value != null) {
-                        onLanguageSelected(value);
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    activeColor: Theme.of(context).primaryColor,
-                  ),
-                ),
+                 const SizedBox(height: 16),
+                 ...translationController.getSupportedLanguages().map(
+                   (languageCode) => RadioMenuButton<String>(
+                     value: languageCode,
+                     groupValue: selectedLanguage ?? translationController.currentLocale,
+                     onChanged: (value) {
+                       if (value != null) {
+                         onLanguageSelected(value);
+                         Navigator.of(context).pop();
+                       }
+                     },
+                     style: ButtonStyle(
+                       backgroundColor: WidgetStateProperty.all(Colors.transparent),
+                       foregroundColor: WidgetStateProperty.all(Theme.of(context).textTheme.bodyLarge?.color),
+                     ),
+                     child: Column(
+                       crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         Text(
+                           translationController.getLanguageName(languageCode),
+                           style: Theme.of(context).textTheme.bodyLarge,
+                         ),
+                         Text(
+                           languageCode.toUpperCase(),
+                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                             color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                           ),
+                         ),
+                       ],
+                     ),
+                   ),
+                 ),
                 const SizedBox(height: 8),
                 if (translationController.isTranslating) ...[
                   const Center(
