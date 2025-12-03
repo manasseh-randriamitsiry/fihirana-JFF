@@ -10,12 +10,12 @@ import 'package:fihirana/features/auth/presentation/controllers/auth_controller.
 
 /// Manages recording CRUD operations
 class RecordingOperationsManager extends GetxController {
-  final IRecordingService _recordingService;
+  final RecordingRepository _recordingService;
   final RecordingAuthManager _authManager;
   final RecordingStateManager _stateManager;
 
-  RecordingOperationsManager({
-    required IRecordingService recordingService,
+RecordingOperationsManager({
+    required RecordingRepository recordingService,
     required RecordingAuthManager authManager,
     required RecordingStateManager stateManager,
   }) : _recordingService = recordingService,

@@ -12,7 +12,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
-import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
+import 'package:fihirana/features/recording/domain/repositories/i_recording_service.dart';
 import 'package:fihirana/features/recording/data/services/audio_config.dart';
 
 class RecordingService extends GetxService implements IRecordingService {
@@ -538,6 +538,7 @@ class RecordingService extends GetxService implements IRecordingService {
     }
   }
 
+  @override
   Future<bool> publishRecording(UserRecording recording) async {
     try {
       await _firestore.collection(_publicCollectionName).doc(recording.id).set({
@@ -575,6 +576,7 @@ class RecordingService extends GetxService implements IRecordingService {
     }
   }
 
+  @override
   Future<bool> unpublishRecording(String recordingId) async {
     try {
       await _firestore
@@ -698,12 +700,21 @@ class RecordingService extends GetxService implements IRecordingService {
     await prefs.setString(_deletedKey, json.encode(jsonList));
   }
 
-  @override
+@override
   Future<void> updateRecording(UserRecording recording) async {
     final index = recordings.indexWhere((r) => r.id == recording.id);
     if (index != -1) {
       recordings[index] = recording;
       await _saveMetadata();
+    }
+  }
+
+  @override
+  Future<void> syncFromDrive({bool force = false}) async {
+    // Implementation for syncing from Drive
+    // This would be implemented in the service layer
+    if (kDebugMode) {
+      print('RecordingService: syncFromDrive called with force: $force');
     }
   }
 
