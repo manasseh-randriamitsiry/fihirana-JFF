@@ -5,17 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
-import '../../controller/color_controller.dart';
-import '../../models/hymn.dart';
-import '../../models/note.dart';
 import 'package:fihirana/services/core/note_service.dart';
 import 'edit_hymn_screen.dart';
 import 'package:fihirana/services/features/hymn_service.dart';
+import 'package:fihirana/services/audio/audio_service.dart';
+import '../../controller/color_controller.dart';
+import '../../models/hymn.dart';
+import '../../models/note.dart';
 import '../../l10n/app_localizations.dart';
 import '../../controller/history_controller.dart';
 import '../../controller/auth_controller.dart';
 import '../../widgets/color_picker_widget.dart';
-import 'package:fihirana/services/audio/audio_service.dart';
 import '../../widgets/success_animation_dialog.dart';
 import '../../widgets/hymn/hymn_search_popup_widget.dart';
 import '../../widgets/player/compact_audio_player_widget.dart';
@@ -764,5 +764,4 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       ),
     );
   }
-
 }

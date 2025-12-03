@@ -95,7 +95,7 @@ class SimpleLanguagePickerDialog extends StatelessWidget {
                               color: colorController.primaryColor.value,
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(
+                            child: const Icon(
                               Icons.check,
                               color: Colors.white,
                               size: 18,

@@ -5,6 +5,9 @@ import '../../models/hymn.dart';
 import '../../models/note.dart';
 import '../../l10n/app_localizations.dart';
 import 'hymn_improved_note_section_widget.dart';
+import 'hymn_hint_section.dart';
+import 'hymn_verses_section.dart';
+import 'hymn_separator.dart';
 
 class HymnPageWidget extends StatelessWidget {
   final Hymn hymn;
@@ -30,9 +33,8 @@ class HymnPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final colorController = Get.find<ColorController>();
-    
+
     return Container(
       key: ValueKey(hymn.id),
       width: double.infinity,
@@ -43,103 +45,24 @@ class HymnPageWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (showHint &&
-                (hymn.hymnHint?.trim().toLowerCase().isNotEmpty ?? false)) ...[
-              if (isUserAuthenticated)
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: colorController.primaryColor.value.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${l10n.createdBy}: ${hymn.createdBy}',
-                        style: TextStyle(
-                          fontSize: fontSize * 0.8,
-                          color: colorController.textColor.value,
-                        ),
-                      ),
-                      if (hymn.createdByEmail != null)
-                        Text(
-                          l10n.emailLabel(hymn.createdByEmail!),
-                          style: TextStyle(
-                            fontSize: fontSize * 0.8,
-                            color: colorController.textColor.value,
-                          ),
-                        ),
-                      Text(
-                        '${l10n.date}: ${DateTime.fromMillisecondsSinceEpoch(hymn.createdAt.millisecondsSinceEpoch).toString().substring(0, 19)}',
-                        style: TextStyle(
-                          fontSize: fontSize * 0.8,
-                          color: colorController.textColor.value,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Text(
-                  hymn.hymnHint ?? '',
-                  style: TextStyle(
-                    fontSize: 2 * fontSize / 3,
-                    color: colorController.textColor.value,
-                  ),
-                ),
-              ),
-            ],
-            for (int i = 0; i < hymn.verses.length; i++) ...[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Positioned.fill(
-                      child: Opacity(
-                        opacity: 0.25,
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            '${i + 1}',
-                            style: TextStyle(
-                              fontSize: countFontSize,
-                              fontWeight: FontWeight.bold,
-                              color: colorController.primaryColor.value,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 30.0),
-                      child: Text(
-                        '${i + 1}. ${hymn.verses[i]}',
-                        style: TextStyle(
-                          fontSize: fontSize,
-                          color: colorController.textColor.value,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            
-            // Add spacing and visual separator between last verse and notes
-            const SizedBox(height: 30),
-            
-            // Visual separator line
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 30),
-              height: 1,
-              color: colorController.textColor.value.withValues(alpha: 0.2),
+            // Hymn hint section
+            HymnHintSection(
+              hymn: hymn,
+              fontSize: fontSize,
+              showHint: showHint,
+              isUserAuthenticated: isUserAuthenticated,
             ),
-            
-            const SizedBox(height: 20),
-            
+
+            // Verses section
+            HymnVersesSection(
+              hymn: hymn,
+              fontSize: fontSize,
+              countFontSize: countFontSize,
+            ),
+
+            // Visual separator
+            const HymnSeparator(),
+
             // Improved note section at the end
             ImprovedNoteSectionWidget(
               isUserAuthenticated: isUserAuthenticated,
@@ -158,7 +81,7 @@ class HymnPageWidget extends StatelessWidget {
               )),
               fontSize: fontSize,
             ),
-            
+
             SizedBox(
               height: MediaQuery.of(context).size.height / 3,
             ),

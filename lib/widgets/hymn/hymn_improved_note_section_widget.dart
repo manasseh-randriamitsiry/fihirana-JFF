@@ -414,9 +414,9 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
         ),
         child: Container(
           padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.transparent,
-            borderRadius: const BorderRadius.only(
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16),
               topRight: Radius.circular(16),
             ),

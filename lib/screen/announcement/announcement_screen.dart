@@ -10,7 +10,6 @@ import '../../controller/shell_controller.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/context_aware_fab.dart';
 import '../../widgets/announcement/announcement_widgets.dart';
-import '../../widgets/announcement/announcement_form_widget.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   const AnnouncementScreen({super.key});
