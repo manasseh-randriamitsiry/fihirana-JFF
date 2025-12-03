@@ -5,6 +5,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
 import 'package:fihirana/features/hymn/domain/repositories/hymn_repository.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
+import 'package:flutter/foundation.dart';
 import 'combined_hymn_service.dart';
 import 'package:fihirana/features/hymn/data/services/favorites_service.dart';
 import 'package:fihirana/features/hymn/data/services/firebase_hymn_service.dart';
@@ -262,7 +263,9 @@ class HymnService implements IHymnService {
             importedHymns.add(hymn);
           } catch (e) {
             // Skip invalid hymn data but continue with others
-            print('Warning: Failed to parse hymn data: $e');
+            if (kDebugMode) {
+              print('Warning: Failed to parse hymn data: $e');
+            }
             continue;
           }
         }
@@ -291,10 +294,14 @@ class HymnService implements IHymnService {
         }
       } catch (e) {
         // Firebase import is optional, don't fail the whole operation
-        print('Warning: Failed to import to Firebase: $e');
+        if (kDebugMode) {
+          print('Warning: Failed to import to Firebase: $e');
+        }
       }
 
-      print('Successfully imported ${importedHymns.length} hymns');
+      if (kDebugMode) {
+        print('Successfully imported ${importedHymns.length} hymns');
+      }
     } catch (e) {
       throw Exception('Failed to import hymns: $e');
     }
