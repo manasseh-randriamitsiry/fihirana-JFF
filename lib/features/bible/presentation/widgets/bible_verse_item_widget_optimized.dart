@@ -25,9 +25,12 @@ class BibleVerseItemWidget extends StatelessWidget {
         final isSelected = controller.isVerseSelected(verseNumber);
         final isHighlighted = controller.isVerseHighlighted(verseNumber);
         final isSearchHighlighted = controller.isVerseSearchHighlighted(verseNumber);
+        final isTargetVerse = verseNumber == controller.highlightedVerse.value;
 
         Color backgroundColor = Colors.transparent;
-        if (isSearchHighlighted) {
+        if (isTargetVerse) {
+          backgroundColor = Colors.orange.withValues(alpha: 0.4);
+        } else if (isSearchHighlighted) {
           backgroundColor = Colors.yellow.withValues(alpha: 0.3);
         } else if (isHighlighted) {
           backgroundColor = Colors.blue.withValues(alpha: 0.2);
@@ -53,8 +56,14 @@ class BibleVerseItemWidget extends StatelessWidget {
                 Text(
                   '$verseNumber.',
                   style: TextStyle(
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    color: colorController.primaryColor.value,
+                    fontWeight: isTargetVerse
+                        ? FontWeight.bold
+                        : isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                    color: isTargetVerse
+                        ? Colors.orange
+                        : colorController.primaryColor.value,
                     fontSize: 14,
                   ),
                 ),
@@ -65,10 +74,16 @@ class BibleVerseItemWidget extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       height: 1.5,
-                      fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
-                      color: isSelected
-                          ? colorController.primaryColor.value
-                          : colorController.textColor.value,
+                      fontWeight: isTargetVerse
+                          ? FontWeight.w600
+                          : isSelected
+                              ? FontWeight.w500
+                              : FontWeight.normal,
+                      color: isTargetVerse
+                          ? Colors.orange.shade800
+                          : isSelected
+                              ? colorController.primaryColor.value
+                              : colorController.textColor.value,
                     ),
                   ),
                 ),

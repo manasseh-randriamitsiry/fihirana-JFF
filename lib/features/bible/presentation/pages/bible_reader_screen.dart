@@ -209,7 +209,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return BibleChapterGridWidget(
       chapters: chapters,
-      onChapterSelected: (chapter) => bibleController.selectChapter(chapter),
+      onChapterSelected: (chapter) {
+        // Clear highlighted verse when selecting different chapter
+        bibleController.highlightedVerse.value = 0;
+        bibleController.selectChapter(chapter);
+      },
     );
   }
 
@@ -256,8 +260,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                           bibleController.isVerseHighlighted(verseNumber),
                       isSearchHighlighted:
                           bibleController.isVerseSearchHighlighted(verseNumber),
-                      onTap: () =>
-                          bibleController.toggleVerseSelection(verseNumber),
+                       onTap: () {
+                         // Clear the highlighted verse when user interacts
+                         bibleController.highlightedVerse.value = 0;
+                         bibleController.toggleVerseSelection(verseNumber);
+                       },
                     );
                   },
                 );
@@ -364,6 +371,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         .getChapterCountForBook(bibleController.selectedBook);
 
     if (newChapter >= 1 && newChapter <= maxChapters) {
+      // Clear highlighted verse when navigating to different chapter
+      bibleController.highlightedVerse.value = 0;
       bibleController.selectChapter(newChapter);
     }
   }
@@ -397,8 +406,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           curve: Curves.easeInOut,
         );
 
-        // Clear the highlighted verse after scrolling to prevent repeated scrolls
-        Future.delayed(const Duration(milliseconds: 600), () {
+        // Clear the highlighted verse after a longer delay to let user see the target verse
+        Future.delayed(const Duration(seconds: 10), () {
           if (mounted) {
             bibleController.highlightedVerse.value = 0;
           }
