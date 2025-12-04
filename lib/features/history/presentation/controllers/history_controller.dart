@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
@@ -131,9 +132,18 @@ class HistoryController extends GetxController {
 
   Future<void> addToHistory(String hymnId, String title, String number) async {
     try {
+      if (kDebugMode) {
+        print('HistoryController: Adding to history - $title ($number)');
+      }
       await _addToHistoryUseCase(hymnId, title, number);
       await loadUserHistory();
+      if (kDebugMode) {
+        print('HistoryController: Successfully added to history');
+      }
     } catch (e) {
+      if (kDebugMode) {
+        print('HistoryController: Error adding to history: $e');
+      }
       ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }

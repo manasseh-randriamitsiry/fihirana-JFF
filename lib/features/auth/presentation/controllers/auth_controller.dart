@@ -46,6 +46,7 @@ class AuthController extends GetxController {
   bool get isAdmin => _isAdmin.value;
   bool get isSuperAdmin => _isSuperAdmin.value;
   int get addedHymnsCount => _addedHymnsCount.value;
+  bool get isAuthenticated => _auth.currentUser != null;
 
   int get effectiveMonthlyHymnCount {
     final currentMonth = DateTime.now().toString().substring(0, 7); // YYYY-MM
