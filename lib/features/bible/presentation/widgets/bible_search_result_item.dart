@@ -31,8 +31,7 @@ class BibleSearchResultItem extends StatelessWidget {
       child: InkWell(
         onTap: () {
           Navigator.of(context).pop();
-          bibleController.navigateToSearchResult(result,
-              highlightVerse: result.verse);
+          bibleController.navigateToSearchResult(result);
         },
         borderRadius: BorderRadius.circular(12),
         child: Padding(

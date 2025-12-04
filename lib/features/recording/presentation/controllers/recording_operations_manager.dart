@@ -236,8 +236,8 @@ RecordingOperationsManager({
       );
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to rename recording: $e',
+        'errorTitle'.tr,
+        'errorRestoringRecording'.trParams({'error': e.toString()}),
         backgroundColor: Colors.red.withValues(alpha: 0.8),
         colorText: Colors.white,
       );

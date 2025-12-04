@@ -47,7 +47,7 @@ class ErrorHandler {
 
   /// Log error to console and error reporting service
   static void _logError(dynamic error, String? message) {
-    final errorMessage = message ?? 'An error occurred';
+    final errorMessage = message ?? 'An error occurred'; // TODO: localize
     if (kDebugMode) {
       print('❌ $errorMessage: $error');
       print('Stack trace: ${StackTrace.current}');
@@ -72,7 +72,7 @@ class ErrorHandler {
   static void _showErrorSnackbar(dynamic error, String? message) {
     final errorMessage = _getErrorMessage(error, message);
     Get.snackbar(
-      'Error',
+      'Error', // TODO: localize
       errorMessage,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.red.shade100,
@@ -98,21 +98,21 @@ class ErrorHandler {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(title ?? 'Error'),
+         title: Text(title ?? 'Error'), // TODO: localize
         content: Text(errorMessage),
         actions: [
           if (onRetry != null)
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                onRetry();
-              },
-              child: const Text('Retry'),
-            ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
+             TextButton(
+               onPressed: () {
+                 Navigator.of(context).pop();
+                 onRetry();
+               },
+               child: const Text('Retry'), // TODO: localize
+             ),
+           TextButton(
+             onPressed: () => Navigator.of(context).pop(),
+             child: const Text('OK'), // TODO: localize
+           ),
         ],
       ),
     );

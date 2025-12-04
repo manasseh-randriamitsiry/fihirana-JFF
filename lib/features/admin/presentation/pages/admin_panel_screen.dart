@@ -147,11 +147,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             ),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
-              onPressed: () => Get.to(() => const SuperAdminDashboard()),
-              tooltip: 'Super Admin Dashboard',
-            ),
+             IconButton(
+               icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
+               onPressed: () => Get.to(() => const SuperAdminDashboard()),
+               tooltip: l10n.superAdminDashboard,
+             ),
             if (_tabController.index == 1 && selectedHymns.isNotEmpty)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
@@ -167,7 +167,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             tabs: [
               Tab(text: l10n.userManagement), // Reuse string or add "Users"
               Tab(text: l10n.hymns), // Reuse string or add "Hymns"
-              const Tab(text: 'Deleted Recordings'),
+               Tab(text: l10n.deletedRecordings),
             ],
           ),
         ),
@@ -235,6 +235,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         }
 
         return ListView.builder(
+          key: const PageStorageKey('admin_panel_hymns_list'),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           itemCount: hymns.length,
           itemBuilder: (context, index) {
@@ -242,6 +243,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             final isSelected = selectedHymns.contains(hymn.id);
 
             return AdminHymnListItemWidget(
+              key: ValueKey(hymn.id),
               hymn: hymn,
               isSelected: isSelected,
               primaryColor: primaryColor,

@@ -45,7 +45,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      Get.snackbar('Error', 'Failed to load configuration: $e');
+      if (mounted) {
+        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.failedToLoadConfiguration(e.toString()));
+      }
     }
   }
 
@@ -82,9 +84,13 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
       await AdminControlService.setAdminConfig(updatedConfig);
       await _loadConfig(); // Reload to confirm
-      Get.snackbar('Success', 'Configuration updated successfully');
+      if (mounted) {
+        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.configurationUpdatedSuccessfully);
+      }
     } catch (e) {
-      Get.snackbar('Error', 'Failed to save configuration: $e');
+      if (mounted) {
+        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.failedToSaveConfiguration(e.toString()));
+      }
     } finally {
       setState(() => _isSaving = false);
     }
@@ -256,14 +262,14 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  config.emergencyMode
-                      ? 'Emergency Mode Active'
-                      : config.updatesEnabled
-                          ? 'Updates Enabled'
-                          : 'Updates Disabled',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                 Text(
+                   config.emergencyMode
+                       ? AppLocalizations.of(context)!.emergencyModeActive
+                       : config.updatesEnabled
+                           ? AppLocalizations.of(context)!.updatesEnabled
+                           : AppLocalizations.of(context)!.updatesDisabled,
+                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                 ),
               ],
             ),
             const SizedBox(height: 12),
@@ -279,12 +285,12 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   children: [
                     const Icon(Icons.message, color: Colors.blue),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Admin Message: ${config.adminMessage}',
-                        style: const TextStyle(color: Colors.blue),
-                      ),
-                    ),
+                       Expanded(
+                         child: Text(
+                           AppLocalizations.of(context)!.adminMessageLabel(config.adminMessage!),
+                           style: const TextStyle(color: Colors.blue),
+                         ),
+                       ),
                   ],
                 ),
               ),
@@ -301,12 +307,12 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   children: [
                     const Icon(Icons.block, color: Colors.red),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Blocked Version: ${config.blockedVersion}',
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
+                     Expanded(
+                       child: Text(
+                         AppLocalizations.of(context)!.blockedVersionLabel(config.blockedVersion!),
+                         style: const TextStyle(color: Colors.red),
+                       ),
+                     ),
                   ],
                 ),
               ),
@@ -323,10 +329,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Quick Actions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+             Text(
+               AppLocalizations.of(context)!.quickActions,
+               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+             ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -376,10 +382,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Configuration',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+             Text(
+               AppLocalizations.of(context)!.configuration,
+               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+             ),
             const SizedBox(height: 16),
 
             // Toggle Switches

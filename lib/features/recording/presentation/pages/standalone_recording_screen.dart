@@ -12,6 +12,7 @@ import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class StandaloneRecordingScreen extends StatefulWidget {
   const StandaloneRecordingScreen({super.key});
@@ -343,7 +344,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
               // Search bar for hymns
               if (_showHymnList)
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(AppDimensions.md),
                   child: HymnSearchField(
                     controller: _hymnController.safeSearchController,
                     defaultTextStyle: defaultTextStyle,
@@ -467,7 +468,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          key: const PageStorageKey('standalone_recordings_hymns_list'),
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
           itemCount: hymns.length,
           itemBuilder: (context, index) {
             final hymn = hymns[index];

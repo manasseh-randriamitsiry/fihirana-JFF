@@ -10,6 +10,7 @@ import 'package:fihirana/features/hymn/presentation/pages/hymn_detail_screen.dar
 import 'package:fihirana/features/favorites/presentation/widgets/favorites_search_bar.dart';
 import 'package:fihirana/features/favorites/presentation/widgets/favorite_hymn_card.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -186,9 +187,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     );
                   }
 
-                  return ListView.builder(
+                   return ListView.builder(
+                    key: const PageStorageKey('favorites_list'),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8),
+                        horizontal: AppDimensions.md, vertical: AppDimensions.sm),
                     itemCount: filteredHymns.length,
                     itemBuilder: (context, index) {
                       final hymn = filteredHymns[index];
@@ -209,6 +211,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                               _audioService.isHymnPlaying(hymn.id);
 
                           return FavoriteHymnCard(
+                            key: ValueKey(hymn.id),
                             hymn: hymn,
                             hasAudio: _audioAvailability[hymn.id] == true,
                             isPlaying: isPlaying,

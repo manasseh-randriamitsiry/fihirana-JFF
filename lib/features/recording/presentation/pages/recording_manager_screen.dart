@@ -12,6 +12,7 @@ import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'standalone_recording_screen.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class RecordingManagerScreen extends StatefulWidget {
   const RecordingManagerScreen({super.key});
@@ -241,7 +242,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ColorController>(
-      builder: (colorController) => Obx(() {
+      builder: (colorController) {
         final textColor = colorController.textColor.value;
         final backgroundColor = colorController.backgroundColor.value;
         final iconColor = colorController.iconColor.value;
@@ -303,7 +304,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             children: [
               // Search bar
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(AppDimensions.md),
                 child: HymnSearchField(
                   controller: _searchController,
                   defaultTextStyle: defaultTextStyle,
@@ -321,7 +322,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
 
               // Filter chips
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -345,7 +346,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
               // Results count
               if (_searchQuery.value.isNotEmpty || _filterOption.value != 'all')
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
                   child: Obx(() {
                     final filteredRecordings = _getFilteredRecordings();
                     return Text(
@@ -362,121 +363,126 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
 
               // Recordings list
               Expanded(
-                child: Obx(() {
-                  // Security check - prevent banned users from accessing recordings
-                  final SecurityService securityService =
-                      SecurityService.instance;
-                  if (securityService.isSecurityChecked &&
-                      securityService.isUserBlocked) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.block,
-                            size: 80,
-                            color: Colors.red.withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Access Restricted',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                child: Builder(
+                  builder: (context) {
+                    // Security check - prevent banned users from accessing recordings
+                    final SecurityService securityService =
+                        SecurityService.instance;
+                    if (securityService.isSecurityChecked &&
+                        securityService.isUserBlocked) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.block,
+                              size: 80,
+                              color: Colors.red.withValues(alpha: 0.5),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Your account has been restricted from recording features.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.red.withValues(alpha: 0.7),
-                              fontSize: 16,
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Access Restricted',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: Colors.red.withValues(alpha: 0.3)),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Your account has been restricted from recording features.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.red.withValues(alpha: 0.7),
+                                fontSize: 16,
+                              ),
                             ),
-                            child: Column(
-                              children: [
-                                const Icon(Icons.warning_amber,
-                                    color: Colors.orange, size: 24),
-                                const SizedBox(height: 8),
-                                Text(
-                                  securityService.blockReason.isNotEmpty
-                                      ? securityService.blockReason
-                                      : 'Account suspended',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
+                            const SizedBox(height: 16),
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: Colors.red.withValues(alpha: 0.3)),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.warning_amber,
+                                      color: Colors.orange, size: 24),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    securityService.blockReason.isNotEmpty
+                                        ? securityService.blockReason
+                                        : 'Account suspended',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
+                          ],
+                        ),
+                      );
+                    }
+
+                    return Obx(() {
+                      final filteredRecordings = _getFilteredRecordings();
+
+                      if (filteredRecordings.isEmpty) {
+                        return EmptyStateWidget(
+                          message: _searchQuery.value.isNotEmpty
+                              ? 'No recordings found'
+                              : 'No recordings yet',
+                          icon: _searchQuery.value.isNotEmpty
+                              ? Icons.search_off
+                              : Icons.mic_off_rounded,
+                          actionLabel: _searchQuery.value.isNotEmpty
+                              ? 'Clear Search'
+                              : 'Start Recording',
+                          onActionPressed: () {
+                            if (_searchQuery.value.isNotEmpty) {
+                              _searchController.clear();
+                              _searchQuery.value = '';
+                              setState(() {});
+                            } else {
+                              Get.to(() => const StandaloneRecordingScreen());
+                            }
+                          },
+                        );
+                      }
+
+                      return ListView.builder(
+                        key: const PageStorageKey('recordings_list'),
+                        padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+                        itemCount: filteredRecordings.length,
+                        itemBuilder: (context, index) {
+                          final recording = filteredRecordings[index];
+                          final isPublic = recording.isPublic;
+
+                          return RecordingTileWidget(
+                            key: ValueKey(recording.id),
+                            recording: recording,
+                            index: index,
+                            isPublic: isPublic,
+                          )
+                              .animate()
+                              .fadeIn(
+                                  duration: 400.ms,
+                                  delay: (50 * index).clamp(0, 500).ms)
+                              .slideY(
+                                  begin: 0.2,
+                                  end: 0,
+                                  curve: Curves.easeOutQuad,
+                                  duration: 400.ms);
+                        },
+                      );
+                    });
                   }
-
-                  final filteredRecordings = _getFilteredRecordings();
-
-                  if (filteredRecordings.isEmpty) {
-                    return EmptyStateWidget(
-                      message: _searchQuery.value.isNotEmpty
-                          ? 'No recordings found'
-                          : 'No recordings yet',
-                      icon: _searchQuery.value.isNotEmpty
-                          ? Icons.search_off
-                          : Icons.mic_off_rounded,
-                      actionLabel: _searchQuery.value.isNotEmpty
-                          ? 'Clear Search'
-                          : 'Start Recording',
-                      onActionPressed: () {
-                        if (_searchQuery.value.isNotEmpty) {
-                          _searchController.clear();
-                          _searchQuery.value = '';
-                          setState(() {});
-                        } else {
-                          Get.to(() => const StandaloneRecordingScreen());
-                        }
-                      },
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    itemCount: filteredRecordings.length,
-                    itemBuilder: (context, index) {
-                      final recording = filteredRecordings[index];
-                      final isPublic = recording.isPublic;
-
-                      return RecordingTileWidget(
-                        key: ValueKey(recording.id),
-                        recording: recording,
-                        index: index,
-                        isPublic: isPublic,
-                      )
-                          .animate()
-                          .fadeIn(
-                              duration: 400.ms,
-                              delay: (50 * index).clamp(0, 500).ms)
-                          .slideY(
-                              begin: 0.2,
-                              end: 0,
-                              curve: Curves.easeOutQuad,
-                              duration: 400.ms);
-                    },
-                  );
-                }),
+                ),
               ),
             ],
           ),
@@ -487,7 +493,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             },
           ),
         );
-      }),
+      }
     );
   }
 

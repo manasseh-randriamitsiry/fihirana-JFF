@@ -51,7 +51,7 @@ class PlaylistDetailScreen extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.share),
-                onPressed: () => playlistController.sharePlaylist(playlist),
+                onPressed: () => playlistController.sharePlaylist(playlist.id),
               ),
             ],
           ),
@@ -105,11 +105,13 @@ class PlaylistDetailScreen extends StatelessWidget {
                           final hymns = snapshot.data ?? [];
 
                           return ListView.builder(
+                            key: const PageStorageKey('playlist_hymns_list'),
                             padding: const EdgeInsets.all(16),
                             itemCount: hymns.length,
                             itemBuilder: (context, index) {
                               final hymn = hymns[index];
                               return PlaylistHymnItem(
+                                key: ValueKey(hymn.id),
                                 hymn: hymn,
                                 index: index,
                                 onTap: () {

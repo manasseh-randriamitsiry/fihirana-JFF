@@ -3550,7 +3550,7 @@ abstract class AppLocalizations {
   /// No description provided for @emergencyModeActive.
   ///
   /// In en, this message translates to:
-  /// **'EMERGENCY MODE ACTIVE'**
+  /// **'Emergency Mode Active'**
   String get emergencyModeActive;
 
   /// No description provided for @allUpdatesDisabled.
@@ -3592,13 +3592,13 @@ abstract class AppLocalizations {
   /// No description provided for @updatesEnabled.
   ///
   /// In en, this message translates to:
-  /// **'Updates are enabled'**
+  /// **'Updates Enabled'**
   String get updatesEnabled;
 
   /// No description provided for @updatesDisabled.
   ///
   /// In en, this message translates to:
-  /// **'Updates are disabled'**
+  /// **'Updates Disabled'**
   String get updatesDisabled;
 
   /// No description provided for @versionBlocked.
@@ -4032,6 +4032,324 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recording was not saved'**
   String get recordingNotSaved;
+
+  /// No description provided for @superAdminDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Super Admin Dashboard'**
+  String get superAdminDashboard;
+
+  /// No description provided for @deletedRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted Recordings'**
+  String get deletedRecordings;
+
+  /// No description provided for @searchUsersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search users...'**
+  String get searchUsersHint;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found'**
+  String get noUsersFound;
+
+  /// No description provided for @revokeAdminAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Admin Access'**
+  String get revokeAdminAccess;
+
+  /// No description provided for @grantAdminAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant Admin Access'**
+  String get grantAdminAccess;
+
+  /// No description provided for @confirmRevokeAdminAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to revoke admin access from {displayName}?'**
+  String confirmRevokeAdminAccess(String displayName);
+
+  /// No description provided for @confirmGrantAdminAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to grant admin access to {displayName}?'**
+  String confirmGrantAdminAccess(String displayName);
+
+  /// No description provided for @adminAccessRevoked.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin access revoked'**
+  String get adminAccessRevoked;
+
+  /// No description provided for @adminAccessGranted.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin access granted'**
+  String get adminAccessGranted;
+
+  /// No description provided for @unblockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Unblock User'**
+  String get unblockUser;
+
+  /// No description provided for @blockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Block User'**
+  String get blockUser;
+
+  /// No description provided for @confirmUnblockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to unblock {displayName}?'**
+  String confirmUnblockUser(String displayName);
+
+  /// No description provided for @confirmBlockUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to block {displayName}?'**
+  String confirmBlockUser(String displayName);
+
+  /// No description provided for @userUnblocked.
+  ///
+  /// In en, this message translates to:
+  /// **'User unblocked'**
+  String get userUnblocked;
+
+  /// No description provided for @userBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'User blocked'**
+  String get userBlocked;
+
+  /// No description provided for @confirmDeleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete {displayName}? This action cannot be undone.'**
+  String confirmDeleteUser(String displayName);
+
+  /// No description provided for @userDeletedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'User deleted successfully'**
+  String get userDeletedSuccessfully;
+
+  /// No description provided for @admin.
+  ///
+  /// In en, this message translates to:
+  /// **'ADMIN'**
+  String get admin;
+
+  /// No description provided for @blocked.
+  ///
+  /// In en, this message translates to:
+  /// **'BLOCKED'**
+  String get blocked;
+
+  /// No description provided for @lastLoginWithDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Last login: {lastLogin}'**
+  String lastLoginWithDate(String lastLogin);
+
+  /// No description provided for @revokeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Revoke Admin'**
+  String get revokeAdmin;
+
+  /// No description provided for @makeAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Admin'**
+  String get makeAdmin;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String daysAgo(int count);
+
+  /// No description provided for @hoursAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} hours ago'**
+  String hoursAgo(int count);
+
+  /// No description provided for @minutesAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} minutes ago'**
+  String minutesAgo(int count);
+
+  /// No description provided for @justNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Just now'**
+  String get justNow;
+
+  /// No description provided for @never.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get never;
+
+  /// No description provided for @users.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get users;
+
+  /// No description provided for @activeUsersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} active'**
+  String activeUsersCount(int count);
+
+  /// No description provided for @totalAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Total added'**
+  String get totalAdded;
+
+  /// No description provided for @installs.
+  ///
+  /// In en, this message translates to:
+  /// **'Installs'**
+  String get installs;
+
+  /// No description provided for @allTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get allTime;
+
+  /// No description provided for @failedToLoadDeletedRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load deleted recordings: {error}'**
+  String failedToLoadDeletedRecordings(String error);
+
+  /// No description provided for @deletedRecordingsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} deleted recordings'**
+  String deletedRecordingsCount(int count);
+
+  /// No description provided for @noDeletedRecordingsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No deleted recordings found'**
+  String get noDeletedRecordingsFound;
+
+  /// No description provided for @noDeletedRecordings.
+  ///
+  /// In en, this message translates to:
+  /// **'No deleted recordings'**
+  String get noDeletedRecordings;
+
+  /// No description provided for @tryAdjustingSearchTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Try adjusting your search terms'**
+  String get tryAdjustingSearchTerms;
+
+  /// No description provided for @deletedRecordingsWillAppearHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted recordings will appear here'**
+  String get deletedRecordingsWillAppearHere;
+
+  /// No description provided for @failedToLoadDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load dashboard: {error}'**
+  String failedToLoadDashboard(String error);
+
+  /// No description provided for @refreshDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh Dashboard'**
+  String get refreshDashboard;
+
+  /// No description provided for @failedToLoadConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load configuration: {error}'**
+  String failedToLoadConfiguration(String error);
+
+  /// No description provided for @configurationUpdatedSuccessfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration updated successfully'**
+  String get configurationUpdatedSuccessfully;
+
+  /// No description provided for @failedToSaveConfiguration.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save configuration: {error}'**
+  String failedToSaveConfiguration(String error);
+
+  /// No description provided for @adminMessageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Message: {adminMessage}'**
+  String adminMessageLabel(String adminMessage);
+
+  /// No description provided for @blockedVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked Version: {blockedVersion}'**
+  String blockedVersionLabel(String blockedVersion);
+
+  /// No description provided for @configuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Configuration'**
+  String get configuration;
+
+  /// No description provided for @anErrorOccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred'**
+  String get anErrorOccurred;
+
+  /// No description provided for @networkConnectionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Network connection error. Please check your internet connection.'**
+  String get networkConnectionError;
+
+  /// No description provided for @requestTimedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Request timed out. Please try again.'**
+  String get requestTimedOut;
+
+  /// No description provided for @resourceNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Resource not found. Please try again later.'**
+  String get resourceNotFound;
+
+  /// No description provided for @somethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get somethingWentWrong;
+
+  /// No description provided for @widgetErrorBoundaryCaughtError.
+  ///
+  /// In en, this message translates to:
+  /// **'Widget error boundary caught error'**
+  String get widgetErrorBoundaryCaughtError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

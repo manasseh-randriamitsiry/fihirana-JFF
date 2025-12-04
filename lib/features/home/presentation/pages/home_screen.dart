@@ -80,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class HomeController extends GetxController {
-  var selectedIndex = 0.obs;
+  final RxInt selectedIndex = 0.obs;
   final zoomDrawerController = ZoomDrawerController();
 
   void toggleDrawer() {

@@ -93,6 +93,7 @@ title: Text(
                     ),
                   )
                 : ListView.builder(
+                    key: const PageStorageKey('history_list'),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     itemCount: historyController.userHistory.length,
@@ -101,6 +102,7 @@ title: Text(
                        final isSelected = historyController.selectedItems.contains(history['id']);
 
                        return HistoryItemCard(
+                         key: ValueKey(history['id']),
                          history: history,
                          index: index,
                          isSelected: isSelected,

@@ -16,6 +16,7 @@ import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/shared/widgets/navigation/responsive_shell.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/features/intro/di/intro_di.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 
 
@@ -141,8 +142,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ? _themeManager.getDarkTheme(currentFont)
           : _themeManager.getLightTheme(currentFont);
 
-      return GetMaterialApp(
-        debugShowCheckedModeBanner: false,
+      return ErrorHandler.withErrorBoundary(
+        GetMaterialApp(
+          debugShowCheckedModeBanner: false,
         locale: currentLocale,
         localizationsDelegates: const [
           AppLocalizations.delegate,
@@ -161,6 +163,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         initialRoute: initialRoute,
         routingCallback: _handleRoutingCallback,
         getPages: AppRouter.getPages(),
+        ),
       );
     });
   }

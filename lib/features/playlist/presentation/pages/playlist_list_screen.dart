@@ -86,14 +86,16 @@ title: Text(
         }
 
         return ListView.builder(
+          key: const PageStorageKey('playlists_list'),
           padding: const EdgeInsets.all(16),
           itemCount: playlistController.playlists.length,
           itemBuilder: (context, index) {
             final playlist = playlistController.playlists[index];
             return PlaylistItemCard(
+              key: ValueKey(playlist.id),
               playlist: playlist,
               onTap: () => Get.to(() => PlaylistDetailScreen(playlistId: playlist.id)),
-              onShare: () => playlistController.sharePlaylist(playlist),
+              onShare: () => playlistController.sharePlaylist(playlist.id),
               onDelete: () => _confirmDelete(context, playlist),
             );
           },

@@ -42,7 +42,9 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
       });
     } catch (e) {
       setState(() => _isLoading = false);
-      Get.snackbar('Error', 'Failed to load dashboard: $e');
+      if (mounted) {
+        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.failedToLoadDashboard(e.toString()));
+      }
     }
   }
 
@@ -193,7 +195,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: _loadDashboardData,
-                  tooltip: 'Refresh Dashboard',
+                   tooltip: AppLocalizations.of(context)!.refreshDashboard,
                 ),
               ],
             ),

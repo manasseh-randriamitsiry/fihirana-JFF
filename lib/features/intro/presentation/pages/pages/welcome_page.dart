@@ -6,6 +6,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/intro/presentation/widgets/splash_widgets.dart';
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -79,7 +80,7 @@ class WelcomePage extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
               child: Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 600),

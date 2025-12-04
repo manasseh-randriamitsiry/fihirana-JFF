@@ -110,10 +110,12 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                           ),
                         )
                       : ListView.builder(
+                          key: const PageStorageKey('hymn_search_list'),
                           itemCount: _hymns.length,
                           itemBuilder: (context, index) {
                             final hymn = _hymns[index];
                             return ListTile(
+                              key: ValueKey(hymn.id),
                               title: Text(
                                 '${hymn.hymnNumber} - ${hymn.title}',
                                 style: TextStyle(

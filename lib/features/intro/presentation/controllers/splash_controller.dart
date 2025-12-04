@@ -8,6 +8,7 @@ import 'language_selection_controller.dart';
 import 'user_agreement_controller.dart';
 import 'onboarding_auth_controller.dart';
 import 'username_input_controller.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 class SplashController extends GetxController {
   static SplashController get to => Get.find();
@@ -86,13 +87,7 @@ class SplashController extends GetxController {
         print('✅ Splash: Saved username to SharedPreferences: $username');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Name not saved',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      ErrorHandler.handleError(e, message: 'nameNotSaved'.tr);
     }
   }
 

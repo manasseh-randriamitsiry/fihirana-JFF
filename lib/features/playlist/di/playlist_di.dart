@@ -8,10 +8,10 @@ class PlaylistDI {
   /// Initialize playlist dependencies
   static void initialize() {
     // Controller
-    Get.lazyPut<PlaylistController>(
-      () => PlaylistController(),
-      tag: _playlistControllerTag,
-    );
+    // Get.lazyPut<PlaylistController>(
+    //   () => PlaylistController(),
+    //   tag: _playlistControllerTag,
+    // );
   }
 
   /// Get playlist controller

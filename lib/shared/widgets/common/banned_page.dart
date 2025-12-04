@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fihirana/core/security/security_service.dart';
 
 import 'localization_extension.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class BannedPage extends StatelessWidget {
   const BannedPage({super.key});
@@ -26,7 +27,7 @@ class BannedPage extends StatelessWidget {
         child: SafeArea(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(AppDimensions.xl),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

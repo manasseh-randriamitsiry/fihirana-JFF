@@ -4,13 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:fihirana/features/bible/domain/repositories/i_bible_highlight_service.dart';
 
-class BibleHighlightService {
+class BibleHighlightService implements IBibleHighlightService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final AuthController _authController = Get.find<AuthController>();
 
   // Get highlights for a specific book and chapter for the current user
+  @override
   Stream<List<BibleHighlight>> getHighlightsStream(String bookName, int chapter) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
@@ -31,6 +33,7 @@ class BibleHighlightService {
   }
 
   // Get all highlights for a specific book and chapter (public highlights)
+  @override
   Stream<List<BibleHighlight>> getPublicHighlightsStream(String bookName, int chapter) {
     return _firestore
         .collection('bible_highlights')
@@ -47,6 +50,7 @@ class BibleHighlightService {
   }
 
   // Save a new highlight
+  @override
   Future<bool> saveHighlight(BibleHighlight highlight) async {
     try {
       final user = _auth.currentUser;
@@ -65,6 +69,7 @@ class BibleHighlightService {
   }
 
   // Update an existing highlight
+  @override
   Future<bool> updateHighlight(BibleHighlight highlight) async {
     try {
       final user = _auth.currentUser;
@@ -92,6 +97,7 @@ class BibleHighlightService {
   }
 
   // Delete a highlight
+  @override
   Future<bool> deleteHighlight(String highlightId) async {
     try {
       final user = _auth.currentUser;
@@ -123,6 +129,7 @@ class BibleHighlightService {
   }
 
   // Check if current user can edit a highlight (owns it or is admin)
+  @override
   Future<bool> canEditHighlight(BibleHighlight highlight) async {
     final user = _auth.currentUser;
     if (user == null) return false;

@@ -18,10 +18,8 @@ class RecordingOverlayManager extends StatelessWidget {
     }
 
     // Get the controller after checking dependencies
-    final controller = RecordingDI.recordingController;
 
     return GetBuilder<RecordingController>(
-      init: controller,
       builder: (controller) {
         return Obx(() {
           // Early return for better performance

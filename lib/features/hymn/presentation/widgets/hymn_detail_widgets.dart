@@ -4,6 +4,7 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/bible/domain/entities/note.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'hymn_improved_note_section_widget.dart';
 import 'hymn_hint_section.dart';
 import 'hymn_verses_section.dart';
@@ -41,7 +42,7 @@ class HymnPageWidget extends StatelessWidget {
       height: MediaQuery.of(context).size.height,
       color: colorController.backgroundColor.value,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -169,7 +170,7 @@ class HymnBridgeWidget extends StatelessWidget {
     return InkWell(
       onTap: onToggle,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppDimensions.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -192,7 +193,7 @@ class HymnBridgeWidget extends StatelessWidget {
             ),
             if (isExpanded)
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: AppDimensions.sm),
                 child: Text(
                   bridge,
                   style: TextStyle(

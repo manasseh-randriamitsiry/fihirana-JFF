@@ -6,8 +6,9 @@ import 'package:fihirana/features/bible/data/services/bible_service.dart';
 import 'package:fihirana/core/constants/inspiring_verses.dart';
 import 'package:fihirana/core/utils/bible_book_order.dart';
 import 'package:fihirana/shared/widgets/common/daily_verse_notification.dart';
+import 'package:fihirana/features/daily_verse/domain/repositories/i_daily_verse_service.dart';
 
-class DailyVerseService {
+class DailyVerseService implements IDailyVerseService {
   static final DailyVerseService _instance = DailyVerseService._internal();
   factory DailyVerseService() => _instance;
   DailyVerseService._internal();
@@ -17,6 +18,7 @@ class DailyVerseService {
   static const String _lastVerseDateKey = 'last_daily_verse_date';
 
   /// Get the verse of the day
+  @override
   Future<DailyVerse> getVerseOfTheDay() async {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now();
@@ -178,6 +180,7 @@ class DailyVerseService {
   }
 
   /// Schedule daily notification at specified time
+  @override
   Future<void> scheduleDailyNotification(int hour, int minute) async {
     // Cancel existing notifications first
     await cancelDailyNotifications();
@@ -202,6 +205,7 @@ class DailyVerseService {
   }
 
   /// Cancel all daily verse notifications
+  @override
   Future<void> cancelDailyNotifications() async {
     await DailyVerseNotificationBuilder.cancelDailyVerseNotifications();
     if (kDebugMode) {
@@ -210,6 +214,7 @@ class DailyVerseService {
   }
 
   /// Send test notification immediately
+  @override
   Future<void> sendTestNotification() async {
     final verse = await getVerseOfTheDay();
 

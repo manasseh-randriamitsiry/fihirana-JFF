@@ -56,10 +56,11 @@ class BibleSearchInput extends StatelessWidget {
                   Icons.clear_rounded,
                   color: colorController.iconColor.value,
                 ),
-                onPressed: () {
-                  controller.clear();
-                  bibleController.performSearch('');
-                },
+                 onPressed: () {
+                   controller.clear();
+                   bibleController.searchQuery.value = '';
+                   bibleController.performSearch();
+                 },
               );
             }
             return const SizedBox.shrink();
@@ -68,7 +69,8 @@ class BibleSearchInput extends StatelessWidget {
           contentPadding: const EdgeInsets.all(16),
         ),
         onChanged: (value) {
-          bibleController.performSearch(value);
+          bibleController.searchQuery.value = value;
+          bibleController.performSearch();
         },
       ),
     );

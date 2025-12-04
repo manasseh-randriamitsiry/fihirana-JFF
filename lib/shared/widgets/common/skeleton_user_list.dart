@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class SkeletonUserList extends StatelessWidget {
   const SkeletonUserList({super.key});
@@ -11,17 +12,19 @@ class SkeletonUserList extends StatelessWidget {
     final ColorController colorController = Get.find();
 
     return ListView.builder(
+      key: const PageStorageKey('skeleton_users_list'),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       itemCount: 8, // Show enough items to fill the screen
       itemBuilder: (context, index) {
         return Card(
+          key: ValueKey(index),
           elevation: 2,
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16)),
           color: colorController.backgroundColor.value,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppDimensions.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

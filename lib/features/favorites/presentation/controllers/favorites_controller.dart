@@ -5,6 +5,7 @@ import 'package:fihirana/features/favorites/domain/usecases/get_favorite_hymns_s
 import 'package:fihirana/features/favorites/domain/usecases/toggle_favorite_usecase.dart';
 import 'package:fihirana/features/favorites/domain/usecases/check_audio_availability_usecase.dart';
 import 'package:fihirana/features/favorites/domain/usecases/is_hymn_playing_usecase.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 /// Favorites controller for managing favorite hymns
 class FavoritesController extends GetxController {
@@ -85,10 +86,7 @@ class FavoritesController extends GetxController {
         print('✅ Favorite toggled for hymn: ${hymn.title}');
       }
     } catch (e) {
-      errorMessage.value = 'Failed to toggle favorite: $e';
-      if (kDebugMode) {
-        print('❌ Error toggling favorite: $e');
-      }
+      ErrorHandler.handleError(e, message: 'errorUpdatingFavorites'.tr);
     }
   }
 
@@ -99,9 +97,7 @@ class FavoritesController extends GetxController {
         final hasAudio = await _checkAudioAvailabilityUseCase(hymnId);
         audioAvailability[hymnId] = hasAudio;
       } catch (e) {
-        if (kDebugMode) {
-          print('❌ Error checking audio for hymn $hymnId: $e');
-        }
+        ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
         audioAvailability[hymnId] = false;
       }
     }

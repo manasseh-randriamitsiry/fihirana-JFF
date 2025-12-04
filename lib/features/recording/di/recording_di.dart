@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/recording/data/repositories/recording_repository_impl.dart';
 import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
 import 'package:fihirana/features/recording/domain/usecases/recording_usecases.dart';
-import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
+import 'package:fihirana/features/recording/presentation/controllers/recording_controller_refactored.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
 
 /// Dependency injection for recording feature

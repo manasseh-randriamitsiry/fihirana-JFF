@@ -58,9 +58,9 @@ class RecordingUploadDialog extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Row(
-                  children: [
-                    Icon(
+                 const Row(
+                   children: [
+                     Icon(
                       Icons.cloud_upload,
                       color: Colors.white,
                       size: 24,

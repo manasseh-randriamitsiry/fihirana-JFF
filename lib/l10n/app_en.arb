@@ -959,5 +959,181 @@
   "skip": "Skip",
   "done": "Done",
   "recordingNotSaved": "Recording was not saved",
-  "restore": "Restore"
+   "restore": "Restore",
+   "superAdminDashboard": "Super Admin Dashboard",
+   "deletedRecordings": "Deleted Recordings",
+   "searchUsersHint": "Search users...",
+   "noUsersFound": "No users found",
+   "revokeAdminAccess": "Revoke Admin Access",
+   "grantAdminAccess": "Grant Admin Access",
+   "confirmRevokeAdminAccess": "Are you sure you want to revoke admin access from {displayName}?",
+   "@confirmRevokeAdminAccess": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "confirmGrantAdminAccess": "Are you sure you want to grant admin access to {displayName}?",
+   "@confirmGrantAdminAccess": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "adminAccessRevoked": "Admin access revoked",
+   "adminAccessGranted": "Admin access granted",
+   "unblockUser": "Unblock User",
+   "blockUser": "Block User",
+   "confirmUnblockUser": "Are you sure you want to unblock {displayName}?",
+   "@confirmUnblockUser": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "confirmBlockUser": "Are you sure you want to block {displayName}?",
+   "@confirmBlockUser": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "userUnblocked": "User unblocked",
+   "userBlocked": "User blocked",
+   "confirmDeleteUser": "Are you sure you want to delete {displayName}? This action cannot be undone.",
+   "@confirmDeleteUser": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "userDeletedSuccessfully": "User deleted successfully",
+   "admin": "ADMIN",
+   "blocked": "BLOCKED",
+   "lastLoginWithDate": "Last login: {lastLogin}",
+   "@lastLoginWithDate": {
+     "placeholders": {
+       "lastLogin": {
+         "type": "String"
+       }
+     }
+   },
+   "revokeAdmin": "Revoke Admin",
+   "makeAdmin": "Make Admin",
+   "daysAgo": "{count} days ago",
+   "@daysAgo": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "hoursAgo": "{count} hours ago",
+   "@hoursAgo": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "minutesAgo": "{count} minutes ago",
+   "@minutesAgo": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "justNow": "Just now",
+   "never": "Never",
+   "users": "Users",
+   "activeUsersCount": "{count} active",
+   "@activeUsersCount": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "totalAdded": "Total added",
+   "installs": "Installs",
+   "allTime": "All time",
+   "failedToLoadDeletedRecordings": "Failed to load deleted recordings: {error}",
+   "@failedToLoadDeletedRecordings": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "deletedRecordingsCount": "{count} deleted recordings",
+   "@deletedRecordingsCount": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "noDeletedRecordingsFound": "No deleted recordings found",
+   "noDeletedRecordings": "No deleted recordings",
+   "tryAdjustingSearchTerms": "Try adjusting your search terms",
+   "deletedRecordingsWillAppearHere": "Deleted recordings will appear here",
+   "failedToLoadDashboard": "Failed to load dashboard: {error}",
+   "@failedToLoadDashboard": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "refreshDashboard": "Refresh Dashboard",
+   "failedToLoadConfiguration": "Failed to load configuration: {error}",
+   "@failedToLoadConfiguration": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "configurationUpdatedSuccessfully": "Configuration updated successfully",
+   "failedToSaveConfiguration": "Failed to save configuration: {error}",
+   "@failedToSaveConfiguration": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "emergencyModeActive": "Emergency Mode Active",
+   "updatesEnabled": "Updates Enabled",
+   "updatesDisabled": "Updates Disabled",
+   "adminMessageLabel": "Admin Message: {adminMessage}",
+   "@adminMessageLabel": {
+     "placeholders": {
+       "adminMessage": {
+         "type": "String"
+       }
+     }
+   },
+   "blockedVersionLabel": "Blocked Version: {blockedVersion}",
+   "@blockedVersionLabel": {
+     "placeholders": {
+       "blockedVersion": {
+         "type": "String"
+       }
+     }
+   },
+   "quickActions": "Quick Actions",
+   "configuration": "Configuration",
+   "anErrorOccurred": "An error occurred",
+   "networkConnectionError": "Network connection error. Please check your internet connection.",
+   "requestTimedOut": "Request timed out. Please try again.",
+   "resourceNotFound": "Resource not found. Please try again later.",
+   "somethingWentWrong": "Something went wrong. Please try again.",
+   "widgetErrorBoundaryCaughtError": "Widget error boundary caught error"
 }

@@ -8,6 +8,7 @@ import 'bible_search_header.dart';
 import 'bible_search_input.dart';
 import 'bible_search_context_selector.dart';
 import 'bible_search_results.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class BibleSearchDialog extends StatefulWidget {
   const BibleSearchDialog({super.key});
@@ -23,7 +24,7 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   final FocusNode _searchFocusNode = FocusNode();
 
   BibleSearchContext _currentSearchContext = BibleSearchContext.books;
-  final double _fontSize = 16.0;
+  final double _fontSize = AppDimensions.fontMd;
 
   @override
   void initState() {
@@ -33,8 +34,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
 
   void _initializeSearch() {
     // Set initial search context based on current state
-    final selectedBook = bibleController.selectedBook.value;
-    final selectedChapter = bibleController.selectedChapter.value;
+    final selectedBook = bibleController.selectedBook;
+    final selectedChapter = bibleController.selectedChapter;
 
     if (selectedBook.isEmpty) {
       _currentSearchContext = BibleSearchContext.books;
@@ -92,7 +93,8 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
                 setState(() {
                   _currentSearchContext = context;
                   bibleController.setSearchContext(context);
-                  bibleController.performSearch(_searchController.text);
+                  bibleController.searchQuery.value = _searchController.text;
+                  bibleController.performSearch();
                 });
               },
             ),

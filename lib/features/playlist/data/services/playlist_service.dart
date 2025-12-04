@@ -6,8 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:collection/collection.dart';
 import 'package:fihirana/features/playlist/domain/entities/playlist.dart';
+import 'package:fihirana/features/playlist/domain/repositories/i_playlist_service.dart';
 
-class PlaylistService {
+class PlaylistService implements IPlaylistService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -20,6 +21,7 @@ class PlaylistService {
   }
 
   // Get local playlists from SharedPreferences
+  @override
   Future<List<Playlist>> getLocalPlaylists() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -37,6 +39,7 @@ class PlaylistService {
   }
 
   // Save local playlists to SharedPreferences
+  @override
   Future<void> saveLocalPlaylists(List<Playlist> playlists) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -50,8 +53,9 @@ class PlaylistService {
   }
 
   // Create a new playlist (works offline)
+  @override
   Future<String?> createPlaylist(String title, DateTime date,
-      {bool isPublic = false}) async {
+      {String? description}) async {
     try {
       final user = _auth.currentUser;
       final now = DateTime.now();
@@ -64,7 +68,8 @@ class PlaylistService {
         date: date,
         hymnIds: [],
         createdBy: user?.uid ?? 'local',
-        isPublic: isPublic,
+        description: description,
+        isPublic: false,
         isLocal: user == null,
         createdAt: now,
         updatedAt: now,
@@ -117,6 +122,7 @@ class PlaylistService {
   final _playlistsController = StreamController<List<Playlist>>.broadcast();
 
   // Get playlists for the current user (combines local + Firebase)
+  @override
   Stream<List<Playlist>> getUserPlaylistsStream() {
     final user = _auth.currentUser;
 
@@ -178,6 +184,7 @@ class PlaylistService {
   }
 
   // Call this after any local playlist modification
+  @override
   void notifyPlaylistsChanged() {
     // Re-emit playlists
     final user = _auth.currentUser;
@@ -218,6 +225,7 @@ class PlaylistService {
   }
 
   // Get a specific playlist by ID (works without authentication for sharing)
+  @override
   Future<Playlist?> getPlaylistById(String id) async {
     try {
       if (kDebugMode) {
@@ -314,6 +322,7 @@ class PlaylistService {
   }
 
   // Add a hymn to a playlist
+  @override
   Future<bool> addHymnToPlaylist(String playlistId, String hymnId) async {
     try {
       // Update local
@@ -352,6 +361,7 @@ class PlaylistService {
   }
 
   // Remove a hymn from a playlist
+  @override
   Future<bool> removeHymnFromPlaylist(String playlistId, String hymnId) async {
     try {
       // Update local
@@ -389,6 +399,7 @@ class PlaylistService {
   }
 
   // Delete a playlist
+  @override
   Future<bool> deletePlaylist(String playlistId) async {
     try {
       // Delete from local
@@ -413,8 +424,9 @@ class PlaylistService {
   }
 
   // Update playlist details
+  @override
   Future<bool> updatePlaylist(String playlistId,
-      {String? title, DateTime? date, bool? isPublic}) async {
+      {String? title, DateTime? date, String? description}) async {
     try {
       // Update local
       final localPlaylists = await getLocalPlaylists();
@@ -424,7 +436,7 @@ class PlaylistService {
         localPlaylists[index] = localPlaylists[index].copyWith(
           title: title,
           date: date,
-          isPublic: isPublic,
+          description: description,
           updatedAt: DateTime.now(),
         );
         await saveLocalPlaylists(localPlaylists);
@@ -439,7 +451,7 @@ class PlaylistService {
 
         if (title != null) updates['title'] = title;
         if (date != null) updates['date'] = Timestamp.fromDate(date);
-        if (isPublic != null) updates['isPublic'] = isPublic;
+        if (description != null) updates['description'] = description;
 
         await _firestore
             .collection('playlists')
@@ -457,6 +469,7 @@ class PlaylistService {
   }
 
   // Sync local playlists to Firebase (called on login)
+  @override
   Future<void> syncPlaylistsToFirebase() async {
     try {
       final user = _auth.currentUser;
@@ -583,6 +596,7 @@ class PlaylistService {
   }
 
   // Reset sync status (called on logout)
+  @override
   Future<void> resetSyncStatus() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_playlistsSyncedKey);

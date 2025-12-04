@@ -182,8 +182,8 @@ class LanguageSelectionPage extends StatelessWidget {
                           ),
                         ),
                       ),
-                      if (splashController.selectedLocale.value?.languageCode == locale.languageCode)
-                        Container(
+                       if (splashController.selectedLocale.value?.languageCode == locale.languageCode)
+                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(
                             color: Colors.orange,

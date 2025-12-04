@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/contact/domain/repositories/contact_repository.dart';
 import 'package:fihirana/features/contact/data/repositories/contact_repository_impl.dart';
 import 'package:fihirana/features/contact/data/services/contact_service.dart';
+import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
 import 'package:fihirana/features/contact/domain/usecases/get_all_contacts_usecase.dart';
 import 'package:fihirana/features/contact/domain/usecases/add_contact_usecase.dart';
 import 'package:fihirana/features/contact/domain/usecases/update_contact_usecase.dart';
@@ -19,14 +20,14 @@ class ContactDI {
   /// Initialize contact dependencies
   static void initialize() {
     // Service
-    Get.lazyPut<ContactService>(
+    Get.lazyPut<IContactService>(
       () => ContactService(),
     );
 
     // Repository
     Get.lazyPut<ContactRepository>(
       () => ContactRepositoryImpl(
-        Get.find<ContactService>(),
+        Get.find<IContactService>(),
       ),
       tag: _contactRepositoryTag,
     );
