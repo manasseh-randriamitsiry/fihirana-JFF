@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:fihirana/features/playlist/domain/entities/playlist.dart';
 import 'playlist_detail_screen.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/playlist_item_card.dart';
@@ -16,8 +17,8 @@ class PlaylistListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final ColorController colorController = Get.put(ColorController());
-    final PlaylistController playlistController = Get.put(PlaylistController());
+    final ColorController colorController = Get.find<ColorController>();
+    final PlaylistController playlistController = PlaylistDI.playlistController;
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,

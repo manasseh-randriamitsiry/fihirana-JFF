@@ -4,13 +4,9 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
-import 'package:fihirana/features/bible/domain/usecases/initialize_bible_usecase.dart';
-import 'package:fihirana/features/bible/domain/usecases/get_all_books_usecase.dart';
-import 'package:fihirana/features/bible/domain/usecases/get_book_usecase.dart';
-import 'package:fihirana/features/bible/domain/usecases/search_books_usecase.dart';
+import 'package:fihirana/features/bible/di/bible_di.dart';
 
-import 'package:fihirana/features/bible/data/repositories/bible_repository_impl.dart';
-import 'package:fihirana/features/bible/data/services/bible_service.dart';
+
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_search_dialog.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_reader_widgets.dart';
@@ -32,15 +28,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   late final BibleController bibleController;
 
   void _initializeBibleController() {
-    final bibleService = BibleService();
-    final bibleRepository = BibleRepositoryImpl(bibleService);
-    
-    bibleController = Get.put(BibleController(
-      initializeBibleUseCase: InitializeBibleUseCase(bibleRepository),
-      getAllBooksUseCase: GetAllBooksUseCase(bibleRepository),
-      getBookUseCase: GetBookUseCase(bibleRepository),
-      searchBooksUseCase: SearchBooksUseCase(bibleRepository),
-    ));
+    BibleDI.init();
+    bibleController = Get.find<BibleController>();
   }
   final ColorController colorController = Get.find<ColorController>();
   final FontController fontController = Get.find<FontController>();

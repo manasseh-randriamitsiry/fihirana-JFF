@@ -1,103 +1,23 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/app/theme/theme_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:fihirana/features/bible/presentation/pages/bible_reader_screen.dart';
-import 'package:fihirana/features/favorites/presentation/pages/favorites_screen.dart';
-import 'package:fihirana/features/admin/presentation/pages/admin_panel_screen.dart';
-import 'package:fihirana/features/home/presentation/pages/about_screen.dart';
-import 'package:fihirana/features/history/presentation/pages/history_screen.dart';
-import 'package:fihirana/features/announcement/presentation/pages/announcement_screen.dart';
-import 'package:fihirana/features/home/presentation/pages/home_screen.dart';
-import 'package:fihirana/core/utils/version_check_service.dart';
-import 'package:fihirana/features/audio/data/services/audio_service.dart';
-import 'package:fihirana/core/utils/notification_service.dart';
+import 'package:fihirana/core/navigation/app_router.dart';
+import 'package:fihirana/core/theme/app_theme_manager.dart';
+import 'package:fihirana/core/lifecycle/app_lifecycle_manager.dart';
+import 'package:fihirana/core/security/app_security_manager.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/intro/presentation/pages/splash_screen1.dart';
-import 'package:fihirana/features/intro/presentation/pages/loading_screen.dart';
-import 'package:fihirana/features/hymn/presentation/pages/create_hymn_page.dart';
-import 'package:fihirana/features/hymn/presentation/pages/firebase_hymns_screen.dart';
-import 'package:fihirana/features/playlist/presentation/pages/playlist_list_screen.dart';
-import 'package:fihirana/features/recording/presentation/pages/recording_manager_screen.dart';
-import 'package:fihirana/features/daily_verse/presentation/pages/daily_verse_settings_screen.dart';
-import 'package:fihirana/features/settings/presentation/pages/settings_screen.dart';
-import 'package:fihirana/features/contact/presentation/pages/contact_list_screen.dart';
-import 'package:fihirana/shared/widgets/common/banned_page.dart';
-
 import 'package:fihirana/shared/widgets/navigation/responsive_shell.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:fihirana/core/utils/version_check_service.dart';
+import 'package:fihirana/features/intro/di/intro_di.dart';
 
-class _FallbackAppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
-  const _FallbackAppLocalizationsDelegate();
 
-  @override
-  bool isSupported(Locale locale) {
-    // Support all locales to prevent warnings
-    return true;
-  }
-
-  @override
-  Future<AppLocalizations> load(Locale locale) async {
-    // For unsupported locales, fall back to English AppLocalizations
-    // Load English localizations as fallback
-    return await AppLocalizations.delegate.load(const Locale('en'));
-  }
-
-  @override
-  bool shouldReload(LocalizationsDelegate<AppLocalizations> old) => false;
-}
-
-// Fallback Material localization delegate for unsupported locales
-class _FallbackMaterialLocalizationsDelegate
-    extends LocalizationsDelegate<MaterialLocalizations> {
-  const _FallbackMaterialLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) {
-    // Support all locales to prevent warnings
-    return true;
-  }
-
-  @override
-  Future<MaterialLocalizations> load(Locale locale) async {
-    // For unsupported locales, fall back to English Material localizations
-    // Use proper way to load Material localizations
-    return await GlobalMaterialLocalizations.delegate.load(const Locale('en'));
-  }
-
-  @override
-  bool shouldReload(LocalizationsDelegate<MaterialLocalizations> old) => false;
-}
-
-// Fallback Cupertino localization delegate for unsupported locales
-class _FallbackCupertinoLocalizationsDelegate
-    extends LocalizationsDelegate<CupertinoLocalizations> {
-  const _FallbackCupertinoLocalizationsDelegate();
-
-  @override
-  bool isSupported(Locale locale) {
-    // Support all locales to prevent warnings
-    return true;
-  }
-
-  @override
-  Future<CupertinoLocalizations> load(Locale locale) async {
-    // For unsupported locales, fall back to English Cupertino localizations
-    return await GlobalCupertinoLocalizations.delegate.load(const Locale('en'));
-  }
-
-  @override
-  bool shouldReload(LocalizationsDelegate<CupertinoLocalizations> old) => false;
-}
 
 class MyApp extends StatefulWidget {
   final SharedPreferences prefs;
@@ -109,309 +29,139 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  late final FontController fontController;
-  late final ColorController colorController;
-  late final ThemeController themeController;
-  late final LanguageController languageController;
+  late final AppThemeManager _themeManager;
+  late final AppLifecycleManager _lifecycleManager;
+  late final AppSecurityManager _securityManager;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    try {
-      colorController = Get.find<ColorController>();
-    } catch (_) {
-      colorController = Get.put(ColorController());
-    }
+    // Initialize managers
+    _themeManager = AppThemeManager();
+    _lifecycleManager = AppLifecycleManager();
+    _securityManager = AppSecurityManager();
 
-    try {
-      themeController = Get.find<ThemeController>();
-    } catch (_) {
-      themeController = Get.put(ThemeController());
-    }
-
-    try {
-      fontController = Get.find<FontController>();
-    } catch (_) {
-      fontController = Get.put(FontController());
-    }
-
-    try {
-      languageController = Get.find<LanguageController>();
-    } catch (_) {
-      languageController = Get.put(LanguageController());
-    }
-
-    try {
-      Get.find<SecurityService>();
-    } catch (_) {
-      Get.put(SecurityService());
-    }
+    // Initialize controllers
+    _initializeControllers();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await VersionCheckService.initializeNotifications();
-      // Don't check for updates on startup - let the UpdateCheckerWidget handle it
     });
+  }
+
+  void _initializeControllers() {
+    // Initialize core controllers if not already present
+    if (!Get.isRegistered<ColorController>()) Get.put(ColorController());
+    if (!Get.isRegistered<ThemeController>()) Get.put(ThemeController());
+    if (!Get.isRegistered<FontController>()) Get.put(FontController());
+    if (!Get.isRegistered<LanguageController>()) Get.put(LanguageController());
+    if (!Get.isRegistered<SecurityService>()) Get.put(SecurityService());
+
+    // Initialize intro controllers
+    IntroDI.initialize();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _cleanupServices();
+    _lifecycleManager.cleanupServices();
     super.dispose();
-  }
-
-  void _cleanupServices() {
-    // Cleanup all services when app is disposed
-    try {
-      // Stop audio playback
-      final audioService = AudioService.instance;
-      audioService.stop();
-
-      // Hide audio notification with multiple approaches
-      NotificationService.hideAudioPlayerNotification();
-
-      // Force dismiss all notifications immediately
-      try {
-        AwesomeNotifications().cancelAll();
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error canceling all notifications: $e');
-        }
-      }
-
-      // Dispose audio service
-      audioService.dispose();
-
-      if (kDebugMode) {
-        print('App disposed: Cleaned up all services and notifications');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error during cleanup: $e');
-      }
-    }
-  }
-
-  void _cleanupAudioOnAppClose() {
-    // Specific cleanup when app is closed (detached state)
-    try {
-      final audioService = AudioService.instance;
-
-      // Stop playback immediately
-      audioService.stop();
-
-      // Hide notification with multiple approaches
-      NotificationService.hideAudioPlayerNotification();
-
-      // Force clear all audio notifications
-      NotificationService.forceClearAudioNotification();
-
-      if (kDebugMode) {
-        print(
-            'App closing: Aggressively cleaned up audio service and all notifications');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error during app close cleanup: $e');
-      }
-    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.paused:
-        // App is in background
-        break;
-      case AppLifecycleState.detached:
-        // App is being closed - cleanup audio
-        _cleanupAudioOnAppClose();
-        break;
-      case AppLifecycleState.resumed:
-        // App is in foreground
-        break;
-      default:
-        break;
-    }
+    _lifecycleManager.didChangeAppLifecycleState(state);
   }
 
-  ThemeData _getThemeWithFont(ThemeData baseTheme, String fontName) {
-    // Check if it's a custom font first
-    String fontFamily;
-    if (fontController.customFonts.contains(fontName)) {
-      // For custom fonts, use the font name directly as the family name
-      fontFamily = fontName;
-    } else {
-      // For predefined fonts, get from the map or default to 'Lato'
-      fontFamily = fontController.fontMap[fontName] ?? 'Lato';
-    }
-
-    return baseTheme.copyWith(
-      textTheme: baseTheme.textTheme.apply(fontFamily: fontFamily),
-      primaryTextTheme:
-          baseTheme.primaryTextTheme.apply(fontFamily: fontFamily),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  String _getInitialRoute() {
     final bool isFirstTime = widget.prefs.getBool('isFirstTime') ?? true;
     final bool hasAgreed = widget.prefs.getBool('has_agreed_to_terms') ?? false;
     final String? username = widget.prefs.getString('username');
     final bool hasSelectedLanguage =
         widget.prefs.getString('selected_language') != null;
 
-    // If user has completed onboarding, go directly to home screen
     final bool shouldGoToHome = !isFirstTime &&
         hasAgreed &&
         (username?.isNotEmpty ?? false) &&
         hasSelectedLanguage;
 
-    final LanguageController languageController =
-        Get.find<LanguageController>();
+    return shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading');
+  }
 
-    final initialRoute =
-        shouldGoToHome ? '/home' : (isFirstTime ? '/splash' : '/loading');
-
-    // Set initial drawer state
+  void _initializeShellController(String initialRoute) {
     try {
       final shellController = Get.find<ShellController>();
       shellController.setDrawerEnabled(initialRoute == '/home');
       shellController.currentRoute.value = initialRoute;
     } catch (e) {
-      // Controller might not be ready if InitService failed, but it should be
+      // Controller might not be ready
+    }
+  }
+
+  void _handleRoutingCallback(Routing? routing) {
+    if (routing != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final shellController = Get.find<ShellController>();
+        shellController.currentRoute.value = routing.current;
+
+        // Disable drawer on splash and loading screens
+        final disableDrawer = routing.current == '/splash' || routing.current == '/loading';
+        shellController.setDrawerEnabled(!disableDrawer);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Check for security wrapper first
+    final securityWrapper = _securityManager.getSecurityWrapper(Container());
+    if (securityWrapper != null) {
+      return securityWrapper;
     }
 
+    // Determine initial route based on user state
+    final initialRoute = _getInitialRoute();
+
+    // Set initial drawer state
+    _initializeShellController(initialRoute);
+
     return Obx(() {
+      final fontController = Get.find<FontController>();
+      final themeController = Get.find<ThemeController>();
+      final languageController = Get.find<LanguageController>();
+
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
       final currentLocale = languageController.currentLocale.value;
-      // Include refresh counter to force rebuild when language changes
-      languageController.refreshCounter.value;
+      languageController.refreshCounter.value; // Force rebuild on language change
 
-      // Check if user is blocked before building the app
-      final SecurityService securityService = Get.find<SecurityService>();
-
-      // If user is blocked, show banned page instead of normal app
-      if (securityService.isSecurityChecked && securityService.isUserBlocked) {
-        return Obx(() {
-          final currentLocale = languageController.currentLocale.value;
-          // Include refresh counter to force rebuild when language changes
-          languageController.refreshCounter.value;
-
-          return GetMaterialApp(
-              debugShowCheckedModeBanner: false,
-              locale: currentLocale,
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                _FallbackAppLocalizationsDelegate(),
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                _FallbackMaterialLocalizationsDelegate(),
-                _FallbackCupertinoLocalizationsDelegate(),
-              ],
-              localeResolutionCallback: (locale, supportedLocales) {
-                debugPrint(
-                    'Banned page locale resolution: using controller locale=${languageController.currentLocale.value.languageCode}');
-                // Always use the language controller's selected locale
-                return languageController.currentLocale.value;
-              },
-              supportedLocales: languageController.supportedLocales,
-              themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-              theme: _getThemeWithFont(
-                  isDark
-                      ? colorController.getDarkTheme()
-                      : colorController.getLightTheme(),
-                  currentFont),
-              darkTheme: _getThemeWithFont(
-                  isDark
-                      ? colorController.getDarkTheme()
-                      : colorController.getLightTheme(),
-                  currentFont),
-              home: const BannedPage(),
-              builder: (context, child) => ResponsiveShell(child: child!),
-            );
-        });
-      }
-
-      ThemeData baseTheme = isDark
-          ? colorController.getDarkTheme()
-          : colorController.getLightTheme();
-
-      final themeWithFont = _getThemeWithFont(baseTheme, currentFont);
+      final theme = isDark
+          ? _themeManager.getDarkTheme(currentFont)
+          : _themeManager.getLightTheme(currentFont);
 
       return GetMaterialApp(
-          debugShowCheckedModeBanner: false,
-          locale: currentLocale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            _FallbackAppLocalizationsDelegate(),
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            // Add fallback delegates for unsupported locales
-            _FallbackMaterialLocalizationsDelegate(),
-            _FallbackCupertinoLocalizationsDelegate(),
-          ],
-          localeResolutionCallback: (locale, supportedLocales) {
-            debugPrint(
-                'Locale resolution: using controller locale=${languageController.currentLocale.value.languageCode}');
-            // Always use the language controller's selected locale
-            return languageController.currentLocale.value;
-          },
-          supportedLocales: languageController.supportedLocales,
-          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-          theme: themeWithFont,
-          darkTheme: themeWithFont,
-          builder: (context, child) {
-            return ResponsiveShell(child: child!);
-          },
-          initialRoute: initialRoute,
-          routingCallback: (routing) {
-            if (routing != null) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                final shellController = Get.find<ShellController>();
-                shellController.currentRoute.value = routing.current;
-
-                // Disable drawer on splash and loading screens
-                if (routing.current == '/splash' ||
-                    routing.current == '/loading') {
-                  shellController.setDrawerEnabled(false);
-                } else {
-                  shellController.setDrawerEnabled(true);
-                }
-              });
-            }
-          },
-          getPages: [
-            GetPage(name: '/splash', page: () => const SplashScreen1()),
-            GetPage(name: '/loading', page: () => const LoadingScreen()),
-            GetPage(name: '/home', page: () => const HomeScreen()),
-            GetPage(name: '/create_hymn', page: () => const CreateHymnPage()),
-            GetPage(
-                name: '/firebase_hymns',
-                page: () => const FirebaseHymnsScreen()),
-            GetPage(name: '/bible', page: () => const BibleReaderScreen()),
-            GetPage(name: '/favorites', page: () => const FavoritesPage()),
-            GetPage(name: '/history', page: () => HistoryScreen()),
-            GetPage(name: '/playlists', page: () => const PlaylistListScreen()),
-            GetPage(
-                name: '/recordings',
-                page: () => const RecordingManagerScreen()),
-            GetPage(
-                name: '/daily_verse_settings',
-                page: () => DailyVerseSettingsScreen()),
-            GetPage(name: '/settings', page: () => const SettingsScreen()),
-            GetPage(
-                name: '/announcements', page: () => const AnnouncementScreen()),
-            GetPage(name: '/admin', page: () => const AdminPanelScreen()),
-            GetPage(name: '/about', page: () => const AboutScreen()),
-            GetPage(name: '/contacts', page: () => const ContactListScreen()),
-          ],
-        );
+        debugShowCheckedModeBanner: false,
+        locale: currentLocale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        localeResolutionCallback: (locale, supportedLocales) {
+          return languageController.currentLocale.value;
+        },
+        supportedLocales: languageController.supportedLocales,
+        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+        theme: theme,
+        darkTheme: theme,
+        builder: (context, child) => ResponsiveShell(child: child!),
+        initialRoute: initialRoute,
+        routingCallback: _handleRoutingCallback,
+        getPages: AppRouter.getPages(),
+      );
     });
   }
 }
