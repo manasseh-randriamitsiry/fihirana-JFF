@@ -103,13 +103,12 @@ class BibleController extends GetxController {
     try {
       final prefs = await SharedPreferences.getInstance();
       final lastBook = prefs.getString('last_bible_book');
-      final lastChapter = prefs.getInt('last_bible_chapter');
 
-      // Only load last viewed passage if both book and chapter exist
-      if (lastBook != null && lastChapter != null && lastBook.isNotEmpty) {
-        // Load the last viewed book and chapter
+      // Only load the book, not the chapter
+      // This shows chapter selection instead of auto-opening to verses
+      if (lastBook != null && lastBook.isNotEmpty) {
         bookController.selectBook(lastBook);
-        bookController.selectChapter(lastChapter);
+        // Don't auto-select chapter - let user choose from chapter grid
       }
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorLoadingLastPassage'.tr);

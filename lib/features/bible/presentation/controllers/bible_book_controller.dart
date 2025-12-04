@@ -44,10 +44,8 @@ class BibleBookController extends GetxController {
       final books = _getAllBooksUseCase();
       bookList.value = books.map((book) => book.name).toList();
 
-      if (bookList.isNotEmpty && selectedBook.value.isEmpty) {
-        selectedBook.value = bookList.first;
-        loadChaptersForBook(selectedBook.value);
-      }
+      // Don't auto-select first book - show book list instead
+      // This allows users to choose which book to read
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorLoadingBooks'.tr);
     } finally {
@@ -60,11 +58,9 @@ class BibleBookController extends GetxController {
       final book = _getBookUseCase(bookName);
       if (book != null) {
         chapterList.value = List.generate(book.chapters, (index) => index + 1);
-
-        if (chapterList.isNotEmpty && selectedChapter.value == 0) {
-          selectedChapter.value = 1;
-          loadPassage(bookName, selectedChapter.value);
-        }
+        
+        // Don't auto-select first chapter - show chapter grid instead
+        // selectedChapter stays 0, which triggers chapter selection view
       }
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorLoadingChapters'.tr);
