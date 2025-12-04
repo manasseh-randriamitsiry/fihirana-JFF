@@ -205,13 +205,13 @@ class FirebaseSyncService {
       final history = <Map<String, dynamic>>[];
       for (var doc in snapshot.docs) {
         final data = doc.data();
-        history.add({
-          'id': doc.id,
-          'hymnId': data['hymnId'] as String? ?? '',
-          'title': data['title'] as String? ?? '',
-          'number': data['number'] as String? ?? '',
-          'timestamp': (data['timestamp'] as Timestamp).toDate(),
-        });
+         history.add({
+           'id': doc.id,
+           'hymnId': data['hymnId'] as String? ?? '',
+           'title': data['title'] as String? ?? '',
+           'number': data['number'] as String? ?? '',
+           'timestamp': (data['timestamp'] as Timestamp).toDate().toIso8601String(),
+         });
       }
 
       return history;
