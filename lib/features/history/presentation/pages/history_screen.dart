@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
+import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/features/hymn/presentation/pages/hymn_detail_screen.dart';
@@ -9,20 +10,68 @@ import 'package:fihirana/features/history/presentation/widgets/history_item_card
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
-class HistoryScreen extends StatelessWidget {
-  final HistoryController historyController = Get.find<HistoryController>();
-  final ColorController colorController = Get.find<ColorController>();
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
 
-  HistoryScreen({super.key});
+  @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  HistoryController? historyController;
+  final ColorController colorController = Get.find<ColorController>();
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Load the history controller if not already loaded
+    _initializeHistoryController();
+  }
+
+  Future<void> _initializeHistoryController() async {
+    try {
+      historyController = Get.find<HistoryController>();
+    } catch (e) {
+      // Controller not found, initialize it
+      HistoryDI.initialize();
+      historyController = HistoryDI.historyController;
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+
+    if (_isLoading || historyController == null) {
+      return Scaffold(
+        backgroundColor: colorController.backgroundColor.value,
+        appBar: AppBar(
+          backgroundColor: colorController.backgroundColor.value,
+          title: Text(
+            l10n.history,
+            style: TextStyle(color: colorController.textColor.value),
+          ),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Obx(() {
+      // Safety check - should not happen since we check above
+      if (historyController == null) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
       final backgroundColor = colorController.backgroundColor.value;
       final textColor = colorController.textColor.value;
       final iconColor = colorController.iconColor.value;
-      final primaryColor = colorController.primaryColor.value;
 
       return Scaffold(
         backgroundColor: backgroundColor,
@@ -30,9 +79,9 @@ class HistoryScreen extends StatelessWidget {
           backgroundColor: backgroundColor,
           elevation: 0,
           scrolledUnderElevation: 0,
-title: Text(
-            historyController.isSelectionMode.value
-                ? '${historyController.selectedItems.length} ${context.translate((l) => l.selected)}'
+          title: Text(
+            historyController!.isSelectionMode.value
+                ? '${historyController!.selectedItems.length} ${context.translate((l) => l.selected)}'
                 : context.translate((l) => l.history),
             style: TextStyle(
               color: textColor,
@@ -40,23 +89,23 @@ title: Text(
               fontSize: 20,
             ),
           ),
-          leading: historyController.isSelectionMode.value
-              ? IconButton(
-                  icon: Icon(Icons.close, color: iconColor),
-                  onPressed: historyController.toggleSelectionMode,
+           leading: historyController!.isSelectionMode.value
+               ? IconButton(
+                   icon: Icon(Icons.close, color: iconColor),
+                   onPressed: historyController!.toggleSelectionMode,
                 )
               : IconButton(
                   icon: Icon(Icons.menu_rounded, color: iconColor),
                   onPressed: () => Get.find<ShellController>().toggleDrawer(),
                 ),
           actions: [
-            if (historyController.isSelectionMode.value) ...[
+            if (historyController!.isSelectionMode.value) ...[
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.red),
                 onPressed: () => _showDeleteSelectedDialog(context),
               ),
             ] else ...[
-              if (historyController.userHistory.isNotEmpty)
+              if (historyController!.userHistory.isNotEmpty)
                 IconButton(
                   icon: Icon(Icons.delete_outline, color: iconColor),
                   onPressed: () => _showClearHistoryDialog(context),
@@ -64,9 +113,9 @@ title: Text(
             ],
           ],
         ),
-        body: historyController.isLoading.value
-            ? Center(child: CircularProgressIndicator(color: primaryColor))
-            : historyController.userHistory.isEmpty
+        body: historyController!.isLoading.value
+            ? const Center(child: CircularProgressIndicator())
+            : historyController!.userHistory.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -96,31 +145,31 @@ title: Text(
                     key: const PageStorageKey('history_list'),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
-                    itemCount: historyController.userHistory.length,
-                     itemBuilder: (context, index) {
-                       final history = historyController.userHistory[index];
-                       final isSelected = historyController.selectedItems.contains(history['id']);
+                    itemCount: historyController!.userHistory.length,
+                      itemBuilder: (context, index) {
+                        final history = historyController!.userHistory[index];
+                        final isSelected = historyController!.selectedItems.contains(history['id']);
 
                        return HistoryItemCard(
                          key: ValueKey(history['id']),
                          history: history,
                          index: index,
                          isSelected: isSelected,
-                         isSelectionMode: historyController.isSelectionMode.value,
-                         onTap: () {
-                           if (historyController.isSelectionMode.value) {
-                             historyController.toggleItemSelection(history['id']);
-                           } else {
-                             Get.to(() => HymnDetailScreen(hymnId: history['hymnId']));
-                           }
-                         },
-                         onLongPress: () {
-                           if (!historyController.isSelectionMode.value) {
-                             historyController.toggleSelectionMode();
-                             historyController.toggleItemSelection(history['id']);
-                           }
-                         },
-                         onSelectionChanged: (_) => historyController.toggleItemSelection(history['id']),
+                          isSelectionMode: historyController!.isSelectionMode.value,
+                          onTap: () {
+                            if (historyController!.isSelectionMode.value) {
+                              historyController!.toggleItemSelection(history['id']);
+                            } else {
+                              Get.to(() => HymnDetailScreen(hymnId: history['hymnId']));
+                            }
+                          },
+                          onLongPress: () {
+                            if (!historyController!.isSelectionMode.value) {
+                              historyController!.toggleSelectionMode();
+                              historyController!.toggleItemSelection(history['id']);
+                            }
+                          },
+                          onSelectionChanged: (_) => historyController!.toggleItemSelection(history['id']),
                        );
                      },
                   ),
@@ -146,7 +195,7 @@ void _showClearHistoryDialog(BuildContext context) {
           ),
           TextButton(
             onPressed: () {
-              historyController.clearHistory();
+              historyController!.clearHistory();
               Get.back();
             },
             child: Text(context.translate((l) => l.yes), style: const TextStyle(color: Colors.red)),
@@ -174,7 +223,7 @@ void _showDeleteSelectedDialog(BuildContext context) {
           ),
           TextButton(
             onPressed: () {
-              historyController.deleteSelectedItems();
+              historyController!.deleteSelectedItems();
               Get.back();
             },
             child: Text(context.translate((l) => l.yes), style: const TextStyle(color: Colors.red)),
