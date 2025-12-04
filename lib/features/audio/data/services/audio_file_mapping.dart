@@ -14,9 +14,16 @@ class AudioFileMapping {
   /// Get the actual filename for a hymn ID
   String? getAudioFilename(String hymnId) {
     if (_audioFileMapping == null || isCacheExpired()) {
+      if (kDebugMode) {
+        print('AudioFileMapping: Cache is null or expired for $hymnId');
+      }
       return null;
     }
-    return _audioFileMapping![hymnId];
+    final filename = _audioFileMapping![hymnId];
+    if (kDebugMode) {
+      print('AudioFileMapping: getAudioFilename($hymnId) -> $filename');
+    }
+    return filename;
   }
 
   /// Check if cache is expired
@@ -72,6 +79,12 @@ class AudioFileMapping {
           if (kDebugMode) {
             print('AudioFileMapping: ✅ Successfully updated mapping with ${mapping.length} files');
             print('AudioFileMapping: Sample mappings: ${mapping.entries.take(5).toList()}');
+            // Check if our test IDs are mapped
+            final testIds = ['1', '10', '100'];
+            for (final id in testIds) {
+              final filename = getAudioFilename(id);
+              print('AudioFileMapping: $id -> $filename');
+            }
           }
           
           // Success - exit retry loop

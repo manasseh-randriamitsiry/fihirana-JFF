@@ -328,9 +328,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
   Future<void> _checkAudioAvailability() async {
     if (_hymn != null) {
+      if (kDebugMode) {
+        print('HymnDetailScreen: Checking audio for hymn ${_hymn!.id} (${_hymn!.title})');
+      }
       final audioService = AudioService.instance;
       final hasAudio = await audioService.checkAudioFileExists(_hymn!.id);
       if (mounted) {
+        if (kDebugMode) {
+          print('HymnDetailScreen: Audio check result for ${_hymn!.id}: $hasAudio');
+        }
         setState(() {
           _hasAudio = hasAudio;
           _audioChecked = true;
