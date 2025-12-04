@@ -88,8 +88,15 @@ class _HymnListItemState extends State<HymnListItem>
     Future.delayed(const Duration(milliseconds: 100), () async {
       if (!mounted) return;
 
+      if (kDebugMode) {
+        print('HymnListItem: Checking audio for hymn ${widget.hymn.id} (${widget.hymn.title})');
+      }
+
       final hasAudio = await _audioService.checkAudioFileExists(widget.hymn.id);
       if (mounted) {
+        if (kDebugMode) {
+          print('HymnListItem: Audio check result for ${widget.hymn.id}: $hasAudio');
+        }
         setState(() {
           _hasAudio = hasAudio;
           _audioChecked = true;

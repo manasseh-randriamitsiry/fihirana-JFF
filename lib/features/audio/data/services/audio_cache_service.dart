@@ -14,7 +14,7 @@ class AudioCacheService {
   final Map<String, bool> _memoryCache = {};
   final Set<String> _pendingChecks = {};
   static const String _tableName = 'audio_cache';
-  static const Duration _cacheExpiry = Duration(days: 7); // Cache for 7 days
+  static const Duration _cacheExpiry = Duration(minutes: 5); // Cache for 5 minutes for testing
 
   Future<Database> get database async {
     _database ??= await _initDatabase();
@@ -39,6 +39,16 @@ class AudioCacheService {
         ''');
       },
     );
+  }
+
+  /// Clear all cached audio data
+  Future<void> clearCache() async {
+    final db = await database;
+    await db.delete(_tableName);
+    _memoryCache.clear();
+    if (kDebugMode) {
+      print('AudioCache: Cache cleared');
+    }
   }
 
   /// Check if audio exists for a hymn (uses cache first)
@@ -209,38 +219,117 @@ class AudioCacheService {
 
   /// Check actual audio availability from network
   Future<bool> _checkActualAudioAvailability(String hymnId) async {
-    final audioMapping = AudioFileMapping();
-
-    // First try to get the correct URL from mapping
-    String? audioUrl = audioMapping.getAudioUrl(hymnId);
-
-    if (audioUrl == null) {
-      // If mapping is not available or expired, try to update it
-      if (audioMapping.isCacheExpired()) {
-        await audioMapping.updateAudioFileMapping();
-        audioUrl = audioMapping.getAudioUrl(hymnId);
-      }
-
-      // If still null, try the old format as fallback
-      audioUrl ??=
-          'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
-    }
+    // For our hymns, the audio files are named exactly like the hymn IDs with .mp3 extension
+    // So try the direct URL first
+    final directUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
 
     try {
+      if (kDebugMode) {
+        print('AudioCache: Checking direct URL for $hymnId: $directUrl');
+      }
+
       final response = await http.head(
-        Uri.parse(audioUrl),
+        Uri.parse(directUrl),
         headers: {
-          'User-Agent': 'Fihirana-JFF-App/1.0', // Identify the app
+          'User-Agent': 'Fihirana-JFF-App/1.0',
         },
       ).timeout(const Duration(seconds: 5));
 
-      return response.statusCode == 200;
+      if (response.statusCode == 200) {
+        if (kDebugMode) {
+          print('AudioCache: ✅ Found audio for $hymnId at direct URL');
+        }
+        return true;
+      } else {
+        if (kDebugMode) {
+          print('AudioCache: ❌ Direct URL returned ${response.statusCode} for $hymnId');
+        }
+      }
     } catch (e) {
       if (kDebugMode) {
-        print('AudioCache: Network check failed for $hymnId ($audioUrl): $e');
+        print('AudioCache: ❌ Direct URL check failed for $hymnId: $e');
       }
-      return false;
     }
+
+    // Fallback: try the AudioFileMapping approach
+    final audioMapping = AudioFileMapping();
+    String? audioUrl = audioMapping.getAudioUrl(hymnId);
+
+    if (audioUrl == null && audioMapping.isCacheExpired()) {
+      try {
+        if (kDebugMode) {
+          print('AudioCache: Updating audio mapping for $hymnId');
+        }
+        await audioMapping.updateAudioFileMapping();
+        audioUrl = audioMapping.getAudioUrl(hymnId);
+      } catch (e) {
+        if (kDebugMode) {
+          print('AudioCache: Failed to update audio mapping: $e');
+        }
+      }
+    }
+
+    if (audioUrl != null) {
+      try {
+        if (kDebugMode) {
+          print('AudioCache: Checking mapping URL for $hymnId: $audioUrl');
+        }
+
+        final response = await http.head(
+          Uri.parse(audioUrl),
+          headers: {
+            'User-Agent': 'Fihirana-JFF-App/1.0',
+          },
+        ).timeout(const Duration(seconds: 5));
+
+        if (response.statusCode == 200) {
+          if (kDebugMode) {
+            print('AudioCache: ✅ Found audio for $hymnId via mapping');
+          }
+          return true;
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('AudioCache: ❌ Mapping URL check failed for $hymnId: $e');
+        }
+      }
+    }
+
+    // Last resort: try just the number
+    final numberMatch = RegExp(r'^(\d+)').firstMatch(hymnId);
+    if (numberMatch != null) {
+      final numberOnly = numberMatch.group(1)!;
+      final numberUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$numberOnly.mp3';
+
+      try {
+        if (kDebugMode) {
+          print('AudioCache: Checking number-only URL for $hymnId: $numberUrl');
+        }
+
+        final response = await http.head(
+          Uri.parse(numberUrl),
+          headers: {
+            'User-Agent': 'Fihirana-JFF-App/1.0',
+          },
+        ).timeout(const Duration(seconds: 5));
+
+        if (response.statusCode == 200) {
+          if (kDebugMode) {
+            print('AudioCache: ✅ Found audio for $hymnId using number-only');
+          }
+          return true;
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('AudioCache: ❌ Number-only URL check failed for $hymnId: $e');
+        }
+      }
+    }
+
+    if (kDebugMode) {
+      print('AudioCache: ❌ No audio found for $hymnId');
+    }
+    return false;
   }
 
   /// Batch check multiple hymns from network
