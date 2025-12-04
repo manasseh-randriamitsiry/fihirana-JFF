@@ -26,58 +26,93 @@ class AudioFileMapping {
   }
 
   /// Fetch the list of audio files from GitHub and create mapping
-  Future<void> updateAudioFileMapping() async {
-    try {
-      if (kDebugMode) {
-        print('AudioFileMapping: Fetching audio file list from GitHub...');
-      }
+  Future<void> updateAudioFileMapping({int retries = 3}) async {
+    int attempt = 0;
+    Exception? lastError;
 
-      final response = await http.get(
-        Uri.parse('https://api.github.com/repos/manasseh-randriamitsiry/Fihirana-audio/contents'),
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'Fihirana-JFF-App/1.0',
-        },
-      ).timeout(const Duration(seconds: 30));
+    while (attempt < retries) {
+      try {
+        if (kDebugMode) {
+          print('AudioFileMapping: Fetching audio file list from GitHub (attempt ${attempt + 1}/$retries)...');
+        }
 
-      if (response.statusCode == 200) {
-        final List<dynamic> files = json.decode(response.body);
-        final Map<String, String> mapping = {};
+        final response = await http.get(
+          Uri.parse('https://api.github.com/repos/manasseh-randriamitsiry/Fihirana-audio/contents'),
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'Fihirana-JFF-App/1.0',
+          },
+        ).timeout(const Duration(seconds: 30));
 
-        for (final file in files) {
-          if (file['name'] != null && 
-              file['name'].toString().endsWith('.mp3') &&
-              file['type'] == 'file') {
-            final fileName = file['name'] as String;
-            // Remove .mp3 extension to get the hymn ID
-            final hymnId = fileName.replaceAll('.mp3', '');
-            mapping[hymnId] = fileName;
-            
-            // Also map by just the number for backward compatibility
-            final match = RegExp(r'^(\d+)').firstMatch(fileName);
-            if (match != null) {
-              final numberOnly = match.group(1)!;
-              mapping[numberOnly] = fileName;
+        if (response.statusCode == 200) {
+          final List<dynamic> files = json.decode(response.body);
+          final Map<String, String> mapping = {};
+
+          for (final file in files) {
+            if (file['name'] != null && 
+                file['name'].toString().endsWith('.mp3') &&
+                file['type'] == 'file') {
+              final fileName = file['name'] as String;
+              // Remove .mp3 extension to get the hymn ID
+              final hymnId = fileName.replaceAll('.mp3', '');
+              mapping[hymnId] = fileName;
+              
+              // Also map by just the number for backward compatibility
+              final match = RegExp(r'^(\d+)').firstMatch(fileName);
+              if (match != null) {
+                final numberOnly = match.group(1)!;
+                mapping[numberOnly] = fileName;
+              }
             }
           }
-        }
 
-        _audioFileMapping = mapping;
-        _lastUpdated = DateTime.now();
+          _audioFileMapping = mapping;
+          _lastUpdated = DateTime.now();
 
-        if (kDebugMode) {
-          print('AudioFileMapping: Updated mapping with ${mapping.length} files');
-          print('AudioFileMapping: Sample mappings: ${mapping.entries.take(10).toList()}');
-          print('AudioFileMapping: Sample keys: ${mapping.keys.take(10).toList()}');
+          if (kDebugMode) {
+            print('AudioFileMapping: ✅ Successfully updated mapping with ${mapping.length} files');
+            print('AudioFileMapping: Sample mappings: ${mapping.entries.take(5).toList()}');
+          }
+          
+          // Success - exit retry loop
+          return;
+          
+        } else if (response.statusCode == 403) {
+          if (kDebugMode) {
+            print('AudioFileMapping: ⚠️ GitHub API rate limit exceeded (403)');
+          }
+          lastError = Exception('GitHub API rate limit exceeded');
+          // Don't retry on rate limit - wait for cache to expire
+          break;
+          
+        } else {
+          if (kDebugMode) {
+            print('AudioFileMapping: ❌ Failed to fetch file list: ${response.statusCode}');
+          }
+          lastError = Exception('HTTP ${response.statusCode}');
         }
-      } else {
+      } catch (e) {
         if (kDebugMode) {
-          print('AudioFileMapping: Failed to fetch file list: ${response.statusCode}');
+          print('AudioFileMapping: ❌ Error updating mapping (attempt ${attempt + 1}/$retries): $e');
         }
+        lastError = e is Exception ? e : Exception(e.toString());
       }
-    } catch (e) {
-      if (kDebugMode) {
-        print('AudioFileMapping: Error updating mapping: $e');
+
+      attempt++;
+      if (attempt < retries) {
+        // Wait before retry (exponential backoff)
+        await Future.delayed(Duration(seconds: attempt * 2));
+      }
+    }
+
+    // If we get here, all retries failed
+    if (kDebugMode) {
+      print('AudioFileMapping: ❌ Failed to update mapping after $retries attempts');
+      if (lastError != null) {
+        print('AudioFileMapping: Last error: $lastError');
+      }
+      if (_audioFileMapping != null) {
+        print('AudioFileMapping: ⚠️ Using cached mapping with ${_audioFileMapping!.length} files');
       }
     }
   }

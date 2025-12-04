@@ -143,6 +143,24 @@ if (kDebugMode) {
     // Initialize local audio service (fast, just setup)
     final localAudioService = LocalAudioService();
     await localAudioService.initialize();
+    
+    // Initialize audio file mapping from GitHub (with retry logic)
+    try {
+      if (kDebugMode) {
+        print('InitService: Initializing AudioFileMapping from GitHub...');
+      }
+      final audioMapping = AudioFileMapping();
+      await audioMapping.updateAudioFileMapping(retries: 2);
+      if (kDebugMode) {
+        final stats = audioMapping.getStats();
+        print('InitService: AudioFileMapping initialized - ${stats['totalFiles']} files available');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('InitService: Warning - AudioFileMapping initialization failed: $e');
+        print('InitService: App will continue, but some audio files may not be available');
+      }
+    }
   }
 
   static Future<void> _initDataServices() async {
@@ -288,20 +306,9 @@ if (kDebugMode) {
       ),
     );
 
-    // Schedule audio mapping update in background
-    unawaited(
-      backgroundIsolateManager.executeTask<void>(
-        taskId: 'audio_mapping_update',
-        task: () async {
-          final audioMapping = AudioFileMapping();
-          await audioMapping.updateAudioFileMapping();
-        },
-        description: 'Update audio file mapping',
-        priority: 2,
-        isCancellable: true,
-      ),
-    );
-
+    // Audio mapping is now initialized in foreground during _initAudioServices()
+    // to provide better error handling and user feedback
+    
     // Schedule Bible service initialization in background
     unawaited(
       backgroundIsolateManager.executeTask<void>(
