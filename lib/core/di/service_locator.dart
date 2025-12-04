@@ -12,6 +12,10 @@ import 'package:fihirana/core/utils/local_storage_service.dart';
 import 'package:fihirana/features/admin/di/admin_di.dart';
 import 'package:fihirana/features/recording/di/recording_di.dart';
 import 'package:fihirana/features/announcement/di/announcement_di.dart';
+import 'package:fihirana/features/audio/di/audio_di.dart';
+import 'package:fihirana/features/bible/di/bible_di.dart';
+import 'package:fihirana/features/hymn/di/hymn_di.dart';
+import 'package:fihirana/features/auth/di/auth_di.dart';
 
 /// Service locator for dependency injection
 /// This provides a centralized way to manage service instances and their dependencies
@@ -80,6 +84,18 @@ class ServiceLocator {
     
     // Announcement Feature
     AnnouncementDI.init();
+    
+    // Audio Feature
+    AudioDI.init();
+    
+    // Bible Feature
+    BibleDI.init();
+    
+    // Hymn Feature
+    HymnDI.init();
+    
+    // Auth Feature
+    AuthDI.init();
   }
 
   /// Register data services
@@ -155,7 +171,7 @@ class ServiceLocator {
   List<String> getRegisteredServices() {
     try {
       // Return a simple list since getAllDependencies is not available
-      return ['IRecordingService', 'IBibleService', 'ITranslationService', 'IHymnService', 'LocalStorageService', 'RecordingRepository', 'RecordingController', 'AnnouncementController', 'AnnouncementRepository'];
+      return ['IRecordingService', 'IBibleService', 'ITranslationService', 'IHymnService', 'LocalStorageService', 'RecordingRepository', 'RecordingController', 'AnnouncementController', 'AnnouncementRepository', 'AudioRepository', 'AudioController', 'BibleRepository', 'BibleController', 'HymnRepository', 'HymnController', 'AuthRepository', 'AuthController'];
     } catch (e) {
       return [];
     }

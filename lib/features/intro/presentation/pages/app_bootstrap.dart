@@ -4,9 +4,17 @@ import 'package:fihirana/core/init/init_service.dart';
 import 'package:fihirana/core/di/service_locator.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:fihirana/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
+
+import 'package:fihirana/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:fihirana/features/auth/domain/usecases/ensure_user_document_exists_usecase.dart';
+import 'package:fihirana/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:fihirana/features/auth/data/services/google_auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
@@ -61,7 +69,19 @@ Future<void> _initialize() async {
       // then initialize Service Locator (20% -> 30%)
       try {
         if (!Get.isRegistered<AuthController>()) {
-          Get.put(AuthController());
+          // Initialize auth dependencies
+          final authRepository = AuthRepositoryImpl(
+            FirebaseAuthService(),
+            FirebaseFirestore.instance,
+            GoogleSignIn(),
+            Get.isRegistered<SecurityService>() ? Get.find<SecurityService>() : SecurityService(),
+          );
+          
+          Get.put(AuthController(
+            signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
+            signOutUseCase: SignOutUseCase(authRepository),
+            ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
+          ));
         }
       } catch (e) {
         if (kDebugMode) {

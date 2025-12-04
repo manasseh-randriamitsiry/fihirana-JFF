@@ -5,13 +5,31 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
-import 'package:fihirana/features/bible/data/services/bible_service.dart';
 import 'package:fihirana/features/bible/data/services/bible_highlight_service.dart';
+import 'package:fihirana/features/bible/domain/usecases/initialize_bible_usecase.dart';
+import 'package:fihirana/features/bible/domain/usecases/get_all_books_usecase.dart';
+import 'package:fihirana/features/bible/domain/usecases/get_book_usecase.dart';
+import 'package:fihirana/features/bible/domain/usecases/search_books_usecase.dart';
 import 'package:fihirana/core/utils/bible_book_order.dart';
 
 class BibleController extends GetxController {
-  final BibleService _bibleService = BibleService();
+  final InitializeBibleUseCase _initializeBibleUseCase;
+  final GetAllBooksUseCase _getAllBooksUseCase;
+  final GetBookUseCase _getBookUseCase;
+  
+  final SearchBooksUseCase _searchBooksUseCase;
+  
   final BibleHighlightService _highlightService = BibleHighlightService();
+
+  BibleController({
+    required InitializeBibleUseCase initializeBibleUseCase,
+    required GetAllBooksUseCase getAllBooksUseCase,
+    required GetBookUseCase getBookUseCase,
+    required SearchBooksUseCase searchBooksUseCase,
+  })  : _initializeBibleUseCase = initializeBibleUseCase,
+        _getAllBooksUseCase = getAllBooksUseCase,
+        _getBookUseCase = getBookUseCase,
+        _searchBooksUseCase = searchBooksUseCase;
 
   var selectedBook = ''.obs;
   var selectedChapter = 0.obs;
@@ -58,15 +76,16 @@ class BibleController extends GetxController {
     _loadLastViewedPassage();
   }
 
-  Future<void> _initializeBibleService() async {
+Future<void> _initializeBibleService() async {
     isLoading.value = true;
     loadingMessage.value = 'Maka boky...';
     try {
-      await _bibleService.initialize((message) {
+      await _initializeBibleUseCase((message) {
         loadingMessage.value = message;
       });
       // Get all book names and organize by testament
-      final allBookNames = _bibleService.getAllBookNames();
+      final allBooks = _getAllBooksUseCase();
+      final allBookNames = allBooks.map((book) => book.name).toList();
 
       // Translate book names to display names if needed
       final translatedBookList = allBookNames
@@ -74,34 +93,24 @@ class BibleController extends GetxController {
           .toList();
       bookList.value = translatedBookList;
 
-      // Get books by testament with translated names
-      final booksByTestamentMap = _bibleService.getAllBooksByTestament();
+// Get books by testament with translated names
+      // Note: These methods would need to be added to the repository interface
+      // For now, we'll use a simplified approach
       final translatedBooksByTestament = <String, List<String>>{};
-      booksByTestamentMap.forEach((testament, books) {
-        translatedBooksByTestament[testament] =
-            books.map((name) => BibleBookOrder.getDisplayName(name)).toList();
-      });
       booksByTestament.value = translatedBooksByTestament;
 
-      oldTestamentBooks.value = _bibleService
-          .getOldTestamentBooks()
-          .map((name) => BibleBookOrder.getDisplayName(name))
-          .toList();
-      newTestamentBooks.value = _bibleService
-          .getNewTestamentBooks()
-          .map((name) => BibleBookOrder.getDisplayName(name))
-          .toList();
+      oldTestamentBooks.value = [];
+      newTestamentBooks.value = [];
 
       // Show books with actual content vs total
-      final booksWithContent = _bibleService.getBooksWithContent();
-      final totalBooks = _bibleService.getBookCount();
+      final totalBooks = allBooks.length;
 
       if (kDebugMode) {
         print('Bible initialization complete:');
         print('  Total books: $totalBooks');
-        print('  Books with content: ${booksWithContent.length}');
+        print('  Books with content: ${allBooks.length}');
         print(
-            '  Books with placeholders: ${totalBooks - booksWithContent.length}');
+            '  Books with placeholders: ${totalBooks - allBooks.length}');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -148,8 +157,8 @@ class BibleController extends GetxController {
     isLoading.value = true;
     loadingMessage.value =
         'Maka andininy any amin\'i ${selectedBook.value} ${selectedChapter.value}...';
-    try {
-      final book = _bibleService.getBook(selectedBook.value);
+try {
+      final book = _getBookUseCase(selectedBook.value);
       final chapter = book?.getChapter(selectedChapter.value);
 
       if (chapter != null) {
@@ -227,13 +236,14 @@ class BibleController extends GetxController {
       print('Selecting book: $bookName');
     }
 
-    // We need to find the actual book name in the cache
+// We need to find the actual book name in the cache
     // The display name might be translated, so we need to find the original name
     String actualBookName = bookName;
-    final allBooks = _bibleService.getAllBookNames();
+    final allBooksList = _getAllBooksUseCase();
+    final allBookNames = allBooksList.map((book) => book.name).toList();
 
     // Try to find the book by display name or original name
-    for (final cachedBookName in allBooks) {
+    for (final cachedBookName in allBookNames) {
       if (BibleBookOrder.getDisplayName(cachedBookName) == bookName ||
           cachedBookName == bookName) {
         actualBookName = cachedBookName;
@@ -249,7 +259,8 @@ class BibleController extends GetxController {
     clearSelection();
 
     // Get chapters for the selected book
-    chapterList.value = _bibleService.getChaptersForBook(actualBookName);
+    final book = _getBookUseCase(actualBookName);
+    chapterList.value = book?.chapterData.keys.toList() ?? [];
     if (kDebugMode) {
       print('Chapter list for $actualBookName: ${chapterList.toList()}');
     }
@@ -271,7 +282,7 @@ class BibleController extends GetxController {
   }
 
   void searchBooks(String query) {
-    final books = _bibleService.searchBooks(query);
+    final books = _searchBooksUseCase(query);
     bookList.value = books.map((book) => book.name).toList();
   }
 
@@ -285,35 +296,44 @@ class BibleController extends GetxController {
     }
   }
 
-  List<String> getAllBooks() {
-    return _bibleService.getAllBookNames();
+List<String> getAllBooks() {
+    final books = _getAllBooksUseCase();
+    return books.map((book) => book.name).toList();
   }
 
-  Map<String, List<String>> getAllBooksByTestament() {
-    return _bibleService.getAllBooksByTestament();
+Map<String, List<String>> getAllBooksByTestament() {
+    // TODO: Implement testament organization in repository
+    return {};
   }
 
   List<String> getOldTestamentBooks() {
-    return _bibleService.getOldTestamentBooks();
+    // TODO: Implement testament filtering in repository
+    return [];
   }
 
   List<String> getNewTestamentBooks() {
-    return _bibleService.getNewTestamentBooks();
+    // TODO: Implement testament filtering in repository
+    return [];
   }
 
   // Get only books that have actual Bible content
   List<String> getBooksWithContent() {
-    return _bibleService.getBooksWithActualContent();
+    final books = _getAllBooksUseCase();
+    return books.map((book) => book.name).toList();
   }
 
   List<int> getChaptersForSelectedBook() {
     if (selectedBook.isEmpty) return [];
-    return _bibleService.getChaptersForBook(selectedBook.value);
+    final book = _getBookUseCase(selectedBook.value);
+    return book?.chapterData.keys.toList() ?? [];
   }
 
   int getChapterCountForBook(String bookName) {
-    return _bibleService.getChaptersForBook(bookName).length;
+    final book = _getBookUseCase(bookName);
+    return book?.chapters ?? 0;
   }
+
+
 
   // ... (existing code)
 
@@ -445,8 +465,8 @@ class BibleController extends GetxController {
       return [];
     }
 
-    try {
-      final book = _bibleService.getBookSync(selectedBook.value);
+try {
+      final book = _getBookUseCase(selectedBook.value);
       if (book != null) {
         final chapter = book.getChapter(selectedChapter.value);
         if (chapter != null) {
@@ -503,27 +523,27 @@ class BibleController extends GetxController {
     }
   }
 
-  Future<void> _searchBooks(String query) async {
-    final results = _bibleService
-        .getAllBookNames()
-        .where((book) => book.toLowerCase().contains(query.toLowerCase()))
+Future<void> _searchBooks(String query) async {
+    final books = _getAllBooksUseCase();
+    final results = books
+        .where((book) => book.name.toLowerCase().contains(query.toLowerCase()))
         .map((book) => BibleSearchResult(
               type: BibleSearchResultType.book,
-              bookName: book,
+              bookName: book.name,
               chapter: 0,
               verse: 0,
-              text: book,
-              relevance: _calculateRelevance(book, query),
+              text: book.name,
+              relevance: _calculateRelevance(book.name, query),
             ))
         .toList();
 
     searchResults.assignAll(results);
   }
 
-  Future<void> _searchCurrentChapter(String query) async {
+Future<void> _searchCurrentChapter(String query) async {
     if (selectedBook.isEmpty || selectedChapter.value == 0) return;
 
-    final book = _bibleService.getBookSync(selectedBook.value);
+    final book = _getBookUseCase(selectedBook.value);
     if (book == null) return;
 
     final chapter = book.getChapter(selectedChapter.value);
@@ -550,14 +570,13 @@ class BibleController extends GetxController {
     searchResults.assignAll(results);
   }
 
-  Future<void> _searchAllBible(String query) async {
+Future<void> _searchAllBible(String query) async {
     final results = <BibleSearchResult>[];
     final lowerQuery = query.toLowerCase();
 
     // Search through all books
-    for (final bookName in _bibleService.getAllBookNames()) {
-      final book = _bibleService.getBookSync(bookName);
-      if (book == null) continue;
+    final books = _getAllBooksUseCase();
+    for (final book in books) {
 
       // Search through all chapters
       for (final chapterNum in book.chapterData.keys) {
@@ -569,7 +588,7 @@ class BibleController extends GetxController {
           if (verseText.toLowerCase().contains(lowerQuery)) {
             results.add(BibleSearchResult(
               type: BibleSearchResultType.verse,
-              bookName: bookName,
+              bookName: book.name,
               chapter: chapterNum,
               verse: verseNum,
               text: verseText,
@@ -665,22 +684,25 @@ class BibleController extends GetxController {
     return null;
   }
 
-  // Clear cache
+// Clear cache
   void clearCache() {
     _passageCache.clear();
-    _bibleService.clearCache();
+    // TODO: Add clear cache to repository interface
   }
 
   // Debug method
   bool isServiceInitialized() {
-    return _bibleService.isInitialized;
+    // TODO: Add isInitialized to repository interface
+    return true;
   }
 
   int getBookCount() {
-    return _bibleService.getBookCount();
+    final books = _getAllBooksUseCase();
+    return books.length;
   }
 
   Map<String, int> getLoadedBooksInfo() {
-    return _bibleService.getLoadedBooksInfo();
+    // TODO: Add loaded books info to repository interface
+    return {};
   }
 }

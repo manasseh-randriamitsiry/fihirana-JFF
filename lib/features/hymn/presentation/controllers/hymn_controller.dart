@@ -4,15 +4,34 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
+import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_usecase.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
 class HymnController extends GetxController {
   late final TextEditingController searchController;
+  
+  final SearchHymnsUseCase _searchHymnsUseCase;
+  
+  final AddToFavoritesUseCase _addToFavoritesUseCase;
+  final RemoveFromFavoritesUseCase _removeFromFavoritesUseCase;
+  
+  
+  // Keep reference to service for streams and methods not yet in use cases
   final _hymnService = HymnService();
   final favoriteStatuses = <String, String>{}.obs;
   StreamSubscription? _favoriteStatusSubscription;
   bool _isDisposed = false;
+
+  HymnController({
+    required SearchHymnsUseCase searchHymnsUseCase,
+    required AddToFavoritesUseCase addToFavoritesUseCase,
+    required RemoveFromFavoritesUseCase removeFromFavoritesUseCase,
+  })  : _searchHymnsUseCase = searchHymnsUseCase,
+        _addToFavoritesUseCase = addToFavoritesUseCase,
+        _removeFromFavoritesUseCase = removeFromFavoritesUseCase;
 
   void _initFavoriteStatusStream() {
     _favoriteStatusSubscription?.cancel();
@@ -50,8 +69,16 @@ class HymnController extends GetxController {
     return _hymnService.getFavoriteStatusStream();
   }
 
-  Future<void> toggleFavorite(Hymn hymn) async {
-    await _hymnService.toggleFavorite(hymn);
+Future<void> toggleFavorite(Hymn hymn) async {
+    // Check if currently favorite and toggle accordingly
+    // TODO: Add isFavorite to use case or repository interface
+    // For now, we'll use the service directly
+    final isCurrentlyFavorite = await _hymnService.isFavorite(hymn.id);
+    if (isCurrentlyFavorite) {
+      await _removeFromFavoritesUseCase(hymn.id);
+    } else {
+      await _addToFavoritesUseCase(hymn.id);
+    }
   }
 
   Future<void> deleteHymn(Hymn hymn) async {
@@ -60,8 +87,8 @@ class HymnController extends GetxController {
 
   Stream<List<Hymn>> get hymnsStream => _hymnService.getLocalHymnsStream();
 
-  Future<List<Hymn>> searchHymns(String query) async {
-    return await _hymnService.searchHymns(query);
+Future<List<Hymn>> searchHymns(String query) async {
+    return await _searchHymnsUseCase(query);
   }
 
   List<Hymn> filterHymnList(List<Hymn> hymns) {

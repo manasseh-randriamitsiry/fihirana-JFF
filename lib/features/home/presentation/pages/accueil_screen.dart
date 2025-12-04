@@ -6,6 +6,12 @@ import 'package:get/get.dart';
 
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
+
+import 'package:fihirana/features/hymn/data/repositories/hymn_repository_impl.dart';
+import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
+import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_usecase.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
@@ -44,8 +50,15 @@ class AccueilScreenState extends State<AccueilScreen> {
   void initState() {
     super.initState();
     // Initialize the controller properly to avoid disposal issues
-    _hymnController =
-        Get.put<HymnController>(HymnController(), permanent: true);
+    // Initialize controller properly to avoid disposal issues
+    final hymnService = HymnService();
+    final hymnRepository = HymnRepositoryImpl(hymnService);
+    
+    _hymnController = Get.put<HymnController>(HymnController(
+      searchHymnsUseCase: SearchHymnsUseCase(hymnRepository),
+      addToFavoritesUseCase: AddToFavoritesUseCase(hymnRepository),
+      removeFromFavoritesUseCase: RemoveFromFavoritesUseCase(hymnRepository),
+    ), permanent: true);
 
     // Listen to hymn updates to perform batch checks safely
     _hymnSubscription = _hymnController.hymnsStream.listen(_onHymnsUpdated);

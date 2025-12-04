@@ -100,7 +100,7 @@ class SplashController extends GetxController {
       // Show success message
       Get.snackbar(
         'Welcome',
-        'Connected as ${userCredential.user?.displayName ?? userCredential.user?.email}',
+        'Connected as ${userCredential.displayName ?? userCredential.email}',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.green,
         colorText: Colors.white,

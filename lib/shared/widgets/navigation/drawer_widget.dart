@@ -441,7 +441,7 @@ final l10n = AppLocalizations.of(context)!;
                      isActive: currentRoute == '/announcements',
                      onTap: () => Get.toNamed('/announcements'),
                    ),
-                    if (Get.put(AuthController()).isAdmin)
+                     if (Get.find<AuthController>().isAdmin)
                      _buildDrawerItem(
                        icon: Icons.admin_panel_settings_outlined,
                        title: l10n.adminPanel,
