@@ -80,8 +80,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
          throw Exception('ColorController not initialized properly');
        }
 
-       // Step 4: Get SharedPreferences (90% -> 95%)
-       final prefs = await SharedPreferences.getInstance();
+        // Step 4: Get SharedPreferences (90% -> 95%)
+        final prefs = await SharedPreferences.getInstance();
+        Get.put<SharedPreferences>(prefs);
 
       // Track installation
       try {
@@ -123,6 +124,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
       // Try to continue anyway
       final prefs = await SharedPreferences.getInstance();
+      Get.put<SharedPreferences>(prefs);
       if (mounted) {
         runApp(
           Phoenix(
