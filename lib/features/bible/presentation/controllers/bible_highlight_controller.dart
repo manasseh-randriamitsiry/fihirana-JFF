@@ -12,6 +12,7 @@ class BibleHighlightController extends GetxController {
   // Highlights
   final RxList<BibleHighlight> highlights = <BibleHighlight>[].obs;
   final RxList<BibleHighlight> publicHighlights = <BibleHighlight>[].obs;
+  final RxList<BibleHighlight> allUserHighlights = <BibleHighlight>[].obs;
 
   // Highlighted verse for UI feedback
   var highlightedVerse = Rx<BibleHighlight?>(null);
@@ -19,6 +20,21 @@ class BibleHighlightController extends GetxController {
   void loadHighlights(String bookName, int chapter) {
     _loadUserHighlights(bookName, chapter);
     _loadPublicHighlights(bookName, chapter);
+  }
+
+  void loadAllUserHighlights() {
+    try {
+      _highlightService.getAllUserHighlightsStream().listen(
+        (userHighlights) {
+          allUserHighlights.value = userHighlights;
+        },
+        onError: (error) {
+          ErrorHandler.handleError(error, message: 'errorLoadingHighlights'.tr);
+        },
+      );
+    } catch (e) {
+      ErrorHandler.handleError(e, message: 'errorLoadingHighlights'.tr);
+    }
   }
 
   void _loadUserHighlights(String bookName, int chapter) {

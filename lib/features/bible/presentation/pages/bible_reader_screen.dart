@@ -9,6 +9,7 @@ import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_search_dialog.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_reader_widgets.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_settings_bottom_sheet_widget.dart';
+import 'package:fihirana/features/bible/presentation/pages/bible_highlights_page.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -117,6 +118,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           ),
         )),
         actions: [
+          IconButton(
+            icon: Icon(Icons.bookmark_rounded, color: colorController.iconColor.value),
+            onPressed: () => _showHighlightsPage(context),
+          ),
           IconButton(
             icon: Icon(Icons.search_rounded, color: colorController.iconColor.value),
             onPressed: () => _showSearchDialog(context),
@@ -382,6 +387,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       context: context,
       barrierDismissible: true,
       builder: (context) => const BibleSearchDialog(),
+    );
+  }
+
+  void _showHighlightsPage(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const BibleHighlightsPage(),
+      ),
     );
   }
 

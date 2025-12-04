@@ -1108,6 +1108,21 @@ class AppLocalizationsMg extends AppLocalizations {
   String get bibleReader => 'Baiboly';
 
   @override
+  String get savedVerses => 'Andininy Voatahiry';
+
+  @override
+  String get noSavedVerses => 'Tsy misy andininy voatahiry';
+
+  @override
+  String get saveVersesByHighlighting => 'Tahiry andininy amin\'ny alalan\'ny fanasongadinana azy ao amin\'ny mpamaky Baiboly';
+
+  @override
+  String get deleteHighlight => 'Hamafa ny Fanamarihana';
+
+  @override
+  String get confirmDeleteHighlight => 'Tena te-hamafa ity fanamarihana ity ve ianao?';
+
+  @override
   String emailLabel(String email) {
     return 'Adiresy mailaka: $email';
   }

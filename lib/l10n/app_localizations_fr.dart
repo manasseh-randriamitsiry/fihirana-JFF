@@ -1108,6 +1108,21 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bibleReader => 'Lecteur de Bible';
 
   @override
+  String get savedVerses => 'Versets Sauvegardés';
+
+  @override
+  String get noSavedVerses => 'Aucun verset sauvegardé';
+
+  @override
+  String get saveVersesByHighlighting => 'Sauvegardez des versets en les surlignant dans le lecteur de Bible';
+
+  @override
+  String get deleteHighlight => 'Supprimer le Surlignage';
+
+  @override
+  String get confirmDeleteHighlight => 'Êtes-vous sûr de vouloir supprimer ce surlignage ?';
+
+  @override
   String emailLabel(String email) {
     return 'Email: $email';
   }

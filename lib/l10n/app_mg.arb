@@ -458,6 +458,11 @@
   "searchEntireBible": "Hikaroka amin'ny Baiboly manontolo",
   "change": "Hanova",
   "bibleReader": "Baiboly",
+  "savedVerses": "Andininy Voatahiry",
+  "noSavedVerses": "Tsy misy andininy voatahiry",
+  "saveVersesByHighlighting": "Tahiry andininy amin'ny alalan'ny fanasongadinana azy ao amin'ny mpamaky Baiboly",
+  "deleteHighlight": "Hamafa ny Fanamarihana",
+  "confirmDeleteHighlight": "Tena te-hamafa ity fanamarihana ity ve ianao?",
   "emailLabel": "Adiresy mailaka: {email}",
   "@emailLabel": {
     "placeholders": {
