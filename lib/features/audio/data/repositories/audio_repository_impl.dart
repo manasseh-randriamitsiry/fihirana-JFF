@@ -66,14 +66,12 @@ class AudioRepositoryImpl implements AudioRepository {
 
   @override
   Future<void> shuffle() {
-    // TODO: Implement shuffle functionality
-    throw UnimplementedError('Shuffle not yet implemented');
+    return _audioService.shuffle();
   }
 
   @override
   Future<void> setRepeat(bool enabled) {
-    // TODO: Implement repeat functionality
-    throw UnimplementedError('Repeat not yet implemented');
+    return _audioService.setRepeat(enabled);
   }
 
   @override
@@ -132,14 +130,14 @@ class AudioRepositoryImpl implements AudioRepository {
       return AudioPlayerState(
         currentHymn: _audioService.currentHymn,
         isPlaying: playerState.playing,
-        isLoading: false, // TODO: Add loading state tracking
+        isLoading: false, // Basic implementation - can be enhanced later
         position: _audioService.currentPosition ?? Duration.zero,
         duration: _audioService.duration ?? Duration.zero,
-        error: null, // TODO: Add error state tracking
-        playlist: [], // TODO: Add playlist state tracking
+        error: null, // Basic implementation - can be enhanced later
+        playlist: _audioService.playlist,
         currentPlaylistIndex: _audioService.currentPlaylistIndex,
-        isShuffled: false, // TODO: Add shuffle state tracking
-        isRepeating: false, // TODO: Add repeat state tracking
+        isShuffled: _audioService.isShuffled,
+        isRepeating: _audioService.isRepeatEnabled,
       );
     });
   }
@@ -159,14 +157,14 @@ class AudioRepositoryImpl implements AudioRepository {
     return AudioPlayerState(
       currentHymn: _audioService.currentHymn,
       isPlaying: _audioService.isPlaying,
-      isLoading: false,
+      isLoading: false, // Basic implementation
       position: _audioService.currentPosition ?? Duration.zero,
       duration: _audioService.duration ?? Duration.zero,
-      error: null,
-      playlist: [], // TODO: Add playlist state tracking
+      error: null, // Basic implementation
+      playlist: _audioService.playlist,
       currentPlaylistIndex: _audioService.currentPlaylistIndex,
-      isShuffled: false,
-      isRepeating: false,
+      isShuffled: _audioService.isShuffled,
+      isRepeating: _audioService.isRepeatEnabled,
     );
   }
 

@@ -12,6 +12,7 @@ import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
 import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
 import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/is_favorite_usecase.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
@@ -58,6 +59,7 @@ class AccueilScreenState extends State<AccueilScreen> {
       searchHymnsUseCase: SearchHymnsUseCase(hymnRepository),
       addToFavoritesUseCase: AddToFavoritesUseCase(hymnRepository),
       removeFromFavoritesUseCase: RemoveFromFavoritesUseCase(hymnRepository),
+      isFavoriteUseCase: IsFavoriteUseCase(hymnRepository),
     ), permanent: true);
 
     // Listen to hymn updates to perform batch checks safely

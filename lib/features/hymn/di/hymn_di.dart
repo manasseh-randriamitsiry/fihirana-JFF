@@ -9,6 +9,7 @@ import 'package:fihirana/features/hymn/domain/usecases/get_favorite_hymns_usecas
 import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
 import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_usecase.dart';
 import 'package:fihirana/features/hymn/domain/usecases/get_random_hymn_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/is_favorite_usecase.dart';
 import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
 
 /// Hymn dependency injection configuration
@@ -54,12 +55,17 @@ class HymnDI {
       () => GetRandomHymnUseCase(Get.find<IHymnService>()),
     );
 
+    Get.lazyPut<IsFavoriteUseCase>(
+      () => IsFavoriteUseCase(Get.find<IHymnService>()),
+    );
+
     // Controller
     Get.lazyPut<HymnController>(
       () => HymnController(
         searchHymnsUseCase: Get.find<SearchHymnsUseCase>(),
         addToFavoritesUseCase: Get.find<AddToFavoritesUseCase>(),
         removeFromFavoritesUseCase: Get.find<RemoveFromFavoritesUseCase>(),
+        isFavoriteUseCase: Get.find<IsFavoriteUseCase>(),
       ),
     );
   }
