@@ -40,6 +40,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     BibleDI.init();
     bibleController = Get.find<BibleController>();
     _loadSettings();
+
+    // Listen for changes to highlightedVerse to scroll to it
+    ever(bibleController.highlightedVerse, (verse) {
+      if (verse > 0) {
+        _scrollToHighlightedVerse();
+      }
+    });
   }
 
   void _loadSettings() async {
@@ -211,10 +218,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToHighlightedVerse();
-    });
-
     final verses = bibleController.getCurrentChapterVerses();
     return Stack(
       children: [
@@ -374,19 +377,33 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   void _scrollToHighlightedVerse() {
-    final highlightedVerse = bibleController.highlightedVerse;
-    if (highlightedVerse > 0 && _verseScrollController.hasClients) {
-      // Approximate height calculation or use itemScrollController if needed
-      // For now, simple offset estimation
-      final verseHeight = _fontSize * 3; // Rough estimate
-      final targetOffset = (highlightedVerse - 1) * verseHeight.toDouble();
+    final highlightedVerse = bibleController.highlightedVerse.value;
+    if (highlightedVerse > 0 && _verseScrollController.hasClients && mounted) {
+      // Use a delay to ensure the list is fully built
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (!mounted || !_verseScrollController.hasClients) return;
 
-      _verseScrollController.animateTo(
-        targetOffset.clamp(
-            0.0, _verseScrollController.position.maxScrollExtent).toDouble(),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeInOut,
-      );
+        // Better height estimation considering padding and line height
+        // Average verse takes about 80-120 pixels depending on length
+        final estimatedVerseHeight = _fontSize * 5; // More accurate estimate
+        final targetOffset = (highlightedVerse - 1) * estimatedVerseHeight;
+
+        final maxScroll = _verseScrollController.position.maxScrollExtent;
+        final clampedOffset = targetOffset.clamp(0.0, maxScroll);
+
+        _verseScrollController.animateTo(
+          clampedOffset,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+
+        // Clear the highlighted verse after scrolling to prevent repeated scrolls
+        Future.delayed(const Duration(milliseconds: 600), () {
+          if (mounted) {
+            bibleController.highlightedVerse.value = 0;
+          }
+        });
+      });
     }
   }
 }

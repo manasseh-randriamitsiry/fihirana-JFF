@@ -78,6 +78,12 @@ class BibleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    
+    // Set up callback for search controller to set highlighted verse
+    searchController.onSetHighlightedVerse = (verse) {
+      highlightedVerse.value = verse;
+    };
+    
     _initializeBibleService();
     _loadLastViewedPassage();
     // Populate books by testament
