@@ -1,4 +1,13 @@
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:fihirana/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
+
+import 'package:fihirana/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:fihirana/features/auth/domain/usecases/ensure_user_document_exists_usecase.dart';
+import 'package:fihirana/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:fihirana/features/auth/data/services/google_auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
@@ -15,7 +24,6 @@ import 'package:fihirana/features/audio/data/services/local_audio_service.dart';
 import 'package:fihirana/core/utils/notification_service.dart';
 import 'package:fihirana/core/utils/deep_link_service.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
-import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/init/lazy_service_manager.dart';
 import 'package:fihirana/core/utils/background_isolate_manager.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
@@ -54,7 +62,19 @@ class InitService {
     final fontController = Get.put(FontController());
     Get.put(LanguageController());
     Get.put(ShellController());
-    Get.put(AuthController());
+    // Initialize auth dependencies
+    final authRepository = AuthRepositoryImpl(
+      FirebaseAuthService(),
+      FirebaseFirestore.instance,
+      GoogleSignIn(),
+      Get.find<SecurityService>(),
+    );
+    
+    Get.put(AuthController(
+      signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
+      signOutUseCase: SignOutUseCase(authRepository),
+      ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
+    ));
 
     // Load theme and colors (fast, from local storage)
     await Future.wait([
