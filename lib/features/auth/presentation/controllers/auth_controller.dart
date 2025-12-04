@@ -18,9 +18,7 @@ class AuthController extends GetxController {
   static AuthController get instance => Get.find();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final firebase_auth.FirebaseAuth _auth = firebase_auth.FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn(
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
-  );
+  late final GoogleSignIn googleSignIn;
 
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignOutUseCase _signOutUseCase;
@@ -28,11 +26,11 @@ class AuthController extends GetxController {
   final Rx<bool> _canAddSongs = false.obs;
   final Rx<bool> _isAdmin = false.obs;
   final Rx<bool> _isSuperAdmin = false.obs;
-final RxInt _addedHymnsCount = 0.obs;
+  final RxInt _addedHymnsCount = 0.obs;
   final RxInt _monthlyHymnCount = 0.obs;
   final RxString _lastHymnAdditionMonth = ''.obs;
   StreamSubscription<DocumentSnapshot>? _permissionSubscription;
-  late final GoogleDriveService _driveService;
+  late GoogleDriveService _driveService;
 
   AuthController({
     required SignInWithGoogleUseCase signInWithGoogleUseCase,
@@ -40,7 +38,9 @@ final RxInt _addedHymnsCount = 0.obs;
     required EnsureUserDocumentExistsUseCase ensureUserDocumentExistsUseCase,
   })  : _signInWithGoogleUseCase = signInWithGoogleUseCase,
         _signOutUseCase = signOutUseCase,
-        _ensureUserDocumentExistsUseCase = ensureUserDocumentExistsUseCase;
+        _ensureUserDocumentExistsUseCase = ensureUserDocumentExistsUseCase {
+    googleSignIn = Get.find<GoogleSignIn>();
+  }
 
   bool get canAddSongs => _canAddSongs.value;
   bool get isAdmin => _isAdmin.value;
@@ -72,7 +72,7 @@ final RxInt _addedHymnsCount = 0.obs;
         _updateUserPermissions(user);
 
 // Ensure user document exists
-         await _ensureUserDocumentExistsUseCase();
+        await _ensureUserDocumentExistsUseCase();
 
         // Automatically sign in to Google Drive when Firebase auth state changes
         try {
@@ -186,7 +186,7 @@ final RxInt _addedHymnsCount = 0.obs;
     );
   }
 
-Future<void> signOut() async {
+  Future<void> signOut() async {
     try {
       await _signOutUseCase();
       _canAddSongs.value = false;
@@ -197,9 +197,6 @@ Future<void> signOut() async {
       );
     }
   }
-
-  
-
 
   // Method to verify user document exists and create if it doesn't
   Future<void> _verifyUserDocumentExists(String uid) async {

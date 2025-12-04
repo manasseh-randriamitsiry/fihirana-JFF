@@ -25,7 +25,7 @@ class GoogleDriveService {
   GoogleDriveService._internal();
 
   // Use the shared GoogleSignIn instance
-  late final GoogleSignIn _googleSignIn;
+  late GoogleSignIn _googleSignIn;
 
   GoogleSignInAccount? _currentUser;
   drive.DriveApi? _driveApi;
