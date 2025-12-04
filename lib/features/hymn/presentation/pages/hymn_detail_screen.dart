@@ -70,12 +70,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   late Animation<double> _heartOpacityAnimation;
 
   // Recording overlay state
-  final RecordingController _recordingController =
-      Get.put(RecordingController(), permanent: true);
+  late final RecordingController _recordingController;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize recording controller
+    _recordingController = Get.find<RecordingController>();
 
     historyController = HistoryDI.historyController;
 

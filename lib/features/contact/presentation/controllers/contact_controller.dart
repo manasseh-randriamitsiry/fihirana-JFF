@@ -10,6 +10,7 @@ import 'package:fihirana/features/contact/domain/usecases/can_edit_contact_useca
 import 'package:fihirana/features/contact/domain/usecases/stream_contacts_usecase.dart';
 import 'package:fihirana/features/contact/domain/usecases/search_contacts_usecase.dart';
 import 'package:fihirana/features/contact/data/services/contact_import_service.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 /// Contact controller for managing contact operations
 class ContactController extends GetxController {
@@ -123,10 +124,8 @@ class ContactController extends GetxController {
 
       return success;
     } catch (e) {
-      errorMessage.value = 'Failed to add contact: $e';
-      if (kDebugMode) {
-        print('❌ Error adding contact: $e');
-      }
+      ErrorHandler.handleError(e, message: 'Failed to add contact');
+      errorMessage.value = 'Failed to add contact';
       return false;
     } finally {
       isLoading.value = false;
@@ -151,10 +150,8 @@ class ContactController extends GetxController {
 
       return success;
     } catch (e) {
-      errorMessage.value = 'Failed to update contact: $e';
-      if (kDebugMode) {
-        print('❌ Error updating contact: $e');
-      }
+      ErrorHandler.handleError(e, message: 'Failed to update contact');
+      errorMessage.value = 'Failed to update contact';
       return false;
     } finally {
       isLoading.value = false;
