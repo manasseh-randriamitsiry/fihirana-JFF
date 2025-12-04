@@ -126,7 +126,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           ),
         ],
       ),
-        body: _buildContentArea(context),
+      body: Obx(() => _buildContentArea(context)),
     );
   }
 
