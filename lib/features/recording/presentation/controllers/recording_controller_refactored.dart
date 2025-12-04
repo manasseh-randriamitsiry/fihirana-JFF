@@ -96,6 +96,7 @@ class RecordingController extends GetxController {
         publishRecordingUseCase: publishRecordingUseCase,
         unpublishRecordingUseCase: unpublishRecordingUseCase,
         toggleRecordingPrivacyUseCase: toggleRecordingPrivacyUseCase,
+        loadPublicRecordingsUseCase: loadPublicRecordingsUseCase,
       ),
       tag: 'recording_publishing',
     );

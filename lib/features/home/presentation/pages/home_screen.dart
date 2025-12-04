@@ -16,12 +16,13 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final ColorController _colorController = Get.find();
+  late final ColorController _colorController;
   final zoomDrawerController = ZoomDrawerController();
 
   @override
   void initState() {
     super.initState();
+    _colorController = Get.find<ColorController>();
     _initializeApp();
     _notFirstTime();
 

@@ -42,7 +42,7 @@ if (showSnackbar) {
     if (showDialog && context.mounted) {
       _showErrorDialog(context, error, title: title, message: message, onRetry: onRetry);
     } else if (showSnackbar) {
-      _showErrorSnackbar(error, message ?? title);
+      _showErrorSnackbar(error, message ?? title, context);
     }
   }
 
