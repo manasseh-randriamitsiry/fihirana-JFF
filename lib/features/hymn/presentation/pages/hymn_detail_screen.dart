@@ -8,6 +8,7 @@ import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:fihirana/features/bible/data/services/note_service.dart';
 import 'edit_hymn_screen.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
+import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
@@ -76,10 +77,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   void initState() {
     super.initState();
 
-    if (!Get.isRegistered<HistoryController>()) {
-      Get.put(HistoryController());
-    }
-    historyController = Get.find<HistoryController>();
+    historyController = HistoryDI.historyController;
 
     _liquidController = LiquidController();
     _loadFontSize();
