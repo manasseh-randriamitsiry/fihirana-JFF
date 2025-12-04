@@ -6,11 +6,34 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
+import 'package:fihirana/features/history/domain/usecases/load_user_history_usecase.dart';
+import 'package:fihirana/features/history/domain/usecases/add_to_history_usecase.dart';
+import 'package:fihirana/features/history/domain/usecases/delete_selected_history_items_usecase.dart';
+import 'package:fihirana/features/history/domain/usecases/clear_history_usecase.dart';
+
 
 class HistoryController extends GetxController {
+  final LoadUserHistoryUseCase _loadUserHistoryUseCase;
+  final AddToHistoryUseCase _addToHistoryUseCase;
+  // ignore: unused_field
+  final DeleteSelectedHistoryItemsUseCase _deleteSelectedHistoryItemsUseCase;
+  final ClearHistoryUseCase _clearHistoryUseCase;
+
+  // Keep direct access for complex operations
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  // ignore: unused_field
   final FirebaseSyncService _firebaseSyncService = FirebaseSyncService();
+
+  HistoryController({
+    required LoadUserHistoryUseCase loadUserHistoryUseCase,
+    required AddToHistoryUseCase addToHistoryUseCase,
+    required DeleteSelectedHistoryItemsUseCase deleteSelectedHistoryItemsUseCase,
+    required ClearHistoryUseCase clearHistoryUseCase,
+  }) : _loadUserHistoryUseCase = loadUserHistoryUseCase,
+       _addToHistoryUseCase = addToHistoryUseCase,
+       _deleteSelectedHistoryItemsUseCase = deleteSelectedHistoryItemsUseCase,
+       _clearHistoryUseCase = clearHistoryUseCase;
 
   final RxList<Map<String, dynamic>> userHistory = <Map<String, dynamic>>[].obs;
   final RxBool isLoading = false.obs;
@@ -105,27 +128,8 @@ class HistoryController extends GetxController {
   Future<void> loadUserHistory() async {
     try {
       isLoading.value = true;
-      final user = _auth.currentUser;
-
-      if (user != null) {
-        final firebaseHistory =
-            await _firebaseSyncService.loadHistoryFromFirebase();
-        userHistory.value = firebaseHistory;
-      } else {
-        final prefs = await SharedPreferences.getInstance();
-        final localHistory = prefs.getString(_localHistoryKey);
-        if (localHistory != null) {
-          final List<dynamic> decoded = json.decode(localHistory);
-          userHistory.value = decoded
-              .map((item) => Map<String, dynamic>.from({
-                    ...Map<String, dynamic>.from(item),
-                    'id': item['id'] ??
-                        DateTime.now().millisecondsSinceEpoch.toString(),
-                    'timestamp': DateTime.parse(item['timestamp'].toString()),
-                  }))
-              .toList();
-        }
-      }
+      final historyItems = await _loadUserHistoryUseCase();
+      userHistory.value = historyItems.map((item) => item.toMap()).toList();
     } finally {
       isLoading.value = false;
     }
@@ -133,38 +137,7 @@ class HistoryController extends GetxController {
 
   Future<void> addToHistory(String hymnId, String title, String number) async {
     try {
-      final user = _auth.currentUser;
-      final historyEntry = {
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'hymnId': hymnId,
-        'title': title,
-        'number': number,
-        'timestamp': DateTime.now().toIso8601String(),
-      };
-
-      if (user != null) {
-        await _firebaseSyncService.addHistoryToFirebase(hymnId, title, number);
-
-        await loadUserHistory();
-      } else {
-        final prefs = await SharedPreferences.getInstance();
-        List<Map<String, dynamic>> localHistory = [];
-
-        final existingHistory = prefs.getString(_localHistoryKey);
-        if (existingHistory != null) {
-          final List<dynamic> decoded = json.decode(existingHistory);
-          localHistory = decoded.cast<Map<String, dynamic>>().toList();
-        }
-
-        localHistory.insert(0, historyEntry);
-
-        if (localHistory.length > 100) {
-          localHistory = localHistory.sublist(0, 100);
-        }
-
-        await prefs.setString(_localHistoryKey, json.encode(localHistory));
-      }
-
+      await _addToHistoryUseCase(hymnId, title, number);
       await loadUserHistory();
     } catch (e) {
       if (kDebugMode) {
@@ -175,24 +148,17 @@ class HistoryController extends GetxController {
 
   Future<void> clearHistory() async {
     try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        await _firebaseSyncService.clearHistoryFromFirebase();
-      } else {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.remove(_localHistoryKey);
-      }
-
+      await _clearHistoryUseCase();
       userHistory.clear();
 
-final translationService = TranslationService();
+      final translationService = TranslationService();
       Get.snackbar(
         await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
         await translationService.translate(text: 'History cleared successfully', sourceLanguage: 'en', targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
-} catch (e) {
+    } catch (e) {
       final translationService = TranslationService();
       Get.snackbar(
         await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),

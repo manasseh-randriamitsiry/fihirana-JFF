@@ -133,4 +133,43 @@ class ContactService {
     // Users can edit their own contacts
     return contact.userId == user.uid;
   }
+
+  // Get all contacts (one-time fetch)
+  Future<List<Contact>> getAllContacts() async {
+    final snapshot = await _firestore.collection('contacts').orderBy('name').get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return Contact.fromJson(data);
+    }).toList();
+  }
+
+  // Get contact by ID
+  Future<Contact?> getContactById(String id) async {
+    final doc = await _firestore.collection('contacts').doc(id).get();
+    if (doc.exists) {
+      final data = doc.data()!;
+      data['id'] = doc.id;
+      return Contact.fromJson(data);
+    }
+    return null;
+  }
+
+  // Search contacts
+  Future<List<Contact>> searchContacts(String query) async {
+    if (query.isEmpty) return await getAllContacts();
+
+    final snapshot = await _firestore
+        .collection('contacts')
+        .orderBy('name')
+        .startAt([query])
+        .endAt(['$query\uf8ff'])
+        .get();
+
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return Contact.fromJson(data);
+    }).toList();
+  }
 }
