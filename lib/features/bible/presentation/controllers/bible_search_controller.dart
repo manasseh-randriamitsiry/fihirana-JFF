@@ -24,6 +24,9 @@ class BibleSearchController extends GetxController {
 
   // Search history
   final RxList<String> searchHistory = <String>[].obs;
+  
+  // Callback to set highlighted verse (set by parent controller)
+  Function(int)? onSetHighlightedVerse;
 
   @override
   void onInit() {
@@ -150,11 +153,21 @@ class BibleSearchController extends GetxController {
   }
 
   void navigateToSearchResult(BibleSearchResult result) {
+    final bookController = Get.find<BibleBookController>();
+    
     if (result.type == BibleSearchResultType.book) {
-      Get.find<BibleBookController>().selectBook(result.bookName);
+      bookController.selectBook(result.bookName);
     } else if (result.type == BibleSearchResultType.verse) {
-      Get.find<BibleBookController>().selectBook(result.bookName);
-      Get.find<BibleBookController>().selectChapter(result.chapter);
+      bookController.selectBook(result.bookName);
+      bookController.selectChapter(result.chapter);
+      
+      // Set the highlighted verse using the callback
+      if (onSetHighlightedVerse != null) {
+        // Increase delay to ensure chapter loads first
+        Future.delayed(const Duration(milliseconds: 400), () {
+          onSetHighlightedVerse!(result.verse);
+        });
+      }
     }
   }
 
