@@ -27,9 +27,9 @@ class HistoryItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
-    final DateTime timestamp = history['timestamp'];
-    final String formattedDate = 
+
+    final DateTime timestamp = DateTime.parse(history['timestamp']);
+    final String formattedDate =
         '${timestamp.day.toString().padLeft(2, '0')}/${timestamp.month.toString().padLeft(2, '0')}/${timestamp.year} ${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
 
     return Padding(
