@@ -66,6 +66,7 @@ class BibleDI {
         getAllBooksUseCase: Get.find<GetAllBooksUseCase>(),
         getBookUseCase: Get.find<GetBookUseCase>(),
         searchBooksUseCase: Get.find<SearchBooksUseCase>(),
+        searchVersesUseCase: Get.find<SearchVersesUseCase>(),
         highlightService: Get.find<BibleHighlightService>(),
       ),
     );

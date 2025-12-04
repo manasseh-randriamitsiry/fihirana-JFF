@@ -4,6 +4,7 @@ import 'package:fihirana/features/bible/domain/usecases/initialize_bible_usecase
 import 'package:fihirana/features/bible/domain/usecases/get_all_books_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_book_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/search_books_usecase.dart';
+import 'package:fihirana/features/bible/domain/usecases/search_verses_usecase.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
 import 'package:fihirana/features/bible/data/services/bible_highlight_service.dart';
@@ -25,6 +26,7 @@ class BibleController extends GetxController {
     required GetAllBooksUseCase getAllBooksUseCase,
     required GetBookUseCase getBookUseCase,
     required SearchBooksUseCase searchBooksUseCase,
+    required SearchVersesUseCase searchVersesUseCase,
     required BibleHighlightService highlightService,
   }) : _initializeBibleUseCase = initializeBibleUseCase {
     // Initialize sub-controllers
@@ -39,6 +41,7 @@ class BibleController extends GetxController {
 
     searchController = Get.put(BibleSearchController(
       searchBooksUseCase: searchBooksUseCase,
+      searchVersesUseCase: searchVersesUseCase,
     ));
   }
 

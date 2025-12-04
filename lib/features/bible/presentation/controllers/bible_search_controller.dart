@@ -1,14 +1,20 @@
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
 import 'package:fihirana/features/bible/domain/usecases/search_books_usecase.dart';
+import 'package:fihirana/features/bible/domain/usecases/search_verses_usecase.dart';
+import 'package:fihirana/features/bible/domain/repositories/bible_repository.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_book_controller.dart';
 import 'package:fihirana/core/error/error_handler.dart';
 
 class BibleSearchController extends GetxController {
   final SearchBooksUseCase _searchBooksUseCase;
+  final SearchVersesUseCase _searchVersesUseCase;
 
-  BibleSearchController({required SearchBooksUseCase searchBooksUseCase})
-      : _searchBooksUseCase = searchBooksUseCase;
+  BibleSearchController({
+    required SearchBooksUseCase searchBooksUseCase,
+    required SearchVersesUseCase searchVersesUseCase,
+  })  : _searchBooksUseCase = searchBooksUseCase,
+        _searchVersesUseCase = searchVersesUseCase;
 
   // Search state
   final RxString searchQuery = ''.obs;
@@ -38,17 +44,40 @@ class BibleSearchController extends GetxController {
 
     try {
       isSearching.value = true;
-      searchContext.value = BibleSearchContext.books;
 
-      final books = _searchBooksUseCase(query);
-      final results = books.map((book) => BibleSearchResult(
-        type: BibleSearchResultType.book,
-        bookName: book.name,
-        chapter: 0,
-        verse: 0,
-        text: book.name,
-        relevance: 1.0,
-      )).toList();
+      List<BibleSearchResult> results = [];
+      
+      // Search based on current context
+      if (searchContext.value == BibleSearchContext.books) {
+        // Search for books
+        final books = _searchBooksUseCase(query);
+        results = books.map((book) => BibleSearchResult(
+          type: BibleSearchResultType.book,
+          bookName: book.name,
+          chapter: 0,
+          verse: 0,
+          text: book.name,
+          relevance: 1.0,
+        )).toList();
+      } else if (searchContext.value == BibleSearchContext.allBible) {
+        // Search all verses
+        final verses = _searchVersesUseCase(query);
+        results = _convertVerseSearchResults(verses);
+      } else if (searchContext.value == BibleSearchContext.currentChapter) {
+        // Search only in current chapter
+        final bookController = Get.find<BibleBookController>();
+        final currentBook = bookController.selectedBook.value;
+        final currentChapter = bookController.selectedChapter.value;
+        
+        if (currentBook.isNotEmpty && currentChapter > 0) {
+          final allVerses = _searchVersesUseCase(query);
+          // Filter to only current chapter
+          final filteredVerses = allVerses.where((verse) =>
+            verse.bookName == currentBook && verse.chapter == currentChapter
+          ).toList();
+          results = _convertVerseSearchResults(filteredVerses);
+        }
+      }
 
       searchResults.value = results;
 
@@ -59,6 +88,18 @@ class BibleSearchController extends GetxController {
     } finally {
       isSearching.value = false;
     }
+  }
+
+  /// Convert VerseSearchResult to BibleSearchResult
+  List<BibleSearchResult> _convertVerseSearchResults(List<VerseSearchResult> verses) {
+    return verses.map((verse) => BibleSearchResult(
+      type: BibleSearchResultType.verse,
+      bookName: verse.bookName,
+      chapter: verse.chapter,
+      verse: verse.verse,
+      text: verse.text,
+      relevance: 1.0,
+    )).toList();
   }
 
   void clearSearchResults() {
