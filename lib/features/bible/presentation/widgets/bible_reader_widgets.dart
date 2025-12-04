@@ -142,7 +142,8 @@ class BibleVerseItemWidget extends StatelessWidget {
     } else if (isSelected) {
       backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
     } else if (isHighlighted) {
-      backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.05);
+      // Use yellow for saved highlights
+      backgroundColor = Colors.yellow.withValues(alpha: 0.3);
     }
 
     return GestureDetector(
