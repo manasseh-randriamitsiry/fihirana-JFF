@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 /// Centralized error handling utility
 class ErrorHandler {
@@ -18,8 +19,8 @@ class ErrorHandler {
       _logError(error, message);
     }
 
-    if (showSnackbar) {
-      _showErrorSnackbar(error, message ?? title);
+if (showSnackbar) {
+      _showErrorSnackbar(error, message ?? title, null);
     }
   }
 
@@ -47,7 +48,7 @@ class ErrorHandler {
 
   /// Log error to console and error reporting service
   static void _logError(dynamic error, String? message) {
-    final errorMessage = message ?? 'An error occurred'; // TODO: localize
+    final errorMessage = message ?? 'An error occurred';
     if (kDebugMode) {
       print('❌ $errorMessage: $error');
       print('Stack trace: ${StackTrace.current}');
@@ -69,10 +70,11 @@ class ErrorHandler {
   }
 
   /// Show error snackbar
-  static void _showErrorSnackbar(dynamic error, String? message) {
+  static void _showErrorSnackbar(dynamic error, String? message, BuildContext? context) {
     final errorMessage = _getErrorMessage(error, message);
+    final title = context != null ? AppLocalizations.of(context)!.error : 'Error';
     Get.snackbar(
-      'Error', // TODO: localize
+      title,
       errorMessage,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: Colors.red.shade100,
@@ -94,11 +96,12 @@ class ErrorHandler {
     VoidCallback? onRetry,
   }) {
     final errorMessage = _getErrorMessage(error, message);
+    final l10n = AppLocalizations.of(context)!;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-         title: Text(title ?? 'Error'), // TODO: localize
+         title: Text(title ?? l10n.error),
         content: Text(errorMessage),
         actions: [
           if (onRetry != null)
@@ -107,11 +110,11 @@ class ErrorHandler {
                  Navigator.of(context).pop();
                  onRetry();
                },
-               child: const Text('Retry'), // TODO: localize
+               child: Text(l10n.retry),
              ),
            TextButton(
              onPressed: () => Navigator.of(context).pop(),
-             child: const Text('OK'), // TODO: localize
+             child: Text(l10n.ok),
            ),
         ],
       ),
