@@ -112,10 +112,13 @@ class AudioService {
     });
   }
 
-  Hymn? _currentHymn;
+Hymn? _currentHymn;
   dynamic _currentRecording; // Track current recording
   List<Hymn> _playlist = [];
+  List<Hymn> _originalPlaylist = []; // Store original order for unshuffle
   int _currentPlaylistIndex = -1;
+  bool _isShuffled = false;
+  bool _isRepeatEnabled = false;
 
   final AudioCacheService _cacheService = AudioCacheService();
   final LocalAudioService _localAudioService = LocalAudioService();
@@ -150,9 +153,11 @@ class AudioService {
 
   // ... (keep existing methods)
 
-  void setPlaylist(List<Hymn> playlist, int initialIndex) {
+void setPlaylist(List<Hymn> playlist, int initialIndex) {
     _playlist = playlist;
+    _originalPlaylist = List.from(playlist); // Store original order
     _currentPlaylistIndex = initialIndex;
+    _isShuffled = false; // Reset shuffle state when setting new playlist
     _playlistChangeNotifier.value++; // Trigger playlist change notification
     if (kDebugMode) {
       print(
@@ -160,7 +165,7 @@ class AudioService {
     }
   }
 
-  Future<void> playNext() async {
+Future<void> playNext() async {
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
 
     if (_currentPlaylistIndex < _playlist.length - 1) {
@@ -170,15 +175,18 @@ class AudioService {
       await playHymn(nextHymn);
     } else if (_playlist.isNotEmpty &&
         _currentPlaylistIndex == _playlist.length - 1) {
-      // Loop back to first hymn if at end
-      _currentPlaylistIndex = 0;
-      _playlistChangeNotifier.value++;
-      final firstHymn = _playlist[_currentPlaylistIndex];
-      await playHymn(firstHymn);
+      if (_isRepeatEnabled) {
+        // Loop back to first hymn if repeat is enabled
+        _currentPlaylistIndex = 0;
+        _playlistChangeNotifier.value++;
+        final firstHymn = _playlist[_currentPlaylistIndex];
+        await playHymn(firstHymn);
+      }
+      // If repeat is disabled, stop at end of playlist
     }
   }
 
-  Future<void> playPrevious() async {
+Future<void> playPrevious() async {
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
 
     if (_currentPlaylistIndex > 0) {
@@ -187,13 +195,58 @@ class AudioService {
       final prevHymn = _playlist[_currentPlaylistIndex];
       await playHymn(prevHymn);
     } else if (_playlist.isNotEmpty && _currentPlaylistIndex == 0) {
-      // Loop to last hymn if at first
-      _currentPlaylistIndex = _playlist.length - 1;
-      _playlistChangeNotifier.value++;
-      final lastHymn = _playlist[_currentPlaylistIndex];
-      await playHymn(lastHymn);
+      if (_isRepeatEnabled) {
+        // Loop to last hymn if repeat is enabled
+        _currentPlaylistIndex = _playlist.length - 1;
+        _playlistChangeNotifier.value++;
+        final lastHymn = _playlist[_currentPlaylistIndex];
+        await playHymn(lastHymn);
+      }
+      // If repeat is disabled, stop at beginning of playlist
     }
   }
+
+  Future<void> shuffle() async {
+    if (_playlist.isEmpty) return;
+
+    if (_isShuffled) {
+      // Unshuffle: restore original order
+      _playlist = List.from(_originalPlaylist);
+      _isShuffled = false;
+    } else {
+      // Shuffle: store original order and shuffle
+      _originalPlaylist = List.from(_playlist);
+      _playlist = List.from(_playlist);
+      _playlist.shuffle();
+      _isShuffled = true;
+      
+      // Update current index to point to same hymn in shuffled list
+      if (_currentHymn != null) {
+        final newIndex = _playlist.indexWhere((h) => h.id == _currentHymn!.id);
+        if (newIndex != -1) {
+          _currentPlaylistIndex = newIndex;
+        }
+      }
+    }
+    
+    _playlistChangeNotifier.value++;
+    
+    if (kDebugMode) {
+      print('AudioService: Shuffle ${_isShuffled ? "enabled" : "disabled"}');
+    }
+  }
+
+  Future<void> setRepeat(bool enabled) async {
+    _isRepeatEnabled = enabled;
+    
+    if (kDebugMode) {
+      print('AudioService: Repeat ${enabled ? "enabled" : "disabled"}');
+    }
+  }
+
+  // Getters for shuffle and repeat state
+  bool get isShuffled => _isShuffled;
+  bool get isRepeatEnabled => _isRepeatEnabled;
 
   Future<bool> checkAudioFileExists(String hymnId) async {
     // Use the new cache service
@@ -519,8 +572,13 @@ class AudioService {
   int get playlistLength => _playlist.length;
   bool get canGoNext =>
       hasPlaylist && _currentPlaylistIndex < _playlist.length - 1;
-  bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
+bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
   RxInt get playlistChangeNotifier => _playlistChangeNotifier;
+
+  // Additional getters for state tracking
+  bool get isLoading => false; // Could be enhanced with actual loading state
+  String? get lastError => null; // Could be enhanced with error tracking
+  List<Hymn> get playlist => List.from(_playlist);
 
   bool isHymnPlaying(String hymnId) {
     final isCurrentHymn = _currentPlayingHymnId.value == hymnId;

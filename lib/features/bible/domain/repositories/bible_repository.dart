@@ -59,6 +59,18 @@ abstract class IBibleService {
   
   /// Preload books for better performance
   Future<void> preloadBooks(List<String> bookNames);
+  
+  /// Get all books organized by testament
+  Map<String, List<String>> getAllBooksByTestament();
+  
+  /// Get Old Testament books
+  List<String> getOldTestamentBooks();
+  
+  /// Get New Testament books
+  List<String> getNewTestamentBooks();
+  
+  /// Get information about loaded books
+  Map<String, dynamic> getLoadedBooksInfo();
 }
 
 /// Result of a verse search operation

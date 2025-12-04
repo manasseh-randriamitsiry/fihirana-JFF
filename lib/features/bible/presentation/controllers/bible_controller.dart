@@ -302,18 +302,21 @@ List<String> getAllBooks() {
   }
 
 Map<String, List<String>> getAllBooksByTestament() {
-    // TODO: Implement testament organization in repository
-    return {};
+    final allBooks = _getAllBooksUseCase();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    return BibleBookOrder.getAllBooksSortedByTestament(bookNames);
   }
 
   List<String> getOldTestamentBooks() {
-    // TODO: Implement testament filtering in repository
-    return [];
+    final allBooks = _getAllBooksUseCase();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    return BibleBookOrder.getSortedOldTestamentBooks(bookNames);
   }
 
   List<String> getNewTestamentBooks() {
-    // TODO: Implement testament filtering in repository
-    return [];
+    final allBooks = _getAllBooksUseCase();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    return BibleBookOrder.getSortedNewTestamentBooks(bookNames);
   }
 
   // Get only books that have actual Bible content
@@ -687,13 +690,13 @@ Future<void> _searchAllBible(String query) async {
 // Clear cache
   void clearCache() {
     _passageCache.clear();
-    // TODO: Add clear cache to repository interface
+    // Note: clearCache would need to be added to use case or called via repository
   }
 
   // Debug method
   bool isServiceInitialized() {
-    // TODO: Add isInitialized to repository interface
-    return true;
+    // Note: isInitialized would need to be added to use case or checked via repository
+    return true; // Basic implementation
   }
 
   int getBookCount() {
@@ -701,8 +704,18 @@ Future<void> _searchAllBible(String query) async {
     return books.length;
   }
 
-  Map<String, int> getLoadedBooksInfo() {
-    // TODO: Add loaded books info to repository interface
-    return {};
+  Map<String, dynamic> getLoadedBooksInfo() {
+    final allBooks = _getAllBooksUseCase();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    final testamentOrganization = getAllBooksByTestament();
+    
+    return {
+      'totalBooks': allBooks.length,
+      'bookNames': bookNames,
+      'oldTestamentBooks': testamentOrganization['Testameta Taloha'] ?? [],
+      'newTestamentBooks': testamentOrganization['Testameta Vaovao'] ?? [],
+      'oldTestamentCount': (testamentOrganization['Testameta Taloha'] as List?)?.length ?? 0,
+      'newTestamentCount': (testamentOrganization['Testameta Vaovao'] as List?)?.length ?? 0,
+    };
   }
 }

@@ -9,4 +9,20 @@ class GetAllBooksUseCase {
   List<BibleBook> call() {
     return _repository.getAllBooks();
   }
+
+  Map<String, List<String>> getAllBooksByTestament() {
+    return _repository.getAllBooksByTestament();
+  }
+
+  List<String> getOldTestamentBooks() {
+    return _repository.getOldTestamentBooks();
+  }
+
+  List<String> getNewTestamentBooks() {
+    return _repository.getNewTestamentBooks();
+  }
+
+  Map<String, dynamic> getLoadedBooksInfo() {
+    return _repository.getLoadedBooksInfo();
+  }
 }

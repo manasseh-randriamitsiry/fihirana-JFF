@@ -7,6 +7,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
 import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
 import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/is_favorite_usecase.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
@@ -14,9 +15,9 @@ class HymnController extends GetxController {
   late final TextEditingController searchController;
   
   final SearchHymnsUseCase _searchHymnsUseCase;
-  
   final AddToFavoritesUseCase _addToFavoritesUseCase;
   final RemoveFromFavoritesUseCase _removeFromFavoritesUseCase;
+  final IsFavoriteUseCase _isFavoriteUseCase;
   
   
   // Keep reference to service for streams and methods not yet in use cases
@@ -29,9 +30,11 @@ class HymnController extends GetxController {
     required SearchHymnsUseCase searchHymnsUseCase,
     required AddToFavoritesUseCase addToFavoritesUseCase,
     required RemoveFromFavoritesUseCase removeFromFavoritesUseCase,
+    required IsFavoriteUseCase isFavoriteUseCase,
   })  : _searchHymnsUseCase = searchHymnsUseCase,
         _addToFavoritesUseCase = addToFavoritesUseCase,
-        _removeFromFavoritesUseCase = removeFromFavoritesUseCase;
+        _removeFromFavoritesUseCase = removeFromFavoritesUseCase,
+        _isFavoriteUseCase = isFavoriteUseCase;
 
   void _initFavoriteStatusStream() {
     _favoriteStatusSubscription?.cancel();
@@ -71,9 +74,7 @@ class HymnController extends GetxController {
 
 Future<void> toggleFavorite(Hymn hymn) async {
     // Check if currently favorite and toggle accordingly
-    // TODO: Add isFavorite to use case or repository interface
-    // For now, we'll use the service directly
-    final isCurrentlyFavorite = await _hymnService.isFavorite(hymn.id);
+    final isCurrentlyFavorite = await _isFavoriteUseCase(hymn.id);
     if (isCurrentlyFavorite) {
       await _removeFromFavoritesUseCase(hymn.id);
     } else {

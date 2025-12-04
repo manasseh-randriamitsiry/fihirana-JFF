@@ -1,6 +1,7 @@
 import 'package:fihirana/features/bible/domain/entities/bible.dart';
 import 'package:fihirana/features/bible/domain/repositories/bible_repository.dart';
 import 'package:fihirana/features/bible/data/services/bible_service.dart';
+import 'package:fihirana/core/utils/bible_book_order.dart';
 
 class BibleRepositoryImpl implements IBibleService {
   final BibleService _bibleService;
@@ -96,5 +97,42 @@ class BibleRepositoryImpl implements IBibleService {
   @override
   Future<void> preloadBooks(List<String> bookNames) {
     return _bibleService.preloadBooks(bookNames);
+  }
+
+  @override
+  Map<String, List<String>> getAllBooksByTestament() {
+    final allBooks = getAllBooks();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    return BibleBookOrder.getAllBooksSortedByTestament(bookNames);
+  }
+
+  @override
+  List<String> getOldTestamentBooks() {
+    final allBooks = getAllBooks();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    return BibleBookOrder.getSortedOldTestamentBooks(bookNames);
+  }
+
+  @override
+  List<String> getNewTestamentBooks() {
+    final allBooks = getAllBooks();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    return BibleBookOrder.getSortedNewTestamentBooks(bookNames);
+  }
+
+  @override
+  Map<String, dynamic> getLoadedBooksInfo() {
+    final allBooks = getAllBooks();
+    final bookNames = allBooks.map((book) => book.name).toList();
+    final testamentOrganization = getAllBooksByTestament();
+    
+    return {
+      'totalBooks': allBooks.length,
+      'bookNames': bookNames,
+      'oldTestamentBooks': testamentOrganization['Testameta Taloha'] ?? [],
+      'newTestamentBooks': testamentOrganization['Testameta Vaovao'] ?? [],
+      'oldTestamentCount': (testamentOrganization['Testameta Taloha'] as List?)?.length ?? 0,
+      'newTestamentCount': (testamentOrganization['Testameta Vaovao'] as List?)?.length ?? 0,
+    };
   }
 }
