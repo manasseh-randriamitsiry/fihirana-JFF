@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -125,30 +124,14 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   void _stopRecording() async {
-    if (kDebugMode) {
-      print(
-          'RecordingOverlay: _stopRecording called for hymnId: ${widget.hymnId}');
-    }
-
     final recording =
         await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
-
-    if (kDebugMode) {
-      print('RecordingOverlay: Recording returned from controller: $recording');
-    }
 
     if (recording != null) {
       // Store's current recording for later reference
       _currentRecording = recording;
       setState(() => _state = RecordingOverlayState.saving);
-      if (kDebugMode) {
-        print('RecordingOverlay: State changed to saving');
-      }
     } else {
-      if (kDebugMode) {
-        print(
-            'RecordingOverlay: No recording returned, cannot show save dialog');
-      }
       // Show error message to user
       Get.snackbar(
         'Error',

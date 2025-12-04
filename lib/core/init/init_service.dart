@@ -13,7 +13,6 @@ import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/app/theme/theme_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/audio/data/services/audio_file_mapping.dart';
 import 'package:fihirana/features/audio/data/services/audio_foreground_service.dart';
 import 'package:fihirana/features/audio/data/services/background_service.dart';
@@ -90,8 +89,7 @@ class InitService {
 
   /// Initialize non-critical controllers with lazy loading
   static Future<void> initNonCriticalControllers() async {
-    // Initialize recording controller with minimal blocking
-    Get.put(RecordingController(), permanent: true);
+    // Recording controller is now initialized via DI in service_locator.dart
 
     // Initialize security service (critical - runs on app startup)
     Get.put(SecurityService());
