@@ -30,12 +30,7 @@ class DrawerWidgetState extends State<DrawerWidget>
   bool _isAuthenticated = false;
   String? _username;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    scopes: [
-      'email',
-      'https://www.googleapis.com/auth/contacts.readonly',
-    ],
-  );
+  GoogleSignIn? _googleSignIn;
   GoogleSignInAccount? _currentUser;
   bool _hasLoadedUsername = false;
 
@@ -43,9 +38,20 @@ class DrawerWidgetState extends State<DrawerWidget>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    try {
+      _googleSignIn = Get.find<GoogleSignIn>();
+    } catch (e) {
+      _googleSignIn = GoogleSignIn(
+        scopes: [
+          'email',
+          'https://www.googleapis.com/auth/contacts.readonly',
+        ],
+      );
+      Get.put(_googleSignIn!);
+    }
     _checkAuthStatus();
     _loadUsername();
-    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+    _googleSignIn?.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       if (mounted) {
         setState(() {
           _currentUser = account;
@@ -102,9 +108,9 @@ class DrawerWidgetState extends State<DrawerWidget>
   }
 
   void _updateCurrentUser() async {
-    GoogleSignInAccount? account = _googleSignIn.currentUser;
+    GoogleSignInAccount? account = _googleSignIn?.currentUser;
     if (account == null && _firebaseAuth.currentUser != null) {
-      account = await _googleSignIn.signInSilently();
+      account = await _googleSignIn?.signInSilently();
     }
     if (mounted) {
       setState(() {
@@ -116,11 +122,11 @@ class DrawerWidgetState extends State<DrawerWidget>
 
   Future<void> _signInWithGoogle() async {
     try {
-      await _googleSignIn.signOut();
+      await _googleSignIn?.signOut();
       await _firebaseAuth.signOut();
 
       final GoogleSignInAccount? googleSignInAccount =
-          await _googleSignIn.signIn();
+          await _googleSignIn?.signIn();
 
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication =

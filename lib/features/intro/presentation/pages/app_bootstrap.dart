@@ -2,17 +2,8 @@ import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/core/init/init_service.dart';
 import 'package:fihirana/core/di/service_locator.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:fihirana/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
-
-import 'package:fihirana/features/auth/domain/usecases/sign_out_usecase.dart';
-import 'package:fihirana/features/auth/domain/usecases/ensure_user_document_exists_usecase.dart';
-import 'package:fihirana/features/auth/data/repositories/auth_repository_impl.dart';
-import 'package:fihirana/features/auth/data/services/google_auth_service.dart';
+import 'package:fihirana/features/recording/di/recording_di.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -34,7 +25,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
   String _currentTask = 'Initializing app...';
   StreamSubscription<InitProgressEvent>? _progressSubscription;
 
-@override
+  @override
   void initState() {
     super.initState();
     _initialize();
@@ -46,12 +37,11 @@ class _AppBootstrapState extends State<AppBootstrap> {
     super.dispose();
   }
 
-
-
-Future<void> _initialize() async {
+  Future<void> _initialize() async {
     try {
       // Listen to detailed progress events
-      _progressSubscription = initProgressTracker.progressStream.listen((event) {
+      _progressSubscription =
+          initProgressTracker.progressStream.listen((event) {
         if (mounted) {
           setState(() {
             _progress = event.progress;
@@ -65,31 +55,8 @@ Future<void> _initialize() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Step 2: Ensure minimal controllers required by services are registered,
-      // then initialize Service Locator (20% -> 30%)
-      try {
-        if (!Get.isRegistered<AuthController>()) {
-          // Initialize auth dependencies
-          final authRepository = AuthRepositoryImpl(
-            FirebaseAuthService(),
-            FirebaseFirestore.instance,
-            GoogleSignIn(),
-            Get.isRegistered<SecurityService>() ? Get.find<SecurityService>() : SecurityService(),
-          );
-          
-          Get.put(AuthController(
-            signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
-            signOutUseCase: SignOutUseCase(authRepository),
-            ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
-          ));
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error pre-registering AuthController: $e');
-        }
-      }
-
       await serviceLocator.initialize();
+      RecordingDI.initialize();
 
       // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
       await InitService.initializeApp();
@@ -134,7 +101,7 @@ Future<void> _initialize() async {
         print('Error during bootstrap: $e');
         print('Initialization summary: ${initProgressTracker.getSummary()}');
       }
-      
+
       // Try to continue anyway
       final prefs = await SharedPreferences.getInstance();
       if (mounted) {

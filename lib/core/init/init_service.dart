@@ -66,15 +66,17 @@ class InitService {
     final authRepository = AuthRepositoryImpl(
       FirebaseAuthService(),
       FirebaseFirestore.instance,
-      GoogleSignIn(),
+      Get.find<GoogleSignIn>(),
       Get.find<SecurityService>(),
     );
     
-    Get.put(AuthController(
-      signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
-      signOutUseCase: SignOutUseCase(authRepository),
-      ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
-    ));
+    if (!Get.isRegistered<AuthController>()) {
+      Get.put(AuthController(
+        signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
+        signOutUseCase: SignOutUseCase(authRepository),
+        ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
+      ));
+    }
 
     // Load theme and colors (fast, from local storage)
     await Future.wait([

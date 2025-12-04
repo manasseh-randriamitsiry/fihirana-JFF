@@ -3,6 +3,7 @@ import 'package:fihirana/features/recording/data/repositories/recording_reposito
 import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
 import 'package:fihirana/features/recording/domain/usecases/recording_usecases.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
+import 'package:fihirana/features/recording/data/services/recording_service.dart';
 
 /// Dependency injection for recording feature
 class RecordingDI {
@@ -11,9 +12,15 @@ class RecordingDI {
 
   /// Initialize recording dependencies
   static void initialize() {
-    // Repository
+    // Service
+    Get.lazyPut<RecordingService>(() => RecordingService());
+
+    // Repository - register globally (without tag) for backward compatibility
+    Get.lazyPut<RecordingRepository>(() => RecordingRepositoryImpl());
+    
+    // Repository - also register with tag for new code
     Get.lazyPut<RecordingRepository>(
-      () => RecordingRepositoryImpl(),
+      () => Get.find<RecordingRepository>(), // Reuse the global instance
       tag: _recordingRepositoryTag,
     );
 
@@ -150,14 +157,16 @@ class RecordingDI {
         loadPublicRecordingsUseCase: Get.find<LoadPublicRecordingsUseCase>(),
         publishRecordingUseCase: Get.find<PublishRecordingUseCase>(),
         unpublishRecordingUseCase: Get.find<UnpublishRecordingUseCase>(),
-        toggleRecordingPrivacyUseCase: Get.find<ToggleRecordingPrivacyUseCase>(),
+        toggleRecordingPrivacyUseCase:
+            Get.find<ToggleRecordingPrivacyUseCase>(),
         searchRecordingsUseCase: Get.find<SearchRecordingsUseCase>(),
         getRecordingsByHymnIdUseCase: Get.find<GetRecordingsByHymnIdUseCase>(),
         uploadToGoogleDriveUseCase: Get.find<UploadToGoogleDriveUseCase>(),
         syncFromDriveUseCase: Get.find<SyncFromDriveUseCase>(),
         loadDeletedRecordingsUseCase: Get.find<LoadDeletedRecordingsUseCase>(),
         restoreRecordingUseCase: Get.find<RestoreRecordingUseCase>(),
-        permanentlyDeleteRecordingUseCase: Get.find<PermanentlyDeleteRecordingUseCase>(),
+        permanentlyDeleteRecordingUseCase:
+            Get.find<PermanentlyDeleteRecordingUseCase>(),
       ),
       tag: _recordingControllerTag,
     );

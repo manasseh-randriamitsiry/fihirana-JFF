@@ -1,5 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:fihirana/features/bible/domain/repositories/bible_repository.dart';
 import 'package:fihirana/features/hymn/domain/repositories/hymn_repository.dart';
@@ -50,6 +53,17 @@ class ServiceLocator {
 
   /// Register core services
   Future<void> _registerCoreServices() async {
+    // Firebase Services
+    Get.put<FirebaseFirestore>(FirebaseFirestore.instance);
+    Get.put<firebase_auth.FirebaseAuth>(firebase_auth.FirebaseAuth.instance);
+    Get.put<GoogleSignIn>(GoogleSignIn(
+      scopes: [
+        'email',
+        'https://www.googleapis.com/auth/contacts.readonly',
+        'https://www.googleapis.com/auth/drive.file',
+      ],
+    ));
+    
     // Storage Service
     final storageService = LocalStorageService();
     Get.put<LocalStorageService>(storageService);
@@ -76,11 +90,11 @@ class ServiceLocator {
     await recordingService.initialize();
     Get.put<RecordingService>(recordingService);
 
+    // Recording Feature (initialize before Admin to ensure dependencies are available)
+    RecordingDI.initialize();
+    
     // Admin Feature
     AdminDI.initialize();
-    
-    // Recording Feature
-    RecordingDI.initialize();
     
     // Announcement Feature
     AnnouncementDI.init();
