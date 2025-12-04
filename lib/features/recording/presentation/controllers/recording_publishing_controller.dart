@@ -7,6 +7,7 @@ class RecordingPublishingController extends GetxController {
   final PublishRecordingUseCase publishRecordingUseCase;
   final UnpublishRecordingUseCase unpublishRecordingUseCase;
   final ToggleRecordingPrivacyUseCase toggleRecordingPrivacyUseCase;
+  final LoadPublicRecordingsUseCase loadPublicRecordingsUseCase;
 
   final RxBool _isLoading = false.obs;
   final RxString _lastError = ''.obs;
@@ -16,6 +17,7 @@ class RecordingPublishingController extends GetxController {
     required this.publishRecordingUseCase,
     required this.unpublishRecordingUseCase,
     required this.toggleRecordingPrivacyUseCase,
+    required this.loadPublicRecordingsUseCase,
   });
 
   // Getters
@@ -82,7 +84,22 @@ class RecordingPublishingController extends GetxController {
     _lastError.value = '';
   }
 
-  void refreshPublicRecordings({String? hymnId}) {
-    // TODO: Implement refresh logic
+  Future<void> refreshPublicRecordings({String? hymnId}) async {
+    try {
+      _isLoading.value = true;
+      _lastError.value = '';
+      
+      await loadPublicRecordingsUseCase();
+      
+      // If hymnId is provided, filter the recordings
+      if (hymnId != null) {
+        _publicRecordings.assignAll(_publicRecordings.where((recording) => recording.hymnId == hymnId));
+      }
+    } catch (e) {
+      _lastError.value = 'Failed to refresh public recordings: $e';
+      rethrow;
+    } finally {
+      _isLoading.value = false;
+    }
   }
 }
