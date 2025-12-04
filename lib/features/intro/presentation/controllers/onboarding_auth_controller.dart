@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/home/presentation/pages/home_screen.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 /// Controller for authentication during onboarding
 class OnboardingAuthController extends GetxController {
@@ -64,13 +65,7 @@ class OnboardingAuthController extends GetxController {
 
       await Future.delayed(const Duration(milliseconds: 1500));
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Google sign in failed',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      ErrorHandler.handleError(e, message: 'googleSignInFailed'.tr);
       isSigningIn.value = false;
     }
   }
@@ -92,13 +87,7 @@ class OnboardingAuthController extends GetxController {
 
       Get.offAll(() => const HomeScreen());
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Name not saved',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      ErrorHandler.handleError(e, message: 'nameNotSaved'.tr);
     }
   }
 }

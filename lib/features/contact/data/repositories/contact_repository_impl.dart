@@ -1,10 +1,10 @@
 import 'package:fihirana/features/contact/domain/repositories/contact_repository.dart';
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
-import 'package:fihirana/features/contact/data/services/contact_service.dart';
+import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
 
 /// Repository implementation for contact operations
 class ContactRepositoryImpl implements ContactRepository {
-  final ContactService _contactService;
+  final IContactService _contactService;
 
   ContactRepositoryImpl(this._contactService);
 

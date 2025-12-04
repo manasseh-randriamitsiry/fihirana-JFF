@@ -12,11 +12,11 @@ class UserManagementScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final ColorController colorController = Get.find<ColorController>();
     final AdminController adminController = AdminDI.adminController;
 
     return Obx(() {
+      final l10n = AppLocalizations.of(context)!;
       final backgroundColor = colorController.backgroundColor.value;
       final textColor = colorController.textColor.value;
       final primaryColor = colorController.primaryColor.value;
@@ -30,9 +30,9 @@ class UserManagementScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               child: TextField(
                 onChanged: adminController.searchUsers,
-                decoration: InputDecoration(
-                  hintText: 'Search users...',
-                  prefixIcon: Icon(Icons.search, color: textColor.withValues(alpha: 0.6)),
+                 decoration: InputDecoration(
+                   hintText: l10n.searchUsersHint,
+                   prefixIcon: Icon(Icons.search, color: textColor.withValues(alpha: 0.6)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: textColor.withValues(alpha: 0.2)),
@@ -97,10 +97,10 @@ class UserManagementScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: adminController.refresh,
-                child: const Text('Retry'),
-              ),
+               ElevatedButton(
+                 onPressed: adminController.refresh,
+                 child: Text(l10n.retry),
+               ),
             ],
           ),
         );
@@ -119,14 +119,14 @@ class UserManagementScreen extends StatelessWidget {
                 color: textColor.withValues(alpha: 0.6),
               ),
               const SizedBox(height: 16),
-              Text(
-                'No users found',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+               Text(
+                 l10n.noUsersFound,
+                 style: TextStyle(
+                   color: textColor,
+                   fontSize: 18,
+                   fontWeight: FontWeight.w500,
+                 ),
+               ),
             ],
           ),
         );
@@ -135,11 +135,13 @@ class UserManagementScreen extends StatelessWidget {
       return RefreshIndicator(
         onRefresh: adminController.refresh,
         child: ListView.builder(
+          key: const PageStorageKey('users_list'),
           padding: const EdgeInsets.all(16),
           itemCount: users.length,
           itemBuilder: (context, index) {
             final user = users[index];
             return _UserListItem(
+              key: ValueKey(user.id),
               user: user,
               isSelected: adminController.isUserSelected(user.id),
               onSelectionChanged: (selected) {
@@ -163,15 +165,16 @@ class UserManagementScreen extends StatelessWidget {
     AdminController adminController,
     AdminUser user,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(user.isAdmin ? 'Revoke Admin Access' : 'Grant Admin Access'),
-        content: Text(
-          user.isAdmin
-              ? 'Are you sure you want to revoke admin access from ${user.displayName}?'
-              : 'Are you sure you want to grant admin access to ${user.displayName}?',
-        ),
+        builder: (context) => AlertDialog(
+         title: Text(user.isAdmin ? l10n.revokeAdminAccess : l10n.grantAdminAccess),
+         content: Text(
+           user.isAdmin
+               ? l10n.confirmRevokeAdminAccess(user.displayName)
+               : l10n.confirmGrantAdminAccess(user.displayName),
+         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -182,14 +185,14 @@ class UserManagementScreen extends StatelessWidget {
               Navigator.pop(context);
               final success = await adminController.updateUserAdminStatus(user.id, !user.isAdmin);
               if (success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(user.isAdmin 
-                        ? 'Admin access revoked'
-                        : 'Admin access granted'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(
+                     content: Text(user.isAdmin
+                         ? l10n.adminAccessRevoked
+                         : l10n.adminAccessGranted),
+                     backgroundColor: Colors.green,
+                   ),
+                 );
               }
             },
             child: const Text('Confirm'),
@@ -204,15 +207,16 @@ class UserManagementScreen extends StatelessWidget {
     AdminController adminController,
     AdminUser user,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(user.isBlocked ? 'Unblock User' : 'Block User'),
-        content: Text(
-          user.isBlocked
-              ? 'Are you sure you want to unblock ${user.displayName}?'
-              : 'Are you sure you want to block ${user.displayName}?',
-        ),
+        builder: (context) => AlertDialog(
+         title: Text(user.isBlocked ? l10n.unblockUser : l10n.blockUser),
+         content: Text(
+           user.isBlocked
+               ? l10n.confirmUnblockUser(user.displayName)
+               : l10n.confirmBlockUser(user.displayName),
+         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -223,14 +227,14 @@ class UserManagementScreen extends StatelessWidget {
               Navigator.pop(context);
               final success = await adminController.blockUser(user.id, !user.isBlocked);
               if (success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(user.isBlocked 
-                        ? 'User unblocked'
-                        : 'User blocked'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                 ScaffoldMessenger.of(context).showSnackBar(
+                   SnackBar(
+                     content: Text(user.isBlocked
+                         ? l10n.userUnblocked
+                         : l10n.userBlocked),
+                     backgroundColor: Colors.green,
+                   ),
+                 );
               }
             },
             child: const Text('Confirm'),
@@ -245,13 +249,14 @@ class UserManagementScreen extends StatelessWidget {
     AdminController adminController,
     AdminUser user,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete User'),
-        content: Text(
-          'Are you sure you want to delete ${user.displayName}? This action cannot be undone.',
-        ),
+        builder: (context) => AlertDialog(
+         title: const Text('Delete User'),
+         content: Text(
+           l10n.confirmDeleteUser(user.displayName),
+         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -263,10 +268,10 @@ class UserManagementScreen extends StatelessWidget {
               final success = await adminController.deleteUser(user.id);
               if (success && context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('User deleted successfully'),
-                    backgroundColor: Colors.green,
-                  ),
+                   SnackBar(
+                     content: Text(l10n.userDeletedSuccessfully),
+                     backgroundColor: Colors.green,
+                   ),
                 );
               }
             },
@@ -293,6 +298,7 @@ class _UserListItem extends StatelessWidget {
   final Color backgroundColor;
 
   const _UserListItem({
+    super.key,
     required this.user,
     required this.isSelected,
     required this.onSelectionChanged,
@@ -332,14 +338,14 @@ class _UserListItem extends StatelessWidget {
                   color: Colors.orange,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'ADMIN',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                  child: const Text(
+                    'Admin',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
               ),
             if (user.isBlocked)
               Container(
@@ -348,14 +354,14 @@ class _UserListItem extends StatelessWidget {
                   color: Colors.red,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'BLOCKED',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                  child: const Text(
+                    'Blocked',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
               ),
           ],
         ),
@@ -369,13 +375,13 @@ class _UserListItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              'Last login: ${user.lastLogin != null ? _formatDate(user.lastLogin!) : 'Never'}',
-              style: TextStyle(
-                color: textColor.withValues(alpha: 0.6),
-                fontSize: 12,
-              ),
-            ),
+             Text(
+                'Last Login: ${user.lastLogin != null ? _formatDate(user.lastLogin!, context) : 'Never'}',
+               style: TextStyle(
+                 color: textColor.withValues(alpha: 0.6),
+                 fontSize: 12,
+               ),
+             ),
           ],
         ),
         trailing: PopupMenuButton<String>(
@@ -393,37 +399,37 @@ class _UserListItem extends StatelessWidget {
                 break;
             }
           },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'toggle_admin',
-              child: Text(user.isAdmin ? 'Revoke Admin' : 'Make Admin'),
-            ),
-            PopupMenuItem(
-              value: 'toggle_block',
-              child: Text(user.isBlocked ? 'Unblock User' : 'Block User'),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Text('Delete User', style: TextStyle(color: Colors.red)),
-            ),
+             itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'delete',
+                 child: Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
+             PopupMenuItem(
+               value: 'toggle_block',
+                child: Text(user.isBlocked ? 'Unblock' : 'Block'),
+             ),
+              const PopupMenuItem(
+                value: 'delete',
+                 child: Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
           ],
         ),
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, BuildContext context) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays > 0) {
-      return '${difference.inDays} days ago';
+      return AppLocalizations.of(context)!.daysAgo(difference.inDays);
     } else if (difference.inHours > 0) {
-      return '${difference.inHours} hours ago';
+      return AppLocalizations.of(context)!.hoursAgo(difference.inHours);
     } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes} minutes ago';
+      return AppLocalizations.of(context)!.minutesAgo(difference.inMinutes);
     } else {
-      return 'Just now';
+      return AppLocalizations.of(context)!.justNow;
     }
   }
 }

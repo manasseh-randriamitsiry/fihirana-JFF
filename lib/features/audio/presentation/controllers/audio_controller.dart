@@ -12,6 +12,7 @@ import 'package:fihirana/features/audio/domain/usecases/play_previous_usecase.da
 import 'package:fihirana/features/audio/domain/usecases/check_audio_exists_usecase.dart';
 import 'package:fihirana/features/audio/domain/usecases/download_audio_usecase.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 class AudioController extends GetxController {
   final PlayHymnUseCase _playHymnUseCase;
@@ -89,7 +90,7 @@ class AudioController extends GetxController {
         _clearError();
       },
       onError: (error) {
-        _setError(error.toString());
+        ErrorHandler.handleError(error, message: 'errorOccurred'.tr);
       },
     );
 
@@ -113,7 +114,7 @@ class AudioController extends GetxController {
       _clearError();
       await _playHymnUseCase(hymn, customAudioUrl: customAudioUrl);
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorPlayingAudio'.tr);
     } finally {
       _setLoading(false);
     }
@@ -124,7 +125,7 @@ class AudioController extends GetxController {
       _clearError();
       await _pauseAudioUseCase();
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -133,7 +134,7 @@ class AudioController extends GetxController {
       _clearError();
       await _resumeAudioUseCase();
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -142,7 +143,7 @@ class AudioController extends GetxController {
       _clearError();
       await _stopAudioUseCase();
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -151,7 +152,7 @@ class AudioController extends GetxController {
       _clearError();
       await _playNextUseCase();
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorPlayingNextHymn'.tr);
     }
   }
 
@@ -160,7 +161,7 @@ class AudioController extends GetxController {
       _clearError();
       await _playPreviousUseCase();
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorPlayingPreviousHymn'.tr);
     }
   }
 
@@ -169,7 +170,7 @@ class AudioController extends GetxController {
       _clearError();
       await _repository.seekTo(position);
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -179,7 +180,7 @@ class AudioController extends GetxController {
       _clearError();
       await _setPlaylistUseCase(playlist, initialIndex);
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -188,7 +189,7 @@ class AudioController extends GetxController {
     try {
       return await _checkAudioExistsUseCase(hymnId);
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
       return false;
     }
   }
@@ -199,7 +200,7 @@ class AudioController extends GetxController {
       _clearError();
       await _downloadAudioUseCase(hymn, onProgress: onProgress);
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'cannotDownload'.tr);
     } finally {
       _setLoading(false);
     }
@@ -212,7 +213,7 @@ class AudioController extends GetxController {
       _clearError();
       await _repository.playRecording(recording);
     } catch (e) {
-      _setError(e.toString());
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     } finally {
       _setLoading(false);
     }
@@ -241,10 +242,7 @@ class AudioController extends GetxController {
     _playerState.value = _playerState.value.copyWith(isLoading: loading);
   }
 
-  void _setError(String error) {
-    _error.value = error;
-    _playerState.value = _playerState.value.copyWith(error: error);
-  }
+
 
   void _clearError() {
     if (_error.value.isNotEmpty) {

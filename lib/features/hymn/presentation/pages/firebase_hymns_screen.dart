@@ -109,6 +109,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
             }
 
             return ListView.builder(
+              key: const PageStorageKey('firebase_hymns_list'),
               itemCount: hymns.length,
               itemBuilder: (context, index) {
                 final hymn = hymns[index];
@@ -116,6 +117,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                   stream: _hymnService.getFavoriteStatusStream(),
                   builder: (context, snapshot) {
                     return HymnListItem(
+                      key: ValueKey(hymn.id),
                       hymn: hymn,
                       textColor: colorController.textColor.value,
                       backgroundColor: colorController.backgroundColor.value,

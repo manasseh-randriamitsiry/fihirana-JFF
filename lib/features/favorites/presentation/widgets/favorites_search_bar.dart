@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class FavoritesSearchBar extends StatefulWidget {
   final TextEditingController controller;
@@ -28,7 +29,7 @@ class _FavoritesSearchBarState extends State<FavoritesSearchBar> {
     final l10n = AppLocalizations.of(context)!;
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(AppDimensions.md),
       child: Container(
         decoration: BoxDecoration(
           color: colorController.backgroundColor.value,

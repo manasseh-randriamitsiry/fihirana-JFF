@@ -32,8 +32,8 @@ class SplashScreenAuthenticatedState extends State<SplashScreenAuthenticated> {
         width: double.infinity,
         height: double.infinity,
         child: Stack(
-          children: [
-            Container(
+           children: [
+             Container(
               decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage('assets/images/splash.png'),

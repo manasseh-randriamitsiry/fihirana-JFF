@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 import 'package:fihirana/features/history/domain/usecases/load_user_history_usecase.dart';
 import 'package:fihirana/features/history/domain/usecases/add_to_history_usecase.dart';
 import 'package:fihirana/features/history/domain/usecases/delete_selected_history_items_usecase.dart';
@@ -113,13 +113,7 @@ class HistoryController extends GetxController {
         duration: const Duration(seconds: 2),
       );
 } catch (e) {
-      final translationService = TranslationService();
-      Get.snackbar(
-        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Failed to delete history', sourceLanguage: 'en', targetLanguage: 'en'),
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-      );
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     } finally {
       isLoading.value = false;
     }
@@ -140,9 +134,7 @@ class HistoryController extends GetxController {
       await _addToHistoryUseCase(hymnId, title, number);
       await loadUserHistory();
     } catch (e) {
-      if (kDebugMode) {
-        print(e);
-      }
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -159,13 +151,7 @@ class HistoryController extends GetxController {
         duration: const Duration(seconds: 2),
       );
     } catch (e) {
-      final translationService = TranslationService();
-      Get.snackbar(
-        await translationService.translate(text: 'Error', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'Failed to clear history', sourceLanguage: 'en', targetLanguage: 'en'),
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-      );
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 }

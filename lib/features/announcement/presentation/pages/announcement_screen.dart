@@ -418,11 +418,13 @@ body: RefreshIndicator(
           }
 
           return ListView.builder(
+            key: const PageStorageKey('announcements_list'),
             padding: const EdgeInsets.all(16),
             itemCount: announcements.length,
             itemBuilder: (context, index) {
               final announcement = announcements[index];
               return AnnouncementCardWidget(
+                key: ValueKey(announcement.id),
                 announcement: announcement,
                 isAdmin: _announcementController.isAdmin,
                 onEdit: () => _showEditAnnouncementDialog(announcement),

@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/audio/domain/repositories/audio_repository.dart';
 import 'package:fihirana/features/audio/data/repositories/audio_repository_impl.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/domain/repositories/i_audio_service.dart';
 import 'package:fihirana/features/audio/domain/usecases/play_hymn_usecase.dart';
 import 'package:fihirana/features/audio/domain/usecases/pause_audio_usecase.dart';
 import 'package:fihirana/features/audio/domain/usecases/resume_audio_usecase.dart';
@@ -18,13 +19,13 @@ class AudioDI {
   /// Initialize audio dependencies
   static void init() {
     // Service
-    Get.lazyPut<AudioService>(
+    Get.lazyPut<IAudioService>(
       () => AudioService.instance,
     );
 
     // Repository
     Get.lazyPut<AudioRepository>(
-      () => AudioRepositoryImpl(Get.find<AudioService>()),
+      () => AudioRepositoryImpl(Get.find<IAudioService>()),
     );
 
     // Use cases

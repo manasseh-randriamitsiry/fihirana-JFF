@@ -9,15 +9,20 @@ import 'package:fihirana/features/bible/domain/usecases/get_chapter_usecase.dart
 import 'package:fihirana/features/bible/domain/usecases/search_verses_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/search_books_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_random_verse_usecase.dart';
+import 'package:fihirana/features/bible/data/services/bible_highlight_service.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 
 /// Bible dependency injection configuration
 class BibleDI {
   /// Initialize bible dependencies
   static void init() {
-    // Service
+    // Services
     Get.lazyPut<BibleService>(
       () => BibleService(),
+    );
+
+    Get.lazyPut<BibleHighlightService>(
+      () => BibleHighlightService(),
     );
 
     // Repository
@@ -61,6 +66,7 @@ class BibleDI {
         getAllBooksUseCase: Get.find<GetAllBooksUseCase>(),
         getBookUseCase: Get.find<GetBookUseCase>(),
         searchBooksUseCase: Get.find<SearchBooksUseCase>(),
+        highlightService: Get.find<BibleHighlightService>(),
       ),
     );
   }

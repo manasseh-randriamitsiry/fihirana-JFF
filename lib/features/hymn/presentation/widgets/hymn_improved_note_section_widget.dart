@@ -4,6 +4,7 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/domain/entities/note.dart';
 import 'package:fihirana/features/bible/data/services/note_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class NoteEditorWidget extends StatefulWidget {
   final Note? note;
@@ -361,7 +362,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
           child: SlideTransition(
             position: _slideAnimation,
             child: Container(
-              margin: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.all(AppDimensions.md),
               decoration: BoxDecoration(
                 color: colorController.backgroundColor.value,
                 borderRadius: BorderRadius.circular(16),
@@ -413,7 +414,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
           topRight: Radius.circular(16),
         ),
         child: Container(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(AppDimensions.md),
           decoration: const BoxDecoration(
             color: Colors.transparent,
             borderRadius: BorderRadius.only(
@@ -505,7 +506,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               widget.onAddNote();
             },
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(AppDimensions.sm),
               child: Icon(
                 widget.userNote != null ? Icons.edit : Icons.add,
                 color: colorController.backgroundColor.value,
@@ -521,7 +522,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
   Widget _buildNotesContent(
       ColorController colorController, AppLocalizations l10n) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(AppDimensions.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -574,7 +575,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
         onTap: () => setState(() => _showCommunityNotes = !_showCommunityNotes),
         borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4.0),
+          padding: const EdgeInsets.symmetric(vertical: AppDimensions.xs),
           child: Row(
             children: [
               Icon(
@@ -623,7 +624,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
         borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(AppDimensions.md),
           decoration: BoxDecoration(
             color: colorController.primaryColor.value.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
@@ -735,7 +736,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               ),
               if (note.content.length > 100)
                 Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
+                  padding: const EdgeInsets.only(top: AppDimensions.xs),
                   child: Text(
                     'Tap to see more...',
                     style: TextStyle(
@@ -775,7 +776,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
         borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(AppDimensions.md),
           decoration: BoxDecoration(
             color: colorController.backgroundColor.value,
             borderRadius: BorderRadius.circular(12),
@@ -893,7 +894,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               ),
               if (note.content.length > 80)
                 Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
+                  padding: const EdgeInsets.only(top: AppDimensions.xs),
                   child: Text(
                     'Tap to read more...',
                     style: TextStyle(
@@ -922,7 +923,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
         borderRadius: BorderRadius.circular(12),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(AppDimensions.lg),
           decoration: BoxDecoration(
             color: colorController.backgroundColor.value,
             borderRadius: BorderRadius.circular(12),

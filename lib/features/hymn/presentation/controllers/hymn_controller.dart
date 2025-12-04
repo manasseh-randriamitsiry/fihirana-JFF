@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
 import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
@@ -10,6 +9,7 @@ import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_use
 import 'package:fihirana/features/hymn/domain/usecases/is_favorite_usecase.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 class HymnController extends GetxController {
   late final TextEditingController searchController;
@@ -142,10 +142,7 @@ Future<List<Hymn>> searchHymns(String query) async {
     try {
       searchController.dispose();
     } catch (e) {
-      // Controller already disposed, ignore
-      if (kDebugMode) {
-        debugPrint('SearchController already disposed: $e');
-      }
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
     _favoriteStatusSubscription?.cancel();
     super.onClose();

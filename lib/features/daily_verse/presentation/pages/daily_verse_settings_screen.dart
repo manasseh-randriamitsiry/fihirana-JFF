@@ -6,6 +6,7 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {
   DailyVerseSettingsScreen({super.key});
@@ -227,7 +228,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
               if (controller.isLoading.value) {
                 return Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(32.0),
+                    padding: const EdgeInsets.all(AppDimensions.xl),
                     child: CircularProgressIndicator(
                       color: colorController.primaryColor.value,
                     ),

@@ -19,6 +19,20 @@ import 'package:fihirana/features/audio/di/audio_di.dart';
 import 'package:fihirana/features/bible/di/bible_di.dart';
 import 'package:fihirana/features/hymn/di/hymn_di.dart';
 import 'package:fihirana/features/auth/di/auth_di.dart';
+import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/domain/repositories/i_audio_service.dart';
+import 'package:fihirana/features/contact/data/services/contact_service.dart';
+import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
+import 'package:fihirana/features/announcement/data/services/announcement_service.dart';
+import 'package:fihirana/features/announcement/domain/repositories/i_announcement_service.dart';
+import 'package:fihirana/features/daily_verse/data/services/daily_verse_service.dart';
+import 'package:fihirana/features/daily_verse/domain/repositories/i_daily_verse_service.dart';
+import 'package:fihirana/features/playlist/data/services/playlist_service.dart';
+import 'package:fihirana/features/playlist/domain/repositories/i_playlist_service.dart';
+import 'package:fihirana/features/bible/data/services/bible_highlight_service.dart';
+import 'package:fihirana/features/bible/domain/repositories/i_bible_highlight_service.dart';
+import 'package:fihirana/features/bible/data/services/note_service.dart';
+import 'package:fihirana/features/bible/domain/repositories/i_note_service.dart';
 
 /// Service locator for dependency injection
 /// This provides a centralized way to manage service instances and their dependencies
@@ -114,7 +128,33 @@ class ServiceLocator {
 
   /// Register data services
   Future<void> _registerDataServices() async {
-    // Additional data services can be registered here
+    // Audio Service
+    final audioService = AudioService();
+    Get.put<IAudioService>(audioService);
+
+    // Contact Service
+    final contactService = ContactService();
+    Get.put<IContactService>(contactService);
+
+    // Announcement Service
+    final announcementService = AnnouncementService();
+    Get.put<IAnnouncementService>(announcementService);
+
+    // Daily Verse Service
+    final dailyVerseService = DailyVerseService();
+    Get.put<IDailyVerseService>(dailyVerseService);
+
+    // Playlist Service
+    final playlistService = PlaylistService();
+    Get.put<IPlaylistService>(playlistService);
+
+    // Bible Highlight Service
+    final bibleHighlightService = BibleHighlightService();
+    Get.put<IBibleHighlightService>(bibleHighlightService);
+
+    // Note Service
+    final noteService = NoteService();
+    Get.put<INoteService>(noteService);
   }
 
   /// Get service by type

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/daily_verse/domain/entities/daily_verse.dart';
@@ -8,6 +7,7 @@ import 'package:fihirana/features/daily_verse/domain/usecases/save_daily_verse_s
 import 'package:fihirana/features/daily_verse/domain/usecases/toggle_daily_verse_usecase.dart';
 import 'package:fihirana/features/daily_verse/domain/usecases/update_notification_time_usecase.dart';
 import 'package:fihirana/features/daily_verse/domain/usecases/send_test_notification_usecase.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 class DailyVerseController extends GetxController {
   final GetVerseOfTheDayUseCase _getVerseOfTheDayUseCase;
@@ -67,9 +67,7 @@ class DailyVerseController extends GetxController {
       isLoading.value = true;
       todaysVerse.value = await _getVerseOfTheDayUseCase();
     } catch (e) {
-      if (kDebugMode) {
-        print('Error loading today\'s verse: $e');
-      }
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     } finally {
       isLoading.value = false;
     }

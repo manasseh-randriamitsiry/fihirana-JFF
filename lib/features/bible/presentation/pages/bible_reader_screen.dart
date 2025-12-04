@@ -5,8 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/features/bible/di/bible_di.dart';
-
-
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_search_dialog.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_reader_widgets.dart';
@@ -27,10 +25,7 @@ class BibleReaderScreen extends StatefulWidget {
 class _BibleReaderScreenState extends State<BibleReaderScreen> {
   late final BibleController bibleController;
 
-  void _initializeBibleController() {
-    BibleDI.init();
-    bibleController = Get.find<BibleController>();
-  }
+
   final ColorController colorController = Get.find<ColorController>();
   final FontController fontController = Get.find<FontController>();
 
@@ -44,7 +39,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeBibleController();
+    BibleDI.init();
+    bibleController = Get.find<BibleController>();
     _loadSettings();
   }
 
@@ -82,88 +78,80 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      final backgroundColor = colorController.backgroundColor.value;
-      final iconColor = colorController.iconColor.value;
-      final textColor = colorController.textColor.value;
-
-      return Scaffold(
-        backgroundColor: backgroundColor,
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leading: IconButton(
-            icon: Icon(
-              bibleController.selectedBook.isEmpty
-                  ? Icons.menu_rounded
-                  : Icons.arrow_back_ios_new_rounded,
-              color: iconColor,
-            ),
-            onPressed: () {
-              if (bibleController.selectedChapter.value > 0) {
-                bibleController
-                    .selectChapter(0); // Go back to chapter selection
-              } else if (bibleController.selectedBook.isNotEmpty) {
-                bibleController.selectBook(''); // Go back to book selection
-              } else {
-                Get.find<ShellController>().toggleDrawer();
-              }
-            },
+    return Scaffold(
+      backgroundColor: colorController.backgroundColor.value,
+      appBar: AppBar(
+        backgroundColor: colorController.backgroundColor.value,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            bibleController.selectedBook.isEmpty
+                ? Icons.menu_rounded
+                : Icons.arrow_back_ios_new_rounded,
+            color: colorController.iconColor.value,
           ),
+          onPressed: () {
+            if (bibleController.selectedChapter > 0) {
+              bibleController
+                  .selectChapter(0); // Go back to chapter selection
+            } else if (bibleController.selectedBook.isNotEmpty) {
+              bibleController.selectBook(''); // Go back to book selection
+            } else {
+              Get.find<ShellController>().toggleDrawer();
+            }
+          },
+        ),
           title: Text(
-            _getAppBarTitle(),
+            _getAppBarTitle(context),
             style: TextStyle(
               fontFamily: 'Roboto',
-              color: textColor,
+              color: colorController.textColor.value,
               fontWeight: FontWeight.w600,
               fontSize: 18,
             ),
           ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.translate, color: iconColor),
-              onPressed: _showTranslationDialog,
-            ),
-            IconButton(
-              icon: Icon(Icons.search_rounded, color: iconColor),
-              onPressed: _showSearchDialog,
-            ),
-            IconButton(
-              icon: Icon(Icons.text_format_rounded, color: iconColor),
-              onPressed: _showSettingsBottomSheet,
-            ),
-          ],
-        ),
-        body: _buildContentArea(),
-      );
-    });
+        actions: [
+          IconButton(
+            icon: Icon(Icons.translate, color: colorController.iconColor.value),
+            onPressed: () => _showTranslationDialog(context),
+          ),
+          IconButton(
+            icon: Icon(Icons.search_rounded, color: colorController.iconColor.value),
+            onPressed: () => _showSearchDialog(context),
+          ),
+          IconButton(
+            icon: Icon(Icons.text_format_rounded, color: colorController.iconColor.value),
+            onPressed: () => _showSettingsBottomSheet(context),
+          ),
+        ],
+      ),
+        body: _buildContentArea(context),
+    );
   }
 
-  String _getAppBarTitle() {
-    if (bibleController.selectedBook.isNotEmpty &&
-        bibleController.selectedChapter.value > 0) {
-      return '${bibleController.selectedBook.value} ${bibleController.selectedChapter.value}';
+  String _getAppBarTitle(BuildContext context) {
+    if (bibleController.selectedBook.isEmpty &&
+        bibleController.selectedChapter > 0) {
+      return '${bibleController.selectedBook} ${bibleController.selectedChapter}';
     } else if (bibleController.selectedBook.isNotEmpty) {
-      return bibleController.selectedBook.value;
+      return bibleController.selectedBook;
     }
     return context.translate((l) => l.bibleReader);
   }
 
-  Widget _buildContentArea() {
-    return Obx(() {
-      if (bibleController.selectedBook.isEmpty) {
-        return _buildBookListView();
-      } else if (bibleController.selectedChapter.value == 0) {
-        return _buildChapterSelectionView();
-      } else {
-        return _buildVerseReadingView();
-      }
-    });
+  Widget _buildContentArea(BuildContext context) {
+    if (bibleController.selectedBook.isEmpty) {
+      return _buildBookListView();
+    } else if (bibleController.selectedChapter == 0) {
+      return _buildChapterSelectionView(context);
+    } else {
+      return _buildVerseReadingView(context);
+    }
   }
 
   Widget _buildBookListView() {
-    if (bibleController.isLoading.value) {
+    if (bibleController.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -172,6 +160,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         : _getFilteredBooksByTestament();
 
     return ListView.builder(
+      key: const PageStorageKey('bible_books_list'),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
@@ -179,6 +168,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         final books = booksByTestament[testamentName]!;
 
         return Column(
+          key: ValueKey(testamentName),
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
@@ -205,7 +195,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
   }
 
-  Widget _buildChapterSelectionView() {
+  Widget _buildChapterSelectionView(BuildContext context) {
     final chapters = bibleController.chapterList;
     if (chapters.isEmpty) {
       return Center(
@@ -222,8 +212,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
   }
 
-  Widget _buildVerseReadingView() {
-    if (bibleController.isLoading.value) {
+  Widget _buildVerseReadingView(BuildContext context) {
+    if (bibleController.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -238,6 +228,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           children: [
             Expanded(
               child: ListView.builder(
+                key: const PageStorageKey('bible_verses_list'),
                 controller: _verseScrollController,
                 padding: const EdgeInsets.fromLTRB(
                     20, 16, 20, 100), // Add bottom padding for FAB
@@ -253,6 +244,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   final verseNumber = index + 1;
                   final verseText = verses[index];
                   return BibleVerseItemWidget(
+                    key: ValueKey(verseNumber),
                     verseNumber: verseNumber,
                     verseText: verseText,
                     verseStyle: _verseStyle,
@@ -270,67 +262,68 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             ),
           ],
         ),
-        // Selection Action Bar
-        Obx(() {
-          final l10n = AppLocalizations.of(context)!;
-          if (!bibleController.isSelecting.value) {
-            return const SizedBox.shrink();
-          }
-
-          return Positioned(
-            bottom: 24,
-            left: 24,
-            right: 24,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: colorController.backgroundColor.value,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-                border: Border.all(
-                  color:
-                      colorController.primaryColor.value.withValues(alpha: 0.1),
+// Selection Action Bar
+        bibleController.isSelecting ? Positioned(
+          bottom: 24,
+          left: 24,
+          right: 24,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            decoration: BoxDecoration(
+              color: colorController.backgroundColor.value,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Clear Selection
-                  IconButton(
-                    onPressed: () => bibleController.clearSelection(),
-                    icon: Icon(Icons.close,
-                        color: colorController.textColor.value),
-                    tooltip: l10n.clear,
-                  ),
-                  Container(
-                    width: 1,
-                    height: 24,
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.2),
-                  ),
-                  // Highlight/Save
-                  IconButton(
-                    onPressed: () => bibleController.saveHighlight(),
-                    icon: const Icon(Icons.highlight_rounded,
-                        color: Colors.orange),
-                    tooltip: l10n.saveChanges,
-                  ),
-                ],
+              ],
+              border: Border.all(
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.1),
               ),
             ),
-          );
-        }),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Clear Selection
+                IconButton(
+                  onPressed: () => bibleController.clearSelection(),
+                  icon: Icon(Icons.close,
+                      color: colorController.textColor.value),
+                  tooltip: AppLocalizations.of(context)!.clear,
+                ),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.2),
+                ),
+                // Highlight/Save
+                IconButton(
+                  onPressed: () => bibleController.saveHighlight(),
+                  icon: const Icon(Icons.highlight_rounded,
+                      color: Colors.orange),
+                  tooltip: AppLocalizations.of(context)!.saveChanges,
+                ),
+              ],
+            ),
+          ),
+        ) : const SizedBox.shrink(),
       ],
     );
   }
 
-  void _showSettingsBottomSheet() {
+  void _onSettingsChanged(double fontSize, String fontFamily) {
+    setState(() {
+      _fontSize = fontSize;
+      _fontFamily = fontFamily;
+    });
+    _saveSettings();
+  }
+
+  void _showSettingsBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -338,13 +331,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       builder: (context) => BibleSettingsBottomSheetWidget(
         fontSize: _fontSize,
         fontFamily: _fontFamily,
-        onSettingsChanged: (fontSize, fontFamily) {
-          setState(() {
-            _fontSize = fontSize;
-            _fontFamily = fontFamily;
-          });
-          _saveSettings();
-        },
+        onSettingsChanged: _onSettingsChanged,
       ),
     );
   }
@@ -368,17 +355,17 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   void _navigateChapter(int direction) {
-    final currentChapter = bibleController.selectedChapter.value;
+    final currentChapter = bibleController.selectedChapter;
     final newChapter = currentChapter + direction;
     final maxChapters = bibleController
-        .getChapterCountForBook(bibleController.selectedBook.value);
+        .getChapterCountForBook(bibleController.selectedBook);
 
     if (newChapter >= 1 && newChapter <= maxChapters) {
       bibleController.selectChapter(newChapter);
     }
   }
 
-  void _showSearchDialog() {
+  void _showSearchDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -387,25 +374,25 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   void _scrollToHighlightedVerse() {
-    final highlightedVerse = bibleController.highlightedVerse.value;
+    final highlightedVerse = bibleController.highlightedVerse;
     if (highlightedVerse > 0 && _verseScrollController.hasClients) {
       // Approximate height calculation or use itemScrollController if needed
       // For now, simple offset estimation
       final verseHeight = _fontSize * 3; // Rough estimate
-      final targetOffset = (highlightedVerse - 1) * verseHeight;
+      final targetOffset = (highlightedVerse - 1) * verseHeight.toDouble();
 
       _verseScrollController.animateTo(
         targetOffset.clamp(
-            0.0, _verseScrollController.position.maxScrollExtent),
+            0.0, _verseScrollController.position.maxScrollExtent).toDouble(),
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
     }
   }
 
-  Future<void> _showTranslationDialog() async {
+  Future<void> _showTranslationDialog(BuildContext context) async {
     if (bibleController.selectedBook.isEmpty ||
-        bibleController.selectedChapter.value == 0) {
+        bibleController.selectedChapter == 0) {
       return;
     }
 
@@ -433,10 +420,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           await translationService.isModelDownloaded(targetLang);
 
       if (!isDownloaded) {
-        if (mounted) {
-          Navigator.pop(context); // Close loading
+          if (context.mounted) {
+            Navigator.pop(context); // Close loading
 
-          final shouldDownload = await showDialog<bool>(
+            final shouldDownload = await showDialog<bool>(
             context: context,
             builder: (context) => AlertDialog(
               title: Text(l10n.download),
@@ -457,7 +444,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
           if (shouldDownload != true) return;
 
-          if (mounted) {
+          if (context.mounted) {
             showDialog(
               context: context,
               barrierDismissible: false,
@@ -468,7 +455,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
           final success = await translationService.downloadModel(targetLang);
           if (!success) {
-            if (mounted) {
+            if (context.mounted) {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(l10n.downloadFailed)),
@@ -492,7 +479,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         translatedVerses.add(translatedVerse);
       }
 
-      if (mounted) {
+      if (context.mounted) {
         Navigator.pop(context); // Close loading
 
         showModalBottomSheet(
@@ -533,14 +520,16 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     ],
                   ),
                   const Divider(),
-                  Expanded(
-                    child: ListView.builder(
-                      controller: scrollController,
-                      itemCount: translatedVerses.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: Row(
+                   Expanded(
+                     child: ListView.builder(
+                       key: const PageStorageKey('bible_translated_verses_list'),
+                       controller: scrollController,
+                       itemCount: translatedVerses.length,
+                       itemBuilder: (context, index) {
+                         return Padding(
+                           key: ValueKey(index + 1),
+                           padding: const EdgeInsets.only(bottom: 16),
+                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
@@ -579,7 +568,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         );
       }
     } catch (e) {
-      if (mounted) {
+      if (context.mounted) {
         Navigator.pop(context); // Close loading
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.errorOccurred)),

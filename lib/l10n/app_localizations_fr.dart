@@ -1841,7 +1841,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get translateTo => 'Traduire vers';
 
   @override
-  String get emergencyModeActive => 'MODE D\'URGENCE ACTIF';
+  String get emergencyModeActive => 'Mode d\'urgence actif';
 
   @override
   String get allUpdatesDisabled => 'Toutes les mises à jour sont actuellement désactivées';
@@ -1862,10 +1862,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get manage => 'Gérer';
 
   @override
-  String get updatesEnabled => 'Les mises à jour sont activées';
+  String get updatesEnabled => 'Mises à jour activées';
 
   @override
-  String get updatesDisabled => 'Les mises à jour sont désactivées';
+  String get updatesDisabled => 'Mises à jour désactivées';
 
   @override
   String versionBlocked(Object version) {
@@ -2100,4 +2100,197 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get recordingNotSaved => 'L\'enregistrement n\'a pas été sauvegardé';
+
+  @override
+  String get superAdminDashboard => 'Tableau de bord super administrateur';
+
+  @override
+  String get deletedRecordings => 'Enregistrements supprimés';
+
+  @override
+  String get searchUsersHint => 'Rechercher des utilisateurs...';
+
+  @override
+  String get noUsersFound => 'Aucun utilisateur trouvé';
+
+  @override
+  String get revokeAdminAccess => 'Révoquer l\'accès administrateur';
+
+  @override
+  String get grantAdminAccess => 'Accorder l\'accès administrateur';
+
+  @override
+  String confirmRevokeAdminAccess(String displayName) {
+    return 'Êtes-vous sûr de vouloir révoquer l\'accès administrateur de $displayName?';
+  }
+
+  @override
+  String confirmGrantAdminAccess(String displayName) {
+    return 'Êtes-vous sûr de vouloir accorder l\'accès administrateur à $displayName?';
+  }
+
+  @override
+  String get adminAccessRevoked => 'Accès administrateur révoqué';
+
+  @override
+  String get adminAccessGranted => 'Accès administrateur accordé';
+
+  @override
+  String get unblockUser => 'Débloquer l\'utilisateur';
+
+  @override
+  String get blockUser => 'Bloquer l\'utilisateur';
+
+  @override
+  String confirmUnblockUser(String displayName) {
+    return 'Êtes-vous sûr de vouloir débloquer $displayName?';
+  }
+
+  @override
+  String confirmBlockUser(String displayName) {
+    return 'Êtes-vous sûr de vouloir bloquer $displayName?';
+  }
+
+  @override
+  String get userUnblocked => 'Utilisateur débloqué';
+
+  @override
+  String get userBlocked => 'Utilisateur bloqué';
+
+  @override
+  String confirmDeleteUser(String displayName) {
+    return 'Êtes-vous sûr de vouloir supprimer $displayName? Cette action ne peut pas être annulée.';
+  }
+
+  @override
+  String get userDeletedSuccessfully => 'Utilisateur supprimé avec succès';
+
+  @override
+  String get admin => 'ADMIN';
+
+  @override
+  String get blocked => 'BLOQUÉ';
+
+  @override
+  String lastLoginWithDate(String lastLogin) {
+    return 'Dernière connexion: $lastLogin';
+  }
+
+  @override
+  String get revokeAdmin => 'Révoquer Admin';
+
+  @override
+  String get makeAdmin => 'Rendre Admin';
+
+  @override
+  String daysAgo(int count) {
+    return 'il y a $count jours';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return 'il y a $count heures';
+  }
+
+  @override
+  String minutesAgo(int count) {
+    return 'il y a $count minutes';
+  }
+
+  @override
+  String get justNow => 'À l\'instant';
+
+  @override
+  String get never => 'Jamais';
+
+  @override
+  String get users => 'Utilisateurs';
+
+  @override
+  String activeUsersCount(int count) {
+    return '$count actif';
+  }
+
+  @override
+  String get totalAdded => 'Total ajouté';
+
+  @override
+  String get installs => 'Installations';
+
+  @override
+  String get allTime => 'Tout le temps';
+
+  @override
+  String failedToLoadDeletedRecordings(String error) {
+    return 'Échec du chargement des enregistrements supprimés: $error';
+  }
+
+  @override
+  String deletedRecordingsCount(int count) {
+    return '$count enregistrements supprimés';
+  }
+
+  @override
+  String get noDeletedRecordingsFound => 'Aucun enregistrement supprimé trouvé';
+
+  @override
+  String get noDeletedRecordings => 'Aucun enregistrement supprimé';
+
+  @override
+  String get tryAdjustingSearchTerms => 'Essayez d\'ajuster vos termes de recherche';
+
+  @override
+  String get deletedRecordingsWillAppearHere => 'Les enregistrements supprimés apparaîtront ici';
+
+  @override
+  String failedToLoadDashboard(String error) {
+    return 'Échec du chargement du tableau de bord: $error';
+  }
+
+  @override
+  String get refreshDashboard => 'Actualiser le tableau de bord';
+
+  @override
+  String failedToLoadConfiguration(String error) {
+    return 'Échec du chargement de la configuration: $error';
+  }
+
+  @override
+  String get configurationUpdatedSuccessfully => 'Configuration mise à jour avec succès';
+
+  @override
+  String failedToSaveConfiguration(String error) {
+    return 'Échec de la sauvegarde de la configuration: $error';
+  }
+
+  @override
+  String adminMessageLabel(String adminMessage) {
+    return 'Message administrateur: $adminMessage';
+  }
+
+  @override
+  String blockedVersionLabel(String blockedVersion) {
+    return 'Version bloquée: $blockedVersion';
+  }
+
+  @override
+  String get configuration => 'Configuration';
+
+  @override
+  String get anErrorOccurred => 'Une erreur s\'est produite';
+
+  @override
+  String get networkConnectionError => 'Erreur de connexion réseau. Veuillez vérifier votre connexion internet.';
+
+  @override
+  String get requestTimedOut => 'La requête a expiré. Veuillez réessayer.';
+
+  @override
+  String get resourceNotFound => 'Ressource introuvable. Veuillez réessayer plus tard.';
+
+  @override
+  String get somethingWentWrong => 'Quelque chose s\'est mal passé. Veuillez réessayer.';
+
+  @override
+  String get widgetErrorBoundaryCaughtError => 'Erreur capturée par la limite d\'erreur du widget';
 }

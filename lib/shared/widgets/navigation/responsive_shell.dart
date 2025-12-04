@@ -3,6 +3,7 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/features/recording/presentation/widgets/recording_overlay_manager.dart';
 import 'drawer_widget.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
@@ -57,7 +58,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                 openDrawer: shellController.toggleDrawer,
               ),
               mainScreen: widget.child,
-              borderRadius: 24.0,
+              borderRadius: AppDimensions.radiusXxl,
               showShadow: true,
               angle: -12.0,
               menuBackgroundColor: _colorController.drawerColor.value,

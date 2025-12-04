@@ -11,6 +11,7 @@ import 'package:fihirana/features/announcement/domain/usecases/stream_all_announ
 import 'package:fihirana/features/announcement/domain/usecases/stream_active_announcements_usecase.dart';
 import 'package:fihirana/features/announcement/domain/usecases/check_new_announcements_usecase.dart';
 import 'package:fihirana/features/announcement/domain/usecases/clear_seen_announcements_usecase.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 
 /// Announcement controller for managing announcement operations
 class AnnouncementController extends GetxController {
@@ -117,10 +118,7 @@ class AnnouncementController extends GetxController {
       announcements.assignAll(announcementList);
       _applySearchFilter();
     } catch (e) {
-      errorMessage.value = 'Failed to load announcements: $e';
-      if (kDebugMode) {
-        print('❌ Error loading announcements: $e');
-      }
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     } finally {
       isLoading.value = false;
     }

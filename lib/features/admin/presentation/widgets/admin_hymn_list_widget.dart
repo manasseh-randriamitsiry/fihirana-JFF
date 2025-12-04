@@ -7,6 +7,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_admin_list.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class AdminHymnListWidget extends StatelessWidget {
   final List<String> selectedHymns;
@@ -70,6 +71,7 @@ class AdminHymnListWidget extends StatelessWidget {
         }
 
         return ListView.builder(
+          key: const PageStorageKey('admin_hymns_list'),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           itemCount: hymns.length,
           itemBuilder: (context, index) {
@@ -77,7 +79,8 @@ class AdminHymnListWidget extends StatelessWidget {
             final isSelected = selectedHymns.contains(hymn.id);
 
             return Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
+                key: ValueKey(hymn.id),
+                padding: const EdgeInsets.only(bottom: AppDimensions.sm),
                 child: Card(
                   elevation: 2,
                   shape: RoundedRectangleBorder(

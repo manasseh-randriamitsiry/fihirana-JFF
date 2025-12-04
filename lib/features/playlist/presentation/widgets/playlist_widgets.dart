@@ -94,7 +94,7 @@ class PlaylistItemWidget extends StatelessWidget {
           ),
           onSelected: (value) {
             if (value == 'share') {
-              Get.find<PlaylistController>().sharePlaylist(playlist);
+              Get.find<PlaylistController>().sharePlaylist(playlist.id);
             } else if (value == 'delete') {
               onDelete();
             }

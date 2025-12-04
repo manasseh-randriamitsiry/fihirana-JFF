@@ -4,13 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
 
-class ContactService {
+class ContactService implements IContactService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final AuthController _authController = Get.find<AuthController>();
 
   // Get all contacts stream
+  @override
   Stream<List<Contact>> getContactsStream() {
     return _firestore
         .collection('contacts')
@@ -26,6 +28,7 @@ class ContactService {
   }
 
   // Add a new contact
+  @override
   Future<bool> addContact({
     required String name,
     required String phoneNumber,
@@ -63,6 +66,7 @@ class ContactService {
   }
 
   // Update a contact
+  @override
   Future<bool> updateContact(Contact contact) async {
     try {
       final user = _auth.currentUser;
@@ -92,6 +96,7 @@ class ContactService {
   }
 
   // Delete a contact
+  @override
   Future<bool> deleteContact(String contactId) async {
     try {
       final user = _auth.currentUser;
@@ -121,6 +126,7 @@ class ContactService {
   }
 
   // Check if current user can edit a contact (owns it or is admin)
+  @override
   Future<bool> canEditContact(Contact contact) async {
     final user = _auth.currentUser;
     if (user == null) return false;
@@ -135,6 +141,7 @@ class ContactService {
   }
 
   // Get all contacts (one-time fetch)
+  @override
   Future<List<Contact>> getAllContacts() async {
     final snapshot = await _firestore.collection('contacts').orderBy('name').get();
     return snapshot.docs.map((doc) {
@@ -145,6 +152,7 @@ class ContactService {
   }
 
   // Get contact by ID
+  @override
   Future<Contact?> getContactById(String id) async {
     final doc = await _firestore.collection('contacts').doc(id).get();
     if (doc.exists) {
@@ -156,6 +164,7 @@ class ContactService {
   }
 
   // Search contacts
+  @override
   Future<List<Contact>> searchContacts(String query) async {
     if (query.isEmpty) return await getAllContacts();
 

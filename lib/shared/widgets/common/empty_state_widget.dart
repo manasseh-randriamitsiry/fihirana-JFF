@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final String message;
@@ -23,7 +24,7 @@ class EmptyStateWidget extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: const EdgeInsets.all(AppDimensions.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

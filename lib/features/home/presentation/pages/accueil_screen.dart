@@ -19,6 +19,7 @@ import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/core/utils/navigation_utility.dart';
 import 'package:fihirana/features/home/presentation/widgets/accueil_action_widgets.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_list_item.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_field.dart';
@@ -183,7 +184,7 @@ class AccueilScreenState extends State<AccueilScreen> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ColorController>(
-      builder: (colorController) => Obx(() {
+      builder: (colorController) {
         final textColor = colorController.textColor.value;
         final backgroundColor = colorController.backgroundColor.value;
         final iconColor = colorController.iconColor.value;
@@ -252,8 +253,8 @@ class AccueilScreenState extends State<AccueilScreen> {
           ),
           body: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.all(16.0),
+               Padding(
+                padding: const EdgeInsets.all(AppDimensions.md),
                 child: HymnSearchField(
                   controller: _hymnController.safeSearchController,
                   defaultTextStyle: defaultTextStyle,
@@ -304,8 +305,9 @@ class AccueilScreenState extends State<AccueilScreen> {
                       );
                     }
 
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                     return ListView.builder(
+                      key: const PageStorageKey('home_hymns_list'),
+                      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
                       itemCount: hymns.length,
                       itemBuilder: (context, index) {
                         final hymn = hymns[index];
@@ -335,7 +337,7 @@ class AccueilScreenState extends State<AccueilScreen> {
             ],
           ),
         );
-      }),
+      }
     );
   }
 

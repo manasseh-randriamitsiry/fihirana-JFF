@@ -314,6 +314,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                               ),
                             )
                           : ListView.builder(
+                              key: const PageStorageKey('add_to_playlist_list'),
                               controller: scrollController,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
@@ -325,6 +326,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                     playlist.hymnIds.contains(widget.hymnId);
 
                                 return Container(
+                                  key: ValueKey(playlist.id),
                                   margin: const EdgeInsets.only(bottom: 8),
                                   decoration: BoxDecoration(
                                     color: textColor.withValues(alpha: 0.05),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 /// Skeleton loader for hymn detail screen
 /// Shows a shimmer animation while the hymn data is loading
@@ -11,7 +12,7 @@ class HymnDetailSkeleton extends StatelessWidget {
 
   const HymnDetailSkeleton({
     super.key,
-    this.fontSize = 16.0,
+    this.fontSize = AppDimensions.fontMd,
     this.countFontSize = 50.0,
   });
 
@@ -29,7 +30,7 @@ class HymnDetailSkeleton extends StatelessWidget {
           baseColor: baseColor,
           highlightColor: highlightColor,
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppDimensions.fontMd),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

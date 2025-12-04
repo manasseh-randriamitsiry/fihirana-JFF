@@ -208,6 +208,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
             const SizedBox(height: 16),
             Expanded(
               child: ListView.builder(
+                key: const PageStorageKey('languages_list'),
                 itemCount: _filteredLocales.length,
                 itemBuilder: (context, index) {
                   final locale = _filteredLocales[index];
@@ -219,6 +220,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
                       _languageController.getLanguageFlag(locale);
 
                   return Padding(
+                    key: ValueKey(locale.toString()),
                     padding: const EdgeInsets.only(bottom: 8),
                     child: ListTile(
                       leading: Text(

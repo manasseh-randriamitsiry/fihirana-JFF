@@ -2,11 +2,12 @@ import 'dart:async';
 import 'package:fihirana/features/audio/domain/entities/audio_track.dart';
 import 'package:fihirana/features/audio/domain/entities/audio_player_state.dart';
 import 'package:fihirana/features/audio/domain/repositories/audio_repository.dart';
+import 'package:fihirana/features/audio/domain/repositories/i_audio_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 
 class AudioRepositoryImpl implements AudioRepository {
-  final AudioService _audioService;
+  final IAudioService _audioService;
 
   AudioRepositoryImpl(this._audioService);
 
@@ -90,8 +91,8 @@ class AudioRepositoryImpl implements AudioRepository {
   }
 
   @override
-  Future<void> downloadAudioForHymn(Hymn hymn, {Function(double)? onProgress}) {
-    return _audioService.downloadAudioForHymn(hymn, onProgress: onProgress);
+  Future<void> downloadAudioForHymn(Hymn hymn, {Function(double)? onProgress}) async {
+    await _audioService.downloadAudioForHymn(hymn, onProgress: onProgress);
   }
 
   @override

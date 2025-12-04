@@ -4,8 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/features/announcement/domain/entities/announcement.dart';
 import 'package:fihirana/shared/widgets/common/announcement_notification.dart';
 import 'package:fihirana/core/utils/snackbar_utility.dart';
+import 'package:fihirana/features/announcement/domain/repositories/i_announcement_service.dart';
 
-class AnnouncementService {
+class AnnouncementService implements IAnnouncementService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   static const String _lastSeenKey = 'last_seen_announcements';
@@ -22,6 +23,7 @@ class AnnouncementService {
     await prefs.setStringList(_lastSeenKey, seen.toList());
   }
 
+  @override
   Future<void> checkNewAnnouncements() async {
     try {
 
@@ -71,6 +73,7 @@ class AnnouncementService {
     }
   }
 
+  @override
   Future<void> createAnnouncement(String title, String message, {DateTime? expiresAt}) async {
     try {
       final user = _auth.currentUser;
@@ -106,6 +109,7 @@ class AnnouncementService {
     }
   }
 
+  @override
   Future<void> deleteAnnouncement(String id) async {
     try {
       await _firestore.collection('announcements').doc(id).delete();
@@ -121,6 +125,7 @@ class AnnouncementService {
     }
   }
 
+  @override
   Future<void> updateAnnouncement(String id, String title, String message, {DateTime? expiresAt}) async {
     try {
       final user = _auth.currentUser;
@@ -151,6 +156,7 @@ class AnnouncementService {
     }
   }
 
+  @override
   Stream<QuerySnapshot> getAnnouncementsStream() {
     return _firestore
         .collection('announcements')
@@ -158,6 +164,7 @@ class AnnouncementService {
         .snapshots();
   }
 
+  @override
   Future<void> clearSeenAnnouncements() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lastSeenKey);

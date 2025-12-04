@@ -1841,7 +1841,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get translateTo => 'Mandika ho';
 
   @override
-  String get emergencyModeActive => 'EMERGENCY MODE ACTIVE';
+  String get emergencyModeActive => 'Emergency Mode Active';
 
   @override
   String get allUpdatesDisabled => 'All updates are currently disabled';
@@ -1862,10 +1862,10 @@ class AppLocalizationsMg extends AppLocalizations {
   String get manage => 'Manage';
 
   @override
-  String get updatesEnabled => 'Updates are enabled';
+  String get updatesEnabled => 'Updates Enabled';
 
   @override
-  String get updatesDisabled => 'Updates are disabled';
+  String get updatesDisabled => 'Updates Disabled';
 
   @override
   String versionBlocked(Object version) {
@@ -2100,4 +2100,197 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get recordingNotSaved => 'Recording was not saved';
+
+  @override
+  String get superAdminDashboard => 'Super Admin Dashboard';
+
+  @override
+  String get deletedRecordings => 'Deleted Recordings';
+
+  @override
+  String get searchUsersHint => 'Search users...';
+
+  @override
+  String get noUsersFound => 'No users found';
+
+  @override
+  String get revokeAdminAccess => 'Revoke Admin Access';
+
+  @override
+  String get grantAdminAccess => 'Grant Admin Access';
+
+  @override
+  String confirmRevokeAdminAccess(String displayName) {
+    return 'Are you sure you want to revoke admin access from $displayName?';
+  }
+
+  @override
+  String confirmGrantAdminAccess(String displayName) {
+    return 'Are you sure you want to grant admin access to $displayName?';
+  }
+
+  @override
+  String get adminAccessRevoked => 'Admin access revoked';
+
+  @override
+  String get adminAccessGranted => 'Admin access granted';
+
+  @override
+  String get unblockUser => 'Unblock User';
+
+  @override
+  String get blockUser => 'Block User';
+
+  @override
+  String confirmUnblockUser(String displayName) {
+    return 'Are you sure you want to unblock $displayName?';
+  }
+
+  @override
+  String confirmBlockUser(String displayName) {
+    return 'Are you sure you want to block $displayName?';
+  }
+
+  @override
+  String get userUnblocked => 'User unblocked';
+
+  @override
+  String get userBlocked => 'User blocked';
+
+  @override
+  String confirmDeleteUser(String displayName) {
+    return 'Are you sure you want to delete $displayName? This action cannot be undone.';
+  }
+
+  @override
+  String get userDeletedSuccessfully => 'User deleted successfully';
+
+  @override
+  String get admin => 'ADMIN';
+
+  @override
+  String get blocked => 'BLOCKED';
+
+  @override
+  String lastLoginWithDate(String lastLogin) {
+    return 'Last login: $lastLogin';
+  }
+
+  @override
+  String get revokeAdmin => 'Revoke Admin';
+
+  @override
+  String get makeAdmin => 'Make Admin';
+
+  @override
+  String daysAgo(int count) {
+    return '$count days ago';
+  }
+
+  @override
+  String hoursAgo(int count) {
+    return '$count hours ago';
+  }
+
+  @override
+  String minutesAgo(int count) {
+    return '$count minutes ago';
+  }
+
+  @override
+  String get justNow => 'Just now';
+
+  @override
+  String get never => 'Never';
+
+  @override
+  String get users => 'Users';
+
+  @override
+  String activeUsersCount(int count) {
+    return '$count active';
+  }
+
+  @override
+  String get totalAdded => 'Total added';
+
+  @override
+  String get installs => 'Installs';
+
+  @override
+  String get allTime => 'All time';
+
+  @override
+  String failedToLoadDeletedRecordings(String error) {
+    return 'Failed to load deleted recordings: $error';
+  }
+
+  @override
+  String deletedRecordingsCount(int count) {
+    return '$count deleted recordings';
+  }
+
+  @override
+  String get noDeletedRecordingsFound => 'No deleted recordings found';
+
+  @override
+  String get noDeletedRecordings => 'No deleted recordings';
+
+  @override
+  String get tryAdjustingSearchTerms => 'Try adjusting your search terms';
+
+  @override
+  String get deletedRecordingsWillAppearHere => 'Deleted recordings will appear here';
+
+  @override
+  String failedToLoadDashboard(String error) {
+    return 'Failed to load dashboard: $error';
+  }
+
+  @override
+  String get refreshDashboard => 'Refresh Dashboard';
+
+  @override
+  String failedToLoadConfiguration(String error) {
+    return 'Failed to load configuration: $error';
+  }
+
+  @override
+  String get configurationUpdatedSuccessfully => 'Configuration updated successfully';
+
+  @override
+  String failedToSaveConfiguration(String error) {
+    return 'Failed to save configuration: $error';
+  }
+
+  @override
+  String adminMessageLabel(String adminMessage) {
+    return 'Admin Message: $adminMessage';
+  }
+
+  @override
+  String blockedVersionLabel(String blockedVersion) {
+    return 'Blocked Version: $blockedVersion';
+  }
+
+  @override
+  String get configuration => 'Configuration';
+
+  @override
+  String get anErrorOccurred => 'An error occurred';
+
+  @override
+  String get networkConnectionError => 'Network connection error. Please check your internet connection.';
+
+  @override
+  String get requestTimedOut => 'Request timed out. Please try again.';
+
+  @override
+  String get resourceNotFound => 'Resource not found. Please try again later.';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong. Please try again.';
+
+  @override
+  String get widgetErrorBoundaryCaughtError => 'Widget error boundary caught error';
 }

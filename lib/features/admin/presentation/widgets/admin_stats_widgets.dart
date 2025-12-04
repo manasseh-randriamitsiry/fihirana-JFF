@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class AdminStatTileWidget extends StatelessWidget {
   final String title;
@@ -87,29 +88,29 @@ class AdminStatsRowWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          AdminStatTileWidget(
-            title: 'Users',
-            value: '${stats['totalUsers']}',
-            subtitle: '${stats['activeUsers']} active',
-            icon: Icons.people,
-            color: Colors.blue,
-          ),
+           AdminStatTileWidget(
+             title: AppLocalizations.of(context)!.users,
+             value: '${stats['totalUsers']}',
+             subtitle: AppLocalizations.of(context)!.activeUsersCount(stats['activeUsers']),
+             icon: Icons.people,
+             color: Colors.blue,
+           ),
           const SizedBox(width: 12),
-          AdminStatTileWidget(
-            title: 'Hymns',
-            value: '${stats['totalHymns']}',
-            subtitle: 'Total added',
-            icon: Icons.library_music,
-            color: Colors.orange,
-          ),
-          const SizedBox(width: 12),
-          AdminStatTileWidget(
-            title: 'Installs',
-            value: '${stats['installations']}',
-            subtitle: 'All time',
-            icon: Icons.download,
-            color: Colors.green,
-          ),
+           AdminStatTileWidget(
+             title: AppLocalizations.of(context)!.hymns,
+             value: '${stats['totalHymns']}',
+             subtitle: AppLocalizations.of(context)!.totalAdded,
+             icon: Icons.library_music,
+             color: Colors.orange,
+           ),
+           const SizedBox(width: 12),
+           AdminStatTileWidget(
+             title: AppLocalizations.of(context)!.installs,
+             value: '${stats['installations']}',
+             subtitle: AppLocalizations.of(context)!.allTime,
+             icon: Icons.download,
+             color: Colors.green,
+           ),
         ],
       ),
     );

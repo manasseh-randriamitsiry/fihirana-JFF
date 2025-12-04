@@ -68,6 +68,7 @@ class FontPickerWidget extends StatelessWidget {
                 maxHeight: MediaQuery.of(context).size.height * 0.6,
               ),
               child: ListView.builder(
+                key: const PageStorageKey('fonts_list'),
                 padding: const EdgeInsets.all(16),
                 shrinkWrap: true,
                 itemCount: _fontController.availableFonts.length,
@@ -77,6 +78,7 @@ class FontPickerWidget extends StatelessWidget {
                     final isSelected =
                         _fontController.currentFont.value == fontName;
                     return Container(
+                      key: ValueKey(fontName),
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
                         color: isSelected

@@ -5,9 +5,9 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:async';
 
-import 'package:fihirana/core/utils/snackbar_utility.dart';
 import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
 import 'package:fihirana/core/security/security_service.dart';
+import 'package:fihirana/core/error/error_handler.dart';
 import 'package:fihirana/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
 
 import 'package:fihirana/features/auth/domain/usecases/sign_out_usecase.dart';
@@ -23,9 +23,9 @@ class AuthController extends GetxController {
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final SignOutUseCase _signOutUseCase;
   final EnsureUserDocumentExistsUseCase _ensureUserDocumentExistsUseCase;
-  final Rx<bool> _canAddSongs = false.obs;
-  final Rx<bool> _isAdmin = false.obs;
-  final Rx<bool> _isSuperAdmin = false.obs;
+  final RxBool _canAddSongs = false.obs;
+  final RxBool _isAdmin = false.obs;
+  final RxBool _isSuperAdmin = false.obs;
   final RxInt _addedHymnsCount = 0.obs;
   final RxInt _monthlyHymnCount = 0.obs;
   final RxString _lastHymnAdditionMonth = ''.obs;
@@ -98,9 +98,7 @@ class AuthController extends GetxController {
             }
           }
         } catch (driveError) {
-          if (kDebugMode) {
-            print('⚠️ Could not auto sign-in to Google Drive: $driveError');
-          }
+          ErrorHandler.handleError(driveError, message: 'errorOccurred'.tr);
         }
       } else {
         _permissionSubscription?.cancel();
@@ -113,9 +111,7 @@ class AuthController extends GetxController {
         try {
           await _driveService.signOut();
         } catch (e) {
-          if (kDebugMode) {
-            print('Error signing out from Google Drive: $e');
-          }
+          ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
         }
       }
     });
@@ -191,10 +187,7 @@ class AuthController extends GetxController {
       await _signOutUseCase();
       _canAddSongs.value = false;
     } catch (e) {
-      SnackbarUtility.showError(
-        title: 'Error signing out',
-        message: e.toString(),
-      );
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -244,9 +237,7 @@ class AuthController extends GetxController {
         }
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('AuthController: Error verifying user document: $e');
-      }
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     }
   }
 
@@ -264,10 +255,7 @@ class AuthController extends GetxController {
         'canAddSongs': canAddSongs,
       });
     } catch (e) {
-      SnackbarUtility.showError(
-        title: 'Error updating user permission',
-        message: e.toString(),
-      );
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
       rethrow;
     }
   }

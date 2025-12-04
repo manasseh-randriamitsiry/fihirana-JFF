@@ -124,8 +124,7 @@ class ContactController extends GetxController {
 
       return success;
     } catch (e) {
-      ErrorHandler.handleError(e, message: 'Failed to add contact');
-      errorMessage.value = 'Failed to add contact';
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
       return false;
     } finally {
       isLoading.value = false;
@@ -150,8 +149,7 @@ class ContactController extends GetxController {
 
       return success;
     } catch (e) {
-      ErrorHandler.handleError(e, message: 'Failed to update contact');
-      errorMessage.value = 'Failed to update contact';
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
       return false;
     } finally {
       isLoading.value = false;
@@ -176,10 +174,7 @@ class ContactController extends GetxController {
 
       return success;
     } catch (e) {
-      errorMessage.value = 'Failed to delete contact: $e';
-      if (kDebugMode) {
-        print('❌ Error deleting contact: $e');
-      }
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
       return false;
     } finally {
       isLoading.value = false;
@@ -196,7 +191,7 @@ class ContactController extends GetxController {
     try {
       return await ContactImportService.importContacts(Get.context!);
     } catch (e) {
-      errorMessage.value = 'Failed to import contacts: $e';
+      ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
       return null;
     }
   }
