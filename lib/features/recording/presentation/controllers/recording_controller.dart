@@ -11,6 +11,7 @@ import 'recording_operations_manager.dart';
 import 'recording_playback_manager.dart';
 import 'recording_publishing_manager.dart';
 import 'recording_file_manager.dart';
+import 'package:flutter/foundation.dart';
 
 // Export enums for backward compatibility
 export 'recording_publishing_manager.dart'
@@ -240,7 +241,7 @@ class RecordingController extends GetxController {
         await saveRecordingUseCase(updatedRecording);
         // Update state manager for backward compatibility
         stateManager.isRecording.value = false;
-        stateManager.hideOverlay();
+        // Don't hide overlay here - let the UI handle it after save dialog
         stateManager.stopTimer();
         stateManager.resetTimer();
         return updatedRecording;

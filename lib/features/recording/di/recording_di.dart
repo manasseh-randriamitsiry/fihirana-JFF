@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/recording/data/repositories/recording_repository_impl.dart';
 import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
 import 'package:fihirana/features/recording/domain/usecases/recording_usecases.dart';
-import 'package:fihirana/features/recording/presentation/controllers/recording_controller_refactored.dart';
+import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
 
 /// Dependency injection for recording feature
@@ -143,38 +143,50 @@ class RecordingDI {
       ),
     );
 
-    // Controller
+    // Controller (register both with and without tag for compatibility)
+    final controller = RecordingController(
+      startRecordingUseCase: Get.find<StartRecordingUseCase>(),
+      stopRecordingUseCase: Get.find<StopRecordingUseCase>(),
+      cancelRecordingUseCase: Get.find<CancelRecordingUseCase>(),
+      loadRecordingsUseCase: Get.find<LoadRecordingsUseCase>(),
+      saveRecordingUseCase: Get.find<SaveRecordingUseCase>(),
+      updateRecordingUseCase: Get.find<UpdateRecordingUseCase>(),
+      deleteRecordingUseCase: Get.find<DeleteRecordingUseCase>(),
+      getRecordingByIdUseCase: Get.find<GetRecordingByIdUseCase>(),
+      loadPublicRecordingsUseCase: Get.find<LoadPublicRecordingsUseCase>(),
+      publishRecordingUseCase: Get.find<PublishRecordingUseCase>(),
+      unpublishRecordingUseCase: Get.find<UnpublishRecordingUseCase>(),
+      toggleRecordingPrivacyUseCase:
+          Get.find<ToggleRecordingPrivacyUseCase>(),
+      searchRecordingsUseCase: Get.find<SearchRecordingsUseCase>(),
+      getRecordingsByHymnIdUseCase: Get.find<GetRecordingsByHymnIdUseCase>(),
+      uploadToGoogleDriveUseCase: Get.find<UploadToGoogleDriveUseCase>(),
+      syncFromDriveUseCase: Get.find<SyncFromDriveUseCase>(),
+      loadDeletedRecordingsUseCase: Get.find<LoadDeletedRecordingsUseCase>(),
+      restoreRecordingUseCase: Get.find<RestoreRecordingUseCase>(),
+      permanentlyDeleteRecordingUseCase:
+          Get.find<PermanentlyDeleteRecordingUseCase>(),
+    );
+
     Get.lazyPut<RecordingController>(
-      () => RecordingController(
-        startRecordingUseCase: Get.find<StartRecordingUseCase>(),
-        stopRecordingUseCase: Get.find<StopRecordingUseCase>(),
-        cancelRecordingUseCase: Get.find<CancelRecordingUseCase>(),
-        loadRecordingsUseCase: Get.find<LoadRecordingsUseCase>(),
-        saveRecordingUseCase: Get.find<SaveRecordingUseCase>(),
-        updateRecordingUseCase: Get.find<UpdateRecordingUseCase>(),
-        deleteRecordingUseCase: Get.find<DeleteRecordingUseCase>(),
-        getRecordingByIdUseCase: Get.find<GetRecordingByIdUseCase>(),
-        loadPublicRecordingsUseCase: Get.find<LoadPublicRecordingsUseCase>(),
-        publishRecordingUseCase: Get.find<PublishRecordingUseCase>(),
-        unpublishRecordingUseCase: Get.find<UnpublishRecordingUseCase>(),
-        toggleRecordingPrivacyUseCase:
-            Get.find<ToggleRecordingPrivacyUseCase>(),
-        searchRecordingsUseCase: Get.find<SearchRecordingsUseCase>(),
-        getRecordingsByHymnIdUseCase: Get.find<GetRecordingsByHymnIdUseCase>(),
-        uploadToGoogleDriveUseCase: Get.find<UploadToGoogleDriveUseCase>(),
-        syncFromDriveUseCase: Get.find<SyncFromDriveUseCase>(),
-        loadDeletedRecordingsUseCase: Get.find<LoadDeletedRecordingsUseCase>(),
-        restoreRecordingUseCase: Get.find<RestoreRecordingUseCase>(),
-        permanentlyDeleteRecordingUseCase:
-            Get.find<PermanentlyDeleteRecordingUseCase>(),
-      ),
+      () => controller,
       tag: _recordingControllerTag,
+    );
+
+    // Also register without tag for backward compatibility
+    Get.lazyPut<RecordingController>(
+      () => controller,
     );
   }
 
   /// Get recording controller
   static RecordingController get recordingController {
-    return Get.find<RecordingController>(tag: _recordingControllerTag);
+    try {
+      return Get.find<RecordingController>(tag: _recordingControllerTag);
+    } catch (e) {
+      // Fallback to untagged version
+      return Get.find<RecordingController>();
+    }
   }
 
   /// Get recording repository
@@ -185,6 +197,7 @@ class RecordingDI {
   /// Dispose recording dependencies
   static void dispose() {
     Get.delete<RecordingController>(tag: _recordingControllerTag);
+    Get.delete<RecordingController>(); // Also delete untagged version
     Get.delete<PermanentlyDeleteRecordingUseCase>();
     Get.delete<RestoreRecordingUseCase>();
     Get.delete<LoadDeletedRecordingsUseCase>();
