@@ -448,6 +448,11 @@
   "searchEntireBible": "Rechercher dans toute la Bible",
   "change": "Changer",
   "bibleReader": "Lecteur de Bible",
+  "savedVerses": "Versets Sauvegardés",
+  "noSavedVerses": "Aucun verset sauvegardé",
+  "saveVersesByHighlighting": "Sauvegardez des versets en les surlignant dans le lecteur de Bible",
+  "deleteHighlight": "Supprimer le Surlignage",
+  "confirmDeleteHighlight": "Êtes-vous sûr de vouloir supprimer ce surlignage ?",
   "emailLabel": "Email: {email}",
   "@emailLabel": {
     "placeholders": {

@@ -448,6 +448,11 @@
   "searchEntireBible": "Search entire Bible",
   "change": "Change",
   "bibleReader": "Bible Reader",
+  "savedVerses": "Saved Verses",
+  "noSavedVerses": "No saved verses",
+  "saveVersesByHighlighting": "Save verses by highlighting them in the Bible reader",
+  "deleteHighlight": "Delete Highlight",
+  "confirmDeleteHighlight": "Are you sure you want to delete this highlight?",
   "emailLabel": "Email: {email}",
   "@emailLabel": {
     "placeholders": {

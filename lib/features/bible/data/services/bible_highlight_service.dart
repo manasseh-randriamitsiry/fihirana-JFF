@@ -49,6 +49,26 @@ class BibleHighlightService implements IBibleHighlightService {
     });
   }
 
+  // Get all highlights for the current user
+  @override
+  Stream<List<BibleHighlight>> getAllUserHighlightsStream() {
+    final user = _auth.currentUser;
+    if (user == null) return Stream.value([]);
+
+    return _firestore
+        .collection('bible_highlights')
+        .where('userId', isEqualTo: user.uid)
+        .orderBy('updatedAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return BibleHighlight.fromJson(data);
+      }).toList();
+    });
+  }
+
   // Save a new highlight
   @override
   Future<bool> saveHighlight(BibleHighlight highlight) async {

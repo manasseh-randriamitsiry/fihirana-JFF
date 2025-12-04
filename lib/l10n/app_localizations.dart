@@ -2215,6 +2215,36 @@ abstract class AppLocalizations {
   /// **'Bible Reader'**
   String get bibleReader;
 
+  /// No description provided for @savedVerses.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Verses'**
+  String get savedVerses;
+
+  /// No description provided for @noSavedVerses.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved verses'**
+  String get noSavedVerses;
+
+  /// No description provided for @saveVersesByHighlighting.
+  ///
+  /// In en, this message translates to:
+  /// **'Save verses by highlighting them in the Bible reader'**
+  String get saveVersesByHighlighting;
+
+  /// No description provided for @deleteHighlight.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Highlight'**
+  String get deleteHighlight;
+
+  /// No description provided for @confirmDeleteHighlight.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this highlight?'**
+  String get confirmDeleteHighlight;
+
   /// No description provided for @emailLabel.
   ///
   /// In en, this message translates to:

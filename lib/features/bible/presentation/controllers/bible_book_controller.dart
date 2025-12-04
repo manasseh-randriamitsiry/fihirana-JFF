@@ -170,6 +170,8 @@ class BibleBookController extends GetxController {
 
   bool isVerseSelected(int verse) => selectedVerses.contains(verse);
 
+  dynamic getBook(String bookName) => _getBookUseCase(bookName);
+
   List<String> getCurrentChapterVerses() {
     final book = _getBookUseCase(selectedBook.value);
     if (book != null && book.chapterData.containsKey(selectedChapter.value)) {
