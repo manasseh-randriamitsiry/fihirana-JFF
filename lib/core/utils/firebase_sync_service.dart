@@ -192,7 +192,16 @@ class FirebaseSyncService {
   Future<List<Map<String, dynamic>>> loadHistoryFromFirebase() async {
     try {
       final user = _auth.currentUser;
-      if (user == null) return [];
+      if (user == null) {
+        if (kDebugMode) {
+          print('FirebaseSyncService: User not authenticated, returning empty history');
+        }
+        return [];
+      }
+
+      if (kDebugMode) {
+        print('FirebaseSyncService: Loading history from Firebase for user ${user.uid}');
+      }
 
       final snapshot = await _firestore
           .collection('users')
@@ -205,17 +214,24 @@ class FirebaseSyncService {
       final history = <Map<String, dynamic>>[];
       for (var doc in snapshot.docs) {
         final data = doc.data();
-         history.add({
-           'id': doc.id,
-           'hymnId': data['hymnId'] as String? ?? '',
-           'title': data['title'] as String? ?? '',
-           'number': data['number'] as String? ?? '',
-           'timestamp': (data['timestamp'] as Timestamp).toDate().toIso8601String(),
-         });
+        history.add({
+          'id': doc.id,
+          'hymnId': data['hymnId'] as String? ?? '',
+          'title': data['title'] as String? ?? '',
+          'number': data['number'] as String? ?? '',
+          'timestamp': (data['timestamp'] as Timestamp).toDate().toIso8601String(),
+        });
+      }
+
+      if (kDebugMode) {
+        print('FirebaseSyncService: Loaded ${history.length} history items from Firebase');
       }
 
       return history;
     } catch (e) {
+      if (kDebugMode) {
+        print('FirebaseSyncService: Error loading history from Firebase: $e');
+      }
       return [];
     }
   }
@@ -286,7 +302,16 @@ class FirebaseSyncService {
       String hymnId, String title, String number) async {
     try {
       final user = _auth.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        if (kDebugMode) {
+          print('FirebaseSyncService: User not authenticated, skipping Firebase save');
+        }
+        return;
+      }
+
+      if (kDebugMode) {
+        print('FirebaseSyncService: Saving history to Firebase for user ${user.uid}');
+      }
 
       final historyRef = _firestore
           .collection('users')
@@ -300,9 +325,13 @@ class FirebaseSyncService {
         'number': number,
         'timestamp': FieldValue.serverTimestamp(),
       });
+
+      if (kDebugMode) {
+        print('FirebaseSyncService: Successfully saved history to Firebase');
+      }
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        print('FirebaseSyncService: Error saving history to Firebase: $e');
       }
     }
   }

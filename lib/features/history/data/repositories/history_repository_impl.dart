@@ -3,6 +3,7 @@ import 'package:fihirana/features/history/domain/entities/history_item.dart';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 
 /// Implementation of HistoryRepository
@@ -36,9 +37,19 @@ class HistoryRepositoryImpl implements HistoryRepository {
   Future<void> addToHistory(String hymnId, String title, String number) async {
     final user = _auth.currentUser;
 
+    if (kDebugMode) {
+      print('HistoryRepositoryImpl: User authenticated: ${user != null}');
+    }
+
     if (user != null) {
+      if (kDebugMode) {
+        print('HistoryRepositoryImpl: Saving to Firebase');
+      }
       await _firebaseSyncService.addHistoryToFirebase(hymnId, title, number);
     } else {
+      if (kDebugMode) {
+        print('HistoryRepositoryImpl: Saving locally');
+      }
       List<Map<String, dynamic>> localHistory = [];
 
       final existingHistory = _prefs.getString(_localHistoryKey);
@@ -62,6 +73,9 @@ class HistoryRepositoryImpl implements HistoryRepository {
       }
 
       await _prefs.setString(_localHistoryKey, json.encode(localHistory));
+      if (kDebugMode) {
+        print('HistoryRepositoryImpl: Saved locally, total items: ${localHistory.length}');
+      }
     }
   }
 

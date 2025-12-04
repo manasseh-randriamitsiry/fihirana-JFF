@@ -151,6 +151,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   Future<void> _loadAllHymnsAndSetupSwipe() async {
     try {
       final allHymns = await _hymnService.getAllHymns();
+      if (kDebugMode) {
+        print('Loaded ${allHymns.length} hymns from service');
+      }
       if (mounted) {
         setState(() {
           _allHymns = allHymns;
@@ -168,6 +171,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   }
 
   Future<void> _loadAdjacentHymns() async {
+    if (kDebugMode) {
+      print('Loading adjacent hymns. All hymns count: ${_allHymns.length}');
+    }
+
     // If all hymns list is empty, we still try to load the specific hymn
     // if (_allHymns.isEmpty) return;
 
@@ -245,6 +252,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         if (kDebugMode) {
           print(
               'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
+          final authController = Get.find<AuthController>();
+          print('User authenticated: ${authController.isAuthenticated}');
         }
         await historyController.addToHistory(
           widget.hymnId,
