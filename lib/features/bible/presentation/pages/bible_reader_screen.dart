@@ -84,7 +84,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         backgroundColor: colorController.backgroundColor.value,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: IconButton(
+        leading: Obx(() => IconButton(
           icon: Icon(
             bibleController.selectedBook.isEmpty
                 ? Icons.menu_rounded
@@ -101,16 +101,16 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               Get.find<ShellController>().toggleDrawer();
             }
           },
-        ),
-          title: Text(
-            _getAppBarTitle(context),
-            style: TextStyle(
-              fontFamily: 'Roboto',
-              color: colorController.textColor.value,
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
-            ),
+        )),
+        title: Obx(() => Text(
+          _getAppBarTitle(context),
+          style: TextStyle(
+            fontFamily: 'Roboto',
+            color: colorController.textColor.value,
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
           ),
+        )),
         actions: [
           IconButton(
             icon: Icon(Icons.translate, color: colorController.iconColor.value),
@@ -227,43 +227,49 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         Column(
           children: [
             Expanded(
-              child: ListView.builder(
-                key: const PageStorageKey('bible_verses_list'),
-                controller: _verseScrollController,
-                padding: const EdgeInsets.fromLTRB(
-                    20, 16, 20, 100), // Add bottom padding for FAB
-                itemCount:
-                    verses.length + 1, // +1 for bottom spacing/navigation
-                itemBuilder: (context, index) {
-                  if (index == verses.length) {
-                    return BibleChapterNavigationWidget(
-                      onPrevious: () => _navigateChapter(-1),
-                      onNext: () => _navigateChapter(1),
+              child: Obx(() {
+                // Force rebuild when selectedVerses or highlights change
+                bibleController.selectedVerses.length; // Access to trigger reactivity
+                bibleController.highlights.length; // Access to trigger reactivity
+                
+                return ListView.builder(
+                  key: const PageStorageKey('bible_verses_list'),
+                  controller: _verseScrollController,
+                  padding: const EdgeInsets.fromLTRB(
+                      20, 16, 20, 100), // Add bottom padding for FAB
+                  itemCount:
+                      verses.length + 1, // +1 for bottom spacing/navigation
+                  itemBuilder: (context, index) {
+                    if (index == verses.length) {
+                      return BibleChapterNavigationWidget(
+                        onPrevious: () => _navigateChapter(-1),
+                        onNext: () => _navigateChapter(1),
+                      );
+                    }
+                    final verseNumber = index + 1;
+                    final verseText = verses[index];
+                    return BibleVerseItemWidget(
+                      key: ValueKey(verseNumber),
+                      verseNumber: verseNumber,
+                      verseText: verseText,
+                      verseStyle: _verseStyle,
+                      fontSize: _fontSize,
+                      isSelected: bibleController.isVerseSelected(verseNumber),
+                      isHighlighted:
+                          bibleController.isVerseHighlighted(verseNumber),
+                      isSearchHighlighted:
+                          bibleController.isVerseSearchHighlighted(verseNumber),
+                      onTap: () =>
+                          bibleController.toggleVerseSelection(verseNumber),
                     );
-                  }
-                  final verseNumber = index + 1;
-                  final verseText = verses[index];
-                  return BibleVerseItemWidget(
-                    key: ValueKey(verseNumber),
-                    verseNumber: verseNumber,
-                    verseText: verseText,
-                    verseStyle: _verseStyle,
-                    fontSize: _fontSize,
-                    isSelected: bibleController.isVerseSelected(verseNumber),
-                    isHighlighted:
-                        bibleController.isVerseHighlighted(verseNumber),
-                    isSearchHighlighted:
-                        bibleController.isVerseSearchHighlighted(verseNumber),
-                    onTap: () =>
-                        bibleController.toggleVerseSelection(verseNumber),
-                  );
-                },
-              ),
+                  },
+                );
+              }),
             ),
           ],
         ),
 // Selection Action Bar
-        bibleController.isSelecting ? Positioned(
+        Obx(() => bibleController.isSelecting ? Positioned(
           bottom: 24,
           left: 24,
           right: 24,
@@ -310,7 +316,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               ],
             ),
           ),
-        ) : const SizedBox.shrink(),
+        ) : const SizedBox.shrink()),
       ],
     );
   }

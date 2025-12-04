@@ -118,8 +118,16 @@ class BibleBookController extends GetxController {
   void toggleVerseSelection(int verseNumber) {
     if (selectedVerses.contains(verseNumber)) {
       selectedVerses.remove(verseNumber);
+      // If no verses left, stop selecting mode
+      if (selectedVerses.isEmpty) {
+        isSelecting.value = false;
+      }
     } else {
       selectedVerses.add(verseNumber);
+      // Enable selecting mode when first verse is added
+      if (!isSelecting.value) {
+        isSelecting.value = true;
+      }
     }
   }
 

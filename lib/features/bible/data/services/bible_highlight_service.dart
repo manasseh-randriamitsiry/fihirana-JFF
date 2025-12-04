@@ -54,15 +54,30 @@ class BibleHighlightService implements IBibleHighlightService {
   Future<bool> saveHighlight(BibleHighlight highlight) async {
     try {
       final user = _auth.currentUser;
-      if (user == null) return false;
+      if (user == null) {
+        if (kDebugMode) {
+          print('❌ Cannot save highlight: User not authenticated');
+        }
+        return false;
+      }
 
+      // Create highlight data with user info
       final highlightData = highlight.toJson();
+      highlightData['userId'] = user.uid;
+      highlightData['userName'] = user.displayName ?? user.email ?? 'Unknown';
+      highlightData['createdAt'] = DateTime.now().toIso8601String();
+      highlightData['updatedAt'] = DateTime.now().toIso8601String();
+
       await _firestore.collection('bible_highlights').add(highlightData);
+
+      if (kDebugMode) {
+        print('✅ Highlight saved successfully');
+      }
 
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('Error saving highlight: $e');
+        print('❌ Error saving highlight: $e');
       }
       return false;
     }
