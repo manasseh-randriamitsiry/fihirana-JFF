@@ -42,9 +42,8 @@ class GoogleDriveService {
   void initialize(GoogleSignIn googleSignIn) {
     _googleSignIn = googleSignIn;
     if (kDebugMode) {
-      print(
-          'GoogleDriveService: Initialized with shared GoogleSignIn instance');
-      print('GoogleDriveService: Initialized with shared GoogleSignIn instance');
+      print('GoogleDriveService: Initialized with shared GoogleSignIn instance: $googleSignIn');
+      print('GoogleDriveService: GoogleSignIn scopes: ${googleSignIn.scopes}');
     }
   }
 

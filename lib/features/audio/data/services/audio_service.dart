@@ -1026,7 +1026,7 @@ bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
               print('AudioService: Attempting to regenerate public URL...');
             }
             try {
-              final driveService = GoogleDriveService();
+        final driveService = Get.find<GoogleDriveService>();
               final newUrl =
                   await driveService.getPublicLink(recording.driveFileId!);
               if (newUrl != null) {
