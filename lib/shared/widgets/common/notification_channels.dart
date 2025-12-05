@@ -35,8 +35,8 @@ class NotificationChannelBuilder {
   static NotificationChannel _createAudioPlayerChannel() {
     return NotificationChannel(
       channelKey: 'audio_player_channel',
-      channelName: 'Audio Player',
-      channelDescription: 'Audio player controls and information',
+      channelName: 'Fihirana Music Player',
+      channelDescription: 'Fihirana music player controls and playback information',
       defaultColor: NotificationStyles.audioPlayerColor,
       importance: NotificationImportance.Low,
       channelShowBadge: false,
