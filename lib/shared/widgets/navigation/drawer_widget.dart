@@ -8,6 +8,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
+import 'package:fihirana/core/controllers/user_controller.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -27,12 +28,11 @@ class DrawerWidget extends StatefulWidget {
 class DrawerWidgetState extends State<DrawerWidget>
     with WidgetsBindingObserver {
   final ColorController _colorController = Get.find<ColorController>();
+  final UserController _userController = Get.find<UserController>();
   bool _isAuthenticated = false;
-  String? _username;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   GoogleSignIn? _googleSignIn;
   GoogleSignInAccount? _currentUser;
-  bool _hasLoadedUsername = false;
 
   @override
   void initState() {
@@ -50,7 +50,6 @@ class DrawerWidgetState extends State<DrawerWidget>
       Get.put(_googleSignIn!);
     }
     _checkAuthStatus();
-    _loadUsername();
     _googleSignIn?.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       if (mounted) {
         setState(() {
@@ -66,31 +65,7 @@ class DrawerWidgetState extends State<DrawerWidget>
     super.dispose();
   }
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      // Reload username when app comes back to foreground
-      _hasLoadedUsername = false;
-      _loadUsername();
-    }
-  }
 
-  @override
-  void didUpdateWidget(DrawerWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Reload username when drawer is rebuilt (e.g., after returning from splash screen)
-    _hasLoadedUsername = false;
-    _loadUsername();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Reload username when dependencies change (e.g., after navigation)
-    if (!_hasLoadedUsername) {
-      _loadUsername();
-    }
-  }
 
   void _checkAuthStatus() {
     FirebaseAuth.instance.authStateChanges().listen((user) {
@@ -140,9 +115,13 @@ class DrawerWidgetState extends State<DrawerWidget>
         await _firebaseAuth.signInWithCredential(credential);
 
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'username', googleSignInAccount.displayName ?? '');
+        final username = googleSignInAccount.displayName ?? '';
+        await prefs.setString('username', username);
         await prefs.setString('email', googleSignInAccount.email);
+
+        // Update the reactive user controller
+        await _userController.setUsername(username);
+        _userController.setAuthenticated(true);
 
         _updateCurrentUser();
         
@@ -165,16 +144,7 @@ class DrawerWidgetState extends State<DrawerWidget>
     }
   }
 
-  void _loadUsername() async {
-    final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username');
-    if (mounted) {
-      setState(() {
-        _username = username;
-        _hasLoadedUsername = true;
-      });
-    }
-  }
+
 
   Widget _buildSectionHeader(String title) {
     return Padding(
@@ -308,13 +278,13 @@ class DrawerWidgetState extends State<DrawerWidget>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        _isAuthenticated
-                            ? (_currentUser?.displayName ??
-                                _firebaseAuth.currentUser?.displayName ??
-                                _username ??
-                                'User')
-                             : (_username ?? AppLocalizations.of(context)!.guest),
+                        Obx(() => Text(
+                          _isAuthenticated
+                              ? (_currentUser?.displayName ??
+                                  _firebaseAuth.currentUser?.displayName ??
+                                  (_userController.username.value.isNotEmpty ? _userController.username.value : null) ??
+                                  'User')
+                              : (_userController.username.value.isNotEmpty ? _userController.username.value : AppLocalizations.of(context)!.guest),
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 22,
@@ -329,7 +299,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                      ),
+                      )),
                       if (_isAuthenticated) ...[
                         const SizedBox(height: 4),
                         Text(
@@ -471,13 +441,14 @@ final l10n = AppLocalizations.of(context)!;
                        icon: Icons.logout_rounded,
                        title: l10n.signOut,
                        color: _colorController.iconColor.value,
-                       onTap: () {
-                         FirebaseAuth.instance.signOut();
-                         setState(() {
-                           _isAuthenticated = false;
-                           _currentUser = null;
-                         });
-                       },
+                        onTap: () {
+                          FirebaseAuth.instance.signOut();
+                          _userController.setAuthenticated(false);
+                          setState(() {
+                            _isAuthenticated = false;
+                            _currentUser = null;
+                          });
+                        },
                      ),
                   const SizedBox(height: 32),
                 ],
