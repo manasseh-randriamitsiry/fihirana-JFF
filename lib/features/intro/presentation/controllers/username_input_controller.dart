@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/home/presentation/pages/home_screen.dart';
+import 'package:fihirana/core/controllers/user_controller.dart';
 
 /// Controller for username input and validation
 class UsernameInputController extends GetxController {
@@ -23,7 +25,11 @@ class UsernameInputController extends GetxController {
   }
 
   void _updateUsernameLength() {
-    usernameLength.value = usernameController.text.trim().length;
+    final length = usernameController.text.trim().length;
+    usernameLength.value = length;
+    if (kDebugMode) {
+      print('UsernameInputController: Text changed, length: $length, canSubmit: $canSubmit');
+    }
   }
 
   /// Validate username
@@ -45,10 +51,14 @@ class UsernameInputController extends GetxController {
   Future<void> submitUsername() async {
     final username = usernameController.text.trim();
 
-    // Save to preferences
+    // Save to preferences and update reactive controller
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('username', username);
     await prefs.setBool('isFirstTime', false);
+
+    // Update the reactive user controller
+    final userController = Get.find<UserController>();
+    await userController.setUsername(username);
 
     // Set guest name for recording
     final recordingController = Get.find<RecordingController>();
@@ -60,6 +70,12 @@ class UsernameInputController extends GetxController {
   }
 
   /// Check if username is valid for submission
-  bool get canSubmit => usernameController.text.trim().length >= 4 &&
-                        usernameController.text.trim().length <= 15;
+  bool get canSubmit {
+    final length = usernameController.text.trim().length;
+    final result = length >= 4 && length <= 15;
+    if (kDebugMode) {
+      print('UsernameInputController: canSubmit check - length: $length, result: $result');
+    }
+    return result;
+  }
 }

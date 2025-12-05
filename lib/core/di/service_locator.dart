@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
 import 'package:fihirana/features/bible/domain/repositories/bible_repository.dart';
 import 'package:fihirana/features/hymn/domain/repositories/hymn_repository.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
@@ -115,7 +114,7 @@ class ServiceLocator {
     
     // Audio Feature
     AudioDI.init();
-    
+
     // Bible Feature
     BibleDI.init();
     

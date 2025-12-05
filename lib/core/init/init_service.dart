@@ -26,6 +26,7 @@ import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/core/init/lazy_service_manager.dart';
 import 'package:fihirana/core/utils/background_isolate_manager.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
+import 'package:fihirana/core/controllers/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -61,6 +62,7 @@ class InitService {
     final fontController = Get.put(FontController());
     Get.put(LanguageController());
     Get.put(ShellController());
+    Get.put(UserController());
     // Initialize auth dependencies
     final authRepository = AuthRepositoryImpl(
       FirebaseAuthService(),

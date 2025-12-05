@@ -3,6 +3,7 @@ import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/core/init/init_service.dart';
 import 'package:fihirana/core/di/service_locator.dart';
 import 'package:fihirana/features/recording/di/recording_di.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -83,6 +84,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
         // Step 4: Get SharedPreferences (90% -> 95%)
         final prefs = await SharedPreferences.getInstance();
         Get.put<SharedPreferences>(prefs);
+
+        // Initialize Playlist DI after SharedPreferences is ready
+        PlaylistDI.initialize();
 
       // Track installation
       try {

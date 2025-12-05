@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/intro/presentation/controllers/splash_controller.dart';
+import 'package:fihirana/features/intro/presentation/controllers/username_input_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/intro/presentation/widgets/splash_widgets.dart';
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
@@ -15,6 +16,8 @@ class TermsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final splashController = SplashController.to;
+
+
 
     return Container(
       decoration: const BoxDecoration(
@@ -469,55 +472,59 @@ class TermsPage extends StatelessWidget {
                 .fadeIn(delay: 200.ms, duration: 600.ms)
                 .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
 
-          if (splashController.isGoogleUserSignedIn || splashController.usernameController.text.trim().length >= 4)
-            SizedBox(
-              width: double.infinity,
-              child: Obx(() => ElevatedButton.icon(
-                onPressed: !splashController.isSigningIn.value
-                    ? splashController.isGoogleUserSignedIn
-                        ? splashController.handleGoogleUserContinue
-                        : splashController.usernameController.text.trim().length >= 4
-                            ? splashController.handleUsernameSubmit
-                            : null
-                    : null,
-                icon: splashController.isGoogleUserSignedIn
-                    ? const Icon(Icons.check_circle, size: 20)
-                    : const Icon(Icons.person_outline, size: 20),
-                label: Text(
-                  splashController.getContinueButtonText(l10n.continueAs(splashController.googleUserName.value), l10n.continueAsGuest),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: splashController.usernameController.text.trim().length >= 4 ||
+          Obx(() {
+            final usernameController = Get.find<UsernameInputController>();
+            return splashController.isGoogleUserSignedIn || usernameController.usernameLength.value >= 4
+                ? SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: !splashController.isSigningIn.value
+                          ? splashController.isGoogleUserSignedIn
+                              ? splashController.handleGoogleUserContinue
+                              : Get.find<UsernameInputController>().usernameLength.value >= 4
+                                  ? splashController.handleUsernameSubmit
+                                  : null
+                          : null,
+                      icon: splashController.isGoogleUserSignedIn
+                          ? const Icon(Icons.check_circle, size: 20)
+                          : const Icon(Icons.person_outline, size: 20),
+                      label: Text(
+                        splashController.getContinueButtonText(l10n.continueAs('{name}'), l10n.continueAsGuest),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                  backgroundColor: Get.find<UsernameInputController>().usernameLength.value >= 4 ||
                           splashController.isGoogleUserSignedIn
                       ? Colors.white
                       : Colors.grey.shade300,
-                  foregroundColor: splashController.usernameController.text.trim().length >= 4 ||
+                  foregroundColor: Get.find<UsernameInputController>().usernameLength.value >= 4 ||
                           splashController.isGoogleUserSignedIn
                       ? Colors.green.shade700
                       : Colors.grey.shade600,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: splashController.usernameController.text.trim().length >= 4 ||
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                  elevation: Get.find<UsernameInputController>().usernameLength.value >= 4 ||
                           splashController.isGoogleUserSignedIn
                       ? 8
                       : 0,
-                ),
-              )),
-            )
-                .animate()
-                .fadeIn(
-                    delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
-                    duration: 600.ms)
-                .scale(
-                    delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
-                    duration: 400.ms,
-                    curve: Curves.easeOutBack),
+                      ),
+                    ),
+                  )
+                  .animate()
+                  .fadeIn(
+                      delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
+                      duration: 600.ms)
+                  .scale(
+                      delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
+                      duration: 400.ms,
+                      curve: Curves.easeOutBack)
+                : const SizedBox.shrink();
+          }),
         ],
       ],
     );

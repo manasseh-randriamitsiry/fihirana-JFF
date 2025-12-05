@@ -96,13 +96,13 @@ class SplashController extends GetxController {
     await _onboardingAuthController.handleGoogleUserContinue();
   }
 
-  String getContinueButtonText(String continueAs, String continueAsGuest) {
+  String getContinueButtonText(String continueAsTemplate, String continueAsGuest) {
     if (isGoogleUserSignedIn && _onboardingAuthController.googleUserName.value.isNotEmpty) {
-      return continueAs;
+      return continueAsTemplate.replaceFirst('{name}', _onboardingAuthController.googleUserName.value);
     } else {
       final username = _usernameInputController.usernameController.text.trim();
       if (username.isNotEmpty) {
-        return continueAs;
+        return continueAsTemplate.replaceFirst('{name}', username);
       } else {
         return continueAsGuest;
       }
