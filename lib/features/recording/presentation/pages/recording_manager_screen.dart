@@ -10,7 +10,6 @@ import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_field.da
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
-import 'package:fihirana/l10n/app_localizations.dart';
 import 'standalone_recording_screen.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 
@@ -49,6 +48,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
   }
 
   List<UserRecording> _getFilteredRecordings() {
+
     List<UserRecording> allRecordings = [];
 
     // Get recordings based on filter
@@ -90,153 +90,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             recording.hymnId.contains(_searchQuery.value);
       }).toList();
     }
-
     return allRecordings;
-  }
-
-  void _showDriveDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Get.find<ColorController>().backgroundColor.value,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(
-              Icons.cloud_done,
-              color: Get.find<ColorController>().primaryColor.value,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Google Drive',
-              style: TextStyle(
-                color: Get.find<ColorController>().textColor.value,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Signed in as:',
-              style: TextStyle(
-                color: Get.find<ColorController>()
-                    .textColor
-                    .value
-                    .withValues(alpha: 0.7),
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _recordingController.userEmail.value ?? 'Unknown',
-              style: TextStyle(
-                color: Get.find<ColorController>().textColor.value,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final quota = _recordingController.storageQuota.value;
-              if (quota == null) {
-                return const SizedBox.shrink();
-              }
-
-              final usage = quota['usage'] as int? ?? 0;
-              final limit = quota['limit'] as int? ?? 1;
-              final usageGB = (usage / (1024 * 1024 * 1024)).toStringAsFixed(2);
-              final limitGB = (limit / (1024 * 1024 * 1024)).toStringAsFixed(2);
-              final percent = (usage / limit).clamp(0.0, 1.0);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Storage Usage',
-                    style: TextStyle(
-                      color: Get.find<ColorController>()
-                          .textColor
-                          .value
-                          .withValues(alpha: 0.7),
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  LinearProgressIndicator(
-                    value: percent,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      percent > 0.9
-                          ? Colors.red
-                          : Get.find<ColorController>().primaryColor.value,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$usageGB GB of $limitGB GB used',
-                    style: TextStyle(
-                      color: Get.find<ColorController>().textColor.value,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              );
-            }),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Close',
-              style:
-                  TextStyle(color: Get.find<ColorController>().textColor.value),
-            ),
-          ),
-          Obx(() => _recordingController.isLoading.value
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
-              : ElevatedButton.icon(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await _recordingController.syncFromDrive();
-                  },
-                  icon: const Icon(Icons.sync, size: 18),
-                  label: Text(AppLocalizations.of(context)!.sync),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Get.find<ColorController>().primaryColor.value,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                )),
-          ElevatedButton(
-            onPressed: () {
-              _recordingController.signOutFromDrive();
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text(AppLocalizations.of(context)!.signOut),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -267,115 +121,66 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
               ),
             ),
             actions: [
-              // Multi-select actions
-              Obx(() {
-                if (_recordingController.isMultiSelectMode.value) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.select_all, color: iconColor),
-                        tooltip: 'Select all',
-                        onPressed: () {
-                          final filteredRecordings = _getFilteredRecordings();
-                          _recordingController.selectAllRecordings(filteredRecordings);
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.clear, color: iconColor),
-                        tooltip: 'Clear selection',
-                        onPressed: () => _recordingController.clearSelection(),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete_forever, color: Colors.red),
-                        tooltip: 'Delete permanently',
-                        onPressed: () async {
-                          if (_recordingController.selectedRecordingIds.isEmpty) return;
+              IconButton(
+                icon: Icon(Icons.select_all, color: iconColor),
+                tooltip: 'Select all',
+                onPressed: () {
+                  final filteredRecordings = _getFilteredRecordings();
+                  _recordingController.selectAllRecordings(filteredRecordings);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.clear, color: iconColor),
+                tooltip: 'Clear selection',
+                onPressed: () => _recordingController.clearSelection(),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_forever, color: Colors.red),
+                tooltip: 'Delete permanently',
+                onPressed: () async {
+                  if (_recordingController.selectedRecordingIds.isEmpty) {
+                    return;
+                  }
 
-                          final confirmed = await showDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              backgroundColor: backgroundColor,
-                              title: Text(
-                                'Delete Permanently',
-                                style: TextStyle(color: textColor),
-                              ),
-                              content: Text(
-                                'Are you sure you want to permanently delete ${_recordingController.selectedRecordingIds.length} recording${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'}? This action cannot be undone.',
-                                style: TextStyle(color: textColor.withValues(alpha: 0.8)),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, false),
-                                  child: Text('Cancel', style: TextStyle(color: textColor)),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.red,
-                                  ),
-                                  child: const Text('Delete'),
-                                ),
-                              ],
-                            ),
-                          );
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: backgroundColor,
+                      title: Text(
+                        'Delete Permanently',
+                        style: TextStyle(color: textColor),
+                      ),
+                      content: Text(
+                        'Are you sure you want to permanently delete ${_recordingController.selectedRecordingIds.length} recording${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'}? This action cannot be undone.',
+                        style: TextStyle(color: textColor.withValues(alpha: 0.8)),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('Cancel', style: TextStyle(color: textColor)),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    ),
+                  );
 
-                          if (confirmed == true) {
-                            await _recordingController.permanentlyDeleteSelectedRecordings();
-                          }
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.close, color: iconColor),
-                        tooltip: 'Exit multi-select',
-                        onPressed: () => _recordingController.disableMultiSelectMode(),
-                      ),
-                    ],
-                  );
-                } else {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.checklist, color: iconColor),
-                        tooltip: 'Multi-select mode',
-                        onPressed: () => _recordingController.enableMultiSelectMode(),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.refresh, color: iconColor),
-                        tooltip: 'Refresh recordings',
-                        onPressed: () => _recordingController.refreshRecordings(),
-                      ),
-                      Obx(() {
-                        if (_recordingController.isDriveSignedIn.value) {
-                          return Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.sync, color: iconColor),
-                                tooltip: 'Sync from Google Drive',
-                                onPressed: () => _recordingController.syncFromDrive(),
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.cloud_done, color: iconColor),
-                                tooltip:
-                                    'Signed in as ${_recordingController.userEmail.value}',
-                                onPressed: _showDriveDialog,
-                              ),
-                            ],
-                          );
-                        } else {
-                          return IconButton(
-                            icon: Icon(Icons.cloud_upload_outlined, color: iconColor),
-                            tooltip: 'Sign in to Google Drive',
-                            onPressed: () => _recordingController.signInToDrive(),
-                          );
-                        }
-                      }),
-                    ],
-                  );
-                }
-              }),
+                  if (confirmed == true) {
+                    await _recordingController.permanentlyDeleteSelectedRecordings();
+                  } else {
+                  }
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.close, color: iconColor),
+                tooltip: 'Exit multi-select',
+                onPressed: () => _recordingController.disableMultiSelectMode(),
+              ),
             ],
           ),
           body: Column(

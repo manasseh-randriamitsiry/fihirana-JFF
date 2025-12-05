@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
@@ -10,13 +11,13 @@ class RecordingRepositoryImpl implements RecordingRepository {
       : _recordingService = recordingService ?? RecordingService.to;
 
   @override
-  List<UserRecording> get recordings => _recordingService.recordings;
+  RxList<UserRecording> get recordings => _recordingService.recordings;
 
   @override
-  List<UserRecording> get publicRecordings => _recordingService.publicRecordings;
+  RxList<UserRecording> get publicRecordings => _recordingService.publicRecordings;
 
   @override
-  List<UserRecording> get deletedRecordings => _recordingService.deletedRecordings;
+  RxList<UserRecording> get deletedRecordings => _recordingService.deletedRecordings;
 
   @override
   bool get isRecording => _recordingService.isRecording;
@@ -57,6 +58,16 @@ class RecordingRepositoryImpl implements RecordingRepository {
   }
 
   @override
+  Future<bool> validateRecordingFile(String recordingId) async {
+    return await _recordingService.validateRecordingFile(recordingId);
+  }
+
+  @override
+  Future<int> checkOrphanedPublicRecordings() async {
+    return await _recordingService.checkOrphanedPublicRecordings();
+  }
+
+  @override
   Future<void> saveRecording(UserRecording recording) async {
     return await _recordingService.saveRecording(recording);
   }
@@ -68,6 +79,7 @@ class RecordingRepositoryImpl implements RecordingRepository {
 
   @override
   Future<void> deleteRecording(String recordingId) async {
+    print('RecordingRepositoryImpl: deleteRecording called with id: $recordingId');
     return await _recordingService.deleteRecording(recordingId);
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
 import 'recording_auth_manager.dart';
@@ -131,14 +132,16 @@ class RecordingPublishingManager extends GetxController {
         recordingToPublish = recording.copyWith(title: customTitle);
       }
 
-      // Add user info if not already present
-      if (recordingToPublish.userPhotoUrl == null ||
-          recordingToPublish.userName == null) {
-        recordingToPublish = recordingToPublish.copyWith(
-          userName: userName.isNotEmpty ? userName : currentUser?.displayName,
-          userPhotoUrl: photoUrl,
-        );
-      }
+       // Add user info if not already present
+       if (recordingToPublish.userPhotoUrl == null ||
+           recordingToPublish.userName == null ||
+           recordingToPublish.userId == null) {
+         recordingToPublish = recordingToPublish.copyWith(
+           userName: userName.isNotEmpty ? userName : currentUser?.displayName,
+           userPhotoUrl: photoUrl,
+           userId: FirebaseAuth.instance.currentUser?.uid,
+         );
+       }
 
       if (recording.driveFileId == null) {
         Get.snackbar(
@@ -180,6 +183,7 @@ class RecordingPublishingManager extends GetxController {
       final titleExists = await _recordingService.titleExistsForHymn(
         recordingToPublish.hymnId,
         recordingToPublish.title,
+        userId: FirebaseAuth.instance.currentUser?.uid,
       );
       if (titleExists) {
         return PublishRecordingResult.duplicateTitle;
@@ -270,12 +274,14 @@ class RecordingPublishingManager extends GetxController {
         publicLink: publicLink,
         userName: userName,
         userPhotoUrl: photoUrl,
+        userId: FirebaseAuth.instance.currentUser?.uid,
       );
 
       UserRecording currentRecording = updatedRecording;
       bool titleExists = await _recordingService.titleExistsForHymn(
         currentRecording.hymnId,
         currentRecording.title,
+        userId: FirebaseAuth.instance.currentUser?.uid,
       );
 
       while (titleExists) {
@@ -288,6 +294,7 @@ class RecordingPublishingManager extends GetxController {
         titleExists = await _recordingService.titleExistsForHymn(
           currentRecording.hymnId,
           currentRecording.title,
+          userId: FirebaseAuth.instance.currentUser?.uid,
         );
       }
 
@@ -333,7 +340,7 @@ class RecordingPublishingManager extends GetxController {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.chooseHowToDelete(recording.title)),
+              Text('A recording with this title already exists. Please enter a new title.'),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,

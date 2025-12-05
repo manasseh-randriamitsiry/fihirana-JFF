@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
 import 'package:fihirana/core/security/security_service.dart';
+import 'recording_drive_sync_manager.dart';
 
 
 /// Manages authentication and user-related operations
@@ -130,6 +131,9 @@ class RecordingAuthManager extends GetxController {
       if (account != null) {
         await validateDriveUser(account);
         await fetchStorageQuota();
+
+        // Run orphaned recordings cleanup after successful sign-in
+        _runOrphanedCleanupAfterSignIn();
       }
     } catch (e) {
       if (kDebugMode) {
@@ -141,6 +145,53 @@ class RecordingAuthManager extends GetxController {
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+    }
+  }
+
+  /// Run orphaned recordings cleanup after Drive sign-in
+  void runOrphanedCleanupAfterSignIn() {
+    _runOrphanedCleanupAfterSignIn();
+  }
+
+  void _runOrphanedCleanupAfterSignIn() async {
+    try {
+      if (kDebugMode) {
+        print('RecordingAuthManager: Running orphaned cleanup after Drive sign-in');
+      }
+
+      // Get the sync manager to run cleanup
+      final syncManager = Get.find<RecordingDriveSyncManager>(tag: 'recording');
+
+      // Run cleanup in background
+      Future.delayed(const Duration(seconds: 2), () async {
+        try {
+          final cleanedUpCount = await syncManager.cleanupOrphanedPublicRecordings();
+
+          if (cleanedUpCount > 0) {
+            if (kDebugMode) {
+              print('RecordingAuthManager: Cleaned up $cleanedUpCount orphaned recordings after sign-in');
+            }
+
+            // Show notification
+            Get.snackbar(
+              'Maintenance Complete',
+              'Cleaned up $cleanedUpCount outdated recording links',
+              backgroundColor: Colors.blue.shade600,
+              colorText: Colors.white,
+              duration: const Duration(seconds: 3),
+              icon: Icon(Icons.cleaning_services, color: Colors.white),
+            );
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('RecordingAuthManager: Error during post-sign-in cleanup: $e');
+          }
+        }
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingAuthManager: Error setting up post-sign-in cleanup: $e');
+      }
     }
   }
 
