@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:fihirana/features/bible/domain/repositories/bible_repository.dart';
@@ -69,14 +70,28 @@ class ServiceLocator {
     // Firebase Services
     Get.put<FirebaseFirestore>(FirebaseFirestore.instance);
     Get.put<firebase_auth.FirebaseAuth>(firebase_auth.FirebaseAuth.instance);
-    Get.put<GoogleSignIn>(GoogleSignIn(
+    final googleSignIn = GoogleSignIn(
       scopes: [
         'email',
         'https://www.googleapis.com/auth/contacts.readonly',
         'https://www.googleapis.com/auth/drive.file',
       ],
-    ));
-    
+    );
+    Get.put<GoogleSignIn>(googleSignIn);
+
+    // Initialize Google Drive Service
+    final driveService = GoogleDriveService();
+    if (kDebugMode) {
+      print('ServiceLocator: Creating GoogleDriveService instance');
+      print('ServiceLocator: Initializing GoogleDriveService with googleSignIn: $googleSignIn');
+    }
+    driveService.initialize(googleSignIn);
+    Get.put<GoogleDriveService>(driveService);
+    if (kDebugMode) {
+      print('ServiceLocator: GoogleDriveService initialized and registered with GetX');
+      print('ServiceLocator: Verifying GetX registration: ${Get.isRegistered<GoogleDriveService>()}');
+    }
+
     // Storage Service
     final storageService = LocalStorageService();
     Get.put<LocalStorageService>(storageService);

@@ -65,7 +65,7 @@ class AuthController extends GetxController {
     super.onInit();
 
     // Initialize Google Drive service with shared GoogleSignIn instance
-    _driveService = GoogleDriveService();
+    _driveService = Get.find<GoogleDriveService>();
     _driveService.initialize(googleSignIn);
 
     _auth.authStateChanges().listen((firebase_auth.User? user) async {

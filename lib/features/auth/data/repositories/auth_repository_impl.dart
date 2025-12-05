@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -22,7 +23,7 @@ class AuthRepositoryImpl implements AuthRepository {
     this._googleSignIn,
     this._securityService,
   ) {
-    _driveService = GoogleDriveService();
+    _driveService = Get.find<GoogleDriveService>();
     _driveService.initialize(_googleSignIn);
   }
 

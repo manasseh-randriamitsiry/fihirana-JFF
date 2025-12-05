@@ -159,7 +159,7 @@ class RecordingPlaybackManager extends GetxController {
     // PRIORITY 3: If no local file and no public link, try authenticated URL for private recordings
     if (audioUrl == null && recording.driveFileId != null) {
       try {
-        final driveService = GoogleDriveService();
+        final driveService = Get.find<GoogleDriveService>();
         if (!driveService.isSignedIn) {
           await driveService.signInSilently();
         }

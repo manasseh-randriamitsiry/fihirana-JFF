@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
 import 'package:fihirana/core/security/security_service.dart';
-import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+
 
 /// Manages authentication and user-related operations
 class RecordingAuthManager extends GetxController {
@@ -52,11 +52,19 @@ class RecordingAuthManager extends GetxController {
 
   Future<void> _initializeDriveService() async {
     try {
-      final authController = Get.find<AuthController>();
-      _driveService = authController.driveService;
+      _driveService = Get.find<GoogleDriveService>();
+      final googleSignIn = Get.find<GoogleSignIn>();
+      _driveService?.initialize(googleSignIn);
+
+      // Check for existing authentication
+      final currentUser = await checkDriveAuthentication();
+      if (currentUser != null) {
+        await validateDriveUser(currentUser);
+      }
+
       if (kDebugMode) {
         print(
-            'RecordingAuthManager: Drive service initialized from AuthController');
+            'RecordingAuthManager: Drive service initialized from GetX');
       }
     } catch (e) {
       if (kDebugMode) {

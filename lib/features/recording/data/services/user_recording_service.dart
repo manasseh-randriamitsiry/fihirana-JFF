@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:path/path.dart' as path;
@@ -271,7 +272,7 @@ class UserRecordingService {
       print('UserRecordingService: Starting public URL refresh...');
     }
 
-    final driveService = GoogleDriveService();
+    final driveService = Get.find<GoogleDriveService>();
     bool updated = false;
 
     for (int i = 0; i < _recordings.length; i++) {

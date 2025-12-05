@@ -332,7 +332,7 @@ class RecordingService extends GetxService implements IRecordingService {
   @override
   Future<bool> uploadToGoogleDrive(UserRecording recording) async {
     try {
-      final driveService = GoogleDriveService();
+      final driveService = Get.find<GoogleDriveService>();
       final file = File(recording.filePath);
       
       if (!await file.exists()) {
@@ -485,7 +485,7 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> refreshPublicUrls() async {
-    final driveService = GoogleDriveService();
+    final driveService = Get.find<GoogleDriveService>();
     bool updated = false;
     final List<UserRecording> currentRecordings = [...recordings];
 
