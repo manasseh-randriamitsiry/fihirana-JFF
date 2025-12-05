@@ -25,120 +25,120 @@ class RecordingDI {
     );
 
     // Use cases - Recording Management
-    Get.lazyPut<StartRecordingUseCase>(
-      () => StartRecordingUseCase(
+    Get.put<StartRecordingUseCase>(
+      StartRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<StopRecordingUseCase>(
-      () => StopRecordingUseCase(
+    Get.put<StopRecordingUseCase>(
+      StopRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<CancelRecordingUseCase>(
-      () => CancelRecordingUseCase(
+    Get.put<CancelRecordingUseCase>(
+      CancelRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<LoadRecordingsUseCase>(
-      () => LoadRecordingsUseCase(
+    Get.put<LoadRecordingsUseCase>(
+      LoadRecordingsUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<SaveRecordingUseCase>(
-      () => SaveRecordingUseCase(
+    Get.put<SaveRecordingUseCase>(
+      SaveRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<UpdateRecordingUseCase>(
-      () => UpdateRecordingUseCase(
+    Get.put<UpdateRecordingUseCase>(
+      UpdateRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<DeleteRecordingUseCase>(
-      () => DeleteRecordingUseCase(
+    Get.put<DeleteRecordingUseCase>(
+      DeleteRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<GetRecordingByIdUseCase>(
-      () => GetRecordingByIdUseCase(
+    Get.put<GetRecordingByIdUseCase>(
+      GetRecordingByIdUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
     // Use cases - Public Recordings
-    Get.lazyPut<LoadPublicRecordingsUseCase>(
-      () => LoadPublicRecordingsUseCase(
+    Get.put<LoadPublicRecordingsUseCase>(
+      LoadPublicRecordingsUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<PublishRecordingUseCase>(
-      () => PublishRecordingUseCase(
+    Get.put<PublishRecordingUseCase>(
+      PublishRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<UnpublishRecordingUseCase>(
-      () => UnpublishRecordingUseCase(
+    Get.put<UnpublishRecordingUseCase>(
+      UnpublishRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<ToggleRecordingPrivacyUseCase>(
-      () => ToggleRecordingPrivacyUseCase(
+    Get.put<ToggleRecordingPrivacyUseCase>(
+      ToggleRecordingPrivacyUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
     // Use cases - Search and Filter
-    Get.lazyPut<SearchRecordingsUseCase>(
-      () => SearchRecordingsUseCase(
+    Get.put<SearchRecordingsUseCase>(
+      SearchRecordingsUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<GetRecordingsByHymnIdUseCase>(
-      () => GetRecordingsByHymnIdUseCase(
+    Get.put<GetRecordingsByHymnIdUseCase>(
+      GetRecordingsByHymnIdUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
     // Use cases - Drive Integration
-    Get.lazyPut<UploadToGoogleDriveUseCase>(
-      () => UploadToGoogleDriveUseCase(
+    Get.put<UploadToGoogleDriveUseCase>(
+      UploadToGoogleDriveUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<SyncFromDriveUseCase>(
-      () => SyncFromDriveUseCase(
+    Get.put<SyncFromDriveUseCase>(
+      SyncFromDriveUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
     // Use cases - Deleted Recordings
-    Get.lazyPut<LoadDeletedRecordingsUseCase>(
-      () => LoadDeletedRecordingsUseCase(
+    Get.put<LoadDeletedRecordingsUseCase>(
+      LoadDeletedRecordingsUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<RestoreRecordingUseCase>(
-      () => RestoreRecordingUseCase(
+    Get.put<RestoreRecordingUseCase>(
+      RestoreRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
 
-    Get.lazyPut<PermanentlyDeleteRecordingUseCase>(
-      () => PermanentlyDeleteRecordingUseCase(
+    Get.put<PermanentlyDeleteRecordingUseCase>(
+      PermanentlyDeleteRecordingUseCase(
         Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       ),
     );
@@ -168,14 +168,14 @@ class RecordingDI {
           Get.find<PermanentlyDeleteRecordingUseCase>(),
     );
 
-    Get.lazyPut<RecordingController>(
-      () => controller,
+    Get.put<RecordingController>(
+      controller,
       tag: _recordingControllerTag,
     );
 
     // Also register without tag for backward compatibility
-    Get.lazyPut<RecordingController>(
-      () => controller,
+    Get.put<RecordingController>(
+      controller,
     );
   }
 
@@ -196,28 +196,32 @@ class RecordingDI {
 
   /// Dispose recording dependencies
   static void dispose() {
-    Get.delete<RecordingController>(tag: _recordingControllerTag);
-    Get.delete<RecordingController>(); // Also delete untagged version
-    Get.delete<PermanentlyDeleteRecordingUseCase>();
-    Get.delete<RestoreRecordingUseCase>();
-    Get.delete<LoadDeletedRecordingsUseCase>();
-    Get.delete<SyncFromDriveUseCase>();
-    Get.delete<UploadToGoogleDriveUseCase>();
-    Get.delete<GetRecordingsByHymnIdUseCase>();
-    Get.delete<SearchRecordingsUseCase>();
-    Get.delete<ToggleRecordingPrivacyUseCase>();
-    Get.delete<UnpublishRecordingUseCase>();
-    Get.delete<PublishRecordingUseCase>();
-    Get.delete<LoadPublicRecordingsUseCase>();
-    Get.delete<GetRecordingByIdUseCase>();
-    Get.delete<DeleteRecordingUseCase>();
-    Get.delete<UpdateRecordingUseCase>();
-    Get.delete<SaveRecordingUseCase>();
-    Get.delete<LoadRecordingsUseCase>();
-    Get.delete<CancelRecordingUseCase>();
-    Get.delete<StopRecordingUseCase>();
-    Get.delete<StartRecordingUseCase>();
-    Get.delete<RecordingRepository>(tag: _recordingRepositoryTag);
+    if (Get.isRegistered<RecordingController>(tag: _recordingControllerTag)) {
+      Get.delete<RecordingController>(tag: _recordingControllerTag);
+    }
+    if (Get.isRegistered<RecordingController>()) {
+      Get.delete<RecordingController>(); // Also delete untagged version
+    }
+    if (Get.isRegistered<PermanentlyDeleteRecordingUseCase>()) Get.delete<PermanentlyDeleteRecordingUseCase>();
+    if (Get.isRegistered<RestoreRecordingUseCase>()) Get.delete<RestoreRecordingUseCase>();
+    if (Get.isRegistered<LoadDeletedRecordingsUseCase>()) Get.delete<LoadDeletedRecordingsUseCase>();
+    if (Get.isRegistered<SyncFromDriveUseCase>()) Get.delete<SyncFromDriveUseCase>();
+    if (Get.isRegistered<UploadToGoogleDriveUseCase>()) Get.delete<UploadToGoogleDriveUseCase>();
+    if (Get.isRegistered<GetRecordingsByHymnIdUseCase>()) Get.delete<GetRecordingsByHymnIdUseCase>();
+    if (Get.isRegistered<SearchRecordingsUseCase>()) Get.delete<SearchRecordingsUseCase>();
+    if (Get.isRegistered<ToggleRecordingPrivacyUseCase>()) Get.delete<ToggleRecordingPrivacyUseCase>();
+    if (Get.isRegistered<UnpublishRecordingUseCase>()) Get.delete<UnpublishRecordingUseCase>();
+    if (Get.isRegistered<PublishRecordingUseCase>()) Get.delete<PublishRecordingUseCase>();
+    if (Get.isRegistered<LoadPublicRecordingsUseCase>()) Get.delete<LoadPublicRecordingsUseCase>();
+    if (Get.isRegistered<GetRecordingByIdUseCase>()) Get.delete<GetRecordingByIdUseCase>();
+    if (Get.isRegistered<DeleteRecordingUseCase>()) Get.delete<DeleteRecordingUseCase>();
+    if (Get.isRegistered<UpdateRecordingUseCase>()) Get.delete<UpdateRecordingUseCase>();
+    if (Get.isRegistered<SaveRecordingUseCase>()) Get.delete<SaveRecordingUseCase>();
+    if (Get.isRegistered<LoadRecordingsUseCase>()) Get.delete<LoadRecordingsUseCase>();
+    if (Get.isRegistered<CancelRecordingUseCase>()) Get.delete<CancelRecordingUseCase>();
+    if (Get.isRegistered<StopRecordingUseCase>()) Get.delete<StopRecordingUseCase>();
+    if (Get.isRegistered<StartRecordingUseCase>()) Get.delete<StartRecordingUseCase>();
+    if (Get.isRegistered<RecordingRepository>(tag: _recordingRepositoryTag)) Get.delete<RecordingRepository>(tag: _recordingRepositoryTag);
   }
 
   /// Reset recording dependencies (for testing)
