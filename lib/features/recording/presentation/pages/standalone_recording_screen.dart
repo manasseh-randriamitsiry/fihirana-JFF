@@ -239,6 +239,13 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       color: Colors.white,
                       fontSize: 16,
                     ),
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    autofillHints: [],
+                    textInputAction: TextInputAction.done,
+                    keyboardType: TextInputType.text,
+                    smartDashesType: SmartDashesType.disabled,
+                    smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
                       labelText: 'Recording Name',
                       labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
@@ -370,6 +377,13 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    autofillHints: [],
+                    textInputAction: TextInputAction.done,
+                    keyboardType: TextInputType.text,
+                    smartDashesType: SmartDashesType.disabled,
+                    smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
                       labelText: 'Recording Name',
                       labelStyle: TextStyle(
@@ -393,6 +407,10 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                           color: colorController.primaryColor.value,
                           width: 2,
                         ),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.edit,
+                        color: colorController.primaryColor.value.withValues(alpha: 0.7),
                       ),
                     ),
                   ),

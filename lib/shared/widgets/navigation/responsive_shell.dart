@@ -148,7 +148,13 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
         children: [
           mainContent,
           // Single recording overlay manager for all layouts
-          const RecordingOverlayManager(),
+          Overlay(
+            initialEntries: [
+              OverlayEntry(
+                builder: (context) => const RecordingOverlayManager(),
+              ),
+            ],
+          ),
         ],
       );
     });

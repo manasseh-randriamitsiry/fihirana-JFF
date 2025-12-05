@@ -209,3 +209,14 @@ class PermanentlyDeleteRecordingUseCase {
     return await _repository.permanentlyDeleteRecording(recordingId);
   }
 }
+
+/// Use case for permanently deleting multiple recordings
+class PermanentlyDeleteMultipleRecordingsUseCase {
+  final RecordingRepository _repository;
+
+  PermanentlyDeleteMultipleRecordingsUseCase(this._repository);
+
+  Future<void> call(List<String> recordingIds) async {
+    return await _repository.permanentlyDeleteMultipleRecordings(recordingIds);
+  }
+}

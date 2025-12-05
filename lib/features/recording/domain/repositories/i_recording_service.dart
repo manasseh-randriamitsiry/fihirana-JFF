@@ -47,7 +47,10 @@ abstract class IRecordingService {
   
   /// Permanently delete a recording
   Future<void> permanentlyDeleteRecording(String recordingId);
-  
+
+  /// Permanently delete multiple recordings
+  Future<void> permanentlyDeleteMultipleRecordings(List<String> recordingIds);
+
   /// Restore a deleted recording
   Future<void> restoreRecording(String recordingId);
   

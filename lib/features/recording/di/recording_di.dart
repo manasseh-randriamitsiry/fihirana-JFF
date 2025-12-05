@@ -143,6 +143,12 @@ class RecordingDI {
       ),
     );
 
+    Get.put<PermanentlyDeleteMultipleRecordingsUseCase>(
+      PermanentlyDeleteMultipleRecordingsUseCase(
+        Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
+      ),
+    );
+
     // Controller (register both with and without tag for compatibility)
     final controller = RecordingController(
       startRecordingUseCase: Get.find<StartRecordingUseCase>(),
@@ -166,6 +172,8 @@ class RecordingDI {
       restoreRecordingUseCase: Get.find<RestoreRecordingUseCase>(),
       permanentlyDeleteRecordingUseCase:
           Get.find<PermanentlyDeleteRecordingUseCase>(),
+      permanentlyDeleteMultipleRecordingsUseCase:
+          Get.find<PermanentlyDeleteMultipleRecordingsUseCase>(),
     );
 
     Get.put<RecordingController>(

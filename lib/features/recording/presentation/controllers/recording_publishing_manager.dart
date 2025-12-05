@@ -337,6 +337,13 @@ class RecordingPublishingManager extends GetxController {
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
+                autocorrect: false,
+                enableSuggestions: false,
+                autofillHints: [],
+                textInputAction: TextInputAction.done,
+                keyboardType: TextInputType.text,
+                smartDashesType: SmartDashesType.disabled,
+                smartQuotesType: SmartQuotesType.disabled,
                 decoration: InputDecoration(
                   labelText: l10n.enterNewName,
                   border: const OutlineInputBorder(),

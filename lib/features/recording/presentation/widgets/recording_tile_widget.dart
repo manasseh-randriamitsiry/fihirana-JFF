@@ -42,55 +42,91 @@ class RecordingTileWidget extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () {
-          controller.showPlayer(
-            recording,
-            isRecording: false,
-            onStopRecording: () {},
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: colorController.backgroundColor.value,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: colorController.textColor.value.withValues(alpha: 0.1),
+      child: Obx(() {
+        final isMultiSelect = controller.isMultiSelectMode.value;
+        final isSelected = controller.selectedRecordingIds.contains(recording.id);
+
+        return InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            if (isMultiSelect) {
+              controller.toggleRecordingSelection(recording.id);
+            } else {
+              controller.showPlayer(
+                recording,
+                isRecording: false,
+                onStopRecording: () {},
+              );
+            }
+          },
+          onLongPress: () {
+            if (!isMultiSelect) {
+              controller.enableMultiSelectMode();
+              controller.toggleRecordingSelection(recording.id);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? colorController.primaryColor.value.withValues(alpha: 0.1)
+                  : colorController.backgroundColor.value,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected
+                    ? colorController.primaryColor.value
+                    : colorController.textColor.value.withValues(alpha: 0.1),
+                width: isSelected ? 2 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // Icon
-              RecordingTileIcon(
-                recording: recording,
-                isPublic: isPublic,
-              ),
-              const SizedBox(width: 16),
+            child: Row(
+              children: [
+                // Checkbox for multi-select mode
+                if (isMultiSelect)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: Checkbox(
+                      value: isSelected,
+                      onChanged: (value) {
+                        controller.toggleRecordingSelection(recording.id);
+                      },
+                      activeColor: colorController.primaryColor.value,
+                    ),
+                  ),
 
-              // Info
-              RecordingTileInfo(
-                recording: recording,
-                isPublic: isPublic,
-              ),
+                // Icon
+                RecordingTileIcon(
+                  recording: recording,
+                  isPublic: isPublic,
+                ),
+                const SizedBox(width: 16),
 
-              // Menu
-              RecordingTileMenu(
-                recording: recording,
-                isPublic: isPublic,
-              ),
-            ],
+                // Info
+                Expanded(
+                  child: RecordingTileInfo(
+                    recording: recording,
+                    isPublic: isPublic,
+                  ),
+                ),
+
+                // Menu (only show when not in multi-select mode)
+                if (!isMultiSelect)
+                  RecordingTileMenu(
+                    recording: recording,
+                    isPublic: isPublic,
+                  ),
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     )
         .animate()
         .slideX(

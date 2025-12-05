@@ -88,13 +88,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
     _hymnService.checkPendingSyncs();
 
-    // Show recording overlay immediately with placeholder data
-    // This ensures the FAB is visible during skeleton loading
-    // Defer to post-frame callback to avoid setState during build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _recordingController.showOverlay(widget.hymnId, 'Loading...');
-    });
-
     _heartAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),

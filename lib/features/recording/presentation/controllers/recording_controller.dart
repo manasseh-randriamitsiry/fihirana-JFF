@@ -40,6 +40,7 @@ class RecordingController extends GetxController {
   final LoadDeletedRecordingsUseCase loadDeletedRecordingsUseCase;
   final RestoreRecordingUseCase restoreRecordingUseCase;
   final PermanentlyDeleteRecordingUseCase permanentlyDeleteRecordingUseCase;
+  final PermanentlyDeleteMultipleRecordingsUseCase permanentlyDeleteMultipleRecordingsUseCase;
 
   // Legacy managers (for backward compatibility)
   late final RecordingStateManager stateManager;
@@ -71,6 +72,7 @@ class RecordingController extends GetxController {
     LoadDeletedRecordingsUseCase? loadDeletedRecordingsUseCase,
     RestoreRecordingUseCase? restoreRecordingUseCase,
     PermanentlyDeleteRecordingUseCase? permanentlyDeleteRecordingUseCase,
+    PermanentlyDeleteMultipleRecordingsUseCase? permanentlyDeleteMultipleRecordingsUseCase,
   })  : startRecordingUseCase = startRecordingUseCase ?? StartRecordingUseCase(RecordingRepositoryImpl()),
         stopRecordingUseCase = stopRecordingUseCase ?? StopRecordingUseCase(RecordingRepositoryImpl()),
         cancelRecordingUseCase = cancelRecordingUseCase ?? CancelRecordingUseCase(RecordingRepositoryImpl()),
@@ -89,7 +91,8 @@ class RecordingController extends GetxController {
         syncFromDriveUseCase = syncFromDriveUseCase ?? SyncFromDriveUseCase(RecordingRepositoryImpl()),
         loadDeletedRecordingsUseCase = loadDeletedRecordingsUseCase ?? LoadDeletedRecordingsUseCase(RecordingRepositoryImpl()),
         restoreRecordingUseCase = restoreRecordingUseCase ?? RestoreRecordingUseCase(RecordingRepositoryImpl()),
-        permanentlyDeleteRecordingUseCase = permanentlyDeleteRecordingUseCase ?? PermanentlyDeleteRecordingUseCase(RecordingRepositoryImpl());
+        permanentlyDeleteRecordingUseCase = permanentlyDeleteRecordingUseCase ?? PermanentlyDeleteRecordingUseCase(RecordingRepositoryImpl()),
+        permanentlyDeleteMultipleRecordingsUseCase = permanentlyDeleteMultipleRecordingsUseCase ?? PermanentlyDeleteMultipleRecordingsUseCase(RecordingRepositoryImpl());
 
   // Delegated properties for backward compatibility
   // Recording state
@@ -134,12 +137,16 @@ class RecordingController extends GetxController {
   Rxn<Map<String, dynamic>> get storageQuota {
     final quota = authManager.storageQuota.value;
     if (quota == null) return Rxn<Map<String, dynamic>>(null);
-    
+
     return Rxn<Map<String, dynamic>>({
       'usage': quota.usage ?? 0,
       'limit': quota.limit ?? 0,
     });
   }
+
+  // Multi-select state
+  final RxBool isMultiSelectMode = false.obs;
+  final RxSet<String> selectedRecordingIds = <String>{}.obs;
 
 @override
   void onInit() {
@@ -294,7 +301,8 @@ class RecordingController extends GetxController {
   Future<void> deleteRecording(UserRecording recording) async {
     try {
       await deleteRecordingUseCase(recording.id);
-      await operationsManager.deleteRecording(recording); // Keep for backward compatibility
+      // Note: operationsManager.deleteRecording is not called here to avoid double deletion
+      // The use case handles the deletion properly
     } catch (e) {
       stateManager.lastError.value = 'Failed to delete recording: $e';
     }
@@ -435,4 +443,39 @@ class RecordingController extends GetxController {
           {required bool isRecording, required VoidCallback onStopRecording}) =>
       playbackManager.showPlayer(recording,
           isRecording: isRecording, onStopRecording: onStopRecording);
+
+  // Multi-select methods
+  void enableMultiSelectMode() {
+    isMultiSelectMode.value = true;
+    selectedRecordingIds.clear();
+  }
+
+  void disableMultiSelectMode() {
+    isMultiSelectMode.value = false;
+    selectedRecordingIds.clear();
+  }
+
+  void toggleRecordingSelection(String recordingId) {
+    if (selectedRecordingIds.contains(recordingId)) {
+      selectedRecordingIds.remove(recordingId);
+    } else {
+      selectedRecordingIds.add(recordingId);
+    }
+  }
+
+  void selectAllRecordings(List<UserRecording> recordings) {
+    selectedRecordingIds.addAll(recordings.map((r) => r.id));
+  }
+
+  void clearSelection() {
+    selectedRecordingIds.clear();
+  }
+
+  Future<void> permanentlyDeleteSelectedRecordings() async {
+    if (selectedRecordingIds.isEmpty) return;
+
+    final idsToDelete = selectedRecordingIds.toList();
+    await permanentlyDeleteMultipleRecordingsUseCase(idsToDelete);
+    disableMultiSelectMode();
+  }
 }
