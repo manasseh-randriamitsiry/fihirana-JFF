@@ -2,7 +2,6 @@ import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/core/init/init_service.dart';
 import 'package:fihirana/core/di/service_locator.dart';
-import 'package:fihirana/features/recording/di/recording_di.dart';
 import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
@@ -70,8 +69,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
        Get.put(SecurityService());
        Get.put(ShellController());
 
-       await serviceLocator.initialize();
-      RecordingDI.initialize();
+        await serviceLocator.initialize();
 
        // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
        await InitService.initializeApp();
