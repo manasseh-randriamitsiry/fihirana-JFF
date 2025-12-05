@@ -138,7 +138,7 @@ class NotificationLayouts {
       fullScreenIntent: false,
       locked: locked,
       backgroundColor: Colors.black87,
-      summary: summary ?? 'Fihirana Audio',
+      summary: summary ?? 'Fihirana - Music Player',
       largeIcon: largeIcon ?? 'resource://mipmap/ic_launcher',
       roundedLargeIcon: true,
       progress: progress,
