@@ -301,6 +301,13 @@ class RecordingTileDialogs {
               TextField(
                 controller: titleController,
                 style: TextStyle(color: colorController.textColor.value),
+                autocorrect: false,
+                enableSuggestions: false,
+                autofillHints: [],
+                textInputAction: TextInputAction.done,
+                keyboardType: TextInputType.text,
+                smartDashesType: SmartDashesType.disabled,
+                smartQuotesType: SmartQuotesType.disabled,
                 decoration: InputDecoration(
                   hintText: 'Enter recording title',
                   hintStyle: TextStyle(
@@ -317,7 +324,7 @@ class RecordingTileDialogs {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                    borderSide: const BorderSide(color: Colors.orange, width: 2),
                   ),
                   errorText: errorMessage,
                   errorBorder: OutlineInputBorder(
@@ -339,10 +346,10 @@ class RecordingTileDialogs {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              l10n.cancel,
-              style: TextStyle(color: colorController.textColor.value),
-            ),
+              child: Text(
+                l10n.cancel,
+                style: TextStyle(color: colorController.textColor.value),
+              ),
             ),
             Obx(() => controller.isUploading.value
                 ? const Padding(
@@ -417,6 +424,13 @@ class RecordingTileDialogs {
         content: TextField(
           controller: titleController,
           style: TextStyle(color: colorController.textColor.value),
+          autocorrect: false,
+          enableSuggestions: false,
+          autofillHints: [],
+          textInputAction: TextInputAction.done,
+          keyboardType: TextInputType.text,
+          smartDashesType: SmartDashesType.disabled,
+          smartQuotesType: SmartQuotesType.disabled,
           decoration: InputDecoration(
             hintText: l10n.enterNewName,
             hintStyle: TextStyle(

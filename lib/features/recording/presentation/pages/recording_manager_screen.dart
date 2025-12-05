@@ -267,34 +267,112 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
               ),
             ),
             actions: [
-              IconButton(
-                icon: Icon(Icons.refresh, color: iconColor),
-                tooltip: 'Refresh recordings',
-                onPressed: () => _recordingController.refreshRecordings(),
-              ),
+              // Multi-select actions
               Obx(() {
-                if (_recordingController.isDriveSignedIn.value) {
+                if (_recordingController.isMultiSelectMode.value) {
                   return Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.sync, color: iconColor),
-                        tooltip: 'Sync from Google Drive',
-                        onPressed: () => _recordingController.syncFromDrive(),
+                        icon: Icon(Icons.select_all, color: iconColor),
+                        tooltip: 'Select all',
+                        onPressed: () {
+                          final filteredRecordings = _getFilteredRecordings();
+                          _recordingController.selectAllRecordings(filteredRecordings);
+                        },
                       ),
                       IconButton(
-                        icon: Icon(Icons.cloud_done, color: iconColor),
-                        tooltip:
-                            'Signed in as ${_recordingController.userEmail.value}',
-                        onPressed: _showDriveDialog,
+                        icon: Icon(Icons.clear, color: iconColor),
+                        tooltip: 'Clear selection',
+                        onPressed: () => _recordingController.clearSelection(),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete_forever, color: Colors.red),
+                        tooltip: 'Delete permanently',
+                        onPressed: () async {
+                          if (_recordingController.selectedRecordingIds.isEmpty) return;
+
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: backgroundColor,
+                              title: Text(
+                                'Delete Permanently',
+                                style: TextStyle(color: textColor),
+                              ),
+                              content: Text(
+                                'Are you sure you want to permanently delete ${_recordingController.selectedRecordingIds.length} recording${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'}? This action cannot be undone.',
+                                style: TextStyle(color: textColor.withValues(alpha: 0.8)),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: Text('Cancel', style: TextStyle(color: textColor)),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.red,
+                                  ),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirmed == true) {
+                            await _recordingController.permanentlyDeleteSelectedRecordings();
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.close, color: iconColor),
+                        tooltip: 'Exit multi-select',
+                        onPressed: () => _recordingController.disableMultiSelectMode(),
                       ),
                     ],
                   );
                 } else {
-                  return IconButton(
-                    icon: Icon(Icons.cloud_upload_outlined, color: iconColor),
-                    tooltip: 'Sign in to Google Drive',
-                    onPressed: () => _recordingController.signInToDrive(),
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.checklist, color: iconColor),
+                        tooltip: 'Multi-select mode',
+                        onPressed: () => _recordingController.enableMultiSelectMode(),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.refresh, color: iconColor),
+                        tooltip: 'Refresh recordings',
+                        onPressed: () => _recordingController.refreshRecordings(),
+                      ),
+                      Obx(() {
+                        if (_recordingController.isDriveSignedIn.value) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.sync, color: iconColor),
+                                tooltip: 'Sync from Google Drive',
+                                onPressed: () => _recordingController.syncFromDrive(),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.cloud_done, color: iconColor),
+                                tooltip:
+                                    'Signed in as ${_recordingController.userEmail.value}',
+                                onPressed: _showDriveDialog,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return IconButton(
+                            icon: Icon(Icons.cloud_upload_outlined, color: iconColor),
+                            tooltip: 'Sign in to Google Drive',
+                            onPressed: () => _recordingController.signInToDrive(),
+                          );
+                        }
+                      }),
+                    ],
                   );
                 }
               }),

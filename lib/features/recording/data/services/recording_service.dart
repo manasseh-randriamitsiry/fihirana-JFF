@@ -48,7 +48,10 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> initialize() async {
+    if (kDebugMode) print('RecordingService: Initializing...');
     await loadRecordings();
+    await migrateEmptyTitles(); // Migrate any recordings with empty titles
+    if (kDebugMode) print('RecordingService: Initialization complete');
   }
 
   // ===========================================================================
@@ -317,6 +320,43 @@ class RecordingService extends GetxService implements IRecordingService {
   Future<void> permanentlyDeleteRecording(String recordingId) async {
     deletedRecordings.removeWhere((r) => r.id == recordingId);
     await _saveMetadata();
+  }
+
+  @override
+  Future<void> permanentlyDeleteMultipleRecordings(List<String> recordingIds) async {
+    deletedRecordings.removeWhere((r) => recordingIds.contains(r.id));
+    await _saveMetadata();
+  }
+
+  /// Migrate recordings with empty titles to have proper fallback titles
+  Future<void> migrateEmptyTitles() async {
+    bool hasChanges = false;
+    for (int i = 0; i < recordings.length; i++) {
+      final recording = recordings[i];
+      if (recording.title.isEmpty) {
+        String newTitle;
+        if (recording.hymnId != 'standalone' && recording.hymnId.isNotEmpty) {
+          newTitle = 'Hymn ${recording.hymnId}';
+        } else {
+          final date = recording.createdAt;
+          final timeString = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+          newTitle = 'Recording ${date.day}/${date.month}/${date.year} $timeString';
+        }
+
+        recordings[i] = recording.copyWith(title: newTitle);
+        hasChanges = true;
+        if (kDebugMode) {
+          print('Migrated recording ${recording.id} title to: $newTitle');
+        }
+      }
+    }
+
+    if (hasChanges) {
+      await _saveMetadata();
+      if (kDebugMode) {
+        print('Migration completed for recordings with empty titles');
+      }
+    }
   }
 
   @override

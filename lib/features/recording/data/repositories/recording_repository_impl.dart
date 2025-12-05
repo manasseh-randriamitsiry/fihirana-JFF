@@ -77,6 +77,11 @@ class RecordingRepositoryImpl implements RecordingRepository {
   }
 
   @override
+  Future<void> permanentlyDeleteMultipleRecordings(List<String> recordingIds) async {
+    return await _recordingService.permanentlyDeleteMultipleRecordings(recordingIds);
+  }
+
+  @override
   Future<void> restoreRecording(String recordingId) async {
     return await _recordingService.restoreRecording(recordingId);
   }

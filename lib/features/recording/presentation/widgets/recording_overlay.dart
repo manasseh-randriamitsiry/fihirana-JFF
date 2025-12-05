@@ -85,10 +85,13 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   void _generateRecordingName() {
     if (!mounted) return;
 
-    final now = DateTime.now();
-    final timestamp =
-        '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    _nameController.text = '${widget.hymnTitle} - $timestamp';
+    // Only generate name if controller is empty (to avoid overwriting user input)
+    if (_nameController.text.isEmpty) {
+      final now = DateTime.now();
+      final timestamp =
+          '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+      _nameController.text = '${widget.hymnTitle} - $timestamp';
+    }
   }
 
   @override
