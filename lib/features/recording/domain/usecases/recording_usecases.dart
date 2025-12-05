@@ -74,6 +74,7 @@ class DeleteRecordingUseCase {
   DeleteRecordingUseCase(this._repository);
 
   Future<void> call(String recordingId) async {
+    print('DeleteRecordingUseCase: called with id: $recordingId');
     return await _repository.deleteRecording(recordingId);
   }
 }

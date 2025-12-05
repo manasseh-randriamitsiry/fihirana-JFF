@@ -1,16 +1,17 @@
+import 'package:get/get.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 
 /// Abstract interface for recording repository operations
 /// This allows for dependency injection and better testability
 abstract class RecordingRepository {
   /// Observable list of user recordings
-  List<UserRecording> get recordings;
-  
+  RxList<UserRecording> get recordings;
+
   /// Observable list of public recordings
-  List<UserRecording> get publicRecordings;
-  
+  RxList<UserRecording> get publicRecordings;
+
   /// Observable list of deleted recordings
-  List<UserRecording> get deletedRecordings;
+  RxList<UserRecording> get deletedRecordings;
   
   /// Recording state
   bool get isRecording;
@@ -35,7 +36,13 @@ abstract class RecordingRepository {
   
   /// Load deleted recordings
   Future<void> loadDeletedRecordings();
-  
+
+  /// Validate a specific recording's Drive file existence
+  Future<bool> validateRecordingFile(String recordingId);
+
+  /// Check how many orphaned public recordings exist
+  Future<int> checkOrphanedPublicRecordings();
+
   /// Save a recording to local storage
   Future<void> saveRecording(UserRecording recording);
   

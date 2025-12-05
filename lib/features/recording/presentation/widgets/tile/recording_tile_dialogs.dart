@@ -9,7 +9,11 @@ import 'package:fihirana/l10n/app_localizations.dart';
 
 class RecordingTileDialogs {
   static final ColorController colorController = Get.find<ColorController>();
-  static final RecordingController controller = Get.find<RecordingController>();
+  static RecordingController get controller {
+    final ctrl = Get.find<RecordingController>();
+    print('RecordingTileDialogs: Got controller instance: ${ctrl.hashCode}');
+    return ctrl;
+  }
   static final AuthController authController = Get.find<AuthController>();
 
   static bool isAdminAndOwner(UserRecording recording) {
@@ -45,9 +49,11 @@ class RecordingTileDialogs {
 
   static void showDeleteConfirmation(
       BuildContext context, UserRecording recording) {
+    print('RecordingTileDialogs: showDeleteConfirmation called for recording: ${recording.id} - ${recording.title}');
     final l10n = AppLocalizations.of(context)!;
     final bool owner = isOwner(recording);
     final bool adminAndOwner = isAdminAndOwner(recording);
+    print('RecordingTileDialogs: owner=$owner, adminAndOwner=$adminAndOwner');
 
     showDialog(
       context: context,
@@ -153,6 +159,7 @@ class RecordingTileDialogs {
           ] else
             ElevatedButton(
               onPressed: () {
+                print('RecordingTileDialogs: Delete button pressed for recording: ${recording.id}');
                 controller.deleteRecording(recording);
                 Navigator.pop(context);
               },

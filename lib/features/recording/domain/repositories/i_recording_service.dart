@@ -35,7 +35,13 @@ abstract class IRecordingService {
   
   /// Load deleted recordings
   Future<void> loadDeletedRecordings();
-  
+
+  /// Validate a specific recording's Drive file existence
+  Future<bool> validateRecordingFile(String recordingId);
+
+  /// Check how many orphaned public recordings exist
+  Future<int> checkOrphanedPublicRecordings();
+
   /// Save a recording to local storage
   Future<void> saveRecording(UserRecording recording);
   

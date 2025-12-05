@@ -151,6 +151,7 @@ class RecordingDI {
 
     // Controller (register both with and without tag for compatibility)
     final controller = RecordingController(
+      repository: Get.find<RecordingRepository>(tag: _recordingRepositoryTag),
       startRecordingUseCase: Get.find<StartRecordingUseCase>(),
       stopRecordingUseCase: Get.find<StopRecordingUseCase>(),
       cancelRecordingUseCase: Get.find<CancelRecordingUseCase>(),

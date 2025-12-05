@@ -45,11 +45,13 @@ class RecordingTileWidget extends StatelessWidget {
       child: Obx(() {
         final isMultiSelect = controller.isMultiSelectMode.value;
         final isSelected = controller.selectedRecordingIds.contains(recording.id);
+        print('RecordingTileWidget: Building tile for ${recording.id}, isMultiSelect=$isMultiSelect');
 
         return InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
             if (isMultiSelect) {
+              print('RecordingTileWidget: Tapping in multi-select mode for recording: ${recording.id}');
               controller.toggleRecordingSelection(recording.id);
             } else {
               controller.showPlayer(
@@ -121,6 +123,16 @@ class RecordingTileWidget extends StatelessWidget {
                   RecordingTileMenu(
                     recording: recording,
                     isPublic: isPublic,
+                  ),
+                // Temporary: always show menu for debugging
+                if (isMultiSelect)
+                  IconButton(
+                    icon: Icon(Icons.more_vert, color: colorController.textColor.value),
+                    onPressed: () {
+                      print('RecordingTileWidget: Menu button pressed in multi-select mode');
+                      // Show a simple menu or force exit multi-select
+                      controller.disableMultiSelectMode();
+                    },
                   ),
               ],
             ),
