@@ -165,7 +165,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get error => 'Hadisoana';
 
   @override
-  String get errorUpdatingFavorites => 'Nisy hadisoana tamin’ny fanavaozana ny hira tiana';
+  String get errorUpdatingFavorites =>
+      'Nisy hadisoana tamin’ny fanavaozana ny hira tiana';
 
   @override
   String get success => 'Nahomby';
@@ -682,7 +683,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get selectHymnFirst => 'Safidio hira aloha';
 
   @override
-  String get updateAvailableContent => 'Misy rindrambaiko vaovao azo ampiasaina. Tianao ve haka izany?';
+  String get updateAvailableContent =>
+      'Misy rindrambaiko vaovao azo ampiasaina. Tianao ve haka izany?';
 
   @override
   String get updateAvailableTitle => 'Fanavaozana vaovao';
@@ -873,7 +875,8 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get noPermissionAdmin => 'Tsy manana alalana hiditra amin’ny admin panel ianao';
+  String get noPermissionAdmin =>
+      'Tsy manana alalana hiditra amin’ny admin panel ianao';
 
   @override
   String get allSelectedHymnsDeleted => 'Voafafa daholo ny hira voafidy';
@@ -897,7 +900,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get notLoggedIn => 'Tsy tafiditra';
 
   @override
-  String get notLoggedInMessage => 'Tsy tafiditra ianao. Midira amin’ny kaontinao mba hahazoana fampiasa rehetra.';
+  String get notLoggedInMessage =>
+      'Tsy tafiditra ianao. Midira amin’ny kaontinao mba hahazoana fampiasa rehetra.';
 
   @override
   String get clearAllHistory => 'Hamafa ny tantara rehetra';
@@ -952,7 +956,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get errorDownloadingUpdate => 'Tsy afaka naka ny fanavaozana';
 
   @override
-  String get noAdminPermission => 'Tsy manana alalana hiditra amin’ny admin panel ianao';
+  String get noAdminPermission =>
+      'Tsy manana alalana hiditra amin’ny admin panel ianao';
 
   @override
   String get selectedHymnsDeleted => 'Voafafa ny hira voafidy';
@@ -1023,7 +1028,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get installUpdateTitle => 'Hampiditra fanavaozana';
 
   @override
-  String get installUpdateContent => 'Hanao fanavaozana ve? Haka sy hametraka ho azy ny rakin-tsary.';
+  String get installUpdateContent =>
+      'Hanao fanavaozana ve? Haka sy hametraka ho azy ny rakin-tsary.';
 
   @override
   String get install => 'Apetraka';
@@ -1114,13 +1120,15 @@ class AppLocalizationsMg extends AppLocalizations {
   String get noSavedVerses => 'Tsy misy andininy voatahiry';
 
   @override
-  String get saveVersesByHighlighting => 'Tahiry andininy amin\'ny alalan\'ny fanasongadinana azy ao amin\'ny mpamaky Baiboly';
+  String get saveVersesByHighlighting =>
+      'Tahiry andininy amin\'ny alalan\'ny fanasongadinana azy ao amin\'ny mpamaky Baiboly';
 
   @override
   String get deleteHighlight => 'Hamafa ny Fanamarihana';
 
   @override
-  String get confirmDeleteHighlight => 'Tena te-hamafa ity fanamarihana ity ve ianao?';
+  String get confirmDeleteHighlight =>
+      'Tena te-hamafa ity fanamarihana ity ve ianao?';
 
   @override
   String emailLabel(String email) {
@@ -1157,7 +1165,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get clearAllHistoryQuestion => 'Hamafa ve ny tantara rehetra?';
 
   @override
-  String get historyCannotBeUndone => 'Tsy azo averina ny tantara rehefa voafafa.';
+  String get historyCannotBeUndone =>
+      'Tsy azo averina ny tantara rehefa voafafa.';
 
   @override
   String get deleteSelectedHistoryQuestion => 'Hamafa ny tantara voafidy?';
@@ -1192,7 +1201,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get term1 => 'Tsy hampiasa ny application amin’ny fomba ratsy';
 
   @override
-  String get term2 => 'Tsy hampiditra hira tsy mifanaraka amin\'ny fivavahana JFF';
+  String get term2 =>
+      'Tsy hampiditra hira tsy mifanaraka amin\'ny fivavahana JFF';
 
   @override
   String get agreement => 'Manaiky ny fepetra voalaza eto ambany aho';
@@ -1204,7 +1214,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get continueText => 'Hanohy';
 
   @override
-  String get splashScreenTitle => 'Fihiranan\'ny fiangonana Fesosy Famonjena Fahamarinantsika';
+  String get splashScreenTitle =>
+      'Fihiranan\'ny fiangonana Fesosy Famonjena Fahamarinantsika';
 
   @override
   String get splashScreenSubtitle => 'Miderà an\'i Jehovah fa tsara Izy';
@@ -1228,10 +1239,12 @@ class AppLocalizationsMg extends AppLocalizations {
   String get enableDailyVerse => 'Alefaso ny Andininy Isan\'andro';
 
   @override
-  String get youWillReceiveDailyNotifications => 'Hahazo fampandrenesana isan\'andro ianao';
+  String get youWillReceiveDailyNotifications =>
+      'Hahazo fampandrenesana isan\'andro ianao';
 
   @override
-  String get turnOnToReceiveDailyVerses => 'Velomy mba hahazo andininy isan\'andro';
+  String get turnOnToReceiveDailyVerses =>
+      'Velomy mba hahazo andininy isan\'andro';
 
   @override
   String get notificationTime => 'Ora Fampandrenesana';
@@ -1398,7 +1411,8 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get syncInfoMessage1 => 'Ny hira tiana sy ny tantara ary playlist dia voatahiry ao amin’ny kaontinao Google.';
+  String get syncInfoMessage1 =>
+      'Ny hira tiana sy ny tantara ary playlist dia voatahiry ao amin’ny kaontinao Google.';
 
   @override
   String get syncInfoMessage2 => 'Tsy ho very na dia miova finday ianao.';
@@ -1468,7 +1482,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get noRecordingsYet => 'Tsy misy fandrakitra';
 
   @override
-  String get startRecordingYourFavoriteHymns => 'Atombohy ny fandrakitra ny hira tiana';
+  String get startRecordingYourFavoriteHymns =>
+      'Atombohy ny fandrakitra ny hira tiana';
 
   @override
   String get personalRecordings => 'Fandrakitra manokana';
@@ -1524,7 +1539,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get deleted => 'Voafafa';
 
   @override
-  String get recordingDeletedSuccessfully => 'Voafafa soa aman-tsara ny fandrakitra';
+  String get recordingDeletedSuccessfully =>
+      'Voafafa soa aman-tsara ny fandrakitra';
 
   @override
   String get downloadStarted => 'Efa nanomboka ny fampidinana';
@@ -1533,7 +1549,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get recordingInProgressDialog => 'Fandrakitra mandeha';
 
   @override
-  String get pleaseStopRecordingBeforePlaying => 'Ajanony aloha ny fandrakitra mialohan\'ny mamaky azy.';
+  String get pleaseStopRecordingBeforePlaying =>
+      'Ajanony aloha ny fandrakitra mialohan\'ny mamaky azy.';
 
   @override
   String get stopAndPlay => 'Ajanona';
@@ -1542,7 +1559,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get recordingSessionActive => 'Fandrakitra mandeha';
 
   @override
-  String get pleaseCloseRecordingOverlayFirst => 'Akatony aloha ny fiparitaka fandrakitra.';
+  String get pleaseCloseRecordingOverlayFirst =>
+      'Akatony aloha ny fiparitaka fandrakitra.';
 
   @override
   String get recordingInProgress => 'Fandrakitra mandeha...';
@@ -1562,7 +1580,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get failedToPlayRecording => 'Tsy nahomby ny famaky fandrakitra';
 
   @override
-  String get recordingUploadSuccess => 'Voalefa soa aman-tsara any amin\'i Drive ny fandrakitra';
+  String get recordingUploadSuccess =>
+      'Voalefa soa aman-tsara any amin\'i Drive ny fandrakitra';
 
   @override
   String get recordingUploadFailed => 'Tsy nahomby ny fandefasana';
@@ -1635,7 +1654,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get rename => 'Hanova anarana';
 
   @override
-  String get recordingRenamed => 'Novana soa aman-tsara ny anaran\'ny fandrakitra';
+  String get recordingRenamed =>
+      'Novana soa aman-tsara ny anaran\'ny fandrakitra';
 
   @override
   String failedToRenameRecording(String error) {
@@ -1655,7 +1675,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get recordingPermissionRequired => 'Ilàna fahazoandàlana fandrakitra';
 
   @override
-  String get pleaseGrantMicrophonePermission => 'Omeo fahazoandàlana ny afindrafoano mba handrakitra hira.';
+  String get pleaseGrantMicrophonePermission =>
+      'Omeo fahazoandàlana ny afindrafoano mba handrakitra hira.';
 
   @override
   String get grantPermission => 'Omeo fahazoandàlana';
@@ -1664,7 +1685,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get recordingNotAllowed => 'Tsy afaka mandrakitra';
 
   @override
-  String get microphoneAccessDenied => 'Tsy nahazo ny afindrafoano. Alefaso ao amin\'ny fikirakirana mba handrakitra hira.';
+  String get microphoneAccessDenied =>
+      'Tsy nahazo ny afindrafoano. Alefaso ao amin\'ny fikirakirana mba handrakitra hira.';
 
   @override
   String get openSettings => 'Sokafy ny fikirakirana';
@@ -1713,10 +1735,12 @@ class AppLocalizationsMg extends AppLocalizations {
   String get appFeature1 => 'Mampiasa fihirana';
 
   @override
-  String get appFeature2 => 'Mampiditra ny hira fiderana, sy fandraisampeo( mila compte Google)';
+  String get appFeature2 =>
+      'Mampiditra ny hira fiderana, sy fandraisampeo( mila compte Google)';
 
   @override
-  String get appFeature3 => 'Voatahiry ny hiranao sy izay tianao sns na miova finday hafa';
+  String get appFeature3 =>
+      'Voatahiry ny hiranao sy izay tianao sns na miova finday hafa';
 
   @override
   String get contacts => 'Contact';
@@ -1811,13 +1835,16 @@ class AppLocalizationsMg extends AppLocalizations {
   String get automaticTranslation => 'Fandikana Aotomatika';
 
   @override
-  String get automaticTranslationDescription => 'Mandika aotomatika ny votoatin\'ny hira amin\'ny fiteny tianao';
+  String get automaticTranslationDescription =>
+      'Mandika aotomatika ny votoatin\'ny hira amin\'ny fiteny tianao';
 
   @override
-  String get translationModelsLoading => 'Miandrasa kely fa mandra-pahatongavan\'ny modely fandikana...';
+  String get translationModelsLoading =>
+      'Miandrasa kely fa mandra-pahatongavan\'ny modely fandikana...';
 
   @override
-  String get translationNotAvailable => 'Tsy misy fandikana ho an\'ity fiteny roa ity';
+  String get translationNotAvailable =>
+      'Tsy misy fandikana ho an\'ity fiteny roa ity';
 
   @override
   String get clearTranslationCache => 'Hamafy ny cache-n\'ny fandikana';
@@ -1894,7 +1921,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get emergencyStop => 'Emergency Stop';
 
   @override
-  String get emergencyStopConfirm => 'This will immediately disable all updates. Continue?';
+  String get emergencyStopConfirm =>
+      'This will immediately disable all updates. Continue?';
 
   @override
   String get forceUpdateCheck => 'Force Update Check';
@@ -2006,7 +2034,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get enterNewName => 'Enter new name';
 
   @override
-  String get contactsPermissionRequired => 'Contacts permission is required to import contacts.';
+  String get contactsPermissionRequired =>
+      'Contacts permission is required to import contacts.';
 
   @override
   String errorAccessingContacts(Object error) {
@@ -2014,10 +2043,12 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get couldNotOpenMaps => 'Could not open maps. Please install a maps application.';
+  String get couldNotOpenMaps =>
+      'Could not open maps. Please install a maps application.';
 
   @override
-  String get redirectingToGoogleMaps => 'Redirecting to Google Maps download...';
+  String get redirectingToGoogleMaps =>
+      'Redirecting to Google Maps download...';
 
   @override
   String errorPlayingNextHymn(Object error) {
@@ -2255,7 +2286,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get tryAdjustingSearchTerms => 'Try adjusting your search terms';
 
   @override
-  String get deletedRecordingsWillAppearHere => 'Deleted recordings will appear here';
+  String get deletedRecordingsWillAppearHere =>
+      'Deleted recordings will appear here';
 
   @override
   String failedToLoadDashboard(String error) {
@@ -2271,7 +2303,8 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get configurationUpdatedSuccessfully => 'Configuration updated successfully';
+  String get configurationUpdatedSuccessfully =>
+      'Configuration updated successfully';
 
   @override
   String failedToSaveConfiguration(String error) {
@@ -2295,7 +2328,8 @@ class AppLocalizationsMg extends AppLocalizations {
   String get anErrorOccurred => 'An error occurred';
 
   @override
-  String get networkConnectionError => 'Network connection error. Please check your internet connection.';
+  String get networkConnectionError =>
+      'Network connection error. Please check your internet connection.';
 
   @override
   String get requestTimedOut => 'Request timed out. Please try again.';
@@ -2307,5 +2341,6 @@ class AppLocalizationsMg extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong. Please try again.';
 
   @override
-  String get widgetErrorBoundaryCaughtError => 'Widget error boundary caught error';
+  String get widgetErrorBoundaryCaughtError =>
+      'Widget error boundary caught error';
 }
