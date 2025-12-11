@@ -114,7 +114,7 @@ class HymnVerseDisplayWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
       child: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.topLeft,
         children: [
           Positioned.fill(
             child: Opacity(
