@@ -30,7 +30,6 @@ dependencies:
   cloud_firestore: ^4.13.6
   firebase_auth: ^4.16.0
   firebase_crashlytics: ^3.4.9
-  google_sign_in: ^6.2.1
   flutter_launcher_icons: ^0.13.1
   cached_network_image: ^3.3.0
   local_auth: ^2.1.7
@@ -72,6 +71,7 @@ dependencies:
   flutter_contacts: ^1.1.9
   shimmer: ^3.0.0
   equatable: ^2.0.5
+  google_sign_in: ^6.3.0
 
 dev_dependencies:
   flutter_test:
