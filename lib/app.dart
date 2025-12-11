@@ -17,6 +17,7 @@ import 'package:fihirana/shared/widgets/navigation/responsive_shell.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/features/intro/di/intro_di.dart';
 import 'package:fihirana/core/error/error_handler.dart';
+import 'package:fihirana/core/localization/fallback_localization_delegate.dart';
 
 
 
@@ -150,6 +151,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
+          // Add fallback delegates for 'mg' support in Material/Cupertino widgets
+          const FallbackMaterialLocalizationsDelegate(),
+          const FallbackCupertinoLocalizationsDelegate(),
         ],
         localeResolutionCallback: (locale, supportedLocales) {
           return languageController.currentLocale.value;
