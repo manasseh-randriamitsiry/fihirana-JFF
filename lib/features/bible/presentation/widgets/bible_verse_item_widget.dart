@@ -15,6 +15,25 @@ class BibleVerseItemWidget extends StatelessWidget {
     required this.onTap,
   });
 
+  Color _getColorFromString(String colorName) {
+    switch (colorName.toLowerCase()) {
+      case 'yellow':
+        return Colors.yellow;
+      case 'orange':
+        return Colors.orange;
+      case 'green':
+        return Colors.green;
+      case 'blue':
+        return Colors.blue;
+      case 'red':
+        return Colors.red;
+      case 'purple':
+        return Colors.purple;
+      default:
+        return Colors.yellow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
@@ -31,7 +50,14 @@ class BibleVerseItemWidget extends StatelessWidget {
       } else if (isSelected) {
         backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
       } else if (isHighlighted) {
-        backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.05);
+        // Get the actual highlight to use its color
+        final highlight = bibleController.getHighlightForVerse(verseNumber);
+        if (highlight != null) {
+          final highlightColor = _getColorFromString(highlight.color);
+          backgroundColor = highlightColor.withValues(alpha: 0.3);
+        } else {
+          backgroundColor = Colors.yellow.withValues(alpha: 0.3);
+        }
       }
 
       return GestureDetector(

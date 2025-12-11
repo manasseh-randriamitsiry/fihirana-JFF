@@ -28,6 +28,12 @@ class RecordingDriveSyncManager extends GetxController {
         _authManager = authManager,
         _stateManager = stateManager;
 
+  // Public getter for auth manager
+  RecordingAuthManager get authManager => _authManager;
+
+  // Public getter for drive sign-in status
+  RxBool get isDriveSignedIn => _authManager.isDriveSignedIn;
+
   // Data
   final RxList<UserRecording> recordings = <UserRecording>[].obs;
 
@@ -70,7 +76,7 @@ class RecordingDriveSyncManager extends GetxController {
   /// Start periodic refresh of recordings
   void _startPeriodicRefresh() {
     _periodicRefreshTimer =
-        Timer.periodic(const Duration(seconds: 30), (timer) {
+        Timer.periodic(const Duration(seconds: 30), (timer) async {
       if (kDebugMode) {
         print('RecordingDriveSyncManager: Periodic refresh triggered');
       }
@@ -88,7 +94,51 @@ class RecordingDriveSyncManager extends GetxController {
           !_stateManager.isLoading.value) {
         syncFromDrive();
       }
+
+      // Validate and cleanup orphaned public recordings every 5 minutes (every 10 ticks of 30-second timer)
+      if (timer.tick % 10 == 0 && !_stateManager.isLoading.value) {
+        if (kDebugMode) {
+          print('RecordingDriveSyncManager: Checking for orphaned recordings cleanup (tick: ${timer.tick})');
+        }
+
+        try {
+          final cleanedUpCount = await _recordingService.validateAndCleanupOrphanedPublicRecordings();
+          if (kDebugMode) {
+            if (cleanedUpCount > 0) {
+              print('RecordingDriveSyncManager: Cleaned up $cleanedUpCount orphaned public recordings');
+            } else {
+              print('RecordingDriveSyncManager: No orphaned recordings found to clean up');
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('RecordingDriveSyncManager: Error during orphaned recording cleanup: $e');
+          }
+        }
+      }
     });
+  }
+
+  /// Manual cleanup of orphaned public recordings
+  Future<int> cleanupOrphanedPublicRecordings() async {
+    try {
+      if (kDebugMode) {
+        print('RecordingDriveSyncManager: Manually cleaning up orphaned public recordings...');
+      }
+      
+      final cleanedUpCount = await _recordingService.validateAndCleanupOrphanedPublicRecordings();
+      
+      if (kDebugMode) {
+        print('RecordingDriveSyncManager: Manual cleanup completed. Cleaned up $cleanedUpCount orphaned recordings');
+      }
+      
+      return cleanedUpCount;
+    } catch (e) {
+      if (kDebugMode) {
+        print('RecordingDriveSyncManager: Error during manual cleanup: $e');
+      }
+      return 0;
+    }
   }
 
   /// Manual refresh of recordings

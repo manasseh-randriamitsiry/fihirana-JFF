@@ -14,7 +14,7 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
 
     return Obx(() {
-      if (!bibleController.isSelecting.value) {
+      if (!bibleController.isSelecting) {
         return const SizedBox.shrink();
       }
 

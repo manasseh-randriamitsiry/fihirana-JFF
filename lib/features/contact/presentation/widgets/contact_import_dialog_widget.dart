@@ -215,6 +215,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
 
   Widget _buildContactListView() {
     return ListView.builder(
+      key: const PageStorageKey('import_contacts_list'),
       shrinkWrap: true,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: _filteredContacts.length,
@@ -226,6 +227,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
             : '';
 
         return Card(
+          key: ValueKey(displayName + phoneNumber),
           elevation: 0,
           margin: const EdgeInsets.only(bottom: 8),
           shape: RoundedRectangleBorder(

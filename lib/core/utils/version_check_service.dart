@@ -136,46 +136,60 @@ class VersionCheckService {
         return;
       }
 
-      // Check InAppUpdate as fallback
-      final updateInfo = await InAppUpdate.checkForUpdate();
-      _updateInfo = updateInfo;
+       // Check InAppUpdate as fallback
+       try {
+         final updateInfo = await InAppUpdate.checkForUpdate();
+         _updateInfo = updateInfo;
 
-      if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-        // Don't show notification if user already dismissed this version
-        if (dismissedVersion == currentVersion) {
-          stopPeriodicCheck();
-          return;
-        }
+         if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
+           // Don't show notification if user already dismissed this version
+           if (dismissedVersion == currentVersion) {
+             stopPeriodicCheck();
+             return;
+           }
 
-        _onUpdateAvailable?.call();
+           _onUpdateAvailable?.call();
 
-        // Check if admin wants to force update
-        if (adminConfig.forceUpdate || updateInfo.updatePriority >= 4) {
-          await _performImmediateUpdate();
-        } else {
-          await _showInAppUpdateNotification();
-        }
-      } else {
-        // InAppUpdate says no update, but GitHub said yes.
-        // This means the Play Store is behind. Fallback to GitHub update.
-        if (githubHasUpdate) {
-          if (kDebugMode) {
-            print(
-                '⚠️ InAppUpdate found nothing, but GitHub has update. Falling back to GitHub.');
-          }
-          await _checkForUpdateFromGitHub();
-        } else {
-          stopPeriodicCheck();
-        }
-      }
+           // Check if admin wants to force update
+           if (adminConfig.forceUpdate || updateInfo.updatePriority >= 4) {
+             await _performImmediateUpdate();
+           } else {
+             // Start flexible update for non-critical updates
+             await startFlexibleUpdate();
+           }
+         } else {
+           // InAppUpdate says no update, but GitHub said yes.
+           // This means the Play Store is behind or app is not from Play Store. Fallback to GitHub update.
+           if (githubHasUpdate) {
+             if (kDebugMode) {
+               print(
+                   '⚠️ InAppUpdate found nothing, but GitHub has update. Falling back to GitHub.');
+             }
+             await _checkForUpdateFromGitHub();
+           } else {
+             stopPeriodicCheck();
+           }
+         }
+       } catch (playStoreError) {
+         // InAppUpdate failed, likely because app is not from Play Store
+         if (kDebugMode) {
+           print('❌ InAppUpdate failed: $playStoreError');
+           print('📱 App likely not installed from Play Store, falling back to GitHub update');
+         }
+
+         // Fallback to GitHub update
+         if (githubHasUpdate) {
+           await _checkForUpdateFromGitHub();
+         } else {
+           stopPeriodicCheck();
+         }
+       }
     } catch (e) {
       await _checkForUpdateFromGitHub();
     }
   }
 
-  static Future<void> _showInAppUpdateNotification() async {
-    await UpdateNotificationBuilder.showInAppUpdateAvailable();
-  }
+
 
   @pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
@@ -186,7 +200,15 @@ class VersionCheckService {
         if (_flexibleUpdateAvailable) {
           await _completeFlexibleUpdate();
         } else {
-          await _performImmediateUpdate();
+          // Try flexible update first, fallback to immediate
+          try {
+            await startFlexibleUpdate();
+          } catch (e) {
+            if (kDebugMode) {
+              print('❌ Flexible update failed, trying immediate update: $e');
+            }
+            await _performImmediateUpdate();
+          }
         }
         stopPeriodicCheck();
       } else if (_cachedDownloadUrl != null) {
@@ -234,8 +256,9 @@ class VersionCheckService {
       }
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        print('❌ Flexible update failed: $e');
       }
+      rethrow;
     }
   }
 
@@ -244,22 +267,30 @@ class VersionCheckService {
       if (_flexibleUpdateAvailable) {
         await InAppUpdate.completeFlexibleUpdate();
         _flexibleUpdateAvailable = false;
+        if (kDebugMode) {
+          print('✅ Flexible update completed successfully');
+        }
       }
     } catch (e) {
       if (kDebugMode) {
-        print(e);
+        print('❌ Flexible update completion failed: $e');
       }
+      rethrow;
     }
   }
 
   static Future<bool> _isInstalledFromPlayStore() async {
     try {
-      // Try to get installer package name
-      await PubspecService.getPackageInfo();
-      // This is a simple check - in a real implementation you might want to use
-      // platform-specific methods to determine the installer
-      return false; // Assume not from Play Store for manual APK installations
+      // For in-app updates to work, the app must be installed from Google Play Store
+      // We can check this by trying to use InAppUpdate.checkForUpdate()
+      // If it succeeds without errors, the app is likely from Play Store
+      final updateInfo = await InAppUpdate.checkForUpdate();
+      return updateInfo.updateAvailability != UpdateAvailability.unknown;
     } catch (e) {
+      // If InAppUpdate fails, the app is likely not from Play Store
+      if (kDebugMode) {
+        print('❌ InAppUpdate check failed, assuming not from Play Store: $e');
+      }
       return false;
     }
   }

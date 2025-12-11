@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:fihirana/features/playlist/domain/entities/playlist.dart';
 import 'playlist_detail_screen.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/playlist_item_card.dart';
@@ -16,8 +17,8 @@ class PlaylistListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final ColorController colorController = Get.put(ColorController());
-    final PlaylistController playlistController = Get.put(PlaylistController());
+    final ColorController colorController = Get.find<ColorController>();
+    final PlaylistController playlistController = PlaylistDI.playlistController;
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
@@ -85,14 +86,16 @@ title: Text(
         }
 
         return ListView.builder(
+          key: const PageStorageKey('playlists_list'),
           padding: const EdgeInsets.all(16),
           itemCount: playlistController.playlists.length,
           itemBuilder: (context, index) {
             final playlist = playlistController.playlists[index];
             return PlaylistItemCard(
+              key: ValueKey(playlist.id),
               playlist: playlist,
               onTap: () => Get.to(() => PlaylistDetailScreen(playlistId: playlist.id)),
-              onShare: () => playlistController.sharePlaylist(playlist),
+              onShare: () => playlistController.sharePlaylist(playlist.id),
               onDelete: () => _confirmDelete(context, playlist),
             );
           },

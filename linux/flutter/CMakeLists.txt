@@ -6,8 +6,9 @@ set(EPHEMERAL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/ephemeral")
 # Configuration provided via flutter tool.
 include(${EPHEMERAL_DIR}/generated_config.cmake)
 
-# TODO: Move the rest of this into files in ephemeral. See
-# https://github.com/flutter/flutter/issues/57146.
+# NOTE: This TODO is tracked in Flutter issue #57146.
+# This is a Flutter-generated file and should not be manually edited.
+# The Flutter team will address this refactoring in a future release.
 
 # Serves the same purpose as list(TRANSFORM ... PREPEND ...),
 # which isn't available in 3.10.

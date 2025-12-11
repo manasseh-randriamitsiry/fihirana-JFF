@@ -1,10 +1,18 @@
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:fihirana/features/auth/domain/usecases/sign_in_with_google_usecase.dart';
+
+import 'package:fihirana/features/auth/domain/usecases/sign_out_usecase.dart';
+import 'package:fihirana/features/auth/domain/usecases/ensure_user_document_exists_usecase.dart';
+import 'package:fihirana/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:fihirana/features/auth/data/services/google_auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/app/theme/theme_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/audio/data/services/audio_file_mapping.dart';
 import 'package:fihirana/features/audio/data/services/audio_foreground_service.dart';
 import 'package:fihirana/features/audio/data/services/background_service.dart';
@@ -15,10 +23,10 @@ import 'package:fihirana/features/audio/data/services/local_audio_service.dart';
 import 'package:fihirana/core/utils/notification_service.dart';
 import 'package:fihirana/core/utils/deep_link_service.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
-import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/init/lazy_service_manager.dart';
 import 'package:fihirana/core/utils/background_isolate_manager.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
+import 'package:fihirana/core/controllers/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -54,7 +62,22 @@ class InitService {
     final fontController = Get.put(FontController());
     Get.put(LanguageController());
     Get.put(ShellController());
-    Get.put(AuthController());
+    Get.put(UserController());
+    // Initialize auth dependencies
+    final authRepository = AuthRepositoryImpl(
+      FirebaseAuthService(),
+      FirebaseFirestore.instance,
+      Get.find<GoogleSignIn>(),
+      Get.find<SecurityService>(),
+    );
+    
+    if (!Get.isRegistered<AuthController>()) {
+      Get.put(AuthController(
+        signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
+        signOutUseCase: SignOutUseCase(authRepository),
+        ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
+      ));
+    }
 
     // Load theme and colors (fast, from local storage)
     await Future.wait([
@@ -68,8 +91,7 @@ class InitService {
 
   /// Initialize non-critical controllers with lazy loading
   static Future<void> initNonCriticalControllers() async {
-    // Initialize recording controller with minimal blocking
-    Get.put(RecordingController(), permanent: true);
+    // Recording controller is now initialized via DI in service_locator.dart
 
     // Initialize security service (critical - runs on app startup)
     Get.put(SecurityService());
@@ -121,6 +143,24 @@ if (kDebugMode) {
     // Initialize local audio service (fast, just setup)
     final localAudioService = LocalAudioService();
     await localAudioService.initialize();
+    
+    // Initialize audio file mapping from GitHub (with retry logic)
+    try {
+      if (kDebugMode) {
+        print('InitService: Initializing AudioFileMapping from GitHub...');
+      }
+      final audioMapping = AudioFileMapping();
+      await audioMapping.updateAudioFileMapping(retries: 2);
+      if (kDebugMode) {
+        final stats = audioMapping.getStats();
+        print('InitService: AudioFileMapping initialized - ${stats['totalFiles']} files available');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('InitService: Warning - AudioFileMapping initialization failed: $e');
+        print('InitService: App will continue, but some audio files may not be available');
+      }
+    }
   }
 
   static Future<void> _initDataServices() async {
@@ -266,20 +306,9 @@ if (kDebugMode) {
       ),
     );
 
-    // Schedule audio mapping update in background
-    unawaited(
-      backgroundIsolateManager.executeTask<void>(
-        taskId: 'audio_mapping_update',
-        task: () async {
-          final audioMapping = AudioFileMapping();
-          await audioMapping.updateAudioFileMapping();
-        },
-        description: 'Update audio file mapping',
-        priority: 2,
-        isCancellable: true,
-      ),
-    );
-
+    // Audio mapping is now initialized in foreground during _initAudioServices()
+    // to provide better error handling and user feedback
+    
     // Schedule Bible service initialization in background
     unawaited(
       backgroundIsolateManager.executeTask<void>(

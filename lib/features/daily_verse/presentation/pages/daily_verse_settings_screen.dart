@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:fihirana/features/daily_verse/di/daily_verse_di.dart';
 import 'package:fihirana/features/daily_verse/presentation/controllers/daily_verse_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {
   DailyVerseSettingsScreen({super.key});
 
-  final DailyVerseController controller = Get.put(DailyVerseController());
+  final DailyVerseController controller = DailyVerseDI.dailyVerseController;
   final ColorController colorController = Get.find<ColorController>();
 
   Future<void> _selectTime(BuildContext context) async {
@@ -226,7 +228,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
               if (controller.isLoading.value) {
                 return Center(
                   child: Padding(
-                    padding: const EdgeInsets.all(32.0),
+                    padding: const EdgeInsets.all(AppDimensions.xl),
                     child: CircularProgressIndicator(
                       color: colorController.primaryColor.value,
                     ),

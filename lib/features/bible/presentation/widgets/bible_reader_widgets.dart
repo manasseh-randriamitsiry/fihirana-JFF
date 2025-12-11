@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
 class BibleBookItemWidget extends StatelessWidget {
@@ -135,47 +136,60 @@ class BibleVerseItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
-    Color backgroundColor = Colors.transparent;
-    if (isSearchHighlighted) {
-      backgroundColor = Colors.yellow.withValues(alpha: 0.3);
-    } else if (isSelected) {
-      backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
-    } else if (isHighlighted) {
-      backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.05);
-    }
+    final bibleController = Get.find<BibleController>();
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: '$verseNumber ',
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  color: colorController.primaryColor.value,
-                  fontSize: fontSize * 0.7,
-                  fontWeight: FontWeight.bold,
-                  fontFeatures: const [FontFeature.superscripts()],
+    return Obx(() {
+      final isTargetVerse = verseNumber == bibleController.highlightedVerse.value;
+
+      Color backgroundColor = Colors.transparent;
+      if (isTargetVerse) {
+        backgroundColor = Colors.orange.withValues(alpha: 0.4);
+      } else if (isSearchHighlighted) {
+        backgroundColor = Colors.yellow.withValues(alpha: 0.3);
+      } else if (isSelected) {
+        backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
+      } else if (isHighlighted) {
+        // Use yellow for saved highlights
+        backgroundColor = Colors.yellow.withValues(alpha: 0.3);
+      }
+
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: backgroundColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: '$verseNumber ',
+                  style: TextStyle(
+                    fontFamily: 'Roboto',
+                    color: isTargetVerse ? Colors.orange : colorController.primaryColor.value,
+                    fontSize: fontSize * 0.7,
+                    fontWeight: FontWeight.bold,
+                    fontFeatures: const [FontFeature.superscripts()],
+                  ),
                 ),
-              ),
-              TextSpan(
-                text: verseText,
-                style: verseStyle,
-              ),
-            ],
+                TextSpan(
+                  text: verseText,
+                  style: isTargetVerse
+                      ? verseStyle.copyWith(
+                          color: Colors.orange.shade800,
+                          fontWeight: FontWeight.w600,
+                        )
+                      : verseStyle,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }
 

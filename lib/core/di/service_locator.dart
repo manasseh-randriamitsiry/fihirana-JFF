@@ -1,6 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:fihirana/features/bible/domain/repositories/bible_repository.dart';
 import 'package:fihirana/features/hymn/domain/repositories/hymn_repository.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
@@ -9,6 +12,27 @@ import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/utils/translation_service_interface.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
+import 'package:fihirana/features/admin/di/admin_di.dart';
+import 'package:fihirana/features/recording/di/recording_di.dart';
+import 'package:fihirana/features/announcement/di/announcement_di.dart';
+import 'package:fihirana/features/audio/di/audio_di.dart';
+import 'package:fihirana/features/bible/di/bible_di.dart';
+import 'package:fihirana/features/hymn/di/hymn_di.dart';
+import 'package:fihirana/features/auth/di/auth_di.dart';
+import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/domain/repositories/i_audio_service.dart';
+import 'package:fihirana/features/contact/data/services/contact_service.dart';
+import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
+import 'package:fihirana/features/announcement/data/services/announcement_service.dart';
+import 'package:fihirana/features/announcement/domain/repositories/i_announcement_service.dart';
+import 'package:fihirana/features/daily_verse/data/services/daily_verse_service.dart';
+import 'package:fihirana/features/daily_verse/domain/repositories/i_daily_verse_service.dart';
+import 'package:fihirana/features/playlist/data/services/playlist_service.dart';
+import 'package:fihirana/features/playlist/domain/repositories/i_playlist_service.dart';
+import 'package:fihirana/features/bible/data/services/bible_highlight_service.dart';
+import 'package:fihirana/features/bible/domain/repositories/i_bible_highlight_service.dart';
+import 'package:fihirana/features/bible/data/services/note_service.dart';
+import 'package:fihirana/features/bible/domain/repositories/i_note_service.dart';
 
 /// Service locator for dependency injection
 /// This provides a centralized way to manage service instances and their dependencies
@@ -43,6 +67,32 @@ class ServiceLocator {
 
   /// Register core services
   Future<void> _registerCoreServices() async {
+    // Firebase Services
+    Get.put<FirebaseFirestore>(FirebaseFirestore.instance);
+    Get.put<firebase_auth.FirebaseAuth>(firebase_auth.FirebaseAuth.instance);
+    final googleSignIn = GoogleSignIn(
+      scopes: [
+        'email',
+        'https://www.googleapis.com/auth/contacts.readonly',
+        'https://www.googleapis.com/auth/drive.file',
+        'https://www.googleapis.com/auth/drive',
+      ],
+    );
+    Get.put<GoogleSignIn>(googleSignIn);
+
+    // Initialize Google Drive Service
+    final driveService = GoogleDriveService();
+    if (kDebugMode) {
+      print('ServiceLocator: Creating GoogleDriveService instance');
+      print('ServiceLocator: Initializing GoogleDriveService with googleSignIn: $googleSignIn');
+    }
+    driveService.initialize(googleSignIn);
+    Get.put<GoogleDriveService>(driveService);
+    if (kDebugMode) {
+      print('ServiceLocator: GoogleDriveService initialized and registered with GetX');
+      print('ServiceLocator: Verifying GetX registration: ${Get.isRegistered<GoogleDriveService>()}');
+    }
+
     // Storage Service
     final storageService = LocalStorageService();
     Get.put<LocalStorageService>(storageService);
@@ -67,12 +117,59 @@ class ServiceLocator {
     // Recording Service
     final recordingService = RecordingService();
     await recordingService.initialize();
-    Get.put<IRecordingService>(recordingService);
+    Get.put<RecordingService>(recordingService);
+
+    // Recording Feature (initialize before Admin to ensure dependencies are available)
+    RecordingDI.initialize();
+    
+    // Admin Feature
+    AdminDI.initialize();
+    
+    // Announcement Feature
+    AnnouncementDI.init();
+    
+    // Audio Feature
+    AudioDI.init();
+
+    // Bible Feature
+    BibleDI.init();
+    
+    // Hymn Feature
+    HymnDI.init();
+    
+    // Auth Feature
+    AuthDI.init();
   }
 
   /// Register data services
   Future<void> _registerDataServices() async {
-    // Additional data services can be registered here
+    // Audio Service
+    final audioService = AudioService();
+    Get.put<IAudioService>(audioService);
+
+    // Contact Service
+    final contactService = ContactService();
+    Get.put<IContactService>(contactService);
+
+    // Announcement Service
+    final announcementService = AnnouncementService();
+    Get.put<IAnnouncementService>(announcementService);
+
+    // Daily Verse Service
+    final dailyVerseService = DailyVerseService();
+    Get.put<IDailyVerseService>(dailyVerseService);
+
+    // Playlist Service
+    final playlistService = PlaylistService();
+    Get.put<IPlaylistService>(playlistService);
+
+    // Bible Highlight Service
+    final bibleHighlightService = BibleHighlightService();
+    Get.put<IBibleHighlightService>(bibleHighlightService);
+
+    // Note Service
+    final noteService = NoteService();
+    Get.put<INoteService>(noteService);
   }
 
   /// Get service by type
@@ -143,7 +240,7 @@ class ServiceLocator {
   List<String> getRegisteredServices() {
     try {
       // Return a simple list since getAllDependencies is not available
-      return ['IRecordingService', 'IBibleService', 'ITranslationService', 'IHymnService', 'LocalStorageService'];
+      return ['IRecordingService', 'IBibleService', 'ITranslationService', 'IHymnService', 'LocalStorageService', 'RecordingRepository', 'RecordingController', 'AnnouncementController', 'AnnouncementRepository', 'AudioRepository', 'AudioController', 'BibleRepository', 'BibleController', 'HymnRepository', 'HymnController', 'AuthRepository', 'AuthController'];
     } catch (e) {
       return [];
     }
@@ -156,7 +253,7 @@ class ServiceLocator {
 /// Extension methods for easy service access
 extension ServiceLocatorExtensions on ServiceLocator {
   /// Get Recording Service
-  IRecordingService get recordingService => getService<IRecordingService>();
+  RecordingService get recordingService => getService<RecordingService>();
   
   /// Get Bible Service
   IBibleService get bibleService => getService<IBibleService>();
@@ -169,6 +266,12 @@ extension ServiceLocatorExtensions on ServiceLocator {
   
   /// Get Storage Service
   LocalStorageService get storageService => getService<LocalStorageService>();
+  
+  /// Get Recording Controller (via DI)
+  dynamic get recordingController => RecordingDI.recordingController;
+  
+  /// Get Recording Repository (via DI)
+  dynamic get recordingRepository => RecordingDI.recordingRepository;
 }
 
 /// Global service locator instance

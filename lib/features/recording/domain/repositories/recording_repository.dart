@@ -1,16 +1,17 @@
+import 'package:get/get.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 
-/// Abstract interface for recording service operations
+/// Abstract interface for recording repository operations
 /// This allows for dependency injection and better testability
-abstract class IRecordingService {
+abstract class RecordingRepository {
   /// Observable list of user recordings
-  List<UserRecording> get recordings;
-  
+  RxList<UserRecording> get recordings;
+
   /// Observable list of public recordings
-  List<UserRecording> get publicRecordings;
-  
+  RxList<UserRecording> get publicRecordings;
+
   /// Observable list of deleted recordings
-  List<UserRecording> get deletedRecordings;
+  RxList<UserRecording> get deletedRecordings;
   
   /// Recording state
   bool get isRecording;
@@ -35,7 +36,13 @@ abstract class IRecordingService {
   
   /// Load deleted recordings
   Future<void> loadDeletedRecordings();
-  
+
+  /// Validate a specific recording's Drive file existence
+  Future<bool> validateRecordingFile(String recordingId);
+
+  /// Check how many orphaned public recordings exist
+  Future<int> checkOrphanedPublicRecordings();
+
   /// Save a recording to local storage
   Future<void> saveRecording(UserRecording recording);
   
@@ -47,7 +54,10 @@ abstract class IRecordingService {
   
   /// Permanently delete a recording
   Future<void> permanentlyDeleteRecording(String recordingId);
-  
+
+  /// Permanently delete multiple recordings
+  Future<void> permanentlyDeleteMultipleRecordings(List<String> recordingIds);
+
   /// Restore a deleted recording
   Future<void> restoreRecording(String recordingId);
   
@@ -76,4 +86,11 @@ abstract class IRecordingService {
   Future<void> deleteLocalRecording(String id);
   Future<void> deleteLocalRecordingPermanently(String id);
   Future<void> refreshPublicUrls();
+  
+  /// Public recording management methods
+  Future<bool> publishRecording(UserRecording recording);
+  Future<void> unpublishRecording(String recordingId);
+  
+  /// Drive sync methods
+  Future<void> syncFromDrive({bool force = false});
 }

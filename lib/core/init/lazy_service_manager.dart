@@ -3,8 +3,11 @@ import 'package:fihirana/features/bible/data/services/bible_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_file_mapping.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
+import 'package:fihirana/features/daily_verse/di/daily_verse_di.dart';
 import 'package:fihirana/features/daily_verse/presentation/controllers/daily_verse_controller.dart';
+import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
 import 'package:flutter/foundation.dart';
 
@@ -79,22 +82,22 @@ class LazyServiceManager {
 
   /// Load Daily Verse Controller
   Future<void> _loadDailyVerseController() async {
-    if (!Get.isRegistered<DailyVerseController>()) {
-      Get.put(DailyVerseController());
+    if (!Get.isRegistered<DailyVerseController>(tag: 'dailyVerseController')) {
+      DailyVerseDI.initialize();
     }
   }
 
   /// Load History Controller
   Future<void> _loadHistoryController() async {
-    if (!Get.isRegistered<HistoryController>()) {
-      Get.put(HistoryController());
+    if (!Get.isRegistered<HistoryController>(tag: 'historyController')) {
+      HistoryDI.initialize();
     }
   }
 
   /// Load Playlist Controller
   Future<void> _loadPlaylistController() async {
-    if (!Get.isRegistered<PlaylistController>()) {
-      Get.put(PlaylistController());
+    if (!Get.isRegistered<PlaylistController>(tag: 'playlistController')) {
+      PlaylistDI.initialize();
     }
   }
 

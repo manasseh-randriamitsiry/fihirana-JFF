@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ThemeController extends GetxController {
-  var isDarkMode = false.obs;
-  var isAutoTheme = true.obs;
+  final RxBool isDarkMode = false.obs;
+  final RxBool isAutoTheme = true.obs;
 
   @override
   void onInit() {

@@ -12,6 +12,7 @@ import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class StandaloneRecordingScreen extends StatefulWidget {
   const StandaloneRecordingScreen({super.key});
@@ -238,6 +239,13 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       color: Colors.white,
                       fontSize: 16,
                     ),
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    autofillHints: [],
+                    textInputAction: TextInputAction.done,
+                    keyboardType: TextInputType.text,
+                    smartDashesType: SmartDashesType.disabled,
+                    smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
                       labelText: 'Recording Name',
                       labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
@@ -343,7 +351,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
               // Search bar for hymns
               if (_showHymnList)
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(AppDimensions.md),
                   child: HymnSearchField(
                     controller: _hymnController.safeSearchController,
                     defaultTextStyle: defaultTextStyle,
@@ -369,6 +377,13 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                     ),
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    autofillHints: [],
+                    textInputAction: TextInputAction.done,
+                    keyboardType: TextInputType.text,
+                    smartDashesType: SmartDashesType.disabled,
+                    smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
                       labelText: 'Recording Name',
                       labelStyle: TextStyle(
@@ -392,6 +407,10 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                           color: colorController.primaryColor.value,
                           width: 2,
                         ),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.edit,
+                        color: colorController.primaryColor.value.withValues(alpha: 0.7),
                       ),
                     ),
                   ),
@@ -467,7 +486,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          key: const PageStorageKey('standalone_recordings_hymns_list'),
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
           itemCount: hymns.length,
           itemBuilder: (context, index) {
             final hymn = hymns[index];

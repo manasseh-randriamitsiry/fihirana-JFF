@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -86,10 +85,13 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   void _generateRecordingName() {
     if (!mounted) return;
 
-    final now = DateTime.now();
-    final timestamp =
-        '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    _nameController.text = '${widget.hymnTitle} - $timestamp';
+    // Only generate name if controller is empty (to avoid overwriting user input)
+    if (_nameController.text.isEmpty) {
+      final now = DateTime.now();
+      final timestamp =
+          '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+      _nameController.text = '${widget.hymnTitle} - $timestamp';
+    }
   }
 
   @override
@@ -121,34 +123,39 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
     if (!mounted) return;
     setState(() => _isCountingDown = false);
-    await _controller.startRecording(widget.hymnId);
+    try {
+      await _controller.startRecording(widget.hymnId);
+      // Check if recording actually started
+      if (!_controller.isRecording.value) {
+        throw Exception('Recording failed to start');
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isExpanded = false;
+          _isCountingDown = false;
+        });
+        Get.snackbar(
+          'Recording Error',
+          'Failed to start recording: $e',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      }
+      return;
+    }
   }
 
   void _stopRecording() async {
-    if (kDebugMode) {
-      print(
-          'RecordingOverlay: _stopRecording called for hymnId: ${widget.hymnId}');
-    }
-
     final recording =
         await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
-
-    if (kDebugMode) {
-      print('RecordingOverlay: Recording returned from controller: $recording');
-    }
 
     if (recording != null) {
       // Store's current recording for later reference
       _currentRecording = recording;
       setState(() => _state = RecordingOverlayState.saving);
-      if (kDebugMode) {
-        print('RecordingOverlay: State changed to saving');
-      }
     } else {
-      if (kDebugMode) {
-        print(
-            'RecordingOverlay: No recording returned, cannot show save dialog');
-      }
       // Show error message to user
       Get.snackbar(
         'Error',
@@ -156,6 +163,11 @@ class _RecordingOverlayState extends State<RecordingOverlay>
         backgroundColor: Colors.red,
         colorText: Colors.white,
       );
+      // Reset overlay state
+      setState(() {
+        _state = RecordingOverlayState.idle;
+        _isExpanded = false;
+      });
     }
   }
 
@@ -174,19 +186,14 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
     // Update recording name
     if (_currentRecording != null) {
-      // Update the recording with the user's custom name
+      // Update recording name
       await _controller.renameRecording(_currentRecording!, name);
 
-      if (uploadToDrive) {
+      if (uploadToDrive || isPublic) {
         // Transition to uploading state
         setState(() => _state = RecordingOverlayState.uploading);
         // Start upload
         _startUpload(_currentRecording!, isPublic: isPublic);
-      } else if (isPublic) {
-        // Transition to uploading state (even if just publishing, we show progress)
-        setState(() => _state = RecordingOverlayState.uploading);
-        // If marked as public but not uploading to Drive, we need to upload it
-        _startUpload(_currentRecording!, isPublic: true);
       } else {
         // Auto-close overlay when save is complete
         if (mounted) {
@@ -201,9 +208,11 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     }
   }
 
-  void _startUpload(UserRecording recording, {bool isPublic = false}) {
-    // Trigger upload
-    _controller.uploadToDrive(recording).then((_) async {
+  void _startUpload(UserRecording recording, {bool isPublic = false}) async {
+    try {
+      // Trigger upload
+      await _controller.uploadToDrive(recording);
+
       // If marked as public, publish to Firestore after upload
       if (isPublic) {
         // Get the updated recording with Drive info
@@ -213,7 +222,26 @@ class _RecordingOverlayState extends State<RecordingOverlay>
           await _controller.publishRecording(updatedRecording);
         }
       }
-    });
+
+      // Close overlay on success
+      if (mounted) {
+        _controller.hideOverlay();
+        widget.onClose();
+      }
+    } catch (e) {
+      // Show error and stay in uploading state or go back to saving
+      Get.snackbar(
+        'Upload Failed',
+        'Failed to upload recording: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+      // Go back to saving state so user can try again
+      if (mounted) {
+        setState(() => _state = RecordingOverlayState.saving);
+      }
+    }
   }
 
   void _toggleExpand() {

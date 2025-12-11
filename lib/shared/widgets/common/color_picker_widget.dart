@@ -3,6 +3,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class ColorPickerWidget extends StatelessWidget {
   final ColorController colorController = Get.find<ColorController>();
@@ -206,7 +207,7 @@ class ColorPickerWidget extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: AppDimensions.md),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -262,8 +263,9 @@ class ColorPickerWidget extends StatelessWidget {
         SizedBox(
           height: 140,
           child: ListView.builder(
+            key: const PageStorageKey('color_schemes_list'),
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
             itemCount: colorController.colorSchemes.length,
             itemBuilder: (context, index) {
               final scheme = colorController.colorSchemes[index];
@@ -271,10 +273,11 @@ class ColorPickerWidget extends StatelessWidget {
 
 
               return GestureDetector(
+                key: ValueKey(index),
                 onTap: () async => await colorController.setColorScheme(index),
                 child: Container(
                   width: 110,
-                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                  margin: const EdgeInsets.symmetric(horizontal: AppDimensions.xs),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2A2A2E),
                     borderRadius: BorderRadius.circular(16),

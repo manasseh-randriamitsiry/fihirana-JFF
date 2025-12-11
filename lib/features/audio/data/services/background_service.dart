@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:fihirana/features/announcement/data/services/announcement_service.dart';
+import 'package:fihirana/features/announcement/domain/repositories/i_announcement_service.dart';
 
 class BackgroundService extends GetxService {
   Timer? _announcementTimer;
-  final AnnouncementService _announcementService = AnnouncementService();
+  final IAnnouncementService _announcementService = Get.find<IAnnouncementService>();
 
   @override
   void onInit() {

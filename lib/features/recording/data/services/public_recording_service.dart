@@ -14,13 +14,18 @@ class PublicRecordingService {
   /// Check if a recording title already exists for a specific hymn
   /// Returns true if a duplicate is found
   /// [excludeId] can be used to exclude a specific recording (for rename scenarios)
+  /// [userId] can be used to check only for the specific user
   Future<bool> titleExistsForHymn(String hymnId, String title,
-      {String? excludeId}) async {
+      {String? excludeId, String? userId}) async {
     try {
       Query query = _firestore
           .collection(_collectionName)
           .where('hymnId', isEqualTo: hymnId)
           .where('title', isEqualTo: title);
+
+      if (userId != null) {
+        query = query.where('userId', isEqualTo: userId);
+      }
 
       final snapshot = await query.get();
 

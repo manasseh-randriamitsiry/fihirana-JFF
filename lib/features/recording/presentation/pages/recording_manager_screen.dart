@@ -10,8 +10,8 @@ import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_field.da
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
-import 'package:fihirana/l10n/app_localizations.dart';
 import 'standalone_recording_screen.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class RecordingManagerScreen extends StatefulWidget {
   const RecordingManagerScreen({super.key});
@@ -48,6 +48,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
   }
 
   List<UserRecording> _getFilteredRecordings() {
+
     List<UserRecording> allRecordings = [];
 
     // Get recordings based on filter
@@ -89,159 +90,13 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             recording.hymnId.contains(_searchQuery.value);
       }).toList();
     }
-
     return allRecordings;
-  }
-
-  void _showDriveDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Get.find<ColorController>().backgroundColor.value,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            Icon(
-              Icons.cloud_done,
-              color: Get.find<ColorController>().primaryColor.value,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Text(
-              'Google Drive',
-              style: TextStyle(
-                color: Get.find<ColorController>().textColor.value,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Signed in as:',
-              style: TextStyle(
-                color: Get.find<ColorController>()
-                    .textColor
-                    .value
-                    .withValues(alpha: 0.7),
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _recordingController.userEmail.value ?? 'Unknown',
-              style: TextStyle(
-                color: Get.find<ColorController>().textColor.value,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Obx(() {
-              final quota = _recordingController.storageQuota.value;
-              if (quota == null) {
-                return const SizedBox.shrink();
-              }
-
-              final usage = quota['usage'] as int? ?? 0;
-              final limit = quota['limit'] as int? ?? 1;
-              final usageGB = (usage / (1024 * 1024 * 1024)).toStringAsFixed(2);
-              final limitGB = (limit / (1024 * 1024 * 1024)).toStringAsFixed(2);
-              final percent = (usage / limit).clamp(0.0, 1.0);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Storage Usage',
-                    style: TextStyle(
-                      color: Get.find<ColorController>()
-                          .textColor
-                          .value
-                          .withValues(alpha: 0.7),
-                      fontSize: 14,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  LinearProgressIndicator(
-                    value: percent,
-                    backgroundColor: Colors.grey[300],
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      percent > 0.9
-                          ? Colors.red
-                          : Get.find<ColorController>().primaryColor.value,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '$usageGB GB of $limitGB GB used',
-                    style: TextStyle(
-                      color: Get.find<ColorController>().textColor.value,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              );
-            }),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Close',
-              style:
-                  TextStyle(color: Get.find<ColorController>().textColor.value),
-            ),
-          ),
-          Obx(() => _recordingController.isLoading.value
-              ? const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                )
-              : ElevatedButton.icon(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await _recordingController.syncFromDrive();
-                  },
-                  icon: const Icon(Icons.sync, size: 18),
-                  label: Text(AppLocalizations.of(context)!.sync),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Get.find<ColorController>().primaryColor.value,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
-                  ),
-                )),
-          ElevatedButton(
-            onPressed: () {
-              _recordingController.signOutFromDrive();
-              Navigator.pop(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text(AppLocalizations.of(context)!.signOut),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<ColorController>(
-      builder: (colorController) => Obx(() {
+      builder: (colorController) {
         final textColor = colorController.textColor.value;
         final backgroundColor = colorController.backgroundColor.value;
         final iconColor = colorController.iconColor.value;
@@ -267,43 +122,72 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             ),
             actions: [
               IconButton(
-                icon: Icon(Icons.refresh, color: iconColor),
-                tooltip: 'Refresh recordings',
-                onPressed: () => _recordingController.refreshRecordings(),
+                icon: Icon(Icons.select_all, color: iconColor),
+                tooltip: 'Select all',
+                onPressed: () {
+                  final filteredRecordings = _getFilteredRecordings();
+                  _recordingController.selectAllRecordings(filteredRecordings);
+                },
               ),
-              Obx(() {
-                if (_recordingController.isDriveSignedIn.value) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.sync, color: iconColor),
-                        tooltip: 'Sync from Google Drive',
-                        onPressed: () => _recordingController.syncFromDrive(),
+              IconButton(
+                icon: Icon(Icons.clear, color: iconColor),
+                tooltip: 'Clear selection',
+                onPressed: () => _recordingController.clearSelection(),
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_forever, color: Colors.red),
+                tooltip: 'Delete permanently',
+                onPressed: () async {
+                  if (_recordingController.selectedRecordingIds.isEmpty) {
+                    return;
+                  }
+
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      backgroundColor: backgroundColor,
+                      title: Text(
+                        'Delete Permanently',
+                        style: TextStyle(color: textColor),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.cloud_done, color: iconColor),
-                        tooltip:
-                            'Signed in as ${_recordingController.userEmail.value}',
-                        onPressed: _showDriveDialog,
+                      content: Text(
+                        'Are you sure you want to permanently delete ${_recordingController.selectedRecordingIds.length} recording${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'}? This action cannot be undone.',
+                        style: TextStyle(color: textColor.withValues(alpha: 0.8)),
                       ),
-                    ],
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: Text('Cancel', style: TextStyle(color: textColor)),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.red,
+                          ),
+                          child: const Text('Delete'),
+                        ),
+                      ],
+                    ),
                   );
-                } else {
-                  return IconButton(
-                    icon: Icon(Icons.cloud_upload_outlined, color: iconColor),
-                    tooltip: 'Sign in to Google Drive',
-                    onPressed: () => _recordingController.signInToDrive(),
-                  );
-                }
-              }),
+
+                  if (confirmed == true) {
+                    await _recordingController.permanentlyDeleteSelectedRecordings();
+                  } else {
+                  }
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.close, color: iconColor),
+                tooltip: 'Exit multi-select',
+                onPressed: () => _recordingController.disableMultiSelectMode(),
+              ),
             ],
           ),
           body: Column(
             children: [
               // Search bar
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(AppDimensions.md),
                 child: HymnSearchField(
                   controller: _searchController,
                   defaultTextStyle: defaultTextStyle,
@@ -321,7 +205,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
 
               // Filter chips
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -345,7 +229,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
               // Results count
               if (_searchQuery.value.isNotEmpty || _filterOption.value != 'all')
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
                   child: Obx(() {
                     final filteredRecordings = _getFilteredRecordings();
                     return Text(
@@ -362,121 +246,126 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
 
               // Recordings list
               Expanded(
-                child: Obx(() {
-                  // Security check - prevent banned users from accessing recordings
-                  final SecurityService securityService =
-                      SecurityService.instance;
-                  if (securityService.isSecurityChecked &&
-                      securityService.isUserBlocked) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.block,
-                            size: 80,
-                            color: Colors.red.withValues(alpha: 0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Access Restricted',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
+                child: Builder(
+                  builder: (context) {
+                    // Security check - prevent banned users from accessing recordings
+                    final SecurityService securityService =
+                        SecurityService.instance;
+                    if (securityService.isSecurityChecked &&
+                        securityService.isUserBlocked) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.block,
+                              size: 80,
+                              color: Colors.red.withValues(alpha: 0.5),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Your account has been restricted from recording features.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.red.withValues(alpha: 0.7),
-                              fontSize: 16,
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Access Restricted',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.red.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: Colors.red.withValues(alpha: 0.3)),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Your account has been restricted from recording features.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.red.withValues(alpha: 0.7),
+                                fontSize: 16,
+                              ),
                             ),
-                            child: Column(
-                              children: [
-                                const Icon(Icons.warning_amber,
-                                    color: Colors.orange, size: 24),
-                                const SizedBox(height: 8),
-                                Text(
-                                  securityService.blockReason.isNotEmpty
-                                      ? securityService.blockReason
-                                      : 'Account suspended',
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
+                            const SizedBox(height: 16),
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                    color: Colors.red.withValues(alpha: 0.3)),
+                              ),
+                              child: Column(
+                                children: [
+                                  const Icon(Icons.warning_amber,
+                                      color: Colors.orange, size: 24),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    securityService.blockReason.isNotEmpty
+                                        ? securityService.blockReason
+                                        : 'Account suspended',
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
+                          ],
+                        ),
+                      );
+                    }
+
+                    return Obx(() {
+                      final filteredRecordings = _getFilteredRecordings();
+
+                      if (filteredRecordings.isEmpty) {
+                        return EmptyStateWidget(
+                          message: _searchQuery.value.isNotEmpty
+                              ? 'No recordings found'
+                              : 'No recordings yet',
+                          icon: _searchQuery.value.isNotEmpty
+                              ? Icons.search_off
+                              : Icons.mic_off_rounded,
+                          actionLabel: _searchQuery.value.isNotEmpty
+                              ? 'Clear Search'
+                              : 'Start Recording',
+                          onActionPressed: () {
+                            if (_searchQuery.value.isNotEmpty) {
+                              _searchController.clear();
+                              _searchQuery.value = '';
+                              setState(() {});
+                            } else {
+                              Get.to(() => const StandaloneRecordingScreen());
+                            }
+                          },
+                        );
+                      }
+
+                      return ListView.builder(
+                        key: const PageStorageKey('recordings_list'),
+                        padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+                        itemCount: filteredRecordings.length,
+                        itemBuilder: (context, index) {
+                          final recording = filteredRecordings[index];
+                          final isPublic = recording.isPublic;
+
+                          return RecordingTileWidget(
+                            key: ValueKey(recording.id),
+                            recording: recording,
+                            index: index,
+                            isPublic: isPublic,
+                          )
+                              .animate()
+                              .fadeIn(
+                                  duration: 400.ms,
+                                  delay: (50 * index).clamp(0, 500).ms)
+                              .slideY(
+                                  begin: 0.2,
+                                  end: 0,
+                                  curve: Curves.easeOutQuad,
+                                  duration: 400.ms);
+                        },
+                      );
+                    });
                   }
-
-                  final filteredRecordings = _getFilteredRecordings();
-
-                  if (filteredRecordings.isEmpty) {
-                    return EmptyStateWidget(
-                      message: _searchQuery.value.isNotEmpty
-                          ? 'No recordings found'
-                          : 'No recordings yet',
-                      icon: _searchQuery.value.isNotEmpty
-                          ? Icons.search_off
-                          : Icons.mic_off_rounded,
-                      actionLabel: _searchQuery.value.isNotEmpty
-                          ? 'Clear Search'
-                          : 'Start Recording',
-                      onActionPressed: () {
-                        if (_searchQuery.value.isNotEmpty) {
-                          _searchController.clear();
-                          _searchQuery.value = '';
-                          setState(() {});
-                        } else {
-                          Get.to(() => const StandaloneRecordingScreen());
-                        }
-                      },
-                    );
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    itemCount: filteredRecordings.length,
-                    itemBuilder: (context, index) {
-                      final recording = filteredRecordings[index];
-                      final isPublic = recording.isPublic;
-
-                      return RecordingTileWidget(
-                        key: ValueKey(recording.id),
-                        recording: recording,
-                        index: index,
-                        isPublic: isPublic,
-                      )
-                          .animate()
-                          .fadeIn(
-                              duration: 400.ms,
-                              delay: (50 * index).clamp(0, 500).ms)
-                          .slideY(
-                              begin: 0.2,
-                              end: 0,
-                              curve: Curves.easeOutQuad,
-                              duration: 400.ms);
-                    },
-                  );
-                }),
+                ),
               ),
             ],
           ),
@@ -487,7 +376,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             },
           ),
         );
-      }),
+      }
     );
   }
 

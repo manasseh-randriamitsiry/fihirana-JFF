@@ -50,8 +50,8 @@ class RecordingMiniPlayer extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Recording indicator
-                    Container(
+                     // Recording indicator
+                     Container(
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(

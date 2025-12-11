@@ -81,11 +81,13 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
               ],
             ),
             child: ListView.builder(
+              key: const PageStorageKey('location_search_results_list'),
               shrinkWrap: true,
               itemCount: widget.searchResults.length,
               itemBuilder: (context, index) {
                 final result = widget.searchResults[index];
                 return ListTile(
+                  key: ValueKey(index),
                   dense: true,
                   title: Text(
                     result['display_name'],

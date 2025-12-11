@@ -12,6 +12,7 @@ import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_form_widgets.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class CreateHymnPage extends StatefulWidget {
   const CreateHymnPage({super.key});
@@ -243,7 +244,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             color: Get.find<ColorController>().backgroundColor.value,
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(AppDimensions.lg),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -297,7 +298,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppDimensions.md),
             child: Form(
               key: _formKey,
               child: Column(
@@ -350,7 +351,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: AppDimensions.md),
                   FormTextFieldWidget(
                     controller: _titleController,
                     label: l10n.title,
@@ -362,7 +363,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 24.0),
+                  const SizedBox(height: AppDimensions.lg),
 
                   // Verses Section Header
                   Container(
@@ -428,7 +429,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
                   // Add Verse Button
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    padding: const EdgeInsets.symmetric(vertical: AppDimensions.sm),
                     child: OutlinedButton.icon(
                       onPressed: () {
                         setState(() {
@@ -459,7 +460,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: AppDimensions.md),
 
                   FormTextFieldWidget(
                     controller: _bridgeController,
@@ -467,7 +468,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     maxLines: 3,
                     icon: Icons.repeat,
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: AppDimensions.md),
 
                   FormTextFieldWidget(
                     controller: _hymnHintController,
@@ -479,7 +480,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   // Audio availability indicator
                   if (_audioChecked)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      padding: const EdgeInsets.symmetric(vertical: AppDimensions.md),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -526,7 +527,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         ),
                       ),
                     ),
-                  const SizedBox(height: 24.0),
+                  const SizedBox(height: AppDimensions.lg),
 
                   // Submit Button
                   ElevatedButton(

@@ -10,12 +10,12 @@ import 'package:fihirana/features/auth/presentation/controllers/auth_controller.
 
 /// Manages recording CRUD operations
 class RecordingOperationsManager extends GetxController {
-  final IRecordingService _recordingService;
+  final RecordingRepository _recordingService;
   final RecordingAuthManager _authManager;
   final RecordingStateManager _stateManager;
 
-  RecordingOperationsManager({
-    required IRecordingService recordingService,
+RecordingOperationsManager({
+    required RecordingRepository recordingService,
     required RecordingAuthManager authManager,
     required RecordingStateManager stateManager,
   }) : _recordingService = recordingService,
@@ -236,8 +236,8 @@ class RecordingOperationsManager extends GetxController {
       );
     } catch (e) {
       Get.snackbar(
-        'Error',
-        'Failed to rename recording: $e',
+        'errorTitle'.tr,
+        'errorRestoringRecording'.trParams({'error': e.toString()}),
         backgroundColor: Colors.red.withValues(alpha: 0.8),
         colorText: Colors.white,
       );
@@ -321,10 +321,13 @@ class RecordingOperationsManager extends GetxController {
   }
 
   Future<void> deleteRecordingPermanentlyDirect(UserRecording recording) async {
+    print('RecordingOperationsManager: deleteRecordingPermanentlyDirect called for recording: ${recording.id}');
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       await deleteRecordingPermanently(recording, currentUser);
+      print('RecordingOperationsManager: deleteRecordingPermanentlyDirect completed');
     } catch (e) {
+      print('RecordingOperationsManager: Error in deleteRecordingPermanentlyDirect: $e');
       Get.snackbar(
         'Error',
         'Failed to delete recording permanently: $e',
@@ -338,17 +341,90 @@ class RecordingOperationsManager extends GetxController {
     UserRecording recording,
     User? currentUser,
   ) async {
+    print('RecordingOperationsManager: deleteRecordingPermanently called for recording: ${recording.id}');
     try {
+      // For public recordings, unpublish first to clean up Firestore
+      if (recording.isPublic) {
+        print('RecordingOperationsManager: Recording is public, unpublishing from Firestore');
+        await _recordingService.unpublishRecording(recording.id);
+        print('RecordingOperationsManager: Public recording unpublished from Firestore');
+      }
+      
       await _recordingService.deleteLocalRecordingPermanently(recording.id);
+      print('RecordingOperationsManager: local delete completed');
 
       if (recording.driveFileId != null) {
+        print('RecordingOperationsManager: Recording has driveFileId: ${recording.driveFileId}, attempting Drive deletion');
         try {
-          await _authManager.driveService!.deleteFile(recording.driveFileId!);
-        } catch (e) {
-          if (kDebugMode) {
-            print('Failed to delete from Google Drive: $e');
+          if (_authManager.driveService != null) {
+            // Check if Drive authentication is valid before attempting deletion
+            final isAuthValid = await _authManager.driveService!.isDriveAuthenticationValid();
+            if (!isAuthValid) {
+              print('RecordingOperationsManager: Drive authentication is invalid, attempting to re-authenticate');
+              final signInResult = await _authManager.driveService!.signIn();
+              if (signInResult == null) {
+                print('RecordingOperationsManager: Re-authentication failed, cannot delete from Drive');
+                Get.snackbar(
+                  'Authentication Required',
+                  'Please sign in to Google Drive to delete files',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 3),
+                );
+              } else {
+                print('RecordingOperationsManager: Re-authentication successful, proceeding with deletion');
+              }
+            }
+            
+            // Check if file can be deleted before attempting
+            final canDelete = await _authManager.driveService!.canDeleteFile(recording.driveFileId!);
+            if (!canDelete) {
+              print('RecordingOperationsManager: Cannot delete file - insufficient permissions');
+              Get.snackbar(
+                'Cannot Delete',
+                'This file cannot be deleted from Google Drive. You may not have sufficient permissions.',
+                backgroundColor: Colors.orange,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 4),
+              );
+            } else {
+              final deleteSuccess = await _authManager.driveService!.deleteFile(recording.driveFileId!);
+              if (deleteSuccess) {
+                print('RecordingOperationsManager: Drive deletion successful');
+              } else {
+                print('RecordingOperationsManager: Drive file deletion failed');
+                Get.snackbar(
+                  'Deletion Failed',
+                  'Failed to delete file from Google Drive. The file will be removed from the app only.',
+                  backgroundColor: Colors.orange,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 4),
+                );
+              }
+            }
+          } else {
+            print('RecordingOperationsManager: Drive service not available');
           }
+        } catch (e) {
+          print('RecordingOperationsManager: Error deleting from Drive: $e');
+          // Continue anyway - local deletion is more important
         }
+      } else {
+        print('RecordingOperationsManager: Recording has no driveFileId, skipping Drive deletion');
+      }
+
+      // Refresh the recording list to update UI
+      try {
+        await _recordingService.loadRecordings();
+        print('RecordingOperationsManager: Recording list refreshed after deletion');
+        
+        // Also refresh public recordings if this was a public recording
+        if (recording.isPublic) {
+          await _recordingService.loadPublicRecordings();
+          print('RecordingOperationsManager: Public recordings list refreshed after deletion');
+        }
+      } catch (refreshError) {
+        print('RecordingOperationsManager: Error refreshing recording list: $refreshError');
       }
 
       Get.snackbar(
@@ -359,6 +435,7 @@ class RecordingOperationsManager extends GetxController {
         duration: const Duration(seconds: 3),
       );
     } catch (e) {
+      print('RecordingOperationsManager: Error in deleteRecordingPermanently: $e');
       rethrow;
     }
   }

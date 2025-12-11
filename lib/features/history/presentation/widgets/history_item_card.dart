@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class HistoryItemCard extends StatelessWidget {
   final Map<String, dynamic> history;
@@ -26,13 +27,13 @@ class HistoryItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
-    final DateTime timestamp = history['timestamp'];
-    final String formattedDate = 
+
+    final DateTime timestamp = DateTime.parse(history['timestamp']);
+    final String formattedDate =
         '${timestamp.day.toString().padLeft(2, '0')}/${timestamp.month.toString().padLeft(2, '0')}/${timestamp.year} ${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}';
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
+      padding: const EdgeInsets.only(bottom: AppDimensions.sm),
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

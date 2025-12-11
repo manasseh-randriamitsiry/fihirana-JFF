@@ -123,11 +123,13 @@ class BibleSearchResults extends StatelessWidget {
 
   Widget _buildResultsList(BuildContext context, BibleController bibleController) {
     return ListView.builder(
+      key: const PageStorageKey('bible_search_results_list'),
       padding: EdgeInsets.zero,
       itemCount: bibleController.searchResults.length,
       itemBuilder: (context, index) {
         final result = bibleController.searchResults[index];
         return BibleSearchResultItem(
+          key: ValueKey(result.displayText),
           result: result,
           fontSize: fontSize,
         );

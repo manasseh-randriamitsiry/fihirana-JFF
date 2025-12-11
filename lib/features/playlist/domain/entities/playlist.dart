@@ -6,6 +6,7 @@ class Playlist {
   final DateTime date;
   final List<String> hymnIds;
   final String createdBy;
+  final String? description;
   final bool isPublic;
   final bool isLocal; // New field to distinguish local vs Firebase playlists
   final DateTime createdAt;
@@ -17,6 +18,7 @@ class Playlist {
     required this.date,
     required this.hymnIds,
     required this.createdBy,
+    this.description,
     this.isPublic = false,
     this.isLocal = false,
     required this.createdAt,
@@ -32,6 +34,7 @@ class Playlist {
           : DateTime.parse(json['date'] as String),
       hymnIds: List<String>.from(json['hymnIds'] ?? []),
       createdBy: json['createdBy'] as String? ?? '',
+      description: json['description'] as String?,
       isPublic: json['isPublic'] as bool? ?? false,
       isLocal: json['isLocal'] as bool? ?? false,
       createdAt: json['createdAt'] is Timestamp
@@ -50,6 +53,7 @@ class Playlist {
       'date': date.toIso8601String(),
       'hymnIds': hymnIds,
       'createdBy': createdBy,
+      'description': description,
       'isPublic': isPublic,
       'isLocal': isLocal,
       'createdAt': createdAt.toIso8601String(),
@@ -63,6 +67,7 @@ class Playlist {
       'date': Timestamp.fromDate(date),
       'hymnIds': hymnIds,
       'createdBy': createdBy,
+      'description': description,
       'isPublic': isPublic,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
@@ -75,6 +80,7 @@ class Playlist {
     DateTime? date,
     List<String>? hymnIds,
     String? createdBy,
+    String? description,
     bool? isPublic,
     bool? isLocal,
     DateTime? createdAt,
@@ -86,6 +92,7 @@ class Playlist {
       date: date ?? this.date,
       hymnIds: hymnIds ?? this.hymnIds,
       createdBy: createdBy ?? this.createdBy,
+      description: description ?? this.description,
       isPublic: isPublic ?? this.isPublic,
       isLocal: isLocal ?? this.isLocal,
       createdAt: createdAt ?? this.createdAt,

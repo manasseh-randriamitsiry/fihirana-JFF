@@ -448,6 +448,11 @@
   "searchEntireBible": "Rechercher dans toute la Bible",
   "change": "Changer",
   "bibleReader": "Lecteur de Bible",
+  "savedVerses": "Versets Sauvegardés",
+  "noSavedVerses": "Aucun verset sauvegardé",
+  "saveVersesByHighlighting": "Sauvegardez des versets en les surlignant dans le lecteur de Bible",
+  "deleteHighlight": "Supprimer le Surlignage",
+  "confirmDeleteHighlight": "Êtes-vous sûr de vouloir supprimer ce surlignage ?",
   "emailLabel": "Email: {email}",
   "@emailLabel": {
     "placeholders": {
@@ -959,5 +964,181 @@
   "skip": "Ignorer",
   "done": "Terminé",
   "recordingNotSaved": "L'enregistrement n'a pas été sauvegardé",
-  "restore": "Restaurer"
+   "restore": "Restaurer",
+   "superAdminDashboard": "Tableau de bord super administrateur",
+   "deletedRecordings": "Enregistrements supprimés",
+   "searchUsersHint": "Rechercher des utilisateurs...",
+   "noUsersFound": "Aucun utilisateur trouvé",
+   "revokeAdminAccess": "Révoquer l'accès administrateur",
+   "grantAdminAccess": "Accorder l'accès administrateur",
+   "confirmRevokeAdminAccess": "Êtes-vous sûr de vouloir révoquer l'accès administrateur de {displayName}?",
+   "@confirmRevokeAdminAccess": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "confirmGrantAdminAccess": "Êtes-vous sûr de vouloir accorder l'accès administrateur à {displayName}?",
+   "@confirmGrantAdminAccess": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "adminAccessRevoked": "Accès administrateur révoqué",
+   "adminAccessGranted": "Accès administrateur accordé",
+   "unblockUser": "Débloquer l'utilisateur",
+   "blockUser": "Bloquer l'utilisateur",
+   "confirmUnblockUser": "Êtes-vous sûr de vouloir débloquer {displayName}?",
+   "@confirmUnblockUser": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "confirmBlockUser": "Êtes-vous sûr de vouloir bloquer {displayName}?",
+   "@confirmBlockUser": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "userUnblocked": "Utilisateur débloqué",
+   "userBlocked": "Utilisateur bloqué",
+   "confirmDeleteUser": "Êtes-vous sûr de vouloir supprimer {displayName}? Cette action ne peut pas être annulée.",
+   "@confirmDeleteUser": {
+     "placeholders": {
+       "displayName": {
+         "type": "String"
+       }
+     }
+   },
+   "userDeletedSuccessfully": "Utilisateur supprimé avec succès",
+   "admin": "ADMIN",
+   "blocked": "BLOQUÉ",
+   "lastLoginWithDate": "Dernière connexion: {lastLogin}",
+   "@lastLoginWithDate": {
+     "placeholders": {
+       "lastLogin": {
+         "type": "String"
+       }
+     }
+   },
+   "revokeAdmin": "Révoquer Admin",
+   "makeAdmin": "Rendre Admin",
+   "daysAgo": "il y a {count} jours",
+   "@daysAgo": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "hoursAgo": "il y a {count} heures",
+   "@hoursAgo": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "minutesAgo": "il y a {count} minutes",
+   "@minutesAgo": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "justNow": "À l'instant",
+   "never": "Jamais",
+   "users": "Utilisateurs",
+   "activeUsersCount": "{count} actif",
+   "@activeUsersCount": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "totalAdded": "Total ajouté",
+   "installs": "Installations",
+   "allTime": "Tout le temps",
+   "failedToLoadDeletedRecordings": "Échec du chargement des enregistrements supprimés: {error}",
+   "@failedToLoadDeletedRecordings": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "deletedRecordingsCount": "{count} enregistrements supprimés",
+   "@deletedRecordingsCount": {
+     "placeholders": {
+       "count": {
+         "type": "int"
+       }
+     }
+   },
+   "noDeletedRecordingsFound": "Aucun enregistrement supprimé trouvé",
+   "noDeletedRecordings": "Aucun enregistrement supprimé",
+   "tryAdjustingSearchTerms": "Essayez d'ajuster vos termes de recherche",
+   "deletedRecordingsWillAppearHere": "Les enregistrements supprimés apparaîtront ici",
+   "failedToLoadDashboard": "Échec du chargement du tableau de bord: {error}",
+   "@failedToLoadDashboard": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "refreshDashboard": "Actualiser le tableau de bord",
+   "failedToLoadConfiguration": "Échec du chargement de la configuration: {error}",
+   "@failedToLoadConfiguration": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "configurationUpdatedSuccessfully": "Configuration mise à jour avec succès",
+   "failedToSaveConfiguration": "Échec de la sauvegarde de la configuration: {error}",
+   "@failedToSaveConfiguration": {
+     "placeholders": {
+       "error": {
+         "type": "String"
+       }
+     }
+   },
+   "emergencyModeActive": "Mode d'urgence actif",
+   "updatesEnabled": "Mises à jour activées",
+   "updatesDisabled": "Mises à jour désactivées",
+   "adminMessageLabel": "Message administrateur: {adminMessage}",
+   "@adminMessageLabel": {
+     "placeholders": {
+       "adminMessage": {
+         "type": "String"
+       }
+     }
+   },
+   "blockedVersionLabel": "Version bloquée: {blockedVersion}",
+   "@blockedVersionLabel": {
+     "placeholders": {
+       "blockedVersion": {
+         "type": "String"
+       }
+     }
+   },
+   "quickActions": "Actions rapides",
+   "configuration": "Configuration",
+   "anErrorOccurred": "Une erreur s'est produite",
+   "networkConnectionError": "Erreur de connexion réseau. Veuillez vérifier votre connexion internet.",
+   "requestTimedOut": "La requête a expiré. Veuillez réessayer.",
+   "resourceNotFound": "Ressource introuvable. Veuillez réessayer plus tard.",
+   "somethingWentWrong": "Quelque chose s'est mal passé. Veuillez réessayer.",
+   "widgetErrorBoundaryCaughtError": "Erreur capturée par la limite d'erreur du widget"
 }
