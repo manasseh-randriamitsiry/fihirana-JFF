@@ -17,6 +17,7 @@ class HymnVersesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (int i = 0; i < hymn.verses.length; i++)
           HymnVerseDisplayWidget(
