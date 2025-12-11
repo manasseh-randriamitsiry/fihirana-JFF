@@ -682,7 +682,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectHymnFirst => 'Please select a hymn first';
 
   @override
-  String get updateAvailableContent => 'A new update is available. Would you like to install it?';
+  String get updateAvailableContent =>
+      'A new update is available. Would you like to install it?';
 
   @override
   String get updateAvailableTitle => 'Update Available';
@@ -800,7 +801,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myPersonalNote => 'Note';
 
   @override
-  String get noteInstructions => 'Enter your note about the hymn, such as chords, prayer reminders, or other information.';
+  String get noteInstructions =>
+      'Enter your note about the hymn, such as chords, prayer reminders, or other information.';
 
   @override
   String get enterYourNote => 'Write your note here...';
@@ -815,7 +817,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteNoteConfirm => 'Delete note?';
 
   @override
-  String get deleteNoteMessage => 'Are you really sure you want to delete the note?';
+  String get deleteNoteMessage =>
+      'Are you really sure you want to delete the note?';
 
   @override
   String get leave => 'Leave';
@@ -873,7 +876,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get noPermissionAdmin => 'You do not have permission to access the admin panel';
+  String get noPermissionAdmin =>
+      'You do not have permission to access the admin panel';
 
   @override
   String get allSelectedHymnsDeleted => 'All selected hymns have been deleted';
@@ -897,7 +901,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notLoggedIn => 'Not Logged In';
 
   @override
-  String get notLoggedInMessage => 'You are not logged in. Sign in to your account to access all features.';
+  String get notLoggedInMessage =>
+      'You are not logged in. Sign in to your account to access all features.';
 
   @override
   String get clearAllHistory => 'Clear all history';
@@ -952,7 +957,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorDownloadingUpdate => 'Failed to download update';
 
   @override
-  String get noAdminPermission => 'You do not have permission to access the admin panel';
+  String get noAdminPermission =>
+      'You do not have permission to access the admin panel';
 
   @override
   String get selectedHymnsDeleted => 'Selected hymns have been deleted';
@@ -1023,7 +1029,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get installUpdateTitle => 'Install update';
 
   @override
-  String get installUpdateContent => 'Do you really want to install the new version? This will download the file and install it automatically.';
+  String get installUpdateContent =>
+      'Do you really want to install the new version? This will download the file and install it automatically.';
 
   @override
   String get install => 'Install';
@@ -1114,13 +1121,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noSavedVerses => 'No saved verses';
 
   @override
-  String get saveVersesByHighlighting => 'Save verses by highlighting them in the Bible reader';
+  String get saveVersesByHighlighting =>
+      'Save verses by highlighting them in the Bible reader';
 
   @override
   String get deleteHighlight => 'Delete Highlight';
 
   @override
-  String get confirmDeleteHighlight => 'Are you sure you want to delete this highlight?';
+  String get confirmDeleteHighlight =>
+      'Are you sure you want to delete this highlight?';
 
   @override
   String emailLabel(String email) {
@@ -1204,7 +1213,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueText => 'Continue';
 
   @override
-  String get splashScreenTitle => 'Hymns of Jesosy Famonjena Fahamarinantsika\'s Church';
+  String get splashScreenTitle =>
+      'Hymns of Jesosy Famonjena Fahamarinantsika\'s Church';
 
   @override
   String get splashScreenSubtitle => 'Praise the Lord for He is good';
@@ -1228,7 +1238,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enableDailyVerse => 'Enable Daily Verse';
 
   @override
-  String get youWillReceiveDailyNotifications => 'You will receive daily notifications';
+  String get youWillReceiveDailyNotifications =>
+      'You will receive daily notifications';
 
   @override
   String get turnOnToReceiveDailyVerses => 'Turn on to receive daily verses';
@@ -1279,7 +1290,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearAllCache => 'Clear All Cache';
 
   @override
-  String get clearCacheWarning => 'This will remove all cached audio availability data. The app will need to check audio availability again.';
+  String get clearCacheWarning =>
+      'This will remove all cached audio availability data. The app will need to check audio availability again.';
 
   @override
   String get allCacheCleared => 'All cache cleared';
@@ -1398,10 +1410,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get syncInfoMessage1 => 'Your favorite hymns and history are saved to your Google account.';
+  String get syncInfoMessage1 =>
+      'Your favorite hymns and history are saved to your Google account.';
 
   @override
-  String get syncInfoMessage2 => 'This will not be lost if you change accounts.';
+  String get syncInfoMessage2 =>
+      'This will not be lost if you change accounts.';
 
   @override
   String errorOccurredWithDetails(String error) {
@@ -1468,7 +1482,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noRecordingsYet => 'No recordings yet';
 
   @override
-  String get startRecordingYourFavoriteHymns => 'Start recording your favorite hymns';
+  String get startRecordingYourFavoriteHymns =>
+      'Start recording your favorite hymns';
 
   @override
   String get personalRecordings => 'Personal Recordings';
@@ -1533,7 +1548,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordingInProgressDialog => 'Recording in progress';
 
   @override
-  String get pleaseStopRecordingBeforePlaying => 'Please stop recording before playing.';
+  String get pleaseStopRecordingBeforePlaying =>
+      'Please stop recording before playing.';
 
   @override
   String get stopAndPlay => 'Stop & Play';
@@ -1542,7 +1558,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordingSessionActive => 'Recording session active';
 
   @override
-  String get pleaseCloseRecordingOverlayFirst => 'Please close the recording overlay first.';
+  String get pleaseCloseRecordingOverlayFirst =>
+      'Please close the recording overlay first.';
 
   @override
   String get recordingInProgress => 'Recording in progress...';
@@ -1562,7 +1579,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failedToPlayRecording => 'Failed to play recording';
 
   @override
-  String get recordingUploadSuccess => 'Recording uploaded to Drive successfully';
+  String get recordingUploadSuccess =>
+      'Recording uploaded to Drive successfully';
 
   @override
   String get recordingUploadFailed => 'Upload Failed';
@@ -1655,7 +1673,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordingPermissionRequired => 'Recording permission required';
 
   @override
-  String get pleaseGrantMicrophonePermission => 'Please grant microphone permission to record hymns.';
+  String get pleaseGrantMicrophonePermission =>
+      'Please grant microphone permission to record hymns.';
 
   @override
   String get grantPermission => 'Grant Permission';
@@ -1664,7 +1683,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordingNotAllowed => 'Recording not allowed';
 
   @override
-  String get microphoneAccessDenied => 'Microphone access denied. Please enable it in settings to record hymns.';
+  String get microphoneAccessDenied =>
+      'Microphone access denied. Please enable it in settings to record hymns.';
 
   @override
   String get openSettings => 'Open Settings';
@@ -1737,7 +1757,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contactName => 'Name';
 
   @override
-  String get confirmDeleteContact => 'Are you sure you want to delete this contact?';
+  String get confirmDeleteContact =>
+      'Are you sure you want to delete this contact?';
 
   @override
   String get contactSaved => 'Contact saved successfully';
@@ -1811,13 +1832,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get automaticTranslation => 'Automatic Translation';
 
   @override
-  String get automaticTranslationDescription => 'Automatically translate hymn content to your preferred language';
+  String get automaticTranslationDescription =>
+      'Automatically translate hymn content to your preferred language';
 
   @override
-  String get translationModelsLoading => 'Please wait while translation models load...';
+  String get translationModelsLoading =>
+      'Please wait while translation models load...';
 
   @override
-  String get translationNotAvailable => 'Translation not available for this language pair';
+  String get translationNotAvailable =>
+      'Translation not available for this language pair';
 
   @override
   String get clearTranslationCache => 'Clear Translation Cache';
@@ -1894,7 +1918,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emergencyStop => 'Emergency Stop';
 
   @override
-  String get emergencyStopConfirm => 'This will immediately disable all updates. Continue?';
+  String get emergencyStopConfirm =>
+      'This will immediately disable all updates. Continue?';
 
   @override
   String get forceUpdateCheck => 'Force Update Check';
@@ -2006,7 +2031,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterNewName => 'Enter new name';
 
   @override
-  String get contactsPermissionRequired => 'Contacts permission is required to import contacts.';
+  String get contactsPermissionRequired =>
+      'Contacts permission is required to import contacts.';
 
   @override
   String errorAccessingContacts(Object error) {
@@ -2014,10 +2040,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get couldNotOpenMaps => 'Could not open maps. Please install a maps application.';
+  String get couldNotOpenMaps =>
+      'Could not open maps. Please install a maps application.';
 
   @override
-  String get redirectingToGoogleMaps => 'Redirecting to Google Maps download...';
+  String get redirectingToGoogleMaps =>
+      'Redirecting to Google Maps download...';
 
   @override
   String errorPlayingNextHymn(Object error) {
@@ -2255,7 +2283,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tryAdjustingSearchTerms => 'Try adjusting your search terms';
 
   @override
-  String get deletedRecordingsWillAppearHere => 'Deleted recordings will appear here';
+  String get deletedRecordingsWillAppearHere =>
+      'Deleted recordings will appear here';
 
   @override
   String failedToLoadDashboard(String error) {
@@ -2271,7 +2300,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get configurationUpdatedSuccessfully => 'Configuration updated successfully';
+  String get configurationUpdatedSuccessfully =>
+      'Configuration updated successfully';
 
   @override
   String failedToSaveConfiguration(String error) {
@@ -2295,7 +2325,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get anErrorOccurred => 'An error occurred';
 
   @override
-  String get networkConnectionError => 'Network connection error. Please check your internet connection.';
+  String get networkConnectionError =>
+      'Network connection error. Please check your internet connection.';
 
   @override
   String get requestTimedOut => 'Request timed out. Please try again.';
@@ -2307,5 +2338,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get somethingWentWrong => 'Something went wrong. Please try again.';
 
   @override
-  String get widgetErrorBoundaryCaughtError => 'Widget error boundary caught error';
+  String get widgetErrorBoundaryCaughtError =>
+      'Widget error boundary caught error';
 }
