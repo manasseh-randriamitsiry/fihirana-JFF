@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:maplibre_gl/maplibre_gl.dart' as maplibre;
 
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
-import 'package:fihirana/features/contact/data/services/contact_service.dart';
+import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
 import 'package:fihirana/features/contact/presentation/pages/location_picker_screen.dart';
 
 class ContactPickerDialog extends StatefulWidget {
@@ -24,7 +25,7 @@ class ContactPickerDialog extends StatefulWidget {
 }
 
 class _ContactPickerDialogState extends State<ContactPickerDialog> {
-  final ContactService _contactService = ContactService();
+  final IContactService _contactService = Get.find<IContactService>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late final TextEditingController _nameController;
   late final TextEditingController _phoneController;

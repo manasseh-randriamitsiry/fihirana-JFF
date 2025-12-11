@@ -2,17 +2,22 @@ import 'package:fihirana/app.dart';
 import 'package:fihirana/firebase_options.dart';
 import 'package:fihirana/core/init/init_service.dart';
 import 'package:fihirana/core/di/service_locator.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:async';
+
+import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/security/security_service.dart';
+import 'package:fihirana/core/navigation/shell_controller.dart';
 
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key});
@@ -26,7 +31,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
   String _currentTask = 'Initializing app...';
   StreamSubscription<InitProgressEvent>? _progressSubscription;
 
-@override
+  @override
   void initState() {
     super.initState();
     _initialize();
@@ -38,12 +43,11 @@ class _AppBootstrapState extends State<AppBootstrap> {
     super.dispose();
   }
 
-
-
-Future<void> _initialize() async {
+  Future<void> _initialize() async {
     try {
       // Listen to detailed progress events
-      _progressSubscription = initProgressTracker.progressStream.listen((event) {
+      _progressSubscription =
+          initProgressTracker.progressStream.listen((event) {
         if (mounted) {
           setState(() {
             _progress = event.progress;
@@ -57,25 +61,30 @@ Future<void> _initialize() async {
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Step 2: Ensure minimal controllers required by services are registered,
-      // then initialize Service Locator (20% -> 30%)
-      try {
-        if (!Get.isRegistered<AuthController>()) {
-          Get.put(AuthController());
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error pre-registering AuthController: $e');
-        }
-      }
+       // Initialize Firebase Crashlytics
+       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+       FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
 
-      await serviceLocator.initialize();
+       // Initialize critical services first as they're needed by other services
+       Get.put(SecurityService());
+       Get.put(ShellController());
 
-      // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
-      await InitService.initializeApp();
+        await serviceLocator.initialize();
 
-      // Step 4: Get SharedPreferences (90% -> 95%)
-      final prefs = await SharedPreferences.getInstance();
+       // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
+       await InitService.initializeApp();
+
+       // Verify critical controllers are initialized
+       if (!Get.isRegistered<ColorController>()) {
+         throw Exception('ColorController not initialized properly');
+       }
+
+        // Step 4: Get SharedPreferences (90% -> 95%)
+        final prefs = await SharedPreferences.getInstance();
+        Get.put<SharedPreferences>(prefs);
+
+        // Initialize Playlist DI after SharedPreferences is ready
+        PlaylistDI.initialize();
 
       // Track installation
       try {
@@ -114,9 +123,10 @@ Future<void> _initialize() async {
         print('Error during bootstrap: $e');
         print('Initialization summary: ${initProgressTracker.getSummary()}');
       }
-      
+
       // Try to continue anyway
       final prefs = await SharedPreferences.getInstance();
+      Get.put<SharedPreferences>(prefs);
       if (mounted) {
         runApp(
           Phoenix(

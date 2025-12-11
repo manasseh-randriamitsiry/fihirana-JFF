@@ -60,18 +60,20 @@ class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
                       style: TextStyle(color: Colors.white54),
                     ),
                   )
-                : ListView.builder(
-                    itemCount: widget.playlist!.length,
-                    itemBuilder: (context, index) {
-                      final hymn = widget.playlist![index];
-                      final isCurrent = hymn.id == widget.currentHymn?.id &&
-                          !hymn.id.startsWith('recording_');
-                      final isDownloaded =
-                          widget.isDownloaded?.call(hymn) ?? false;
-                      final downloadProgress =
-                          widget.getDownloadProgress?.call(hymn);
+                 : ListView.builder(
+                     key: const PageStorageKey('playlist_bottom_sheet_list'),
+                     itemCount: widget.playlist!.length,
+                     itemBuilder: (context, index) {
+                       final hymn = widget.playlist![index];
+                       final isCurrent = hymn.id == widget.currentHymn?.id &&
+                           !hymn.id.startsWith('recording_');
+                       final isDownloaded =
+                           widget.isDownloaded?.call(hymn) ?? false;
+                       final downloadProgress =
+                           widget.getDownloadProgress?.call(hymn);
 
-                      return ListTile(
+                       return ListTile(
+                         key: ValueKey(hymn.id),
                         selected: isCurrent,
                         selectedTileColor: Colors.white10,
                         leading: Container(

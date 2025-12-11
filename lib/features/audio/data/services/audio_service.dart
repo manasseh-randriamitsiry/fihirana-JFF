@@ -14,8 +14,9 @@ import 'local_audio_service.dart';
 import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
 import 'package:fihirana/core/utils/ui_service.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
+import 'package:fihirana/features/audio/domain/repositories/i_audio_service.dart';
 
-class AudioService {
+class AudioService implements IAudioService {
   static AudioService? _instance;
   static AudioService get instance {
     _instance ??= AudioService._internal();
@@ -112,10 +113,13 @@ class AudioService {
     });
   }
 
-  Hymn? _currentHymn;
+Hymn? _currentHymn;
   dynamic _currentRecording; // Track current recording
   List<Hymn> _playlist = [];
+  List<Hymn> _originalPlaylist = []; // Store original order for unshuffle
   int _currentPlaylistIndex = -1;
+  bool _isShuffled = false;
+  bool _isRepeatEnabled = false;
 
   final AudioCacheService _cacheService = AudioCacheService();
   final LocalAudioService _localAudioService = LocalAudioService();
@@ -123,7 +127,9 @@ class AudioService {
   final RxInt _playlistChangeNotifier =
       0.obs; // Used to trigger playlist updates
 
+  @override
   AudioPlayer get player => _player;
+  @override
   Hymn? get currentHymn => _currentHymn;
   dynamic get currentRecording => _currentRecording;
   bool get isPlayingRecording =>
@@ -150,9 +156,12 @@ class AudioService {
 
   // ... (keep existing methods)
 
-  void setPlaylist(List<Hymn> playlist, int initialIndex) {
+@override
+void setPlaylist(List<Hymn> playlist, int initialIndex) {
     _playlist = playlist;
+    _originalPlaylist = List.from(playlist); // Store original order
     _currentPlaylistIndex = initialIndex;
+    _isShuffled = false; // Reset shuffle state when setting new playlist
     _playlistChangeNotifier.value++; // Trigger playlist change notification
     if (kDebugMode) {
       print(
@@ -160,7 +169,8 @@ class AudioService {
     }
   }
 
-  Future<void> playNext() async {
+@override
+Future<void> playNext() async {
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
 
     if (_currentPlaylistIndex < _playlist.length - 1) {
@@ -170,14 +180,18 @@ class AudioService {
       await playHymn(nextHymn);
     } else if (_playlist.isNotEmpty &&
         _currentPlaylistIndex == _playlist.length - 1) {
-      // Loop back to first hymn if at end
-      _currentPlaylistIndex = 0;
-      _playlistChangeNotifier.value++;
-      final firstHymn = _playlist[_currentPlaylistIndex];
-      await playHymn(firstHymn);
+      if (_isRepeatEnabled) {
+        // Loop back to first hymn if repeat is enabled
+        _currentPlaylistIndex = 0;
+        _playlistChangeNotifier.value++;
+        final firstHymn = _playlist[_currentPlaylistIndex];
+        await playHymn(firstHymn);
+      }
+      // If repeat is disabled, stop at end of playlist
     }
   }
 
+@override
   Future<void> playPrevious() async {
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
 
@@ -187,25 +201,77 @@ class AudioService {
       final prevHymn = _playlist[_currentPlaylistIndex];
       await playHymn(prevHymn);
     } else if (_playlist.isNotEmpty && _currentPlaylistIndex == 0) {
-      // Loop to last hymn if at first
-      _currentPlaylistIndex = _playlist.length - 1;
-      _playlistChangeNotifier.value++;
-      final lastHymn = _playlist[_currentPlaylistIndex];
-      await playHymn(lastHymn);
+      if (_isRepeatEnabled) {
+        // Loop to last hymn if repeat is enabled
+        _currentPlaylistIndex = _playlist.length - 1;
+        _playlistChangeNotifier.value++;
+        final lastHymn = _playlist[_currentPlaylistIndex];
+        await playHymn(lastHymn);
+      }
+      // If repeat is disabled, stop at beginning of playlist
     }
   }
 
+  @override
+  Future<void> shuffle() async {
+    if (_playlist.isEmpty) return;
+
+    if (_isShuffled) {
+      // Unshuffle: restore original order
+      _playlist = List.from(_originalPlaylist);
+      _isShuffled = false;
+    } else {
+      // Shuffle: store original order and shuffle
+      _originalPlaylist = List.from(_playlist);
+      _playlist = List.from(_playlist);
+      _playlist.shuffle();
+      _isShuffled = true;
+      
+      // Update current index to point to same hymn in shuffled list
+      if (_currentHymn != null) {
+        final newIndex = _playlist.indexWhere((h) => h.id == _currentHymn!.id);
+        if (newIndex != -1) {
+          _currentPlaylistIndex = newIndex;
+        }
+      }
+    }
+    
+    _playlistChangeNotifier.value++;
+    
+    if (kDebugMode) {
+      print('AudioService: Shuffle ${_isShuffled ? "enabled" : "disabled"}');
+    }
+  }
+
+  @override
+  Future<void> setRepeat(bool enabled) async {
+    _isRepeatEnabled = enabled;
+    
+    if (kDebugMode) {
+      print('AudioService: Repeat ${enabled ? "enabled" : "disabled"}');
+    }
+  }
+
+  // Getters for shuffle and repeat state
+  @override
+  bool get isShuffled => _isShuffled;
+  @override
+  bool get isRepeatEnabled => _isRepeatEnabled;
+
+  @override
   Future<bool> checkAudioFileExists(String hymnId) async {
     // Use the new cache service
     return await _cacheService.checkAudioExists(hymnId);
   }
 
   // Batch check for multiple hymns (much more efficient with cache)
+  @override
   Future<Map<String, bool>> checkAudioFilesExist(List<String> hymnIds) async {
     // Use the new cache service for efficient batch checking
     return await _cacheService.checkMultipleAudioExists(hymnIds);
   }
 
+  @override
   Future<void> playHymn(Hymn hymn, {String? customAudioUrl}) async {
     if (kDebugMode) {
       print('AudioService: Starting to play hymn ${hymn.id}');
@@ -424,6 +490,7 @@ class AudioService {
     }
   }
 
+  @override
   Future<void> pause() async {
     try {
       await _player.pause();
@@ -434,6 +501,7 @@ class AudioService {
     }
   }
 
+  @override
   Future<void> resume() async {
     try {
       await _player.play();
@@ -444,6 +512,7 @@ class AudioService {
     }
   }
 
+  @override
   Future<void> stop() async {
     await _player.stop();
     _currentPlayingHymnId.value = '';
@@ -451,6 +520,7 @@ class AudioService {
     _currentRecording = null;
   }
 
+  @override
   Future<void> stopCurrentAndPlayNew(Hymn newHymn) async {
     if (kDebugMode) {
       print(
@@ -468,6 +538,7 @@ class AudioService {
     await playHymn(newHymn);
   }
 
+  @override
   Future<void> seekTo(Duration position) async {
     try {
       if (kDebugMode) {
@@ -488,7 +559,10 @@ class AudioService {
     }
   }
 
+  @override
   Stream<PlayerState> get playerStateStream => _player.playerStateStream;
+
+  @override
   Stream<Duration?> get positionStream {
     if (kDebugMode) {
       print('AudioService: Position stream accessed');
@@ -496,13 +570,40 @@ class AudioService {
     return _player.positionStream;
   }
 
+  @override
   Stream<Duration?> get durationStream => _player.durationStream;
+
+  @override
   Stream<SequenceState?> get sequenceStateStream => _player.sequenceStateStream;
 
+  @override
+  Stream<int?> get currentIndexStream => _player.currentIndexStream;
+
+  @override
+  Stream<LoopMode> get loopModeStream => _player.loopModeStream;
+
+  @override
+  Stream<bool> get playingStream => _player.playingStream;
+
+  @override
+  Stream<ProcessingState> get processingStateStream => _player.processingStateStream;
+
+  @override
   bool get isPlaying => _player.playing;
-  Duration? get currentPosition => _player.position;
+
+  @override
+  Duration get position => _player.position;
+
+  @override
   Duration? get duration => _player.duration;
 
+  @override
+  int? get currentIndex => _player.currentIndex;
+
+  @override
+  Duration? get currentPosition => _player.position;
+
+  @override
   void dispose() {
     _player.dispose();
     _currentPlayingHymnId.value = '';
@@ -514,14 +615,24 @@ class AudioService {
   RxString get currentPlayingHymnIdRx => _currentPlayingHymnId;
 
   // Getters for playlist status
+  @override
   bool get hasPlaylist => _playlist.isNotEmpty;
+  @override
   int get currentPlaylistIndex => _currentPlaylistIndex;
+  @override
   int get playlistLength => _playlist.length;
   bool get canGoNext =>
       hasPlaylist && _currentPlaylistIndex < _playlist.length - 1;
-  bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
+bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
   RxInt get playlistChangeNotifier => _playlistChangeNotifier;
 
+  // Additional getters for state tracking
+  bool get isLoading => false; // Could be enhanced with actual loading state
+  String? get lastError => null; // Could be enhanced with error tracking
+  @override
+  List<Hymn> get playlist => List.from(_playlist);
+
+  @override
   bool isHymnPlaying(String hymnId) {
     final isCurrentHymn = _currentPlayingHymnId.value == hymnId;
     final isActuallyPlaying = isPlaying;
@@ -535,6 +646,7 @@ class AudioService {
   }
 
   // Force refresh the current playing state (useful for UI synchronization)
+  @override
   void refreshPlayingState() {
     final currentId = _currentPlayingHymnId.value;
     final currentlyPlaying = isPlaying;
@@ -553,23 +665,28 @@ class AudioService {
   }
 
   // Cache management methods
+  @override
   Future<void> preloadCommonHymns(List<String> hymnIds) async {
     await _cacheService.preloadCommonHymns(hymnIds);
   }
 
+  @override
   Future<void> clearExpiredCache() async {
     await _cacheService.clearExpiredCache();
   }
 
+  @override
   Future<void> clearAllCache() async {
     await _cacheService.clearAllCache();
   }
 
+  @override
   Future<Map<String, dynamic>> getCacheStats() async {
     return await _cacheService.getCacheStats();
   }
 
   // Local audio management methods
+  @override
   Future<bool> downloadAudioForHymn(Hymn hymn,
       {Function(double)? onProgress}) async {
     // Get the correct audio URL
@@ -589,32 +706,39 @@ class AudioService {
         onProgress: onProgress);
   }
 
+  @override
   bool hasLocalAudio(String hymnId) {
     return _localAudioService.hasLocalAudio(hymnId);
   }
 
+  @override
   Future<bool> isAudioAvailableLocally(String hymnId) async {
     await _localAudioService.initialize();
     return _localAudioService.hasLocalAudio(hymnId);
   }
 
+  @override
   Future<Map<String, dynamic>> getLocalAudioStats() async {
     return await _localAudioService.getStorageStats();
   }
 
+  @override
   Future<void> deleteLocalAudio(String hymnId) async {
     await _localAudioService.deleteLocalAudio(hymnId);
   }
 
+  @override
   Future<void> clearAllLocalAudio() async {
     await _localAudioService.clearAllLocalAudio();
   }
 
+  @override
   Future<Set<String>> getLocalHymnIds() async {
     return await _localAudioService.getLocalHymnIds();
   }
 
   // Helper to play a user recording
+  @override
   Future<void> playRecording(dynamic recording) async {
     // We use dynamic here to avoid circular imports if UserRecording is in a different package
     // but ideally we should import UserRecording.
@@ -902,7 +1026,7 @@ class AudioService {
               print('AudioService: Attempting to regenerate public URL...');
             }
             try {
-              final driveService = GoogleDriveService();
+        final driveService = Get.find<GoogleDriveService>();
               final newUrl =
                   await driveService.getPublicLink(recording.driveFileId!);
               if (newUrl != null) {

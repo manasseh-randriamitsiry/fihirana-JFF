@@ -25,7 +25,7 @@ class GoogleDriveService {
   GoogleDriveService._internal();
 
   // Use the shared GoogleSignIn instance
-  late final GoogleSignIn _googleSignIn;
+  late GoogleSignIn _googleSignIn;
 
   GoogleSignInAccount? _currentUser;
   drive.DriveApi? _driveApi;
@@ -42,9 +42,8 @@ class GoogleDriveService {
   void initialize(GoogleSignIn googleSignIn) {
     _googleSignIn = googleSignIn;
     if (kDebugMode) {
-      print(
-          'GoogleDriveService: Initialized with shared GoogleSignIn instance');
-      print('GoogleDriveService: Initialized with shared GoogleSignIn instance');
+      print('GoogleDriveService: Initialized with shared GoogleSignIn instance: $googleSignIn');
+      print('GoogleDriveService: GoogleSignIn scopes: ${googleSignIn.scopes}');
     }
   }
 
@@ -132,17 +131,44 @@ class GoogleDriveService {
   }
 
   Future<void> _initializeDriveApi() async {
-    if (_currentUser == null) return;
+    if (_currentUser == null) {
+      if (kDebugMode) {
+        print('GoogleDriveService: Cannot initialize Drive API - no current user');
+      }
+      return;
+    }
 
     try {
       if (kDebugMode) {
         print(
             'GoogleDriveService: Initializing Drive API for user: ${_currentUser!.email}');
       }
-      final auth = await _googleSignIn.currentUser?.authentication;
-      if (auth?.accessToken != null) {
+      
+      // Force refresh the authentication to ensure we have a valid token
+      await _googleSignIn.signInSilently();
+      _currentUser = _googleSignIn.currentUser;
+      
+      final auth = await _currentUser?.authentication;
+      if (auth?.accessToken != null && auth?.idToken != null) {
+        if (kDebugMode) {
+          print('GoogleDriveService: Got access token, creating HTTP client');
+        }
         final httpClient = GoogleHttpClient(auth!.accessToken!);
         _driveApi = drive.DriveApi(httpClient);
+        
+        // Test the API connection with a simple call
+        try {
+          await _driveApi!.about.get($fields: 'user');
+          if (kDebugMode) {
+            print('GoogleDriveService: API connection test successful');
+          }
+        } catch (apiTestError) {
+          if (kDebugMode) {
+            print('GoogleDriveService: API connection test failed: $apiTestError');
+          }
+          throw apiTestError;
+        }
+        
         await _ensureFolderExists();
         if (kDebugMode) {
           print('GoogleDriveService: Drive API initialized successfully');
@@ -150,12 +176,18 @@ class GoogleDriveService {
       } else {
         if (kDebugMode) {
           print('GoogleDriveService: Failed to get authenticated client');
+          print('GoogleDriveService: Access token null: ${auth?.accessToken == null}');
+          print('GoogleDriveService: ID token null: ${auth?.idToken == null}');
         }
+        throw Exception('Authentication tokens not available');
       }
     } catch (e) {
       if (kDebugMode) {
         print('GoogleDriveService: Error initializing Drive API: $e');
       }
+      // Reset the API on error to force re-initialization next time
+      _driveApi = null;
+      rethrow;
     }
   }
 
@@ -427,15 +459,100 @@ class GoogleDriveService {
 
   Future<bool> deleteFile(String fileId) async {
     if (_driveApi == null) await _initializeDriveApi();
-    if (_driveApi == null) return false;
+    if (_driveApi == null) {
+      if (kDebugMode) {
+        print('GoogleDriveService: Cannot delete file - Drive API not initialized');
+      }
+      return false;
+    }
 
     try {
+      if (kDebugMode) {
+        print('GoogleDriveService: Attempting to delete file with ID: $fileId');
+        print('GoogleDriveService: Current user: ${_currentUser?.email}');
+        print('GoogleDriveService: User authenticated: ${_currentUser != null}');
+      }
+
+      // First check if file can be deleted
+      final canDelete = await canDeleteFile(fileId);
+      if (!canDelete) {
+        if (kDebugMode) {
+          print('GoogleDriveService: File cannot be deleted - insufficient permissions or capabilities');
+        }
+        return false;
+      }
+
+      // Get file details for logging
+      final file = await _driveApi!.files.get(
+        fileId,
+        $fields: 'id, name, owners, permissions, trashed',
+      ) as drive.File;
+
+      if (file.trashed == true) {
+        if (kDebugMode) {
+          print('GoogleDriveService: File is already in trash, proceeding with permanent deletion');
+        }
+      }
+
+      // Check if current user is the owner or has delete permissions
+      final userEmail = _currentUser?.email;
+      bool hasDeletePermission = false;
+      
+      if (file.owners != null) {
+        hasDeletePermission = file.owners!.any((owner) => owner.emailAddress == userEmail);
+      }
+      
+      // Also check permissions for delete access
+      if (!hasDeletePermission && file.permissions != null) {
+        hasDeletePermission = file.permissions!.any((perm) => 
+          perm.role == 'owner' || 
+          (perm.role == 'writer' && perm.emailAddress == userEmail)
+        );
+      }
+
+      if (!hasDeletePermission) {
+        if (kDebugMode) {
+          print('GoogleDriveService: User does not have permission to delete this file');
+          print('GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
+          print('GoogleDriveService: Current user: $userEmail');
+        }
+        return false;
+      }
+
+      if (kDebugMode) {
+        print('GoogleDriveService: Permission verified, proceeding with deletion of file: ${file.name}');
+      }
+
       // Permanently delete the file (not just move to trash)
-      await _driveApi!.files.delete(fileId);
+      // Using enforceSingleParent=true to avoid issues with files in multiple folders
+      // Using supportsAllDrives=true for files in shared drives
+      await _driveApi!.files.delete(
+        fileId,
+        enforceSingleParent: true,
+        supportsAllDrives: true,
+      );
+
+      if (kDebugMode) {
+        print('GoogleDriveService: File deleted successfully from Google Drive');
+      }
       return true;
     } catch (e) {
       if (kDebugMode) {
-        print('Error deleting file from Drive: $e');
+        print('GoogleDriveService: Error deleting file from Drive: $e');
+        print('GoogleDriveService: File ID: $fileId');
+        print('GoogleDriveService: User authenticated: ${_currentUser != null}');
+        print('GoogleDriveService: Drive API initialized: ${_driveApi != null}');
+        
+        // Check if it's a specific API error
+        if (e.toString().contains('insufficientFilePermissions')) {
+          print('GoogleDriveService: Error - Insufficient file permissions');
+        } else if (e.toString().contains('notFound')) {
+          print('GoogleDriveService: Error - File not found');
+        } else if (e.toString().contains('rateLimitExceeded')) {
+          print('GoogleDriveService: Error - Rate limit exceeded');
+        } else if (e.toString().contains('authError')) {
+          print('GoogleDriveService: Error - Authentication error, token may be expired');
+        }
       }
       return false;
     }
@@ -710,6 +827,116 @@ class GoogleDriveService {
         print('Error getting storage quota: $e');
       }
       return null;
+    }
+  }
+
+  /// Check if a file exists in Google Drive
+  Future<bool> fileExists(String fileId) async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) {
+      if (kDebugMode) {
+        print('GoogleDriveService: Drive API not initialized, cannot check file existence');
+      }
+      return false;
+    }
+
+    try {
+      if (kDebugMode) {
+        print('GoogleDriveService: Checking if file exists: $fileId');
+        print('GoogleDriveService: Current user: ${_currentUser?.email}');
+      }
+
+      final file = await _driveApi!.files.get(
+        fileId,
+        $fields: 'id, name, trashed, owners',
+      ) as drive.File;
+
+      final exists = file.id != null && file.trashed != true;
+      if (kDebugMode) {
+        print('GoogleDriveService: File exists: $exists');
+        print('GoogleDriveService: File ID: ${file.id}');
+        print('GoogleDriveService: File name: ${file.name}');
+        print('GoogleDriveService: File trashed: ${file.trashed}');
+        print('GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
+      }
+
+      return exists;
+    } catch (e) {
+      if (kDebugMode) {
+        print('GoogleDriveService: File does not exist or error checking: $e');
+        print('GoogleDriveService: Error type: ${e.runtimeType}');
+        if (e.toString().contains('notFound')) {
+          print('GoogleDriveService: File not found (404 error)');
+        } else if (e.toString().contains('insufficient')) {
+          print('GoogleDriveService: Insufficient permissions');
+        }
+      }
+      return false;
+    }
+  }
+
+  /// Check if a file can be deleted based on its capabilities
+  Future<bool> canDeleteFile(String fileId) async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) return false;
+
+    try {
+      final file = await _driveApi!.files.get(
+        fileId,
+        $fields: 'capabilities, owners, name',
+      ) as drive.File;
+      
+      final canDelete = file.capabilities?.canDelete == true;
+      if (kDebugMode) {
+        print('GoogleDriveService: File "${file.name}" canDelete: $canDelete');
+        if (!canDelete) {
+          print('GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
+          print('GoogleDriveService: Current user: ${_currentUser?.email}');
+        }
+      }
+      
+      return canDelete;
+    } catch (e) {
+      if (kDebugMode) {
+        print('GoogleDriveService: Error checking file capabilities: $e');
+      }
+      return false;
+    }
+  }
+
+  /// Check if the current authentication is valid for Drive operations
+  Future<bool> isDriveAuthenticationValid() async {
+    if (_currentUser == null) return false;
+    
+    try {
+      // Try to refresh the authentication silently
+      final refreshedUser = await _googleSignIn.signInSilently();
+      if (refreshedUser == null) {
+        if (kDebugMode) {
+          print('GoogleDriveService: Silent refresh failed, user needs to re-authenticate');
+        }
+        return false;
+      }
+      
+      _currentUser = refreshedUser;
+      
+      // Test the Drive API connection
+      if (_driveApi == null) {
+        await _initializeDriveApi();
+      }
+      
+      if (_driveApi != null) {
+        // Make a simple API call to test connectivity
+        await _driveApi!.about.get($fields: 'user');
+        return true;
+      }
+      
+      return false;
+    } catch (e) {
+      if (kDebugMode) {
+        print('GoogleDriveService: Authentication validation failed: $e');
+      }
+      return false;
     }
   }
 

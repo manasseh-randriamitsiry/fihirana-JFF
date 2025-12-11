@@ -6,6 +6,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class EditHymnScreen extends StatefulWidget {
   final Hymn hymn;
@@ -131,7 +132,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
         ),
         body: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppDimensions.md),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -155,13 +156,13 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: AppDimensions.md),
                 _buildTextField(
                   controller: _titleController,
                   label: l10n.title,
                   icon: Icons.title,
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: AppDimensions.md),
                 Text(
                   l10n.verses,
                   style: TextStyle(
@@ -172,20 +173,20 @@ class EditHymnScreenState extends State<EditHymnScreen> {
                 ),
                 const SizedBox(height: 10),
                 _buildVersesList(),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: AppDimensions.md),
                 _buildTextField(
                   controller: _bridgeController,
                   label: l10n.bridge,
                   icon: Icons.repeat,
                   maxLines: 3,
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: AppDimensions.md),
                 _buildTextField(
                   controller: _hymnHintController,
                   label: l10n.notes,
                   icon: Icons.info_outline,
                 ),
-                const SizedBox(height: 16.0),
+                const SizedBox(height: AppDimensions.md),
                 if (isUserAuthenticated())
                   Center(
                     child: ElevatedButton(
@@ -273,7 +274,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
       key: ValueKey(index),
       color: colorController.backgroundColor.value,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(AppDimensions.sm),
         child: Row(
           children: [
             Expanded(

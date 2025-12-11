@@ -19,15 +19,15 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 *   **Firebase Hymns**: Cloud-based hymn storage and synchronization
 
 ### 🎵 **Audio & Multimedia**
-*   **Audio Playback**: Listen to hymn tunes with streaming support
-*   **Audio Caching**: Local caching for offline playback
-*   **Foreground Audio Service**: Background audio playback
-*   **Audio File Mapping**: Intelligent audio file association
-*   **User Recordings**: Record and upload custom hymn performances
-*   **Recording Player**: Built-in player for user recordings with playback controls
-*   **Recording Overlay**: Persistent floating player for background recording playback
-*   **Google Drive Integration**: Upload and sync recordings to Google Drive
-*   **Upload Retry**: Automatic retry mechanism for failed uploads
+*   **Audio Playback**: High-quality streaming with just_audio library
+*   **Audio Caching**: Local caching for offline playback with automatic cleanup
+*   **Foreground Audio Service**: Background audio playback with system integration
+*   **Audio File Mapping**: Intelligent audio file association with URL verification
+*   **User Recordings**: Record custom hymn performances with high-quality audio capture
+*   **Recording Player**: Full-featured player with speed controls and seek functionality
+*   **Recording Overlay**: Persistent floating player for continuous background listening
+*   **Google Drive Integration**: Seamless upload and sync recordings to Google Drive
+*   **Upload Retry**: Automatic retry mechanism with progress tracking
 
 ### 👤 **User & Authentication**
 *   **Google Sign-In**: Firebase-based user authentication
@@ -36,15 +36,16 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 *   **User Management**: Admin controls for managing users
 
 ### 📱 **Interface & Design**
-*   **Modern UI**: Clean, user-friendly interface with multiple design systems
-*   **Dark Mode Support**: Full light/dark theme support
-*   **Customizable Themes**: Personalized color themes and settings
-*   **Font Customization**: Multiple font options with size adjustment
-*   **Neumorphic Design**: Modern neumorphic UI elements
-*   **Rive Animations**: Custom animations for enhanced UX
-*   **Liquid Swipe**: Smooth liquid swipe navigation effects
-*   **Curved Navigation**: Custom curved navigation bar
-*   **Zoom Drawer**: Advanced drawer navigation system
+*   **Modern UI**: Clean, responsive interface with Material Design 3 principles
+*   **Dark Mode Support**: Full light/dark theme support with system detection
+*   **Customizable Themes**: Personalized color themes with real-time preview
+*   **Font Customization**: 20+ font families with dynamic size adjustment
+*   **Neumorphic Design**: Modern neumorphic UI elements with depth effects
+*   **Rive Animations**: Custom animations for loading states and interactions
+*   **Liquid Swipe**: Smooth liquid swipe navigation for onboarding
+*   **Curved Navigation**: Custom curved navigation bar with smooth transitions
+*   **Zoom Drawer**: Advanced drawer navigation with gesture support
+*   **Shimmer Effects**: Loading animations for enhanced user experience
 
 ### 🔗 **Social & Sharing**
 *   **Smart Playlists**: Create, manage, and share playlists
@@ -60,28 +61,34 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 *   **Favorites System**: Save and organize favorite content
 
 ### 🔔 **Notifications & Daily Content**
-*   **Daily Verse Notifications**: Scheduled daily Bible verse delivery
-*   **Customizable Notifications**: User-defined notification times
-*   **Inspiring Verses**: Curated collection of inspiring verses
-*   **Rich Notifications**: Advanced notifications with actions
-*   **Update Notifications**: Alert users about app updates
+*   **Daily Verse Notifications**: Scheduled daily Bible verse delivery with awesome_notifications
+*   **Customizable Notifications**: User-defined notification times and preferences
+*   **Inspiring Verses**: Curated collection of inspiring verses with context
+*   **Rich Notifications**: Advanced notifications with actions and deep linking
+*   **Update Notifications**: Automatic alert system for app updates via GitHub releases
+*   **Background Sync**: Periodic data synchronization with notification alerts
 
 ### 🌐 **Localization & Languages**
 *   **Multi-language Support**: English, French, and Malagasy (mg) languages
-*   **Full Internationalization**: Complete i18n support with ARB files
+*   **Full Internationalization**: Complete i18n support with ARB files and dynamic switching
+*   **RTL Support**: Right-to-left language support for future expansions
+*   **Localized Content**: Language-specific hymn titles and Bible translations
 
 ### ⚙️ **App Management & Updates**
-*   **Auto-Update Checking**: Automatic GitHub release monitoring
-*   **In-App Updates**: Flexible and immediate update options
-*   **APK Download Service**: Direct APK download and installation
-*   **Version Management**: Track installed and available versions
-*   **Background Sync**: Periodic data synchronization
-*   **Background Announcements**: Automatic announcement checking
+*   **Auto-Update Checking**: Automatic GitHub release monitoring with version comparison
+*   **In-App Updates**: Flexible and immediate update options with in_app_update
+*   **APK Download Service**: Direct APK download and installation with progress tracking
+*   **Version Management**: Track installed and available versions with detailed info
+*   **Background Sync**: Periodic data synchronization with conflict resolution
+*   **Background Announcements**: Automatic announcement checking with expiration support
+*   **Device Info Integration**: Enhanced compatibility checking and device-specific optimizations
 
 ### 🔐 **Security & Storage**
-*   **Secure Storage**: Flutter secure storage for sensitive data
-*   **File Management**: Import/export functionality with file picker
-*   **Storage Optimization**: Local storage management and cleanup
+*   **Secure Storage**: Flutter secure storage for sensitive data with encryption
+*   **Biometric Authentication**: Local authentication with fingerprint/face recognition
+*   **File Management**: Import/export functionality with comprehensive file picker
+*   **Storage Optimization**: Intelligent local storage management and automatic cleanup
+*   **Permission Management**: Granular permission handling with user-friendly requests
 
 ### 🔍 **Search & Discovery**
 *   **Powerful Search**: Find hymns by number, title, or content
@@ -124,9 +131,9 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 ### 3. Development Tools
 The project includes several utility scripts in the `tool/` directory:
 *   `generate_assets.dart` - Updates asset manifests and pubspec.yaml
-*   `combine_hymns.dart` - Combines individual hymn JSON files
-*   `update_version.dart` - Manages app versioning
-*   `verify_audio_urls.dart` - Validates audio file availability
+*   `combine_hymns.dart` - Combines individual hymn JSON files into a single file
+*   `update_version.dart` - Manages app versioning across build files
+*   `verify_audio_urls.dart` - Validates audio file availability and URLs
 
 ### 4. Testing
 Run tests with:
@@ -134,7 +141,28 @@ Run tests with:
 flutter test
 ```
 
+### 4.1 Code Quality
+The project uses several tools to maintain code quality:
+```bash
+# Run static analysis
+flutter analyze
+
+# Check code formatting
+dart format --set-exit-if-changed .
+
+# Run all quality checks together
+flutter analyze && flutter test && dart format --set-exit-if-changed .
+```
+
 ### 5. Build Configuration (For Release)
+
+#### 📱 Supported Platforms
+- **Android**: Full support with auto-updates, notifications, and background services
+- **iOS**: Core functionality with optimized performance
+- **Web**: Basic hymn viewing and Bible reading capabilities
+- **Windows**: Desktop support with full feature set
+- **Linux**: Desktop support with full feature set
+- **macOS**: Desktop support with optimized performance
 
 #### 🔹 Google Services Configuration
 1.  Copy the `google-services.json` file from your Firebase project into:
@@ -160,23 +188,45 @@ flutter test
 
 ```
 lib/
-├── controller/          # State management and business logic
-├── data/               # Static data and constants
-├── l10n/               # Internationalization files
-├── models/             # Data models and entities
-├── screen/             # UI screens and pages
-├── services/           # Background services and APIs
-├── utility/            # Helper utilities and functions
-└── widgets/            # Reusable UI components
+├── app/                # Application-level configuration
+│   ├── theme/         # Theme and styling controllers
+│   ├── constants/     # App-wide constants
+│   ├── di/            # Dependency injection setup
+│   ├── init/          # App initialization
+│   ├── localization/  # Localization configuration
+│   ├── navigation/    # Navigation setup
+│   ├── security/      # Security utilities
+│   └── utils/         # General utilities
+├── features/          # Feature modules
+│   ├── admin/         # Admin panel functionality
+│   ├── announcement/  # Announcement system
+│   ├── audio/         # Audio playback and management
+│   ├── auth/          # Authentication services
+│   ├── bible/         # Bible reading and features
+│   ├── contact/       # Contact management
+│   ├── daily_verse/   # Daily verse notifications
+│   ├── favorites/     # Favorites management
+│   ├── history/       # Viewing history
+│   ├── home/          # Home screen
+│   ├── hymn/          # Hymn display and management
+│   ├── intro/         # App introduction/onboarding
+│   ├── playlist/      # Playlist management
+│   ├── recording/     # Audio recording features
+│   └── settings/      # App settings
+├── l10n/              # Internationalization files
+├── shared/            # Shared widgets and components
+├── app.dart           # Main app widget
+├── firebase_options.dart # Firebase configuration
+└── main.dart          # App entry point
 
 assets/
-├── animations/         # Rive animation files
-├── baiboly/           # Bible data files
-├── fonts/             # Custom font files
-├── images/            # Image assets
-└── json/              # Hymn data files (individual JSON files)
+├── animations/        # Rive animation files
+├── baiboly/          # Bible data files
+├── fonts/            # Custom font files (20+ font families)
+├── images/           # Image assets
+└── json/             # Hymn data files (800+ individual JSON files)
 
-tool/                  # Development and maintenance scripts
+tool/                 # Development and maintenance scripts
 ```
 
 ## 🤝 Contribution Guide
@@ -240,13 +290,14 @@ If you are contributing code or data changes to this repository:
     git checkout -b fix/typo-hymn-5
     ```
 3.  **Make Changes**: Add your files or code changes.
-4.  **Commit & Push**:
+4.  **Run Tests**: Ensure all tests pass and code follows project standards.
+5.  **Commit & Push**:
     ```bash
     git add .
     git commit -m "Add hymn #100"
     git push origin feature/add-hymn-100
     ```
-5.  **Create a Pull Request**: Go to GitHub and open a PR against the `master` branch.
+6.  **Create a Pull Request**: Go to GitHub and open a PR against the `main` branch.
 
 ---
 
@@ -267,31 +318,49 @@ To update translations or add a new language:
 ### Common Issues
 
 #### **Build Issues**
-*   **Gradle errors**: Run `flutter clean` then `flutter pub get`
+*   **Gradle errors**: Run `flutter clean && flutter pub get`
 *   **Missing assets**: Run `dart tool/generate_assets.dart` to update asset manifests
-*   **Font issues**: Ensure all font files are present in `assets/fonts/`
+*   **Font issues**: Ensure all 20+ font files are present in `assets/fonts/`
+*   **Dependency conflicts**: Check Flutter version compatibility with `flutter doctor -v`
 
 #### **Audio/Recording Issues**
-*   **Permission denied**: Check microphone permissions in app settings
-*   **Upload failures**: Verify Google Drive authentication and network connection
+*   **Permission denied**: Check microphone permissions in app settings and Android manifest
+*   **Upload failures**: Verify Google Drive authentication and network connectivity
 *   **Playback issues**: Ensure audio files are properly cached and available
+*   **Background audio**: Check foreground service permissions on Android 8.0+
 
 #### **Firebase Issues**
-*   **Authentication errors**: Verify `google-services.json` is correctly placed
-*   **Firestore connection**: Check Firebase project configuration and rules
-*   **Build errors**: Ensure Firebase SDK versions are compatible
+*   **Authentication errors**: Verify `google-services.json` is correctly placed in `android/app/`
+*   **Firestore connection**: Check Firebase project configuration and security rules
+*   **Build errors**: Ensure Firebase SDK versions are compatible across all platforms
+
+#### **Platform-Specific Issues**
+*   **iOS build**: Verify Xcode configuration and signing certificates
+*   **Web limitations**: Some features like recording are not available on web platform
+*   **Desktop builds**: Ensure platform-specific dependencies are properly configured
 
 ### Development Tips
 *   Use `flutter run --debug` for development with hot reload
 *   Check `flutter doctor` for environment setup issues
 *   Monitor console logs for debugging recording and upload issues
-*   Test on multiple devices for audio compatibility
+*   Test on multiple devices and platforms for comprehensive compatibility
+*   Use `flutter logs` to view real-time device logs during debugging
+*   For audio issues, test with both network and cached scenarios
 
 ---
 
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 📊 Project Statistics
+
+- **Hymns**: 800+ traditional hymns with full lyrics
+- **Audio Files**: Integrated audio playback for hundreds of hymns
+- **Languages**: 3 languages (English, French, Malagasy)
+- **Platforms**: 6 supported platforms (Android, iOS, Web, Windows, Linux, macOS)
+- **Fonts**: 20+ font families for customization
+- **Features**: 50+ features spanning audio, recording, social, and productivity tools
 
 ---
 

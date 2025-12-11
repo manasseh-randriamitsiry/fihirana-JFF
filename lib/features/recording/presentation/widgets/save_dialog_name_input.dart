@@ -16,6 +16,13 @@ class SaveDialogNameInput extends StatelessWidget {
         color: Colors.white,
         fontSize: 16,
       ),
+      autocorrect: false,
+      enableSuggestions: false,
+      autofillHints: [],
+      textInputAction: TextInputAction.done,
+      keyboardType: TextInputType.text,
+      smartDashesType: SmartDashesType.disabled,
+      smartQuotesType: SmartQuotesType.disabled,
       decoration: InputDecoration(
         labelText: 'Recording Name',
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),

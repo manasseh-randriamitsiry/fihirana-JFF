@@ -4,13 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/entities/note.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
+import 'package:fihirana/features/bible/domain/repositories/i_note_service.dart';
 
-class NoteService {
+class NoteService implements INoteService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final AuthController _authController = Get.find<AuthController>();
 
   // Get notes for a specific hymn and user
+  @override
   Future<Note?> getNote(String hymnId) async {
     try {
       final user = _auth.currentUser;
@@ -41,6 +43,7 @@ class NoteService {
   }
 
   // Get all public notes for a hymn (visible to all users)
+  @override
   Stream<List<Note>> getPublicNotesStream(String hymnId) {
     return _firestore
         .collection('notes')
@@ -56,6 +59,7 @@ class NoteService {
   }
 
   // Save or update a note
+  @override
   Future<bool> saveNote(String hymnId, String content) async {
     try {
       final user = _auth.currentUser;
@@ -99,6 +103,7 @@ class NoteService {
   }
 
 // Check if current user can edit a note (owns it or is admin/superAdmin)
+  @override
   Future<bool> canEditNote(Note note) async {
     final user = _auth.currentUser;
     if (user == null) return false;
@@ -113,6 +118,7 @@ class NoteService {
   }
 
   // Delete a note (only owner or admin can delete)
+  @override
   Future<bool> deleteNote(String noteId) async {
     try {
       final user = _auth.currentUser;

@@ -14,7 +14,7 @@ class SplashScreen1 extends StatelessWidget {
   Widget build(BuildContext context) {
     // Initialize controllers if not already initialized
     Get.put(SplashController());
-    
+
     final splashController = SplashController.to;
     final pages = [
       const LanguageSelectionPage(),

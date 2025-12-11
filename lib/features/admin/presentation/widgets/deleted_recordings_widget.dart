@@ -6,6 +6,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/shared/widgets/common/loading_widget.dart';
 import 'package:fihirana/features/recording/presentation/widgets/recording_tile_widget.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class DeletedRecordingsWidget extends StatefulWidget {
   const DeletedRecordingsWidget({super.key});
@@ -37,12 +38,14 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
       });
     } catch (e) {
       setState(() => isLoading = false);
-      Get.snackbar(
-        'Error',
-        'Failed to load deleted recordings: $e',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      if (mounted) {
+        Get.snackbar(
+          AppLocalizations.of(context)!.error,
+          AppLocalizations.of(context)!.failedToLoadDeletedRecordings(e.toString()),
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
     }
   }
 
@@ -60,8 +63,8 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
     return Column(
       children: [
         // Search bar
-        Padding(
-          padding: const EdgeInsets.all(16.0),
+         Padding(
+          padding: const EdgeInsets.all(AppDimensions.md),
           child: TextField(
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context)!.searchDeletedRecordings,
@@ -81,8 +84,8 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
         ),
 
         // Refresh button
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+         Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
           child: Row(
             children: [
               ElevatedButton.icon(
@@ -91,10 +94,10 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
                 label: Text(AppLocalizations.of(context)!.refresh),
               ),
               const SizedBox(width: 8),
-              Text(
-                '${filteredRecordings.length} deleted recordings',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+               Text(
+                 AppLocalizations.of(context)!.deletedRecordingsCount(filteredRecordings.length),
+                 style: Theme.of(context).textTheme.bodySmall,
+               ),
             ],
           ),
         ),
@@ -107,12 +110,14 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
               ? const LoadingWidget()
               : filteredRecordings.isEmpty
                   ? _buildEmptyState()
-                  : ListView.builder(
+                   : ListView.builder(
+                      key: const PageStorageKey('deleted_recordings_list'),
                       padding: const EdgeInsets.all(16),
                       itemCount: filteredRecordings.length,
                       itemBuilder: (context, index) {
                         final recording = filteredRecordings[index];
                         return Padding(
+                          key: ValueKey(recording.id),
                           padding: const EdgeInsets.only(bottom: 12.0),
                           child: RecordingTileWidget(
                             recording: recording,
@@ -134,30 +139,30 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
+         children: [
+           Icon(
             Icons.delete_outline,
             size: 64,
             color: Colors.grey[400],
           ),
           const SizedBox(height: 16),
-          Text(
-            searchQuery.isNotEmpty
-                ? 'No deleted recordings found'
-                : 'No deleted recordings',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            searchQuery.isNotEmpty
-                ? 'Try adjusting your search terms'
-                : 'Deleted recordings will appear here',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[500],
-                ),
-          ),
+           Text(
+             searchQuery.isNotEmpty
+                 ? AppLocalizations.of(context)!.noDeletedRecordingsFound
+                 : AppLocalizations.of(context)!.noDeletedRecordings,
+             style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                   color: Colors.grey[600],
+                 ),
+           ),
+           const SizedBox(height: 8),
+           Text(
+             searchQuery.isNotEmpty
+                 ? AppLocalizations.of(context)!.tryAdjustingSearchTerms
+                 : AppLocalizations.of(context)!.deletedRecordingsWillAppearHere,
+             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                   color: Colors.grey[500],
+                 ),
+           ),
           if (searchQuery.isNotEmpty) ...[
             const SizedBox(height: 16),
             ElevatedButton(

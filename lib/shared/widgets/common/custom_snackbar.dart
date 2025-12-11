@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class SnackbarStyles {
   static const Color successColor = Colors.green;
@@ -10,8 +11,8 @@ class SnackbarStyles {
   static const Color textColor = Colors.white;
   static const SnackPosition defaultPosition = SnackPosition.BOTTOM;
   static const Duration defaultDuration = Duration(seconds: 3);
-  static const double defaultBorderRadius = 8.0;
-  static const EdgeInsets defaultMargin = EdgeInsets.all(16.0);
+  static const double defaultBorderRadius = AppDimensions.radiusSm;
+  static const EdgeInsets defaultMargin = EdgeInsets.all(AppDimensions.md);
 }
 
 class SnackbarConfig {

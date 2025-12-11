@@ -4,7 +4,7 @@ import 'package:flutter_contacts/flutter_contacts.dart' as flutter_contacts;
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
-import 'package:fihirana/features/contact/data/services/contact_service.dart';
+import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
 import 'package:fihirana/core/utils/maps_launcher_service.dart';
 import 'package:fihirana/features/contact/data/services/contact_import_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -13,6 +13,7 @@ import 'package:fihirana/features/contact/presentation/widgets/contact_picker_di
 import 'package:fihirana/features/contact/presentation/widgets/contact_import_dialog_widget.dart';
 import 'package:fihirana/features/contact/presentation/widgets/contact_widgets.dart';
 import 'package:fihirana/shared/widgets/common/confirm_delete_dialog.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
@@ -22,7 +23,7 @@ class ContactListScreen extends StatefulWidget {
 }
 
 class _ContactListScreenState extends State<ContactListScreen> {
-  final ContactService _contactService = ContactService();
+  final IContactService _contactService = Get.find<IContactService>();
   final ColorController colorController = Get.find<ColorController>();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
@@ -124,7 +125,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(AppDimensions.md),
             child: ContactSearchWidget(
               controller: _searchController,
               onChanged: (value) {
@@ -177,8 +178,9 @@ class _ContactListScreenState extends State<ContactListScreen> {
                 }
 
                 return ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  key: const PageStorageKey('contacts_list'),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppDimensions.md, vertical: AppDimensions.sm),
                   itemCount: filteredContacts.length,
                   itemBuilder: (context, index) {
                     final contact = filteredContacts[index];
@@ -188,6 +190,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
                         final canEdit = permissionSnapshot.data ?? false;
 
                         return ContactListItemWidget(
+                          key: ValueKey(contact.id),
                           contact: contact,
                           canEdit: canEdit,
                           onDirections: (contact.latitude != null &&

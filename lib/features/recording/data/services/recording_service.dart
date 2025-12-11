@@ -9,11 +9,12 @@ import 'package:record/record.dart';
 import 'package:path/path.dart' as path;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:flutter/material.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/data/services/google_drive_service.dart';
-import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
+import 'package:fihirana/features/recording/domain/repositories/i_recording_service.dart';
 import 'package:fihirana/features/recording/data/services/audio_config.dart';
+import 'package:fihirana/features/recording/presentation/controllers/recording_auth_manager.dart';
 
 class RecordingService extends GetxService implements IRecordingService {
   static RecordingService get to => Get.find();
@@ -48,7 +49,10 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> initialize() async {
+    if (kDebugMode) print('RecordingService: Initializing...');
     await loadRecordings();
+    await migrateEmptyTitles(); // Migrate any recordings with empty titles
+    if (kDebugMode) print('RecordingService: Initialization complete');
   }
 
   // ===========================================================================
@@ -293,6 +297,17 @@ class RecordingService extends GetxService implements IRecordingService {
       if (kDebugMode) {
         print('RecordingService: Loaded ${recordings.length} public recordings');
       }
+
+      // Validate public recordings in background (don't block loading)
+      Future.microtask(() async {
+        try {
+          await validateAndCleanupOrphanedPublicRecordings();
+        } catch (e) {
+          if (kDebugMode) {
+            print('Error during background validation: $e');
+          }
+        }
+      });
     } catch (e) {
       if (kDebugMode) print('Error loading public recordings: $e');
       publicRecordings.clear();
@@ -301,7 +316,15 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> loadDeletedRecordings() async {
-    await _loadDeletedRecordings();
+    try {
+      await _loadDeletedRecordings();
+      if (kDebugMode) {
+        print('RecordingService: Loaded ${deletedRecordings.length} deleted recordings');
+      }
+    } catch (e) {
+      if (kDebugMode) print('Error loading deleted recordings: $e');
+      deletedRecordings.clear();
+    }
   }
 
   @override
@@ -309,14 +332,55 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> deleteRecording(String recordingId) async {
+    print('RecordingService: deleteRecording called for id: $recordingId');
+    print('RecordingService: recordings before delete: ${recordings.length}');
     recordings.removeWhere((r) => r.id == recordingId);
+    print('RecordingService: recordings after delete: ${recordings.length}');
     await _saveMetadata();
+    print('RecordingService: metadata saved');
   }
 
   @override
   Future<void> permanentlyDeleteRecording(String recordingId) async {
     deletedRecordings.removeWhere((r) => r.id == recordingId);
     await _saveMetadata();
+  }
+
+  @override
+  Future<void> permanentlyDeleteMultipleRecordings(List<String> recordingIds) async {
+    deletedRecordings.removeWhere((r) => recordingIds.contains(r.id));
+    await _saveMetadata();
+  }
+
+  /// Migrate recordings with empty titles to have proper fallback titles
+  Future<void> migrateEmptyTitles() async {
+    bool hasChanges = false;
+    for (int i = 0; i < recordings.length; i++) {
+      final recording = recordings[i];
+      if (recording.title.isEmpty) {
+        String newTitle;
+        if (recording.hymnId != 'standalone' && recording.hymnId.isNotEmpty) {
+          newTitle = 'Hymn ${recording.hymnId}';
+        } else {
+          final date = recording.createdAt;
+          final timeString = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+          newTitle = 'Recording ${date.day}/${date.month}/${date.year} $timeString';
+        }
+
+        recordings[i] = recording.copyWith(title: newTitle);
+        hasChanges = true;
+        if (kDebugMode) {
+          print('Migrated recording ${recording.id} title to: $newTitle');
+        }
+      }
+    }
+
+    if (hasChanges) {
+      await _saveMetadata();
+      if (kDebugMode) {
+        print('Migration completed for recordings with empty titles');
+      }
+    }
   }
 
   @override
@@ -332,7 +396,7 @@ class RecordingService extends GetxService implements IRecordingService {
   @override
   Future<bool> uploadToGoogleDrive(UserRecording recording) async {
     try {
-      final driveService = GoogleDriveService();
+      final driveService = Get.find<GoogleDriveService>();
       final file = File(recording.filePath);
       
       if (!await file.exists()) {
@@ -465,27 +529,42 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> deleteLocalRecordingPermanently(String id) async {
+    print('RecordingService: deleteLocalRecordingPermanently called for id: $id');
     final index = recordings.indexWhere((r) => r.id == id);
+    print('RecordingService: found recording at index: $index');
     if (index != -1) {
       final recording = recordings[index];
+      print('RecordingService: deleting recording: ${recording.title}');
 
       try {
         final file = File(recording.filePath);
         if (await file.exists()) {
           await file.delete();
+          print('RecordingService: file deleted successfully');
+        } else {
+          print('RecordingService: file does not exist');
         }
       } catch (e) {
-        if (kDebugMode) print('Error deleting recording file: $e');
+        print('RecordingService: Error deleting recording file: $e');
       }
 
+      print('RecordingService: recordings before remove: ${recordings.length}');
       recordings.removeAt(index);
+      print('RecordingService: recordings after remove: ${recordings.length}');
       await _saveMetadata();
+      print('RecordingService: metadata saved');
+      
+      // Force refresh to ensure UI updates
+      recordings.refresh();
+      print('RecordingService: recordings list refreshed');
+    } else {
+      print('RecordingService: recording not found in list');
     }
   }
 
   @override
   Future<void> refreshPublicUrls() async {
-    final driveService = GoogleDriveService();
+    final driveService = Get.find<GoogleDriveService>();
     bool updated = false;
     final List<UserRecording> currentRecordings = [...recordings];
 
@@ -520,12 +599,16 @@ class RecordingService extends GetxService implements IRecordingService {
   // ===========================================================================
 
   Future<bool> titleExistsForHymn(String hymnId, String title,
-      {String? excludeId}) async {
+      {String? excludeId, String? userId}) async {
     try {
       Query query = _firestore
           .collection(_publicCollectionName)
           .where('hymnId', isEqualTo: hymnId)
           .where('title', isEqualTo: title);
+
+      if (userId != null) {
+        query = query.where('userId', isEqualTo: userId);
+      }
 
       final snapshot = await query.get();
       if (excludeId != null) {
@@ -538,14 +621,14 @@ class RecordingService extends GetxService implements IRecordingService {
     }
   }
 
+  @override
   Future<bool> publishRecording(UserRecording recording) async {
     try {
       await _firestore.collection(_publicCollectionName).doc(recording.id).set({
         'id': recording.id,
         'title': recording.title,
         'hymnId': recording.hymnId,
-        'userId': recording
-            .id, // Note: Logic from original service used recording.id as userId? Verify.
+        'userId': recording.userId ?? recording.id,
         'userName': recording.userName ?? 'Anonymous',
         'driveFileId': recording.driveFileId,
         'publicLink': recording.publicLink,
@@ -575,16 +658,288 @@ class RecordingService extends GetxService implements IRecordingService {
     }
   }
 
+@override
   Future<bool> unpublishRecording(String recordingId) async {
+    print('RecordingService: unpublishRecording called for recordingId: $recordingId');
     try {
+      // First, get the recording to check if it has a Drive file
+      final recording = recordings.firstWhereOrNull((r) => r.id == recordingId);
+      if (recording != null && recording.driveFileId != null) {
+        print('RecordingService: Recording has Drive file, attempting to delete from Drive: ${recording.driveFileId}');
+        try {
+          // Get the drive service from the auth manager
+          final authManager = Get.find<RecordingAuthManager>(tag: 'recording');
+          if (authManager.driveService != null) {
+            // Check if Drive authentication is valid before attempting deletion
+            final isAuthValid = await authManager.driveService!.isDriveAuthenticationValid();
+            if (!isAuthValid) {
+              print('RecordingService: Drive authentication is invalid, attempting to re-authenticate');
+              final signInResult = await authManager.driveService!.signIn();
+              if (signInResult == null) {
+                print('RecordingService: Re-authentication failed, cannot delete from Drive');
+                Get.snackbar(
+                  'Authentication Required',
+                  'Please sign in to Google Drive to delete files',
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 3),
+                );
+              } else {
+                print('RecordingService: Re-authentication successful, proceeding with deletion');
+              }
+            }
+            
+            // Check if file can be deleted before attempting
+            final canDelete = await authManager.driveService!.canDeleteFile(recording.driveFileId!);
+            if (!canDelete) {
+              print('RecordingService: Cannot delete file - insufficient permissions');
+              Get.snackbar(
+                'Cannot Delete',
+                'This file cannot be deleted from Google Drive. You may not have sufficient permissions.',
+                backgroundColor: Colors.orange,
+                colorText: Colors.white,
+                duration: const Duration(seconds: 4),
+              );
+            } else {
+              final deleteSuccess = await authManager.driveService!.deleteFile(recording.driveFileId!);
+              if (deleteSuccess) {
+                print('RecordingService: Drive file deleted successfully');
+              } else {
+                print('RecordingService: Drive file deletion failed');
+                Get.snackbar(
+                  'Deletion Failed',
+                  'Failed to delete file from Google Drive. The file will be removed from the app only.',
+                  backgroundColor: Colors.orange,
+                  colorText: Colors.white,
+                  duration: const Duration(seconds: 4),
+                );
+              }
+            }
+          } else {
+            print('RecordingService: Drive service not available');
+          }
+        } catch (e) {
+          print('RecordingService: Error deleting Drive file: $e');
+          // Continue with Firestore deletion even if Drive deletion fails
+        }
+      }
+
+      // Delete from Firestore
+      print('RecordingService: Deleting from Firestore');
       await _firestore
           .collection(_publicCollectionName)
           .doc(recordingId)
           .delete();
+      
+      print('RecordingService: Unpublish completed successfully');
+      
+      // Refresh public recordings list to update UI
+      await loadPublicRecordings();
+      print('RecordingService: Public recordings list refreshed after unpublish');
+      
       return true;
     } catch (e) {
-      if (kDebugMode) print('Error unpublishing recording: $e');
+      print('RecordingService: Error unpublishing recording: $e');
       return false;
+    }
+  }
+
+  /// Validate a specific recording to check if its Drive file exists
+  Future<bool> validateRecordingFile(String recordingId) async {
+    try {
+      print('RecordingService: Validating specific recording: $recordingId');
+
+      final doc = await _firestore
+          .collection(_publicCollectionName)
+          .doc(recordingId)
+          .get();
+
+      if (!doc.exists) {
+        print('RecordingService: Recording $recordingId does not exist in Firestore');
+        return false;
+      }
+
+      final data = doc.data()!;
+      final driveFileId = data['driveFileId'] as String?;
+      final title = data['title'] as String? ?? 'Unknown';
+
+      print('RecordingService: Recording $recordingId - "$title" - driveFileId: $driveFileId');
+
+      if (driveFileId == null || driveFileId.isEmpty) {
+        print('RecordingService: Recording $recordingId has no driveFileId');
+        return false;
+      }
+
+      final authManager = Get.find<RecordingAuthManager>(tag: 'recording');
+      if (authManager.driveService == null || !authManager.isDriveSignedIn.value) {
+        print('RecordingService: Drive service not available for validation');
+        return false;
+      }
+
+      final fileExists = await authManager.driveService!.fileExists(driveFileId);
+      print('RecordingService: Recording $recordingId file exists: $fileExists');
+
+      return fileExists;
+    } catch (e) {
+      print('RecordingService: Error validating recording $recordingId: $e');
+      return false;
+    }
+  }
+
+  /// Check how many orphaned public recordings exist (without cleaning them up)
+  Future<int> checkOrphanedPublicRecordings() async {
+    try {
+      print('RecordingService: Checking for orphaned public recordings');
+
+      final snapshot = await _firestore
+          .collection(_publicCollectionName)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        print('RecordingService: No public recordings to check');
+        return 0;
+      }
+
+      final authManager = Get.find<RecordingAuthManager>(tag: 'recording');
+      if (authManager.driveService == null || !authManager.isDriveSignedIn.value) {
+        print('RecordingService: Drive service not available for checking');
+        return 0;
+      }
+
+      int orphanedCount = 0;
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final driveFileId = data['driveFileId'] as String?;
+        final title = data['title'] as String? ?? 'Unknown';
+
+        if (driveFileId != null && driveFileId.isNotEmpty) {
+          try {
+            final fileExists = await authManager.driveService!.fileExists(driveFileId);
+            if (!fileExists) {
+              orphanedCount++;
+              print('RecordingService: Found orphaned recording: ${doc.id} - "$title"');
+            }
+          } catch (e) {
+            // If we can't check, assume it's orphaned for safety
+            orphanedCount++;
+            print('RecordingService: Recording ${doc.id} cannot be validated (assuming orphaned): $e');
+          }
+        }
+      }
+
+      print('RecordingService: Found $orphanedCount orphaned recordings out of ${snapshot.docs.length} total');
+      return orphanedCount;
+    } catch (e) {
+      print('RecordingService: Error checking orphaned recordings: $e');
+      return 0;
+    }
+  }
+
+  /// Validate and cleanup orphaned public recordings whose Drive files no longer exist
+  Future<int> validateAndCleanupOrphanedPublicRecordings() async {
+      print('RecordingService: Starting validation of public recordings at ${DateTime.now()}');
+
+      try {
+      // Get all public recordings from Firestore
+      final snapshot = await _firestore
+          .collection(_publicCollectionName)
+          .get();
+      
+      if (snapshot.docs.isEmpty) {
+        print('RecordingService: No public recordings to validate');
+        return 0;
+      }
+      
+      print('RecordingService: Found ${snapshot.docs.length} public recordings to validate');
+      
+      final authManager = Get.find<RecordingAuthManager>(tag: 'recording');
+      int cleanedUpCount = 0;
+
+      // Check if Drive service is available and authenticated
+      if (authManager.driveService == null) {
+        print('RecordingService: Drive service not available, cannot validate recordings');
+        return 0;
+      }
+
+      if (!authManager.isDriveSignedIn.value) {
+        print('RecordingService: User not signed in to Drive, cannot validate recordings');
+        return 0;
+      }
+
+      print('RecordingService: Drive service available and user authenticated, proceeding with validation');
+
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        final driveFileId = data['driveFileId'] as String?;
+        final title = data['title'] as String? ?? 'Unknown';
+
+        print('RecordingService: Checking recording: ${doc.id} - "$title" - driveFileId: $driveFileId');
+
+        if (driveFileId != null && driveFileId.isNotEmpty) {
+          print('RecordingService: Validating Drive file: $driveFileId for recording: ${doc.id}');
+
+          try {
+            // Check if Drive file exists
+            if (authManager.driveService != null) {
+              print('RecordingService: Drive service available, checking file existence...');
+              final fileExists = await authManager.driveService!.fileExists(driveFileId);
+
+              print('RecordingService: File exists result for ${doc.id}: $fileExists');
+
+              if (!fileExists) {
+                print('RecordingService: Drive file does not exist, cleaning up orphaned entry: ${doc.id}');
+
+                try {
+                  // Delete the orphaned Firestore entry
+                  await _firestore
+                      .collection(_publicCollectionName)
+                      .doc(doc.id)
+                      .delete();
+
+                  cleanedUpCount++;
+                  print('RecordingService: Successfully cleaned up orphaned public recording: ${doc.id}');
+                } catch (deleteError) {
+                  print('RecordingService: Error deleting orphaned recording ${doc.id}: $deleteError');
+                }
+              } else {
+                print('RecordingService: Drive file exists, keeping entry: ${doc.id}');
+              }
+            } else {
+              print('RecordingService: Drive service not available, skipping validation for: ${doc.id}');
+            }
+          } catch (e) {
+            print('RecordingService: Error validating recording ${doc.id}: $e');
+            // If there's an error checking the file, assume it doesn't exist and clean it up
+            print('RecordingService: Due to error, cleaning up recording ${doc.id} as precaution');
+            try {
+              await _firestore
+                  .collection(_publicCollectionName)
+                  .doc(doc.id)
+                  .delete();
+              cleanedUpCount++;
+              print('RecordingService: Cleaned up recording ${doc.id} due to validation error');
+            } catch (deleteError) {
+              print('RecordingService: Error deleting recording ${doc.id}: $deleteError');
+            }
+          }
+        } else {
+          print('RecordingService: Recording has no driveFileId, skipping: ${doc.id}');
+        }
+      }
+      
+      print('RecordingService: Validation completed at ${DateTime.now()}. Cleaned up $cleanedUpCount orphaned recordings out of ${snapshot.docs.length} total recordings');
+
+      // Refresh public recordings list if any were cleaned up
+      if (cleanedUpCount > 0) {
+        await loadPublicRecordings();
+        print('RecordingService: Refreshed public recordings list after cleanup');
+      }
+
+      return cleanedUpCount;
+    } catch (e) {
+      print('RecordingService: Error during validation and cleanup: $e');
+      return 0;
     }
   }
 
@@ -698,12 +1053,21 @@ class RecordingService extends GetxService implements IRecordingService {
     await prefs.setString(_deletedKey, json.encode(jsonList));
   }
 
-  @override
+@override
   Future<void> updateRecording(UserRecording recording) async {
     final index = recordings.indexWhere((r) => r.id == recording.id);
     if (index != -1) {
       recordings[index] = recording;
       await _saveMetadata();
+    }
+  }
+
+  @override
+  Future<void> syncFromDrive({bool force = false}) async {
+    // Implementation for syncing from Drive
+    // This would be implemented in the service layer
+    if (kDebugMode) {
+      print('RecordingService: syncFromDrive called with force: $force');
     }
   }
 

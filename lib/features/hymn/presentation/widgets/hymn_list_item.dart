@@ -10,6 +10,7 @@ import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class HymnListItem extends StatefulWidget {
   final Hymn hymn;
@@ -87,8 +88,15 @@ class _HymnListItemState extends State<HymnListItem>
     Future.delayed(const Duration(milliseconds: 100), () async {
       if (!mounted) return;
 
+      if (kDebugMode) {
+        print('HymnListItem: Checking audio for hymn ${widget.hymn.id} (${widget.hymn.title})');
+      }
+
       final hasAudio = await _audioService.checkAudioFileExists(widget.hymn.id);
       if (mounted) {
+        if (kDebugMode) {
+          print('HymnListItem: Audio check result for ${widget.hymn.id}: $hasAudio');
+        }
         setState(() {
           _hasAudio = hasAudio;
           _audioChecked = true;
@@ -131,15 +139,15 @@ class _HymnListItemState extends State<HymnListItem>
                       hintStyle: TextStyle(
                           color: widget.textColor.withValues(alpha: 0.5)),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                         borderSide: BorderSide(color: widget.textColor),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                         borderSide: BorderSide(color: widget.textColor),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
                         borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.primary),
                       ),

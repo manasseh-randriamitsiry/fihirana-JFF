@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 
-import './user_management_screen_optimized.dart';
+
+import './user_management_screen.dart';
 import './super_admin_dashboard.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
@@ -15,6 +16,8 @@ import 'package:fihirana/shared/widgets/common/skeleton_admin_list.dart';
 import 'package:fihirana/features/admin/presentation/widgets/admin_stats_widgets.dart';
 import 'package:fihirana/features/admin/presentation/widgets/admin_hymn_widgets.dart';
 import 'package:fihirana/features/admin/presentation/widgets/deleted_recordings_widget.dart';
+import 'package:fihirana/features/admin/presentation/controllers/admin_controller.dart';
+import 'package:fihirana/features/admin/di/admin_di.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -27,15 +30,18 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     with SingleTickerProviderStateMixin {
   final HymnService _hymnService = HymnService();
   final ColorController _colorController = Get.find<ColorController>();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late TabController _tabController;
   List<String> selectedHymns = [];
   bool isLoading = false;
+  
+  // Admin controller
+  late final AdminController _adminController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _adminController = AdminDI.adminController;
     _checkAdminAccess();
   }
 
@@ -94,39 +100,22 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     }
   }
 
+  // Get stats stream from admin controller
   Stream<Map<String, dynamic>> _getStats() {
-    // Optimized stats using counters and aggregated queries
-    return _firestore
-        .collection('stats')
-        .doc('global')
-        .snapshots()
-        .asyncMap((statsDoc) async {
-      // Get user counts efficiently
-      final totalUsersQuery =
-          await _firestore.collection('users').count().get();
-      final totalUsers = totalUsersQuery.count ?? 0;
-
-      // Active users count using query instead of loading all documents
-      final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-      final activeUsersQuery = await _firestore
-          .collection('users')
-          .where('lastLogin', isGreaterThan: Timestamp.fromDate(thirtyDaysAgo))
-          .count()
-          .get();
-      final activeUsers = activeUsersQuery.count ?? 0;
-
-      // Hymns count
-      final hymnsSnapshot = await _firestore.collection('hymns').count().get();
-      final totalHymns = hymnsSnapshot.count ?? 0;
-
-      // Installations from stats doc or fallback
-      final installations = statsDoc.data()?['installations'] as int? ?? 0;
-
+    return _adminController.adminStats.stream.map((stats) {
+      if (stats == null) {
+        return {
+          'totalUsers': 0,
+          'activeUsers': 0,
+          'totalHymns': 0,
+          'installations': 0,
+        };
+      }
       return {
-        'totalUsers': totalUsers,
-        'activeUsers': activeUsers,
-        'totalHymns': totalHymns,
-        'installations': installations,
+        'totalUsers': stats.totalUsers,
+        'activeUsers': stats.activeUsers,
+        'totalHymns': stats.totalHymns,
+        'installations': stats.installations,
       };
     });
   }
@@ -158,11 +147,11 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             ),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
-              onPressed: () => Get.to(() => const SuperAdminDashboard()),
-              tooltip: 'Super Admin Dashboard',
-            ),
+             IconButton(
+               icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
+               onPressed: () => Get.to(() => const SuperAdminDashboard()),
+               tooltip: l10n.superAdminDashboard,
+             ),
             if (_tabController.index == 1 && selectedHymns.isNotEmpty)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
@@ -178,7 +167,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             tabs: [
               Tab(text: l10n.userManagement), // Reuse string or add "Users"
               Tab(text: l10n.hymns), // Reuse string or add "Hymns"
-              const Tab(text: 'Deleted Recordings'),
+               Tab(text: l10n.deletedRecordings),
             ],
           ),
         ),
@@ -206,7 +195,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
                 controller: _tabController,
                 children: [
                   // Users Tab
-                  const OptimizedUserManagementScreen(),
+                  const UserManagementScreen(),
 
                   // Hymns Tab
                   _buildHymnsList(
@@ -246,6 +235,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
         }
 
         return ListView.builder(
+          key: const PageStorageKey('admin_panel_hymns_list'),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           itemCount: hymns.length,
           itemBuilder: (context, index) {
@@ -253,6 +243,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             final isSelected = selectedHymns.contains(hymn.id);
 
             return AdminHymnListItemWidget(
+              key: ValueKey(hymn.id),
               hymn: hymn,
               isSelected: isSelected,
               primaryColor: primaryColor,

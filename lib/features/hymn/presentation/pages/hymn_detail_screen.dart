@@ -8,6 +8,7 @@ import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:fihirana/features/bible/data/services/note_service.dart';
 import 'edit_hymn_screen.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
+import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
@@ -69,17 +70,16 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   late Animation<double> _heartOpacityAnimation;
 
   // Recording overlay state
-  final RecordingController _recordingController =
-      Get.put(RecordingController(), permanent: true);
+  late final RecordingController _recordingController;
 
   @override
   void initState() {
     super.initState();
 
-    if (!Get.isRegistered<HistoryController>()) {
-      Get.put(HistoryController());
-    }
-    historyController = Get.find<HistoryController>();
+    // Initialize recording controller
+    _recordingController = Get.find<RecordingController>();
+
+    historyController = HistoryDI.historyController;
 
     _liquidController = LiquidController();
     _loadFontSize();
@@ -87,13 +87,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     _loadUserNote();
 
     _hymnService.checkPendingSyncs();
-
-    // Show recording overlay immediately with placeholder data
-    // This ensures the FAB is visible during skeleton loading
-    // Defer to post-frame callback to avoid setState during build
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _recordingController.showOverlay(widget.hymnId, 'Loading...');
-    });
 
     _heartAnimationController = AnimationController(
       vsync: this,
@@ -151,6 +144,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   Future<void> _loadAllHymnsAndSetupSwipe() async {
     try {
       final allHymns = await _hymnService.getAllHymns();
+      if (kDebugMode) {
+        print('Loaded ${allHymns.length} hymns from service');
+      }
       if (mounted) {
         setState(() {
           _allHymns = allHymns;
@@ -168,6 +164,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   }
 
   Future<void> _loadAdjacentHymns() async {
+    if (kDebugMode) {
+      print('Loading adjacent hymns. All hymns count: ${_allHymns.length}');
+    }
+
     // If all hymns list is empty, we still try to load the specific hymn
     // if (_allHymns.isEmpty) return;
 
@@ -245,6 +245,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         if (kDebugMode) {
           print(
               'Adding hymn to history: ${_hymn!.title} (${_hymn!.hymnNumber})');
+          final authController = Get.find<AuthController>();
+          print('User authenticated: ${authController.isAuthenticated}');
         }
         await historyController.addToHistory(
           widget.hymnId,
@@ -319,9 +321,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
   Future<void> _checkAudioAvailability() async {
     if (_hymn != null) {
+      if (kDebugMode) {
+        print('HymnDetailScreen: Checking audio for hymn ${_hymn!.id} (${_hymn!.title})');
+      }
       final audioService = AudioService.instance;
       final hasAudio = await audioService.checkAudioFileExists(_hymn!.id);
       if (mounted) {
+        if (kDebugMode) {
+          print('HymnDetailScreen: Audio check result for ${_hymn!.id}: $hasAudio');
+        }
         setState(() {
           _hasAudio = hasAudio;
           _audioChecked = true;

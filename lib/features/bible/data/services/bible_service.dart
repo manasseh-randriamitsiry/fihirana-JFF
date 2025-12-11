@@ -233,13 +233,15 @@ class BibleService implements IBibleService {
     return allBooks;
   }
 
-  // Get books organized by testament
+// Get books organized by testament
+  @override
   Map<String, List<String>> getAllBooksByTestament() {
     final allBooks = _bibleCache.keys.toList();
     return BibleBookOrder.getAllBooksSortedByTestament(allBooks);
   }
 
-  // Get only Old Testament books in order
+// Get only Old Testament books in order
+  @override
   List<String> getOldTestamentBooks() {
     final allBooks = _bibleCache.keys.toList();
     final oldTestamentBooks =
@@ -247,7 +249,8 @@ class BibleService implements IBibleService {
     return BibleBookOrder.getSortedOldTestamentBooks(oldTestamentBooks);
   }
 
-  // Get only New Testament books in order
+// Get only New Testament books in order
+  @override
   List<String> getNewTestamentBooks() {
     final allBooks = _bibleCache.keys.toList();
     final newTestamentBooks =
@@ -299,7 +302,8 @@ class BibleService implements IBibleService {
     return _bibleCache.length;
   }
 
-  Map<String, int> getLoadedBooksInfo() {
+  @override
+  Map<String, dynamic> getLoadedBooksInfo() {
     final Map<String, int> info = {};
     _bibleCache.forEach((name, book) {
       info[name] = book.chapters;

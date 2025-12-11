@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class SkeletonAdminList extends StatelessWidget {
   const SkeletonAdminList({super.key});
@@ -11,11 +12,13 @@ class SkeletonAdminList extends StatelessWidget {
     final ColorController colorController = Get.find();
 
     return ListView.builder(
+      key: const PageStorageKey('skeleton_admin_list'),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       itemCount: 8, // Show enough items to fill the screen
       itemBuilder: (context, index) {
         return Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
+          key: ValueKey(index),
+          padding: const EdgeInsets.only(bottom: AppDimensions.sm),
           child: Card(
             elevation: 2,
             shape: RoundedRectangleBorder(
