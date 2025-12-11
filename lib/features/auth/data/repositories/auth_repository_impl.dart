@@ -93,13 +93,22 @@ class AuthRepositoryImpl implements AuthRepository {
         rethrow;
       }
     } catch (e) {
-      if (kDebugMode) {
+      final errorMessage = e.toString();
+      // Check for the specific PigeonUserDetails cast error which is a known issue in the plugin
+      // and should not be displayed to the user as it might be a silent failure or regression
+      final isPigeonError = errorMessage.contains("subtype of type 'PigeonUserDetails?'");
+      
+      if (kDebugMode || isPigeonError) {
         print('AuthRepository: Google sign-in error: $e');
       }
-      SnackbarUtility.showError(
-        title: 'Error signing in',
-        message: e.toString(),
-      );
+      
+      // Only show snackbar if it's NOT the ignored error
+      if (!isPigeonError) {
+        SnackbarUtility.showError(
+          title: 'Error signing in',
+          message: errorMessage,
+        );
+      }
     }
     return null;
   }
