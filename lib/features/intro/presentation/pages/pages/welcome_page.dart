@@ -35,7 +35,7 @@ class WelcomePage extends StatelessWidget {
                     height: 100,
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
                           color: colorScheme.shadow.withValues(alpha: 0.1),

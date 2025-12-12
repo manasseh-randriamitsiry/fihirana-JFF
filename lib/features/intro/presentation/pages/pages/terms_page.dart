@@ -35,7 +35,7 @@ class TermsPage extends StatelessWidget {
                     height: 100,
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
                           color: colorScheme.shadow.withValues(alpha: 0.1),
@@ -69,7 +69,7 @@ class TermsPage extends StatelessWidget {
                       .fadeIn(delay: 300.ms, duration: 600.ms)
                       .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
 
-                  const Spacer(),
+                  const SizedBox(height: 12,),
 
                    // Terms Card
                    IntrinsicHeight(
@@ -78,13 +78,6 @@ class TermsPage extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: colorScheme.shadow.withValues(alpha: 0.08),
-                              blurRadius: 16,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
                         ),
                          child: Column(
                            crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +139,7 @@ class TermsPage extends StatelessWidget {
                                   border: Border.all(
                                     color: splashController.agreementAccepted.value
                                         ? colorScheme.primary
-                                        : colorScheme.outline,
+                                        : colorScheme.outline.withValues(alpha: 0.2),
                                     width: 2,
                                   ),
                                 ),
@@ -164,7 +157,7 @@ class TermsPage extends StatelessWidget {
                                         border: Border.all(
                                           color: splashController.agreementAccepted.value
                                               ? colorScheme.primary
-                                              : colorScheme.outline,
+                                              : colorScheme.outline.withValues(alpha: 0.2),
                                           width: 2,
                                         ),
                                       ),
