@@ -87,7 +87,6 @@ flutter:
   assets:
     # Add assets from images directory to the application.
     - assets/images/
-
     - assets/json/
     - assets/baiboly/
     - assets/animations/

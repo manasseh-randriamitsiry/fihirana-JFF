@@ -1204,7 +1204,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get term2 => 'I will not add hymns that do not align with JFF worship';
 
   @override
-  String get agreement => 'I agree to the terms below';
+  String get agreement => 'Agreement:';
 
   @override
   String get enterYourName => 'Enter your name';

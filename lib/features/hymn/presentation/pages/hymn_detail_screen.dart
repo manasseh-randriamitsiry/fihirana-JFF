@@ -19,13 +19,13 @@ import 'package:fihirana/features/auth/presentation/controllers/auth_controller.
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/shared/widgets/common/color_picker_widget.dart';
 import 'package:fihirana/shared/widgets/animations/success_animation_dialog.dart';
-import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_popup_widget.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_detail_widgets.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_improved_note_section_widget.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_action_widgets.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_detail_skeleton.dart';
 import 'package:fihirana/features/audio/presentation/widgets/compact_audio_player_widget.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/add_to_playlist_sheet.dart';
+import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_popup_widget.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -45,7 +45,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   final double _baseCountFontSize = 50.0;
   double _fontSize = 16.0;
   double _countFontSize = 50.0;
-  bool _show = true;
+  final bool _show = true;
   bool _showSlider = false;
 
   final HymnService _hymnService = HymnService();
@@ -374,9 +374,36 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     );
   }
 
+  void _showSearchDialog(ColorController colorController) {
+    showDialog(
+      context: context,
+      builder: (context) => HymnSearchPopup(
+        colorController: colorController,
+        onHymnSelected: (hymn) {
+          Navigator.pop(context); // Close dialog
+          _navigateToHymn(hymn);
+        },
+      ),
+    );
+  }
+
+  void _navigateToHymn(Hymn hymn) {
+    if (hymn.id == _hymn?.id) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HymnDetailScreen(
+          hymnId: hymn.id,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
@@ -393,29 +420,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           elevation: 0,
           scrolledUnderElevation: 0,
           centerTitle: true,
-          title: HymnNumberWidget(
-            hymnNumber: _hymn?.hymnNumber ?? '',
-            fontSize: _fontSize,
-            hymnId: _hymn?.id ?? widget.hymnId,
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return HymnSearchPopup(
-                    colorController: colorController,
-                    onHymnSelected: (selectedHymn) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              HymnDetailScreen(hymnId: selectedHymn.id),
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
+          title: GestureDetector(
+            onTap: () => _showSearchDialog(colorController),
+            child: Text(
+              _hymn?.hymnNumber ?? '',
+              style: TextStyle(
+                color: colorController.textColor.value,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
           actions: [
             AudioButtonWidget(
@@ -474,148 +487,93 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           ],
         ),
         body: Stack(
+          alignment: Alignment.center,
           children: [
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    children: [
-                      Center(
-                        child: HymnTitleWidget(
-                          title: _hymn?.title ?? '',
-                          hymnNumber: _hymn?.hymnNumber ?? '',
-                          fontSize: _fontSize,
-                          hymnId: _hymn?.id ?? widget.hymnId,
-                        ),
-                      ),
-                      if (isFirebaseHymn() && _hymn != null)
-                        StreamBuilder(
-                          stream: FirebaseAuth.instance.authStateChanges(),
-                          builder: (context, snapshot) {
-                            final authController = Get.find<AuthController>();
-                            final isAdmin = authController.isAdmin ||
-                                authController.isSuperAdmin;
-
-                            if (isAdmin) {
-                              return Text(
-                                '${l10n.createdBy}: ${_hymn?.createdBy}',
-                                style: TextStyle(
-                                  fontSize: _fontSize * 0.8,
-                                  color: colorController.textColor.value,
-                                ),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
-                      const SizedBox(height: 8),
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        child: Card(
-                          color: colorController.backgroundColor.value,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (_hymn?.bridge != null &&
-                                  (_hymn?.bridge
-                                          ?.trim()
-                                          .toLowerCase()
-                                          .isNotEmpty ??
-                                      false))
-                                HymnBridgeWidget(
-                                  bridge: _hymn!.bridge!,
-                                  isExpanded: _show,
-                                  fontSize: _fontSize,
-                                  onToggle: () {
-                                    setState(() {
-                                      _show = !_show;
-                                    });
-                                  },
-                                ),
-                            ],
+            // Main Content (Liquid Swipe)
+            _isLoadingHymns
+                ? HymnDetailSkeleton(
+                    fontSize: _fontSize,
+                    countFontSize: _countFontSize,
+                  )
+                : _adjacentHymns.isEmpty
+                    ? Center(
+                        child: Text(
+                          l10n.noHymnsAvailable,
+                          style: TextStyle(
+                            color: colorController.textColor.value,
                           ),
                         ),
+                      )
+                    : LiquidSwipe(
+                        key: ValueKey(_hymn?.id),
+                        pages: _adjacentHymns
+                            .map((hymn) => _buildHymnPage(hymn, l10n))
+                            .toList(),
+                        initialPage: _currentPageIndex,
+                        liquidController: _liquidController,
+                        onPageChangeCallback: _onPageChangeCallback,
+                        waveType: WaveType.liquidReveal,
+                        enableLoop: false,
+                        enableSideReveal: false,
+                        ignoreUserGestureWhileAnimating: true,
+                        disableUserGesture: false,
                       ),
-                      if (_showSlider)
-                        FontSizeSliderWidget(
-                          fontSize: _fontSize,
-                          onChanged: (double value) {
-                            setState(() {
-                              _fontSize = value;
-                              _countFontSize =
-                                  value * (_baseCountFontSize / _baseFontSize);
-                            });
-                          },
-                          onChangeEnd: (double value) async {
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.setDouble('fontSize', value);
-                            if (mounted) {
-                              setState(() {
-                                _showSlider = false;
-                              });
-                            }
-                          },
-                        ),
-                    ],
+            
+            // Heart Animation Overlay
+            IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _heartAnimationController,
+                builder: (context, child) {
+                  return Opacity(
+                    opacity: _heartOpacityAnimation.value,
+                    child: Transform.scale(
+                      scale: _heartScaleAnimation.value,
+                      child: Icon(
+                        Icons.favorite,
+                        color: Colors.red
+                            .withValues(alpha: 0.8),
+                        size: 100,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Font Size Slider Overlay
+            if (_showSlider)
+              Positioned(
+                bottom: 20,
+                left: 20,
+                right: 20,
+                child: Card(
+                  elevation: 8,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FontSizeSliderWidget(
+                      fontSize: _fontSize,
+                      onChanged: (double value) {
+                        setState(() {
+                          _fontSize = value;
+                          _countFontSize =
+                              value * (_baseCountFontSize / _baseFontSize);
+                        });
+                      },
+                      onChangeEnd: (double value) async {
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.setDouble('fontSize', value);
+                        // Do not auto-close for better UX, or close if desired. 
+                        // User can close via menu or tap out (if implemented)
+                        // Keeping it consistent with previous logic:
+                        if (mounted) {
+                           // _showSlider = false; // Optional, maybe keep open
+                        }
+                      },
+                    ),
                   ),
                 ),
-                Expanded(
-                  child: _isLoadingHymns
-                      ? HymnDetailSkeleton(
-                          fontSize: _fontSize,
-                          countFontSize: _countFontSize,
-                        )
-                      : _adjacentHymns.isEmpty
-                          ? Center(
-                              child: Text(
-                                l10n.noHymnsAvailable,
-                                style: TextStyle(
-                                  color: colorController.textColor.value,
-                                ),
-                              ),
-                            )
-                          : Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                LiquidSwipe(
-                                  key: ValueKey(_hymn?.id),
-                                  pages: _adjacentHymns
-                                      .map((hymn) => _buildHymnPage(hymn, l10n))
-                                      .toList(),
-                                  initialPage: _currentPageIndex,
-                                  liquidController: _liquidController,
-                                  onPageChangeCallback: _onPageChangeCallback,
-                                  waveType: WaveType.liquidReveal,
-                                  enableLoop: false,
-                                  enableSideReveal: false,
-                                  ignoreUserGestureWhileAnimating: true,
-                                  disableUserGesture: false,
-                                ),
-                                IgnorePointer(
-                                  child: AnimatedBuilder(
-                                    animation: _heartAnimationController,
-                                    builder: (context, child) {
-                                      return Opacity(
-                                        opacity: _heartOpacityAnimation.value,
-                                        child: Transform.scale(
-                                          scale: _heartScaleAnimation.value,
-                                          child: Icon(
-                                            Icons.favorite,
-                                            color: Colors.red
-                                                .withValues(alpha: 0.8),
-                                            size: 100,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                ),
-              ],
-            ),
+              ),
           ],
         ),
       ),

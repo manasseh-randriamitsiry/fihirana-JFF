@@ -141,6 +141,11 @@ class FavoritesService {
     }
   }
 
+  /// Refresh streams (public method to force update)
+  void refreshFavorites() {
+    _updateStreams();
+  }
+
   /// Update all stream controllers
   void _updateStreams() {
     // Update favorite status stream (Map format)
@@ -162,7 +167,9 @@ class FavoritesService {
     try {
       final hymns = <Hymn>[];
       
-      for (final hymnId in _cachedFavorites) {
+      // Create a copy of the list to avoid ConcurrentModificationError
+      final favoriteIds = _cachedFavorites.toList();
+      for (final hymnId in favoriteIds) {
         final hymn = await getHymnById(hymnId);
         if (hymn != null) {
           hymns.add(hymn);
@@ -196,7 +203,9 @@ class FavoritesService {
   Future<List<Hymn>> getFavoriteHymns() async {
     final hymns = <Hymn>[];
     
-    for (final hymnId in _cachedFavorites) {
+    // Create a copy of the list to avoid ConcurrentModificationError
+    final favoriteIds = _cachedFavorites.toList();
+    for (final hymnId in favoriteIds) {
       final hymn = await getHymnById(hymnId);
       if (hymn != null) {
         hymns.add(hymn);

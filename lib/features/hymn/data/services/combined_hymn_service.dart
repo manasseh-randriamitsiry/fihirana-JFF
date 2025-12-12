@@ -226,10 +226,40 @@ Future<Hymn?> getHymnById(String id) async {
     if (query.isEmpty) return allHymns;
 
     final lowerQuery = query.toLowerCase();
-    return allHymns.where((hymn) {
-      return hymn.hymnNumber.toLowerCase().contains(lowerQuery) ||
-          hymn.title.toLowerCase().contains(lowerQuery);
+    final results = allHymns.where((hymn) {
+      final numberMatch = hymn.hymnNumber.toLowerCase().contains(lowerQuery);
+      final titleMatch = hymn.title.toLowerCase().contains(lowerQuery);
+      final chorusMatch = hymn.bridge?.toLowerCase().contains(lowerQuery) ?? false;
+      final verseMatch = hymn.verses.any((v) => v.toLowerCase().contains(lowerQuery));
+
+      return numberMatch || titleMatch || chorusMatch || verseMatch;
     }).toList();
+
+    // Sort results by relevance
+    results.sort((a, b) {
+      // 1. Exact number match
+      if (a.hymnNumber == query && b.hymnNumber != query) return -1;
+      if (b.hymnNumber == query && a.hymnNumber != query) return 1;
+
+      // 2. Starts with number
+      final aNumStart = a.hymnNumber.startsWith(query);
+      final bNumStart = b.hymnNumber.startsWith(query);
+      if (aNumStart && !bNumStart) return -1;
+      if (!aNumStart && bNumStart) return 1;
+
+      // 3. Title match
+      final aTitle = a.title.toLowerCase().contains(lowerQuery);
+      final bTitle = b.title.toLowerCase().contains(lowerQuery);
+      if (aTitle && !bTitle) return -1;
+      if (!aTitle && bTitle) return 1;
+
+      // 4. Numeric sort for remainder
+      final numA = int.tryParse(a.hymnNumber) ?? 0;
+      final numB = int.tryParse(b.hymnNumber) ?? 0;
+      return numA.compareTo(numB);
+    });
+
+    return results;
   }
 
   Hymn _parseHymnFromJson(Map<String, dynamic> jsonData, String id) {
