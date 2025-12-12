@@ -5,8 +5,8 @@ import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/features/intro/presentation/controllers/splash_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
+import 'package:fihirana/core/constants/app_colors.dart';
 
 class LanguageSelectionPage extends StatelessWidget {
   const LanguageSelectionPage({super.key});
@@ -21,15 +21,7 @@ class LanguageSelectionPage extends StatelessWidget {
 
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFE8F5E8), // Light green
-            Color(0xFFF1F8E9), // Very light green
-            Color(0xFFE0F2F1), // Light teal
-          ],
-        ),
+        color: AppColors.primaryLight,
       ),
       child: SafeArea(
         child: Stack(

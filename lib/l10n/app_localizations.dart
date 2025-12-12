@@ -2383,7 +2383,7 @@ abstract class AppLocalizations {
   /// No description provided for @agreement.
   ///
   /// In en, this message translates to:
-  /// **'I agree to the terms below'**
+  /// **'Agreement:'**
   String get agreement;
 
   /// No description provided for @enterYourName.

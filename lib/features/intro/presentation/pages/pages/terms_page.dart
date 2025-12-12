@@ -5,9 +5,9 @@ import 'package:fihirana/features/intro/presentation/controllers/splash_controll
 import 'package:fihirana/features/intro/presentation/controllers/username_input_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/intro/presentation/widgets/splash_widgets.dart';
-import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/constants/app_colors.dart';
 
 class TermsPage extends StatelessWidget {
   const TermsPage({super.key});
@@ -20,15 +20,7 @@ class TermsPage extends StatelessWidget {
 
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFFF3E0), // Light orange
-            Color(0xFFFCE4EC), // Light pink
-            Color(0xFFF3E5F5), // Light purple
-          ],
-        ),
+        color: AppColors.warningLight,
       ),
       child: SafeArea(
         child: Stack(
@@ -54,19 +46,12 @@ class TermsPage extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.description_rounded,
-                      size: 75,
-                      color: colorScheme.primary,
-                    ),
-                  )
-                      .animate()
-                      .scale(
-                          duration: 1000.ms,
-                          curve: Curves.elasticOut,
-                          begin: const Offset(0.8, 0.8),
-                          end: const Offset(1, 1))
-                      .fadeIn(duration: 800.ms),
+                       size: 75,
+                       color: colorScheme.primary,
+                        ),
+                   ),
 
-                  const SizedBox(height: 12),
+                   const Spacer(),
 
                   // Title
                   Text(
@@ -91,7 +76,7 @@ class TermsPage extends StatelessWidget {
                      child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: colorScheme.surface,
+                          color: Colors.transparent,
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
@@ -114,27 +99,12 @@ class TermsPage extends StatelessWidget {
                                        Expanded(
                                          child: Text(
                                            l10n.agreement,
-                                           style: TextStyle(
+                                           style: const TextStyle(
                                              fontSize: 18,
                                              fontWeight: FontWeight.bold,
-                                             color: colorScheme.onSurface,
+                                             color: Colors.white,
                                            ),
                                          ),
-                                       ),
-                                       IconButton(
-                                         icon: Obx(() => Icon(
-                                           splashController.termsExpanded.value
-                                               ? Icons.expand_less
-                                               : Icons.expand_more,
-                                           color: colorScheme.primary,
-                                         )),
-                                         onPressed: () {
-                                           HapticFeedback.selectionClick();
-                                           splashController.toggleTermsExpanded();
-                                         },
-                                         tooltip: splashController.termsExpanded.value
-                                             ? 'Collapse terms'
-                                             : 'Expand to read full terms',
                                        ),
                                      ],
                                    )),
@@ -149,7 +119,7 @@ class TermsPage extends StatelessWidget {
                                  : Column(
                                      crossAxisAlignment: CrossAxisAlignment.start,
                                      children: [
-                                       AgreementItemWidget(text: l10n.term1),
+                                       AgreementItemWidget(text: l10n.term1,),
                                        const SizedBox(height: 8),
                                        AgreementItemWidget(text: l10n.term2),
                                      ],
@@ -163,9 +133,11 @@ class TermsPage extends StatelessWidget {
                                 splashController.toggleAgreement();
                               },
                               borderRadius: BorderRadius.circular(16),
-                              child: Obx(() => AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                padding: const EdgeInsets.all(12),
+                               child: Obx(() => SizedBox(
+                                 height: 56,
+                                 child: AnimatedContainer(
+                                   duration: const Duration(milliseconds: 300),
+                                   padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
                                   color: splashController.agreementAccepted.value
                                       ? colorScheme.primaryContainer
@@ -216,9 +188,10 @@ class TermsPage extends StatelessWidget {
                                       ),
                                     ),
                                   ],
-                                ),
-                              )),
-                            ),
+                                 ),
+                               ),
+                             )),
+                           ),
                            ],
                          ),
                      ),
@@ -234,12 +207,8 @@ class TermsPage extends StatelessWidget {
 
                   const Spacer(flex: 2),
                 ],
-              ),
-              ),
-            Obx(() => PageIndicatorWidget(
-                  currentPage: splashController.currentPage.value,
-                  totalPages: 3,
-                )),
+                ),
+            )
           ],
         ),
       ),
@@ -252,19 +221,21 @@ class TermsPage extends StatelessWidget {
         // Username Input (only shown when agreement is accepted and not signed in with Google)
         if (splashController.agreementAccepted.value && !splashController.isGoogleUserSignedIn) ...[
           const SizedBox(height: 20),
-          Container(
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: colorScheme.shadow.withValues(alpha: 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+            SizedBox(
+              height: 56,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surface,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colorScheme.shadow.withValues(alpha: 0.08),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: TextField(
               controller: splashController.usernameController,
               maxLength: 15,
@@ -277,6 +248,7 @@ class TermsPage extends StatelessWidget {
                 counterText: '',
                 contentPadding: const EdgeInsets.symmetric(vertical: 16),
               ),
+               ),
             ),
           )
               .animate()
@@ -329,14 +301,15 @@ class TermsPage extends StatelessWidget {
                   color: colorScheme.primary,
                 ),
               ),
-              style: OutlinedButton.styleFrom(
-                backgroundColor: colorScheme.surface,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 0,
-              ),
+               style: OutlinedButton.styleFrom(
+                 backgroundColor: colorScheme.surface,
+                 padding: const EdgeInsets.symmetric(vertical: 16),
+                 shape: RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(16),
+                 ),
+                 elevation: 0,
+                 minimumSize: const Size(double.infinity, 56),
+               ),
             )),
           )
               .animate()
@@ -438,14 +411,15 @@ class TermsPage extends StatelessWidget {
                           color: colorScheme.onPrimary,
                         ),
                       ),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        elevation: 0,
-                      ),
+                       style: FilledButton.styleFrom(
+                         backgroundColor: colorScheme.primary,
+                         padding: const EdgeInsets.symmetric(vertical: 16),
+                         shape: RoundedRectangleBorder(
+                           borderRadius: BorderRadius.circular(16),
+                         ),
+                         elevation: 0,
+                         minimumSize: const Size(double.infinity, 56),
+                       ),
                     ),
                   )
                   .animate()

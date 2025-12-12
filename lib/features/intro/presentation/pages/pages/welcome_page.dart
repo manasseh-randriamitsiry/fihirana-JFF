@@ -6,6 +6,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/constants/app_colors.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -18,15 +19,7 @@ class WelcomePage extends StatelessWidget {
 
     return Container(
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFE3F2FD), // Light blue
-            Color(0xFFF3E5F5), // Light purple
-            Color(0xFFE8EAF6), // Light indigo
-          ],
-        ),
+          color: AppColors.successLight
       ),
       child: SafeArea(
         child: Stack(
@@ -68,12 +61,12 @@ class WelcomePage extends StatelessWidget {
                   const Spacer(),
 
                   // Title
-                  Text(
+                  const Text(
                     "Jesosy Famonjena Fahamarinantsika",
                     style: TextStyle(
                       fontSize: 34,
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
+                      color: Colors.white,
                       letterSpacing: -0.5,
                       height: 1.1,
                     ),
@@ -88,9 +81,9 @@ class WelcomePage extends StatelessWidget {
                   // Subtitle
                   Text(
                     l10n.splashScreenSubtitle,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
-                      color: colorScheme.onSurfaceVariant,
+                      color: Colors.white,
                       height: 1.5,
                       fontWeight: FontWeight.w400,
                     ),
