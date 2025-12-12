@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 
@@ -21,16 +22,22 @@ class FirebaseHymnService {
             final data = doc.data();
             return Hymn.fromJson(data, doc.id);
           } catch (e) {
-            print('Error parsing hymn ${doc.id}: $e');
+            if (kDebugMode) {
+              print('Error parsing hymn ${doc.id}: $e');
+            }
             return null;
           }
         }).where((hymn) => hymn != null).cast<Hymn>().toList();
         
-        print('🎵 FirebaseHymnService: Loaded ${hymns.length} hymns from Firebase');
+        if (kDebugMode) {
+          print('🎵 FirebaseHymnService: Loaded ${hymns.length} hymns from Firebase');
+        }
         return hymns;
       });
     } catch (e) {
-      print('❌ Error streaming Firebase hymns: $e');
+      if (kDebugMode) {
+        print('❌ Error streaming Firebase hymns: $e');
+      }
       return Stream.value([]);
     }
   }
@@ -41,19 +48,25 @@ class FirebaseHymnService {
       final doc = await firestore.collection('hymns').doc(hymnId).get();
       
       if (!doc.exists) {
-        print('⚠️ Hymn $hymnId not found in Firebase');
+        if (kDebugMode) {
+          print('⚠️ Hymn $hymnId not found in Firebase');
+        }
         return null;
       }
       
       final data = doc.data();
       if (data == null) {
-        print('⚠️ Hymn $hymnId has no data');
+        if (kDebugMode) {
+          print('⚠️ Hymn $hymnId has no data');
+        }
         return null;
       }
       
       return Hymn.fromJson(data, doc.id);
     } catch (e) {
-      print('❌ Error fetching hymn $hymnId: $e');
+      if (kDebugMode) {
+        print('❌ Error fetching hymn $hymnId: $e');
+      }
       return null;
     }
   }
@@ -63,7 +76,9 @@ class FirebaseHymnService {
     try {
       final user = auth.currentUser;
       if (user == null) {
-        print('❌ Cannot add hymn: User not authenticated');
+        if (kDebugMode) {
+          print('❌ Cannot add hymn: User not authenticated');
+        }
         return false;
       }
 
@@ -86,14 +101,18 @@ class FirebaseHymnService {
       // Save to Firestore
       await docRef.set(hymnWithMetadata.toMap());
       
-      print('✅ Successfully added hymn ${hymn.hymnNumber}: ${hymn.title}');
+      if (kDebugMode) {
+        print('✅ Successfully added hymn ${hymn.hymnNumber}: ${hymn.title}');
+      }
       
       // Update user's hymn count for monthly tracking
       await _updateUserHymnCount(user.uid);
       
       return true;
     } catch (e) {
-      print('❌ Error adding hymn: $e');
+      if (kDebugMode) {
+        print('❌ Error adding hymn: $e');
+      }
       return false;
     }
   }
@@ -103,14 +122,18 @@ class FirebaseHymnService {
     try {
       final user = auth.currentUser;
       if (user == null) {
-        print('❌ Cannot update hymn: User not authenticated');
+        if (kDebugMode) {
+          print('❌ Cannot update hymn: User not authenticated');
+        }
         return;
       }
 
       // Check if hymn exists
       final doc = await firestore.collection('hymns').doc(hymnId).get();
       if (!doc.exists) {
-        print('⚠️ Cannot update: Hymn $hymnId not found');
+        if (kDebugMode) {
+          print('⚠️ Cannot update: Hymn $hymnId not found');
+        }
         return;
       }
 
@@ -130,9 +153,13 @@ class FirebaseHymnService {
 
       await firestore.collection('hymns').doc(hymnId).update(updatedHymn);
       
-      print('✅ Successfully updated hymn $hymnId: ${hymn.title}');
+      if (kDebugMode) {
+        print('✅ Successfully updated hymn $hymnId: ${hymn.title}');
+      }
     } catch (e) {
-      print('❌ Error updating hymn $hymnId: $e');
+      if (kDebugMode) {
+        print('❌ Error updating hymn $hymnId: $e');
+      }
       rethrow;
     }
   }
@@ -142,14 +169,18 @@ class FirebaseHymnService {
     try {
       final user = auth.currentUser;
       if (user == null) {
-        print('❌ Cannot delete hymn: User not authenticated');
+        if (kDebugMode) {
+          print('❌ Cannot delete hymn: User not authenticated');
+        }
         return;
       }
 
       // Check if hymn exists and verify permissions
       final doc = await firestore.collection('hymns').doc(hymnId).get();
       if (!doc.exists) {
-        print('⚠️ Cannot delete: Hymn $hymnId not found');
+        if (kDebugMode) {
+          print('⚠️ Cannot delete: Hymn $hymnId not found');
+        }
         return;
       }
 
@@ -161,15 +192,21 @@ class FirebaseHymnService {
       final isAdmin = await _isUserAdmin(user.uid);
       
       if (!isCreator && !isAdmin) {
-        print('❌ Permission denied: User ${user.email} cannot delete hymn $hymnId');
+        if (kDebugMode) {
+          print('❌ Permission denied: User ${user.email} cannot delete hymn $hymnId');
+        }
         throw Exception('You do not have permission to delete this hymn');
       }
 
       await firestore.collection('hymns').doc(hymnId).delete();
       
-      print('✅ Successfully deleted hymn $hymnId');
+      if (kDebugMode) {
+        print('✅ Successfully deleted hymn $hymnId');
+      }
     } catch (e) {
-      print('❌ Error deleting hymn $hymnId: $e');
+      if (kDebugMode) {
+        print('❌ Error deleting hymn $hymnId: $e');
+      }
       rethrow;
     }
   }
@@ -201,7 +238,9 @@ class FirebaseHymnService {
         }
       });
     } catch (e) {
-      print('⚠️ Error updating user hymn count: $e');
+      if (kDebugMode) {
+        print('⚠️ Error updating user hymn count: $e');
+      }
       // Don't throw - this is non-critical
     }
   }
@@ -215,7 +254,9 @@ class FirebaseHymnService {
       final data = userDoc.data();
       return (data?['isAdmin'] == true) || (data?['isSuperAdmin'] == true);
     } catch (e) {
-      print('⚠️ Error checking admin status: $e');
+      if (kDebugMode) {
+        print('⚠️ Error checking admin status: $e');
+      }
       return false;
     }
   }

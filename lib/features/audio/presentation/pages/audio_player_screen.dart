@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
@@ -59,7 +58,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   }
 
   Future<void> _toggleFavorite() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     try {
       await _hymnService.toggleFavorite(_currentHymn);
       _checkFavoriteStatus();
@@ -209,7 +208,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   }
 
   Future<void> _downloadAudioForHymn(Hymn hymn) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (_hasLocalAudio(hymn)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -46,7 +46,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.failedToLoadConfiguration(e.toString()));
+        Get.snackbar(AppLocalizations.of(context).error, AppLocalizations.of(context).failedToLoadConfiguration(e.toString()));
       }
     }
   }
@@ -85,11 +85,11 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       await AdminControlService.setAdminConfig(updatedConfig);
       await _loadConfig(); // Reload to confirm
       if (mounted) {
-        Get.snackbar(AppLocalizations.of(context)!.success, AppLocalizations.of(context)!.configurationUpdatedSuccessfully);
+        Get.snackbar(AppLocalizations.of(context).success, AppLocalizations.of(context).configurationUpdatedSuccessfully);
       }
     } catch (e) {
       if (mounted) {
-        Get.snackbar(AppLocalizations.of(context)!.error, AppLocalizations.of(context)!.failedToSaveConfiguration(e.toString()));
+        Get.snackbar(AppLocalizations.of(context).error, AppLocalizations.of(context).failedToSaveConfiguration(e.toString()));
       }
     } finally {
       setState(() => _isSaving = false);
@@ -97,14 +97,14 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
   }
 
   Future<void> _emergencyStop() async {
-    final emergencyTitle = AppLocalizations.of(context)!.emergencyStop;
-    final emergencyConfirm = AppLocalizations.of(context)!.emergencyStopConfirm;
-    final cancelText = AppLocalizations.of(context)!.cancel;
-    final stopText = AppLocalizations.of(context)!.emergencyStop;
-    final successText = AppLocalizations.of(context)!.success;
-    final stoppedText = AppLocalizations.of(context)!.emergencyStop;
-    final errorTitle = AppLocalizations.of(context)!.error;
-    final errorFn = AppLocalizations.of(context)!.errorOccurredWithDetails;
+    final emergencyTitle = AppLocalizations.of(context).emergencyStop;
+    final emergencyConfirm = AppLocalizations.of(context).emergencyStopConfirm;
+    final cancelText = AppLocalizations.of(context).cancel;
+    final stopText = AppLocalizations.of(context).emergencyStop;
+    final successText = AppLocalizations.of(context).success;
+    final stoppedText = AppLocalizations.of(context).emergencyStop;
+    final errorTitle = AppLocalizations.of(context).error;
+    final errorFn = AppLocalizations.of(context).errorOccurredWithDetails;
 
     final confirmed = await Get.dialog(
       AlertDialog(
@@ -140,10 +140,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
   }
 
   Future<void> _clearEmergencyMode() async {
-    final successText2 = AppLocalizations.of(context)!.success;
-    final clearedText = AppLocalizations.of(context)!.emergencyModeCleared;
-    final errorTitle2 = AppLocalizations.of(context)!.error;
-    final errorFn2 = AppLocalizations.of(context)!.errorOccurredWithDetails;
+    final successText2 = AppLocalizations.of(context).success;
+    final clearedText = AppLocalizations.of(context).emergencyModeCleared;
+    final errorTitle2 = AppLocalizations.of(context).error;
+    final errorFn2 = AppLocalizations.of(context).errorOccurredWithDetails;
     try {
       await AdminControlService.clearEmergencyMode();
       await _loadConfig();
@@ -165,7 +165,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.updateControl),
+        title: Text(AppLocalizations.of(context).updateControl),
         backgroundColor: Colors.red.shade700,
         foregroundColor: Colors.white,
         actions: [
@@ -173,12 +173,12 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             IconButton(
               icon: const Icon(Icons.warning, color: Colors.yellow),
               onPressed: _clearEmergencyMode,
-              tooltip: AppLocalizations.of(context)!.clearCache,
+              tooltip: AppLocalizations.of(context).clearCache,
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadConfig,
-            tooltip: AppLocalizations.of(context)!.refresh,
+            tooltip: AppLocalizations.of(context).refresh,
           ),
         ],
       ),
@@ -223,10 +223,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(AppLocalizations.of(context)!.saving),
+                          Text(AppLocalizations.of(context).saving),
                         ],
                       )
-                    : Text(AppLocalizations.of(context)!.saveConfiguration),
+                    : Text(AppLocalizations.of(context).saveConfiguration),
               ),
             ),
           ],
@@ -264,10 +264,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                 const SizedBox(width: 8),
                  Text(
                    config.emergencyMode
-                       ? AppLocalizations.of(context)!.emergencyModeActive
+                       ? AppLocalizations.of(context).emergencyModeActive
                        : config.updatesEnabled
-                           ? AppLocalizations.of(context)!.updatesEnabled
-                           : AppLocalizations.of(context)!.updatesDisabled,
+                           ? AppLocalizations.of(context).updatesEnabled
+                           : AppLocalizations.of(context).updatesDisabled,
                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                  ),
               ],
@@ -287,7 +287,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                     const SizedBox(width: 8),
                        Expanded(
                          child: Text(
-                           AppLocalizations.of(context)!.adminMessageLabel(config.adminMessage!),
+                           AppLocalizations.of(context).adminMessageLabel(config.adminMessage!),
                            style: const TextStyle(color: Colors.blue),
                          ),
                        ),
@@ -309,7 +309,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                     const SizedBox(width: 8),
                      Expanded(
                        child: Text(
-                         AppLocalizations.of(context)!.blockedVersionLabel(config.blockedVersion!),
+                         AppLocalizations.of(context).blockedVersionLabel(config.blockedVersion!),
                          style: const TextStyle(color: Colors.red),
                        ),
                      ),
@@ -330,7 +330,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
              Text(
-               AppLocalizations.of(context)!.quickActions,
+               AppLocalizations.of(context).quickActions,
                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
              ),
             const SizedBox(height: 12),
@@ -340,7 +340,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _emergencyStop,
                     icon: const Icon(Icons.emergency),
-                    label: Text(AppLocalizations.of(context)!.emergencyStop),
+                    label: Text(AppLocalizations.of(context).emergencyStop),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       foregroundColor: Colors.white,
@@ -351,14 +351,14 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed: () async {
-                      final successText = AppLocalizations.of(context)!.success;
-                      final clearedText = AppLocalizations.of(context)!.allCacheCleared;
+                      final successText = AppLocalizations.of(context).success;
+                      final clearedText = AppLocalizations.of(context).allCacheCleared;
                       await AdminControlService.clearCache();
                       if (!mounted) return;
                       Get.snackbar(successText, clearedText);
                     },
                     icon: const Icon(Icons.clear),
-                    label: Text(AppLocalizations.of(context)!.clearCache),
+                    label: Text(AppLocalizations.of(context).clearCache),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       foregroundColor: Colors.white,
@@ -383,15 +383,15 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
              Text(
-               AppLocalizations.of(context)!.configuration,
+               AppLocalizations.of(context).configuration,
                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
              ),
             const SizedBox(height: 16),
 
             // Toggle Switches
             SwitchListTile(
-              title: Text(AppLocalizations.of(context)!.enableUpdates),
-              subtitle: Text(AppLocalizations.of(context)!.allowUsersToDownloadUpdates),
+              title: Text(AppLocalizations.of(context).enableUpdates),
+              subtitle: Text(AppLocalizations.of(context).allowUsersToDownloadUpdates),
               value: config.updatesEnabled,
               onChanged: (value) {
                 setState(() {
@@ -409,8 +409,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               },
             ),
             SwitchListTile(
-              title: Text(AppLocalizations.of(context)!.forceUpdate),
-              subtitle: Text(AppLocalizations.of(context)!.forceUsersToUpdate),
+              title: Text(AppLocalizations.of(context).forceUpdate),
+              subtitle: Text(AppLocalizations.of(context).forceUsersToUpdate),
               value: config.forceUpdate,
               onChanged: (value) {
                 setState(() {
@@ -436,8 +436,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             TextFormField(
               controller: _blockedVersionController,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.blockedVersion,
-                hintText: AppLocalizations.of(context)!.versionEG,
+                labelText: AppLocalizations.of(context).blockedVersion,
+                hintText: AppLocalizations.of(context).versionEG,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.block),
               ),
@@ -447,8 +447,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             TextFormField(
               controller: _minVersionController,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.minimumSupportedVersion,
-                hintText: AppLocalizations.of(context)!.versionEG,
+                labelText: AppLocalizations.of(context).minimumSupportedVersion,
+                hintText: AppLocalizations.of(context).versionEG,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.verified),
               ),
@@ -458,8 +458,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             TextFormField(
               controller: _recommendedVersionController,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.recommendedVersion,
-                hintText: AppLocalizations.of(context)!.versionEG,
+                labelText: AppLocalizations.of(context).recommendedVersion,
+                hintText: AppLocalizations.of(context).versionEG,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.thumb_up),
               ),
@@ -469,8 +469,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             TextFormField(
               controller: _allowedVersionsController,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.allowedVersions,
-                hintText: AppLocalizations.of(context)!.versionsEG,
+                labelText: AppLocalizations.of(context).allowedVersions,
+                hintText: AppLocalizations.of(context).versionsEG,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.list),
               ),
@@ -480,8 +480,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
             TextFormField(
               controller: _adminMessageController,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.adminMessage,
-                hintText: AppLocalizations.of(context)!.messageToDisplayToAllUsers,
+                labelText: AppLocalizations.of(context).adminMessage,
+                hintText: AppLocalizations.of(context).messageToDisplayToAllUsers,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.message),
               ),

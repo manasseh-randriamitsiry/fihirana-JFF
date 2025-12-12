@@ -26,7 +26,7 @@ class AdminHymnListItemWidget extends StatelessWidget {
     final colorController = Get.find<ColorController>();
     final textColor = colorController.textColor.value;
     final backgroundColor = colorController.backgroundColor.value;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimensions.sm),
@@ -93,7 +93,7 @@ class AdminEmptyHymnsWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final textColor = colorController.textColor.value;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Center(
       child: Column(

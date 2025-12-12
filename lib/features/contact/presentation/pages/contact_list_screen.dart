@@ -65,7 +65,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
   }
 
   void _confirmDelete(BuildContext context, Contact contact) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     ConfirmDeleteDialog.show(
       context: context,
       colorController: colorController,
@@ -90,7 +90,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,

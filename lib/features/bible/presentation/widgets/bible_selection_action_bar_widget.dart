@@ -11,7 +11,7 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final bibleController = Get.find<BibleController>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Obx(() {
       if (!bibleController.isSelecting) {

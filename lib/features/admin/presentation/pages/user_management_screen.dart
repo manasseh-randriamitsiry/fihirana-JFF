@@ -16,7 +16,7 @@ class UserManagementScreen extends StatelessWidget {
     final AdminController adminController = AdminDI.adminController;
 
     return Obx(() {
-      final l10n = AppLocalizations.of(context)!;
+      final l10n = AppLocalizations.of(context);
       final backgroundColor = colorController.backgroundColor.value;
       final textColor = colorController.textColor.value;
       final primaryColor = colorController.primaryColor.value;
@@ -165,7 +165,7 @@ class UserManagementScreen extends StatelessWidget {
     AdminController adminController,
     AdminUser user,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
         builder: (context) => AlertDialog(
@@ -207,7 +207,7 @@ class UserManagementScreen extends StatelessWidget {
     AdminController adminController,
     AdminUser user,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
         builder: (context) => AlertDialog(
@@ -249,7 +249,7 @@ class UserManagementScreen extends StatelessWidget {
     AdminController adminController,
     AdminUser user,
   ) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
         builder: (context) => AlertDialog(
@@ -423,13 +423,13 @@ class _UserListItem extends StatelessWidget {
     final difference = now.difference(date);
 
     if (difference.inDays > 0) {
-      return AppLocalizations.of(context)!.daysAgo(difference.inDays);
+      return AppLocalizations.of(context).daysAgo(difference.inDays);
     } else if (difference.inHours > 0) {
-      return AppLocalizations.of(context)!.hoursAgo(difference.inHours);
+      return AppLocalizations.of(context).hoursAgo(difference.inHours);
     } else if (difference.inMinutes > 0) {
-      return AppLocalizations.of(context)!.minutesAgo(difference.inMinutes);
+      return AppLocalizations.of(context).minutesAgo(difference.inMinutes);
     } else {
-      return AppLocalizations.of(context)!.justNow;
+      return AppLocalizations.of(context).justNow;
     }
   }
 }

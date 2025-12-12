@@ -264,7 +264,7 @@ return Row(
 
   /// Contact screen actions
   List<FABAction> _getContactActions() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final actions = <FABAction>[];
 
     if (widget.onImportContact != null) {
@@ -290,7 +290,7 @@ return Row(
 
   /// Player/Hymn screen actions (for future use)
   List<FABAction> _getPlayerActions() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final actions = <FABAction>[];
 
     if (widget.onStartRecording != null) {
@@ -315,7 +315,7 @@ return Row(
 
  /// Recording screen actions (for future use)
   List<FABAction> _getRecordingActions() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final actions = <FABAction>[];
 
     if (widget.onStartRecording != null) {
@@ -341,7 +341,7 @@ return Row(
 
   /// Announcement screen actions
   List<FABAction> _getAnnouncementActions() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final actions = <FABAction>[];
 
     if (widget.onAddAnnouncement != null) {

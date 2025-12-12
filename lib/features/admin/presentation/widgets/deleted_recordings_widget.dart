@@ -40,8 +40,8 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
       setState(() => isLoading = false);
       if (mounted) {
         Get.snackbar(
-          AppLocalizations.of(context)!.error,
-          AppLocalizations.of(context)!.failedToLoadDeletedRecordings(e.toString()),
+          AppLocalizations.of(context).error,
+          AppLocalizations.of(context).failedToLoadDeletedRecordings(e.toString()),
           backgroundColor: Colors.red,
           colorText: Colors.white,
         );
@@ -67,7 +67,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
           padding: const EdgeInsets.all(AppDimensions.md),
           child: TextField(
             decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.searchDeletedRecordings,
+              hintText: AppLocalizations.of(context).searchDeletedRecordings,
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -91,11 +91,11 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
               ElevatedButton.icon(
                 onPressed: _loadDeletedRecordings,
                 icon: const Icon(Icons.refresh),
-                label: Text(AppLocalizations.of(context)!.refresh),
+                label: Text(AppLocalizations.of(context).refresh),
               ),
               const SizedBox(width: 8),
                Text(
-                 AppLocalizations.of(context)!.deletedRecordingsCount(filteredRecordings.length),
+                 AppLocalizations.of(context).deletedRecordingsCount(filteredRecordings.length),
                  style: Theme.of(context).textTheme.bodySmall,
                ),
             ],
@@ -148,8 +148,8 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
           const SizedBox(height: 16),
            Text(
              searchQuery.isNotEmpty
-                 ? AppLocalizations.of(context)!.noDeletedRecordingsFound
-                 : AppLocalizations.of(context)!.noDeletedRecordings,
+                 ? AppLocalizations.of(context).noDeletedRecordingsFound
+                 : AppLocalizations.of(context).noDeletedRecordings,
              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                    color: Colors.grey[600],
                  ),
@@ -157,8 +157,8 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
            const SizedBox(height: 8),
            Text(
              searchQuery.isNotEmpty
-                 ? AppLocalizations.of(context)!.tryAdjustingSearchTerms
-                 : AppLocalizations.of(context)!.deletedRecordingsWillAppearHere,
+                 ? AppLocalizations.of(context).tryAdjustingSearchTerms
+                 : AppLocalizations.of(context).deletedRecordingsWillAppearHere,
              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                    color: Colors.grey[500],
                  ),
@@ -167,7 +167,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => setState(() => searchQuery = ''),
-              child: Text(AppLocalizations.of(context)!.clearSearch),
+              child: Text(AppLocalizations.of(context).clearSearch),
             ),
           ],
         ],
@@ -178,16 +178,16 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
   Future<void> _restoreRecording(UserRecording recording) async {
     final confirmed = await Get.dialog(
       AlertDialog(
-        title: Text(AppLocalizations.of(context)!.restoreRecording),
-        content: Text(AppLocalizations.of(context)!.sureToDelete(recording.title)),
+        title: Text(AppLocalizations.of(context).restoreRecording),
+        content: Text(AppLocalizations.of(context).sureToDelete(recording.title)),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: Text(AppLocalizations.of(context)!.restoreRecording),
+            child: Text(AppLocalizations.of(context).restoreRecording),
           ),
         ],
       ),
@@ -202,18 +202,18 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
   Future<void> _permanentDelete(UserRecording recording) async {
     final confirmed = await Get.dialog(
       AlertDialog(
-        title: Text(AppLocalizations.of(context)!.permanentDelete),
+        title: Text(AppLocalizations.of(context).permanentDelete),
         content: Text(
-          '${AppLocalizations.of(context)!.sureToDelete(recording.title)} ${AppLocalizations.of(context)!.historyCannotBeUndone}',
+          '${AppLocalizations.of(context).sureToDelete(recording.title)} ${AppLocalizations.of(context).historyCannotBeUndone}',
         ),
         actions: [
           TextButton(
             onPressed: () => Get.back(result: false),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(AppLocalizations.of(context).cancel),
           ),
           TextButton(
             onPressed: () => Get.back(result: true),
-            child: Text(AppLocalizations.of(context)!.deletePermanently),
+            child: Text(AppLocalizations.of(context).deletePermanently),
           ),
         ],
       ),

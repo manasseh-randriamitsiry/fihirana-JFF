@@ -260,7 +260,7 @@ class RecordingController extends GetxController {
               backgroundColor: Colors.blue.shade600,
               colorText: Colors.white,
               duration: const Duration(seconds: 3),
-              icon: Icon(Icons.cleaning_services, color: Colors.white),
+              icon: const Icon(Icons.cleaning_services, color: Colors.white),
             );
           });
         } else {
@@ -360,7 +360,9 @@ class RecordingController extends GetxController {
 
   Future<void> deleteRecording(UserRecording recording) async {
     try {
-      print('RecordingController: deleteRecording called for recording: ${recording.id} - ${recording.title}');
+      if (kDebugMode) {
+        print('RecordingController: deleteRecording called for recording: ${recording.id} - ${recording.title}');
+      }
 
       // Check if user is the owner of the recording
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -369,40 +371,58 @@ class RecordingController extends GetxController {
                   recording.userEmail == currentUser.email)) ||
           (userEmail.value != null && recording.userEmail == userEmail.value);
 
-      print('RecordingController: currentUser=${currentUser?.uid}, recording.userId=${recording.userId}, recording.userEmail=${recording.userEmail}, controller.userEmail=${userEmail.value}');
-      print('RecordingController: isOwner=$isOwner');
+      if (kDebugMode) {
+        print('RecordingController: currentUser=${currentUser?.uid}, recording.userId=${recording.userId}, recording.userEmail=${recording.userEmail}, controller.userEmail=${userEmail.value}');
+      }
+      if (kDebugMode) {
+        print('RecordingController: isOwner=$isOwner');
+      }
 
       // For debugging, if no owner info, assume owner
       if (recording.userId == null || recording.userId!.isEmpty) {
-        print('RecordingController: No userId found, assuming owner for debugging');
+        if (kDebugMode) {
+          print('RecordingController: No userId found, assuming owner for debugging');
+        }
         // isOwner = true; // Uncomment this line for debugging
       }
 
       // For debugging, just remove from the list directly
-      print('RecordingController: Removing recording from list directly');
+      if (kDebugMode) {
+        print('RecordingController: Removing recording from list directly');
+      }
       final initialLength = repository.recordings.length;
       repository.recordings.removeWhere((r) => r.id == recording.id);
       final finalLength = repository.recordings.length;
-      print('RecordingController: Recording removed from list: $initialLength -> $finalLength');
+      if (kDebugMode) {
+        print('RecordingController: Recording removed from list: $initialLength -> $finalLength');
+      }
 
       // Also try to delete the file if owner
       if (isOwner) {
-        print('RecordingController: Owner detected, attempting file deletion');
+        if (kDebugMode) {
+          print('RecordingController: Owner detected, attempting file deletion');
+        }
         try {
           // This is a simplified approach - just remove from list for now
           // File deletion can be handled separately
         } catch (e) {
-          print('RecordingController: Error deleting file: $e');
+          if (kDebugMode) {
+            print('RecordingController: Error deleting file: $e');
+          }
         }
       }
 
-      print('RecordingController: Recordings list length after delete: ${repository.recordings.length}');
+      if (kDebugMode) {
+        print('RecordingController: Recordings list length after delete: ${repository.recordings.length}');
+      }
 
       // Force UI refresh by triggering reactive update
       repository.recordings.refresh();
       update();
     } catch (e) {
-      print('RecordingController: Error deleting recording: $e');
+      if (kDebugMode) {
+        print('RecordingController: Error deleting recording: $e');
+      }
       stateManager.lastError.value = 'Failed to delete recording: $e';
     }
   }
@@ -762,13 +782,17 @@ class RecordingController extends GetxController {
 
   // Multi-select methods
   void enableMultiSelectMode() {
-    print('RecordingController: Enabling multi-select mode');
+    if (kDebugMode) {
+      print('RecordingController: Enabling multi-select mode');
+    }
     isMultiSelectMode.value = true;
     selectedRecordingIds.clear();
   }
 
   void disableMultiSelectMode() {
-    print('RecordingController: Disabling multi-select mode');
+    if (kDebugMode) {
+      print('RecordingController: Disabling multi-select mode');
+    }
     isMultiSelectMode.value = false;
     selectedRecordingIds.clear();
   }
@@ -776,10 +800,14 @@ class RecordingController extends GetxController {
   void toggleRecordingSelection(String recordingId) {
     if (selectedRecordingIds.contains(recordingId)) {
       selectedRecordingIds.remove(recordingId);
-      print('RecordingController: Deselected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
+      if (kDebugMode) {
+        print('RecordingController: Deselected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
+      }
     } else {
       selectedRecordingIds.add(recordingId);
-      print('RecordingController: Selected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
+      if (kDebugMode) {
+        print('RecordingController: Selected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
+      }
     }
   }
 
@@ -792,9 +820,13 @@ class RecordingController extends GetxController {
   }
 
   Future<void> permanentlyDeleteSelectedRecordings() async {
-    print('RecordingController: permanentlyDeleteSelectedRecordings called with ${selectedRecordingIds.length} recordings');
+    if (kDebugMode) {
+      print('RecordingController: permanentlyDeleteSelectedRecordings called with ${selectedRecordingIds.length} recordings');
+    }
     if (selectedRecordingIds.isEmpty) {
-      print('RecordingController: No recordings selected');
+      if (kDebugMode) {
+        print('RecordingController: No recordings selected');
+      }
       return;
     }
 
@@ -806,37 +838,55 @@ class RecordingController extends GetxController {
         .cast<UserRecording>()
         .toList();
 
-    print('RecordingController: Found ${recordingsToDelete.length} recordings to delete');
+    if (kDebugMode) {
+      print('RecordingController: Found ${recordingsToDelete.length} recordings to delete');
+    }
 
     // Separate public and private recordings
     final publicRecordings = recordingsToDelete.where((r) => r.isPublic).toList();
     final privateRecordings = recordingsToDelete.where((r) => !r.isPublic).toList();
 
-    print('RecordingController: Public recordings: ${publicRecordings.length}, Private recordings: ${privateRecordings.length}');
+    if (kDebugMode) {
+      print('RecordingController: Public recordings: ${publicRecordings.length}, Private recordings: ${privateRecordings.length}');
+    }
 
     // Handle public recordings - unpublish them
     for (final recording in publicRecordings) {
-      print('RecordingController: Unpublishing public recording: ${recording.id} - ${recording.title} (driveFileId: ${recording.driveFileId})');
+      if (kDebugMode) {
+        print('RecordingController: Unpublishing public recording: ${recording.id} - ${recording.title} (driveFileId: ${recording.driveFileId})');
+      }
       try {
         await unpublishRecordingUseCase(recording.id);
-        print('RecordingController: Unpublished recording: ${recording.id}');
+        if (kDebugMode) {
+          print('RecordingController: Unpublished recording: ${recording.id}');
+        }
         
         // Also remove from local recordings list since it's no longer public
         repository.recordings.removeWhere((r) => r.id == recording.id);
-        print('RecordingController: Removed from local recordings list');
+        if (kDebugMode) {
+          print('RecordingController: Removed from local recordings list');
+        }
       } catch (e) {
-        print('RecordingController: Error unpublishing recording: $e');
+        if (kDebugMode) {
+          print('RecordingController: Error unpublishing recording: $e');
+        }
       }
     }
 
     // Handle private recordings - permanently delete them
     for (final recording in privateRecordings) {
-      print('RecordingController: Permanently deleting private recording: ${recording.id} - ${recording.title}');
+      if (kDebugMode) {
+        print('RecordingController: Permanently deleting private recording: ${recording.id} - ${recording.title}');
+      }
       await operationsManager.deleteRecordingPermanentlyDirect(recording);
-      print('RecordingController: Permanently deleted recording: ${recording.id}');
+      if (kDebugMode) {
+        print('RecordingController: Permanently deleted recording: ${recording.id}');
+      }
     }
 
-    print('RecordingController: Finished processing all selected recordings');
+    if (kDebugMode) {
+      print('RecordingController: Finished processing all selected recordings');
+    }
     
     // Force UI refresh
     repository.recordings.refresh();

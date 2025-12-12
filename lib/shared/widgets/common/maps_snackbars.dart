@@ -6,7 +6,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 
 class MapsErrorSnackBar {
   static void show(BuildContext context, dynamic error) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.couldNotOpenMaps),
@@ -38,7 +38,7 @@ class MapsErrorSnackBar {
 
 class MapsRedirectSnackBar {
   static void show(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.redirectingToGoogleMaps),

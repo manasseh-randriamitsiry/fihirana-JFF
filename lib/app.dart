@@ -152,8 +152,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
           // Add fallback delegates for 'mg' support in Material/Cupertino widgets
-          const FallbackMaterialLocalizationsDelegate(),
-          const FallbackCupertinoLocalizationsDelegate(),
+          FallbackMaterialLocalizationsDelegate(),
+          FallbackCupertinoLocalizationsDelegate(),
         ],
         localeResolutionCallback: (locale, supportedLocales) {
           return languageController.currentLocale.value;

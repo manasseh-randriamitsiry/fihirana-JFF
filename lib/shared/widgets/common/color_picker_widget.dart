@@ -24,7 +24,7 @@ class ColorPickerWidget extends StatelessWidget {
 
   void _showColorPicker(BuildContext context, String colorType,
       Color currentColor, Function(Color) onColorChanged) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -83,7 +83,7 @@ class ColorPickerWidget extends StatelessWidget {
   }
 
   void _pickIconColor(BuildContext context, ColorController controller) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -141,7 +141,7 @@ class ColorPickerWidget extends StatelessWidget {
   }
 
   void _pickDrawerColor(BuildContext context, ColorController controller) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -245,7 +245,7 @@ class ColorPickerWidget extends StatelessWidget {
   }
 
   Widget _buildPresetSchemes() {
-    final l10n = AppLocalizations.of(Get.context!)!;
+    final l10n = AppLocalizations.of(Get.context!);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -347,7 +347,7 @@ class ColorPickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     // Dark theme colors matching compact audio player
     const backgroundColor = Color(0xFF1C1B1F);

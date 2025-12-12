@@ -22,7 +22,7 @@ class PlaylistItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final dateFormat = DateFormat('EEE, MMM d, yyyy');
 
     return Container(
@@ -147,7 +147,7 @@ class _CreatePlaylistDialogWidgetState extends State<CreatePlaylistDialogWidget>
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
       backgroundColor: colorController.backgroundColor.value,
@@ -261,7 +261,7 @@ class DeletePlaylistDialogWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return AlertDialog(
       backgroundColor: colorController.backgroundColor.value,

@@ -22,10 +22,10 @@ class FontSizeSliderWidget extends StatelessWidget {
 
     return Slider(
       value: fontSize,
-      min: 12,
-      max: 40,
-      divisions: 28,
-      label: fontSize.round().toString(),
+      min: 8,
+      max: 50,
+      divisions: 56,
+      label: fontSize.toStringAsFixed(1),
       onChanged: onChanged,
       onChangeEnd: onChangeEnd,
       activeColor: colorController.primaryColor.value,

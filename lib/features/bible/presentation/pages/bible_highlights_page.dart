@@ -28,7 +28,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
@@ -66,7 +66,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Center(
       child: Column(
@@ -259,7 +259,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
           final verseTexts = <String>[];
           for (int i = highlight.startVerse; i <= highlight.endVerse; i++) {
             if (verses.containsKey(i)) {
-              verseTexts.add('${i}. ${verses[i]}');
+              verseTexts.add('$i. ${verses[i]}');
             }
           }
           return verseTexts.join('\n\n');
@@ -284,7 +284,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
   }
 
   void _showDeleteDialog(BuildContext context, BibleHighlight highlight) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     showDialog(
       context: context,
@@ -322,7 +322,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
             },
             child: Text(
               l10n.delete,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.red,
                 fontFamily: 'Roboto',
               ),
