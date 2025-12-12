@@ -4,7 +4,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 
 class ContactPermissionSnackBar {
   static void show(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.contactsPermissionRequired),
@@ -21,7 +21,7 @@ class ContactPermissionSnackBar {
 
 class NoContactsSnackBar {
   static void show(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.noContactsFound),
@@ -33,7 +33,7 @@ class NoContactsSnackBar {
 
 class ContactsErrorSnackBar {
   static void show(BuildContext context, String error) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.errorAccessingContacts(error)),

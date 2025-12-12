@@ -141,7 +141,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
           controller: _searchController,
           onChanged: (_) => setState(() {}),
           decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.searchContacts,
+            hintText: AppLocalizations.of(context).searchContacts,
             hintStyle: TextStyle(
               color: widget.colorController.iconColor.value.withValues(alpha: 0.5),
             ),

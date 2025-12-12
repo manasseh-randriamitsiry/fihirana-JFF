@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
@@ -70,7 +69,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
       backgroundColor: widget.colorController.backgroundColor.value,
       content: SizedBox(

@@ -376,7 +376,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
@@ -676,11 +676,11 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             if (context.mounted) {
               if (content.isNotEmpty) {
                 SuccessAnimationDialog.show(context,
-                    message: AppLocalizations.of(context)!.noteSaved);
+                    message: AppLocalizations.of(context).noteSaved);
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(AppLocalizations.of(context)!.noteDeleted),
+                    content: Text(AppLocalizations.of(context).noteDeleted),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -702,7 +702,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content:
-                            Text(AppLocalizations.of(context)!.noteDeleted),
+                            Text(AppLocalizations.of(context).noteDeleted),
                         backgroundColor: Colors.green,
                       ),
                     );

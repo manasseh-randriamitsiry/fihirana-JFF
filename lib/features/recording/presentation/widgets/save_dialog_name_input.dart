@@ -18,7 +18,7 @@ class SaveDialogNameInput extends StatelessWidget {
       ),
       autocorrect: false,
       enableSuggestions: false,
-      autofillHints: [],
+      autofillHints: const [],
       textInputAction: TextInputAction.done,
       keyboardType: TextInputType.text,
       smartDashesType: SmartDashesType.disabled,

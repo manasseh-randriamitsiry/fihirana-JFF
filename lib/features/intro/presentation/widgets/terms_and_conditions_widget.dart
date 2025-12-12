@@ -22,7 +22,7 @@ class TermsAndConditionsWidget extends StatefulWidget {
 class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     
     return IntroCardWidget(
       padding: const EdgeInsets.all(20),

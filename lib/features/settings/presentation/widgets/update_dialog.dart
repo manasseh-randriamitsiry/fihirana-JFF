@@ -35,7 +35,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
           _isDownloading = false;
         });
 
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.errorDownloadingUpdate2),
@@ -51,7 +51,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
       await VersionCheckService.completeFlexibleUpdate();
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.errorInstallingUpdate),
@@ -67,7 +67,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
       await VersionCheckService.triggerImmediateUpdate();
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(l10n.errorCheckingUpdates),
@@ -80,7 +80,7 @@ class _UpdateDialogState extends State<UpdateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(l10n.updateAvailableTitle),
       content: Text(l10n.updateAvailableContent),

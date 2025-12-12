@@ -11,7 +11,7 @@ class AdminDashboardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final ColorController colorController = Get.find<ColorController>();
     final AdminController adminController = AdminDI.adminController;
 

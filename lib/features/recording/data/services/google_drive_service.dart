@@ -166,7 +166,7 @@ class GoogleDriveService {
           if (kDebugMode) {
             print('GoogleDriveService: API connection test failed: $apiTestError');
           }
-          throw apiTestError;
+          rethrow;
         }
         
         await _ensureFolderExists();

@@ -21,7 +21,7 @@ class TranslationToggleWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.autoTranslate,
+                      AppLocalizations.of(context).autoTranslate,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     Switch(

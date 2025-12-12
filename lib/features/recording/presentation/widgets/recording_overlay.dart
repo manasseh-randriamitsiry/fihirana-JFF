@@ -249,7 +249,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
   }
 
   void _showCloseConfirmation() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => RecordingCloseConfirmation(
@@ -272,7 +272,7 @@ class _RecordingOverlayState extends State<RecordingOverlay>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Stack(
       fit: StackFit.expand,

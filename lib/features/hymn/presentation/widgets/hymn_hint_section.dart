@@ -20,7 +20,7 @@ class HymnHintSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
 
     if (!showHint || !(hymn.hymnHint?.trim().toLowerCase().isNotEmpty ?? false)) {

@@ -43,7 +43,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
 
     return Container(
@@ -344,7 +344,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
 
     if (!widget.isUserAuthenticated && widget.publicNotes.isEmpty) {

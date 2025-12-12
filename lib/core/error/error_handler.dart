@@ -72,7 +72,7 @@ if (showSnackbar) {
   /// Show error snackbar
   static void _showErrorSnackbar(dynamic error, String? message, BuildContext? context) {
     final errorMessage = _getErrorMessage(error, message);
-    final title = context != null ? AppLocalizations.of(context)!.error : 'Error';
+    final title = context != null ? AppLocalizations.of(context).error : 'Error';
     Get.snackbar(
       title,
       errorMessage,
@@ -96,7 +96,7 @@ if (showSnackbar) {
     VoidCallback? onRetry,
   }) {
     final errorMessage = _getErrorMessage(error, message);
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     showDialog(
       context: context,

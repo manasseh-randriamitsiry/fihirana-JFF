@@ -39,7 +39,7 @@ class BibleSearchResults extends StatelessWidget {
   }
 
   Widget _buildLoadingWidget(BuildContext context, ColorController colorController) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -63,7 +63,7 @@ class BibleSearchResults extends StatelessWidget {
   }
 
   Widget _buildEmptySearchWidget(BuildContext context, ColorController colorController) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -88,7 +88,7 @@ class BibleSearchResults extends StatelessWidget {
   }
 
   Widget _buildNoResultsWidget(BuildContext context, ColorController colorController) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

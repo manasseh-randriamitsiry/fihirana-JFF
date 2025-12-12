@@ -179,7 +179,7 @@ class RecordingAuthManager extends GetxController {
               backgroundColor: Colors.blue.shade600,
               colorText: Colors.white,
               duration: const Duration(seconds: 3),
-              icon: Icon(Icons.cleaning_services, color: Colors.white),
+              icon: const Icon(Icons.cleaning_services, color: Colors.white),
             );
           }
         } catch (e) {

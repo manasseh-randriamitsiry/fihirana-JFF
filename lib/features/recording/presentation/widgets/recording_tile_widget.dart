@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -45,13 +46,17 @@ class RecordingTileWidget extends StatelessWidget {
       child: Obx(() {
         final isMultiSelect = controller.isMultiSelectMode.value;
         final isSelected = controller.selectedRecordingIds.contains(recording.id);
-        print('RecordingTileWidget: Building tile for ${recording.id}, isMultiSelect=$isMultiSelect');
+        if (kDebugMode) {
+          print('RecordingTileWidget: Building tile for ${recording.id}, isMultiSelect=$isMultiSelect');
+        }
 
         return InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
             if (isMultiSelect) {
-              print('RecordingTileWidget: Tapping in multi-select mode for recording: ${recording.id}');
+              if (kDebugMode) {
+                print('RecordingTileWidget: Tapping in multi-select mode for recording: ${recording.id}');
+              }
               controller.toggleRecordingSelection(recording.id);
             } else {
               controller.showPlayer(
@@ -129,7 +134,9 @@ class RecordingTileWidget extends StatelessWidget {
                   IconButton(
                     icon: Icon(Icons.more_vert, color: colorController.textColor.value),
                     onPressed: () {
-                      print('RecordingTileWidget: Menu button pressed in multi-select mode');
+                      if (kDebugMode) {
+                        print('RecordingTileWidget: Menu button pressed in multi-select mode');
+                      }
                       // Show a simple menu or force exit multi-select
                       controller.disableMultiSelectMode();
                     },

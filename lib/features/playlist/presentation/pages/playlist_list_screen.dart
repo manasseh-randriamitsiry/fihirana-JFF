@@ -16,7 +16,7 @@ class PlaylistListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final ColorController colorController = Get.find<ColorController>();
     final PlaylistController playlistController = PlaylistDI.playlistController;
 

@@ -99,7 +99,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final isPigeonError = errorMessage.contains("subtype of type 'PigeonUserDetails?'");
       
       if (kDebugMode || isPigeonError) {
-        print('AuthRepository: Google sign-in error: $e');
+        if (kDebugMode) {
+          print('AuthRepository: Google sign-in error: $e');
+        }
       }
       
       // Only show snackbar if it's NOT the ignored error
