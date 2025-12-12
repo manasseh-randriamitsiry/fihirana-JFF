@@ -58,7 +58,7 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final isEditing = widget.contact != null;
 
     return AlertDialog(

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/data/services/recording_service.dart';
@@ -79,7 +80,9 @@ class RecordingRepositoryImpl implements RecordingRepository {
 
   @override
   Future<void> deleteRecording(String recordingId) async {
-    print('RecordingRepositoryImpl: deleteRecording called with id: $recordingId');
+    if (kDebugMode) {
+      print('RecordingRepositoryImpl: deleteRecording called with id: $recordingId');
+    }
     return await _recordingService.deleteRecording(recordingId);
   }
 

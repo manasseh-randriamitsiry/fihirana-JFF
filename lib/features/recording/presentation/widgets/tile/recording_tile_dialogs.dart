@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,7 +12,9 @@ class RecordingTileDialogs {
   static final ColorController colorController = Get.find<ColorController>();
   static RecordingController get controller {
     final ctrl = Get.find<RecordingController>();
-    print('RecordingTileDialogs: Got controller instance: ${ctrl.hashCode}');
+    if (kDebugMode) {
+      print('RecordingTileDialogs: Got controller instance: ${ctrl.hashCode}');
+    }
     return ctrl;
   }
   static final AuthController authController = Get.find<AuthController>();
@@ -49,11 +52,15 @@ class RecordingTileDialogs {
 
   static void showDeleteConfirmation(
       BuildContext context, UserRecording recording) {
-    print('RecordingTileDialogs: showDeleteConfirmation called for recording: ${recording.id} - ${recording.title}');
-    final l10n = AppLocalizations.of(context)!;
+    if (kDebugMode) {
+      print('RecordingTileDialogs: showDeleteConfirmation called for recording: ${recording.id} - ${recording.title}');
+    }
+    final l10n = AppLocalizations.of(context);
     final bool owner = isOwner(recording);
     final bool adminAndOwner = isAdminAndOwner(recording);
-    print('RecordingTileDialogs: owner=$owner, adminAndOwner=$adminAndOwner');
+    if (kDebugMode) {
+      print('RecordingTileDialogs: owner=$owner, adminAndOwner=$adminAndOwner');
+    }
 
     showDialog(
       context: context,
@@ -159,7 +166,9 @@ class RecordingTileDialogs {
           ] else
             ElevatedButton(
               onPressed: () {
-                print('RecordingTileDialogs: Delete button pressed for recording: ${recording.id}');
+                if (kDebugMode) {
+                  print('RecordingTileDialogs: Delete button pressed for recording: ${recording.id}');
+                }
                 controller.deleteRecording(recording);
                 Navigator.pop(context);
               },
@@ -178,7 +187,7 @@ class RecordingTileDialogs {
 
   static void showPermanentDeleteConfirmation(
       BuildContext context, UserRecording recording) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -256,7 +265,7 @@ class RecordingTileDialogs {
 
   static void showMakePublicDialog(
       BuildContext context, UserRecording recording) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final titleController = TextEditingController(text: recording.title);
     String? errorMessage;
 
@@ -310,7 +319,7 @@ class RecordingTileDialogs {
                 style: TextStyle(color: colorController.textColor.value),
                 autocorrect: false,
                 enableSuggestions: false,
-                autofillHints: [],
+                autofillHints: const [],
                 textInputAction: TextInputAction.done,
                 keyboardType: TextInputType.text,
                 smartDashesType: SmartDashesType.disabled,
@@ -413,7 +422,7 @@ class RecordingTileDialogs {
   }
 
   static void showRenameDialog(BuildContext context, UserRecording recording) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final titleController = TextEditingController(text: recording.title);
 
     showDialog(
@@ -433,7 +442,7 @@ class RecordingTileDialogs {
           style: TextStyle(color: colorController.textColor.value),
           autocorrect: false,
           enableSuggestions: false,
-          autofillHints: [],
+          autofillHints: const [],
           textInputAction: TextInputAction.done,
           keyboardType: TextInputType.text,
           smartDashesType: SmartDashesType.disabled,

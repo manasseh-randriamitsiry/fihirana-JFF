@@ -45,7 +45,7 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
           child: TextField(
             controller: widget.controller,
             decoration: InputDecoration(
-              hintText: AppLocalizations.of(context)!.searchForAPlace,
+              hintText: AppLocalizations.of(context).searchForAPlace,
               prefixIcon: Icon(Icons.search, color: colorController.iconColor.value),
               suffixIcon: widget.controller.text.isNotEmpty
                   ? IconButton(

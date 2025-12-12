@@ -164,7 +164,7 @@ class HymnBridgeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
     
     return InkWell(
@@ -192,14 +192,22 @@ class HymnBridgeWidget extends StatelessWidget {
               ],
             ),
             if (isExpanded)
-              Padding(
+              Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.3,
+                ),
                 padding: const EdgeInsets.only(top: AppDimensions.sm),
-                child: Text(
-                  bridge,
-                  style: TextStyle(
-                    fontSize: fontSize,
-                    color: colorController.textColor.value,
-                    fontStyle: FontStyle.italic,
+                child: Scrollbar(
+                  thumbVisibility: true,
+                  child: SingleChildScrollView(
+                    child: Text(
+                      bridge,
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        color: colorController.textColor.value,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                   ),
                 ),
               ),

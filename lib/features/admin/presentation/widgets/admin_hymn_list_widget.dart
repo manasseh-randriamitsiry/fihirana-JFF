@@ -22,7 +22,7 @@ class AdminHymnListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return StreamBuilder<List<Hymn>>(
       stream: HymnService().getFirebaseHymnsStream(),

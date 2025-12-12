@@ -6,10 +6,6 @@ extension BuildContextLocalization on BuildContext {
   /// This replaces the ML Kit translation functionality
   String translate(String Function(AppLocalizations) getter) {
     final localizations = AppLocalizations.of(this);
-    if (localizations == null) {
-      // Return the key name if localization is not available
-      return 'Localization not available';
-    }
     try {
       return getter(localizations);
     } catch (e) {

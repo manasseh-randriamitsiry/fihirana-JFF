@@ -56,7 +56,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   }
 
   Future<void> _saveChanges() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (!isUserAuthenticated()) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -107,7 +107,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
@@ -269,7 +269,7 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   }
 
   Widget _buildVerseField(int index) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Card(
       key: ValueKey(index),
       color: colorController.backgroundColor.value,

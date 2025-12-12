@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
-
-
 import './user_management_screen.dart';
 import './super_admin_dashboard.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -56,7 +52,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
     await Future.delayed(const Duration(milliseconds: 100));
     if (!Get.find<AuthController>().isAdmin) {
       if (!mounted) return;
-      final l10n = AppLocalizations.of(context)!;
+      final l10n = AppLocalizations.of(context);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -70,7 +66,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   Future<void> _deleteSelectedHymns() async {
     if (selectedHymns.isEmpty) return;
 
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     setState(() => isLoading = true);
     try {
       for (String hymnId in selectedHymns) {
@@ -122,7 +118,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Obx(() {
       final backgroundColor = _colorController.backgroundColor.value;
       final textColor = _colorController.textColor.value;

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,24 +24,34 @@ class RecordingTileMenu extends StatelessWidget {
   bool _canDeleteRecording() {
     // Check if user is admin/super admin
     if (authController.isAdmin || authController.isSuperAdmin) {
-      print('RecordingTileMenu: User is admin, can delete recording ${recording.id}');
+      if (kDebugMode) {
+        print('RecordingTileMenu: User is admin, can delete recording ${recording.id}');
+      }
       return true;
     }
 
     // Check if user is owner
     final canDelete = RecordingTileDialogs.isOwner(recording);
-    print('RecordingTileMenu: Can delete recording ${recording.id}: $canDelete (userId: ${recording.userId}, userEmail: ${recording.userEmail})');
+    if (kDebugMode) {
+      print('RecordingTileMenu: Can delete recording ${recording.id}: $canDelete (userId: ${recording.userId}, userEmail: ${recording.userEmail})');
+    }
     if (canDelete) {
-      print('RecordingTileMenu: Adding delete menu item for recording: ${recording.id}');
+      if (kDebugMode) {
+        print('RecordingTileMenu: Adding delete menu item for recording: ${recording.id}');
+      }
     } else {
-      print('RecordingTileMenu: NOT adding delete menu item for recording: ${recording.id}');
+      if (kDebugMode) {
+        print('RecordingTileMenu: NOT adding delete menu item for recording: ${recording.id}');
+      }
     }
     return canDelete;
   }
 
   @override
   Widget build(BuildContext context) {
-    print('RecordingTileMenu: Building menu for recording: ${recording.id}');
+    if (kDebugMode) {
+      print('RecordingTileMenu: Building menu for recording: ${recording.id}');
+    }
     return PopupMenuButton<String>(
       icon: Icon(
         Icons.more_vert,
@@ -49,7 +60,9 @@ class RecordingTileMenu extends StatelessWidget {
       color: colorController.backgroundColor.value,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
-        print('RecordingTileMenu: Menu item selected: $value for recording: ${recording.id}');
+        if (kDebugMode) {
+          print('RecordingTileMenu: Menu item selected: $value for recording: ${recording.id}');
+        }
         switch (value) {
           case 'play':
             controller.showPlayer(
@@ -77,7 +90,9 @@ class RecordingTileMenu extends StatelessWidget {
             controller.exportRecording(recording);
             break;
           case 'delete':
-            print('RecordingTileMenu: Delete menu item selected for recording: ${recording.id}');
+            if (kDebugMode) {
+              print('RecordingTileMenu: Delete menu item selected for recording: ${recording.id}');
+            }
             RecordingTileDialogs.showDeleteConfirmation(context, recording);
             break;
           case 'delete_permanently':
@@ -87,7 +102,9 @@ class RecordingTileMenu extends StatelessWidget {
         }
       },
       itemBuilder: (context) {
-        print('RecordingTileMenu: Building itemBuilder for recording: ${recording.id}, isPublic: $isPublic');
+        if (kDebugMode) {
+          print('RecordingTileMenu: Building itemBuilder for recording: ${recording.id}, isPublic: $isPublic');
+        }
         final items = <PopupMenuItem<String>>[
           PopupMenuItem(
             value: 'play',
@@ -241,7 +258,9 @@ class RecordingTileMenu extends StatelessWidget {
         }
 
         if (!isPublic || _canDeleteRecording()) {
-          print('RecordingTileMenu: Adding delete menu item');
+          if (kDebugMode) {
+            print('RecordingTileMenu: Adding delete menu item');
+          }
           items.add(PopupMenuItem(
             value: 'delete',
             height: 40,
@@ -264,7 +283,9 @@ class RecordingTileMenu extends StatelessWidget {
             ),
           ));
         } else {
-          print('RecordingTileMenu: NOT adding delete menu item');
+          if (kDebugMode) {
+            print('RecordingTileMenu: NOT adding delete menu item');
+          }
         }
 
         if (RecordingTileDialogs.isAdmin(recording)) {

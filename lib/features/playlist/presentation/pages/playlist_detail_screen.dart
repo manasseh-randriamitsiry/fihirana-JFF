@@ -18,7 +18,7 @@ class PlaylistDetailScreen extends StatelessWidget {
     final ColorController colorController = Get.find();
     final PlaylistController playlistController = Get.find();
     final HymnService hymnService = Get.find();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,

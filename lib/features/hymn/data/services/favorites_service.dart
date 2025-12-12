@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -57,7 +58,9 @@ class FavoritesService {
       
       _isInitialized = true;
     } catch (e) {
-      print('❌ Error initializing FavoritesService: $e');
+      if (kDebugMode) {
+        print('❌ Error initializing FavoritesService: $e');
+      }
     }
   }
 
@@ -70,11 +73,15 @@ class FavoritesService {
       if (localFavoritesJson != null) {
         final List<dynamic> localFavorites = json.decode(localFavoritesJson);
         _cachedFavorites = localFavorites.whereType<String>().toSet();
-        print('📚 Loaded ${_cachedFavorites.length} favorites from local storage');
+        if (kDebugMode) {
+          print('📚 Loaded ${_cachedFavorites.length} favorites from local storage');
+        }
         _updateStreams();
       }
     } catch (e) {
-      print('❌ Error loading local favorites: $e');
+      if (kDebugMode) {
+        print('❌ Error loading local favorites: $e');
+      }
     }
   }
 
@@ -100,7 +107,9 @@ class FavoritesService {
             .toSet();
         
         _cachedFavorites = firebaseFavorites;
-        print('🎵 Loaded ${_cachedFavorites.length} favorites from Firebase');
+        if (kDebugMode) {
+          print('🎵 Loaded ${_cachedFavorites.length} favorites from Firebase');
+        }
         
         // Update local storage
         _saveLocalFavorites();
@@ -108,10 +117,14 @@ class FavoritesService {
         // Update streams
         _updateStreams();
       }, onError: (error) {
-        print('❌ Error streaming Firebase favorites: $error');
+        if (kDebugMode) {
+          print('❌ Error streaming Firebase favorites: $error');
+        }
       });
     } catch (e) {
-      print('❌ Error loading Firebase favorites: $e');
+      if (kDebugMode) {
+        print('❌ Error loading Firebase favorites: $e');
+      }
     }
   }
 
@@ -122,7 +135,9 @@ class FavoritesService {
       final favoritesList = _cachedFavorites.toList();
       await prefs.setString(_localFavoritesKey, json.encode(favoritesList));
     } catch (e) {
-      print('❌ Error saving local favorites: $e');
+      if (kDebugMode) {
+        print('❌ Error saving local favorites: $e');
+      }
     }
   }
 
@@ -156,7 +171,9 @@ class FavoritesService {
       
       _favoriteHymnsController.add(hymns);
     } catch (e) {
-      print('❌ Error loading favorite hymns: $e');
+      if (kDebugMode) {
+        print('❌ Error loading favorite hymns: $e');
+      }
     }
   }
 
@@ -196,13 +213,19 @@ class FavoritesService {
       
       if (isFavorite) {
         await removeFromFavorites(hymn.id);
-        print('💔 Removed ${hymn.title} from favorites');
+        if (kDebugMode) {
+          print('💔 Removed ${hymn.title} from favorites');
+        }
       } else {
         await addToFavorites(hymn.id);
-        print('❤️ Added ${hymn.title} to favorites');
+        if (kDebugMode) {
+          print('❤️ Added ${hymn.title} to favorites');
+        }
       }
     } catch (e) {
-      print('❌ Error toggling favorite: $e');
+      if (kDebugMode) {
+        print('❌ Error toggling favorite: $e');
+      }
       rethrow;
     }
   }
@@ -225,7 +248,9 @@ class FavoritesService {
       // Update streams
       _updateStreams();
     } catch (e) {
-      print('❌ Error adding to favorites: $e');
+      if (kDebugMode) {
+        print('❌ Error adding to favorites: $e');
+      }
       rethrow;
     }
   }
@@ -248,7 +273,9 @@ class FavoritesService {
       // Update streams
       _updateStreams();
     } catch (e) {
-      print('❌ Error removing from favorites: $e');
+      if (kDebugMode) {
+        print('❌ Error removing from favorites: $e');
+      }
       rethrow;
     }
   }

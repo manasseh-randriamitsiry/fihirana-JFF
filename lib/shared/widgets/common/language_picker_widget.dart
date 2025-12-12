@@ -197,7 +197,7 @@ class _LanguagePickerDialogState extends State<LanguagePickerDialog> {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: AppLocalizations.of(context)!.searchLanguage,
+                hintText: AppLocalizations.of(context).searchLanguage,
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

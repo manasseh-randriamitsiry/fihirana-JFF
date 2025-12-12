@@ -11,7 +11,7 @@ class AudioCacheDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final audioService = AudioService.instance;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
       backgroundColor: colorController.backgroundColor.value,

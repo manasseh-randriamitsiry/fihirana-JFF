@@ -307,7 +307,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   onPressed: () => bibleController.clearSelection(),
                   icon: Icon(Icons.close,
                       color: colorController.textColor.value),
-                  tooltip: AppLocalizations.of(context)!.clear,
+                  tooltip: AppLocalizations.of(context).clear,
                 ),
                 Container(
                   width: 1,
@@ -320,7 +320,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   onPressed: () => bibleController.saveHighlight(),
                   icon: const Icon(Icons.highlight_rounded,
                       color: Colors.orange),
-                  tooltip: AppLocalizations.of(context)!.saveChanges,
+                  tooltip: AppLocalizations.of(context).saveChanges,
                 ),
               ],
             ),

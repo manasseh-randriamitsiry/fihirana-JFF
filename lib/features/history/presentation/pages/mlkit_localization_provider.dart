@@ -6,10 +6,7 @@ extension MLKitLocalization on BuildContext {
   /// This method provides a fallback to regular localization
   Future<String> translateWithMLKit(String text, {String? targetLanguage}) async {
     try {
-      final localizations = AppLocalizations.of(this);
-      if (localizations == null) {
-        return text; // Return original text if localization not available
-      }
+      AppLocalizations.of(this);
       
       // For now, just return original text as placeholder
       // In a real implementation, you would integrate with ML Kit translation
@@ -21,8 +18,7 @@ extension MLKitLocalization on BuildContext {
   
   /// Get current locale for ML Kit
   Locale? getCurrentLocale() {
-    final localizations = AppLocalizations.of(this);
-    if (localizations == null) return null;
+    AppLocalizations.of(this);
     
     // Try to get the locale from the context
     return Localizations.localeOf(this);

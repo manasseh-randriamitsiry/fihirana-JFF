@@ -19,7 +19,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
   final HymnService _hymnService = Get.find<HymnService>();
 
   void _showAudioPlayerDialog(Hymn hymn) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -61,7 +61,7 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
