@@ -38,10 +38,9 @@ class TermsPage extends StatelessWidget {
               child: Column(
                 children: [
                   const Spacer(flex: 2),
-                  // Large friendly illustration
                   Container(
-                    width: 280,
-                    height: 280,
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(40),
@@ -55,7 +54,7 @@ class TermsPage extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.description_rounded,
-                      size: 100,
+                      size: 75,
                       color: colorScheme.primary,
                     ),
                   )
@@ -67,7 +66,7 @@ class TermsPage extends StatelessWidget {
                           end: const Offset(1, 1))
                       .fadeIn(duration: 800.ms),
 
-                  const Spacer(),
+                  const SizedBox(height: 12),
 
                   // Title
                   Text(
@@ -85,30 +84,12 @@ class TermsPage extends StatelessWidget {
                       .fadeIn(delay: 300.ms, duration: 600.ms)
                       .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
 
-                  const SizedBox(height: 12),
-
-                  // Subtitle
-                  Text(
-                    'Please review and accept our terms to continue',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: colorScheme.onSurfaceVariant,
-                      height: 1.5,
-                      fontWeight: FontWeight.w400,
-                    ),
-                    textAlign: TextAlign.center,
-                  )
-                      .animate()
-                      .fadeIn(delay: 500.ms, duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-
                   const Spacer(),
 
-                  // Terms Card
-                  Flexible(
-                    child: SingleChildScrollView(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
+                   // Terms Card
+                   IntrinsicHeight(
+                     child: Container(
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: colorScheme.surface,
                           borderRadius: BorderRadius.circular(24),
@@ -120,71 +101,59 @@ class TermsPage extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Header with expand/collapse button
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    l10n.agreement,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Obx(() => Icon(
-                                    splashController.termsExpanded.value
-                                        ? Icons.expand_less
-                                        : Icons.expand_more,
-                                    color: colorScheme.primary,
-                                  )),
-                                  onPressed: () {
-                                    HapticFeedback.selectionClick();
-                                    splashController.toggleTermsExpanded();
-                                  },
-                                  tooltip: splashController.termsExpanded.value
-                                      ? 'Collapse'
-                                      : 'Expand to read full terms',
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
+                         child: Column(
+                           crossAxisAlignment: CrossAxisAlignment.start,
+                           mainAxisSize: MainAxisSize.min,
+                           children: [
+                             // Header (hidden when accepted)
+                             Obx(() => splashController.agreementAccepted.value
+                                 ? const SizedBox.shrink()
+                                 : Row(
+                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                     children: [
+                                       Expanded(
+                                         child: Text(
+                                           l10n.agreement,
+                                           style: TextStyle(
+                                             fontSize: 18,
+                                             fontWeight: FontWeight.bold,
+                                             color: colorScheme.onSurface,
+                                           ),
+                                         ),
+                                       ),
+                                       IconButton(
+                                         icon: Obx(() => Icon(
+                                           splashController.termsExpanded.value
+                                               ? Icons.expand_less
+                                               : Icons.expand_more,
+                                           color: colorScheme.primary,
+                                         )),
+                                         onPressed: () {
+                                           HapticFeedback.selectionClick();
+                                           splashController.toggleTermsExpanded();
+                                         },
+                                         tooltip: splashController.termsExpanded.value
+                                             ? 'Collapse terms'
+                                             : 'Expand to read full terms',
+                                       ),
+                                     ],
+                                   )),
+                             // Spacing (only when header is shown)
+                             Obx(() => splashController.agreementAccepted.value
+                                 ? const SizedBox.shrink()
+                                 : const SizedBox(height: 12)),
 
-                            // Collapsible terms content
-                            Obx(() => AnimatedCrossFade(
-                              firstChild: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Tap to expand and read full terms...',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: colorScheme.onSurfaceVariant,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              secondChild: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  AgreementItemWidget(text: l10n.term1),
-                                  const SizedBox(height: 8),
-                                  AgreementItemWidget(text: l10n.term2),
-                                ],
-                              ),
-                              crossFadeState: splashController.termsExpanded.value
-                                  ? CrossFadeState.showSecond
-                                  : CrossFadeState.showFirst,
-                              duration: const Duration(milliseconds: 300),
-                            )),
+                             // Terms content (hidden when accepted)
+                             Obx(() => splashController.agreementAccepted.value
+                                 ? const SizedBox.shrink()
+                                 : Column(
+                                     crossAxisAlignment: CrossAxisAlignment.start,
+                                     children: [
+                                       AgreementItemWidget(text: l10n.term1),
+                                       const SizedBox(height: 8),
+                                       AgreementItemWidget(text: l10n.term2),
+                                     ],
+                                   ).animate().fadeIn(duration: 300.ms)),
                             const SizedBox(height: 16),
 
                             // Agreement Checkbox
@@ -250,16 +219,15 @@ class TermsPage extends StatelessWidget {
                                 ),
                               )),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ).animate().fadeIn(delay: 600.ms, duration: 600.ms).scale(
+                           ],
+                         ),
+                     ),
+                   ).animate().fadeIn(delay: 600.ms, duration: 600.ms).scale(
                       delay: 600.ms,
                       duration: 400.ms,
                       curve: Curves.easeOut),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
                   // Username Input and other form elements
                   Obx(() => _buildFormElements(l10n, splashController, colorScheme)),
@@ -363,7 +331,6 @@ class TermsPage extends StatelessWidget {
               ),
               style: OutlinedButton.styleFrom(
                 backgroundColor: colorScheme.surface,
-                side: BorderSide(color: colorScheme.outline),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -375,34 +342,6 @@ class TermsPage extends StatelessWidget {
               .animate()
               .fadeIn(delay: 400.ms, duration: 600.ms)
               .scale(delay: 400.ms, duration: 400.ms, curve: Curves.easeOutBack),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: Divider(
-                  color: colorScheme.outlineVariant,
-                  thickness: 1,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  l10n.orDivider,
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Divider(
-                  color: colorScheme.outlineVariant,
-                  thickness: 1,
-                ),
-              ),
-            ],
-          ).animate().fadeIn(delay: 500.ms, duration: 600.ms),
           const SizedBox(height: 16),
         ],
 

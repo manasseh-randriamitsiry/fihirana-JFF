@@ -41,11 +41,11 @@ class LanguageSelectionPage extends StatelessWidget {
                   const Spacer(flex: 2),
                   // Large friendly illustration
                   Container(
-                    width: 280,
-                    height: 280,
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(40),
+                      borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
                           color: colorScheme.shadow.withValues(alpha: 0.1),
@@ -56,7 +56,7 @@ class LanguageSelectionPage extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.language_rounded,
-                      size: 100,
+                      size: 75,
                       color: colorScheme.primary,
                     ),
                   )
