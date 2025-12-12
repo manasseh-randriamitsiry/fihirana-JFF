@@ -1205,7 +1205,7 @@ class AppLocalizationsMg extends AppLocalizations {
       'Tsy hampiditra hira tsy mifanaraka amin\'ny fivavahana JFF';
 
   @override
-  String get agreement => 'Manaiky ny fepetra voalaza eto ambany aho';
+  String get agreement => 'Fanekena:';
 
   @override
   String get enterYourName => 'Iza no anaranao?';

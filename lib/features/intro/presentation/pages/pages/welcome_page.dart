@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/intro/presentation/controllers/splash_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/features/intro/presentation/widgets/splash_widgets.dart';
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
@@ -16,216 +15,142 @@ class WelcomePage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final splashController = SplashController.to;
 
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF6366F1),
-            Color(0xFF8B5CF6),
-            Color(0xFFEC4899),
-          ],
-        ),
-      ),
-      child: SafeArea(
+    // Soft Pastel Teal/Aqua Palette
+    const backgroundColor = Color(0xFFE0F7FA); // Very light cyan
+    const primaryColor = Color(0xFF00ACC1); // Cyan
+    const textColor = Color(0xFF006064); // Dark Cyan
+
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: SafeArea(
         child: Stack(
           children: [
-            // Animated Background Elements
-            Positioned(
-              top: -50,
-              right: -50,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.15),
-                      Colors.white.withValues(alpha: 0.05),
-                    ],
-                  ),
-                ),
-              )
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .scale(
-                      duration: const Duration(seconds: 4),
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.3, 1.3),
-                      curve: Curves.easeInOut),
-            ),
-            Positioned(
-              bottom: 100,
-              left: -30,
-              child: Container(
-                width: 150,
-                height: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.1),
-                      Colors.white.withValues(alpha: 0.02),
-                    ],
-                  ),
-                ),
-              )
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .scale(
-                      duration: const Duration(seconds: 5),
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.5, 1.5),
-                      curve: Curves.easeInOut),
-            ),
+            Column(
+              children: [
+                const Spacer(flex: 2),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
+                // Hero Illustration
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 250,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        shape: BoxShape.circle,
+                      ),
+                    ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+                     .scale(duration: 3000.ms, begin: const Offset(1, 1), end: const Offset(1.1, 1.1)),
+                     
+                     Container(
+                      width: 200,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: primaryColor.withValues(alpha: 0.2),
+                            blurRadius: 40,
+                            offset: const Offset(0, 20),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.music_note_rounded,
+                        size: 100,
+                        color: primaryColor,
+                      ),
+                    ).animate().scale(duration: 800.ms, curve: Curves.elasticOut).fadeIn(duration: 600.ms),
+                  ],
+                ),
+
+                const Spacer(flex: 1),
+
+                // Title Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      // App Icon with glow effect
-                      Container(
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.purple.withValues(alpha: 0.3),
-                              blurRadius: 40,
-                              spreadRadius: 5,
-                            ),
-                            BoxShadow(
-                              color: Colors.pink.withValues(alpha: 0.2),
-                              blurRadius: 60,
-                              spreadRadius: 10,
-                            ),
-                          ],
-                        ),
-                        child: const Icon(
-                          Icons.music_note_rounded,
-                          size: 64,
-                          color: Color(0xFF6366F1),
-                        ),
-                      )
-                          .animate()
-                          .scale(
-                              duration: 800.ms,
-                              curve: Curves.elasticOut,
-                              begin: const Offset(0, 0),
-                              end: const Offset(1, 1))
-                          .then(delay: 200.ms)
-                          .shimmer(
-                              duration: 2000.ms,
-                              color: Colors.white.withValues(alpha: 0.5)),
-                      const SizedBox(height: 32),
-
-                      // Title
+                    children: [
                       Text(
-                        l10n.splashScreenTitle,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 2),
-                              blurRadius: 8,
-                              color: Colors.black26,
-                            ),
-                          ],
+                        "Jesosy Famonjena Fahamarinantsika",
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: textColor,
+                          letterSpacing: -0.5,
+                          height: 1.2,
                         ),
                         textAlign: TextAlign.center,
-                      )
-                          .animate()
-                          .fadeIn(duration: 600.ms)
-                          .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
-                      const SizedBox(height: 12),
+                      ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
 
-                      // Subtitle
+                      const SizedBox(height: 16),
+
                       Text(
                         l10n.splashScreenSubtitle,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 16,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontSize: 18,
+                          color: textColor.withValues(alpha: 0.8),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.center,
-                      )
-                          .animate()
-                          .fadeIn(delay: 200.ms, duration: 600.ms)
-                          .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-                      const SizedBox(height: 40),
+                      ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
+                    ],
+                  ),
+                ),
 
-                      // Feature Cards
-                      SplashCardWidget(
-                        padding: const EdgeInsets.all(20),
-                        color: Colors.white.withValues(alpha: 0.95),
-                        child: Column(
-                          children: [
-                            FeatureItemWidget(icon: Icons.library_music, text: l10n.appFeature1),
-                            const SizedBox(height: 12),
-                            FeatureItemWidget(icon: Icons.mic_rounded, text: l10n.appFeature2),
-                            const SizedBox(height: 12),
-                            FeatureItemWidget(icon: Icons.sync_rounded, text: l10n.appFeature3),
-                            const SizedBox(height: 12),
-                            FeatureItemWidget(icon: Icons.people_rounded, text: l10n.appFeature4),
-                          ],
-                        ),
-                      )
-                          .animate()
-                          .fadeIn(delay: 400.ms, duration: 600.ms)
-                          .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-                      const SizedBox(height: 32),
+                const Spacer(flex: 2),
 
-                      // Get Started Button
+                // Buttons
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
+                  child: Column(
+                    children: [
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: FilledButton(
                           onPressed: () {
                             HapticFeedback.mediumImpact();
-                            splashController.liquidController.animateToPage(page: 2, duration: 600);
+                          
+                             splashController.liquidController.animateToPage(page: 2, duration: 600);
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: const Color(0xFF6366F1),
-                            padding: const EdgeInsets.symmetric(vertical: 18),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 20),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(28),
                             ),
                             elevation: 8,
-                            shadowColor: Colors.black.withValues(alpha: 0.3),
+                            shadowColor: primaryColor.withValues(alpha: 0.5),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 l10n.getStarted,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward_rounded, size: 24),
+                              const Icon(Icons.arrow_forward_rounded),
                             ],
                           ),
                         ),
-                      ).animate().fadeIn(delay: 600.ms, duration: 600.ms).scale(
-                          delay: 600.ms,
-                          duration: 400.ms,
-                          curve: Curves.easeOutBack),
+                      ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.5, end: 0),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
-              ),
+
+                const SizedBox(height: 48),
+              ],
             ),
-            Obx(() => PageIndicatorWidget(currentPage: splashController.currentPage.value, totalPages: 3)),
+             Positioned(
+               bottom: 10,
+               left: 0,
+               right: 0,
+               child: Obx(() => PageIndicatorWidget(currentPage: splashController.currentPage.value, totalPages: 3)),
+             ), 
           ],
         ),
       ),

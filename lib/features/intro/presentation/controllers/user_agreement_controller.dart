@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Controller for handling user agreements and terms
 class UserAgreementController extends GetxController {
   final RxBool agreementAccepted = false.obs;
-  final RxBool termsExpanded = false.obs;
+  final RxBool termsExpanded = true.obs;
 
   /// Toggle agreement acceptance
   void toggleAgreement() {

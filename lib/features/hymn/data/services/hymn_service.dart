@@ -98,7 +98,13 @@ class HymnService implements IHymnService {
     await _firebaseSyncService.syncHistoryToFirebase();
   }
 
-  HymnService() {
+  static final HymnService _instance = HymnService._internal();
+
+  factory HymnService() {
+    return _instance;
+  }
+
+  HymnService._internal() {
     _favoritesService = FavoritesService(
       firebaseSyncService: _firebaseSyncService,
       auth: _auth,
@@ -165,6 +171,10 @@ class HymnService implements IHymnService {
   @override
   Future<bool> isFavorite(String hymnId) async {
     return _favoritesService.isFavorite(hymnId);
+  }
+
+  void refreshFavorites() {
+    _favoritesService.refreshFavorites();
   }
 
   @override
