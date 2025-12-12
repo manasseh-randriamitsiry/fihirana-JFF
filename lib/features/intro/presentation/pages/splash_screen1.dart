@@ -27,7 +27,7 @@ class SplashScreen1 extends StatelessWidget {
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop && splashController.currentPage.value > 0) {
           splashController.liquidController.animateToPage(
-              page: splashController.currentPage.value - 1, duration: 600);
+              page: splashController.currentPage.value - 1, duration: 700);
         }
       },
       child: Scaffold(

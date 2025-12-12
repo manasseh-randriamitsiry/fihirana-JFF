@@ -56,10 +56,10 @@ class TermsPage extends StatelessWidget {
                   // Title
                   Text(
                     l10n.termsAndConditions,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
+                      color: Colors.white,
                       letterSpacing: -0.5,
                       height: 1.2,
                     ),
@@ -135,9 +135,9 @@ class TermsPage extends StatelessWidget {
                               borderRadius: BorderRadius.circular(16),
                                child: Obx(() => SizedBox(
                                  height: 56,
-                                 child: AnimatedContainer(
-                                   duration: const Duration(milliseconds: 300),
-                                   padding: const EdgeInsets.all(12),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                                 decoration: BoxDecoration(
                                   color: splashController.agreementAccepted.value
                                       ? colorScheme.primaryContainer
@@ -216,224 +216,227 @@ class TermsPage extends StatelessWidget {
   }
 
   Widget _buildFormElements(AppLocalizations l10n, SplashController splashController, ColorScheme colorScheme) {
-    return Column(
-      children: [
-        // Username Input (only shown when agreement is accepted and not signed in with Google)
-        if (splashController.agreementAccepted.value && !splashController.isGoogleUserSignedIn) ...[
-          const SizedBox(height: 20),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Column(
+        children: [
+          // Username Input (only shown when agreement is accepted and not signed in with Google)
+          if (splashController.agreementAccepted.value && !splashController.isGoogleUserSignedIn) ...[
+            const SizedBox(height: 20),
+              SizedBox(
+                height: 56,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.shadow.withValues(alpha: 0.08),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: TextField(
+                controller: splashController.usernameController,
+                maxLength: 15,
+                style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
+               decoration: InputDecoration(
+                 hintText: l10n.enterYourName,
+                 hintStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
+                 prefixIcon: Icon(Icons.person_outline, color: colorScheme.primary, size: 24),
+                 border: InputBorder.none,
+                 counterText: '',
+                 contentPadding: const EdgeInsets.symmetric(vertical: 16),
+               ),
+                 ),
+              ),
+            )
+                .animate()
+                .fadeIn(delay: 200.ms, duration: 600.ms)
+                .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+            // Helper text for character count
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Obx(() => Text(
+                '${splashController.usernameLength.value}/15 characters (minimum 4)',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: splashController.usernameLength.value >= 4
+                      ? colorScheme.primary
+                      : colorScheme.error,
+                  fontWeight: FontWeight.w500,
+                ),
+              )),
+            ),
+          ],
+
+          // Google Sign In Button
+          if (splashController.agreementAccepted.value && !splashController.isGoogleUserSignedIn) ...[
+            const SizedBox(height: 20),
             SizedBox(
-              height: 56,
-              child: Container(
+              width: double.infinity,
+              child: Obx(() => OutlinedButton.icon(
+                onPressed: !splashController.isSigningIn.value ? splashController.handleGoogleSignIn : null,
+                icon: splashController.isSigningIn.value
+                    ? SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                        ),
+                      )
+                    : Image.asset(
+                        'assets/images/google_logo.png',
+                        height: 24,
+                        errorBuilder: (context, error, stackTrace) => Icon(Icons.login, size: 24, color: colorScheme.primary),
+                      ),
+                label: Text(
+                  splashController.isSigningIn.value ? l10n.signingIn : l10n.signInWithGoogle,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: colorScheme.primary,
+                  ),
+                ),
+                 style: OutlinedButton.styleFrom(
+                   backgroundColor: colorScheme.surface,
+                   padding: const EdgeInsets.symmetric(vertical: 16),
+                   shape: RoundedRectangleBorder(
+                     borderRadius: BorderRadius.circular(16),
+                   ),
+                   elevation: 0,
+                   minimumSize: const Size(double.infinity, 56),
+                 ),
+              )),
+            )
+                .animate()
+                .fadeIn(delay: 400.ms, duration: 600.ms)
+                .scale(delay: 400.ms, duration: 400.ms, curve: Curves.easeOutBack),
+            const SizedBox(height: 16),
+          ],
+
+          // Continue Button
+          if (splashController.agreementAccepted.value) ...[
+            // User Info Display (when Google user is signed in)
+            if (splashController.isGoogleUserSignedIn)
+              Container(
+                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 20),
                 decoration: BoxDecoration(
                   color: colorScheme.surface,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
                       color: colorScheme.shadow.withValues(alpha: 0.08),
                       blurRadius: 12,
-                      offset: const Offset(0, 4),
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: TextField(
-              controller: splashController.usernameController,
-              maxLength: 15,
-              style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
-              decoration: InputDecoration(
-                labelText: l10n.enterYourName,
-                labelStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
-                prefixIcon: Icon(Icons.person_outline, color: colorScheme.primary, size: 24),
-                border: InputBorder.none,
-                counterText: '',
-                contentPadding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-               ),
-            ),
-          )
-              .animate()
-              .fadeIn(delay: 200.ms, duration: 600.ms)
-              .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-
-          // Helper text for character count
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Obx(() => Text(
-              '${splashController.usernameLength.value}/15 characters (minimum 4)',
-              style: TextStyle(
-                fontSize: 14,
-                color: splashController.usernameLength.value >= 4
-                    ? colorScheme.primary
-                    : colorScheme.error,
-                fontWeight: FontWeight.w500,
-              ),
-            )),
-          ),
-        ],
-
-        // Google Sign In Button
-        if (splashController.agreementAccepted.value && !splashController.isGoogleUserSignedIn) ...[
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            child: Obx(() => OutlinedButton.icon(
-              onPressed: !splashController.isSigningIn.value ? splashController.handleGoogleSignIn : null,
-              icon: splashController.isSigningIn.value
-                  ? SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        shape: BoxShape.circle,
                       ),
-                    )
-                  : Image.asset(
-                      'assets/images/google_logo.png',
-                      height: 24,
-                      errorBuilder: (context, error, stackTrace) => Icon(Icons.login, size: 24, color: colorScheme.primary),
+                      child: Icon(
+                        Icons.check_circle,
+                        color: colorScheme.primary,
+                        size: 24,
+                      ),
                     ),
-              label: Text(
-                splashController.isSigningIn.value ? l10n.signingIn : l10n.signInWithGoogle,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.primary,
-                ),
-              ),
-               style: OutlinedButton.styleFrom(
-                 backgroundColor: colorScheme.surface,
-                 padding: const EdgeInsets.symmetric(vertical: 16),
-                 shape: RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(16),
-                 ),
-                 elevation: 0,
-                 minimumSize: const Size(double.infinity, 56),
-               ),
-            )),
-          )
-              .animate()
-              .fadeIn(delay: 400.ms, duration: 600.ms)
-              .scale(delay: 400.ms, duration: 400.ms, curve: Curves.easeOutBack),
-          const SizedBox(height: 16),
-        ],
-
-        // Continue Button
-        if (splashController.agreementAccepted.value) ...[
-          // User Info Display (when Google user is signed in)
-          if (splashController.isGoogleUserSignedIn)
-            Container(
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.shadow.withValues(alpha: 0.08),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.check_circle,
-                      color: colorScheme.primary,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.signedInAsLabel,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w500,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l10n.signedInAsLabel,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Obx(() => Text(
-                          splashController.googleUserName.value,
+                          const SizedBox(height: 4),
+                          Obx(() => Text(
+                            splashController.googleUserName.value,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
+                            ),
+                          )),
+                          Obx(() => Text(
+                            splashController.googleUserEmail.value,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          )),
+                        ],
+                      ),
+                    ),
+                  ],
+                 ),
+               )
+               .animate()
+               .fadeIn(delay: 200.ms, duration: 600.ms)
+               .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+            Obx(() {
+              final usernameController = Get.find<UsernameInputController>();
+              return splashController.isGoogleUserSignedIn || usernameController.usernameLength.value >= 4
+                  ? SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: splashController.isGoogleUserSignedIn
+                            ? splashController.handleGoogleUserContinue
+                            : Get.find<UsernameInputController>().usernameLength.value >= 4
+                                ? splashController.handleUsernameSubmit
+                                : null,
+                        icon: splashController.isGoogleUserSignedIn
+                            ? Icon(Icons.check_circle, size: 20, color: colorScheme.onPrimary)
+                            : Icon(Icons.person_outline, size: 20, color: colorScheme.onPrimary),
+                        label: Text(
+                          splashController.getContinueButtonText(l10n.continueAs('{name}'), l10n.continueAsGuest),
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.onSurface,
+                            fontWeight: FontWeight.w600,
+                            color: colorScheme.onPrimary,
                           ),
-                        )),
-                        Obx(() => Text(
-                          splashController.googleUserEmail.value,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        )),
-                      ],
-                    ),
-                  ),
-                ],
-               ),
-             )
-             .animate()
-             .fadeIn(delay: 200.ms, duration: 600.ms)
-             .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-
-          Obx(() {
-            final usernameController = Get.find<UsernameInputController>();
-            return splashController.isGoogleUserSignedIn || usernameController.usernameLength.value >= 4
-                ? SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: splashController.isGoogleUserSignedIn
-                          ? splashController.handleGoogleUserContinue
-                          : Get.find<UsernameInputController>().usernameLength.value >= 4
-                              ? splashController.handleUsernameSubmit
-                              : null,
-                      icon: splashController.isGoogleUserSignedIn
-                          ? Icon(Icons.check_circle, size: 20, color: colorScheme.onPrimary)
-                          : Icon(Icons.person_outline, size: 20, color: colorScheme.onPrimary),
-                      label: Text(
-                        splashController.getContinueButtonText(l10n.continueAs('{name}'), l10n.continueAsGuest),
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: colorScheme.onPrimary,
                         ),
-                      ),
-                       style: FilledButton.styleFrom(
-                         backgroundColor: colorScheme.primary,
-                         padding: const EdgeInsets.symmetric(vertical: 16),
-                         shape: RoundedRectangleBorder(
-                           borderRadius: BorderRadius.circular(16),
+                         style: FilledButton.styleFrom(
+                           backgroundColor: colorScheme.primary,
+                           padding: const EdgeInsets.symmetric(vertical: 16),
+                           shape: RoundedRectangleBorder(
+                             borderRadius: BorderRadius.circular(16),
+                           ),
+                           elevation: 0,
+                           minimumSize: const Size(double.infinity, 56),
                          ),
-                         elevation: 0,
-                         minimumSize: const Size(double.infinity, 56),
-                       ),
-                    ),
-                  )
-                  .animate()
-                  .fadeIn(
-                      delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
-                      duration: 600.ms)
-                  .scale(
-                      delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
-                      duration: 400.ms,
-                      curve: Curves.easeOutBack)
-                : const SizedBox.shrink();
-          }),
+                      ),
+                    )
+                    .animate()
+                    .fadeIn(
+                        delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
+                        duration: 600.ms)
+                    .scale(
+                        delay: splashController.isGoogleUserSignedIn ? 400.ms : 600.ms,
+                        duration: 400.ms,
+                        curve: Curves.easeOutBack)
+                  : const SizedBox.shrink();
+            }),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
