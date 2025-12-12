@@ -279,7 +279,7 @@ class HymnBridgeCard extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      color: colorScheme.primary.withValues(alpha: 0.1),
+      color: colorScheme.primary.withValues(alpha: 0.05),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -291,7 +291,7 @@ class HymnBridgeCard extends StatelessWidget {
                 Icon(Icons.repeat_rounded, size: 20, color: colorScheme.secondary),
                 const SizedBox(width: 8),
                 Text(
-                  l10n.chorus, // Bridge/Chorus
+                  l10n.chorus,
                   style: theme.textTheme.titleSmall?.copyWith(
                     color: colorScheme.secondary,
                     fontWeight: FontWeight.bold,
@@ -306,7 +306,7 @@ class HymnBridgeCard extends StatelessWidget {
                 fontSize: fontSize,
                 fontStyle: FontStyle.italic,
                 height: 1.6,
-                color: colorScheme.onSecondaryContainer,
+                color: colorScheme.primary,
               ),
             ),
           ],
