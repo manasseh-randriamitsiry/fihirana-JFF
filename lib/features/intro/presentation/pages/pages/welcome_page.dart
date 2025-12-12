@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/intro/presentation/controllers/splash_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
-import 'package:fihirana/shared/widgets/animations/rive_animation_widget.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 
@@ -51,10 +50,10 @@ class WelcomePage extends StatelessWidget {
                     ),
                   ],
                 ),
-                child: RiveAnimationWidget(
-                  assetPath: 'assets/animations/music.riv',
-                  fit: BoxFit.contain,
-                  alignment: Alignment.center,
+                child: const Icon(
+                  Icons.music_note_rounded,
+                  size: 120,
+                  color: Color(0xFF9C27B0),
                 ),
               )
                   .animate()
