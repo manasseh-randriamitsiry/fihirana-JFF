@@ -31,7 +31,7 @@ class AppRouter {
       ),
       GetPage(name: '/bible', page: () => const BibleReaderScreen()),
       GetPage(name: '/favorites', page: () => const FavoritesPage()),
-      GetPage(name: '/history', page: () => HistoryScreen()),
+      GetPage(name: '/history', page: () => const HistoryScreen()),
       GetPage(name: '/playlists', page: () => const PlaylistListScreen()),
       GetPage(
         name: '/recordings',

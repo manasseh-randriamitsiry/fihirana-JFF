@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-
 import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
 import 'hymn_list_item.dart';
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
@@ -37,7 +36,7 @@ class HymnListWidget extends StatelessWidget {
           return SliverFillRemaining(
             child: Center(
               child: Text(
-                AppLocalizations.of(context)!
+                AppLocalizations.of(context)
                     .errorOccurredWithDetails(snapshot.error.toString()),
                 style: defaultTextStyle,
               ),
@@ -55,9 +54,9 @@ class HymnListWidget extends StatelessWidget {
         if (hymns.isEmpty) {
           return SliverFillRemaining(
             child: EmptyStateWidget(
-              message: AppLocalizations.of(context)!.noHymnsFound,
+              message: AppLocalizations.of(context).noHymnsFound,
               icon: Icons.music_off_rounded,
-              actionLabel: AppLocalizations.of(context)!.clearSearch,
+              actionLabel: AppLocalizations.of(context).clearSearch,
               onActionPressed: () {
                 if (!hymnController.isDisposed) {
                   hymnController.safeSearchController.clear();

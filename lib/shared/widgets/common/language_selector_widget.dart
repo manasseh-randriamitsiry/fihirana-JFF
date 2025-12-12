@@ -27,7 +27,7 @@ class LanguageSelectorWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title ?? AppLocalizations.of(context)!.chooseLanguage,
+                  title ?? AppLocalizations.of(context).chooseLanguage,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                  const SizedBox(height: 16),

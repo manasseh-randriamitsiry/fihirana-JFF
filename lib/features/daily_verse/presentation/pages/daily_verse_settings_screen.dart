@@ -37,7 +37,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
@@ -380,7 +380,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
   }
 
   Future<void> _showTranslationDialog(BuildContext context, String text) async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final languageController = Get.find<LanguageController>();
 
     // Determine target language

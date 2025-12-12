@@ -112,7 +112,7 @@ class _AboutScreenState extends State<AboutScreen> {
 
         // Show "up to date" message if no update is available
         if (!updateAvailable && context.mounted) {
-          final l10n = AppLocalizations.of(context)!;
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.appIsUpToDate),
@@ -128,7 +128,7 @@ class _AboutScreenState extends State<AboutScreen> {
         });
 
         if (context.mounted) {
-          final l10n = AppLocalizations.of(context)!;
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(l10n.errorCheckingUpdate),
@@ -154,7 +154,7 @@ class _AboutScreenState extends State<AboutScreen> {
         });
 
         if (context.mounted) {
-          final l10n = AppLocalizations.of(context)!;
+          final l10n = AppLocalizations.of(context);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('${l10n.errorDownloadingUpdate}: ${e.toString()}'),
@@ -250,7 +250,7 @@ class _AboutScreenState extends State<AboutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(

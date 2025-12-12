@@ -331,7 +331,7 @@ class RecordingPublishingManager extends GetxController {
     final TextEditingController controller =
         TextEditingController(text: recording.title);
     String? result;
-    final l10n = AppLocalizations.of(Get.context!)!;
+    final l10n = AppLocalizations.of(Get.context!);
 
     try {
       await Get.dialog(
@@ -340,13 +340,13 @@ class RecordingPublishingManager extends GetxController {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('A recording with this title already exists. Please enter a new title.'),
+              const Text('A recording with this title already exists. Please enter a new title.'),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,
                 autocorrect: false,
                 enableSuggestions: false,
-                autofillHints: [],
+                autofillHints: const [],
                 textInputAction: TextInputAction.done,
                 keyboardType: TextInputType.text,
                 smartDashesType: SmartDashesType.disabled,

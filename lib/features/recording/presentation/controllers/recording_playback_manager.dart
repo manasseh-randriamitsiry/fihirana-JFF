@@ -266,7 +266,7 @@ class RecordingPlaybackManager extends GetxController {
     final l10n = AppLocalizations.of(Get.context!);
     Get.dialog(
       AlertDialog(
-        title: Text(l10n!.recordingInProgressDialog),
+        title: Text(l10n.recordingInProgressDialog),
         content: Text(l10n.pleaseStopRecordingBeforePlaying),
         actions: [
           TextButton(

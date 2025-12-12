@@ -85,7 +85,7 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return StatefulBuilder(
       builder: (context, setState) => AlertDialog(

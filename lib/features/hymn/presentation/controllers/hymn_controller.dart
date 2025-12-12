@@ -50,7 +50,7 @@ class HymnController extends GetxController {
 
   Future<bool> createHymn(String hymnNumber, String title, List<String> verses,
       String? bridge, String? hymnHint) async {
-    final l10n = AppLocalizations.of(Get.context!)!;
+    final l10n = AppLocalizations.of(Get.context!);
     Get.snackbar(
       l10n.noPermission,
       l10n.cannotAddHymns,

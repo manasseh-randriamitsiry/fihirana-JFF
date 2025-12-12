@@ -67,7 +67,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   Future<void> _createHymn() async {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
 
     try {
@@ -146,7 +146,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
   }
 
   void _showAudioPlayerDialog() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     if (_hymnNumberController.text.trim().isEmpty) return;
 
     showDialog(
@@ -193,7 +193,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     final authController = Get.find<AuthController>();
     final user = FirebaseAuth.instance.currentUser;
 

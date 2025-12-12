@@ -34,7 +34,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Dialog(
       backgroundColor: Colors.transparent,

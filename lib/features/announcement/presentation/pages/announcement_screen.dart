@@ -22,7 +22,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   final ColorController colorController = Get.find<ColorController>();
 
 void _showCreateAnnouncementDialog() {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     String title = '';
     String message = '';
     DateTime? expiresAt;
@@ -190,7 +190,7 @@ void _showEditAnnouncementDialog(Announcement announcement) {
     String title = announcement.title;
     String message = announcement.message;
     DateTime? expiresAt = announcement.expiresAt;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     showDialog(
       context: context,

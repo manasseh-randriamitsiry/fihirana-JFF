@@ -126,7 +126,7 @@ class DrawerWidgetState extends State<DrawerWidget>
         _updateCurrentUser();
         
         if (mounted) {
-          final l10n = AppLocalizations.of(context)!;
+          final l10n = AppLocalizations.of(context);
           Get.snackbar(
             l10n.welcome,
             l10n.signedInSuccessfully,
@@ -284,7 +284,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                                   _firebaseAuth.currentUser?.displayName ??
                                   (_userController.username.value.isNotEmpty ? _userController.username.value : null) ??
                                   'User')
-                              : (_userController.username.value.isNotEmpty ? _userController.username.value : AppLocalizations.of(context)!.guest),
+                              : (_userController.username.value.isNotEmpty ? _userController.username.value : AppLocalizations.of(context).guest),
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.95),
                           fontSize: 22,
@@ -328,7 +328,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                               borderRadius: BorderRadius.circular(20),
                             ),
                               child: Text(
-                                AppLocalizations.of(context)!.signIn,
+                                AppLocalizations.of(context).signIn,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14,
@@ -349,7 +349,7 @@ class DrawerWidgetState extends State<DrawerWidget>
             child: Obx(() {
               final currentRoute =
                   Get.find<ShellController>().currentRoute.value;
-final l10n = AppLocalizations.of(context)!;
+final l10n = AppLocalizations.of(context);
               return ListView(
                 padding: EdgeInsets.zero,
                 children: [

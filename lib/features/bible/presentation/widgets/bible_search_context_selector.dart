@@ -24,7 +24,7 @@ class _BibleSearchContextSelectorState extends State<BibleSearchContextSelector>
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),

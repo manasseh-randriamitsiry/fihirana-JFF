@@ -46,7 +46,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
       await VersionCheckService.downloadAndInstallLatestVersion();
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('${l10n.errorDownloadingUpdate2}: ${e.toString()}'),
@@ -67,7 +67,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         return AlertDialog(
           title: Text(l10n.installUpdateTitle),
           content: Text(l10n.installUpdateContent),

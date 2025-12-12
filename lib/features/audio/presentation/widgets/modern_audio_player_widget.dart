@@ -193,7 +193,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
       await _audioService.playNext();
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.errorPlayingNextHymn(e.toString()))),
         );
@@ -207,7 +207,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
       await _audioService.playPrevious();
     } catch (e) {
       if (mounted) {
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.errorPlayingPreviousHymn(e.toString()))),
         );
@@ -239,7 +239,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
           _isLoading = false;
           _isPlaying = false;
         });
-        final l10n = AppLocalizations.of(context)!;
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.errorPlayingAudio(e.toString()))),
         );

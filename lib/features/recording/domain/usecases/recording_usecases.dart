@@ -1,5 +1,6 @@
 import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
+import 'package:flutter/foundation.dart';
 
 /// Use case for starting a recording
 class StartRecordingUseCase {
@@ -74,7 +75,9 @@ class DeleteRecordingUseCase {
   DeleteRecordingUseCase(this._repository);
 
   Future<void> call(String recordingId) async {
-    print('DeleteRecordingUseCase: called with id: $recordingId');
+    if (kDebugMode) {
+      print('DeleteRecordingUseCase: called with id: $recordingId');
+    }
     return await _repository.deleteRecording(recordingId);
   }
 }

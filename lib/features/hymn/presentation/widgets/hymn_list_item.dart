@@ -296,7 +296,7 @@ context
   Future<void> _playHymnAudio(BuildContext context) async {
     // Capture scaffold messenger and localization function before async operations
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final localizations = AppLocalizations.of(context)!;
+    final localizations = AppLocalizations.of(context);
     
     try {
       if (kDebugMode) {

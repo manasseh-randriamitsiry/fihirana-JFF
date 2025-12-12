@@ -26,7 +26,7 @@ class _FavoritesSearchBarState extends State<FavoritesSearchBar> {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.all(AppDimensions.md),
