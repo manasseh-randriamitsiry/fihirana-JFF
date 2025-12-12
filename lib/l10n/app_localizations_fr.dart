@@ -1223,7 +1223,7 @@ class AppLocalizationsFr extends AppLocalizations {
       'Je n\'ajouterai pas de cantiques qui ne correspondent pas à l\'adoration JFF';
 
   @override
-  String get agreement => 'J\'accepte les conditions ci-dessous';
+  String get agreement => 'Termes et conditions:';
 
   @override
   String get enterYourName => 'Entrez votre nom';
