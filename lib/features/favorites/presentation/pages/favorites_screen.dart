@@ -41,6 +41,15 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Refresh favorites stream to ensure current data is emitted
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _hymnService.refreshFavorites();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
