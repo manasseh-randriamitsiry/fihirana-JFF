@@ -121,66 +121,75 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
               ),
             ),
             actions: [
-              IconButton(
-                icon: Icon(Icons.select_all, color: iconColor),
-                tooltip: 'Select all',
-                onPressed: () {
-                  final filteredRecordings = _getFilteredRecordings();
-                  _recordingController.selectAllRecordings(filteredRecordings);
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.clear, color: iconColor),
-                tooltip: 'Clear selection',
-                onPressed: () => _recordingController.clearSelection(),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_forever, color: Colors.red),
-                tooltip: 'Delete permanently',
-                onPressed: () async {
-                  if (_recordingController.selectedRecordingIds.isEmpty) {
-                    return;
-                  }
+              // Multi-select mode buttons
+              Obx(() {
+                if (!_recordingController.isMultiSelectMode.value) {
+                  return const SizedBox.shrink();
+                }
 
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: backgroundColor,
-                      title: Text(
-                        'Delete Permanently',
-                        style: TextStyle(color: textColor),
-                      ),
-                      content: Text(
-                        'Are you sure you want to permanently delete ${_recordingController.selectedRecordingIds.length} recording${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'}? This action cannot be undone.',
-                        style: TextStyle(color: textColor.withValues(alpha: 0.8)),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, false),
-                          child: Text('Cancel', style: TextStyle(color: textColor)),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context, true),
-                          style: TextButton.styleFrom(
-                            foregroundColor: Colors.red,
-                          ),
-                          child: const Text('Delete'),
-                        ),
-                      ],
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.checklist, color: iconColor),
+                      tooltip: 'Select all',
+                      onPressed: () {
+                        final filteredRecordings = _getFilteredRecordings();
+                        _recordingController.selectAllRecordings(filteredRecordings);
+                      },
                     ),
-                  );
+                    if (_recordingController.selectedRecordingIds.isNotEmpty) ...[
+                      IconButton(
+                        icon: Icon(Icons.clear_all, color: iconColor),
+                        tooltip: 'Clear selection',
+                        onPressed: () => _recordingController.clearSelection(),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_forever, color: Colors.red),
+                        tooltip: 'Delete permanently',
+                        onPressed: () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: backgroundColor,
+                              title: Text(
+                                'Delete Permanently',
+                                style: TextStyle(color: textColor),
+                              ),
+                              content: Text(
+                                'Are you sure you want to permanently delete ${_recordingController.selectedRecordingIds.length} recording${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'}? This action cannot be undone.',
+                                style: TextStyle(color: textColor.withValues(alpha: 0.8)),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, false),
+                                  child: Text('Cancel', style: TextStyle(color: textColor)),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.red,
+                                  ),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
 
-                  if (confirmed == true) {
-                    await _recordingController.permanentlyDeleteSelectedRecordings();
-                  } else {
-                  }
-                },
-              ),
-              IconButton(
-                icon: Icon(Icons.close, color: iconColor),
-                tooltip: 'Exit multi-select',
-                onPressed: () => _recordingController.disableMultiSelectMode(),
-              ),
+                          if (confirmed == true) {
+                            await _recordingController.permanentlyDeleteSelectedRecordings();
+                          }
+                        },
+                      ),
+                    ],
+                    IconButton(
+                      icon: Icon(Icons.cancel, color: iconColor),
+                      tooltip: 'Exit multi-select',
+                      onPressed: () => _recordingController.disableMultiSelectMode(),
+                    ),
+                  ],
+                );
+              }),
             ],
           ),
           body: Column(
