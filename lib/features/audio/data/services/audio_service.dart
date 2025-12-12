@@ -27,11 +27,14 @@ class AudioService implements IAudioService {
   // Initialize player immediately to prevent LateInitializationError
   AudioPlayer _player = AudioPlayer();
 
+
   AudioService._internal() {
     _initializePlayer();
     _initializePlayerOnStartup();
-    _initializePlayerStateListener();
+    // Listeners will be initialized inside _initializePlayer after the correct player is ready
   }
+
+  final RxBool _isPlayingRx = false.obs;
 
   Future<void> _initializePlayer() async {
     final config = await AudioConfig.getAudioPlayerConfig();
@@ -39,12 +42,21 @@ class AudioService implements IAudioService {
     final androidEffects = effects?.cast<AndroidAudioEffect>() ?? [];
 
     // Dispose old player and create new one with config
-    await _player.dispose();
+    // Note: We are replacing the instance that might have been created by default
+    try {
+        await _player.dispose();
+    } catch (e) {
+        if (kDebugMode) print('AudioService: Error disposing initial player: $e');
+    }
+    
     _player = AudioPlayer(
       audioPipeline: AudioPipeline(
         androidAudioEffects: androidEffects,
       ),
     );
+
+    // Re-initialize listeners for the NEW player instance
+    _initializePlayerStateListener();
 
     if (kDebugMode) {
       print('AudioService: Initialized player with config: $config');
@@ -59,8 +71,10 @@ class AudioService implements IAudioService {
     Future.delayed(const Duration(milliseconds: 500), () async {
       try {
         final state = _player.playerState;
+        // Only reset if completely idle and we think we should be playing but player says no
         if (state.processingState == ProcessingState.idle &&
-            _currentPlayingHymnId.value.isNotEmpty) {
+            _currentPlayingHymnId.value.isNotEmpty && 
+            !_isPlayingRx.value) { // Use our reactive state check
           if (kDebugMode) {
             print('AudioService: Detected bad state on startup, resetting');
           }
@@ -83,10 +97,14 @@ class AudioService implements IAudioService {
         print(
             'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       }
+      
+      // Update our reactive state
+      _isPlayingRx.value = state.playing;
 
       // Handle completion state
       if (state.processingState == ProcessingState.completed) {
         _currentPlayingHymnId.value = '';
+        _isPlayingRx.value = false;
         // Keep _currentHymn and _currentRecording for potential replay
         // They will be cleared when playing something different
       }
@@ -94,22 +112,28 @@ class AudioService implements IAudioService {
 
     // Listen to player errors via playerStateStream
     _player.playerStateStream.listen((state) {
+      // More robust check: only clear if idle AND not playing AND we thought we were playing
       if (state.processingState == ProcessingState.idle &&
+          !state.playing &&
           _currentPlayingHymnId.value.isNotEmpty) {
-        if (kDebugMode) {
-          print('AudioService: Player entered idle state, likely due to error');
-        }
-        _currentPlayingHymnId.value = '';
-        _currentHymn = null;
+          
+        // Give it a grace period - sometimes it flickers to idle during valid transitions
+        Future.delayed(const Duration(milliseconds: 500), () {
+             if (_player.processingState == ProcessingState.idle && !_player.playing) {
+                if (kDebugMode) {
+                  print('AudioService: Player entered idle state and stopped, likely due to error');
+                }
+                _currentPlayingHymnId.value = '';
+                _currentHymn = null;
+                _isPlayingRx.value = false;
+             }
+        });
       }
     });
 
     // Add debugging for position stream
     _player.positionStream.listen((position) {
-      if (kDebugMode) {
-        print(
-            'AudioService: Position stream update: ${position.inMilliseconds}ms');
-      }
+      // debug print removed to reduce log noise
     });
   }
 
@@ -277,6 +301,24 @@ Future<void> playNext() async {
       print('AudioService: Starting to play hymn ${hymn.id}');
     }
 
+    // Resume if same hymn is already loaded (even if paused)
+    if (_currentPlayingHymnId.value == hymn.id && 
+        customAudioUrl == null) { // Don't resume if a new URL is forced
+      if (kDebugMode) {
+        print('AudioService: Hymn ${hymn.id} already loaded, resuming playback');
+      }
+      // Just ensure we are playing
+      if (!_player.playing) {
+          try {
+             await _player.play();
+          } catch(e) {
+             // If play fails, might need full reload, so fall through
+             if (kDebugMode) print('AudioService: Resume failed, falling back to reload: $e');
+          }
+      }
+      return; 
+    }
+
     // Stop current playback if different hymn is playing
     if (_currentPlayingHymnId.value.isNotEmpty &&
         _currentPlayingHymnId.value != hymn.id) {
@@ -399,7 +441,7 @@ Future<void> playNext() async {
           preload: true, // Preload the audio for faster seeking
         )
             .timeout(
-          const Duration(seconds: 30),
+          const Duration(seconds: 60), // Increased from 30s
           onTimeout: () {
             if (kDebugMode) {
               print(
@@ -415,8 +457,15 @@ Future<void> playNext() async {
         }
 
         await _player.play().timeout(
-          const Duration(seconds: 10),
+          const Duration(seconds: 30), // Increased from 10s
           onTimeout: () {
+             // Even if timeout happens, check if player actually started playing
+             if (_player.playing) {
+                 if (kDebugMode) {
+                   print('AudioService: Play timeout fired but player IS playing. Ignoring timeout.');
+                 }
+                 return; // It's fine, it started.
+             }
             if (kDebugMode) {
               print('AudioService: Timeout starting playback for ${hymn.id}');
             }
@@ -424,13 +473,20 @@ Future<void> playNext() async {
           },
         );
       } on TimeoutException catch (e) {
-        _currentPlayingHymnId.value = '';
-        if (kDebugMode) {
-          print(
-              'AudioService: TimeoutException for hymn ${hymn.id}: ${e.message}');
-        }
-        throw Exception(
-            'Audio loading timeout. Please check your internet connection and try again.');
+        // Only clear state if we are truly not playing
+        if (!_player.playing) {
+            _currentPlayingHymnId.value = '';
+            _isPlayingRx.value = false;
+             // Ensure player is stopped to avoid ghost audio
+            try { await _player.stop(); } catch (_) {}
+            
+            if (kDebugMode) {
+              print(
+                  'AudioService: TimeoutException for hymn ${hymn.id}: ${e.message}');
+            }
+            throw Exception(
+                'Audio loading timeout. Please check your internet connection and try again.');
+        } 
       }
 
       // Add debugging to check player state after play
@@ -589,7 +645,12 @@ Future<void> playNext() async {
   Stream<ProcessingState> get processingStateStream => _player.processingStateStream;
 
   @override
-  bool get isPlaying => _player.playing;
+  bool get isPlaying {
+    // Access the reactive variable to register dependency if inside Obx/GetX context
+    return _isPlayingRx.value; 
+  }
+  
+  RxBool get isPlayingRx => _isPlayingRx; // Expose the RxBool directly if needed
 
   @override
   Duration get position => _player.position;
