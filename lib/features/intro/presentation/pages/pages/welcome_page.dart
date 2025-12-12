@@ -22,9 +22,9 @@ class WelcomePage extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFFE8F2FF), // Very light blue
-            Color(0xFFF3E5F5), // Very light lavender
-            Color(0xFFFFF3E0), // Very light peach
+            Color(0xFFE3F2FD), // Light blue
+            Color(0xFFF3E5F5), // Light purple
+            Color(0xFFE8EAF6), // Light indigo
           ],
         ),
       ),
@@ -36,26 +36,25 @@ class WelcomePage extends StatelessWidget {
               child: Column(
                 children: [
                   const Spacer(flex: 2),
-
                   // Large friendly illustration
                   Container(
-                    width: 280,
-                    height: 280,
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.all(Radius.circular(32)),
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(40),
                       boxShadow: [
                         BoxShadow(
-                          color: Color(0x1F000000), // Colors.black.withValues(alpha: 0.12)
-                          blurRadius: 20,
-                          offset: Offset(0, 8),
+                          color: colorScheme.shadow.withValues(alpha: 0.1),
+                          blurRadius: 24,
+                          offset: const Offset(0, 12),
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.music_note_rounded,
-                      size: 120,
-                      color: Color(0xFF9C27B0),
+                      size: 100,
+                      color: colorScheme.primary,
                     ),
                   )
                       .animate()
@@ -72,11 +71,11 @@ class WelcomePage extends StatelessWidget {
                   Text(
                     l10n.splashScreenTitle,
                     style: TextStyle(
-                      fontSize: 32,
+                      fontSize: 34,
                       fontWeight: FontWeight.bold,
                       color: colorScheme.onSurface,
-                      letterSpacing: 0.5,
-                      height: 1.2,
+                      letterSpacing: -0.5,
+                      height: 1.1,
                     ),
                     textAlign: TextAlign.center,
                   )
@@ -84,15 +83,15 @@ class WelcomePage extends StatelessWidget {
                       .fadeIn(delay: 300.ms, duration: 600.ms)
                       .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
 
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
 
                   // Subtitle
                   Text(
                     l10n.splashScreenSubtitle,
                     style: TextStyle(
-                      fontSize: 18,
-                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                      height: 1.4,
+                      fontSize: 16,
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.5,
                       fontWeight: FontWeight.w400,
                     ),
                     textAlign: TextAlign.center,
@@ -112,16 +111,18 @@ class WelcomePage extends StatelessWidget {
                         splashController.liquidController.animateToPage(page: 2, duration: 600);
                       },
                       style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        elevation: 2,
+                        elevation: 0,
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
                       ),
                       child: Text(
                         l10n.getStarted,
                         style: const TextStyle(
-                          fontSize: 18,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

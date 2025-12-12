@@ -16,265 +16,269 @@ class TermsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final splashController = SplashController.to;
-
-
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF4CAF50),
-            Color(0xFF66BB6A),
-            Color(0xFF43A047),
-            Color(0xFF2E7D32),
+            Color(0xFFFFF3E0), // Light orange
+            Color(0xFFFCE4EC), // Light pink
+            Color(0xFFF3E5F5), // Light purple
           ],
-          stops: [0.0, 0.3, 0.7, 1.0],
         ),
       ),
       child: SafeArea(
         child: Stack(
           children: [
-            Positioned(
-              top: -80,
-              right: -80,
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.15),
-                      Colors.white.withValues(alpha: 0.05),
-                    ],
-                  ),
-                ),
-              )
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .scale(
-                      duration: const Duration(seconds: 5),
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.4, 1.4),
-                      curve: Curves.easeInOut),
-            ),
-            Positioned(
-              bottom: -60,
-              left: -60,
-              child: Container(
-                width: 200,
-                height: 200,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.1),
-                      Colors.white.withValues(alpha: 0.02),
-                    ],
-                  ),
-                ),
-              )
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .scale(
-                      duration: const Duration(seconds: 6),
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.6, 1.6),
-                      curve: Curves.easeInOut),
-            ),
-
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg, vertical: 20.0),
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      // Title
-                      Text(
-                        l10n.termsAndConditions,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 2),
-                              blurRadius: 4,
-                              color: Colors.black26,
+              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md, vertical: 20.0),
+              child: Column(
+                children: [
+                  const Spacer(flex: 2),
+                  // Large friendly illustration
+                  Container(
+                    width: 280,
+                    height: 280,
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(40),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.shadow.withValues(alpha: 0.1),
+                          blurRadius: 24,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.description_rounded,
+                      size: 100,
+                      color: colorScheme.primary,
+                    ),
+                  )
+                      .animate()
+                      .scale(
+                          duration: 1000.ms,
+                          curve: Curves.elasticOut,
+                          begin: const Offset(0.8, 0.8),
+                          end: const Offset(1, 1))
+                      .fadeIn(duration: 800.ms),
+
+                  const Spacer(),
+
+                  // Title
+                  Text(
+                    l10n.termsAndConditions,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                      letterSpacing: -0.5,
+                      height: 1.2,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                      .animate()
+                      .fadeIn(delay: 300.ms, duration: 600.ms)
+                      .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
+
+                  const SizedBox(height: 12),
+
+                  // Subtitle
+                  Text(
+                    'Please review and accept our terms to continue',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                      .animate()
+                      .fadeIn(delay: 500.ms, duration: 600.ms)
+                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+                  const Spacer(),
+
+                  // Terms Card
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colorScheme.shadow.withValues(alpha: 0.08),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                        textAlign: TextAlign.center,
-                      )
-                          .animate()
-                          .fadeIn(duration: 600.ms)
-                          .slideY(begin: -0.2, end: 0, curve: Curves.easeOut),
-                      const SizedBox(height: 24),
-
-                      // Terms Card
-                      Flexible(
-                          child: SingleChildScrollView(
-                            child: SplashCardWidget(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Header with expand/collapse button
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          l10n.agreement,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black87,
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: Obx(() => Icon(
-                                          splashController.termsExpanded.value
-                                              ? Icons.expand_less
-                                              : Icons.expand_more,
-                                          color: Colors.green,
-                                        )),
-                                        onPressed: () {
-                                          HapticFeedback.selectionClick();
-                                          splashController.toggleTermsExpanded();
-                                        },
-                                        tooltip: splashController.termsExpanded.value
-                                            ? 'Collapse'
-                                            : 'Expand to read full terms',
-                                      ),
-                                    ],
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Header with expand/collapse button
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    l10n.agreement,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: colorScheme.onSurface,
+                                    ),
                                   ),
-                                  const SizedBox(height: 12),
-
-                                  // Collapsible terms content
-                                  Obx(() => AnimatedCrossFade(
-                                    firstChild: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Tap to expand and read full terms...',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.grey.shade600,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    secondChild: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        AgreementItemWidget(text: l10n.term1),
-                                        const SizedBox(height: 8),
-                                        AgreementItemWidget(text: l10n.term2),
-                                      ],
-                                    ),
-                                    crossFadeState: splashController.termsExpanded.value
-                                        ? CrossFadeState.showSecond
-                                        : CrossFadeState.showFirst,
-                                    duration: const Duration(milliseconds: 300),
+                                ),
+                                IconButton(
+                                  icon: Obx(() => Icon(
+                                    splashController.termsExpanded.value
+                                        ? Icons.expand_less
+                                        : Icons.expand_more,
+                                    color: colorScheme.primary,
                                   )),
-                                  const SizedBox(height: 16),
+                                  onPressed: () {
+                                    HapticFeedback.selectionClick();
+                                    splashController.toggleTermsExpanded();
+                                  },
+                                  tooltip: splashController.termsExpanded.value
+                                      ? 'Collapse'
+                                      : 'Expand to read full terms',
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
 
-                                  // Agreement Checkbox
-                                  InkWell(
-                                    onTap: () {
-                                      HapticFeedback.selectionClick();
-                                      splashController.toggleAgreement();
-                                    },
-                                    borderRadius: BorderRadius.circular(12),
-                                    child: Obx(() => AnimatedContainer(
-                                      duration: const Duration(milliseconds: 300),
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: splashController.agreementAccepted.value
-                                            ? Colors.green.shade50
-                                            : Colors.grey.shade100,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: splashController.agreementAccepted.value
-                                              ? Colors.green
-                                              : Colors.grey.shade300,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          AnimatedContainer(
-                                            duration: const Duration(milliseconds: 300),
-                                            width: 22,
-                                            height: 22,
-                                            decoration: BoxDecoration(
-                                              color: splashController.agreementAccepted.value
-                                                  ? Colors.green
-                                                  : Colors.white,
-                                              shape: BoxShape.circle,
-                                              border: Border.all(
-                                                color: splashController.agreementAccepted.value
-                                                    ? Colors.green
-                                                    : Colors.grey,
-                                                width: 2,
-                                              ),
-                                            ),
-                                            child: splashController.agreementAccepted.value
-                                                ? const Icon(
-                                                    Icons.check,
-                                                    color: Colors.white,
-                                                    size: 16,
-                                                  )
-                                                : null,
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              l10n.acceptTerms,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.black87,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )),
+                            // Collapsible terms content
+                            Obx(() => AnimatedCrossFade(
+                              firstChild: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Tap to expand and read full terms...',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: colorScheme.onSurfaceVariant,
+                                      fontStyle: FontStyle.italic,
+                                    ),
                                   ),
                                 ],
                               ),
+                              secondChild: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  AgreementItemWidget(text: l10n.term1),
+                                  const SizedBox(height: 8),
+                                  AgreementItemWidget(text: l10n.term2),
+                                ],
+                              ),
+                              crossFadeState: splashController.termsExpanded.value
+                                  ? CrossFadeState.showSecond
+                                  : CrossFadeState.showFirst,
+                              duration: const Duration(milliseconds: 300),
+                            )),
+                            const SizedBox(height: 16),
+
+                            // Agreement Checkbox
+                            InkWell(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                splashController.toggleAgreement();
+                              },
+                              borderRadius: BorderRadius.circular(16),
+                              child: Obx(() => AnimatedContainer(
+                                duration: const Duration(milliseconds: 300),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: splashController.agreementAccepted.value
+                                      ? colorScheme.primaryContainer
+                                      : colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: splashController.agreementAccepted.value
+                                        ? colorScheme.primary
+                                        : colorScheme.outline,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    AnimatedContainer(
+                                      duration: const Duration(milliseconds: 300),
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        color: splashController.agreementAccepted.value
+                                            ? colorScheme.primary
+                                            : colorScheme.surface,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: splashController.agreementAccepted.value
+                                              ? colorScheme.primary
+                                              : colorScheme.outline,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: splashController.agreementAccepted.value
+                                          ? Icon(
+                                              Icons.check,
+                                              color: colorScheme.onPrimary,
+                                              size: 16,
+                                            )
+                                          : null,
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Text(
+                                        l10n.acceptTerms,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )),
                             ),
-                           )).animate().fadeIn(delay: 200.ms, duration: 600.ms).scale(
-                              delay: 200.ms,
-                              duration: 400.ms,
-                              curve: Curves.easeOut),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ).animate().fadeIn(delay: 600.ms, duration: 600.ms).scale(
+                      delay: 600.ms,
+                      duration: 400.ms,
+                      curve: Curves.easeOut),
 
-                      const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                      // Username Input and other form elements
-                      Obx(() => _buildFormElements(l10n, splashController)),
+                  // Username Input and other form elements
+                  Obx(() => _buildFormElements(l10n, splashController, colorScheme)),
 
-                      const SizedBox(height: 60), // Space for page indicator
-                    ],
-                  ),
-                ),
+                  const Spacer(flex: 2),
+                ],
               ),
-            ),
-            Obx(() => PageIndicatorWidget(currentPage: splashController.currentPage.value, totalPages: 3)),
+              ),
+            Obx(() => PageIndicatorWidget(
+                  currentPage: splashController.currentPage.value,
+                  totalPages: 3,
+                )),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFormElements(AppLocalizations l10n, SplashController splashController) {
+  Widget _buildFormElements(AppLocalizations l10n, SplashController splashController, ColorScheme colorScheme) {
     return Column(
       children: [
         // Username Input (only shown when agreement is accepted and not signed in with Google)
@@ -282,28 +286,28 @@ class TermsPage extends StatelessWidget {
           const SizedBox(height: 20),
           Container(
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              color: colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
+                  color: colorScheme.shadow.withValues(alpha: 0.08),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
               ],
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: TextField(
               controller: splashController.usernameController,
               maxLength: 15,
-              style: const TextStyle(fontSize: 15, color: Colors.black),
+              style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
               decoration: InputDecoration(
                 labelText: l10n.enterYourName,
-                labelStyle: const TextStyle(color: Colors.green, fontSize: 14),
-                prefixIcon: const Icon(Icons.person_outline, color: Colors.green, size: 22),
+                labelStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
+                prefixIcon: Icon(Icons.person_outline, color: colorScheme.primary, size: 24),
                 border: InputBorder.none,
                 counterText: '',
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
           )
@@ -318,10 +322,10 @@ class TermsPage extends StatelessWidget {
             child: Obx(() => Text(
               '${splashController.usernameLength.value}/15 characters (minimum 4)',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: splashController.usernameLength.value >= 4
-                    ? Colors.green.shade700
-                    : Colors.orange.shade700,
+                    ? colorScheme.primary
+                    : colorScheme.error,
                 fontWeight: FontWeight.w500,
               ),
             )),
@@ -333,37 +337,38 @@ class TermsPage extends StatelessWidget {
           const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
-            child: Obx(() => ElevatedButton.icon(
+            child: Obx(() => OutlinedButton.icon(
               onPressed: !splashController.isSigningIn.value ? splashController.handleGoogleSignIn : null,
               icon: splashController.isSigningIn.value
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                       ),
                     )
                   : Image.asset(
                       'assets/images/google_logo.png',
                       height: 24,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.login, size: 24),
+                      errorBuilder: (context, error, stackTrace) => Icon(Icons.login, size: 24, color: colorScheme.primary),
                     ),
               label: Text(
                 splashController.isSigningIn.value ? l10n.signingIn : l10n.signInWithGoogle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
+                  color: colorScheme.primary,
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black87,
+              style: OutlinedButton.styleFrom(
+                backgroundColor: colorScheme.surface,
+                side: BorderSide(color: colorScheme.outline),
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
-                elevation: 8,
+                elevation: 0,
               ),
             )),
           )
@@ -375,7 +380,7 @@ class TermsPage extends StatelessWidget {
             children: [
               Expanded(
                 child: Divider(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: colorScheme.outlineVariant,
                   thickness: 1,
                 ),
               ),
@@ -384,15 +389,15 @@ class TermsPage extends StatelessWidget {
                 child: Text(
                   l10n.orDivider,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.7),
+                    color: colorScheme.onSurfaceVariant,
                     fontSize: 14,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
               Expanded(
                 child: Divider(
-                  color: Colors.white.withValues(alpha: 0.3),
+                  color: colorScheme.outlineVariant,
                   thickness: 1,
                 ),
               ),
@@ -409,13 +414,13 @@ class TermsPage extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 20),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.95),
-                borderRadius: BorderRadius.circular(16),
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: colorScheme.shadow.withValues(alpha: 0.08),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
@@ -424,12 +429,12 @@ class TermsPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.green.shade100,
+                      color: colorScheme.primaryContainer,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       Icons.check_circle,
-                      color: Colors.green.shade700,
+                      color: colorScheme.primary,
                       size: 24,
                     ),
                   ),
@@ -441,77 +446,66 @@ class TermsPage extends StatelessWidget {
                         Text(
                           l10n.signedInAsLabel,
                           style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                            color: colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Obx(() => Text(
                           splashController.googleUserName.value,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: colorScheme.onSurface,
                           ),
                         )),
                         Obx(() => Text(
                           splashController.googleUserEmail.value,
                           style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
+                            fontSize: 14,
+                            color: colorScheme.onSurfaceVariant,
                           ),
                         )),
                       ],
                     ),
                   ),
                 ],
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 200.ms, duration: 600.ms)
-                .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+               ),
+             )
+             .animate()
+             .fadeIn(delay: 200.ms, duration: 600.ms)
+             .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
 
           Obx(() {
             final usernameController = Get.find<UsernameInputController>();
             return splashController.isGoogleUserSignedIn || usernameController.usernameLength.value >= 4
                 ? SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: !splashController.isSigningIn.value
-                          ? splashController.isGoogleUserSignedIn
-                              ? splashController.handleGoogleUserContinue
-                              : Get.find<UsernameInputController>().usernameLength.value >= 4
-                                  ? splashController.handleUsernameSubmit
-                                  : null
-                          : null,
+                    child: FilledButton.icon(
+                      onPressed: splashController.isGoogleUserSignedIn
+                          ? splashController.handleGoogleUserContinue
+                          : Get.find<UsernameInputController>().usernameLength.value >= 4
+                              ? splashController.handleUsernameSubmit
+                              : null,
                       icon: splashController.isGoogleUserSignedIn
-                          ? const Icon(Icons.check_circle, size: 20)
-                          : const Icon(Icons.person_outline, size: 20),
+                          ? Icon(Icons.check_circle, size: 20, color: colorScheme.onPrimary)
+                          : Icon(Icons.person_outline, size: 20, color: colorScheme.onPrimary),
                       label: Text(
                         splashController.getContinueButtonText(l10n.continueAs('{name}'), l10n.continueAsGuest),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onPrimary,
                         ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                  backgroundColor: Get.find<UsernameInputController>().usernameLength.value >= 4 ||
-                          splashController.isGoogleUserSignedIn
-                      ? Colors.white
-                      : Colors.grey.shade300,
-                  foregroundColor: Get.find<UsernameInputController>().usernameLength.value >= 4 ||
-                          splashController.isGoogleUserSignedIn
-                      ? Colors.green.shade700
-                      : Colors.grey.shade600,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                  elevation: Get.find<UsernameInputController>().usernameLength.value >= 4 ||
-                          splashController.isGoogleUserSignedIn
-                      ? 8
-                      : 0,
+                        elevation: 0,
                       ),
                     ),
                   )
