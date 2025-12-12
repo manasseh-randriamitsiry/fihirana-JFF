@@ -65,10 +65,10 @@ class LanguageSelectionPage extends StatelessWidget {
                   // Title
                   Text(
                     l10n.chooseLanguage,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
+                      color: Colors.white,
                       letterSpacing: -0.5,
                       height: 1.2,
                     ),
@@ -81,11 +81,11 @@ class LanguageSelectionPage extends StatelessWidget {
                   const SizedBox(height: 12),
 
                   // Subtitle
-                  Text(
+                  const Text(
                     'Select your preferred language to continue',
                     style: TextStyle(
                       fontSize: 16,
-                      color: colorScheme.onSurfaceVariant,
+                      color: Colors.white,
                       height: 1.5,
                       fontWeight: FontWeight.w400,
                     ),
