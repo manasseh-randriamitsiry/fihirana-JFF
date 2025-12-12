@@ -25,6 +25,7 @@ import 'package:fihirana/features/hymn/presentation/widgets/hymn_action_widgets.
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_detail_skeleton.dart';
 import 'package:fihirana/features/audio/presentation/widgets/compact_audio_player_widget.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/add_to_playlist_sheet.dart';
+import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_popup_widget.dart';
 
 class HymnDetailScreen extends StatefulWidget {
   final String hymnId;
@@ -373,9 +374,36 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     );
   }
 
+  void _showSearchDialog(ColorController colorController) {
+    showDialog(
+      context: context,
+      builder: (context) => HymnSearchPopup(
+        colorController: colorController,
+        onHymnSelected: (hymn) {
+          Navigator.pop(context); // Close dialog
+          _navigateToHymn(hymn);
+        },
+      ),
+    );
+  }
+
+  void _navigateToHymn(Hymn hymn) {
+    if (hymn.id == _hymn?.id) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HymnDetailScreen(
+          hymnId: hymn.id,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+
     return GetBuilder<ColorController>(
       builder: (colorController) => Scaffold(
         backgroundColor: colorController.backgroundColor.value,
@@ -392,11 +420,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           elevation: 0,
           scrolledUnderElevation: 0,
           centerTitle: true,
-          title: Text(
-            _hymn?.hymnNumber ?? '',
-            style: TextStyle(
-              color: colorController.textColor.value,
-              fontWeight: FontWeight.bold,
+          title: GestureDetector(
+            onTap: () => _showSearchDialog(colorController),
+            child: Text(
+              _hymn?.hymnNumber ?? '',
+              style: TextStyle(
+                color: colorController.textColor.value,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           actions: [
