@@ -126,7 +126,7 @@ class AgreementItemWidget extends StatelessWidget {
             text,
             style: const TextStyle(
               fontSize: 15,
-              color: Colors.white,
+              color: Colors.black87,
               height: 1.4,
             ),
           ),
