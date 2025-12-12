@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/features/intro/presentation/controllers/splash_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import 'package:fihirana/features/intro/presentation/widgets/splash_widgets.dart';
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
 
 class LanguageSelectionPage extends StatelessWidget {
@@ -17,125 +17,125 @@ class LanguageSelectionPage extends StatelessWidget {
     final splashController = SplashController.to;
     final languageController = Get.find<LanguageController>();
 
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
           colors: [
-            Color(0xFFFF6B35),
-            Color(0xFFF7931E),
+            Color(0xFFE8F5E8), // Light green
+            Color(0xFFF1F8E9), // Very light green
+            Color(0xFFE0F2F1), // Light teal
           ],
         ),
       ),
-      child: Stack(
-        children: [
-          // Animated Background Elements
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
-            )
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(
-                    duration: const Duration(seconds: 4),
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.2, 1.2),
-                    curve: Curves.easeInOut),
-          ),
-          Positioned(
-            bottom: -50,
-            left: -50,
-            child: Container(
-              width: 200,
-              height: 200,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: 0.1),
-              ),
-            )
-                .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                .scale(
-                    duration: const Duration(seconds: 5),
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.5, 1.5),
-                    curve: Curves.easeInOut),
-          ),
-
-          // Content
-          SafeArea(
-            child: Stack(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 600),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          const SizedBox(height: 40),
-                          Icon(
-                            Icons.language,
-                            size: 80,
-                            color: Colors.white.withValues(alpha: 0.9),
-                          )
-                              .animate()
-                              .fadeIn(duration: 600.ms)
-                              .scale(delay: 200.ms, duration: 400.ms),
-                          const SizedBox(height: 20),
-                          Text(
-                            l10n.chooseLanguage,
-                            style: const TextStyle(
-                              fontSize: 28.0,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  color: Colors.black26,
-                                ),
-                              ],
-                            ),
-                            textAlign: TextAlign.center,
-                          ).animate().fadeIn(duration: 600.ms).slideY(
-                              begin: 0.3,
-                              end: 0,
-                              duration: 600.ms,
-                              curve: Curves.easeOut),
-                          const SizedBox(height: 40),
-                          _buildLanguageOptions(l10n, languageController, splashController)
-                              .animate()
-                              .fadeIn(delay: 300.ms, duration: 600.ms)
-                              .slideY(
-                                  begin: 0.2,
-                                  end: 0,
-                                  duration: 600.ms,
-                                  curve: Curves.easeOut),
-                        ],
-                      ),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
+              child: Column(
+                children: [
+                  const Spacer(flex: 2),
+                  // Large friendly illustration
+                  Container(
+                    width: 280,
+                    height: 280,
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(40),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.shadow.withValues(alpha: 0.1),
+                          blurRadius: 24,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-                Obx(() => PageIndicatorWidget(currentPage: splashController.currentPage.value, totalPages: 3)),
-              ],
+                    child: Icon(
+                      Icons.language_rounded,
+                      size: 100,
+                      color: colorScheme.primary,
+                    ),
+                  )
+                      .animate()
+                      .scale(
+                          duration: 1000.ms,
+                          curve: Curves.elasticOut,
+                          begin: const Offset(0.8, 0.8),
+                          end: const Offset(1, 1))
+                      .fadeIn(duration: 800.ms),
+
+                  const Spacer(),
+
+                  // Title
+                  Text(
+                    l10n.chooseLanguage,
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                      letterSpacing: -0.5,
+                      height: 1.2,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                      .animate()
+                      .fadeIn(delay: 300.ms, duration: 600.ms)
+                      .slideY(begin: 0.3, end: 0, curve: Curves.easeOut),
+
+                  const SizedBox(height: 12),
+
+                  // Subtitle
+                  Text(
+                    'Select your preferred language to continue',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: colorScheme.onSurfaceVariant,
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                      .animate()
+                      .fadeIn(delay: 500.ms, duration: 600.ms)
+                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+                  const Spacer(),
+
+                  // Language options
+                  _buildLanguageOptions(l10n, languageController, splashController, colorScheme)
+                      .animate()
+                      .fadeIn(delay: 600.ms, duration: 600.ms)
+                      .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
+
+                  const Spacer(flex: 2),
+                ],
+              ),
             ),
-          ),
-        ],
+            Obx(() => PageIndicatorWidget(currentPage: splashController.currentPage.value, totalPages: 3)),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildLanguageOptions(AppLocalizations l10n, LanguageController languageController, SplashController splashController) {
-    return SplashCardWidget(
-      color: Colors.white.withValues(alpha: 0.95),
+  Widget _buildLanguageOptions(AppLocalizations l10n, LanguageController languageController, SplashController splashController, ColorScheme colorScheme) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           for (final locale in languageController.supportedLocales)
@@ -143,18 +143,18 @@ class LanguageSelectionPage extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 12),
               child: InkWell(
                 onTap: () => splashController.selectLanguage(locale),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
                 child: Obx(() => AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: splashController.selectedLocale.value?.languageCode == locale.languageCode
-                        ? Colors.orange.shade100
-                        : Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(20),
+                        ? colorScheme.primaryContainer
+                        : colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: splashController.selectedLocale.value?.languageCode == locale.languageCode
-                          ? Colors.orange.shade300
+                          ? colorScheme.primary
                           : Colors.transparent,
                       width: 2,
                     ),
@@ -174,27 +174,27 @@ class LanguageSelectionPage extends StatelessWidget {
                             fontWeight: splashController.selectedLocale.value?.languageCode ==
                                     locale.languageCode
                                 ? FontWeight.bold
-                                : FontWeight.w600,
+                                : FontWeight.w500,
                             color: splashController.selectedLocale.value?.languageCode ==
                                     locale.languageCode
-                                ? Colors.orange.shade800
-                                : Colors.black87,
+                                ? colorScheme.onPrimaryContainer
+                                : colorScheme.onSurface,
                           ),
                         ),
-                      ),
-                       if (splashController.selectedLocale.value?.languageCode == locale.languageCode)
+                        ),
+                        if (splashController.selectedLocale.value?.languageCode == locale.languageCode)
                          Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: const BoxDecoration(
-                            color: Colors.orange,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.check,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                        ),
+                           padding: const EdgeInsets.all(6),
+                           decoration: BoxDecoration(
+                             color: colorScheme.primary,
+                             shape: BoxShape.circle,
+                           ),
+                           child: Icon(
+                             Icons.check,
+                             color: colorScheme.onPrimary,
+                             size: 16,
+                           ),
+                         ),
                     ],
                   ),
                 )),
