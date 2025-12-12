@@ -38,8 +38,8 @@ class WelcomePage extends StatelessWidget {
                   const Spacer(flex: 2),
                   // Large friendly illustration
                   Container(
-                    width: 300,
-                    height: 300,
+                    width: 100,
+                    height: 100,
                     decoration: BoxDecoration(
                       color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(40),
@@ -53,7 +53,7 @@ class WelcomePage extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.music_note_rounded,
-                      size: 100,
+                      size: 75,
                       color: colorScheme.primary,
                     ),
                   )
@@ -69,7 +69,7 @@ class WelcomePage extends StatelessWidget {
 
                   // Title
                   Text(
-                    l10n.splashScreenTitle,
+                    "Jesosy Famonjena Fahamarinantsika",
                     style: TextStyle(
                       fontSize: 34,
                       fontWeight: FontWeight.bold,
