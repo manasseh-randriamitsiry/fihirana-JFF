@@ -29,7 +29,6 @@ import 'package:fihirana/core/init/init_progress_tracker.dart';
 import 'package:fihirana/core/controllers/user_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'dart:async';
 
 /// Initialization progress callback
@@ -42,13 +41,8 @@ class InitService {
   }) async {
     await NotificationService.initializeNotificationChannels();
 
-    await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      }
-    });
-
     // Setup listeners for notification actions (e.g., audio player controls)
+    // Note: Permission request is now handled in the welcome page during onboarding
     NotificationService.setupNotificationListeners();
   }
 
