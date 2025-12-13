@@ -79,7 +79,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     // Initialize recording controller
     _recordingController = Get.find<RecordingController>();
 
-    historyController = HistoryDI.historyController;
+    // Initialize history controller (ensure HistoryDI is initialized)
+    try {
+      historyController = HistoryDI.historyController;
+    } catch (e) {
+      // HistoryDI not initialized yet, initialize it
+      HistoryDI.initialize();
+      historyController = HistoryDI.historyController;
+    }
 
     _liquidController = LiquidController();
     _loadFontSize();
@@ -438,6 +445,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               onPressed: () => _showAudioPlayerDialog(),
             ),
             StreamBuilder<Map<String, String>>(
+              initialData: _hymnService.currentFavoriteStatus,
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
                 final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
@@ -455,6 +463,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               },
             ),
             StreamBuilder<Map<String, String>>(
+              initialData: _hymnService.currentFavoriteStatus,
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
                 final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';

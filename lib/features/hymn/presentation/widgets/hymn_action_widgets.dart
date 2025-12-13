@@ -190,7 +190,7 @@ class FavoriteButtonWidget extends StatelessWidget {
       icon: Icon(
         isFavorite ? Icons.favorite : Icons.favorite_border,
         color: isFavorite
-            ? (favoriteStatus == 'cloud' ? Colors.red : Colors.blue)
+            ? Colors.red
             : colorController.iconColor.value,
       ),
       onPressed: onPressed,

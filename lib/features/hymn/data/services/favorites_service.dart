@@ -19,6 +19,8 @@ class FavoritesService {
   final _favoriteHymnsController = StreamController<List<Hymn>>.broadcast();
   
   Set<String> _cachedFavorites = {};
+  Map<String, String> _currentStatusMap = {};
+
   bool _isInitialized = false;
   StreamSubscription? _firestoreSubscription;
 
@@ -106,12 +108,15 @@ class FavoritesService {
             .whereType<String>()
             .toSet();
         
-        _cachedFavorites = firebaseFavorites;
+        // MERGE logic: Add Firebase favorites to local cache instead of overwriting
+        // This ensures we don't lose local favorites when syncing/logging in
+        _cachedFavorites.addAll(firebaseFavorites);
+        
         if (kDebugMode) {
-          print('🎵 Loaded ${_cachedFavorites.length} favorites from Firebase');
+          print('🎵 Merged favorites from Firebase. Total: ${_cachedFavorites.length}');
         }
         
-        // Update local storage
+        // Update local storage with merged list
         _saveLocalFavorites();
         
         // Update streams
@@ -148,11 +153,16 @@ class FavoritesService {
 
   /// Update all stream controllers
   void _updateStreams() {
+    // Determine status based on auth state
+    final String status = auth.currentUser != null ? 'cloud' : 'local';
+
     // Update favorite status stream (Map format)
     final statusMap = <String, String>{};
     for (final hymnId in _cachedFavorites) {
-      statusMap[hymnId] = 'favorite';
+      statusMap[hymnId] = status;
     }
+    
+    _currentStatusMap = statusMap;
     _favoriteStatusController.add(statusMap);
     
     // Update favorite IDs stream
@@ -214,6 +224,9 @@ class FavoritesService {
     
     return hymns;
   }
+
+  /// Get current favorite status map synchronously (for initial UI state)
+  Map<String, String> get currentFavoriteStatus => Map.unmodifiable(_currentStatusMap);
 
   /// Toggle favorite status for a hymn
   Future<void> toggleFavorite(Hymn hymn) async {

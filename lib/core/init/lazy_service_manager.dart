@@ -158,12 +158,16 @@ extension LazyServiceExtensions on LazyServiceManager {
       await loadService<DailyVerseController>('daily_verse');
 
   /// Get History Controller (lazy loaded)
-  Future<HistoryController> get historyController async => 
-      await loadService<HistoryController>('history');
+  Future<HistoryController> get historyController async {
+    await loadService<void>('history');
+    return HistoryDI.historyController;
+  }
 
   /// Get Playlist Controller (lazy loaded)
-  Future<PlaylistController> get playlistController async => 
-      await loadService<PlaylistController>('playlist');
+  Future<PlaylistController> get playlistController async {
+    await loadService<void>('playlist');
+    return PlaylistDI.playlistController;
+  }
 }
 
 /// Global lazy service manager instance

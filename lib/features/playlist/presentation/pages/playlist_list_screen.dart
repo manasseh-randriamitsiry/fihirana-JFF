@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
 import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:fihirana/features/playlist/domain/entities/playlist.dart';
-import 'playlist_detail_screen.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/playlist_item_card.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/create_playlist_dialog.dart';
+import 'package:fihirana/features/playlist/presentation/pages/playlist_detail_screen.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
@@ -18,7 +17,7 @@ class PlaylistListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final ColorController colorController = Get.find<ColorController>();
-    final PlaylistController playlistController = PlaylistDI.playlistController;
+    final playlistController = PlaylistDI.playlistController;
 
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
@@ -94,7 +93,12 @@ title: Text(
             return PlaylistItemCard(
               key: ValueKey(playlist.id),
               playlist: playlist,
-              onTap: () => Get.to(() => PlaylistDetailScreen(playlistId: playlist.id)),
+               onTap: () => Get.to(
+                 () => PlaylistDetailScreen(playlistId: playlist.id),
+                 transition: Transition.fadeIn,
+                 duration: const Duration(milliseconds: 400),
+                 curve: Curves.easeInOut,
+               ),
               onShare: () => playlistController.sharePlaylist(playlist.id),
               onDelete: () => _confirmDelete(context, playlist),
             );
@@ -107,20 +111,22 @@ title: Text(
 
 
   void _showCreatePlaylistDialog(BuildContext context) {
+    final playlistController = PlaylistDI.playlistController;
     showDialog(
       context: context,
       builder: (context) => CreatePlaylistDialog(
         title: context.translate((l) => l.newPlaylist),
         hint: context.translate((l) => l.playlistExampleHint),
         onCreate: (title, date) {
-          Get.find<PlaylistController>().createPlaylist(title, date);
+          playlistController.createPlaylist(title, date);
         },
       ),
     );
   }
 
-void _confirmDelete(BuildContext context, Playlist playlist) {
+  void _confirmDelete(BuildContext context, Playlist playlist) {
     final ColorController colorController = Get.find();
+    final playlistController = PlaylistDI.playlistController;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -141,7 +147,7 @@ void _confirmDelete(BuildContext context, Playlist playlist) {
           ),
           TextButton(
             onPressed: () {
-              Get.find<PlaylistController>().deletePlaylist(playlist.id);
+              playlistController.deletePlaylist(playlist.id);
               Navigator.pop(context);
             },
             child: Text(context.translate((l) => l.delete), style: const TextStyle(color: Colors.red)),

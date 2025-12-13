@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:fihirana/app/theme/color_controller.dart';
 
 class NotificationStyles {
-  static const Color primaryColor = Color(0xFF9D50DD);
+  static Color get primaryColor => Get.find<ColorController>().primaryColor.value;
   static const Color successColor = Colors.green;
   static const Color errorColor = Colors.red;
   static const Color audioPlayerColor = Colors.blue;

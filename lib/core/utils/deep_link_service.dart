@@ -1,7 +1,6 @@
 import 'package:app_links/app_links.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 
 class DeepLinkService {
   final AppLinks _appLinks = AppLinks();
@@ -70,7 +69,7 @@ class DeepLinkService {
 
     // Get the playlist controller and import the playlist
     try {
-      final playlistController = Get.find<PlaylistController>();
+      final playlistController = PlaylistDI.playlistController;
       if (kDebugMode) {
         print(
             '🔗 DeepLinkService: Found PlaylistController, calling importPlaylist');

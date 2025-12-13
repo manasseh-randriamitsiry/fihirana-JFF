@@ -14,7 +14,6 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:async';
-
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
@@ -26,21 +25,44 @@ class AppBootstrap extends StatefulWidget {
   State<AppBootstrap> createState() => _AppBootstrapState();
 }
 
-class _AppBootstrapState extends State<AppBootstrap> {
+class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMixin {
   double _progress = 0.0;
   String _currentTask = 'Initializing app...';
   StreamSubscription<InitProgressEvent>? _progressSubscription;
+  bool _servicesInitialized = false;
+  late AnimationController _animationController;
+  late Animation<double> _progressAnimation;
+  double _animatedProgress = 0.0;
 
   @override
   void initState() {
     super.initState();
+    // Initialize ColorController early for loading screen colors
+    Get.put(ColorController());
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _progressAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    )..addListener(() {
+      setState(() => _animatedProgress = _progressAnimation.value);
+    });
     _initialize();
   }
 
   @override
   void dispose() {
     _progressSubscription?.cancel();
+    _animationController.dispose();
     super.dispose();
+  }
+
+  void _animateProgress() {
+    _progressAnimation = Tween<double>(begin: _animatedProgress, end: _progress).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward(from: 0);
   }
 
   Future<void> _initialize() async {
@@ -52,11 +74,17 @@ class _AppBootstrapState extends State<AppBootstrap> {
           setState(() {
             _progress = event.progress;
             _currentTask = event.step.description;
+            _animateProgress();
           });
         }
       });
 
       // Step 1: Initialize Firebase (0% -> 20%)
+      setState(() {
+        _progress = 0.05;
+        _currentTask = 'Initializing Firebase...';
+        _animateProgress();
+      });
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -65,51 +93,83 @@ class _AppBootstrapState extends State<AppBootstrap> {
        FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
        FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
 
+       setState(() {
+         _progress = 0.2;
+         _currentTask = 'Firebase initialized';
+         _animateProgress();
+       });
+
        // Initialize critical services first as they're needed by other services
        Get.put(SecurityService());
        Get.put(ShellController());
 
-        await serviceLocator.initialize();
+       setState(() {
+         _progress = 0.3;
+         _currentTask = 'Services initialized';
+         _animateProgress();
+       });
 
-       // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
-       await InitService.initializeApp();
+          await serviceLocator.initialize();
 
-       // Verify critical controllers are initialized
-       if (!Get.isRegistered<ColorController>()) {
-         throw Exception('ColorController not initialized properly');
+        setState(() => _servicesInitialized = true);
+
+        // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
+        await InitService.initializeApp();
+
+        setState(() {
+          _progress = 0.9;
+          _currentTask = 'App initialized';
+          _animateProgress();
+        });
+
+        // Verify critical controllers are initialized
+        if (!Get.isRegistered<ColorController>()) {
+          throw Exception('ColorController not initialized properly');
+        }
+
+         // Step 4: Get SharedPreferences (90% -> 95%)
+         final prefs = await SharedPreferences.getInstance();
+         Get.put<SharedPreferences>(prefs);
+
+         // Initialize Playlist DI after SharedPreferences is ready
+         PlaylistDI.initialize();
+
+         setState(() {
+           _progress = 0.95;
+           _currentTask = 'Preferences loaded';
+           _animateProgress();
+         });
+
+       // Track installation
+       try {
+         final isFirstRun = prefs.getBool('first_run') ?? true;
+         if (isFirstRun) {
+           await FirebaseFirestore.instance
+               .collection('stats')
+               .doc('global')
+               .set({
+             'installations': FieldValue.increment(1),
+           }, SetOptions(merge: true));
+           await prefs.setBool('first_run', false);
+         }
+       } catch (e) {
+         if (kDebugMode) {
+           print('Error tracking installation: $e');
+         }
        }
 
-        // Step 4: Get SharedPreferences (90% -> 95%)
-        final prefs = await SharedPreferences.getInstance();
-        Get.put<SharedPreferences>(prefs);
+       // Step 5: Final security check (95% -> 100%)
+       // Allow security service to complete its checks
+       await Future.delayed(const Duration(milliseconds: 500));
 
-        // Initialize Playlist DI after SharedPreferences is ready
-        PlaylistDI.initialize();
+       setState(() {
+         _progress = 1.0;
+         _currentTask = 'Ready!';
+         _animateProgress();
+       });
 
-      // Track installation
-      try {
-        final isFirstRun = prefs.getBool('first_run') ?? true;
-        if (isFirstRun) {
-          await FirebaseFirestore.instance
-              .collection('stats')
-              .doc('global')
-              .set({
-            'installations': FieldValue.increment(1),
-          }, SetOptions(merge: true));
-          await prefs.setBool('first_run', false);
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error tracking installation: $e');
-        }
-      }
-
-      // Step 5: Final security check (95% -> 100%)
-      // Allow security service to complete its checks
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      // Small delay to show completion
-      await Future.delayed(const Duration(milliseconds: 300));
+       // Small delay to show completion
+       await Future.delayed(const Duration(milliseconds: 300));
 
       if (mounted) {
         runApp(
@@ -143,11 +203,81 @@ class _AppBootstrapState extends State<AppBootstrap> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600;
+    final colorController = Get.find<ColorController>();
+    final theme = colorController.themeMode == ThemeMode.dark
+        ? colorController.getDarkTheme()
+        : colorController.getLightTheme();
+    final colorScheme = theme.colorScheme;
+
+    if (!_servicesInitialized) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: theme.copyWith(
+          scaffoldBackgroundColor: colorController.backgroundColor.value,
+        ),
+        home: Scaffold(
+          backgroundColor: colorController.backgroundColor.value,
+          body: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? 400 : double.infinity,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                     LoadingAnimationWidget.staggeredDotsWave(
+                       color: colorScheme.primary,
+                       size: isTablet ? 60 : 100,
+                     ),
+                    SizedBox(height: isTablet ? 30 : 40),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox(
+                        height: 8,
+                        width: double.infinity,
+                         child: LinearProgressIndicator(
+                           value: _animatedProgress,
+                           backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
+                           valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                         ),
+                       ),
+                     ),
+                    SizedBox(height: isTablet ? 15 : 20),
+                     Text(
+                       '${(_animatedProgress * 100).toInt()}%',
+                       style: TextStyle(
+                         fontSize: isTablet ? 24 : 32,
+                         fontWeight: FontWeight.bold,
+                         color: colorScheme.primary,
+                       ),
+                     ),
+                    const SizedBox(height: 10),
+                     Text(
+                       _currentTask,
+                       textAlign: TextAlign.center,
+                       style: TextStyle(
+                         fontSize: isTablet ? 14 : 16,
+                         color: colorScheme.onSurface.withValues(alpha: 0.7),
+                       ),
+                     ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: theme.copyWith(
+        scaffoldBackgroundColor: colorController.backgroundColor.value,
+      ),
       home: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: colorController.backgroundColor.value,
         body: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -160,7 +290,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                 children: [
                   // Loading Animation
                   LoadingAnimationWidget.staggeredDotsWave(
-                    color: Colors.blue,
+                    color: colorScheme.primary,
                     size: isTablet ? 60 : 100,
                   ),
 
@@ -173,10 +303,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
                       height: 8,
                       width: double.infinity,
                       child: LinearProgressIndicator(
-                        value: _progress,
-                        backgroundColor: Colors.blue.withValues(alpha: 0.2),
-                        valueColor:
-                            const AlwaysStoppedAnimation<Color>(Colors.blue),
+                        value: _animatedProgress,
+                        backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
+                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                       ),
                     ),
                   ),
@@ -185,11 +314,11 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
                   // Percentage text
                   Text(
-                    '${(_progress * 100).toInt()}%',
+                    '${(_animatedProgress * 100).toInt()}%',
                     style: TextStyle(
                       fontSize: isTablet ? 24 : 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: colorScheme.primary,
                     ),
                   ),
 
@@ -201,7 +330,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: isTablet ? 14 : 16,
-                      color: Colors.grey.shade700,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],

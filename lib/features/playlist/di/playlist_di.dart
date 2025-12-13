@@ -24,37 +24,23 @@ class PlaylistDI {
     );
 
     // Controller
-    Get.lazyPut<PlaylistController>(
-      () => PlaylistController(
+    Get.put<PlaylistController>(
+      PlaylistController(
         playlistService: Get.find<PlaylistService>(),
         auth: Get.find<FirebaseAuth>(),
       ),
       tag: _playlistControllerTag,
     );
-
-    // Also register without tag for backward compatibility
-    Get.lazyPut<PlaylistController>(
-      () => PlaylistController(
-        playlistService: Get.find<PlaylistService>(),
-        auth: Get.find<FirebaseAuth>(),
-      ),
-    );
   }
 
   /// Get playlist controller
   static PlaylistController get playlistController {
-    try {
-      return Get.find<PlaylistController>(tag: _playlistControllerTag);
-    } catch (e) {
-      // Fallback to untagged version
-      return Get.find<PlaylistController>();
-    }
+    return Get.find<PlaylistController>(tag: _playlistControllerTag);
   }
 
   /// Dispose playlist dependencies
   static void dispose() {
     Get.delete<PlaylistController>(tag: _playlistControllerTag);
-    Get.delete<PlaylistController>(); // Also delete untagged version
     Get.delete<PlaylistService>();
     Get.delete<FirebaseAuth>();
     Get.delete<SharedPreferences>();

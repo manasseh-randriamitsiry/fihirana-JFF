@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:fihirana/app/theme/color_controller.dart';
-import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
+import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
 class ClearHistoryDialogWidget extends StatelessWidget {
@@ -12,7 +11,7 @@ class ClearHistoryDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
-    final historyController = Get.find<HistoryController>();
+    final historyController = HistoryDI.historyController;
     final textColor = colorController.textColor.value;
     final backgroundColor = colorController.backgroundColor.value;
 
@@ -46,7 +45,7 @@ class DeleteSelectedHistoryDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
-    final historyController = Get.find<HistoryController>();
+    final historyController = HistoryDI.historyController;
     final textColor = colorController.textColor.value;
     final backgroundColor = colorController.backgroundColor.value;
 

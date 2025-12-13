@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 import 'package:fihirana/app/theme/color_controller.dart';
-import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/playlist/domain/entities/playlist.dart';
 import 'package:fihirana/features/playlist/presentation/pages/playlist_detail_screen.dart';
@@ -44,7 +44,11 @@ class PlaylistItemWidget extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         onTap: () {
-          Get.to(() => PlaylistDetailScreen(playlistId: playlist.id));
+          Get.to(
+            () => PlaylistDetailScreen(playlistId: playlist.id),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 300),
+          );
         },
         leading: Container(
           width: 50,
@@ -94,7 +98,7 @@ class PlaylistItemWidget extends StatelessWidget {
           ),
           onSelected: (value) {
             if (value == 'share') {
-              Get.find<PlaylistController>().sharePlaylist(playlist.id);
+              PlaylistDI.playlistController.sharePlaylist(playlist.id);
             } else if (value == 'delete') {
               onDelete();
             }
@@ -234,7 +238,7 @@ class _CreatePlaylistDialogWidgetState extends State<CreatePlaylistDialogWidget>
         ElevatedButton(
           onPressed: () {
             if (titleController.text.isNotEmpty) {
-              Get.find<PlaylistController>()
+              PlaylistDI.playlistController
                   .createPlaylist(titleController.text, selectedDate);
               Navigator.pop(context);
             }
@@ -281,7 +285,7 @@ class DeletePlaylistDialogWidget extends StatelessWidget {
         ),
         ElevatedButton(
           onPressed: () {
-            Get.find<PlaylistController>().deletePlaylist(playlist.id);
+            PlaylistDI.playlistController.deletePlaylist(playlist.id);
             Navigator.pop(context);
           },
           style: ElevatedButton.styleFrom(

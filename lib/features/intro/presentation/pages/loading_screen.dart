@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'package:fihirana/app/theme/color_controller.dart';
+
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -187,9 +187,9 @@ class _LoadingScreenState extends State<LoadingScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: Obx(() {
-            final colorController = Get.find<ColorController>();
-            final primaryColor = colorController.primaryColor.value;
-            final textColor = colorController.textColor.value;
+            final colorScheme = Theme.of(context).colorScheme;
+            final primaryColor = colorScheme.primary;
+            final textColor = colorScheme.onSurface;
 
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -224,7 +224,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
                   '${(_progress.value * 100).toInt()}%',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: primaryColor,
                       ),
                 ),
 
