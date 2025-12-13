@@ -93,11 +93,12 @@ title: Text(
             return PlaylistItemCard(
               key: ValueKey(playlist.id),
               playlist: playlist,
-              onTap: () => Get.to(
-                () => PlaylistDetailScreen(playlistId: playlist.id),
-                transition: Transition.fadeIn,
-                duration: const Duration(milliseconds: 300),
-              ),
+               onTap: () => Get.to(
+                 () => PlaylistDetailScreen(playlistId: playlist.id),
+                 transition: Transition.fadeIn,
+                 duration: const Duration(milliseconds: 400),
+                 curve: Curves.easeInOut,
+               ),
               onShare: () => playlistController.sharePlaylist(playlist.id),
               onDelete: () => _confirmDelete(context, playlist),
             );
