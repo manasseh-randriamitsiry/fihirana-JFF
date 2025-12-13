@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/intro/presentation/controllers/splash_controller.dart';
 import 'package:fihirana/features/intro/presentation/controllers/username_input_controller.dart';
+import 'package:fihirana/features/intro/presentation/widgets/username_input_widget.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/intro/presentation/widgets/splash_widgets.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -219,29 +220,10 @@ class TermsPage extends StatelessWidget {
       children: [
         if (!splashController.isGoogleUserSignedIn) ...[
           // Username Input
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                 BoxShadow(
-                    color: primaryColor.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                 ),
-              ],
-            ),
-            child: TextField(
-              controller: splashController.usernameController,
-              maxLength: 15,
-              decoration: InputDecoration(
-                hintText: l10n.enterYourName,
-                prefixIcon: Icon(Icons.person_rounded, color: primaryColor),
-                border: InputBorder.none,
-                counterText: "",
-                contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              ),
-            ),
+          UsernameInputWidget(
+            controller: splashController.usernameController,
+            labelText: l10n.enterYourName,
+            accentColor: primaryColor,
           ).animate().fadeIn(),
           
           const SizedBox(height: 16),

@@ -5,12 +5,14 @@ class UsernameInputWidget extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
   final bool enabled;
+  final Color? accentColor;
 
   const UsernameInputWidget({
     super.key,
     required this.controller,
     required this.labelText,
     this.enabled = true,
+    this.accentColor,
   });
 
   @override
@@ -18,9 +20,34 @@ class UsernameInputWidget extends StatefulWidget {
 }
 
 class _UsernameInputWidgetState extends State<UsernameInputWidget> {
+  late final TextEditingController _controller;
+  bool _showClearButton = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller;
+    _controller.addListener(_onTextChanged);
+    _showClearButton = _controller.text.isNotEmpty;
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onTextChanged);
+    super.dispose();
+  }
+
+  void _onTextChanged() {
+    final shouldShow = _controller.text.isNotEmpty;
+    if (_showClearButton != shouldShow) {
+      setState(() {
+        _showClearButton = shouldShow;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -38,14 +65,43 @@ class _UsernameInputWidgetState extends State<UsernameInputWidget> {
         controller: widget.controller,
         maxLength: 15,
         enabled: widget.enabled,
-        style: const TextStyle(fontSize: 15, color: Colors.black),
+        keyboardType: TextInputType.name,
+        textInputAction: TextInputAction.done,
+        autofillHints: const [AutofillHints.givenName, AutofillHints.nickname],
+        style: const TextStyle(
+          fontSize: 16, // Slightly larger for better readability
+          color: Colors.black,
+          fontWeight: FontWeight.w500,
+        ),
         decoration: InputDecoration(
           labelText: widget.labelText,
-          labelStyle: const TextStyle(color: Colors.green, fontSize: 14),
-          prefixIcon: const Icon(Icons.person_outline, color: Colors.green, size: 22),
+          labelStyle: TextStyle(
+            color: widget.accentColor ?? Colors.green.shade700,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: Icon(
+            Icons.person_outline,
+            color: widget.accentColor ?? Colors.green.shade600,
+            size: 24,
+          ),
+          suffixIcon: _showClearButton && widget.enabled
+              ? IconButton(
+                  icon: const Icon(Icons.clear, size: 20, color: Colors.grey),
+                  onPressed: () {
+                    widget.controller.clear();
+                  },
+                  tooltip: 'Clear',
+                )
+              : null,
           border: InputBorder.none,
           counterText: '',
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          hintText: 'Enter your name',
+          hintStyle: TextStyle(
+            color: Colors.grey.withValues(alpha: 0.5),
+            fontSize: 14,
+          ),
         ),
       ),
     );

@@ -438,6 +438,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               onPressed: () => _showAudioPlayerDialog(),
             ),
             StreamBuilder<Map<String, String>>(
+              initialData: _hymnService.currentFavoriteStatus,
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
                 final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
@@ -455,6 +456,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               },
             ),
             StreamBuilder<Map<String, String>>(
+              initialData: _hymnService.currentFavoriteStatus,
               stream: _hymnService.getFavoriteStatusStream(),
               builder: (context, snapshot) {
                 final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
