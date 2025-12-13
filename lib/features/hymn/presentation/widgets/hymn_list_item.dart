@@ -482,7 +482,7 @@ context
                                   child: Icon(
                                     isPlaying ? Icons.graphic_eq : Icons.music_note_outlined,
                                     size: 20,
-                                    color: isPlaying ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                                    color: isPlaying ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant,
                                   ),
                                 ),
                                 style: IconButton.styleFrom(
