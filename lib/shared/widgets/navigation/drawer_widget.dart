@@ -28,7 +28,7 @@ class DrawerWidget extends StatefulWidget {
 class DrawerWidgetState extends State<DrawerWidget>
     with WidgetsBindingObserver {
   final ColorController _colorController = Get.find<ColorController>();
-  final UserController _userController = Get.find<UserController>();
+  late final UserController _userController;
   bool _isAuthenticated = false;
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   GoogleSignIn? _googleSignIn;
@@ -37,6 +37,15 @@ class DrawerWidgetState extends State<DrawerWidget>
   @override
   void initState() {
     super.initState();
+    
+    // Initialize UserController with fallback
+    try {
+      _userController = Get.find<UserController>();
+    } catch (e) {
+      // UserController not initialized yet, initialize it
+      _userController = Get.put(UserController());
+    }
+    
     WidgetsBinding.instance.addObserver(this);
     try {
       _googleSignIn = Get.find<GoogleSignIn>();

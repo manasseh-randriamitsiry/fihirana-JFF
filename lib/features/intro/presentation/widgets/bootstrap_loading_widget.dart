@@ -13,6 +13,7 @@ class BootstrapLoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: isTablet ? 400 : double.infinity,
@@ -24,7 +25,7 @@ class BootstrapLoadingWidget extends StatelessWidget {
           children: [
             // Loading Animation
             LoadingAnimationWidget.staggeredDotsWave(
-              color: Colors.blue,
+              color: colorScheme.primary,
               size: isTablet ? 60 : 100,
             ),
 
@@ -38,8 +39,8 @@ class BootstrapLoadingWidget extends StatelessWidget {
                 width: double.infinity,
                 child: LinearProgressIndicator(
                   value: progress,
-                  backgroundColor: Colors.blue.withValues(alpha: 0.2),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                 ),
               ),
             ),
@@ -52,7 +53,7 @@ class BootstrapLoadingWidget extends StatelessWidget {
               style: TextStyle(
                 fontSize: isTablet ? 24 : 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue,
+                color: colorScheme.primary,
               ),
             ),
 
@@ -64,7 +65,7 @@ class BootstrapLoadingWidget extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: isTablet ? 14 : 16,
-                color: Colors.grey.shade700,
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
           ],
