@@ -548,7 +548,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 right: 20,
                 child: Card(
                   elevation: 8,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  color: colorController.backgroundColor.value,
+                  shadowColor: Colors.black.withValues(alpha: 0.2),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                          color:
+                              colorController.primaryColor.value.withValues(alpha: 0.1),
+                          width: 1)),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FontSizeSliderWidget(
@@ -563,11 +570,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                       onChangeEnd: (double value) async {
                         final prefs = await SharedPreferences.getInstance();
                         await prefs.setDouble('fontSize', value);
-                        // Do not auto-close for better UX, or close if desired. 
-                        // User can close via menu or tap out (if implemented)
-                        // Keeping it consistent with previous logic:
                         if (mounted) {
-                           // _showSlider = false; // Optional, maybe keep open
+                          setState(() {
+                            _showSlider = false;
+                          });
                         }
                       },
                     ),
