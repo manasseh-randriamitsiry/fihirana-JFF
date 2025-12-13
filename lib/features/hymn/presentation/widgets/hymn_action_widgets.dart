@@ -29,6 +29,8 @@ class FontSizeSliderWidget extends StatelessWidget {
       onChanged: onChanged,
       onChangeEnd: onChangeEnd,
       activeColor: colorController.primaryColor.value,
+      inactiveColor: colorController.primaryColor.value.withValues(alpha: 0.2),
+      thumbColor: colorController.primaryColor.value,
     );
   }
 }

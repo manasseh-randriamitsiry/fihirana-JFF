@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 class ColorController extends GetxController {
   static ColorController get to => Get.find();
@@ -159,6 +160,17 @@ class ColorController extends GetxController {
   Future<void> loadColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+
+      final hasSavedScheme = prefs.containsKey('currentSchemeIndex');
+      
+      // Auto-switch to AMOLED if fresh install and system is dark
+      if (!hasSavedScheme) {
+        final brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        if (brightness == Brightness.dark) {
+           await setColorScheme(4); // AMOLED Black
+           return;
+        }
+      }
 
       currentSchemeIndex.value = prefs.getInt('currentSchemeIndex') ?? 0;
 
