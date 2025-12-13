@@ -8,13 +8,22 @@ class PlaylistDataController extends GetxController {
   final PlaylistService _playlistService;
 
   PlaylistDataController({required PlaylistService playlistService})
-      : _playlistService = playlistService;
+      : _playlistService = playlistService {
+    bindPlaylists();
+    // Force stop loading after 3 seconds to prevent infinite loading
+    Future.delayed(const Duration(seconds: 3), () => isLoading.value = false);
+  }
 
   final RxList<Playlist> playlists = <Playlist>[].obs;
-  final RxBool isLoading = false.obs;
+  final RxBool isLoading = true.obs;
 
   void bindPlaylists() {
-    playlists.bindStream(_playlistService.getUserPlaylistsStream());
+    _playlistService.getUserPlaylistsStream().listen((list) {
+      playlists.assignAll(list);
+      isLoading.value = false;
+    });
+    // Ensure loading stops even if stream doesn't emit immediately
+    isLoading.value = false;
   }
 
   Future<String?> createPlaylist(String title, DateTime date, {String? description}) async {

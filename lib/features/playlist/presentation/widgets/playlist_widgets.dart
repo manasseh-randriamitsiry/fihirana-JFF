@@ -44,7 +44,11 @@ class PlaylistItemWidget extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         onTap: () {
-          Get.to(() => PlaylistDetailScreen(playlistId: playlist.id));
+          Get.to(
+            () => PlaylistDetailScreen(playlistId: playlist.id),
+            transition: Transition.fadeIn,
+            duration: const Duration(milliseconds: 300),
+          );
         },
         leading: Container(
           width: 50,
