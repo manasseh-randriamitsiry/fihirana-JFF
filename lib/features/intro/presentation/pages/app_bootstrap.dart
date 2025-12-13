@@ -37,6 +37,8 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
+    // Initialize ColorController early for loading screen colors
+    Get.put(ColorController());
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -107,9 +109,9 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
          _animateProgress();
        });
 
-        await serviceLocator.initialize();
+          await serviceLocator.initialize();
 
-       setState(() => _servicesInitialized = true);
+        setState(() => _servicesInitialized = true);
 
         // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
         await InitService.initializeApp();
@@ -201,13 +203,20 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600;
-    final brightness = MediaQuery.of(context).platformBrightness;
+    final colorController = Get.find<ColorController>();
+    final theme = colorController.themeMode == ThemeMode.dark
+        ? colorController.getDarkTheme()
+        : colorController.getLightTheme();
+    final colorScheme = theme.colorScheme;
 
     if (!_servicesInitialized) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: theme.copyWith(
+          scaffoldBackgroundColor: colorController.backgroundColor.value,
+        ),
         home: Scaffold(
-          backgroundColor: brightness == Brightness.dark ? Colors.black : Colors.white,
+          backgroundColor: colorController.backgroundColor.value,
           body: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(
@@ -218,41 +227,41 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    LoadingAnimationWidget.staggeredDotsWave(
-                      color: brightness == Brightness.dark ? Colors.white : Colors.blue,
-                      size: isTablet ? 60 : 100,
-                    ),
+                     LoadingAnimationWidget.staggeredDotsWave(
+                       color: colorScheme.primary,
+                       size: isTablet ? 60 : 100,
+                     ),
                     SizedBox(height: isTablet ? 30 : 40),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: SizedBox(
                         height: 8,
                         width: double.infinity,
-                        child: LinearProgressIndicator(
-                          value: _animatedProgress,
-                          backgroundColor: (brightness == Brightness.dark ? Colors.white : Colors.blue).withValues(alpha: 0.2),
-                          valueColor: AlwaysStoppedAnimation<Color>(brightness == Brightness.dark ? Colors.white : Colors.blue),
-                        ),
-                      ),
-                    ),
+                         child: LinearProgressIndicator(
+                           value: _animatedProgress,
+                           backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
+                           valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                         ),
+                       ),
+                     ),
                     SizedBox(height: isTablet ? 15 : 20),
-                    Text(
-                      '${(_animatedProgress * 100).toInt()}%',
-                      style: TextStyle(
-                        fontSize: isTablet ? 24 : 32,
-                        fontWeight: FontWeight.bold,
-                        color: brightness == Brightness.dark ? Colors.white : Colors.blue,
-                      ),
-                    ),
+                     Text(
+                       '${(_animatedProgress * 100).toInt()}%',
+                       style: TextStyle(
+                         fontSize: isTablet ? 24 : 32,
+                         fontWeight: FontWeight.bold,
+                         color: colorScheme.primary,
+                       ),
+                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      _currentTask,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: isTablet ? 14 : 16,
-                        color: brightness == Brightness.dark ? Colors.white70 : Colors.grey.shade700,
-                      ),
-                    ),
+                     Text(
+                       _currentTask,
+                       textAlign: TextAlign.center,
+                       style: TextStyle(
+                         fontSize: isTablet ? 14 : 16,
+                         color: colorScheme.onSurface.withValues(alpha: 0.7),
+                       ),
+                     ),
                   ],
                 ),
               ),
@@ -262,16 +271,13 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
       );
     }
 
-    final colorController = Get.find<ColorController>();
-    final theme = brightness == Brightness.dark
-        ? colorController.getDarkTheme()
-        : colorController.getLightTheme();
-    final colorScheme = theme.colorScheme;
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: theme.copyWith(
+        scaffoldBackgroundColor: colorController.backgroundColor.value,
+      ),
       home: Scaffold(
-        backgroundColor: colorScheme.surface,
+        backgroundColor: colorController.backgroundColor.value,
         body: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
