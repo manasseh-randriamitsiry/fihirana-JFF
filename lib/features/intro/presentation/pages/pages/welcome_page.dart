@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/intro/presentation/controllers/splash_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
+import 'package:fihirana/features/intro/presentation/widgets/permission_request_dialog.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -103,7 +103,7 @@ class WelcomePage extends StatelessWidget {
 
                 // Buttons
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
                       SizedBox(
@@ -111,8 +111,17 @@ class WelcomePage extends StatelessWidget {
                         child: FilledButton(
                           onPressed: () {
                             HapticFeedback.mediumImpact();
-                          
-                             splashController.liquidController.animateToPage(page: 2, duration: 600);
+
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder: (context) => PermissionRequestDialog(
+                                onPermissionsGranted: () {
+                                  Navigator.pop(context); // Close dialog
+                                  splashController.liquidController.animateToPage(page: 2, duration: 600);
+                                },
+                              ),
+                            );
                           },
                           style: FilledButton.styleFrom(
                             backgroundColor: primaryColor,

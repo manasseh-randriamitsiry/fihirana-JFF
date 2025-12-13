@@ -15,10 +15,7 @@ class NotificationChannelBuilder {
       debug: true,
     );
 
-    final isAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (!isAllowed) {
-      await AwesomeNotifications().requestPermissionToSendNotifications();
-    }
+    // Note: Permission request is now handled in the welcome page during onboarding
   }
 
   static NotificationChannel _createBasicChannel() {

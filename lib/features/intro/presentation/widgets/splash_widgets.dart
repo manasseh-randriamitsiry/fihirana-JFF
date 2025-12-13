@@ -131,7 +131,7 @@ class AgreementItemWidget extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: 15,
-              color: colorController.backgroundColor.value.withValues(alpha: 0.8),
+              color: colorController.primaryColor.value.withValues(alpha: 0.8),
               height: 1.4,
             ),
           ),
