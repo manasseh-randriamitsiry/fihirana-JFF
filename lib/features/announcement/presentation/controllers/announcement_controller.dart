@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/features/announcement/domain/entities/announcement.dart';
 import 'package:fihirana/features/announcement/domain/usecases/create_announcement_usecase.dart';
 import 'package:fihirana/features/announcement/domain/usecases/update_announcement_usecase.dart';
@@ -291,8 +292,8 @@ class AnnouncementController extends GetxController {
 
   /// Check if current user is admin
   bool get isAdmin {
-    final user = _auth.currentUser;
-    return user?.email == 'manassehrandriamitsiry@gmail.com';
+    final authController = Get.find<AuthController>();
+    return authController.isAdmin || authController.isSuperAdmin;
   }
 
   /// Get announcement by ID
