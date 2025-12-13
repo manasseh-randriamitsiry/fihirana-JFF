@@ -1,6 +1,6 @@
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
-import 'package:fihirana/core/init/lazy_service_manager.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -37,19 +37,18 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
 
   Future<void> _loadController() async {
     try {
-      final controller = await lazyServiceManager.playlistController;
-      if (mounted) {
-        setState(() {
-          _playlistController = controller;
-          _isLoading = false;
-        });
-      }
+      // Try to get existing controller
+      _playlistController = PlaylistDI.playlistController;
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      // PlaylistDI not initialized, initialize it
+      PlaylistDI.initialize();
+      _playlistController = PlaylistDI.playlistController;
+    }
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -341,10 +340,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
 
                 // Existing Playlists List
                 Expanded(
-                  child: _playlistController!.isLoading.value
-                      ? Center(
-                          child: CircularProgressIndicator(color: primaryColor))
-                      : _playlistController!.playlists.isEmpty
+                  child: _playlistController!.playlists.isEmpty
                           ? Center(
                               child: Text(
                                 l10n.noPlaylistsYet,

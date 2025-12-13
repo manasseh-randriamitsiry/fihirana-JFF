@@ -24,8 +24,8 @@ class PlaylistDI {
     );
 
     // Controller
-    Get.lazyPut<PlaylistController>(
-      () => PlaylistController(
+    Get.put<PlaylistController>(
+      PlaylistController(
         playlistService: Get.find<PlaylistService>(),
         auth: Get.find<FirebaseAuth>(),
       ),
