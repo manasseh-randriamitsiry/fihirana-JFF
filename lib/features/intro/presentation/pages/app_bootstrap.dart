@@ -14,7 +14,6 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'dart:async';
-
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
@@ -143,11 +142,12 @@ class _AppBootstrapState extends State<AppBootstrap> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth >= 600;
+    final colorScheme = ColorScheme.fromSeed(seedColor: const Color(0xFF2196F3));
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         body: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -160,7 +160,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                 children: [
                   // Loading Animation
                   LoadingAnimationWidget.staggeredDotsWave(
-                    color: Colors.blue,
+                    color: colorScheme.primary,
                     size: isTablet ? 60 : 100,
                   ),
 
@@ -174,9 +174,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
                       width: double.infinity,
                       child: LinearProgressIndicator(
                         value: _progress,
-                        backgroundColor: Colors.blue.withValues(alpha: 0.2),
+                        backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
                         valueColor:
-                            const AlwaysStoppedAnimation<Color>(Colors.blue),
+                            AlwaysStoppedAnimation<Color>(colorScheme.primary),
                       ),
                     ),
                   ),
@@ -189,7 +189,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                     style: TextStyle(
                       fontSize: isTablet ? 24 : 32,
                       fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                      color: colorScheme.primary,
                     ),
                   ),
 
@@ -201,7 +201,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: isTablet ? 14 : 16,
-                      color: Colors.grey.shade700,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                 ],

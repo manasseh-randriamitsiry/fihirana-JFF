@@ -412,65 +412,57 @@ class ColorController extends GetxController {
   }
 
   ThemeData getLightTheme() {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: primaryColor.value,
+      brightness: Brightness.light,
+    );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      primaryColor: primaryColor.value,
-      colorScheme: ColorScheme.light(
-        primary: primaryColor.value,
-        secondary: accentColor.value,
-        surface: backgroundColor.value,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: textColor.value,
-      ),
-      scaffoldBackgroundColor: backgroundColor.value,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor.value,
-        foregroundColor: Colors.white,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
       iconTheme: IconThemeData(
-        color: iconColor.value,
+        color: colorScheme.onSurface,
       ),
       textTheme: TextTheme(
-        bodyLarge: TextStyle(color: textColor.value),
-        bodyMedium: TextStyle(color: textColor.value),
-        titleLarge: TextStyle(color: textColor.value),
+        bodyLarge: TextStyle(color: colorScheme.onSurface),
+        bodyMedium: TextStyle(color: colorScheme.onSurface),
+        titleLarge: TextStyle(color: colorScheme.onSurface),
       ).apply(
-        bodyColor: textColor.value,
-        displayColor: textColor.value,
+        bodyColor: colorScheme.onSurface,
+        displayColor: colorScheme.onSurface,
       ),
     );
   }
 
   ThemeData getDarkTheme() {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: primaryColor.value,
+      brightness: Brightness.dark,
+    );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      primaryColor: primaryColor.value,
-      colorScheme: ColorScheme.dark(
-        primary: primaryColor.value,
-        secondary: accentColor.value,
-        surface: Colors.black,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: Colors.white,
-      ),
-      scaffoldBackgroundColor: Colors.black,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor.value,
-        foregroundColor: Colors.white,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
       ),
-      iconTheme: const IconThemeData(
-        color: Colors.white,
+      iconTheme: IconThemeData(
+        color: colorScheme.onSurface,
       ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: Colors.white),
-        bodyMedium: TextStyle(color: Colors.white),
-        titleLarge: TextStyle(color: Colors.white),
+      textTheme: TextTheme(
+        bodyLarge: TextStyle(color: colorScheme.onSurface),
+        bodyMedium: TextStyle(color: colorScheme.onSurface),
+        titleLarge: TextStyle(color: colorScheme.onSurface),
       ).apply(
-        bodyColor: Colors.white,
-        displayColor: Colors.white,
+        bodyColor: colorScheme.onSurface,
+        displayColor: colorScheme.onSurface,
       ),
     );
   }
