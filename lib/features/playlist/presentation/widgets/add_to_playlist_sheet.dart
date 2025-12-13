@@ -1,5 +1,6 @@
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,11 +22,17 @@ class AddToPlaylistSheet extends StatefulWidget {
 }
 
 class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
-  final PlaylistController _playlistController = Get.find();
+  late final PlaylistController _playlistController;
   final ColorController _colorController = Get.find();
   final TextEditingController _newPlaylistController = TextEditingController();
   final RxBool _isCreating = false.obs;
   final Rx<DateTime> _selectedDate = DateTime.now().obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _playlistController = PlaylistDI.playlistController;
+  }
 
   @override
   void dispose() {

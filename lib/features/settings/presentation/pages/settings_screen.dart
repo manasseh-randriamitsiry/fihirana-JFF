@@ -8,7 +8,7 @@ import 'package:fihirana/features/settings/presentation/widgets/settings_section
 import 'package:fihirana/features/settings/presentation/widgets/settings_card.dart';
 import 'package:fihirana/features/settings/presentation/widgets/audio_cache_dialog.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
-import 'package:fihirana/shared/widgets/common/language_picker_widget.dart';
+import 'package:fihirana/shared/widgets/common/simple_language_picker.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -21,10 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final ColorController colorController = Get.find<ColorController>();
 
   void _showAudioCacheDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => const AudioCacheDialog(),
-    );
+    AudioCacheDialog.showAudioCacheDialog(context);
   }
 
   @override
@@ -63,43 +60,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 animationDelay: 0,
               ),
 
-              SettingsCard(
-                icon: Icons.color_lens_outlined,
-                label: context.translate((l) => l.changeColor),
-                onTap: () => Get.dialog(
-                  Dialog(
-                    backgroundColor: colorController.backgroundColor.value,
-                    child: ColorPickerWidget(),
-                  ),
-                ),
-                animationDelay: 100,
-              ),
+               SettingsCard(
+                 icon: Icons.color_lens_outlined,
+                 label: context.translate((l) => l.changeColor),
+                 onTap: () => ColorPickerWidget.showColorPickerDialog(context),
+                 animationDelay: 100,
+               ),
 
               const SizedBox(height: 12),
 
               SettingsCard(
                 icon: Icons.language,
                 label: context.translate((l) => l.language),
-                onTap: () => showDialog(
-                  context: context,
-                  builder: (context) => const LanguagePickerDialog(),
-                ),
+                 onTap: () => SimpleLanguagePicker.showLanguagePicker(context),
                 animationDelay: 125,
               ),
 
               const SizedBox(height: 12),
 
-              SettingsCard(
-                icon: Icons.font_download_outlined,
-                label: context.translate((l) => l.fontStyle),
-                onTap: () => Get.dialog(
-                  Dialog(
-                    backgroundColor: colorController.backgroundColor.value,
-                    child: FontPickerWidget(),
-                  ),
-                ),
-                animationDelay: 150,
-              ),
+               SettingsCard(
+                 icon: Icons.font_download_outlined,
+                 label: context.translate((l) => l.fontStyle),
+                 onTap: () => FontPickerWidget.showFontPicker(context),
+                 animationDelay: 150,
+               ),
 
               // Bible Section
               SettingsSectionHeader(

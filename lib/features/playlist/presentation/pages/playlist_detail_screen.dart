@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/presentation/pages/hymn_detail_screen.dart';
@@ -16,7 +17,7 @@ class PlaylistDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ColorController colorController = Get.find();
-    final PlaylistController playlistController = Get.find();
+    final PlaylistController playlistController = PlaylistDI.playlistController;
     final HymnService hymnService = Get.find();
     final l10n = AppLocalizations.of(context);
 
