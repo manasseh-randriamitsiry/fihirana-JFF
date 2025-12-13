@@ -444,55 +444,55 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               hymnId: _hymn?.id ?? '',
               onPressed: () => _showAudioPlayerDialog(),
             ),
-            StreamBuilder<Map<String, String>>(
-              initialData: _hymnService.currentFavoriteStatus,
-              stream: _hymnService.getFavoriteStatusStream(),
-              builder: (context, snapshot) {
-                final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
-                final isFavorite = favoriteStatus.isNotEmpty;
+             StreamBuilder<Map<String, String>>(
+               initialData: _hymnService.currentFavoriteStatus,
+               stream: _hymnService.getFavoriteStatusStream(),
+               builder: (context, snapshot) {
+                 final favoriteStatus = snapshot.data?[_hymn?.id ?? widget.hymnId] ?? '';
+                 final isFavorite = favoriteStatus.isNotEmpty;
 
-                return FavoriteButtonWidget(
-                  isFavorite: isFavorite,
-                  favoriteStatus: favoriteStatus,
-                  onPressed: () {
-                    if (_hymn != null) {
-                      _hymnService.toggleFavorite(_hymn!);
-                    }
-                  },
-                );
-              },
-            ),
-            StreamBuilder<Map<String, String>>(
-              initialData: _hymnService.currentFavoriteStatus,
-              stream: _hymnService.getFavoriteStatusStream(),
-              builder: (context, snapshot) {
-                final favoriteStatus = snapshot.data?[widget.hymnId] ?? '';
-                final isFavorite = favoriteStatus.isNotEmpty;
+                 return FavoriteButtonWidget(
+                   isFavorite: isFavorite,
+                   favoriteStatus: favoriteStatus,
+                   onPressed: () {
+                     if (_hymn != null) {
+                       _hymnService.toggleFavorite(_hymn!);
+                     }
+                   },
+                 );
+               },
+             ),
+             StreamBuilder<Map<String, String>>(
+               initialData: _hymnService.currentFavoriteStatus,
+               stream: _hymnService.getFavoriteStatusStream(),
+               builder: (context, snapshot) {
+                 final favoriteStatus = snapshot.data?[_hymn?.id ?? widget.hymnId] ?? '';
+                 final isFavorite = favoriteStatus.isNotEmpty;
 
-                return HymnPopupMenuWidget(
-                  isFavorite: isFavorite,
-                  canEditHymn: canEditHymn(),
-                  isUserAuthenticated: isUserAuthenticated(),
-                  hasUserNote: _userNote != null,
-                  onToggleFavorite: () {
-                    if (_hymn != null) {
-                      _hymnService.toggleFavorite(_hymn!);
-                    }
-                  },
-                  onEditHymn: () => _navigateToEditScreen(context),
-                  onShowNoteEditor: () => _showNoteEditor(),
-                  onShowFontSizeSlider: () {
-                    setState(() {
-                      _showSlider = !_showSlider;
-                    });
-                  },
-                  onShowColorPicker: () =>
-                      ColorPickerWidget.showColorPickerDialog(context),
-                  onShowAudioPlayer: () => _showAudioPlayerDialog(),
-                  onAddToPlaylist: () => _showAddToPlaylistDialog(),
-                );
-              },
-            ),
+                 return HymnPopupMenuWidget(
+                   isFavorite: isFavorite,
+                   canEditHymn: canEditHymn(),
+                   isUserAuthenticated: isUserAuthenticated(),
+                   hasUserNote: _userNote != null,
+                   onToggleFavorite: () {
+                     if (_hymn != null) {
+                       _hymnService.toggleFavorite(_hymn!);
+                     }
+                   },
+                   onEditHymn: () => _navigateToEditScreen(context),
+                   onShowNoteEditor: () => _showNoteEditor(),
+                   onShowFontSizeSlider: () {
+                     setState(() {
+                       _showSlider = !_showSlider;
+                     });
+                   },
+                   onShowColorPicker: () =>
+                       ColorPickerWidget.showColorPickerDialog(context),
+                   onShowAudioPlayer: () => _showAudioPlayerDialog(),
+                   onAddToPlaylist: () => _showAddToPlaylistDialog(),
+                 );
+               },
+             ),
           ],
         ),
         body: Stack(
