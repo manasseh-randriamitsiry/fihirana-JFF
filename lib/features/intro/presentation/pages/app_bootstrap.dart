@@ -25,22 +25,42 @@ class AppBootstrap extends StatefulWidget {
   State<AppBootstrap> createState() => _AppBootstrapState();
 }
 
-class _AppBootstrapState extends State<AppBootstrap> {
+class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMixin {
   double _progress = 0.0;
   String _currentTask = 'Initializing app...';
   StreamSubscription<InitProgressEvent>? _progressSubscription;
   bool _servicesInitialized = false;
+  late AnimationController _animationController;
+  late Animation<double> _progressAnimation;
+  double _animatedProgress = 0.0;
 
   @override
   void initState() {
     super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _progressAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    )..addListener(() {
+      setState(() => _animatedProgress = _progressAnimation.value);
+    });
     _initialize();
   }
 
   @override
   void dispose() {
     _progressSubscription?.cancel();
+    _animationController.dispose();
     super.dispose();
+  }
+
+  void _animateProgress() {
+    _progressAnimation = Tween<double>(begin: _animatedProgress, end: _progress).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward(from: 0);
   }
 
   Future<void> _initialize() async {
@@ -52,6 +72,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
           setState(() {
             _progress = event.progress;
             _currentTask = event.step.description;
+            _animateProgress();
           });
         }
       });
@@ -60,6 +81,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
       setState(() {
         _progress = 0.05;
         _currentTask = 'Initializing Firebase...';
+        _animateProgress();
       });
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
@@ -72,6 +94,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
        setState(() {
          _progress = 0.2;
          _currentTask = 'Firebase initialized';
+         _animateProgress();
        });
 
        // Initialize critical services first as they're needed by other services
@@ -81,6 +104,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
        setState(() {
          _progress = 0.3;
          _currentTask = 'Services initialized';
+         _animateProgress();
        });
 
         await serviceLocator.initialize();
@@ -93,6 +117,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
         setState(() {
           _progress = 0.9;
           _currentTask = 'App initialized';
+          _animateProgress();
         });
 
         // Verify critical controllers are initialized
@@ -110,6 +135,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
          setState(() {
            _progress = 0.95;
            _currentTask = 'Preferences loaded';
+           _animateProgress();
          });
 
        // Track installation
@@ -137,6 +163,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
        setState(() {
          _progress = 1.0;
          _currentTask = 'Ready!';
+         _animateProgress();
        });
 
        // Small delay to show completion
@@ -202,7 +229,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                         height: 8,
                         width: double.infinity,
                         child: LinearProgressIndicator(
-                          value: _progress,
+                          value: _animatedProgress,
                           backgroundColor: (brightness == Brightness.dark ? Colors.white : Colors.blue).withValues(alpha: 0.2),
                           valueColor: AlwaysStoppedAnimation<Color>(brightness == Brightness.dark ? Colors.white : Colors.blue),
                         ),
@@ -210,7 +237,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
                     ),
                     SizedBox(height: isTablet ? 15 : 20),
                     Text(
-                      '${(_progress * 100).toInt()}%',
+                      '${(_animatedProgress * 100).toInt()}%',
                       style: TextStyle(
                         fontSize: isTablet ? 24 : 32,
                         fontWeight: FontWeight.bold,
@@ -270,10 +297,9 @@ class _AppBootstrapState extends State<AppBootstrap> {
                       height: 8,
                       width: double.infinity,
                       child: LinearProgressIndicator(
-                        value: _progress,
+                        value: _animatedProgress,
                         backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
                       ),
                     ),
                   ),
@@ -282,7 +308,7 @@ class _AppBootstrapState extends State<AppBootstrap> {
 
                   // Percentage text
                   Text(
-                    '${(_progress * 100).toInt()}%',
+                    '${(_animatedProgress * 100).toInt()}%',
                     style: TextStyle(
                       fontSize: isTablet ? 24 : 32,
                       fontWeight: FontWeight.bold,
