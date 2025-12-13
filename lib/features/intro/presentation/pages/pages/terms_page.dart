@@ -115,7 +115,7 @@ class TermsPage extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                AgreementItemWidget(text: l10n.term1),
+                                AgreementItemWidget(text: l10n.term1,),
                                 const SizedBox(height: 16),
                                 AgreementItemWidget(text: l10n.term2),
                                 const SizedBox(height: 16),
