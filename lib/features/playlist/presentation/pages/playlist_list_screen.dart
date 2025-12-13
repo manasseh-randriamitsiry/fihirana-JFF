@@ -113,7 +113,7 @@ title: Text(
         title: context.translate((l) => l.newPlaylist),
         hint: context.translate((l) => l.playlistExampleHint),
         onCreate: (title, date) {
-          Get.find<PlaylistController>().createPlaylist(title, date);
+          PlaylistDI.playlistController.createPlaylist(title, date);
         },
       ),
     );
@@ -141,7 +141,7 @@ void _confirmDelete(BuildContext context, Playlist playlist) {
           ),
           TextButton(
             onPressed: () {
-              Get.find<PlaylistController>().deletePlaylist(playlist.id);
+              PlaylistDI.playlistController.deletePlaylist(playlist.id);
               Navigator.pop(context);
             },
             child: Text(context.translate((l) => l.delete), style: const TextStyle(color: Colors.red)),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:fihirana/app/theme/color_controller.dart';
 
 class SplashCardWidget extends StatelessWidget {
   final Widget child;
@@ -14,10 +16,11 @@ class SplashCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorController = Get.find<ColorController>();
     return Container(
       padding: padding ?? const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: color ?? Colors.white.withValues(alpha: 0.95),
+        color: color ?? colorController.backgroundColor.value.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
@@ -68,17 +71,18 @@ class FeatureItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorController = Get.find<ColorController>();
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+            color: colorController.primaryColor.value.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             icon,
-            color: const Color(0xFF6366F1),
+            color: colorController.primaryColor.value,
             size: 24,
           ),
         ),
@@ -86,9 +90,9 @@ class FeatureItemWidget extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: Colors.black87,
+              color: colorController.textColor.value.withValues(alpha: 0.8),
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -108,6 +112,7 @@ class AgreementItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorController = Get.find<ColorController>();
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -115,8 +120,8 @@ class AgreementItemWidget extends StatelessWidget {
           width: 8,
           height: 8,
           margin: const EdgeInsets.only(top: 6),
-          decoration: const BoxDecoration(
-            color: Colors.green,
+          decoration: BoxDecoration(
+            color: colorController.primaryColor.value,
             shape: BoxShape.circle,
           ),
         ),
@@ -124,9 +129,9 @@ class AgreementItemWidget extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
-              color: Colors.black87,
+              color: colorController.textColor.value.withValues(alpha: 0.8),
               height: 1.4,
             ),
           ),

@@ -18,8 +18,31 @@ class NavigationUtility {
   static void navigateToDetailScreen(BuildContext context, Hymn hymn) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => HymnDetailScreen(hymnId: hymn.id),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            HymnDetailScreen(hymnId: hymn.id),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const curve = Curves.easeOutExpo;
+
+          var scaleAnimation = Tween(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(parent: animation, curve: curve),
+          );
+          
+          var fadeAnimation = Tween(begin: 0.0, end: 1.0).animate(
+            CurvedAnimation(parent: animation, curve: curve),
+          );
+
+          return ScaleTransition(
+            scale: scaleAnimation,
+            alignment: Alignment.bottomCenter,
+            child: FadeTransition(
+              opacity: fadeAnimation,
+              child: child,
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 600),
+        reverseTransitionDuration: const Duration(milliseconds: 500),
       ),
     );
   }
