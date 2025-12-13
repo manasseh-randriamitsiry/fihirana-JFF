@@ -374,11 +374,13 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                     offset: const Offset(0, 4),
                   ),
                 ],
-                border: Border.all(
-                  color: colorController.primaryColor.value
-                      .withValues(alpha: 0.15),
-                  width: 1.5,
-                ),
+                 border: Border.all(
+                   color: _isExpanded
+                       ? colorController.primaryColor.value
+                           .withValues(alpha: 0.15)
+                       : Colors.transparent,
+                   width: 1.5,
+                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
