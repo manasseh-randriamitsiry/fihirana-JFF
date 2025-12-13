@@ -237,12 +237,7 @@ class AccueilScreenState extends State<AccueilScreen> {
               IconButton(
                 key: const ValueKey('language_button'),
                 icon: Icon(Icons.language, color: iconColor),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => const SimpleLanguagePickerDialog(),
-                  );
-                },
+                onPressed: () => SimpleLanguagePicker.showLanguagePicker(context),
               ),
               IconButton(
                 key: const ValueKey('favorites_button'),

@@ -498,6 +498,7 @@ context
 
                             // Favorite Button
                             StreamBuilder<Map<String, String>>(
+                              initialData: _hymnService.currentFavoriteStatus,
                               stream: _hymnService.getFavoriteStatusStream(),
                               builder: (context, snapshot) {
                                 final favoriteStatus = snapshot.data?[widget.hymn.id] ?? '';

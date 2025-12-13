@@ -1,5 +1,6 @@
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -21,11 +22,35 @@ class AddToPlaylistSheet extends StatefulWidget {
 }
 
 class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
-  final PlaylistController _playlistController = Get.find();
+  PlaylistController? _playlistController;
   final ColorController _colorController = Get.find();
   final TextEditingController _newPlaylistController = TextEditingController();
   final RxBool _isCreating = false.obs;
   final Rx<DateTime> _selectedDate = DateTime.now().obs;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadController();
+  }
+
+  Future<void> _loadController() async {
+    try {
+      // Try to get existing controller
+      _playlistController = PlaylistDI.playlistController;
+    } catch (e) {
+      // PlaylistDI not initialized, initialize it
+      PlaylistDI.initialize();
+      _playlistController = PlaylistDI.playlistController;
+    }
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -37,13 +62,13 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
     final title = _newPlaylistController.text.trim();
     if (title.isEmpty) return;
 
-    final playlistId = await _playlistController.createPlaylist(
+    final playlistId = await _playlistController!.createPlaylist(
       title,
       _selectedDate.value,
     );
 
     if (playlistId != null) {
-      await _playlistController.addHymnToPlaylist(playlistId, widget.hymnId);
+      await _playlistController!.addHymnToPlaylist(playlistId, widget.hymnId);
       widget.onHymnAdded?.call();
       if (mounted) Get.back();
     }
@@ -57,6 +82,20 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
       minChildSize: 0.4,
       maxChildSize: 0.9,
       builder: (context, scrollController) {
+        if (_isLoading || _playlistController == null) {
+          return Container(
+            decoration: BoxDecoration(
+              color: _colorController.backgroundColor.value,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Center(
+              child: CircularProgressIndicator(
+                color: _colorController.primaryColor.value,
+              ),
+            ),
+          );
+        }
+
         return Obx(() {
           final backgroundColor = _colorController.backgroundColor.value;
           final textColor = _colorController.textColor.value;
@@ -301,10 +340,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
 
                 // Existing Playlists List
                 Expanded(
-                  child: _playlistController.isLoading.value
-                      ? Center(
-                          child: CircularProgressIndicator(color: primaryColor))
-                      : _playlistController.playlists.isEmpty
+                  child: _playlistController!.playlists.isEmpty
                           ? Center(
                               child: Text(
                                 l10n.noPlaylistsYet,
@@ -318,10 +354,10 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                               controller: scrollController,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: _playlistController.playlists.length,
+                              itemCount: _playlistController!.playlists.length,
                               itemBuilder: (context, index) {
                                 final playlist =
-                                    _playlistController.playlists[index];
+                                    _playlistController!.playlists[index];
                                 final isAdded =
                                     playlist.hymnIds.contains(widget.hymnId);
 
@@ -335,7 +371,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                   child: ListTile(
                                     onTap: () async {
                                       if (!isAdded) {
-                                        await _playlistController
+                                        await _playlistController!
                                             .addHymnToPlaylist(
                                           playlist.id,
                                           widget.hymnId,

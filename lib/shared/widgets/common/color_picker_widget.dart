@@ -25,6 +25,7 @@ class ColorPickerWidget extends StatelessWidget {
   void _showColorPicker(BuildContext context, String colorType,
       Color currentColor, Function(Color) onColorChanged) {
     final l10n = AppLocalizations.of(context);
+    final colorController = Get.find<ColorController>();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -32,8 +33,12 @@ class ColorPickerWidget extends StatelessWidget {
           backgroundColor: Colors.transparent,
           child: Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF1C1B1F),
+              color: colorController.backgroundColor.value,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorController.primaryColor.value,
+                width: 2,
+              ),
             ),
             child: Padding(
               padding: const EdgeInsets.all(20.0),
@@ -43,10 +48,10 @@ class ColorPickerWidget extends StatelessWidget {
                 children: [
                   Text(
                     l10n.chooseColorFor(colorType),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: colorController.textColor.value,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -65,8 +70,8 @@ class ColorPickerWidget extends StatelessWidget {
                         onPressed: () => Navigator.of(context).pop(),
                         child: Text(
                           l10n.accept,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: colorController.primaryColor.value,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -90,8 +95,12 @@ class ColorPickerWidget extends StatelessWidget {
         backgroundColor: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1B1F),
+            color: controller.backgroundColor.value,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: controller.primaryColor.value,
+              width: 2,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -101,10 +110,10 @@ class ColorPickerWidget extends StatelessWidget {
               children: [
                 Text(
                   l10n.chooseColor,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: controller.textColor.value,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -124,8 +133,8 @@ class ColorPickerWidget extends StatelessWidget {
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(
                         l10n.ok,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: controller.primaryColor.value,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -148,8 +157,12 @@ class ColorPickerWidget extends StatelessWidget {
         backgroundColor: Colors.transparent,
         child: Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1C1B1F),
+            color: controller.backgroundColor.value,
             borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: controller.primaryColor.value,
+              width: 2,
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.all(20.0),
@@ -159,10 +172,10 @@ class ColorPickerWidget extends StatelessWidget {
               children: [
                 Text(
                   l10n.drawerColor,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: controller.textColor.value,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -182,8 +195,8 @@ class ColorPickerWidget extends StatelessWidget {
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(
                         l10n.ok,
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: controller.primaryColor.value,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -213,10 +226,10 @@ class ColorPickerWidget extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                color: Colors.white,
+                color: colorController.textColor.value,
               ),
             ),
             Container(
@@ -226,7 +239,7 @@ class ColorPickerWidget extends StatelessWidget {
                 color: color,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: Colors.white24,
+                  color: colorController.primaryColor.value.withValues(alpha: 0.3),
                   width: 2,
                 ),
                 boxShadow: [
@@ -253,10 +266,10 @@ class ColorPickerWidget extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
           child: Text(
             l10n.presetColors,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: colorController.textColor.value,
             ),
           ),
         ),
@@ -349,16 +362,26 @@ class ColorPickerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    // Dark theme colors matching compact audio player
-    const backgroundColor = Color(0xFF1C1B1F);
-    const primaryTextColor = Colors.white;
-
     return GetBuilder<ColorController>(
       builder: (colorController) => Container(
         height: MediaQuery.of(context).size.height * 0.75,
-        decoration: const BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: colorController.backgroundColor.value,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(
+            top: BorderSide(
+              color: colorController.primaryColor.value,
+              width: 2,
+            ),
+            left: BorderSide(
+              color: colorController.primaryColor.value,
+              width: 2,
+            ),
+            right: BorderSide(
+              color: colorController.primaryColor.value,
+              width: 2,
+            ),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -371,7 +394,7 @@ class ColorPickerWidget extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: colorController.primaryColor.value.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -380,22 +403,21 @@ class ColorPickerWidget extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Icon(
+                    Icons.color_lens,
+                    size: 28,
+                    color: colorController.primaryColor.value,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
                     'Choose Color',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: primaryTextColor,
+                      color: colorController.textColor.value,
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: primaryTextColor,
-                    ),
-                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
@@ -416,15 +438,15 @@ class ColorPickerWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 12.0),
                       child: Text(
                         'Custom Colors',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: primaryTextColor,
+                          color: colorController.textColor.value,
                         ),
                       ),
                     ),

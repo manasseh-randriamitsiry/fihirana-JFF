@@ -65,6 +65,8 @@ class HymnService implements IHymnService {
     return _favoritesService.getFavoriteStatusStream();
   }
 
+  Map<String, String> get currentFavoriteStatus => _favoritesService.currentFavoriteStatus;
+
   Stream<List<String>> getFavoriteHymnIdsStream() {
     return _favoritesService.getFavoriteHymnIdsStream();
   }
