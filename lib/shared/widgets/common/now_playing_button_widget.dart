@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 
@@ -49,7 +50,10 @@ class NowPlayingButtonWidget extends StatelessWidget {
               ),
           ],
         ),
-        onPressed: onPressed,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          onPressed();
+        },
       );
     });
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
@@ -36,7 +37,10 @@ class UpdateButtonWidget extends StatelessWidget {
               ),
             )
           : Icon(Icons.system_update, color: iconColor),
-      onPressed: onPressed,
+      onPressed: onPressed != null ? () {
+        HapticFeedback.lightImpact();
+        onPressed!();
+      } : null,
       tooltip: context.translate((l) => l.updateAvailable),
     );
   }
@@ -63,7 +67,10 @@ class NowPlayingButtonWidget extends StatelessWidget {
       return IconButton(
         key: const ValueKey('play_first_button'),
         icon: Icon(Icons.play_circle_outline, color: iconColor),
-        onPressed: onPressed,
+        onPressed: () {
+          HapticFeedback.lightImpact();
+          onPressed();
+        },
         tooltip: context.translate((l) => l.playFirstHymn),
       );
     }
@@ -73,7 +80,10 @@ class NowPlayingButtonWidget extends StatelessWidget {
       icon: isPlaying
           ? Icon(Icons.play_circle_filled, color: iconColor)
           : Icon(Icons.play_circle_outline, color: iconColor),
-      onPressed: onPressed,
+      onPressed: () {
+        HapticFeedback.lightImpact();
+        onPressed();
+      },
       tooltip: context.translate((l) => l.nowPlaying),
     );
   }

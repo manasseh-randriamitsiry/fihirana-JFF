@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -60,7 +61,10 @@ class _FavoritesPageState extends State<FavoritesPage> {
         leading: IconButton(
           icon:
               Icon(Icons.menu_rounded, color: colorController.iconColor.value),
-          onPressed: () => Get.find<ShellController>().toggleDrawer(),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Get.find<ShellController>().toggleDrawer();
+          },
         ),
         title: Text(
           context.translate((l) => l.favorites),

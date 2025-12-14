@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 
@@ -74,6 +75,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
         color: colorController.iconColor.value,
       ),
       onSelected: (String item) {
+        HapticFeedback.lightImpact();
         switch (item) {
           case 'edit':
             onEditHymn();
@@ -193,7 +195,10 @@ class FavoriteButtonWidget extends StatelessWidget {
             ? Colors.red
             : colorController.iconColor.value,
       ),
-      onPressed: onPressed,
+      onPressed: () {
+        HapticFeedback.lightImpact();
+        onPressed();
+      },
     );
   }
 }
@@ -240,7 +245,10 @@ class AudioButtonWidget extends StatelessWidget {
             ),
         ],
       ),
-      onPressed: onPressed,
+      onPressed: () {
+        HapticFeedback.lightImpact();
+        onPressed();
+      },
     );
   }
 }

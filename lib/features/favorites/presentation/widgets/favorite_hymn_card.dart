@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -59,7 +60,10 @@ class FavoriteHymnCard extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        Navigator.of(context).pop();
+                      },
                       icon: Icon(
                         Icons.close,
                         color: colorController.iconColor.value,
@@ -164,7 +168,10 @@ class FavoriteHymnCard extends StatelessWidget {
                           ),
                       ],
                     ),
-                    onPressed: () => _showAudioPlayerDialog(context),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      _showAudioPlayerDialog(context);
+                    },
                     tooltip: context.translate((l) => l.playAudio),
                   ),
                 );
@@ -177,14 +184,20 @@ class FavoriteHymnCard extends StatelessWidget {
                     isFavorite ? Colors.red : colorController.iconColor.value,
                 size: 24,
               ),
-              onPressed: onFavoritePressed,
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                onFavoritePressed();
+              },
               tooltip: isFavorite
                    ? context.translate((l) => l.removeFromFavorites)
                    : context.translate((l) => l.addToFavorites),
             ),
           ],
         ),
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
       ),
     ).animate().fadeIn(duration: 300.ms, delay: (50 * index).ms).slideY(
         begin: 0.1,

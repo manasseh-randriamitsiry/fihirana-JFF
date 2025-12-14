@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
@@ -133,7 +134,10 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
           scrolledUnderElevation: 0,
           leading: IconButton(
             icon: Icon(Icons.menu, color: iconColor),
-            onPressed: () => Get.find<ShellController>().toggleDrawer(),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Get.find<ShellController>().toggleDrawer();
+            },
           ),
           title: Text(
             l10n.adminPanel,
@@ -145,13 +149,19 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
           actions: [
              IconButton(
                icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
-               onPressed: () => Get.to(() => const SuperAdminDashboard()),
+               onPressed: () {
+                 HapticFeedback.lightImpact();
+                 Get.to(() => const SuperAdminDashboard());
+               },
                tooltip: l10n.superAdminDashboard,
              ),
             if (_tabController.index == 1 && selectedHymns.isNotEmpty)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: _deleteSelectedHymns,
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  _deleteSelectedHymns();
+                },
               ),
           ],
           bottom: TabBar(

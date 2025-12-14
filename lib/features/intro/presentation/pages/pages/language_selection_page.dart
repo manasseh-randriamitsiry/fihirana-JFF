@@ -1,5 +1,6 @@
 import 'package:fihirana/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
@@ -103,7 +104,10 @@ class LanguageSelectionPage extends StatelessWidget {
                               shadowColor: primaryColor.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(24),
                               child: InkWell(
-                                onTap: () => splashController.selectLanguage(locale),
+                                onTap: () {
+                                  HapticFeedback.lightImpact();
+                                  splashController.selectLanguage(locale);
+                                },
                                 borderRadius: BorderRadius.circular(24),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
@@ -180,6 +184,7 @@ class LanguageSelectionPage extends StatelessWidget {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () {
+                        HapticFeedback.lightImpact();
                          splashController.liquidController.animateToPage(page: 1, duration: 600);
                       },
                       style: FilledButton.styleFrom(

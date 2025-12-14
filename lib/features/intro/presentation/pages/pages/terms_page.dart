@@ -230,8 +230,11 @@ class TermsPage extends StatelessWidget {
           
           // Google Sign In
           OutlinedButton.icon(
-             onPressed: !splashController.isSigningIn.value ? splashController.handleGoogleSignIn : null,
-             icon: splashController.isSigningIn.value 
+             onPressed: !splashController.isSigningIn.value ? () {
+               HapticFeedback.lightImpact();
+               splashController.handleGoogleSignIn();
+             } : null,
+             icon: splashController.isSigningIn.value
                 ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: primaryColor))
                 : Image.asset('assets/images/google_logo.png', height: 24, errorBuilder: (_, __, ___) => const Icon(Icons.login)),
              label: Text(splashController.isSigningIn.value ? l10n.signingIn : l10n.signInWithGoogle),
@@ -253,6 +256,7 @@ class TermsPage extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
+                HapticFeedback.lightImpact();
                  if (splashController.isGoogleUserSignedIn) {
                    splashController.handleGoogleUserContinue();
                  } else if (Get.find<UsernameInputController>().usernameLength.value >= 4) {

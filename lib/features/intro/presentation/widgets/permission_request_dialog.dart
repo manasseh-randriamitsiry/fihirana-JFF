@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -157,7 +158,10 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      Navigator.pop(context);
+                    },
                     style: TextButton.styleFrom(
                       padding: EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
                       shape: RoundedRectangleBorder(
@@ -176,7 +180,10 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                 SizedBox(width: isTablet ? 16 : 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: _isRequesting ? null : _requestPermissions,
+                    onPressed: _isRequesting ? null : () {
+                      HapticFeedback.lightImpact();
+                      _requestPermissions();
+                    },
                     style: FilledButton.styleFrom(
                       backgroundColor: colorController.primaryColor.value,
                       padding: EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),

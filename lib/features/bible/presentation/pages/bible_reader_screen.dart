@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -98,6 +99,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             color: colorController.iconColor.value,
           ),
           onPressed: () {
+            HapticFeedback.lightImpact();
             if (bibleController.selectedChapter > 0) {
               bibleController
                   .selectChapter(0); // Go back to chapter selection
@@ -120,15 +122,24 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.bookmark_rounded, color: colorController.iconColor.value),
-            onPressed: () => _showHighlightsPage(context),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _showHighlightsPage(context);
+            },
           ),
           IconButton(
             icon: Icon(Icons.search_rounded, color: colorController.iconColor.value),
-            onPressed: () => _showSearchDialog(context),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _showSearchDialog(context);
+            },
           ),
           IconButton(
             icon: Icon(Icons.text_format_rounded, color: colorController.iconColor.value),
-            onPressed: () => _showSettingsBottomSheet(context),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              _showSettingsBottomSheet(context);
+            },
           ),
         ],
       ),
@@ -304,7 +315,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               children: [
                 // Clear Selection
                 IconButton(
-                  onPressed: () => bibleController.clearSelection(),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    bibleController.clearSelection();
+                  },
                   icon: Icon(Icons.close,
                       color: colorController.textColor.value),
                   tooltip: AppLocalizations.of(context).clear,
@@ -317,7 +331,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 ),
                 // Highlight/Save
                 IconButton(
-                  onPressed: () => bibleController.saveHighlight(),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    bibleController.saveHighlight();
+                  },
                   icon: const Icon(Icons.highlight_rounded,
                       color: Colors.orange),
                   tooltip: AppLocalizations.of(context).saveChanges,

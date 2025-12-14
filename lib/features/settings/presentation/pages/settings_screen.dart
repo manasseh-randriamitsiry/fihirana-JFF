@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
@@ -42,7 +43,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           leading: IconButton(
-            onPressed: () => Get.find<ShellController>().toggleDrawer(),
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              Get.find<ShellController>().toggleDrawer();
+            },
             icon: Icon(
               Icons.menu_rounded,
               color: colorController.iconColor.value,
