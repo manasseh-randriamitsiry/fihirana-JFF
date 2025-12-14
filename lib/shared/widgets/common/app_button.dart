@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/utils/screen_util.dart';
 
 enum AppButtonType {
   primary,
@@ -170,6 +171,10 @@ class AppButton extends StatelessWidget {
 
   VoidCallback? _getEffectiveOnPressed() {
     if (isDisabled || isLoading) return null;
-    return onPressed;
+    if (onPressed == null) return null;
+    return () {
+      getHaptics();
+      onPressed!();
+    };
   }
 }
