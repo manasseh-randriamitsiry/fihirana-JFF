@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_card.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -194,56 +195,41 @@ class _AboutScreenState extends State<AboutScreen> {
     Color? iconColor,
     Color? backgroundColor,
   }) {
-    return Card(
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      color: backgroundColor ?? colorController.backgroundColor.value,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: (iconColor ?? colorController.primaryColor.value)
-                      .withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  icon,
-                  color: iconColor ?? colorController.primaryColor.value,
-                  size: 24,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: iconColor ?? colorController.textColor.value,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: colorController.textColor.value.withValues(alpha: 0.3),
-              ),
-            ],
+    return AppCard(
+      backgroundColor: backgroundColor,
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: (iconColor ?? colorController.primaryColor.value)
+                  .withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: iconColor ?? colorController.primaryColor.value,
+              size: 24,
+            ),
           ),
-        ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                color: iconColor ?? colorController.textColor.value,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Icon(
+            Icons.arrow_forward_ios,
+            size: 16,
+            color: colorController.textColor.value.withValues(alpha: 0.3),
+          ),
+        ],
       ),
     );
   }
@@ -405,75 +391,58 @@ class _AboutScreenState extends State<AboutScreen> {
                 .animate()
                 .fadeIn(delay: const Duration(milliseconds: 400)),
 
-            Card(
-              elevation: 2,
-              shadowColor: Colors.black.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: colorController.textColor.value.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              color: colorController.backgroundColor.value,
-              child: InkWell(
-                onTap: (_checkingForUpdates || _downloadingUpdate)
-                    ? null
-                    : _checkForUpdates,
-                borderRadius: BorderRadius.circular(16),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: (_checkingForUpdates || _downloadingUpdate)
-                            ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      colorController.primaryColor.value),
-                                ),
-                              )
-                            : Icon(
-                                Icons.system_update_rounded,
-                                color: colorController.primaryColor.value,
-                                size: 24,
-                              ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          _downloadingUpdate
-                              ? l10n.downloading
-                              : _checkingForUpdates
-                                  ? l10n.checkingForUpdates
-                                  : l10n.checkForUpdates,
-                          style: TextStyle(
-                            color: colorController.textColor.value,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
+            AppCard(
+              onTap: (_checkingForUpdates || _downloadingUpdate)
+                  ? null
+                  : _checkForUpdates,
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorController.primaryColor.value
+                          .withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: (_checkingForUpdates || _downloadingUpdate)
+                        ? SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  colorController.primaryColor.value),
+                            ),
+                          )
+                        : Icon(
+                            Icons.system_update_rounded,
+                            color: colorController.primaryColor.value,
+                            size: 24,
                           ),
-                        ),
-                      ),
-                      if (!_checkingForUpdates && !_downloadingUpdate)
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.3),
-                        ),
-                    ],
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      _downloadingUpdate
+                          ? l10n.downloading
+                          : _checkingForUpdates
+                              ? l10n.checkingForUpdates
+                              : l10n.checkForUpdates,
+                      style: TextStyle(
+                        color: colorController.textColor.value,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  if (!_checkingForUpdates && !_downloadingUpdate)
+                    Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.3),
+                    ),
+                ],
               ),
             )
                 .animate()

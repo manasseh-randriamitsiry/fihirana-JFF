@@ -44,14 +44,14 @@ class AppCard extends StatelessWidget {
       margin: margin ?? const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       color: backgroundColor ?? _getBackgroundColor(colorController),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius ?? AppDimensions.radiusMd),
+        borderRadius: BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
         side: _getBorder(colorController),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius ?? AppDimensions.radiusMd),
+        borderRadius: BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
         child: Padding(
-          padding: padding ?? const EdgeInsets.all(AppDimensions.md),
+          padding: padding ?? const EdgeInsets.all(AppDimensions.lg),
           child: child,
         ),
       ),
@@ -63,11 +63,11 @@ class AppCard extends StatelessWidget {
   double _getDefaultElevation() {
     switch (type) {
       case AppCardType.elevated:
-        return 4.0;
+        return 6.0;
       case AppCardType.outlined:
         return 0.0;
       case AppCardType.filled:
-        return 2.0;
+        return 3.0;
     }
   }
 

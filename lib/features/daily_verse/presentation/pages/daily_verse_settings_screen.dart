@@ -7,6 +7,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/shared/widgets/common/app_card.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {
   DailyVerseSettingsScreen({super.key});
@@ -123,13 +124,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // Enable/Disable Toggle
-            Card(
-              elevation: 2,
-              shadowColor: Colors.black.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              color: colorController.backgroundColor.value,
+            AppCard(
               child: Obx(() => SwitchListTile(
                     title: Text(
                       l10n.enableDailyVerse,
@@ -169,46 +164,57 @@ class DailyVerseSettingsScreen extends StatelessWidget {
             Obx(() => AnimatedOpacity(
                   opacity: controller.isEnabled.value ? 1.0 : 0.5,
                   duration: const Duration(milliseconds: 300),
-                  child: Card(
-                    elevation: 2,
-                    shadowColor: Colors.black.withValues(alpha: 0.1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    color: colorController.backgroundColor.value,
-                    child: ListTile(
-                      enabled: controller.isEnabled.value,
-                      leading: Icon(
-                        Icons.access_time,
-                        color: controller.isEnabled.value
-                            ? colorController.primaryColor.value
-                            : colorController.iconColor.value
-                                .withValues(alpha: 0.5),
-                      ),
-                      title: Text(
-                        l10n.notificationTime,
-                        style: TextStyle(
-                          color: colorController.textColor.value,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                  child: AppCard(
+                    onTap: controller.isEnabled.value
+                        ? () => _selectTime(context)
+                        : null,
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: controller.isEnabled.value
+                                ? colorController.primaryColor.value.withValues(alpha: 0.15)
+                                : colorController.iconColor.value.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.access_time,
+                            color: controller.isEnabled.value
+                                ? colorController.primaryColor.value
+                                : colorController.iconColor.value.withValues(alpha: 0.5),
+                            size: 24,
+                          ),
                         ),
-                      ),
-                      subtitle: Text(
-                        controller.notificationTime.value.format(context),
-                        style: TextStyle(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.6),
-                          fontSize: 14,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                l10n.notificationTime,
+                                style: TextStyle(
+                                  color: colorController.textColor.value,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Text(
+                                controller.notificationTime.value.format(context),
+                                style: TextStyle(
+                                  color: colorController.textColor.value.withValues(alpha: 0.6),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: colorController.iconColor.value,
-                      ),
-                      onTap: controller.isEnabled.value
-                          ? () => _selectTime(context)
-                          : null,
+                        Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: colorController.iconColor.value,
+                        ),
+                      ],
                     ),
                   ),
                 )),
