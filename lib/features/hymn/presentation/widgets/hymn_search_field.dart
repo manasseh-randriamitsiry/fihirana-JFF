@@ -25,7 +25,7 @@ class HymnSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppCard(
       backgroundColor: backgroundColor,
-      elevation: 4.0,
+      borderColor: iconColor.withValues(alpha: 0.3),
       borderRadius: 30.0,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: TextField(
