@@ -45,158 +45,358 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
+    final primaryColor = colorController.primaryColor.value;
+    final backgroundColor = colorController.backgroundColor.value;
+    final textColor = colorController.textColor.value;
 
     return Container(
-      color: colorController.backgroundColor.value,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: primaryColor, width: 2),
+          left: BorderSide(color: primaryColor, width: 2),
+          right: BorderSide(color: primaryColor, width: 2),
+        ),
+      ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16,
-        right: 16,
-        top: 16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                widget.note != null ? l10n.editNote : l10n.myPersonalNote,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colorController.textColor.value,
-                ),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.close,
-                  color: colorController.iconColor.value,
-                ),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            l10n.noteInstructions,
-            style: TextStyle(
-              fontSize: 14,
-              color: colorController.textColor.value.withValues(alpha: 0.8),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _noteController,
-            maxLines: 8,
-            decoration: InputDecoration(
-              hintText: l10n.enterYourNote,
-              hintStyle: TextStyle(
-                color: colorController.textColor.value.withValues(alpha: 0.5),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorController.textColor.value.withValues(alpha: 0.3),
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorController.textColor.value.withValues(alpha: 0.3),
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: colorController.primaryColor.value,
-                ),
+          // Drag handle
+          Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: primaryColor.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            style: TextStyle(
-              color: colorController.textColor.value,
-            ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (widget.note != null || widget.userNoteContent != null)
-                TextButton(
-                  onPressed: () async {
-                    final confirmed = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        backgroundColor: colorController.backgroundColor.value,
-                        title: Text(
-                          l10n.deleteNoteConfirm,
-                          style:
-                              TextStyle(color: colorController.textColor.value),
-                        ),
-                        content: Text(
-                          l10n.deleteNoteMessage,
-                          style:
-                              TextStyle(color: colorController.textColor.value),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: Text(
-                              l10n.no,
-                              style: TextStyle(
-                                  color: colorController.textColor.value),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: Text(
-                              l10n.yes,
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-
-                    if (confirmed == true && widget.onDelete != null) {
-                      widget.onDelete!();
-                      if (context.mounted) {
-                        Navigator.pop(context);
-                      }
-                    }
-                  },
-                  child: Text(
-                    l10n.delete,
-                    style: const TextStyle(color: Colors.red),
+          
+          // Title with icon
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    widget.note != null ? Icons.edit_note_rounded : Icons.note_add_rounded,
+                    size: 24,
+                    color: primaryColor,
                   ),
                 ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  l10n.cancel,
-                  style: TextStyle(color: colorController.textColor.value),
+                const SizedBox(width: 12),
+                Text(
+                  widget.note != null ? l10n.editNote : l10n.myPersonalNote,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
                 ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  final content = _noteController.text.trim();
-                  widget.onSave(content);
-                  if (context.mounted) {
-                    Navigator.pop(context);
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorController.primaryColor.value,
-                  foregroundColor: colorController.backgroundColor.value,
+              ],
+            ),
+          ),
+          
+          // Divider
+          Divider(
+            color: primaryColor.withValues(alpha: 0.2),
+            thickness: 1,
+            height: 1,
+          ),
+          
+          // Content
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Instructions
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: primaryColor.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: primaryColor.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        color: primaryColor,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          l10n.noteInstructions,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: textColor.withValues(alpha: 0.8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Text(l10n.save),
-              ),
-            ],
+                const SizedBox(height: 20),
+                
+                // Text field
+                TextField(
+                  controller: _noteController,
+                  maxLines: 6,
+                  decoration: InputDecoration(
+                    hintText: l10n.enterYourNote,
+                    hintStyle: TextStyle(
+                      color: textColor.withValues(alpha: 0.4),
+                    ),
+                    filled: true,
+                    fillColor: primaryColor.withValues(alpha: 0.05),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: primaryColor.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: primaryColor.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                        color: primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.all(16),
+                  ),
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 15,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                
+                // Action buttons
+                Row(
+                  children: [
+                    // Delete button
+                    if (widget.note != null || widget.userNoteContent != null)
+                      Expanded(
+                        child: _buildActionButton(
+                          icon: Icons.delete_outline_rounded,
+                          label: l10n.delete,
+                          color: Colors.red,
+                          backgroundColor: Colors.red.withValues(alpha: 0.1),
+                          onPressed: () => _showDeleteConfirmation(context, l10n, colorController),
+                        ),
+                      ),
+                    if (widget.note != null || widget.userNoteContent != null)
+                      const SizedBox(width: 12),
+                    
+                    // Cancel button
+                    Expanded(
+                      child: _buildActionButton(
+                        icon: Icons.close_rounded,
+                        label: l10n.cancel,
+                        color: textColor.withValues(alpha: 0.7),
+                        backgroundColor: textColor.withValues(alpha: 0.08),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    
+                    // Save button
+                    Expanded(
+                      flex: 2,
+                      child: _buildActionButton(
+                        icon: Icons.check_rounded,
+                        label: l10n.save,
+                        color: backgroundColor,
+                        backgroundColor: primaryColor,
+                        onPressed: () {
+                          final content = _noteController.text.trim();
+                          widget.onSave(content);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Color backgroundColor,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(
+    BuildContext context,
+    AppLocalizations l10n,
+    ColorController colorController,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          decoration: BoxDecoration(
+            color: colorController.backgroundColor.value,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.red.withValues(alpha: 0.5),
+              width: 2,
+            ),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.red,
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n.deleteNoteConfirm,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: colorController.textColor.value,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n.deleteNoteMessage,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(
+                            color: colorController.textColor.value.withValues(alpha: 0.2),
+                          ),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.no,
+                        style: TextStyle(
+                          color: colorController.textColor.value,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        l10n.yes,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    if (confirmed == true && widget.onDelete != null) {
+      widget.onDelete!();
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+    }
   }
 }
 
