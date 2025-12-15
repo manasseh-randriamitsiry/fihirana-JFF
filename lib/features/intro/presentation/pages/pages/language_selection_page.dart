@@ -110,7 +110,7 @@ class LanguageSelectionPage extends StatelessWidget {
                                 },
                                 borderRadius: BorderRadius.circular(24),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color: isSelected ? primaryColor : Colors.transparent,
