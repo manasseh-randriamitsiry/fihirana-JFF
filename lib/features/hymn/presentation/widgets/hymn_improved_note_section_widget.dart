@@ -364,16 +364,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
             child: Container(
               margin: const EdgeInsets.all(AppDimensions.md),
               decoration: BoxDecoration(
-                color: colorController.backgroundColor.value,
+                color: colorController.primaryColor.value.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.08),
-                    blurRadius: 20,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
                  border: Border.all(
                    color: _isExpanded
                        ? colorController.primaryColor.value
@@ -490,13 +482,6 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
         decoration: BoxDecoration(
           color: colorController.primaryColor.value,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: colorController.primaryColor.value.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
         ),
         child: Material(
           color: Colors.transparent,
@@ -634,14 +619,6 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               color: colorController.primaryColor.value.withValues(alpha: 0.3),
               width: 1.5,
             ),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    colorController.primaryColor.value.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -654,14 +631,6 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                     decoration: BoxDecoration(
                       color: colorController.primaryColor.value,
                       borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.3),
-                          blurRadius: 4,
-                          offset: const Offset(0, 1),
-                        ),
-                      ],
                     ),
                     child: Icon(
                       Icons.person,

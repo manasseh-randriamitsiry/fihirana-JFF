@@ -561,8 +561,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 left: 20,
                 right: 20,
                 child: Card(
-                  elevation: 8,
-                  color: colorController.backgroundColor.value,
+                  elevation: 0,
+                  color: colorController.primaryColor.value.withValues(alpha: 0.08),
                   shadowColor: Colors.black.withValues(alpha: 0.2),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),

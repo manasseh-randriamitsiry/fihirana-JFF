@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
-
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 
 class FontSizeSliderWidget extends StatelessWidget {
@@ -21,17 +20,33 @@ class FontSizeSliderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
 
-    return Slider(
-      value: fontSize,
-      min: 8,
-      max: 50,
-      divisions: 56,
-      label: fontSize.toStringAsFixed(1),
-      onChanged: onChanged,
-      onChangeEnd: onChangeEnd,
-      activeColor: colorController.primaryColor.value,
-      inactiveColor: colorController.primaryColor.value.withValues(alpha: 0.2),
-      thumbColor: colorController.primaryColor.value,
+    return Row(
+      children: [
+        Icon(
+          Icons.text_decrease,
+          color: colorController.textColor.value.withValues(alpha: 0.6),
+          size: 20,
+        ),
+        Expanded(
+          child: Slider(
+            value: fontSize,
+            min: 8,
+            max: 50,
+            divisions: 56,
+            label: fontSize.toStringAsFixed(1),
+            onChanged: onChanged,
+            onChangeEnd: onChangeEnd,
+            activeColor: colorController.primaryColor.value,
+            inactiveColor: colorController.primaryColor.value.withValues(alpha: 0.2),
+            thumbColor: colorController.primaryColor.value,
+          ),
+        ),
+        Icon(
+          Icons.text_increase,
+          color: colorController.textColor.value.withValues(alpha: 0.6),
+          size: 20,
+        ),
+      ],
     );
   }
 }
@@ -67,112 +82,144 @@ class HymnPopupMenuWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
+    final backgroundColor = colorController.backgroundColor.value;
+    final primaryColor = colorController.primaryColor.value;
+    final textColor = colorController.textColor.value;
 
-    return PopupMenuButton<String>(
-      color: colorController.primaryColor.value.withValues(alpha: 0.9),
-      icon: Icon(
-        Icons.menu_sharp,
-        color: colorController.iconColor.value,
+    return Container(
+      margin: const EdgeInsets.only(right: 4),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
       ),
-      onSelected: (String item) {
-        HapticFeedback.lightImpact();
-        switch (item) {
-          case 'edit':
-            onEditHymn();
-            break;
-          case 'add_note':
-            onShowNoteEditor();
-            break;
-          case 'font_size':
-            onShowFontSizeSlider();
-            break;
-          case 'color_picker':
-            onShowColorPicker();
-            break;
-          case 'audio_player':
-            onShowAudioPlayer();
-            break;
-          case 'add_to_playlist':
-            onAddToPlaylist();
-            break;
-        }
-      },
-      itemBuilder: (BuildContext context) {
-        return [
-          if (canEditHymn)
-            PopupMenuItem<String>(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.edit,
-                    color: colorController.textColor.value,
-                  ),
-                  const SizedBox(width: 8),
-                   Text(context.translate((l) => l.edit)),
-                ],
+      child: PopupMenuButton<String>(
+        color: backgroundColor,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: primaryColor.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
+        offset: const Offset(0, 48),
+        icon: Icon(
+          Icons.more_vert_rounded,
+          color: primaryColor,
+          size: 22,
+        ),
+        onSelected: (String item) {
+          HapticFeedback.lightImpact();
+          switch (item) {
+            case 'edit':
+              onEditHymn();
+              break;
+            case 'add_note':
+              onShowNoteEditor();
+              break;
+            case 'font_size':
+              onShowFontSizeSlider();
+              break;
+            case 'color_picker':
+              onShowColorPicker();
+              break;
+            case 'audio_player':
+              onShowAudioPlayer();
+              break;
+            case 'add_to_playlist':
+              onAddToPlaylist();
+              break;
+          }
+        },
+        itemBuilder: (BuildContext context) {
+          return [
+            if (canEditHymn)
+              _buildMenuItem(
+                value: 'edit',
+                icon: Icons.edit_rounded,
+                label: context.translate((l) => l.edit),
+                textColor: textColor,
+                primaryColor: primaryColor,
+              ),
+            if (isUserAuthenticated)
+              _buildMenuItem(
+                value: 'add_note',
+                icon: hasUserNote ? Icons.edit_note_rounded : Icons.note_add_rounded,
+                label: hasUserNote
+                    ? context.translate((l) => l.editNote)
+                    : context.translate((l) => l.add),
+                textColor: textColor,
+                primaryColor: primaryColor,
+              ),
+            _buildMenuItem(
+              value: 'font_size',
+              icon: Icons.format_size_rounded,
+              label: context.translate((l) => l.font),
+              textColor: textColor,
+              primaryColor: primaryColor,
+            ),
+            _buildMenuItem(
+              value: 'color_picker',
+              icon: Icons.palette_rounded,
+              label: context.translate((l) => l.color),
+              textColor: textColor,
+              primaryColor: primaryColor,
+            ),
+            _buildMenuItem(
+              value: 'add_to_playlist',
+              icon: Icons.playlist_add_rounded,
+              label: context.translate((l) => l.addToPlaylist),
+              textColor: textColor,
+              primaryColor: primaryColor,
+            ),
+          ];
+        },
+      ),
+    );
+  }
+
+  PopupMenuItem<String> _buildMenuItem({
+    required String value,
+    required IconData icon,
+    required String label,
+    required Color textColor,
+    required Color primaryColor,
+  }) {
+    return PopupMenuItem<String>(
+      value: value,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                icon,
+                color: primaryColor,
+                size: 20,
               ),
             ),
-          if (isUserAuthenticated)
-            PopupMenuItem<String>(
-              value: 'add_note',
-              child: Row(
-                children: [
-                  Icon(
-                    hasUserNote ? Icons.edit_note : Icons.note_add,
-                    color: colorController.textColor.value,
-                  ),
-                  const SizedBox(width: 8),
-                   Text(hasUserNote ? context.translate((l) => l.editNote) : context.translate((l) => l.add)),
-                ],
+            const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
               ),
             ),
-          PopupMenuItem<String>(
-            value: 'font_size',
-            child: Row(
-              children: [
-                Icon(
-                  Icons.text_fields,
-                  color: colorController.textColor.value,
-                ),
-                const SizedBox(width: 8),
-                 Text(context.translate((l) => l.font)),
-              ],
-            ),
-          ),
-          PopupMenuItem<String>(
-            value: 'color_picker',
-            child: Row(
-              children: [
-                Icon(
-                  Icons.color_lens,
-                  color: colorController.textColor.value,
-                ),
-                const SizedBox(width: 8),
-                 Text(context.translate((l) => l.color)),
-              ],
-            ),
-          ),
-          PopupMenuItem<String>(
-            value: 'add_to_playlist',
-            child: Row(
-              children: [
-                Icon(
-                  Icons.playlist_add,
-                  color: colorController.textColor.value,
-                ),
-                const SizedBox(width: 8),
-                 Text(context.translate((l) => l.addToPlaylist)),
-              ],
-            ),
-          ),
-        ];
-      },
+          ],
+        ),
+      ),
     );
   }
 }
 
-class FavoriteButtonWidget extends StatelessWidget {
+class FavoriteButtonWidget extends StatefulWidget {
   final bool isFavorite;
   final String favoriteStatus;
   final VoidCallback onPressed;
@@ -185,20 +232,66 @@ class FavoriteButtonWidget extends StatelessWidget {
   });
 
   @override
+  State<FavoriteButtonWidget> createState() => _FavoriteButtonWidgetState();
+}
+
+class _FavoriteButtonWidgetState extends State<FavoriteButtonWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTap() {
+    HapticFeedback.lightImpact();
+    _controller.forward().then((_) => _controller.reverse());
+    widget.onPressed();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
+    final primaryColor = colorController.primaryColor.value;
 
-    return IconButton(
-      icon: Icon(
-        isFavorite ? Icons.favorite : Icons.favorite_border,
-        color: isFavorite
-            ? Colors.red
-            : colorController.iconColor.value,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: GestureDetector(
+        onTap: _handleTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: widget.isFavorite
+                ? Colors.red.withValues(alpha: 0.12)
+                : primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Icon(
+              widget.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              color: widget.isFavorite ? Colors.red : primaryColor,
+              size: 22,
+            ),
+          ),
+        ),
       ),
-      onPressed: () {
-        HapticFeedback.lightImpact();
-        onPressed();
-      },
     );
   }
 }
@@ -221,34 +314,134 @@ class AudioButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!hasAudio) return const SizedBox.shrink();
 
-    return IconButton(
-      icon: Stack(
-        children: [
-          Icon(
-            Icons.music_note,
+    final colorController = Get.find<ColorController>();
+    final primaryColor = colorController.primaryColor.value;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onPressed();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
             color: isPlaying
-                ? Theme.of(context).colorScheme.primary
-                : Get.find<ColorController>().iconColor.value,
+                ? primaryColor.withValues(alpha: 0.15)
+                : primaryColor.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
+            border: isPlaying
+                ? Border.all(color: primaryColor.withValues(alpha: 0.3), width: 1.5)
+                : null,
           ),
-          if (isPlaying)
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: Icon(
+                  isPlaying ? Icons.graphic_eq_rounded : Icons.music_note_rounded,
+                  key: ValueKey(isPlaying),
+                  color: primaryColor,
+                  size: 22,
                 ),
               ),
-            ),
-        ],
+              if (isPlaying) ...[
+                const SizedBox(width: 4),
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.red.withValues(alpha: 0.5),
+                        blurRadius: 4,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
-      onPressed: () {
+    );
+  }
+}
+
+/// A stylized action button for the hymn detail screen
+class HymnActionButton extends StatelessWidget {
+  final IconData icon;
+  final String? label;
+  final VoidCallback onPressed;
+  final bool isActive;
+  final Color? activeColor;
+
+  const HymnActionButton({
+    super.key,
+    required this.icon,
+    this.label,
+    required this.onPressed,
+    this.isActive = false,
+    this.activeColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorController = Get.find<ColorController>();
+    final primaryColor = colorController.primaryColor.value;
+    final effectiveActiveColor = activeColor ?? primaryColor;
+
+    return GestureDetector(
+      onTap: () {
         HapticFeedback.lightImpact();
         onPressed();
       },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(
+          horizontal: label != null ? 12 : 8,
+          vertical: 8,
+        ),
+        decoration: BoxDecoration(
+          color: isActive
+              ? effectiveActiveColor.withValues(alpha: 0.15)
+              : primaryColor.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(12),
+          border: isActive
+              ? Border.all(color: effectiveActiveColor.withValues(alpha: 0.3), width: 1.5)
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isActive ? effectiveActiveColor : primaryColor,
+              size: 20,
+            ),
+            if (label != null) ...[
+              const SizedBox(width: 6),
+              Text(
+                label!,
+                style: TextStyle(
+                  color: isActive ? effectiveActiveColor : primaryColor,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }
