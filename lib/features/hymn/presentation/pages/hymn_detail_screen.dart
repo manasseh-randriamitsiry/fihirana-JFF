@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
@@ -417,6 +418,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         appBar: AppBar(
           leading: IconButton(
               onPressed: () {
+                HapticFeedback.lightImpact();
                 Get.back();
               },
               icon: Icon(
@@ -428,7 +430,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           scrolledUnderElevation: 0,
           centerTitle: true,
           title: GestureDetector(
-            onTap: () => _showSearchDialog(colorController),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _showSearchDialog(colorController);
+            },
             child: Text(
               _hymn?.hymnNumber ?? '',
               style: TextStyle(
@@ -556,8 +561,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 left: 20,
                 right: 20,
                 child: Card(
-                  elevation: 8,
-                  color: colorController.backgroundColor.value,
+                  elevation: 0,
+                  color: colorController.primaryColor.value.withValues(alpha: 0.08),
                   shadowColor: Colors.black.withValues(alpha: 0.2),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
