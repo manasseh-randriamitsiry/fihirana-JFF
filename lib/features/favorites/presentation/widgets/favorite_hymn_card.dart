@@ -5,9 +5,8 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
-
-
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/shared/widgets/common/app_card.dart';
 
 class FavoriteHymnCard extends StatelessWidget {
   final Hymn hymn;
@@ -84,17 +83,7 @@ class FavoriteHymnCard extends StatelessWidget {
     final colorController = Get.find<ColorController>();
     final audioService = AudioService.instance;
 
-    return Card(
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      color: colorController.backgroundColor.value,
+    return AppCard(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
