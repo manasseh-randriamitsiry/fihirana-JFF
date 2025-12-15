@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -219,7 +220,10 @@ class DrawerWidgetState extends State<DrawerWidget>
             : null,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
       ),
     );
   }
@@ -238,7 +242,10 @@ class DrawerWidgetState extends State<DrawerWidget>
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: _isAuthenticated ? null : _signInWithGoogle,
+                  onTap: _isAuthenticated ? null : () {
+                    HapticFeedback.lightImpact();
+                    _signInWithGoogle();
+                  },
                   child: Container(
                     width: 80,
                     height: 80,

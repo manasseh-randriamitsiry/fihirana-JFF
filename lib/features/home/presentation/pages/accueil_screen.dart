@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
-
 import 'package:fihirana/features/hymn/data/repositories/hymn_repository_impl.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
@@ -200,7 +199,10 @@ class AccueilScreenState extends State<AccueilScreen> {
                 ? IconButton(
                     key: const ValueKey('menu_button'),
                     icon: Icon(Icons.menu, color: iconColor),
-                    onPressed: widget.openDrawer,
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      widget.openDrawer();
+                    },
                   )
                 : null,
             title: Text(
@@ -237,12 +239,18 @@ class AccueilScreenState extends State<AccueilScreen> {
               IconButton(
                 key: const ValueKey('language_button'),
                 icon: Icon(Icons.language, color: iconColor),
-                onPressed: () => SimpleLanguagePicker.showLanguagePicker(context),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  SimpleLanguagePicker.showLanguagePicker(context);
+                },
               ),
               IconButton(
                 key: const ValueKey('favorites_button'),
                 icon: Icon(Icons.favorite, color: iconColor),
-                onPressed: () => NavigationUtility.navigateToFavorites(),
+                onPressed: () {
+                  HapticFeedback.lightImpact();
+                  NavigationUtility.navigateToFavorites();
+                },
               ),
             ],
           ),
