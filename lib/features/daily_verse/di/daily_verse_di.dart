@@ -83,6 +83,10 @@ class DailyVerseDI {
 
   /// Get daily verse controller
   static DailyVerseController get dailyVerseController {
+    if (!Get.isRegistered<DailyVerseController>(tag: _dailyVerseControllerTag)) {
+      initialize();
+    }
+
     return Get.find<DailyVerseController>(tag: _dailyVerseControllerTag);
   }
 
