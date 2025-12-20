@@ -82,6 +82,7 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
 *   **Background Sync**: Periodic data synchronization with conflict resolution
 *   **Background Announcements**: Automatic announcement checking with expiration support
 *   **Device Info Integration**: Enhanced compatibility checking and device-specific optimizations
+*   **Performance Optimization**: Build-time code generation with `build_runner` for faster JSON serialization
 
 ### 🔐 **Security & Storage**
 *   **Secure Storage**: Flutter secure storage for sensitive data with encryption
@@ -123,12 +124,31 @@ A comprehensive digital Hymnal and Bible application designed to bring spiritual
     flutter pub get
     ```
 
+3.  **Generate code (build_runner):**
+    ```bash
+    flutter pub run build_runner build
+    ```
+    *This generates optimized JSON serialization code for data models using `json_serializable`.*
+
 3.  **Run the app:**
     ```bash
     flutter run
     ```
 
 ### 3. Development Tools
+
+#### 📦 **Code Generation**
+*   **build_runner**: Generates optimized JSON serialization code
+    ```bash
+    # Generate code for all annotated models
+    flutter pub run build_runner build
+
+    # Watch mode for continuous generation during development
+    flutter pub run build_runner watch
+    ```
+    *The project uses `json_serializable` to automatically generate `toJson`/`fromJson` methods for data models, providing faster runtime performance.*
+
+#### 🔧 **Utility Scripts**
 The project includes several utility scripts in the `tool/` directory:
 *   `generate_assets.dart` - Updates asset manifests and pubspec.yaml
 *   `combine_hymns.dart` - Combines individual hymn JSON files into a single file
@@ -319,6 +339,7 @@ To update translations or add a new language:
 
 #### **Build Issues**
 *   **Gradle errors**: Run `flutter clean && flutter pub get`
+*   **Missing generated code**: Run `flutter pub run build_runner build` to generate JSON serialization code
 *   **Missing assets**: Run `dart tool/generate_assets.dart` to update asset manifests
 *   **Font issues**: Ensure all 20+ font files are present in `assets/fonts/`
 *   **Dependency conflicts**: Check Flutter version compatibility with `flutter doctor -v`

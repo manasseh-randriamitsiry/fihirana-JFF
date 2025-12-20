@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'contact.g.dart';
+
+@JsonSerializable()
 class Contact {
   String id;
   String name;
@@ -23,37 +28,10 @@ class Contact {
     required this.updatedAt,
   });
 
-  factory Contact.fromJson(Map<String, dynamic> json) {
-    return Contact(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      phoneNumber: json['phoneNumber'] as String,
-      location: json['location'] as String?,
-      latitude: (json['latitude'] as num?)?.toDouble(),
-      longitude: (json['longitude'] as num?)?.toDouble(),
-      userId: json['userId'] as String,
-      userName: json['userName'] as String? ?? 'Anonymous',
-      createdAt: DateTime.parse(
-          json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(
-          json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
-    );
-  }
+  factory Contact.fromJson(Map<String, dynamic> json) =>
+      _$ContactFromJson(json);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'phoneNumber': phoneNumber,
-      'location': location,
-      'latitude': latitude,
-      'longitude': longitude,
-      'userId': userId,
-      'userName': userName,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => _$ContactToJson(this);
 
   Contact copyWith({
     String? id,

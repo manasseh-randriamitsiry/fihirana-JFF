@@ -1,5 +1,9 @@
 import 'package:fihirana/features/hymn/domain/entities/favorite.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'favorite_model.g.dart';
+
+@JsonSerializable()
 class FavoriteModel extends Favorite {
   FavoriteModel({
     required super.id,
@@ -9,15 +13,10 @@ class FavoriteModel extends Favorite {
     required super.addedDate,
   });
 
-  factory FavoriteModel.fromJson(Map<String, dynamic> json) {
-    return FavoriteModel(
-      id: json['id']?.toString() ?? '',
-      hymnId: json['hymnId']?.toString() ?? '',
-      userId: json['userId']?.toString() ?? '',
-      userEmail: json['userEmail']?.toString() ?? '',
-      addedDate: DateTime.tryParse(json['addedDate'].toString()) ?? DateTime.now(),
-    );
-  }
+  factory FavoriteModel.fromJson(Map<String, dynamic> json) =>
+      _$FavoriteModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$FavoriteModelToJson(this);
 
   factory FavoriteModel.fromEntity(Favorite favorite) {
     return FavoriteModel(
@@ -29,15 +28,7 @@ class FavoriteModel extends Favorite {
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'hymnId': hymnId,
-      'userId': userId,
-      'userEmail': userEmail,
-      'addedDate': addedDate.toIso8601String(),
-    };
-  }
+
 
   Favorite toEntity() {
     return Favorite(
