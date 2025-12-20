@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'note.g.dart';
+
+@JsonSerializable()
 class Note {
   String id;
   String hymnId;
@@ -19,33 +24,10 @@ class Note {
     required this.userName, // Add userName parameter
   });
 
-// Factory method to create Note from JSON data
-  factory Note.fromJson(Map<String, dynamic> json) {
-    return Note(
-      id: json['id'] as String,
-      hymnId: json['hymnId'] as String,
-      userId: json['userId'] as String,
-      userEmail: json['userEmail'] as String? ?? '', // Handle null userEmail
-      content: json['content'] as String? ?? '', // Handle null content
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
-      userName: json['userName'] as String? ?? 'Anonymous', // Handle null userName
-    );
-  }
+  factory Note.fromJson(Map<String, dynamic> json) =>
+      _$NoteFromJson(json);
 
-// Method to convert Note to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'hymnId': hymnId,
-      'userId': userId,
-      'userEmail': userEmail,
-      'content': content,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'userName': userName, // Include userName in JSON
-    };
-  }
+  Map<String, dynamic> toJson() => _$NoteToJson(this);
 
 // Copy with method for updating
   Note copyWith({
