@@ -108,18 +108,27 @@ jobs:
           echo "Regenerating dependencies after manifest creation..."
           flutter pub get
 
-      # ----------------------
-      # Verify assets
-      # ----------------------
+       # ----------------------
+       # Generate Code (build_runner)
+       # ----------------------
+      - name: Generate Code
+        run: |
+           echo "Generating code with build_runner..."
+           flutter pub run build_runner build --delete-conflicting-outputs
+           echo "✅ Code generation completed"
+
+       # ----------------------
+       # Verify assets
+       # ----------------------
       - name: Verify assets
         run: |
-          echo "Checking assets directory..."
-          ls -la assets/json/ | head -10
-          echo "Total JSON files: $(find assets/json -name "*.json" | wc -l)"
-          echo "Generated manifest:"
-          cat assets/hymn_manifest.json | head -20
-          echo "Sample JSON files:"
-          ls assets/json/*.json | head -5
+           echo "Checking assets directory..."
+           ls -la assets/json/ | head -10
+           echo "Total JSON files: $(find assets/json -name "*.json" | wc -l)"
+           echo "Generated manifest:"
+           cat assets/hymn_manifest.json | head -20
+           echo "Sample JSON files:"
+           ls assets/json/*.json | head -5
 
       # ----------------------
       # Setup Keystore
