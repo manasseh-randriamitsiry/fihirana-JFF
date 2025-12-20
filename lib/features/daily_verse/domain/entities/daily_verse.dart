@@ -1,3 +1,8 @@
+import 'package:json_annotation/json_annotation.dart';
+
+part 'daily_verse.g.dart';
+
+@JsonSerializable()
 class DailyVerse {
   final String book;
   final int chapter;
@@ -15,27 +20,10 @@ class DailyVerse {
     required this.date,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'book': book,
-      'chapter': chapter,
-      'verse': verse,
-      'text': text,
-      'reference': reference,
-      'date': date.toIso8601String(),
-    };
-  }
+  factory DailyVerse.fromJson(Map<String, dynamic> json) =>
+      _$DailyVerseFromJson(json);
 
-  factory DailyVerse.fromJson(Map<String, dynamic> json) {
-    return DailyVerse(
-      book: json['book'] as String,
-      chapter: json['chapter'] as int,
-      verse: json['verse'] as int,
-      text: json['text'] as String,
-      reference: json['reference'] as String,
-      date: DateTime.parse(json['date'] as String),
-    );
-  }
+  Map<String, dynamic> toJson() => _$DailyVerseToJson(this);
 
   @override
   String toString() {
