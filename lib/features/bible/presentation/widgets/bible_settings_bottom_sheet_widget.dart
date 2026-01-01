@@ -16,10 +16,12 @@ class BibleSettingsBottomSheetWidget extends StatefulWidget {
   });
 
   @override
-  State<BibleSettingsBottomSheetWidget> createState() => _BibleSettingsBottomSheetWidgetState();
+  State<BibleSettingsBottomSheetWidget> createState() =>
+      _BibleSettingsBottomSheetWidgetState();
 }
 
-class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomSheetWidget> {
+class _BibleSettingsBottomSheetWidgetState
+    extends State<BibleSettingsBottomSheetWidget> {
   late double _currentFontSize;
   late String _currentFontFamily;
 
@@ -76,7 +78,8 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
           // Font Size
           Row(
             children: [
-              Icon(Icons.text_fields, size: 20, color: colorController.textColor.value),
+              Icon(Icons.text_fields,
+                  size: 20, color: colorController.textColor.value),
               const SizedBox(width: 16),
               Expanded(
                 child: Slider(
@@ -125,8 +128,10 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildThemeOption(ThemeMode.light, Icons.light_mode_rounded, 'Light'),
-              _buildThemeOption(ThemeMode.dark, Icons.dark_mode_rounded, 'Dark'),
+              _buildThemeOption(
+                  ThemeMode.light, Icons.light_mode_rounded, 'Light'),
+              _buildThemeOption(
+                  ThemeMode.dark, Icons.dark_mode_rounded, 'Dark'),
             ],
           ),
           const SizedBox(height: 16),
@@ -138,7 +143,7 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
   Widget _buildHorizontalFontOption(String family, String fontName) {
     final isSelected = _currentFontFamily == family;
     final colorController = Get.find<ColorController>();
-    
+
     return GestureDetector(
       onTap: () {
         setState(() => _currentFontFamily = family);
@@ -153,8 +158,8 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
             color: isSelected
-                  ? colorController.primaryColor.value
-                  : colorController.textColor.value.withValues(alpha: 0.2),
+                ? colorController.primaryColor.value
+                : colorController.textColor.value.withValues(alpha: 0.2),
             width: 1.5,
           ),
         ),
@@ -163,7 +168,8 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
           style: Get.find<FontController>().getFontStyle(
             fontName,
             TextStyle(
-              color: isSelected ? Colors.white : colorController.textColor.value,
+              color:
+                  isSelected ? Colors.white : colorController.textColor.value,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
@@ -175,11 +181,15 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
 
   Widget _buildThemeOption(ThemeMode mode, IconData icon, String label) {
     final colorController = Get.find<ColorController>();
-    
+
     return Obx(() {
       final isSelected = colorController.themeMode == mode;
       return GestureDetector(
-        onTap: () => colorController..setColorScheme(mode as int),
+        onTap: () {
+          // Index 0 is Default (Light), Index 5 is Dark Mode
+          final index = mode == ThemeMode.light ? 0 : 5;
+          colorController.setColorScheme(index);
+        },
         child: Column(
           children: [
             Container(
@@ -192,7 +202,8 @@ class _BibleSettingsBottomSheetWidgetState extends State<BibleSettingsBottomShee
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Colors.white : colorController.textColor.value,
+                color:
+                    isSelected ? Colors.white : colorController.textColor.value,
               ),
             ),
             const SizedBox(height: 8),
