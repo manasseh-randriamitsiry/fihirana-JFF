@@ -20,43 +20,54 @@ class AnnouncementDI {
     // Repository
     Get.lazyPut<AnnouncementRepository>(
       () => AnnouncementRepositoryImpl(),
+      fenix: true,
     );
 
     // Use cases
     Get.lazyPut<CreateAnnouncementUseCase>(
       () => CreateAnnouncementUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<UpdateAnnouncementUseCase>(
       () => UpdateAnnouncementUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<DeleteAnnouncementUseCase>(
       () => DeleteAnnouncementUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<GetAllAnnouncementsUseCase>(
       () => GetAllAnnouncementsUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<GetActiveAnnouncementsUseCase>(
       () => GetActiveAnnouncementsUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<StreamAllAnnouncementsUseCase>(
       () => StreamAllAnnouncementsUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<StreamActiveAnnouncementsUseCase>(
-      () => StreamActiveAnnouncementsUseCase(Get.find<AnnouncementRepository>()),
+      () =>
+          StreamActiveAnnouncementsUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<CheckNewAnnouncementsUseCase>(
       () => CheckNewAnnouncementsUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<ClearSeenAnnouncementsUseCase>(
       () => ClearSeenAnnouncementsUseCase(Get.find<AnnouncementRepository>()),
+      fenix: true,
     );
 
     // Controller
@@ -66,13 +77,18 @@ class AnnouncementDI {
         updateAnnouncementUseCase: Get.find<UpdateAnnouncementUseCase>(),
         deleteAnnouncementUseCase: Get.find<DeleteAnnouncementUseCase>(),
         getAllAnnouncementsUseCase: Get.find<GetAllAnnouncementsUseCase>(),
-        getActiveAnnouncementsUseCase: Get.find<GetActiveAnnouncementsUseCase>(),
-        streamAllAnnouncementsUseCase: Get.find<StreamAllAnnouncementsUseCase>(),
-        streamActiveAnnouncementsUseCase: Get.find<StreamActiveAnnouncementsUseCase>(),
+        getActiveAnnouncementsUseCase:
+            Get.find<GetActiveAnnouncementsUseCase>(),
+        streamAllAnnouncementsUseCase:
+            Get.find<StreamAllAnnouncementsUseCase>(),
+        streamActiveAnnouncementsUseCase:
+            Get.find<StreamActiveAnnouncementsUseCase>(),
         checkNewAnnouncementsUseCase: Get.find<CheckNewAnnouncementsUseCase>(),
-        clearSeenAnnouncementsUseCase: Get.find<ClearSeenAnnouncementsUseCase>(),
+        clearSeenAnnouncementsUseCase:
+            Get.find<ClearSeenAnnouncementsUseCase>(),
         auth: Get.find<FirebaseAuth>(),
       ),
+      fenix: true,
     );
   }
 }
