@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -61,25 +62,75 @@ class FontPickerWidget extends StatelessWidget {
                 ),
               ),
             ),
-            // Title
+            // Title and Action Buttons
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(
-                    Icons.font_download,
-                    size: 28,
-                    color: colorController.primaryColor.value,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.font_download,
+                        size: 28,
+                        color: colorController.primaryColor.value,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.chooseFontStyle,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: colorController.textColor.value,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    l10n.chooseFontStyle,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
-                    ),
+                  Row(
+                    children: [
+                  IconButton(
+                    onPressed: () async {
+                      const url = 'https://fonts.google.com/';
+                      try {
+                        final uri = Uri.parse(url);
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } catch (e) {
+                        Get.snackbar(
+                          'Erreur',
+                          'Impossible d\'ouvrir Google Fonts',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      }
+                    },
+                        icon: Icon(
+                          Icons.help_outline,
+                          color: colorController.primaryColor.value,
+                          size: 24,
+                        ),
+                        tooltip: 'Télécharger des polices sur Google Fonts',
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () async {
+                          await _fontController.importFont();
+                          // Rebuild to show the new font in the list
+                          if (context.mounted) {
+                            (context as Element).markNeedsBuild();
+                          }
+                        },
+                        icon: Icon(
+                          Icons.add,
+                          color: colorController.primaryColor.value,
+                          size: 28,
+                        ),
+                        tooltip: 'Importer une police',
+                      ),
+                    ],
                   ),
                 ],
               ),

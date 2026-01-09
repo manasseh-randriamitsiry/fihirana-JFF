@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
@@ -240,8 +242,11 @@ class VersionCheckService {
           }
         } else if (result == AppUpdateResult.success) {}
       }
-    } catch (e) {
-      await UpdateNotificationBuilder.showDownloadError(error: e.toString());
+} catch (e) {
+      final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+      if (isNotificationAllowed) {
+        await UpdateNotificationBuilder.showDownloadError(error: e.toString());
+      }
     }
   }
 
@@ -252,7 +257,10 @@ class VersionCheckService {
         await InAppUpdate.startFlexibleUpdate();
         _flexibleUpdateAvailable = true;
 
-        await UpdateNotificationBuilder.showFlexibleUpdateDownloading();
+        final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+        if (isNotificationAllowed) {
+          await UpdateNotificationBuilder.showFlexibleUpdateDownloading();
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -675,13 +683,77 @@ class VersionCheckService {
     }
   }
 
-  static Future<void> _showUpdateNotification() async {
+static Future<void> _showUpdateNotification() async {
     if (_cachedVersion == null || _cachedDownloadUrl == null) return;
 
-    await UpdateNotificationBuilder.showUpdateAvailable(
-      version: _cachedVersion!,
-      releaseNotes: _cachedReleaseNotes,
-      downloadUrl: _cachedDownloadUrl,
+    // Check if notifications are allowed
+    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+    if (isNotificationAllowed) {
+      await UpdateNotificationBuilder.showUpdateAvailable(
+        version: _cachedVersion!,
+        releaseNotes: _cachedReleaseNotes,
+        downloadUrl: _cachedDownloadUrl,
+      );
+    } else {
+      // Show dialog asking user to enable notifications
+      await _showEnableNotificationDialog();
+    }
+  }
+
+  static Future<void> _showEnableNotificationDialog() async {
+    final context = Get.context;
+    if (context == null) return;
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Nouvelle mise à jour disponible'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('La version ${_cachedVersion ?? ""} est maintenant disponible !'),
+              const SizedBox(height: 8),
+              if (_cachedReleaseNotes != null && _cachedReleaseNotes!.isNotEmpty) ...[
+                const Text('Nouvelles :'),
+                const SizedBox(height: 4),
+                Text(_cachedReleaseNotes!),
+                const SizedBox(height: 8),
+              ],
+              const Text('Impossible d\'afficher la notification car la permission n\'est pas accordée. Accordez la permission de notification pour installer la mise à jour.'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Annuler'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Request notification permission
+                final granted = await AwesomeNotifications().requestPermissionToSendNotifications();
+                if (granted) {
+                  // Show the update notification after permission is granted
+                  await _showUpdateNotification();
+                }
+              },
+              child: const Text('Accorder la permission'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Directly download and install without notification
+                _downloadAndInstallUpdate(_cachedDownloadUrl!);
+              },
+              child: const Text('Continuer quand même'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -720,7 +792,10 @@ class VersionCheckService {
         }
       }
     } catch (e) {
-      await UpdateNotificationBuilder.showInstallError(error: e.toString());
+      final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+      if (isNotificationAllowed) {
+        await UpdateNotificationBuilder.showInstallError(error: e.toString());
+      }
     }
   }
 
