@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -61,7 +62,7 @@ class FontPickerWidget extends StatelessWidget {
                 ),
               ),
             ),
-            // Title and Import Button
+            // Title and Action Buttons
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: Row(
@@ -85,20 +86,50 @@ class FontPickerWidget extends StatelessWidget {
                       ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      await _fontController.importFont();
-                      // Rebuild to show the new font in the list
-                      if (context.mounted) {
-                        (context as Element).markNeedsBuild();
-                      }
-                    },
-                    icon: Icon(
-                      Icons.add,
-                      color: colorController.primaryColor.value,
-                      size: 28,
-                    ),
-                    tooltip: 'Importer une police',
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          const url = 'https://fonts.google.com/';
+                          if (await canLaunchUrl(Uri.parse(url))) {
+                            await launchUrl(
+                              Uri.parse(url),
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            Get.snackbar(
+                              'Erreur',
+                              'Impossible d\'ouvrir Google Fonts',
+                              snackPosition: SnackPosition.BOTTOM,
+                              backgroundColor: Colors.red,
+                              colorText: Colors.white,
+                            );
+                          }
+                        },
+                        icon: Icon(
+                          Icons.help_outline,
+                          color: colorController.primaryColor.value,
+                          size: 24,
+                        ),
+                        tooltip: 'Télécharger des polices sur Google Fonts',
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: () async {
+                          await _fontController.importFont();
+                          // Rebuild to show the new font in the list
+                          if (context.mounted) {
+                            (context as Element).markNeedsBuild();
+                          }
+                        },
+                        icon: Icon(
+                          Icons.add,
+                          color: colorController.primaryColor.value,
+                          size: 28,
+                        ),
+                        tooltip: 'Importer une police',
+                      ),
+                    ],
                   ),
                 ],
               ),
