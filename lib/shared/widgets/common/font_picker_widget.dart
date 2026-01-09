@@ -88,24 +88,25 @@ class FontPickerWidget extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      IconButton(
-                        onPressed: () async {
-                          const url = 'https://fonts.google.com/';
-                          if (await canLaunchUrl(Uri.parse(url))) {
-                            await launchUrl(
-                              Uri.parse(url),
-                              mode: LaunchMode.externalApplication,
-                            );
-                          } else {
-                            Get.snackbar(
-                              'Erreur',
-                              'Impossible d\'ouvrir Google Fonts',
-                              snackPosition: SnackPosition.BOTTOM,
-                              backgroundColor: Colors.red,
-                              colorText: Colors.white,
-                            );
-                          }
-                        },
+                  IconButton(
+                    onPressed: () async {
+                      const url = 'https://fonts.google.com/';
+                      try {
+                        final uri = Uri.parse(url);
+                        await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } catch (e) {
+                        Get.snackbar(
+                          'Erreur',
+                          'Impossible d\'ouvrir Google Fonts',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      }
+                    },
                         icon: Icon(
                           Icons.help_outline,
                           color: colorController.primaryColor.value,
