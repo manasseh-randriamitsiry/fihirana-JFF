@@ -5,6 +5,46 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 
+class ColorValidation {
+  static String? validateColorChange(
+    String colorType,
+    Color newColor,
+    ColorController controller,
+  ) {
+    // Check for same color conflicts that would make text invisible
+    switch (colorType) {
+      case 'fototra': // primary
+        if (newColor == controller.textColor.value) {
+          return 'La couleur primaire ne peut pas être identique à la couleur du texte, sinon le texte sera invisible.';
+        }
+        break;
+      case 'soratra': // text
+        if (newColor == controller.primaryColor.value) {
+          return 'La couleur du texte ne peut pas être identique à la couleur primaire, sinon le texte sera invisible.';
+        }
+        if (newColor == controller.drawerColor.value) {
+          return 'La couleur du texte ne peut pas être identique à la couleur du tiroir, sinon le texte sera invisible.';
+        }
+        if (newColor == controller.backgroundColor.value) {
+          return 'La couleur du texte ne peut pas être identique à la couleur d\'arrière-plan, sinon le texte sera invisible.';
+        }
+        break;
+      case 'ambadika': // background
+        if (newColor == controller.textColor.value) {
+          return 'La couleur d\'arrière-plan ne peut pas être identique à la couleur du texte, sinon le texte sera invisible.';
+        }
+        break;
+    }
+
+    // Additional validation for drawer color
+    if (colorType == 'drawer' && newColor == controller.textColor.value) {
+      return 'La couleur du tiroir ne peut pas être identique à la couleur du texte, sinon le texte sera invisible.';
+    }
+
+    return null; // No validation error
+  }
+}
+
 class ColorPickerWidget extends StatelessWidget {
   final ColorController colorController = Get.find<ColorController>();
 
@@ -58,7 +98,28 @@ class ColorPickerWidget extends StatelessWidget {
                   SingleChildScrollView(
                     child: MaterialPicker(
                       pickerColor: currentColor,
-                      onColorChanged: onColorChanged,
+                      onColorChanged: (color) {
+                        // Validate the color change
+                        final validationError = ColorValidation.validateColorChange(
+                          colorType,
+                          color,
+                          colorController,
+                        );
+                        if (validationError != null) {
+                          Get.snackbar(
+                            'Erreur de validation',
+                            validationError,
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            duration: const Duration(seconds: 4),
+                          );
+                          // Don't apply the color change
+                          return;
+                        }
+                        // Apply the color change if validation passes
+                        onColorChanged(color);
+                      },
                       enableLabel: true,
                     ),
                   ),
@@ -183,6 +244,25 @@ class ColorPickerWidget extends StatelessWidget {
                   child: BlockPicker(
                     pickerColor: controller.drawerColor.value,
                     onColorChanged: (color) {
+                      // Validate the color change
+                      final validationError = ColorValidation.validateColorChange(
+                        'drawer',
+                        color,
+                        controller,
+                      );
+                      if (validationError != null) {
+                        Get.snackbar(
+                          'Erreur de validation',
+                          validationError,
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 4),
+                        );
+                        // Don't apply the color change
+                        return;
+                      }
+                      // Apply the color change if validation passes
                       controller.updateDrawerColor(color);
                     },
                   ),
