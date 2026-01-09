@@ -61,25 +61,44 @@ class FontPickerWidget extends StatelessWidget {
                 ),
               ),
             ),
-            // Title
+            // Title and Import Button
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(
-                    Icons.font_download,
-                    size: 28,
-                    color: colorController.primaryColor.value,
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.font_download,
+                        size: 28,
+                        color: colorController.primaryColor.value,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.chooseFontStyle,
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: colorController.textColor.value,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    l10n.chooseFontStyle,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
+                  IconButton(
+                    onPressed: () async {
+                      await _fontController.importFont();
+                      // Rebuild to show the new font in the list
+                      if (context.mounted) {
+                        (context as Element).markNeedsBuild();
+                      }
+                    },
+                    icon: Icon(
+                      Icons.add,
+                      color: colorController.primaryColor.value,
+                      size: 28,
                     ),
+                    tooltip: 'Importer une police',
                   ),
                 ],
               ),
