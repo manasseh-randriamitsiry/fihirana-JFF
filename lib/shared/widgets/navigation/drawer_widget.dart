@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,8 @@ class DrawerWidgetState extends State<DrawerWidget>
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   GoogleSignIn? _googleSignIn;
   GoogleSignInAccount? _currentUser;
+  StreamSubscription? _googleSignInSubscription;
+  StreamSubscription? _authStateSubscription;
 
   @override
   void initState() {
@@ -60,7 +63,7 @@ class DrawerWidgetState extends State<DrawerWidget>
       Get.put(_googleSignIn!);
     }
     _checkAuthStatus();
-    _googleSignIn?.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+    _googleSignInSubscription = _googleSignIn?.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
       if (mounted) {
         setState(() {
           _currentUser = account;
@@ -71,6 +74,8 @@ class DrawerWidgetState extends State<DrawerWidget>
 
   @override
   void dispose() {
+    _googleSignInSubscription?.cancel();
+    _authStateSubscription?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -78,7 +83,7 @@ class DrawerWidgetState extends State<DrawerWidget>
 
 
   void _checkAuthStatus() {
-    FirebaseAuth.instance.authStateChanges().listen((user) {
+    _authStateSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
       if (mounted) {
         if (user != null) {
           _updateCurrentUser();
