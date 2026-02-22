@@ -91,13 +91,14 @@ class AudioService implements IAudioService {
   }
 
   void _initializePlayerStateListener() {
-    // Listen to player state changes to properly manage playing state
+    // Listen to player state changes: manage reactive playing state, handle
+    // completion, and recover from error/idle states.
     _player.playerStateStream.listen((state) {
       if (kDebugMode) {
         print(
             'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
       }
-      
+
       // Update our reactive state
       _isPlayingRx.value = state.playing;
 
@@ -108,32 +109,24 @@ class AudioService implements IAudioService {
         // Keep _currentHymn and _currentRecording for potential replay
         // They will be cleared when playing something different
       }
-    });
 
-    // Listen to player errors via playerStateStream
-    _player.playerStateStream.listen((state) {
       // More robust check: only clear if idle AND not playing AND we thought we were playing
       if (state.processingState == ProcessingState.idle &&
           !state.playing &&
           _currentPlayingHymnId.value.isNotEmpty) {
-          
+
         // Give it a grace period - sometimes it flickers to idle during valid transitions
         Future.delayed(const Duration(milliseconds: 500), () {
-             if (_player.processingState == ProcessingState.idle && !_player.playing) {
-                if (kDebugMode) {
-                  print('AudioService: Player entered idle state and stopped, likely due to error');
-                }
-                _currentPlayingHymnId.value = '';
-                _currentHymn = null;
-                _isPlayingRx.value = false;
-             }
+          if (_player.processingState == ProcessingState.idle && !_player.playing) {
+            if (kDebugMode) {
+              print('AudioService: Player entered idle state and stopped, likely due to error');
+            }
+            _currentPlayingHymnId.value = '';
+            _currentHymn = null;
+            _isPlayingRx.value = false;
+          }
         });
       }
-    });
-
-    // Add debugging for position stream
-    _player.positionStream.listen((position) {
-      // debug print removed to reduce log noise
     });
   }
 

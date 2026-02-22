@@ -61,6 +61,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   StreamSubscription? _durationSubscription;
   StreamSubscription? _playlistChangeSubscription;
   StreamSubscription? _currentHymnSubscription;
+  StreamSubscription? _errorStateSubscription;
 
   @override
   void initState() {
@@ -154,7 +155,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     });
 
     // Listen to player errors via playerStateStream
-    _audioService.playerStateStream.listen((state) {
+    _errorStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
 
       // Handle error states for regular hymns only
@@ -265,6 +266,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     _durationSubscription?.cancel();
     _playlistChangeSubscription?.cancel();
     _currentHymnSubscription?.cancel();
+    _errorStateSubscription?.cancel();
     super.dispose();
   }
 
