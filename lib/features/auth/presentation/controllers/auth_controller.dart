@@ -30,6 +30,7 @@ class AuthController extends GetxController {
   final RxInt _monthlyHymnCount = 0.obs;
   final RxString _lastHymnAdditionMonth = ''.obs;
   StreamSubscription<DocumentSnapshot>? _permissionSubscription;
+  StreamSubscription<firebase_auth.User?>? _authStateSubscription;
   late GoogleDriveService _driveService;
 
   AuthController({
@@ -68,7 +69,7 @@ class AuthController extends GetxController {
     _driveService = Get.find<GoogleDriveService>();
     _driveService.initialize(googleSignIn);
 
-    _auth.authStateChanges().listen((firebase_auth.User? user) async {
+    _authStateSubscription = _auth.authStateChanges().listen((firebase_auth.User? user) async {
       if (user != null) {
         _updateUserPermissions(user);
 
@@ -120,6 +121,7 @@ class AuthController extends GetxController {
 
   @override
   void onClose() {
+    _authStateSubscription?.cancel();
     _permissionSubscription?.cancel();
     super.onClose();
   }

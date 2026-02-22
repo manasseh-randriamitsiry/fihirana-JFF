@@ -11,6 +11,8 @@ class AudioForegroundService extends GetxService {
   bool _isForeground = false;
   Timer? _notificationUpdateTimer;
   late AudioService _audioService;
+  StreamSubscription? _playerStateSubscription;
+  StreamSubscription? _positionSubscription;
 
   AudioForegroundService() {
     _instance = this;
@@ -42,7 +44,7 @@ class AudioForegroundService extends GetxService {
     });
 
     // Listen to player state changes (playing/paused)
-    _audioService.playerStateStream.listen((state) {
+    _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (_isForeground) {
         final currentHymn = _audioService.currentHymn;
         if (currentHymn != null) {
@@ -59,7 +61,7 @@ class AudioForegroundService extends GetxService {
     });
 
     // Listen to position changes to update progress bar (more frequent updates)
-    _audioService.positionStream.listen((position) {
+    _positionSubscription = _audioService.positionStream.listen((position) {
       if (_isForeground && position != null) {
         final currentHymn = _audioService.currentHymn;
         if (currentHymn != null) {
@@ -121,6 +123,8 @@ class AudioForegroundService extends GetxService {
 
   @override
   void onClose() {
+    _playerStateSubscription?.cancel();
+    _positionSubscription?.cancel();
     _stopForegroundService();
     super.onClose();
   }
