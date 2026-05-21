@@ -398,6 +398,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **⭐ If this project has blessed you, consider giving it a star on GitHub! ⭐**
 
-Made with ❤️ for the faith community
-
 </div>

@@ -33,6 +33,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   late final AppLifecycleManager _lifecycleManager;
   late final AppSecurityManager _securityManager;
+  late final AppThemeManager _themeManager;
 
   @override
   void initState() {
@@ -42,6 +43,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Initialize managers
     _lifecycleManager = AppLifecycleManager();
     _securityManager = AppSecurityManager();
+    _themeManager = AppThemeManager();
 
     // Initialize controllers
     _initializeControllers();
@@ -137,10 +139,9 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       final currentLocale = languageController.currentLocale.value;
       languageController.refreshCounter.value; // Force rebuild on language change
 
-      final themeManager = AppThemeManager();
       final theme = isDark
-          ? themeManager.getDarkTheme(currentFont)
-          : themeManager.getLightTheme(currentFont);
+          ? _themeManager.getDarkTheme(currentFont)
+          : _themeManager.getLightTheme(currentFont);
 
       return ErrorHandler.withErrorBoundary(
         GetMaterialApp(

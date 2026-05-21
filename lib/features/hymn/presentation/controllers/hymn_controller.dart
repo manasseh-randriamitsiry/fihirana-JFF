@@ -26,6 +26,13 @@ class HymnController extends GetxController {
   StreamSubscription? _favoriteStatusSubscription;
   bool _isDisposed = false;
 
+  // Optimized search and filtering
+  final RxList<Hymn> _allHymns = <Hymn>[].obs;
+  final RxList<Hymn> filteredHymns = <Hymn>[].obs;
+  final RxBool isLoading = false.obs;
+  Timer? _debounce;
+  StreamSubscription? _hymnsSubscription;
+
   HymnController({
     required SearchHymnsUseCase searchHymnsUseCase,
     required AddToFavoritesUseCase addToFavoritesUseCase,
@@ -35,6 +42,24 @@ class HymnController extends GetxController {
         _addToFavoritesUseCase = addToFavoritesUseCase,
         _removeFromFavoritesUseCase = removeFromFavoritesUseCase,
         _isFavoriteUseCase = isFavoriteUseCase;
+
+  @override
+  void onInit() {
+    super.onInit();
+    searchController = TextEditingController();
+    _initFavoriteStatusStream();
+    _initHymnsStream();
+    
+    // Setup debounce for search
+    searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      _applyFilter();
+    });
+  }
 
   void _initFavoriteStatusStream() {
     _favoriteStatusSubscription?.cancel();
@@ -61,11 +86,41 @@ class HymnController extends GetxController {
     return false;
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    searchController = TextEditingController();
-    _initFavoriteStatusStream();
+  void _initHymnsStream() {
+    isLoading.value = true;
+    _hymnsSubscription = _hymnService.getLocalHymnsStream().listen((hymns) {
+      _allHymns.value = hymns;
+      _applyFilter();
+      isLoading.value = false;
+    });
+  }
+
+  void _applyFilter() {
+    final searchQuery = searchController.text.toLowerCase();
+    
+    List<Hymn> results = List.from(_allHymns);
+    
+    // Sort all hymns first (if not already sorted by service)
+    results.sort((a, b) {
+      String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+      String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+
+      if (numA.isNotEmpty && numB.isNotEmpty) {
+        return int.parse(numA).compareTo(int.parse(numB));
+      }
+
+      return a.hymnNumber.compareTo(b.hymnNumber);
+    });
+
+    if (searchQuery.isNotEmpty) {
+      results = results.where((hymn) =>
+          hymn.hymnNumber.toLowerCase().contains(searchQuery) ||
+          hymn.title.toLowerCase().contains(searchQuery) ||
+          hymn.verses.any((verse) => verse.toLowerCase().contains(searchQuery))
+      ).toList();
+    }
+    
+    filteredHymns.value = results;
   }
 
   Stream<Map<String, String>> getFavoriteStatusStream() {
@@ -139,6 +194,8 @@ Future<List<Hymn>> searchHymns(String query) async {
   @override
   void onClose() {
     _isDisposed = true;
+    _debounce?.cancel();
+    _hymnsSubscription?.cancel();
     try {
       searchController.dispose();
     } catch (e) {

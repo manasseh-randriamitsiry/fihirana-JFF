@@ -16,7 +16,7 @@ class CombinedHymnService {
   bool _isInitializing = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-Future<void> initialize() async {
+  Future<void> initialize() async {
     if (_isInitialized) return;
     if (_isInitializing) return;
 
@@ -24,7 +24,8 @@ Future<void> initialize() async {
 
     try {
       await _loadCombinedHymns();
-      await _loadFirebaseHymns();
+      // Optimization: Don't load all Firebase hymns at startup
+      // await _loadFirebaseHymns(); 
       _isInitialized = true;
       if (kDebugMode) {
         print(
@@ -36,7 +37,6 @@ Future<void> initialize() async {
       }
       // Fallback to individual file loading
       await _loadIndividualHymns();
-      await _loadFirebaseHymns();
       _isInitialized = true;
     } finally {
       _isInitializing = false;
@@ -89,10 +89,6 @@ Future<void> initialize() async {
 
       if (kDebugMode) {
         print('Successfully loaded ${hymns.length} hymns from combined file');
-        if (hymns.isNotEmpty) {
-          print('First hymn: ${hymns.first.title} (${hymns.first.hymnNumber})');
-          print('Last hymn: ${hymns.last.title} (${hymns.last.hymnNumber})');
-        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -102,7 +98,12 @@ Future<void> initialize() async {
     }
   }
 
-Future<void> _loadFirebaseHymns() async {
+  /// Load hymns from Firebase that are not already in the local list
+  Future<void> loadMoreFromFirebase() async {
+    await _loadFirebaseHymns();
+  }
+
+  Future<void> _loadFirebaseHymns() async {
     try {
       if (kDebugMode) {
         print('Loading Firebase hymns...');

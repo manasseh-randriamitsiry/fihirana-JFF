@@ -6,6 +6,7 @@ import 'hymn_list_item.dart';
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
+import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/audio/presentation/pages/audio_player_screen.dart';
 
@@ -69,15 +70,19 @@ class HymnListWidget extends StatelessWidget {
         return StreamBuilder<Map<String, String>>(
           stream: hymnController.getFavoriteStatusStream(),
           builder: (context, favoriteSnapshot) {
+            final colorController = Get.find<ColorController>();
             return SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final hymn = hymns[index];
+                  final isFavorite = favoriteSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
                   return HymnListItem(
                     key: ValueKey(hymn.id),
                     hymn: hymn,
                     textColor: textColor,
                     backgroundColor: backgroundColor,
+                    primaryColor: colorController.primaryColor.value,
+                    isFavorite: isFavorite,
                     onFavoritePressed: () => hymnController.toggleFavorite(hymn),
                     onMusicPressed: () => _showAudioPlayerDialog(hymn),
                   )

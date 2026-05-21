@@ -496,6 +496,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
               hymn: hymn,
               textColor: textColor,
               backgroundColor: backgroundColor,
+              primaryColor: _colorController.primaryColor.value,
               onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
               onMusicPressed: () {
                 // Set the recording name to the selected hymn title

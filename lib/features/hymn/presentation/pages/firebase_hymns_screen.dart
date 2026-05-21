@@ -115,16 +115,21 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                 final hymn = hymns[index];
                 return StreamBuilder<Map<String, String>>(
                   stream: _hymnService.getFavoriteStatusStream(),
-                  builder: (context, snapshot) {
+                  builder: (context, favSnapshot) {
+                    final isFavorite = favSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
                     return HymnListItem(
                       key: ValueKey(hymn.id),
                       hymn: hymn,
                       textColor: colorController.textColor.value,
                       backgroundColor: colorController.backgroundColor.value,
+                      primaryColor: colorController.primaryColor.value,
                       onFavoritePressed: () =>
                           _hymnService.toggleFavorite(hymn),
                       onMusicPressed: () => _showAudioPlayerDialog(hymn),
                       isFirebaseHymn: true,
+                      isFavorite: isFavorite,
+                      // Note: We could also check audio here, but for now defaulting to false or adding a check
+                      hasAudio: false,
                     );
                   },
                 );

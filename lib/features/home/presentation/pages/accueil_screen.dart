@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -42,16 +41,18 @@ class AccueilScreen extends StatefulWidget {
 
 class AccueilScreenState extends State<AccueilScreen> {
   late final HymnController _hymnController;
+  late final ColorController _colorController;
   bool _updateAvailable = false;
   bool _isDownloading = false;
   final Set<String> _checkedHymnIds = <String>{};
-  StreamSubscription? _hymnSubscription;
+  final RxMap<String, bool> _audioAvailability = <String, bool>{}.obs;
 
   @override
   void initState() {
     super.initState();
+    _colorController = Get.find<ColorController>();
+    
     // Initialize the controller properly to avoid disposal issues
-    // Initialize controller properly to avoid disposal issues
     final hymnService = HymnService();
     final hymnRepository = HymnRepositoryImpl(hymnService);
     
@@ -62,8 +63,8 @@ class AccueilScreenState extends State<AccueilScreen> {
       isFavoriteUseCase: IsFavoriteUseCase(hymnRepository),
     ), permanent: true);
 
-    // Listen to hymn updates to perform batch checks safely
-    _hymnSubscription = _hymnController.hymnsStream.listen(_onHymnsUpdated);
+    // Initial audio check for first batch of hymns
+    _checkInitialAudio();
 
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
@@ -72,6 +73,28 @@ class AccueilScreenState extends State<AccueilScreen> {
         });
       }
     });
+  }
+
+  void _checkInitialAudio() async {
+    // Wait for hymns to load
+    ever(_hymnController.filteredHymns, (hymns) {
+      if (hymns.isNotEmpty) {
+        _checkAudioForVisibleHymns(hymns.take(20).toList());
+      }
+    });
+  }
+
+  Future<void> _checkAudioForVisibleHymns(List<Hymn> hymns) async {
+    final idsToCheck = hymns
+        .map((h) => h.id)
+        .where((id) => !_checkedHymnIds.contains(id))
+        .toList();
+    
+    if (idsToCheck.isEmpty) return;
+    
+    _checkedHymnIds.addAll(idsToCheck);
+    final results = await AudioService.instance.checkAudioFilesExist(idsToCheck);
+    _audioAvailability.addAll(results);
   }
 
   void _showAudioPlayerDialog(Hymn hymn) {
@@ -101,51 +124,6 @@ class AccueilScreenState extends State<AccueilScreen> {
     if (hymns.isNotEmpty && context.mounted) {
       _showAudioPlayerDialog(hymns.first);
     }
-  }
-
-  void _batchCheckAudioFiles(List<Hymn> hymns) {
-    final audioService = AudioService.instance;
-    final List<String> uncheckedIds = [];
-
-    for (final hymn in hymns) {
-      if (!_checkedHymnIds.contains(hymn.id)) {
-        uncheckedIds.add(hymn.id);
-      }
-    }
-
-    if (uncheckedIds.isNotEmpty) {
-      // Use new cache service for efficient batch checking
-      audioService.checkAudioFilesExist(uncheckedIds).then((results) {
-        _checkedHymnIds.addAll(results.keys);
-        if (kDebugMode) {
-          print(
-              'AccueilScreen: Batch checked ${uncheckedIds.length} hymns, ${results.values.where((v) => v).length} have audio');
-        }
-      }).catchError((error) {
-        // Silently handle errors to not affect UI
-        if (kDebugMode) {
-          print('Batch audio check error: $error');
-        }
-      });
-    }
-  }
-
-  void _preloadCommonHymns(List<Hymn> hymns) {
-    // Preload first 20 hymns to improve user experience
-    final commonHymnIds = hymns.take(20).map((h) => h.id).toList();
-    AudioService.instance.preloadCommonHymns(commonHymnIds);
-  }
-
-  void _onHymnsUpdated(List<Hymn> hymns) {
-    if (!mounted) return;
-
-    // Check first 10 items
-    final List<Hymn> firstTen =
-        hymns.length >= 10 ? hymns.sublist(0, 10) : hymns;
-    _batchCheckAudioFiles(firstTen);
-
-    // Preload common hymns
-    _preloadCommonHymns(hymns);
   }
 
   Future<void> _downloadAndInstallUpdate() async {
@@ -272,70 +250,72 @@ class AccueilScreenState extends State<AccueilScreen> {
                 ),
               ),
               Expanded(
-                child: StreamBuilder<List<Hymn>>(
-                  stream: _hymnController.hymnsStream,
-                  builder: (context, snapshot) {
-                    // Early return if widget is not mounted
-                    if (!mounted) return const SizedBox.shrink();
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Text(
-                          context.translate((l) => l.errorOccurredWithDetails(
-                              snapshot.error.toString())),
-                          style: defaultTextStyle,
-                        ),
-                      );
-                    }
+                child: Obx(() {
+                  if (_hymnController.isLoading.value) {
+                    return const SkeletonHymnList();
+                  }
 
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const SkeletonHymnList();
-                    }
+                  final hymns = _hymnController.filteredHymns;
+                  if (hymns.isEmpty) {
+                    return EmptyStateWidget(
+                      message: context.translate((l) => l.noHymnsFound),
+                      icon: Icons.music_off_rounded,
+                      actionLabel: context.translate((l) => l.clearSearch),
+                      onActionPressed: () {
+                        if (!_hymnController.isDisposed) {
+                          _hymnController.safeSearchController.clear();
+                        }
+                      },
+                    );
+                  }
 
-                    final hymns =
-                        _hymnController.filterHymnList(snapshot.data ?? []);
-                    if (hymns.isEmpty) {
-                      return EmptyStateWidget(
-                        message: context.translate((l) => l.noHymnsFound),
-                        icon: Icons.music_off_rounded,
-                        actionLabel: context.translate((l) => l.clearSearch),
-                        onActionPressed: () {
-                          if (!_hymnController.isDisposed) {
-                            _hymnController.safeSearchController.clear();
-                            // Trigger rebuild/search update if needed, though controller listener should handle it
-                            setState(() {});
-                          }
-                        },
-                      );
-                    }
+                  return ListView.builder(
+                    key: const PageStorageKey('home_hymns_list'),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+                    itemCount: hymns.length,
+                    itemBuilder: (context, index) {
+                      final hymn = hymns[index];
 
-                     return ListView.builder(
-                      key: const PageStorageKey('home_hymns_list'),
-                      padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
-                      itemCount: hymns.length,
-                      itemBuilder: (context, index) {
-                        final hymn = hymns[index];
+                      // Batch check audio for next items as we scroll
+                      if (index > 0 && index % 15 == 0) {
+                        final nextBatch =
+                            hymns.skip(index).take(20).toList();
+                        _checkAudioForVisibleHymns(nextBatch);
+                      }
+
+                      return Obx(() {
+                        final isFavorite = _hymnController
+                                .favoriteStatuses[hymn.id]?.isNotEmpty ??
+                            false;
+                        final hasAudio =
+                            _audioAvailability[hymn.id] ?? false;
+
                         return HymnListItem(
                           key: ValueKey(hymn.id),
                           hymn: hymn,
                           textColor: textColor,
                           backgroundColor: backgroundColor,
+                          primaryColor: _colorController.primaryColor.value,
+                          isFavorite: isFavorite,
+                          hasAudio: hasAudio,
                           onFavoritePressed: () =>
                               _hymnController.toggleFavorite(hymn),
                           onMusicPressed: () => _showAudioPlayerDialog(hymn),
-                        )
-                            .animate()
-                            .fadeIn(
-                                duration: 400.ms,
-                                delay: (50 * index).clamp(0, 500).ms)
-                            .slideY(
-                                begin: 0.2,
-                                end: 0,
-                                curve: Curves.easeOutQuad,
-                                duration: 400.ms);
-                      },
-                    );
-                  },
-                ),
+                        );
+                      })
+                          .animate()
+                          .fadeIn(
+                              duration: 400.ms,
+                              delay: (50 * index).clamp(0, 500).ms)
+                          .slideY(
+                              begin: 0.2,
+                              end: 0,
+                              curve: Curves.easeOutQuad,
+                              duration: 400.ms);
+                    },
+                  );
+                }),
               ),
             ],
           ),
@@ -347,7 +327,6 @@ class AccueilScreenState extends State<AccueilScreen> {
   @override
   void dispose() {
     // Cancel any pending operations
-    _hymnSubscription?.cancel();
     _checkedHymnIds.clear();
     // Don't dispose the controller here since it's managed by GetX
     // Just clean up any local resources
