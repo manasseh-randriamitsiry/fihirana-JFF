@@ -22,7 +22,10 @@ abstract class IBibleService {
   String? getVerse(String bookName, int chapterNumber, int verseNumber);
   
   /// Search for verses containing the given text
-  List<VerseSearchResult> searchVerses(String query);
+  Future<List<VerseSearchResult>> searchVerses(String query);
+
+  /// Load book content asynchronously
+  Future<void> loadBookContent(String bookName);
   
   /// Get books that contain the search query
   List<BibleBook> searchBooks(String query);

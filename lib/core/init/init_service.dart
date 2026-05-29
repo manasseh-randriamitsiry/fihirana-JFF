@@ -13,18 +13,15 @@ import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/app/theme/theme_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/audio/data/services/audio_file_mapping.dart';
 import 'package:fihirana/features/audio/data/services/audio_foreground_service.dart';
 import 'package:fihirana/features/audio/data/services/background_service.dart';
 import 'package:fihirana/features/bible/data/services/bible_service.dart';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
-import 'package:fihirana/features/audio/data/services/local_audio_service.dart';
 import 'package:fihirana/core/utils/notification_service.dart';
 import 'package:fihirana/core/utils/deep_link_service.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/core/init/lazy_service_manager.dart';
-import 'package:fihirana/core/utils/background_isolate_manager.dart';
 import 'package:fihirana/core/init/init_progress_tracker.dart';
 import 'package:fihirana/core/controllers/user_controller.dart';
 import 'package:flutter/foundation.dart';
@@ -64,12 +61,13 @@ class InitService {
       Get.find<GoogleSignIn>(),
       Get.find<SecurityService>(),
     );
-    
+
     if (!Get.isRegistered<AuthController>()) {
       Get.put(AuthController(
         signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
         signOutUseCase: SignOutUseCase(authRepository),
-        ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
+        ensureUserDocumentExistsUseCase:
+            EnsureUserDocumentExistsUseCase(authRepository),
       ));
     }
 
@@ -102,20 +100,8 @@ class InitService {
 
   /// Preload services that are likely to be needed soon
   static void _preloadPredictedServices() {
-    // Delay preloading to not block app startup
-    Future.delayed(const Duration(seconds: 2), () async {
-      try {
-        // Preload services that are commonly accessed
-        await lazyServiceManager.preloadServices([
-          'daily_verse', // Most users check daily verse
-          'history',     // Recently accessed items
-        ]);
-      } catch (e) {
-if (kDebugMode) {
-        debugPrint('Error preloading services: $e');
-      }
-      }
-    });
+    // Keep low-memory startup quiet. Feature services are loaded on demand by
+    // their screens instead of being speculatively created after launch.
   }
 
   /// Initialize services with proper async handling
@@ -133,28 +119,6 @@ if (kDebugMode) {
     Get.put(HymnService());
     Get.put(BackgroundService());
     Get.put(AudioForegroundService());
-    
-    // Initialize local audio service (fast, just setup)
-    final localAudioService = LocalAudioService();
-    await localAudioService.initialize();
-    
-    // Initialize audio file mapping from GitHub (with retry logic)
-    try {
-      if (kDebugMode) {
-        print('InitService: Initializing AudioFileMapping from GitHub...');
-      }
-      final audioMapping = AudioFileMapping();
-      await audioMapping.updateAudioFileMapping(retries: 2);
-      if (kDebugMode) {
-        final stats = audioMapping.getStats();
-        print('InitService: AudioFileMapping initialized - ${stats['totalFiles']} files available');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('InitService: Warning - AudioFileMapping initialization failed: $e');
-        print('InitService: App will continue, but some audio files may not be available');
-      }
-    }
   }
 
   static Future<void> _initDataServices() async {
@@ -182,7 +146,7 @@ if (kDebugMode) {
   }) async {
     // Start progress tracking
     initProgressTracker.startTracking();
-    
+
     // Listen to progress events and forward to callback
     StreamSubscription? progressSubscription;
     if (onProgress != null) {
@@ -248,17 +212,16 @@ if (kDebugMode) {
 
       // Complete initialization
       initProgressTracker.complete();
-
     } catch (e) {
       final currentStep = initProgressTracker.currentStep;
       if (currentStep != null) {
         initProgressTracker.failStep(currentStep.id, e.toString());
       }
-      
+
       if (kDebugMode) {
         debugPrint('Initialization failed: $e');
       }
-      
+
       rethrow;
     } finally {
       await progressSubscription?.cancel();
@@ -267,58 +230,20 @@ if (kDebugMode) {
 
   /// Initialize heavy operations in background isolates
   static void _initializeBackgroundTasks() {
-    Future.delayed(const Duration(milliseconds: 500), () async {
-      try {
-        // Initialize background isolate manager
-        await backgroundIsolateManager.initialize();
-
-        // Schedule heavy operations in background isolates
-        unawaited(_scheduleBackgroundTasks());
-
-if (kDebugMode) {
-        debugPrint('Background tasks scheduled in isolates');
-      }
-      } catch (e) {
-if (kDebugMode) {
-        debugPrint('Error scheduling background tasks: $e');
-      }
-      }
+    Future.delayed(const Duration(seconds: 5), () {
+      unawaited(_scheduleBackgroundTasks());
     });
   }
 
   /// Schedule heavy background tasks
   static Future<void> _scheduleBackgroundTasks() async {
-    // Schedule version check in background
-    unawaited(
-      backgroundIsolateManager.executeTask<void>(
-        taskId: 'version_check',
-        task: () async {
-          await VersionCheckService.checkForUpdateOnStartup();
-        },
-        description: 'Check for app updates',
-        priority: 1,
-      ),
-    );
-
-    // Audio mapping is now initialized in foreground during _initAudioServices()
-    // to provide better error handling and user feedback
-    
-    // Schedule Bible service initialization in background
-    unawaited(
-      backgroundIsolateManager.executeTask<void>(
-        taskId: 'bible_service_init',
-        task: () async {
-          final bibleService = Get.find<BibleService>();
-          await bibleService.initialize((message) {
-if (kDebugMode) {
-          debugPrint('Bible service (isolate): $message');
-        }
-          });
-        },
-        description: 'Initialize Bible service data',
-        priority: 3,
-      ),
-    );
+    try {
+      await VersionCheckService.checkForUpdateOnStartup();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Deferred version check failed: $e');
+      }
+    }
   }
 }
 

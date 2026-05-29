@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -8,7 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/shared/widgets/common/banned_page.dart';
 
-class SecurityService extends GetxService {
+class SecurityService extends GetxService with WidgetsBindingObserver {
   static SecurityService get instance => Get.find<SecurityService>();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -31,6 +32,7 @@ class SecurityService extends GetxService {
   @override
   Future<void> onInit() async {
     super.onInit();
+    WidgetsBinding.instance.addObserver(this);
 
     // Listen to auth state changes
     _auth.authStateChanges().listen((User? user) async {
@@ -49,13 +51,14 @@ class SecurityService extends GetxService {
       await _performSecurityCheck();
     }
 
-    // Start periodic security checks every 30 seconds
+    // Keep this infrequent on low-end devices; auth changes still trigger an
+    // immediate check, and periodic polling is only a safety net.
     _startPeriodicSecurityCheck();
   }
 
   void _startPeriodicSecurityCheck() {
     _securityTimer?.cancel();
-    _securityTimer = Timer.periodic(const Duration(seconds: 30), (timer) async {
+    _securityTimer = Timer.periodic(const Duration(minutes: 10), (timer) async {
       if (_auth.currentUser != null) {
         await _performSecurityCheck();
       }
@@ -63,7 +66,23 @@ class SecurityService extends GetxService {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      // App is backgrounded - stop timer to save battery and network data
+      _securityTimer?.cancel();
+      _securityTimer = null;
+    } else if (state == AppLifecycleState.resumed) {
+      // App came back to foreground - perform immediate check and resume timer
+      if (_auth.currentUser != null) {
+        _performSecurityCheck();
+      }
+      _startPeriodicSecurityCheck();
+    }
+  }
+
+  @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
     _securityTimer?.cancel();
     super.onClose();
   }

@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
+import 'package:fihirana/features/bible/data/services/local_bible_highlight_storage.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:fihirana/features/home/presentation/pages/home_screen.dart';
 
@@ -48,14 +49,24 @@ class _LoadingScreenState extends State<LoadingScreen> {
       if (kDebugMode) {
         print('Initializing storage service...');
       }
-      await _storageService.init().timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          if (kDebugMode) {
-            print('Storage initialization timeout');
-          }
-        },
-      );
+      await Future.wait([
+        _storageService.init().timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            if (kDebugMode) {
+              print('Storage initialization timeout');
+            }
+          },
+        ),
+        LocalBibleHighlightStorage.instance.initialize().timeout(
+          const Duration(seconds: 10),
+          onTimeout: () {
+            if (kDebugMode) {
+              print('Local highlight storage initialization timeout');
+            }
+          },
+        ),
+      ]);
 
       _updateProgress(0.3, 'Fitahirizana vonona');
       if (kDebugMode) {
