@@ -9,6 +9,11 @@ import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 
 /// Stores Bible highlights locally using Hive, for use when the user is not
 /// authenticated (guest / offline mode).
+///
+/// The class is **self-initializing** – every public method calls [_ensureReady]
+/// which opens the Hive box on first use (idempotent).  Callers do NOT need to
+/// call [initialize] explicitly, though doing so eagerly (e.g. in
+/// LoadingScreen) is fine and will make the first access instant.
 class LocalBibleHighlightStorage {
   static const String _boxName = 'local_bible_highlights';
 
@@ -21,25 +26,37 @@ class LocalBibleHighlightStorage {
   LocalBibleHighlightStorage._();
 
   Box<String>? _box;
+  Future<Box<String>>? _openFuture; // single in-flight open operation
   final _uuid = const Uuid();
 
-  // Stream controllers keyed by "bookName_chapter" so individual pages
-  // receive live updates when highlights change.
+  // Stream controllers keyed by "bookName_chapter".
   final Map<String, StreamController<List<BibleHighlight>>> _streamControllers =
       {};
 
-  /// Open the Hive box. Safe to call multiple times.
+  // ── Initialization ─────────────────────────────────────────────────────────
+
+  /// Eagerly open the Hive box.  Safe to call multiple times.
   Future<void> initialize() async {
-    if (_box != null && _box!.isOpen) return;
-    _box = await Hive.openBox<String>(_boxName);
+    await _ensureReady();
   }
 
-  Box<String> get _openBox {
-    if (_box == null || !_box!.isOpen) {
-      throw StateError('LocalBibleHighlightStorage is not initialized. '
-          'Call initialize() first.');
-    }
+  /// Returns the open box, initializing it if necessary.
+  Future<Box<String>> _ensureReady() async {
+    if (_box != null && _box!.isOpen) return _box!;
+
+    // Deduplicate concurrent calls – only one openBox call is in flight.
+    _openFuture ??= _openBox();
+    _box = await _openFuture!;
+    _openFuture = null;
     return _box!;
+  }
+
+  Future<Box<String>> _openBox() async {
+    // Hive.initFlutter() is safe to call multiple times (no-op if already
+    // initialized).  This makes the storage robust even if LoadingScreen
+    // hasn't finished yet.
+    await Hive.initFlutter();
+    return Hive.openBox<String>(_boxName);
   }
 
   // ── Storage helpers ────────────────────────────────────────────────────────
@@ -50,16 +67,16 @@ class LocalBibleHighlightStorage {
   String _chapterPrefix(String bookName, int chapter) =>
       'hl_${bookName}_${chapter}_';
 
-  List<BibleHighlight> _highlightsForChapter(String bookName, int chapter) {
+  Future<List<BibleHighlight>> _highlightsForChapter(
+      String bookName, int chapter) async {
+    final box = await _ensureReady();
     final prefix = _chapterPrefix(bookName, chapter);
-    final box = _openBox;
     final results = <BibleHighlight>[];
 
     for (final key in box.keys) {
       if (key is String && key.startsWith(prefix)) {
         try {
-          final json =
-              jsonDecode(box.get(key)!) as Map<String, dynamic>;
+          final json = jsonDecode(box.get(key)!) as Map<String, dynamic>;
           results.add(BibleHighlight.fromJson(json));
         } catch (_) {}
       }
@@ -71,7 +88,9 @@ class LocalBibleHighlightStorage {
     final key = '${bookName}_$chapter';
     final controller = _streamControllers[key];
     if (controller != null && !controller.isClosed) {
-      controller.add(_highlightsForChapter(bookName, chapter));
+      _highlightsForChapter(bookName, chapter).then((list) {
+        if (!controller.isClosed) controller.add(list);
+      });
     }
   }
 
@@ -81,6 +100,7 @@ class LocalBibleHighlightStorage {
   Stream<List<BibleHighlight>> getHighlightsStream(
       String bookName, int chapter) {
     final key = '${bookName}_$chapter';
+
     if (!_streamControllers.containsKey(key) ||
         _streamControllers[key]!.isClosed) {
       _streamControllers[key] =
@@ -89,16 +109,18 @@ class LocalBibleHighlightStorage {
 
     final controller = _streamControllers[key]!;
 
-    // Emit the current state immediately.
-    Future.microtask(
-        () => controller.add(_highlightsForChapter(bookName, chapter)));
+    // Emit current state asynchronously (after init if needed).
+    _highlightsForChapter(bookName, chapter).then((list) {
+      if (!controller.isClosed) controller.add(list);
+    });
 
     return controller.stream;
   }
 
-  /// Save a new local highlight. Returns the assigned id on success.
+  /// Save a new local highlight.  Returns the assigned id on success.
   Future<String?> saveHighlight(BibleHighlight highlight) async {
     try {
+      final box = await _ensureReady();
       final id = _uuid.v4();
       final withId = highlight.copyWith(
         id: id,
@@ -106,7 +128,7 @@ class LocalBibleHighlightStorage {
         userName: 'local',
       );
       final key = _highlightKey(highlight.bookName, highlight.chapter, id);
-      await _openBox.put(key, jsonEncode(withId.toJson()));
+      await box.put(key, jsonEncode(withId.toJson()));
       _notifyChapterListeners(highlight.bookName, highlight.chapter);
       if (kDebugMode) print('✅ Local highlight saved: $id');
       return id;
@@ -116,13 +138,14 @@ class LocalBibleHighlightStorage {
     }
   }
 
-  /// Delete a local highlight by id. Returns true on success.
+  /// Delete a local highlight by id.  Returns true on success.
   Future<bool> deleteHighlight(
       String highlightId, String bookName, int chapter) async {
     try {
+      final box = await _ensureReady();
       final key = _highlightKey(bookName, chapter, highlightId);
-      if (!_openBox.containsKey(key)) return false;
-      await _openBox.delete(key);
+      if (!box.containsKey(key)) return false;
+      await box.delete(key);
       _notifyChapterListeners(bookName, chapter);
       return true;
     } catch (e) {
@@ -131,13 +154,14 @@ class LocalBibleHighlightStorage {
     }
   }
 
-  /// Update an existing local highlight's color. Returns true on success.
+  /// Update an existing local highlight's color.  Returns true on success.
   Future<bool> updateHighlight(BibleHighlight highlight) async {
     try {
+      final box = await _ensureReady();
       final key =
           _highlightKey(highlight.bookName, highlight.chapter, highlight.id);
-      if (!_openBox.containsKey(key)) return false;
-      await _openBox.put(key, jsonEncode(highlight.toJson()));
+      if (!box.containsKey(key)) return false;
+      await box.put(key, jsonEncode(highlight.toJson()));
       _notifyChapterListeners(highlight.bookName, highlight.chapter);
       return true;
     } catch (e) {
@@ -147,14 +171,13 @@ class LocalBibleHighlightStorage {
   }
 
   /// All local highlights (for a "My Highlights" list).
-  List<BibleHighlight> getAllHighlights() {
-    final box = _openBox;
+  Future<List<BibleHighlight>> getAllHighlights() async {
+    final box = await _ensureReady();
     final results = <BibleHighlight>[];
     for (final key in box.keys) {
       if (key is String && key.startsWith('hl_')) {
         try {
-          final json =
-              jsonDecode(box.get(key)!) as Map<String, dynamic>;
+          final json = jsonDecode(box.get(key)!) as Map<String, dynamic>;
           results.add(BibleHighlight.fromJson(json));
         } catch (_) {}
       }
