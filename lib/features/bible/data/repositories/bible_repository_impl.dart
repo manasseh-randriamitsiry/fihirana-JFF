@@ -37,8 +37,13 @@ class BibleRepositoryImpl implements IBibleService {
   }
 
   @override
-  List<VerseSearchResult> searchVerses(String query) {
+  Future<List<VerseSearchResult>> searchVerses(String query) {
     return _bibleService.searchVerses(query);
+  }
+
+  @override
+  Future<void> loadBookContent(String bookName) {
+    return _bibleService.loadBookContent(bookName);
   }
 
   @override

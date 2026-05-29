@@ -85,8 +85,9 @@ class BibleController extends GetxController {
     };
     
     _initializeBibleService();
-    _loadLastViewedPassage();
-    // Populate books by testament
+  }
+
+  void _populateTestamentBooks() {
     if (bookList.isNotEmpty) {
       booksByTestament.value = {
         'Testamenta Taloha': bookList.sublist(0, 39),
@@ -103,6 +104,9 @@ class BibleController extends GetxController {
         // Update loading message if needed
       });
       // Sub-controllers handle their own initialization
+      bookController.loadBooks();
+      _populateTestamentBooks();
+      await _loadLastViewedPassage();
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorInitializingBible'.tr);
     }

@@ -13,13 +13,12 @@ import 'package:fihirana/core/error/error_handler.dart';
 
 class HymnController extends GetxController {
   late final TextEditingController searchController;
-  
+
   final SearchHymnsUseCase _searchHymnsUseCase;
   final AddToFavoritesUseCase _addToFavoritesUseCase;
   final RemoveFromFavoritesUseCase _removeFromFavoritesUseCase;
   final IsFavoriteUseCase _isFavoriteUseCase;
-  
-  
+
   // Keep reference to service for streams and methods not yet in use cases
   final _hymnService = HymnService();
   final favoriteStatuses = <String, String>{}.obs;
@@ -49,7 +48,7 @@ class HymnController extends GetxController {
     searchController = TextEditingController();
     _initFavoriteStatusStream();
     _initHymnsStream();
-    
+
     // Setup debounce for search
     searchController.addListener(_onSearchChanged);
   }
@@ -89,45 +88,33 @@ class HymnController extends GetxController {
   void _initHymnsStream() {
     isLoading.value = true;
     _hymnsSubscription = _hymnService.getLocalHymnsStream().listen((hymns) {
-      _allHymns.value = hymns;
+      _allHymns.assignAll(hymns);
       _applyFilter();
       isLoading.value = false;
     });
   }
 
   void _applyFilter() {
-    final searchQuery = searchController.text.toLowerCase();
-    
-    List<Hymn> results = List.from(_allHymns);
-    
-    // Sort all hymns first (if not already sorted by service)
-    results.sort((a, b) {
-      String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-      String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    final searchQuery = searchController.text.trim().toLowerCase();
 
-      if (numA.isNotEmpty && numB.isNotEmpty) {
-        return int.parse(numA).compareTo(int.parse(numB));
-      }
-
-      return a.hymnNumber.compareTo(b.hymnNumber);
-    });
-
-    if (searchQuery.isNotEmpty) {
-      results = results.where((hymn) =>
-          hymn.hymnNumber.toLowerCase().contains(searchQuery) ||
-          hymn.title.toLowerCase().contains(searchQuery) ||
-          hymn.verses.any((verse) => verse.toLowerCase().contains(searchQuery))
-      ).toList();
+    if (searchQuery.isEmpty) {
+      filteredHymns.assignAll(_allHymns);
+      return;
     }
-    
-    filteredHymns.value = results;
+
+    final results = _allHymns.where((hymn) =>
+        hymn.hymnNumber.toLowerCase().contains(searchQuery) ||
+        hymn.title.toLowerCase().contains(searchQuery) ||
+        hymn.verses.any((verse) => verse.toLowerCase().contains(searchQuery)));
+
+    filteredHymns.assignAll(results);
   }
 
   Stream<Map<String, String>> getFavoriteStatusStream() {
     return _hymnService.getFavoriteStatusStream();
   }
 
-Future<void> toggleFavorite(Hymn hymn) async {
+  Future<void> toggleFavorite(Hymn hymn) async {
     // Check if currently favorite and toggle accordingly
     final isCurrentlyFavorite = await _isFavoriteUseCase(hymn.id);
     if (isCurrentlyFavorite) {
@@ -143,7 +130,7 @@ Future<void> toggleFavorite(Hymn hymn) async {
 
   Stream<List<Hymn>> get hymnsStream => _hymnService.getLocalHymnsStream();
 
-Future<List<Hymn>> searchHymns(String query) async {
+  Future<List<Hymn>> searchHymns(String query) async {
     return await _searchHymnsUseCase(query);
   }
 
