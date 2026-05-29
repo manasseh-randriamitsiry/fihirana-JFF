@@ -4,7 +4,7 @@ description: "A new Flutter project."
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
 
-version: 1.0.19
+version: 1.0.47
 
 environment:
   sdk: '>=3.2.0 <4.0.0'
@@ -18,12 +18,8 @@ dependencies:
   provider: ^6.0.3
   http: ^1.1.0
   shared_preferences: ^2.0.13
-  font_awesome_flutter: ^10.5.0
   get: ^4.6.6
-  google_fonts: ^4.0.4
   flutter_secure_storage: ^9.2.2
-  filter_list: ^1.0.3
-  curved_navigation_bar: ^1.0.6
   liquid_swipe: ^3.1.0
   flutter_zoom_drawer: ^3.2.0
   firebase_core: ^2.24.2
@@ -35,7 +31,6 @@ dependencies:
   local_auth: ^2.1.7
   android_intent_plus: ^4.0.3
   path_provider: ^2.1.2
-  dots_indicator: ^3.0.0
   flutter_svg: ^2.0.9
   flutter_colorpicker: ^1.0.3
   url_launcher: ^6.2.2
@@ -47,7 +42,6 @@ dependencies:
   intl: ^0.20.2
   flutter_phoenix: ^1.1.1
   awesome_notifications: ^0.10.1
-  syncfusion_flutter_sliders: ^31.2.3
   in_app_update: ^4.2.5
   open_file: ^3.3.2
   permission_handler: ^11.3.1
@@ -56,7 +50,6 @@ dependencies:
   simple_gesture_detector: ^0.2.1
   path: ^1.8.3
   share_plus: ^12.0.1
-  rive: ^0.13.1
   flutter_animate: ^4.5.0
   file_picker: ^10.3.7
   app_links: ^6.4.1
@@ -69,7 +62,6 @@ dependencies:
   debounce_throttle: ^2.0.0
   maplibre_gl: ^0.22.0
   flutter_contacts: ^1.1.9
-  shimmer: ^3.0.0
   equatable: ^2.0.5
   json_annotation: ^4.8.1
   google_sign_in: ^6.3.0
@@ -89,9 +81,8 @@ flutter:
   assets:
     # Add assets from images directory to the application.
     - assets/images/
-    - assets/json/
     - assets/baiboly/
-    - assets/animations/
+    - assets/baiboly/books/
     - assets/hymn_manifest.json
     - assets/hymns_combined.json
     - pubspec.yaml
@@ -107,105 +98,6 @@ flutter:
       fonts:
         - asset: assets/fonts/Poppins-Regular.ttf
         - asset: assets/fonts/Poppins-Bold.ttf
-          weight: 700
-    - family: OpenSans
-      fonts:
-        - asset: assets/fonts/OpenSans-Regular.ttf
-        - asset: assets/fonts/OpenSans-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/OpenSans-Italic.ttf
-          style: italic
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Roboto-Italic.ttf
-          style: italic
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/Montserrat-Regular.ttf
-        - asset: assets/fonts/Montserrat-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Montserrat-Italic.ttf
-          style: italic
-    - family: Raleway
-      fonts:
-        - asset: assets/fonts/Raleway-Regular.ttf
-        - asset: assets/fonts/Raleway-Bold.ttf
-          weight: 700
-    - family: Hack
-      fonts:
-        - asset: assets/fonts/Hack-Regular.ttf
-        - asset: assets/fonts/Hack-Bold.ttf
-          weight: 700
-    - family: GoBold
-      fonts:
-        - asset: assets/fonts/GoBold-Bold.otf
-          weight: 700
-        - asset: assets/fonts/GoBold-Light.otf
-          weight: 300
-    - family: SodaFountain
-      fonts:
-        - asset: assets/fonts/SodaFountain-Regular.otf
-    - family: MuseoSansRounded
-      fonts:
-        - asset: assets/fonts/MuseoSansRounded-500.otf
-        - asset: assets/fonts/MuseoSansRounded-700.otf
-          weight: 700
-    - family: TitilliumWeb
-      fonts:
-        - asset: assets/fonts/TitilliumWeb-Regular.ttf
-        - asset: assets/fonts/TitilliumWeb-Bold.ttf
-          weight: 700
-    - family: SourceSerifPro
-      fonts:
-        - asset: assets/fonts/SourceSerifPro-Bold.ttf
-          weight: 700
-    - family: EduNSWACTFoundation
-      fonts:
-        - asset: assets/fonts/EduNSWACTFoundation-Regular.ttf
-        - asset: assets/fonts/EduNSWACTFoundation-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/EduNSWACTFoundation-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/EduNSWACTFoundation-Bold.ttf
-          weight: 700
-    - family: EduQLDBeginner
-      fonts:
-        - asset: assets/fonts/EduQLDBeginner-Regular.ttf
-        - asset: assets/fonts/EduQLDBeginner-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/EduQLDBeginner-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/EduQLDBeginner-Bold.ttf
-          weight: 700
-    - family: EduSABeginner
-      fonts:
-        - asset: assets/fonts/EduSABeginner-Regular.ttf
-        - asset: assets/fonts/EduSABeginner-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/EduSABeginner-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/EduSABeginner-Bold.ttf
-          weight: 700
-    - family: EduTASBeginner
-      fonts:
-        - asset: assets/fonts/EduTASBeginner-Regular.ttf
-        - asset: assets/fonts/EduTASBeginner-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/EduTASBeginner-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/EduTASBeginner-Bold.ttf
-          weight: 700
-    - family: EduVICWANTBeginner
-      fonts:
-        - asset: assets/fonts/EduVICWANTBeginner-Regular.ttf
-        - asset: assets/fonts/EduVICWANTBeginner-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/EduVICWANTBeginner-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/EduVICWANTBeginner-Bold.ttf
           weight: 700
 
 flutter_launcher_icons:

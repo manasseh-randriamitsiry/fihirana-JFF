@@ -3,7 +3,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
-import 'local_hymn_service.dart';
 
 class CombinedHymnService {
   static final CombinedHymnService _instance = CombinedHymnService._internal();
@@ -16,7 +15,7 @@ class CombinedHymnService {
   bool _isInitializing = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-Future<void> initialize() async {
+  Future<void> initialize() async {
     if (_isInitialized) return;
     if (_isInitializing) return;
 
@@ -24,7 +23,8 @@ Future<void> initialize() async {
 
     try {
       await _loadCombinedHymns();
-      await _loadFirebaseHymns();
+      // Optimization: Don't load all Firebase hymns at startup
+      // await _loadFirebaseHymns(); 
       _isInitialized = true;
       if (kDebugMode) {
         print(
@@ -34,9 +34,7 @@ Future<void> initialize() async {
       if (kDebugMode) {
         print('CombinedHymnService initialization failed: $e');
       }
-      // Fallback to individual file loading
-      await _loadIndividualHymns();
-      await _loadFirebaseHymns();
+      _allHymns = [];
       _isInitialized = true;
     } finally {
       _isInitializing = false;
@@ -89,10 +87,6 @@ Future<void> initialize() async {
 
       if (kDebugMode) {
         print('Successfully loaded ${hymns.length} hymns from combined file');
-        if (hymns.isNotEmpty) {
-          print('First hymn: ${hymns.first.title} (${hymns.first.hymnNumber})');
-          print('Last hymn: ${hymns.last.title} (${hymns.last.hymnNumber})');
-        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -102,7 +96,12 @@ Future<void> initialize() async {
     }
   }
 
-Future<void> _loadFirebaseHymns() async {
+  /// Load hymns from Firebase that are not already in the local list
+  Future<void> loadMoreFromFirebase() async {
+    await _loadFirebaseHymns();
+  }
+
+  Future<void> _loadFirebaseHymns() async {
     try {
       if (kDebugMode) {
         print('Loading Firebase hymns...');
@@ -147,19 +146,7 @@ Future<void> _loadFirebaseHymns() async {
     }
   }
 
-  Future<void> _loadIndividualHymns() async {
-    if (kDebugMode) {
-      print('Falling back to individual hymn file loading...');
-    }
 
-    // Use the existing LocalHymnService as fallback
-    final localService = LocalHymnService();
-    _allHymns = await localService.getAllHymns();
-
-    for (final hymn in _allHymns!) {
-      _hymnCache[hymn.id] = hymn;
-    }
-  }
 
   Future<List<Hymn>> getAllHymns() async {
     if (!_isInitialized) {
@@ -175,20 +162,6 @@ Future<Hymn?> getHymnById(String id) async {
 
     if (_hymnCache.containsKey(id)) {
       return _hymnCache[id];
-    }
-
-    // Try to load individual hymn if not in cache
-    try {
-      final localService = LocalHymnService();
-      final hymn = await localService.getHymnById(id);
-      if (hymn != null) {
-        _hymnCache[id] = hymn;
-        return hymn;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Failed to load local hymn $id: $e');
-      }
     }
 
     // Try Firebase if not found locally

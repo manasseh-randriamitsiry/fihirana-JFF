@@ -86,6 +86,7 @@ class DailyVerseService implements IDailyVerseService {
         // Translate book name to Malagasy (or whatever BibleService uses)
         final bookName = BibleBookOrder.getDisplayName(englishBook);
 
+        await _bibleService.loadBookContent(bookName);
         final book = _bibleService.getBook(bookName);
         if (book == null) {
           if (kDebugMode) {
@@ -148,6 +149,7 @@ class DailyVerseService implements IDailyVerseService {
     final randomChapter = chapters[random.nextInt(chapters.length)];
 
     // Get the book and chapter
+    await _bibleService.loadBookContent(randomBook);
     final book = _bibleService.getBook(randomBook);
     if (book == null) {
       throw Exception('Book not found: $randomBook');

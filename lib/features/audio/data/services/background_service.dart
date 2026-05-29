@@ -1,23 +1,25 @@
 import 'dart:async';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/announcement/domain/repositories/i_announcement_service.dart';
 
-class BackgroundService extends GetxService {
+class BackgroundService extends GetxService with WidgetsBindingObserver {
   Timer? _announcementTimer;
-  final IAnnouncementService _announcementService = Get.find<IAnnouncementService>();
+  final IAnnouncementService _announcementService =
+      Get.find<IAnnouncementService>();
 
   @override
   void onInit() {
     super.onInit();
-
-    _checkAnnouncements();
-
+    WidgetsBinding.instance.addObserver(this);
     _startAnnouncementChecks();
+    _checkAnnouncements();
   }
 
   void _startAnnouncementChecks() {
+    _announcementTimer?.cancel();
     _announcementTimer = Timer.periodic(
-      const Duration(minutes: 1),
+      const Duration(hours: 2),
       (_) => _checkAnnouncements(),
     );
   }
@@ -27,7 +29,21 @@ class BackgroundService extends GetxService {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _startAnnouncementChecks();
+      _checkAnnouncements();
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      _announcementTimer?.cancel();
+      _announcementTimer = null;
+    }
+  }
+
+  @override
   void onClose() {
+    WidgetsBinding.instance.removeObserver(this);
     _announcementTimer?.cancel();
     super.onClose();
   }

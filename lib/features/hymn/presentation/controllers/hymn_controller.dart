@@ -13,18 +13,24 @@ import 'package:fihirana/core/error/error_handler.dart';
 
 class HymnController extends GetxController {
   late final TextEditingController searchController;
-  
+
   final SearchHymnsUseCase _searchHymnsUseCase;
   final AddToFavoritesUseCase _addToFavoritesUseCase;
   final RemoveFromFavoritesUseCase _removeFromFavoritesUseCase;
   final IsFavoriteUseCase _isFavoriteUseCase;
-  
-  
+
   // Keep reference to service for streams and methods not yet in use cases
   final _hymnService = HymnService();
   final favoriteStatuses = <String, String>{}.obs;
   StreamSubscription? _favoriteStatusSubscription;
   bool _isDisposed = false;
+
+  // Optimized search and filtering
+  final RxList<Hymn> _allHymns = <Hymn>[].obs;
+  final RxList<Hymn> filteredHymns = <Hymn>[].obs;
+  final RxBool isLoading = false.obs;
+  Timer? _debounce;
+  StreamSubscription? _hymnsSubscription;
 
   HymnController({
     required SearchHymnsUseCase searchHymnsUseCase,
@@ -35,6 +41,24 @@ class HymnController extends GetxController {
         _addToFavoritesUseCase = addToFavoritesUseCase,
         _removeFromFavoritesUseCase = removeFromFavoritesUseCase,
         _isFavoriteUseCase = isFavoriteUseCase;
+
+  @override
+  void onInit() {
+    super.onInit();
+    searchController = TextEditingController();
+    _initFavoriteStatusStream();
+    _initHymnsStream();
+
+    // Setup debounce for search
+    searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 300), () {
+      _applyFilter();
+    });
+  }
 
   void _initFavoriteStatusStream() {
     _favoriteStatusSubscription?.cancel();
@@ -61,18 +85,36 @@ class HymnController extends GetxController {
     return false;
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    searchController = TextEditingController();
-    _initFavoriteStatusStream();
+  void _initHymnsStream() {
+    isLoading.value = true;
+    _hymnsSubscription = _hymnService.getLocalHymnsStream().listen((hymns) {
+      _allHymns.assignAll(hymns);
+      _applyFilter();
+      isLoading.value = false;
+    });
+  }
+
+  void _applyFilter() {
+    final searchQuery = searchController.text.trim().toLowerCase();
+
+    if (searchQuery.isEmpty) {
+      filteredHymns.assignAll(_allHymns);
+      return;
+    }
+
+    final results = _allHymns.where((hymn) =>
+        hymn.hymnNumber.toLowerCase().contains(searchQuery) ||
+        hymn.title.toLowerCase().contains(searchQuery) ||
+        hymn.verses.any((verse) => verse.toLowerCase().contains(searchQuery)));
+
+    filteredHymns.assignAll(results);
   }
 
   Stream<Map<String, String>> getFavoriteStatusStream() {
     return _hymnService.getFavoriteStatusStream();
   }
 
-Future<void> toggleFavorite(Hymn hymn) async {
+  Future<void> toggleFavorite(Hymn hymn) async {
     // Check if currently favorite and toggle accordingly
     final isCurrentlyFavorite = await _isFavoriteUseCase(hymn.id);
     if (isCurrentlyFavorite) {
@@ -88,7 +130,7 @@ Future<void> toggleFavorite(Hymn hymn) async {
 
   Stream<List<Hymn>> get hymnsStream => _hymnService.getLocalHymnsStream();
 
-Future<List<Hymn>> searchHymns(String query) async {
+  Future<List<Hymn>> searchHymns(String query) async {
     return await _searchHymnsUseCase(query);
   }
 
@@ -139,6 +181,8 @@ Future<List<Hymn>> searchHymns(String query) async {
   @override
   void onClose() {
     _isDisposed = true;
+    _debounce?.cancel();
+    _hymnsSubscription?.cancel();
     try {
       searchController.dispose();
     } catch (e) {
