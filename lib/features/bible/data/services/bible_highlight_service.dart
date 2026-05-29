@@ -5,18 +5,33 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/features/bible/domain/repositories/i_bible_highlight_service.dart';
+import 'package:fihirana/features/bible/data/services/local_bible_highlight_storage.dart';
 
+/// Hybrid highlight service.
+///
+/// * Authenticated users  → Firestore (synced across devices).
+/// * Unauthenticated users → [LocalBibleHighlightStorage] (Hive, device-only).
+///
+/// This means guest users can highlight verses freely; their highlights are
+/// preserved locally until they sign in.  No Crashlytics errors are thrown
+/// for unauthenticated highlight attempts.
 class BibleHighlightService implements IBibleHighlightService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final AuthController _authController = Get.find<AuthController>();
+  final LocalBibleHighlightStorage _local = LocalBibleHighlightStorage.instance;
 
-  // Get highlights for a specific book and chapter for the current user
+  bool get _isAuthenticated => _auth.currentUser != null;
+
+  // ── Streams ────────────────────────────────────────────────────────────────
+
   @override
-  Stream<List<BibleHighlight>> getHighlightsStream(String bookName, int chapter) {
-    final user = _auth.currentUser;
-    if (user == null) return Stream.value([]);
-
+  Stream<List<BibleHighlight>> getHighlightsStream(
+      String bookName, int chapter) {
+    if (!_isAuthenticated) {
+      return _local.getHighlightsStream(bookName, chapter);
+    }
+    final user = _auth.currentUser!;
     return _firestore
         .collection('bible_highlights')
         .where('bookName', isEqualTo: bookName)
@@ -32,9 +47,13 @@ class BibleHighlightService implements IBibleHighlightService {
     });
   }
 
-  // Get all highlights for a specific book and chapter (public highlights)
   @override
-  Stream<List<BibleHighlight>> getPublicHighlightsStream(String bookName, int chapter) {
+  Stream<List<BibleHighlight>> getPublicHighlightsStream(
+      String bookName, int chapter) {
+    if (!_isAuthenticated) {
+      // No public highlights for guest mode — return empty stream.
+      return Stream.value([]);
+    }
     return _firestore
         .collection('bible_highlights')
         .where('bookName', isEqualTo: bookName)
@@ -49,12 +68,13 @@ class BibleHighlightService implements IBibleHighlightService {
     });
   }
 
-  // Get all highlights for the current user
   @override
   Stream<List<BibleHighlight>> getAllUserHighlightsStream() {
-    final user = _auth.currentUser;
-    if (user == null) return Stream.value([]);
-
+    if (!_isAuthenticated) {
+      // Return a one-shot stream from local storage.
+      return Stream.value(_local.getAllHighlights());
+    }
+    final user = _auth.currentUser!;
     return _firestore
         .collection('bible_highlights')
         .where('userId', isEqualTo: user.uid)
@@ -69,112 +89,108 @@ class BibleHighlightService implements IBibleHighlightService {
     });
   }
 
-  // Save a new highlight
+  // ── Write operations ───────────────────────────────────────────────────────
+
   @override
   Future<bool> saveHighlight(BibleHighlight highlight) async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) {
-        if (kDebugMode) {
-          print('❌ Cannot save highlight: User not authenticated');
-        }
-        return false;
-      }
+    if (!_isAuthenticated) {
+      // Guest mode: persist locally — no error, no crash report.
+      final id = await _local.saveHighlight(highlight);
+      return id != null;
+    }
 
-      // Create highlight data with user info
+    try {
+      final user = _auth.currentUser!;
       final highlightData = highlight.toJson();
       highlightData['userId'] = user.uid;
-      highlightData['userName'] = user.displayName ?? user.email ?? 'Unknown';
+      highlightData['userName'] =
+          user.displayName ?? user.email ?? 'Unknown';
       highlightData['createdAt'] = DateTime.now().toIso8601String();
       highlightData['updatedAt'] = DateTime.now().toIso8601String();
 
       await _firestore.collection('bible_highlights').add(highlightData);
 
-      if (kDebugMode) {
-        print('✅ Highlight saved successfully');
-      }
-
+      if (kDebugMode) print('✅ Highlight saved to Firestore');
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('❌ Error saving highlight: $e');
-      }
+      if (kDebugMode) print('❌ Error saving highlight to Firestore: $e');
       return false;
     }
   }
 
-  // Update an existing highlight
   @override
   Future<bool> updateHighlight(BibleHighlight highlight) async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) return false;
+    if (!_isAuthenticated) {
+      if (!_local.isLocalHighlight(highlight)) return false;
+      return _local.updateHighlight(highlight);
+    }
 
-      // Check if user owns the highlight or is admin
+    try {
+      final user = _auth.currentUser!;
       if (!_authController.isAdmin && highlight.userId != user.uid) {
         return false;
       }
-
-      await _firestore.collection('bible_highlights').doc(highlight.id).update({
+      await _firestore
+          .collection('bible_highlights')
+          .doc(highlight.id)
+          .update({
         'startVerse': highlight.startVerse,
         'endVerse': highlight.endVerse,
         'color': highlight.color,
         'updatedAt': highlight.updatedAt.toIso8601String(),
       });
-
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error updating highlight: $e');
-      }
+      if (kDebugMode) print('Error updating highlight: $e');
       return false;
     }
   }
 
-  // Delete a highlight
   @override
   Future<bool> deleteHighlight(String highlightId) async {
+    if (!_isAuthenticated) {
+      // For local highlights we need bookName + chapter; search all.
+      final all = _local.getAllHighlights();
+      final match = all.where((h) => h.id == highlightId).firstOrNull;
+      if (match == null) return false;
+      return _local.deleteHighlight(highlightId, match.bookName, match.chapter);
+    }
+
     try {
-      final user = _auth.currentUser;
-      if (user == null) return false;
+      final user = _auth.currentUser!;
+      final doc = await _firestore
+          .collection('bible_highlights')
+          .doc(highlightId)
+          .get();
+      if (!doc.exists) return false;
 
-      // Get the highlight to check ownership
-      final highlightDoc = await _firestore.collection('bible_highlights').doc(highlightId).get();
-      if (!highlightDoc.exists) return false;
-
-      final data = highlightDoc.data();
+      final data = doc.data();
       if (data == null) return false;
-      
-      data['id'] = highlightDoc.id;
+      data['id'] = doc.id;
       final highlight = BibleHighlight.fromJson(data);
 
-      // Check if user is admin or owns the highlight
       if (!_authController.isAdmin && highlight.userId != user.uid) {
-        return false; // Not authorized
+        return false;
       }
 
-      await _firestore.collection('bible_highlights').doc(highlightId).delete();
+      await _firestore
+          .collection('bible_highlights')
+          .doc(highlightId)
+          .delete();
       return true;
     } catch (e) {
-      if (kDebugMode) {
-        print('Error deleting highlight: $e');
-      }
+      if (kDebugMode) print('Error deleting highlight: $e');
       return false;
     }
   }
 
-  // Check if current user can edit a highlight (owns it or is admin)
   @override
   Future<bool> canEditHighlight(BibleHighlight highlight) async {
-    final user = _auth.currentUser;
-    if (user == null) return false;
-
-    // Admins can edit all highlights
-    if (_authController.isAdmin) {
-      return true;
+    if (!_isAuthenticated) {
+      return _local.isLocalHighlight(highlight);
     }
-
-    // Users can edit their own highlights
+    final user = _auth.currentUser!;
+    if (_authController.isAdmin) return true;
     return highlight.userId == user.uid;
   }
 }

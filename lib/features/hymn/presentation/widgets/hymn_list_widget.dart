@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
 import 'hymn_list_item.dart';
@@ -30,28 +29,15 @@ class HymnListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Hymn>>(
-      stream: hymnController.hymnsStream,
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return SliverFillRemaining(
-            child: Center(
-              child: Text(
-                AppLocalizations.of(context)
-                    .errorOccurredWithDetails(snapshot.error.toString()),
-                style: defaultTextStyle,
-              ),
-            ),
-          );
-        }
-
-        if (snapshot.connectionState == ConnectionState.waiting) {
+    return Obx(
+      () {
+        if (hymnController.isLoading.value) {
           return const SliverFillRemaining(
             child: SkeletonHymnList(),
           );
         }
 
-        final hymns = hymnController.filterHymnList(snapshot.data ?? []);
+        final hymns = hymnController.filteredHymns;
         if (hymns.isEmpty) {
           return SliverFillRemaining(
             child: EmptyStateWidget(
@@ -67,39 +53,28 @@ class HymnListWidget extends StatelessWidget {
           );
         }
 
-        return StreamBuilder<Map<String, String>>(
-          stream: hymnController.getFavoriteStatusStream(),
-          builder: (context, favoriteSnapshot) {
-            final colorController = Get.find<ColorController>();
-            return SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final hymn = hymns[index];
-                  final isFavorite = favoriteSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
-                  return HymnListItem(
-                    key: ValueKey(hymn.id),
-                    hymn: hymn,
-                    textColor: textColor,
-                    backgroundColor: backgroundColor,
-                    primaryColor: colorController.primaryColor.value,
-                    isFavorite: isFavorite,
-                    onFavoritePressed: () => hymnController.toggleFavorite(hymn),
-                    onMusicPressed: () => _showAudioPlayerDialog(hymn),
-                  )
-                      .animate()
-                      .fadeIn(
-                          duration: 400.ms,
-                          delay: (50 * index).clamp(0, 500).ms)
-                      .slideY(
-                          begin: 0.2,
-                          end: 0,
-                          curve: Curves.easeOutQuad,
-                          duration: 400.ms);
-                },
-                childCount: hymns.length,
-              ),
-            );
-          },
+        final colorController = Get.find<ColorController>();
+        final primaryColor = colorController.primaryColor.value;
+        final favoriteStatuses = hymnController.favoriteStatuses;
+
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              final hymn = hymns[index];
+              final isFavorite = favoriteStatuses[hymn.id]?.isNotEmpty ?? false;
+              return HymnListItem(
+                key: ValueKey(hymn.id),
+                hymn: hymn,
+                textColor: textColor,
+                backgroundColor: backgroundColor,
+                primaryColor: primaryColor,
+                isFavorite: isFavorite,
+                onFavoritePressed: () => hymnController.toggleFavorite(hymn),
+                onMusicPressed: () => _showAudioPlayerDialog(hymn),
+              );
+            },
+            childCount: hymns.length,
+          ),
         );
       },
     );
