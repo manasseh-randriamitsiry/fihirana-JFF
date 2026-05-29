@@ -73,18 +73,22 @@ if (showSnackbar) {
   static void _showErrorSnackbar(dynamic error, String? message, BuildContext? context) {
     final errorMessage = _getErrorMessage(error, message);
     final title = context != null ? AppLocalizations.of(context).error : 'Error';
-    Get.snackbar(
-      title,
-      errorMessage,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.red.shade100,
-      colorText: Colors.red.shade900,
-      duration: const Duration(seconds: 4),
-      icon: Icon(
-        Icons.error_outline,
-        color: Colors.red.shade900,
-      ),
-    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (SnackbarController.isSnackbarBeingShown) return;
+      Get.snackbar(
+        title,
+        errorMessage,
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade100,
+        colorText: Colors.red.shade900,
+        duration: const Duration(seconds: 4),
+        icon: Icon(
+          Icons.error_outline,
+          color: Colors.red.shade900,
+        ),
+      );
+    });
   }
 
   /// Show error dialog

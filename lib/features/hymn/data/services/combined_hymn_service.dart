@@ -3,7 +3,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
-import 'local_hymn_service.dart';
 
 class CombinedHymnService {
   static final CombinedHymnService _instance = CombinedHymnService._internal();
@@ -35,8 +34,7 @@ class CombinedHymnService {
       if (kDebugMode) {
         print('CombinedHymnService initialization failed: $e');
       }
-      // Fallback to individual file loading
-      await _loadIndividualHymns();
+      _allHymns = [];
       _isInitialized = true;
     } finally {
       _isInitializing = false;
@@ -148,19 +146,7 @@ class CombinedHymnService {
     }
   }
 
-  Future<void> _loadIndividualHymns() async {
-    if (kDebugMode) {
-      print('Falling back to individual hymn file loading...');
-    }
 
-    // Use the existing LocalHymnService as fallback
-    final localService = LocalHymnService();
-    _allHymns = await localService.getAllHymns();
-
-    for (final hymn in _allHymns!) {
-      _hymnCache[hymn.id] = hymn;
-    }
-  }
 
   Future<List<Hymn>> getAllHymns() async {
     if (!_isInitialized) {
@@ -176,20 +162,6 @@ Future<Hymn?> getHymnById(String id) async {
 
     if (_hymnCache.containsKey(id)) {
       return _hymnCache[id];
-    }
-
-    // Try to load individual hymn if not in cache
-    try {
-      final localService = LocalHymnService();
-      final hymn = await localService.getHymnById(id);
-      if (hymn != null) {
-        _hymnCache[id] = hymn;
-        return hymn;
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('Failed to load local hymn $id: $e');
-      }
     }
 
     // Try Firebase if not found locally

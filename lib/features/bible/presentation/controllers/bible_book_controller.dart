@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_all_books_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_book_usecase.dart';
+import 'package:fihirana/features/bible/data/services/bible_service.dart';
 import 'package:fihirana/core/error/error_handler.dart';
 
 class BibleBookController extends GetxController {
@@ -67,7 +68,7 @@ class BibleBookController extends GetxController {
     }
   }
 
-  void loadPassage(String bookName, int chapter) {
+  Future<void> loadPassage(String bookName, int chapter) async {
     final cacheKey = '$bookName:$chapter';
 
     if (_passageCache.containsKey(cacheKey)) {
@@ -78,6 +79,8 @@ class BibleBookController extends GetxController {
     try {
       isLoading.value = true;
       loadingMessage.value = 'Maka andininy...';
+
+      await BibleService().loadBookContent(bookName);
 
       final book = _getBookUseCase(bookName);
       if (book != null && book.chapterData.containsKey(chapter)) {
@@ -171,6 +174,10 @@ class BibleBookController extends GetxController {
   bool isVerseSelected(int verse) => selectedVerses.contains(verse);
 
   dynamic getBook(String bookName) => _getBookUseCase(bookName);
+
+  Future<void> loadBookContent(String bookName) async {
+    await BibleService().loadBookContent(bookName);
+  }
 
   List<String> getCurrentChapterVerses() {
     final book = _getBookUseCase(selectedBook.value);

@@ -67,10 +67,6 @@ jobs:
       # ----------------------
       - name: Generate Asset Manifest
         run: |
-          echo "Generating custom hymn asset manifest..."
-          flutter pub run tool/generate_assets.dart
-          echo "Combining hymn files into single file..."
-          dart run tool/combine_hymns.dart
           echo "Regenerating dependencies after manifest creation..."
           flutter pub get
 
