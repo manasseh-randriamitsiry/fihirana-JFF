@@ -71,8 +71,7 @@ class BibleHighlightService implements IBibleHighlightService {
   @override
   Stream<List<BibleHighlight>> getAllUserHighlightsStream() {
     if (!_isAuthenticated) {
-      // Return a one-shot stream from local storage.
-      return Stream.value(_local.getAllHighlights());
+      return Stream.fromFuture(_local.getAllHighlights());
     }
     final user = _auth.currentUser!;
     return _firestore
@@ -150,7 +149,7 @@ class BibleHighlightService implements IBibleHighlightService {
   Future<bool> deleteHighlight(String highlightId) async {
     if (!_isAuthenticated) {
       // For local highlights we need bookName + chapter; search all.
-      final all = _local.getAllHighlights();
+      final all = await _local.getAllHighlights();
       final match = all.where((h) => h.id == highlightId).firstOrNull;
       if (match == null) return false;
       return _local.deleteHighlight(highlightId, match.bookName, match.chapter);
