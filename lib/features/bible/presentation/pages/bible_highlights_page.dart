@@ -248,7 +248,6 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
 
   Future<String> _getVerseText(BibleHighlight highlight) async {
     try {
-      await bibleController.bookController.loadBookContent(highlight.bookName);
       final book = bibleController.bookController.getBook(highlight.bookName);
       if (book != null && book.chapterData.containsKey(highlight.chapter)) {
         final chapterData = book.chapterData[highlight.chapter]!;

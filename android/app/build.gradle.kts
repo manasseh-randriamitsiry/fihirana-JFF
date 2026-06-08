@@ -16,8 +16,6 @@ dependencies {
     implementation("com.google.android.gms:play-services-auth:20.7.0")
     implementation("com.google.android.gms:play-services-measurement:21.2.0")
     implementation("com.google.android.gms:play-services-measurement-api:21.2.0")
-    implementation("com.google.android.play:app-update:2.1.0")
-    implementation("com.google.android.play:feature-delivery:2.1.0")
 }
 
 android {
@@ -30,7 +28,7 @@ android {
         minSdk = flutter.minSdkVersion
         targetSdk = 36
         versionCode = 12
-        versionName = "1.0.47"
+        versionName = "1.0.46"
         multiDexEnabled = true
     }
 
@@ -47,13 +45,9 @@ android {
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
+            isMinifyEnabled = false
+            isShrinkResources = false
             isDebuggable = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
             
             // Ensure assets are properly included in release builds
             packaging {

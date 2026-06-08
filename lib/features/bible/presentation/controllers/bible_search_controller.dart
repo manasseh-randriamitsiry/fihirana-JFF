@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
 import 'package:fihirana/features/bible/domain/usecases/search_books_usecase.dart';
@@ -26,19 +24,9 @@ class BibleSearchController extends GetxController {
 
   // Search history
   final RxList<String> searchHistory = <String>[].obs;
-
+  
   // Callback to set highlighted verse (set by parent controller)
   Function(int)? onSetHighlightedVerse;
-
-  // ── Debounce / cancellation ──────────────────────────────────────────────
-  Timer? _debounceTimer;
-
-  /// Token incremented each time a new search is requested. Running searches
-  /// compare against this token; if it has changed, they discard their result.
-  int _searchToken = 0;
-
-  /// Debounce delay for expensive (allBible / currentChapter) searches.
-  static const _kDebounceMs = 500;
 
   @override
   void onInit() {
@@ -46,157 +34,86 @@ class BibleSearchController extends GetxController {
     loadSearchHistory();
   }
 
-  @override
-  void onClose() {
-    _debounceTimer?.cancel();
-    super.onClose();
-  }
-
-  // ── Public helpers ────────────────────────────────────────────────────────
-
   void updateSearchQuery(String query) {
     searchQuery.value = query;
     if (query.isEmpty) {
-      _debounceTimer?.cancel();
-      searchResults.clear();
-      isSearching.value = false;
-      // NOTE: intentionally do NOT null the context here so that switching
-      // context → clearing text → typing again still uses the correct context.
+      clearSearchResults();
     }
   }
 
-  /// Trigger a debounced search.
-  ///
-  /// * For [BibleSearchContext.books] (in-memory): executes immediately.
-  /// * For [BibleSearchContext.allBible] / [BibleSearchContext.currentChapter]
-  ///   (loads JSON files): waits [_kDebounceMs] ms after the last call before
-  ///   actually searching, cancelling any in-flight search.
   Future<void> performSearch() async {
     final query = searchQuery.value.trim();
-    if (query.isEmpty) {
-      _debounceTimer?.cancel();
-      searchResults.clear();
-      isSearching.value = false;
-      return;
-    }
-
-    final ctx = searchContext.value;
-
-    // Book searches are instant (in-memory), no debounce needed.
-    if (ctx == BibleSearchContext.books) {
-      _debounceTimer?.cancel();
-      await _doSearch(query, ctx);
-      return;
-    }
-
-    // Verse searches are expensive – debounce them.
-    _debounceTimer?.cancel();
-    isSearching.value = true; // show spinner immediately
-
-    _debounceTimer = Timer(
-      const Duration(milliseconds: _kDebounceMs),
-      () => _doSearch(query, ctx),
-    );
-  }
-
-  // ── Internal ──────────────────────────────────────────────────────────────
-
-  Future<void> _doSearch(String query, BibleSearchContext? ctx) async {
-    // Each search gets a unique token; stale completions are discarded.
-    final token = ++_searchToken;
+    if (query.isEmpty) return;
 
     try {
       isSearching.value = true;
 
       List<BibleSearchResult> results = [];
-
-      if (ctx == BibleSearchContext.books) {
+      
+      // Search based on current context
+      if (searchContext.value == BibleSearchContext.books) {
+        // Search for books
         final books = _searchBooksUseCase(query);
-        results = books
-            .map((book) => BibleSearchResult(
-                  type: BibleSearchResultType.book,
-                  bookName: book.name,
-                  chapter: 0,
-                  verse: 0,
-                  text: book.name,
-                  relevance: 1.0,
-                ))
-            .toList();
-      } else if (ctx == BibleSearchContext.allBible) {
-        final verses = await _searchVersesUseCase(query);
-        if (token != _searchToken) return; // superseded
+        results = books.map((book) => BibleSearchResult(
+          type: BibleSearchResultType.book,
+          bookName: book.name,
+          chapter: 0,
+          verse: 0,
+          text: book.name,
+          relevance: 1.0,
+        )).toList();
+      } else if (searchContext.value == BibleSearchContext.allBible) {
+        // Search all verses
+        final verses = _searchVersesUseCase(query);
         results = _convertVerseSearchResults(verses);
-      } else if (ctx == BibleSearchContext.currentChapter) {
+      } else if (searchContext.value == BibleSearchContext.currentChapter) {
+        // Search only in current chapter
         final bookController = Get.find<BibleBookController>();
         final currentBook = bookController.selectedBook.value;
         final currentChapter = bookController.selectedChapter.value;
-
+        
         if (currentBook.isNotEmpty && currentChapter > 0) {
-          final allVerses = await _searchVersesUseCase(query);
-          if (token != _searchToken) return; // superseded
-          final filtered = allVerses
-              .where((v) =>
-                  v.bookName == currentBook && v.chapter == currentChapter)
-              .toList();
-          results = _convertVerseSearchResults(filtered);
+          final allVerses = _searchVersesUseCase(query);
+          // Filter to only current chapter
+          final filteredVerses = allVerses.where((verse) =>
+            verse.bookName == currentBook && verse.chapter == currentChapter
+          ).toList();
+          results = _convertVerseSearchResults(filteredVerses);
         }
-      } else {
-        // Context not yet set – default to book search.
-        final books = _searchBooksUseCase(query);
-        results = books
-            .map((book) => BibleSearchResult(
-                  type: BibleSearchResultType.book,
-                  bookName: book.name,
-                  chapter: 0,
-                  verse: 0,
-                  text: book.name,
-                  relevance: 1.0,
-                ))
-            .toList();
       }
-
-      if (token != _searchToken) return; // superseded while awaiting
 
       searchResults.value = results;
+
+      // Add to search history
       addToSearchHistory(query);
     } catch (e) {
-      if (token == _searchToken) {
-        ErrorHandler.handleError(e, message: 'errorSearchingBible'.tr);
-      }
+      ErrorHandler.handleError(e, message: 'errorSearchingBible'.tr);
     } finally {
-      if (token == _searchToken) {
-        isSearching.value = false;
-      }
+      isSearching.value = false;
     }
   }
 
-  // ── Utilities ─────────────────────────────────────────────────────────────
-
-  List<BibleSearchResult> _convertVerseSearchResults(
-      List<VerseSearchResult> verses) {
-    return verses
-        .map((verse) => BibleSearchResult(
-              type: BibleSearchResultType.verse,
-              bookName: verse.bookName,
-              chapter: verse.chapter,
-              verse: verse.verse,
-              text: verse.text,
-              relevance: 1.0,
-            ))
-        .toList();
+  /// Convert VerseSearchResult to BibleSearchResult
+  List<BibleSearchResult> _convertVerseSearchResults(List<VerseSearchResult> verses) {
+    return verses.map((verse) => BibleSearchResult(
+      type: BibleSearchResultType.verse,
+      bookName: verse.bookName,
+      chapter: verse.chapter,
+      verse: verse.verse,
+      text: verse.text,
+      relevance: 1.0,
+    )).toList();
   }
 
   void clearSearchResults() {
-    _debounceTimer?.cancel();
     searchResults.clear();
-    isSearching.value = false;
-    // NOTE: do NOT null searchContext here – it preserves the user's chosen
-    // search scope when they clear the text and start typing again.
+    searchContext.value = null;
   }
 
   void addToSearchHistory(String query) {
     if (!searchHistory.contains(query)) {
       searchHistory.insert(0, query);
+      // Keep only last 10 searches
       if (searchHistory.length > 10) {
         searchHistory.removeRange(10, searchHistory.length);
       }
@@ -215,18 +132,20 @@ class BibleSearchController extends GetxController {
   }
 
   void loadSearchHistory() {
+    // Load from shared preferences
+    // For now, initialize empty
     searchHistory.value = [];
   }
 
   void saveSearchHistory() {
-    // TODO: persist to SharedPreferences
+    // Save to shared preferences
+    // Implementation would go here
   }
 
   List<String> getFilteredSearchHistory(String filter) {
     if (filter.isEmpty) return searchHistory;
-    return searchHistory
-        .where((item) => item.toLowerCase().contains(filter.toLowerCase()))
-        .toList();
+    return searchHistory.where((item) =>
+        item.toLowerCase().contains(filter.toLowerCase())).toList();
   }
 
   void setSearchContext(BibleSearchContext context) {
@@ -235,14 +154,16 @@ class BibleSearchController extends GetxController {
 
   void navigateToSearchResult(BibleSearchResult result) {
     final bookController = Get.find<BibleBookController>();
-
+    
     if (result.type == BibleSearchResultType.book) {
       bookController.selectBook(result.bookName);
     } else if (result.type == BibleSearchResultType.verse) {
       bookController.selectBook(result.bookName);
       bookController.selectChapter(result.chapter);
-
+      
+      // Set the highlighted verse using the callback
       if (onSetHighlightedVerse != null) {
+        // Increase delay to ensure chapter loads first
         Future.delayed(const Duration(milliseconds: 400), () {
           onSetHighlightedVerse!(result.verse);
         });
@@ -250,5 +171,5 @@ class BibleSearchController extends GetxController {
     }
   }
 
-  bool isVerseSearchHighlighted(int verse) => false;
+  bool isVerseSearchHighlighted(int verse) => false; // placeholder
 }
