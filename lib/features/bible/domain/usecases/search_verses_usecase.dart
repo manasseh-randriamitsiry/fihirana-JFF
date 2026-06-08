@@ -5,7 +5,7 @@ class SearchVersesUseCase {
 
   SearchVersesUseCase(this._repository);
 
-  Future<List<VerseSearchResult>> call(String query) {
+  List<VerseSearchResult> call(String query) {
     return _repository.searchVerses(query);
   }
 }

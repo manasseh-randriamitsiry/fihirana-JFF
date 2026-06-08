@@ -89,9 +89,9 @@ class BibleHighlightController extends GetxController {
         Future.delayed(const Duration(seconds: 2), () {
           highlightedVerse.value = null;
         });
+      } else {
+        ErrorHandler.handleError('Failed to save highlight', message: 'errorSavingHighlight'.tr);
       }
-      // No ErrorHandler call here — a false result is expected in edge cases
-      // (e.g. brief network loss). The hybrid service already logs in debug mode.
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorSavingHighlight'.tr);
     }

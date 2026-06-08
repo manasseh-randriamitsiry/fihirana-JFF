@@ -4,12 +4,6 @@ import 'package:fihirana/features/bible/presentation/controllers/bible_controlle
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
-/// Search input for the Bible search dialog.
-///
-/// Changes to the text field are forwarded to [BibleController.searchQuery]
-/// and [BibleController.performSearch].  The controller itself applies a
-/// 500 ms debounce for expensive (allBible) searches, so it is safe to call
-/// [performSearch] on every keystroke here.
 class BibleSearchInput extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
@@ -45,7 +39,6 @@ class BibleSearchInput extends StatelessWidget {
           color: colorController.textColor.value,
           fontSize: fontSize,
         ),
-        textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           hintText: l10n.searchWordsOrVersesHint,
           hintStyle: TextStyle(
@@ -63,10 +56,11 @@ class BibleSearchInput extends StatelessWidget {
                   Icons.clear_rounded,
                   color: colorController.iconColor.value,
                 ),
-                onPressed: () {
-                  controller.clear();
-                  bibleController.updateSearchQuery('');
-                },
+                 onPressed: () {
+                   controller.clear();
+                   bibleController.searchQuery.value = '';
+                   bibleController.performSearch();
+                 },
               );
             }
             return const SizedBox.shrink();
@@ -75,12 +69,6 @@ class BibleSearchInput extends StatelessWidget {
           contentPadding: const EdgeInsets.all(16),
         ),
         onChanged: (value) {
-          bibleController.searchQuery.value = value;
-          bibleController.performSearch();
-        },
-        // Pressing the keyboard "Search" button triggers an immediate search
-        // (bypassing the debounce for faster UX on explicit user intent).
-        onSubmitted: (value) {
           bibleController.searchQuery.value = value;
           bibleController.performSearch();
         },
