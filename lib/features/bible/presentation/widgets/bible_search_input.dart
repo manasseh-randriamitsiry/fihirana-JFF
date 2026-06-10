@@ -1,10 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
-class BibleSearchInput extends StatelessWidget {
+class BibleSearchInput extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final double fontSize;
@@ -15,6 +17,19 @@ class BibleSearchInput extends StatelessWidget {
     required this.focusNode,
     required this.fontSize,
   });
+
+  @override
+  State<BibleSearchInput> createState() => _BibleSearchInputState();
+}
+
+class _BibleSearchInputState extends State<BibleSearchInput> {
+  Timer? _debounceTimer;
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,12 +47,12 @@ class BibleSearchInput extends StatelessWidget {
         ),
       ),
       child: TextField(
-        controller: controller,
-        focusNode: focusNode,
+        controller: widget.controller,
+        focusNode: widget.focusNode,
         style: TextStyle(
           fontFamily: 'Roboto',
           color: colorController.textColor.value,
-          fontSize: fontSize,
+          fontSize: widget.fontSize,
         ),
         decoration: InputDecoration(
           hintText: l10n.searchWordsOrVersesHint,
@@ -56,11 +71,12 @@ class BibleSearchInput extends StatelessWidget {
                   Icons.clear_rounded,
                   color: colorController.iconColor.value,
                 ),
-                 onPressed: () {
-                   controller.clear();
-                   bibleController.searchQuery.value = '';
-                   bibleController.performSearch();
-                 },
+                onPressed: () {
+                  _debounceTimer?.cancel();
+                  widget.controller.clear();
+                  bibleController.searchQuery.value = '';
+                  bibleController.performSearch();
+                },
               );
             }
             return const SizedBox.shrink();
@@ -69,8 +85,12 @@ class BibleSearchInput extends StatelessWidget {
           contentPadding: const EdgeInsets.all(16),
         ),
         onChanged: (value) {
+          _debounceTimer?.cancel();
           bibleController.searchQuery.value = value;
-          bibleController.performSearch();
+          _debounceTimer = Timer(const Duration(milliseconds: 250), () {
+            if (!mounted) return;
+            bibleController.performSearch();
+          });
         },
       ),
     );

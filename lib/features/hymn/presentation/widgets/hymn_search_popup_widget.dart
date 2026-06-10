@@ -3,6 +3,7 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
+import 'dart:async';
 
 class HymnSearchPopup extends StatefulWidget {
   final ColorController colorController;
@@ -26,6 +27,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
   final FocusNode _focusNode = FocusNode();
   bool _isFocused = false;
   bool _hasText = false;
+  Timer? _searchDebounce;
 
   @override
   void initState() {
@@ -45,6 +47,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _focusNode.dispose();
     _searchController.dispose();
     super.dispose();
@@ -67,11 +70,13 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
   }
 
   void _searchHymns(String query) {
+    _searchDebounce?.cancel();
     setState(() {
       _isLoading = true;
     });
 
-    Future.delayed(const Duration(milliseconds: 300), () async {
+    _searchDebounce = Timer(const Duration(milliseconds: 300), () async {
+      if (!mounted) return;
       try {
         final hymns = await _hymnService.searchHymns(query);
         if (!mounted) return;

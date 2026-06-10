@@ -13,7 +13,6 @@ import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/app/theme/theme_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/audio/data/services/audio_file_mapping.dart';
 import 'package:fihirana/features/audio/data/services/audio_foreground_service.dart';
 import 'package:fihirana/features/audio/data/services/background_service.dart';
 import 'package:fihirana/features/bible/data/services/bible_service.dart';
@@ -95,27 +94,6 @@ class InitService {
 
     // Initialize lazy service manager
     lazyServiceManager.initialize();
-
-    // Preload commonly used services based on user behavior patterns
-    _preloadPredictedServices();
-  }
-
-  /// Preload services that are likely to be needed soon
-  static void _preloadPredictedServices() {
-    // Delay preloading to not block app startup
-    Future.delayed(const Duration(seconds: 2), () async {
-      try {
-        // Preload services that are commonly accessed
-        await lazyServiceManager.preloadServices([
-          'daily_verse', // Most users check daily verse
-          'history',     // Recently accessed items
-        ]);
-      } catch (e) {
-if (kDebugMode) {
-        debugPrint('Error preloading services: $e');
-      }
-      }
-    });
   }
 
   /// Initialize services with proper async handling
@@ -138,23 +116,9 @@ if (kDebugMode) {
     final localAudioService = LocalAudioService();
     await localAudioService.initialize();
     
-    // Initialize audio file mapping from GitHub (with retry logic)
-    try {
-      if (kDebugMode) {
-        print('InitService: Initializing AudioFileMapping from GitHub...');
-      }
-      final audioMapping = AudioFileMapping();
-      await audioMapping.updateAudioFileMapping(retries: 2);
-      if (kDebugMode) {
-        final stats = audioMapping.getStats();
-        print('InitService: AudioFileMapping initialized - ${stats['totalFiles']} files available');
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print('InitService: Warning - AudioFileMapping initialization failed: $e');
-        print('InitService: App will continue, but some audio files may not be available');
-      }
-    }
+    // Defer audio mapping until a user actually opens audio-related screens.
+    // This keeps startup lighter on low-end devices and avoids a network hit
+    // before the first frame.
   }
 
   static Future<void> _initDataServices() async {

@@ -24,6 +24,8 @@ class BibleSearchController extends GetxController {
 
   // Search history
   final RxList<String> searchHistory = <String>[].obs;
+  String _lastExecutedQuery = '';
+  BibleSearchContext? _lastExecutedContext;
   
   // Callback to set highlighted verse (set by parent controller)
   Function(int)? onSetHighlightedVerse;
@@ -44,6 +46,11 @@ class BibleSearchController extends GetxController {
   Future<void> performSearch() async {
     final query = searchQuery.value.trim();
     if (query.isEmpty) return;
+    final context = searchContext.value;
+
+    if (query == _lastExecutedQuery && context == _lastExecutedContext) {
+      return;
+    }
 
     try {
       isSearching.value = true;
@@ -51,7 +58,7 @@ class BibleSearchController extends GetxController {
       List<BibleSearchResult> results = [];
       
       // Search based on current context
-      if (searchContext.value == BibleSearchContext.books) {
+      if (context == BibleSearchContext.books) {
         // Search for books
         final books = _searchBooksUseCase(query);
         results = books.map((book) => BibleSearchResult(
@@ -62,11 +69,11 @@ class BibleSearchController extends GetxController {
           text: book.name,
           relevance: 1.0,
         )).toList();
-      } else if (searchContext.value == BibleSearchContext.allBible) {
+      } else if (context == BibleSearchContext.allBible) {
         // Search all verses
         final verses = _searchVersesUseCase(query);
         results = _convertVerseSearchResults(verses);
-      } else if (searchContext.value == BibleSearchContext.currentChapter) {
+      } else if (context == BibleSearchContext.currentChapter) {
         // Search only in current chapter
         final bookController = Get.find<BibleBookController>();
         final currentBook = bookController.selectedBook.value;
@@ -83,6 +90,8 @@ class BibleSearchController extends GetxController {
       }
 
       searchResults.value = results;
+      _lastExecutedQuery = query;
+      _lastExecutedContext = context;
 
       // Add to search history
       addToSearchHistory(query);
@@ -108,6 +117,8 @@ class BibleSearchController extends GetxController {
   void clearSearchResults() {
     searchResults.clear();
     searchContext.value = null;
+    _lastExecutedQuery = '';
+    _lastExecutedContext = null;
   }
 
   void addToSearchHistory(String query) {

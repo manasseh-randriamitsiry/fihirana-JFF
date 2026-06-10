@@ -30,7 +30,6 @@ class AudioService implements IAudioService {
 
   AudioService._internal() {
     _initializePlayer();
-    _initializePlayerOnStartup();
     // Listeners will be initialized inside _initializePlayer after the correct player is ready
   }
 
@@ -64,30 +63,6 @@ class AudioService implements IAudioService {
       print(
           'AudioService: Preferred format: ${await AudioConfig.preferredFormat}');
     }
-  }
-
-  void _initializePlayerOnStartup() {
-    // Check if player is in a bad state on startup and reset it
-    Future.delayed(const Duration(milliseconds: 500), () async {
-      try {
-        final state = _player.playerState;
-        // Only reset if completely idle and we think we should be playing but player says no
-        if (state.processingState == ProcessingState.idle &&
-            _currentPlayingHymnId.value.isNotEmpty && 
-            !_isPlayingRx.value) { // Use our reactive state check
-          if (kDebugMode) {
-            print('AudioService: Detected bad state on startup, resetting');
-          }
-          _currentPlayingHymnId.value = '';
-          _currentHymn = null;
-          _currentRecording = null;
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          print('AudioService: Error checking startup state: $e');
-        }
-      }
-    });
   }
 
   void _initializePlayerStateListener() {
@@ -316,8 +291,6 @@ Future<void> playNext() async {
     if (_currentPlayingHymnId.value.isNotEmpty &&
         _currentPlayingHymnId.value != hymn.id) {
       await _player.stop();
-      await Future.delayed(
-          const Duration(milliseconds: 100)); // Brief pause for cleanup
     }
 
     _currentHymn = hymn;
@@ -482,8 +455,6 @@ Future<void> playNext() async {
         } 
       }
 
-      // Add debugging to check player state after play
-      await Future.delayed(const Duration(milliseconds: 100));
       final stateAfterPlay = _player.playerState;
       if (kDebugMode) {
         print('AudioService: Started playing hymn ${hymn.id}');
@@ -579,8 +550,6 @@ Future<void> playNext() async {
     // Stop current playback if any
     if (_currentPlayingHymnId.value.isNotEmpty) {
       await _player.stop();
-      await Future.delayed(
-          const Duration(milliseconds: 200)); // Allow for cleanup
     }
 
     // Play new hymn
@@ -613,9 +582,6 @@ Future<void> playNext() async {
 
   @override
   Stream<Duration?> get positionStream {
-    if (kDebugMode) {
-      print('AudioService: Position stream accessed');
-    }
     return _player.positionStream;
   }
 
