@@ -150,8 +150,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          context
-                              .translate((l) => l.createFirstPlaylist),
+                          context.translate((l) => l.createFirstPlaylist),
                           style: TextStyle(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.6),
@@ -200,10 +199,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     );
                   }
 
-                   return ListView.builder(
+                  return ListView.builder(
                     key: const PageStorageKey('favorites_list'),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: AppDimensions.md, vertical: AppDimensions.sm),
+                        horizontal: AppDimensions.md,
+                        vertical: AppDimensions.sm),
                     itemCount: filteredHymns.length,
                     itemBuilder: (context, index) {
                       final hymn = filteredHymns[index];

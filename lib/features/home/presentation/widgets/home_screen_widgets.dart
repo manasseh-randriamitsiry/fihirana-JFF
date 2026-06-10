@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 
-
 class HomeScreenScaffold extends StatelessWidget {
   final Widget child;
   final String title;
@@ -33,10 +32,14 @@ class HomeScreenScaffold extends StatelessWidget {
         backgroundColor: backgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
-        leading: leading ?? (showDrawer ? IconButton(
-          icon: Icon(Icons.menu, color: colorController.iconColor.value),
-          onPressed: onDrawerPressed,
-        ) : null),
+        leading: leading ??
+            (showDrawer
+                ? IconButton(
+                    icon: Icon(Icons.menu,
+                        color: colorController.iconColor.value),
+                    onPressed: onDrawerPressed,
+                  )
+                : null),
         title: Text(
           title,
           style: TextStyle(

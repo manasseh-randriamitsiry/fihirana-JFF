@@ -24,8 +24,7 @@ class Note {
     required this.userName, // Add userName parameter
   });
 
-  factory Note.fromJson(Map<String, dynamic> json) =>
-      _$NoteFromJson(json);
+  factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
 
   Map<String, dynamic> toJson() => _$NoteToJson(this);
 

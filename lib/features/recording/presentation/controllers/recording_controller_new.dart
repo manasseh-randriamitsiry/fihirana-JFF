@@ -122,12 +122,12 @@ class RecordingController extends GetxController {
     try {
       _isLoading.value = true;
       _lastError.value = '';
-      
+
       await startRecordingUseCase();
       _isRecording.value = true;
       _currentHymnId.value = hymnId;
       _startRecordingTimer();
-      
+
       _showOverlay(hymnId, '');
     } catch (e) {
       _lastError.value = 'Failed to start recording: $e';
@@ -140,7 +140,7 @@ class RecordingController extends GetxController {
     try {
       _isLoading.value = true;
       _lastError.value = '';
-      
+
       final recording = await stopRecordingUseCase();
       if (recording != null) {
         final updatedRecording = recording.copyWith(
@@ -148,11 +148,11 @@ class RecordingController extends GetxController {
           title: title,
         );
         await saveRecordingUseCase(updatedRecording);
-        
+
         _isRecording.value = false;
         _stopRecordingTimer();
         _hideOverlay();
-        
+
         return updatedRecording;
       }
       return null;
@@ -249,7 +249,7 @@ class RecordingController extends GetxController {
     try {
       _uploadingRecordingIds.add(recording.id);
       _uploadErrors.remove(recording.id);
-      
+
       final success = await uploadToGoogleDriveUseCase(recording);
       if (!success) {
         _uploadErrors[recording.id] = 'Upload failed';
@@ -274,7 +274,8 @@ class RecordingController extends GetxController {
     }
   }
 
-  Future<void> permanentlyDeleteRecording(UserRecording deletedRecording) async {
+  Future<void> permanentlyDeleteRecording(
+      UserRecording deletedRecording) async {
     try {
       _isLoading.value = true;
       await permanentlyDeleteRecordingUseCase(deletedRecording.id);

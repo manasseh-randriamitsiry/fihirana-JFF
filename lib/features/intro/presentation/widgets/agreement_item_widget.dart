@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class AgreementItemWidget extends StatelessWidget {
   final String text;
 

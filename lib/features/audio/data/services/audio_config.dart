@@ -62,9 +62,9 @@ class AudioConfig {
       final buildCheck = await Process.run('getprop', ['ro.build.fingerprint']);
       if (buildCheck.exitCode == 0) {
         final fingerprint = buildCheck.stdout.toString().toLowerCase();
-        return fingerprint.contains('generic') || 
-               fingerprint.contains('vbox') || 
-               fingerprint.contains('emulator');
+        return fingerprint.contains('generic') ||
+            fingerprint.contains('vbox') ||
+            fingerprint.contains('emulator');
       }
 
       return false;
@@ -79,7 +79,7 @@ class AudioConfig {
   static Future<Map<String, dynamic>> getAudioPlayerConfig() async {
     final config = <String, dynamic>{};
     final isEmulatorDevice = await isEmulator;
-    
+
     if (isEmulatorDevice) {
       // Emulator-specific configuration
       config['androidAudioEffects'] = [];

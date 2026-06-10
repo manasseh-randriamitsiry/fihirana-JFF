@@ -26,10 +26,12 @@ class PlaylistDataController extends GetxController {
     isLoading.value = false;
   }
 
-  Future<String?> createPlaylist(String title, DateTime date, {String? description}) async {
+  Future<String?> createPlaylist(String title, DateTime date,
+      {String? description}) async {
     try {
       isLoading.value = true;
-      return await _playlistService.createPlaylist(title, date, description: description);
+      return await _playlistService.createPlaylist(title, date,
+          description: description);
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorCreatingPlaylist'.tr);
       return null;
@@ -38,10 +40,12 @@ class PlaylistDataController extends GetxController {
     }
   }
 
-  Future<void> updatePlaylist(String id, {String? title, DateTime? date, String? description}) async {
+  Future<void> updatePlaylist(String id,
+      {String? title, DateTime? date, String? description}) async {
     try {
       isLoading.value = true;
-      await _playlistService.updatePlaylist(id, title: title, date: date, description: description);
+      await _playlistService.updatePlaylist(id,
+          title: title, date: date, description: description);
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorUpdatingPlaylist'.tr);
     } finally {
@@ -81,7 +85,8 @@ class PlaylistDataController extends GetxController {
       // Reordering is handled by updating the playlist with new hymn order
       final playlist = await _playlistService.getPlaylistById(playlistId);
       if (playlist != null) {
-        await _playlistService.updatePlaylist(playlistId, title: playlist.title, date: playlist.date);
+        await _playlistService.updatePlaylist(playlistId,
+            title: playlist.title, date: playlist.date);
       }
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorReorderingPlaylist'.tr);
@@ -100,9 +105,10 @@ class PlaylistDataController extends GetxController {
   Future<List<Playlist>> searchPlaylists(String query) async {
     try {
       final allPlaylists = await _playlistService.getLocalPlaylists();
-      return allPlaylists.where((playlist) =>
-        playlist.title.toLowerCase().contains(query.toLowerCase())
-      ).toList();
+      return allPlaylists
+          .where((playlist) =>
+              playlist.title.toLowerCase().contains(query.toLowerCase()))
+          .toList();
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorSearchingPlaylists'.tr);
       return [];

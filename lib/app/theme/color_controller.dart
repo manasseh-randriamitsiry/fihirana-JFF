@@ -162,8 +162,8 @@ class ColorController extends GetxController {
         final brightness =
             SchedulerBinding.instance.platformDispatcher.platformBrightness;
         if (brightness == Brightness.dark) {
-           await setColorScheme(4); // AMOLED Black
-           return;
+          await setColorScheme(4); // AMOLED Black
+          return;
         }
       }
 

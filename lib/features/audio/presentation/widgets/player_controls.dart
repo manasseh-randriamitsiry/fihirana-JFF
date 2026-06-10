@@ -74,7 +74,8 @@ class PlayerControls extends StatelessWidget {
           onPressed: onPlayNext,
         ),
         IconButton(
-          icon: const Icon(Icons.playlist_add_check_circle, color: Colors.white),
+          icon:
+              const Icon(Icons.playlist_add_check_circle, color: Colors.white),
           onPressed: onShowPlaylist,
         ),
       ],

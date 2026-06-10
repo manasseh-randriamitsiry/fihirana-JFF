@@ -75,7 +75,8 @@ class HymnListWidget extends StatelessWidget {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final hymn = hymns[index];
-                  final isFavorite = favoriteSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
+                  final isFavorite =
+                      favoriteSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
                   return HymnListItem(
                     key: ValueKey(hymn.id),
                     hymn: hymn,
@@ -83,7 +84,8 @@ class HymnListWidget extends StatelessWidget {
                     backgroundColor: backgroundColor,
                     primaryColor: colorController.primaryColor.value,
                     isFavorite: isFavorite,
-                    onFavoritePressed: () => hymnController.toggleFavorite(hymn),
+                    onFavoritePressed: () =>
+                        hymnController.toggleFavorite(hymn),
                     onMusicPressed: () => _showAudioPlayerDialog(hymn),
                   )
                       .animate()

@@ -22,7 +22,8 @@ class RecordingControlsWidget extends StatefulWidget {
   });
 
   @override
-  State<RecordingControlsWidget> createState() => _RecordingControlsWidgetState();
+  State<RecordingControlsWidget> createState() =>
+      _RecordingControlsWidgetState();
 }
 
 class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
@@ -87,22 +88,25 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: widget.isPaused 
+              color: widget.isPaused
                   ? colorController.primaryColor.value
                   : colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              boxShadow: widget.isPaused ? [
-                BoxShadow(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.4),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ] : null,
+              boxShadow: widget.isPaused
+                  ? [
+                      BoxShadow(
+                        color: colorController.primaryColor.value
+                            .withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
             ),
             child: Icon(
               widget.isPaused ? Icons.play_arrow : Icons.pause,
-              color: widget.isPaused 
-                  ? Colors.white 
+              color: widget.isPaused
+                  ? Colors.white
                   : colorController.primaryColor.value,
               size: 32,
             ),

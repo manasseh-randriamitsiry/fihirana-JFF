@@ -113,7 +113,8 @@ class FavoriteHymnCard extends StatelessWidget {
                 // Audio button
                 if (hasAudio)
                   Obx(() {
-                    final isCurrentlyPlaying = audioService.isHymnPlaying(hymn.id);
+                    final isCurrentlyPlaying =
+                        audioService.isHymnPlaying(hymn.id);
                     return IconButton(
                       onPressed: () {
                         HapticFeedback.lightImpact();
@@ -129,7 +130,9 @@ class FavoriteHymnCard extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          isCurrentlyPlaying ? Icons.graphic_eq : Icons.music_note_outlined,
+                          isCurrentlyPlaying
+                              ? Icons.graphic_eq
+                              : Icons.music_note_outlined,
                           size: 20,
                           color: isCurrentlyPlaying
                               ? primaryColor
@@ -151,8 +154,12 @@ class FavoriteHymnCard extends StatelessWidget {
                     onFavoritePressed();
                   },
                   icon: Icon(
-                    isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                    color: isFavorite ? Colors.redAccent : textColor.withValues(alpha: 0.6),
+                    isFavorite
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    color: isFavorite
+                        ? Colors.redAccent
+                        : textColor.withValues(alpha: 0.6),
                     size: 22,
                   ),
                   style: IconButton.styleFrom(

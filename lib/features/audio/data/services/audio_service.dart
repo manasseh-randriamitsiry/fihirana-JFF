@@ -27,7 +27,6 @@ class AudioService implements IAudioService {
   // Initialize player immediately to prevent LateInitializationError
   AudioPlayer _player = AudioPlayer();
 
-
   AudioService._internal() {
     _initializePlayer();
     // Listeners will be initialized inside _initializePlayer after the correct player is ready
@@ -43,11 +42,11 @@ class AudioService implements IAudioService {
     // Dispose old player and create new one with config
     // Note: We are replacing the instance that might have been created by default
     try {
-        await _player.dispose();
+      await _player.dispose();
     } catch (e) {
-        if (kDebugMode) print('AudioService: Error disposing initial player: $e');
+      if (kDebugMode) print('AudioService: Error disposing initial player: $e');
     }
-    
+
     _player = AudioPlayer(
       audioPipeline: AudioPipeline(
         androidAudioEffects: androidEffects,
@@ -89,12 +88,13 @@ class AudioService implements IAudioService {
       if (state.processingState == ProcessingState.idle &&
           !state.playing &&
           _currentPlayingHymnId.value.isNotEmpty) {
-
         // Give it a grace period - sometimes it flickers to idle during valid transitions
         Future.delayed(const Duration(milliseconds: 500), () {
-          if (_player.processingState == ProcessingState.idle && !_player.playing) {
+          if (_player.processingState == ProcessingState.idle &&
+              !_player.playing) {
             if (kDebugMode) {
-              print('AudioService: Player entered idle state and stopped, likely due to error');
+              print(
+                  'AudioService: Player entered idle state and stopped, likely due to error');
             }
             _currentPlayingHymnId.value = '';
             _currentHymn = null;
@@ -105,7 +105,7 @@ class AudioService implements IAudioService {
     });
   }
 
-Hymn? _currentHymn;
+  Hymn? _currentHymn;
   dynamic _currentRecording; // Track current recording
   List<Hymn> _playlist = [];
   List<Hymn> _originalPlaylist = []; // Store original order for unshuffle
@@ -148,8 +148,8 @@ Hymn? _currentHymn;
 
   // ... (keep existing methods)
 
-@override
-void setPlaylist(List<Hymn> playlist, int initialIndex) {
+  @override
+  void setPlaylist(List<Hymn> playlist, int initialIndex) {
     _playlist = playlist;
     _originalPlaylist = List.from(playlist); // Store original order
     _currentPlaylistIndex = initialIndex;
@@ -161,8 +161,8 @@ void setPlaylist(List<Hymn> playlist, int initialIndex) {
     }
   }
 
-@override
-Future<void> playNext() async {
+  @override
+  Future<void> playNext() async {
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
 
     if (_currentPlaylistIndex < _playlist.length - 1) {
@@ -183,7 +183,7 @@ Future<void> playNext() async {
     }
   }
 
-@override
+  @override
   Future<void> playPrevious() async {
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
 
@@ -218,7 +218,7 @@ Future<void> playNext() async {
       _playlist = List.from(_playlist);
       _playlist.shuffle();
       _isShuffled = true;
-      
+
       // Update current index to point to same hymn in shuffled list
       if (_currentHymn != null) {
         final newIndex = _playlist.indexWhere((h) => h.id == _currentHymn!.id);
@@ -227,9 +227,9 @@ Future<void> playNext() async {
         }
       }
     }
-    
+
     _playlistChangeNotifier.value++;
-    
+
     if (kDebugMode) {
       print('AudioService: Shuffle ${_isShuffled ? "enabled" : "disabled"}');
     }
@@ -238,7 +238,7 @@ Future<void> playNext() async {
   @override
   Future<void> setRepeat(bool enabled) async {
     _isRepeatEnabled = enabled;
-    
+
     if (kDebugMode) {
       print('AudioService: Repeat ${enabled ? "enabled" : "disabled"}');
     }
@@ -270,21 +270,23 @@ Future<void> playNext() async {
     }
 
     // Resume if same hymn is already loaded (even if paused)
-    if (_currentPlayingHymnId.value == hymn.id && 
-        customAudioUrl == null) { // Don't resume if a new URL is forced
+    if (_currentPlayingHymnId.value == hymn.id && customAudioUrl == null) {
+      // Don't resume if a new URL is forced
       if (kDebugMode) {
-        print('AudioService: Hymn ${hymn.id} already loaded, resuming playback');
+        print(
+            'AudioService: Hymn ${hymn.id} already loaded, resuming playback');
       }
       // Just ensure we are playing
       if (!_player.playing) {
-          try {
-             await _player.play();
-          } catch(e) {
-             // If play fails, might need full reload, so fall through
-             if (kDebugMode) print('AudioService: Resume failed, falling back to reload: $e');
-          }
+        try {
+          await _player.play();
+        } catch (e) {
+          // If play fails, might need full reload, so fall through
+          if (kDebugMode)
+            print('AudioService: Resume failed, falling back to reload: $e');
+        }
       }
-      return; 
+      return;
     }
 
     // Stop current playback if different hymn is playing
@@ -425,13 +427,14 @@ Future<void> playNext() async {
         await _player.play().timeout(
           const Duration(seconds: 30), // Increased from 10s
           onTimeout: () {
-             // Even if timeout happens, check if player actually started playing
-             if (_player.playing) {
-                 if (kDebugMode) {
-                   print('AudioService: Play timeout fired but player IS playing. Ignoring timeout.');
-                 }
-                 return; // It's fine, it started.
-             }
+            // Even if timeout happens, check if player actually started playing
+            if (_player.playing) {
+              if (kDebugMode) {
+                print(
+                    'AudioService: Play timeout fired but player IS playing. Ignoring timeout.');
+              }
+              return; // It's fine, it started.
+            }
             if (kDebugMode) {
               print('AudioService: Timeout starting playback for ${hymn.id}');
             }
@@ -441,18 +444,20 @@ Future<void> playNext() async {
       } on TimeoutException catch (e) {
         // Only clear state if we are truly not playing
         if (!_player.playing) {
-            _currentPlayingHymnId.value = '';
-            _isPlayingRx.value = false;
-             // Ensure player is stopped to avoid ghost audio
-            try { await _player.stop(); } catch (_) {}
-            
-            if (kDebugMode) {
-              print(
-                  'AudioService: TimeoutException for hymn ${hymn.id}: ${e.message}');
-            }
-            throw Exception(
-                'Audio loading timeout. Please check your internet connection and try again.');
-        } 
+          _currentPlayingHymnId.value = '';
+          _isPlayingRx.value = false;
+          // Ensure player is stopped to avoid ghost audio
+          try {
+            await _player.stop();
+          } catch (_) {}
+
+          if (kDebugMode) {
+            print(
+                'AudioService: TimeoutException for hymn ${hymn.id}: ${e.message}');
+          }
+          throw Exception(
+              'Audio loading timeout. Please check your internet connection and try again.');
+        }
       }
 
       final stateAfterPlay = _player.playerState;
@@ -601,15 +606,17 @@ Future<void> playNext() async {
   Stream<bool> get playingStream => _player.playingStream;
 
   @override
-  Stream<ProcessingState> get processingStateStream => _player.processingStateStream;
+  Stream<ProcessingState> get processingStateStream =>
+      _player.processingStateStream;
 
   @override
   bool get isPlaying {
     // Access the reactive variable to register dependency if inside Obx/GetX context
-    return _isPlayingRx.value; 
+    return _isPlayingRx.value;
   }
-  
-  RxBool get isPlayingRx => _isPlayingRx; // Expose the RxBool directly if needed
+
+  RxBool get isPlayingRx =>
+      _isPlayingRx; // Expose the RxBool directly if needed
 
   @override
   Duration get position => _player.position;
@@ -643,7 +650,7 @@ Future<void> playNext() async {
   int get playlistLength => _playlist.length;
   bool get canGoNext =>
       hasPlaylist && _currentPlaylistIndex < _playlist.length - 1;
-bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
+  bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
   RxInt get playlistChangeNotifier => _playlistChangeNotifier;
 
   // Additional getters for state tracking
@@ -1046,7 +1053,7 @@ bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
               print('AudioService: Attempting to regenerate public URL...');
             }
             try {
-        final driveService = Get.find<GoogleDriveService>();
+              final driveService = Get.find<GoogleDriveService>();
               final newUrl =
                   await driveService.getPublicLink(recording.driveFileId!);
               if (newUrl != null) {

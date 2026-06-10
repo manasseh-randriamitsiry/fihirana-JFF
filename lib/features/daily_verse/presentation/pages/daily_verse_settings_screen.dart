@@ -174,15 +174,18 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: controller.isEnabled.value
-                                ? colorController.primaryColor.value.withValues(alpha: 0.15)
-                                : colorController.iconColor.value.withValues(alpha: 0.1),
+                                ? colorController.primaryColor.value
+                                    .withValues(alpha: 0.15)
+                                : colorController.iconColor.value
+                                    .withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
                             Icons.access_time,
                             color: controller.isEnabled.value
                                 ? colorController.primaryColor.value
-                                : colorController.iconColor.value.withValues(alpha: 0.5),
+                                : colorController.iconColor.value
+                                    .withValues(alpha: 0.5),
                             size: 24,
                           ),
                         ),
@@ -200,9 +203,11 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                controller.notificationTime.value.format(context),
+                                controller.notificationTime.value
+                                    .format(context),
                                 style: TextStyle(
-                                  color: colorController.textColor.value.withValues(alpha: 0.6),
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.6),
                                   fontSize: 14,
                                 ),
                               ),

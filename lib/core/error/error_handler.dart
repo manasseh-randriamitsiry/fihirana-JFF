@@ -19,7 +19,7 @@ class ErrorHandler {
       _logError(error, message);
     }
 
-if (showSnackbar) {
+    if (showSnackbar) {
       _showErrorSnackbar(error, message ?? title, null);
     }
   }
@@ -40,7 +40,8 @@ if (showSnackbar) {
     }
 
     if (showDialog && context.mounted) {
-      _showErrorDialog(context, error, title: title, message: message, onRetry: onRetry);
+      _showErrorDialog(context, error,
+          title: title, message: message, onRetry: onRetry);
     } else if (showSnackbar) {
       _showErrorSnackbar(error, message ?? title, context);
     }
@@ -70,9 +71,11 @@ if (showSnackbar) {
   }
 
   /// Show error snackbar
-  static void _showErrorSnackbar(dynamic error, String? message, BuildContext? context) {
+  static void _showErrorSnackbar(
+      dynamic error, String? message, BuildContext? context) {
     final errorMessage = _getErrorMessage(error, message);
-    final title = context != null ? AppLocalizations.of(context).error : 'Error';
+    final title =
+        context != null ? AppLocalizations.of(context).error : 'Error';
     Get.snackbar(
       title,
       errorMessage,
@@ -101,21 +104,21 @@ if (showSnackbar) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-         title: Text(title ?? l10n.error),
+        title: Text(title ?? l10n.error),
         content: Text(errorMessage),
         actions: [
           if (onRetry != null)
-             TextButton(
-               onPressed: () {
-                 Navigator.of(context).pop();
-                 onRetry();
-               },
-               child: Text(l10n.retry),
-             ),
-           TextButton(
-             onPressed: () => Navigator.of(context).pop(),
-             child: Text(l10n.ok),
-           ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                onRetry();
+              },
+              child: Text(l10n.retry),
+            ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.ok),
+          ),
         ],
       ),
     );
@@ -128,7 +131,8 @@ if (showSnackbar) {
     if (error is String) return error;
 
     // Handle common error types
-    if (error.toString().contains('network') || error.toString().contains('connection')) {
+    if (error.toString().contains('network') ||
+        error.toString().contains('connection')) {
       return 'Network connection error. Please check your internet connection.';
     }
 
@@ -136,11 +140,13 @@ if (showSnackbar) {
       return 'Request timed out. Please try again.';
     }
 
-    if (error.toString().contains('permission') || error.toString().contains('denied')) {
+    if (error.toString().contains('permission') ||
+        error.toString().contains('denied')) {
       return 'Permission denied. Please check app permissions.';
     }
 
-    if (error.toString().contains('not found') || error.toString().contains('404')) {
+    if (error.toString().contains('not found') ||
+        error.toString().contains('404')) {
       return 'Resource not found. Please try again later.';
     }
 

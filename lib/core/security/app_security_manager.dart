@@ -24,7 +24,8 @@ class AppSecurityManager {
   /// Check if user is blocked and return appropriate widget
   Widget? getSecurityWrapper(Widget child) {
     // If user is blocked, show banned page instead of normal app
-    if (_getSecurityService.isSecurityChecked && _getSecurityService.isUserBlocked) {
+    if (_getSecurityService.isSecurityChecked &&
+        _getSecurityService.isUserBlocked) {
       return Obx(() {
         final currentLocale = _getLanguageController.currentLocale.value;
         // Include refresh counter to force rebuild when language changes
@@ -39,10 +40,10 @@ class AppSecurityManager {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-           localeResolutionCallback: (locale, supportedLocales) {
-             return _getLanguageController.currentLocale.value;
-           },
-           supportedLocales: _getLanguageController.supportedLocales,
+          localeResolutionCallback: (locale, supportedLocales) {
+            return _getLanguageController.currentLocale.value;
+          },
+          supportedLocales: _getLanguageController.supportedLocales,
           themeMode: ThemeMode.system,
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
@@ -54,4 +55,3 @@ class AppSecurityManager {
     return null; // No security wrapper needed
   }
 }
-

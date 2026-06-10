@@ -49,7 +49,6 @@ class AuthRepositoryImpl implements AuthRepository {
       // Check if email is banned before proceeding
       final emailBanned = await isEmailBanned(googleUser.email);
       if (emailBanned) {
-
         if (kDebugMode) {
           print('AuthRepository: Banned email detected: ${googleUser.email}');
         }
@@ -58,18 +57,22 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       try {
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-        final firebase_auth.OAuthCredential credential = firebase_auth.GoogleAuthProvider.credential(
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
+        final firebase_auth.OAuthCredential credential =
+            firebase_auth.GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
         );
 
-        final firebase_auth.UserCredential userCredential = await firebase_auth.FirebaseAuth.instance.signInWithCredential(credential);
+        final firebase_auth.UserCredential userCredential = await firebase_auth
+            .FirebaseAuth.instance
+            .signInWithCredential(credential);
 
         if (userCredential.user != null) {
           final user = _mapFirebaseUserToEntity(userCredential.user!);
           await createOrUpdateUserDocument(user);
-          
+
           // Auto sign in to Google Drive
           try {
             final account = await _driveService.signIn();
@@ -80,10 +83,11 @@ class AuthRepositoryImpl implements AuthRepository {
             }
           } catch (driveError) {
             if (kDebugMode) {
-              print('AuthRepository: Could not auto sign-in to Google Drive: $driveError');
+              print(
+                  'AuthRepository: Could not auto sign-in to Google Drive: $driveError');
             }
           }
-          
+
           return user;
         }
       } catch (e) {
@@ -96,14 +100,15 @@ class AuthRepositoryImpl implements AuthRepository {
       final errorMessage = e.toString();
       // Check for the specific PigeonUserDetails cast error which is a known issue in the plugin
       // and should not be displayed to the user as it might be a silent failure or regression
-      final isPigeonError = errorMessage.contains("subtype of type 'PigeonUserDetails?'");
-      
+      final isPigeonError =
+          errorMessage.contains("subtype of type 'PigeonUserDetails?'");
+
       if (kDebugMode || isPigeonError) {
         if (kDebugMode) {
           print('AuthRepository: Google sign-in error: $e');
         }
       }
-      
+
       // Only show snackbar if it's NOT the ignored error
       if (!isPigeonError) {
         SnackbarUtility.showError(
@@ -116,8 +121,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User?> signUpWithEmailAndPassword(String email, String password) async {
-    final firebaseUser = await _authService.signUpWithEmailAndPassword(email, password);
+  Future<User?> signUpWithEmailAndPassword(
+      String email, String password) async {
+    final firebaseUser =
+        await _authService.signUpWithEmailAndPassword(email, password);
     if (firebaseUser != null) {
       final user = _mapFirebaseUserToEntity(firebaseUser);
       await createOrUpdateUserDocument(user);
@@ -127,8 +134,10 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User?> signInWithEmailAndPassword(String email, String password) async {
-    final firebaseUser = await _authService.signInWithEmailAndPassword(email, password);
+  Future<User?> signInWithEmailAndPassword(
+      String email, String password) async {
+    final firebaseUser =
+        await _authService.signInWithEmailAndPassword(email, password);
     if (firebaseUser != null) {
       final user = _mapFirebaseUserToEntity(firebaseUser);
       await createOrUpdateUserDocument(user);
@@ -142,7 +151,8 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _googleSignIn.signOut();
       await firebase_auth.FirebaseAuth.instance.signOut();
-      await firebase_auth.FirebaseAuth.instance.setPersistence(firebase_auth.Persistence.NONE);
+      await firebase_auth.FirebaseAuth.instance
+          .setPersistence(firebase_auth.Persistence.NONE);
     } catch (e) {
       SnackbarUtility.showError(
         title: 'Error signing out',
@@ -191,7 +201,8 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<User?> getCurrentUser() async {
     final firebaseUser = firebase_auth.FirebaseAuth.instance.currentUser;
     if (firebaseUser != null) {
-      final userDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+      final userDoc =
+          await _firestore.collection('users').doc(firebaseUser.uid).get();
       if (userDoc.exists) {
         return User.fromFirebaseUser(userDoc.data()!, firebaseUser.uid);
       }
@@ -201,9 +212,12 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<User?> get authStateChanges {
-    return firebase_auth.FirebaseAuth.instance.authStateChanges().asyncMap((firebaseUser) async {
+    return firebase_auth.FirebaseAuth.instance
+        .authStateChanges()
+        .asyncMap((firebaseUser) async {
       if (firebaseUser != null) {
-        final userDoc = await _firestore.collection('users').doc(firebaseUser.uid).get();
+        final userDoc =
+            await _firestore.collection('users').doc(firebaseUser.uid).get();
         if (userDoc.exists) {
           return User.fromFirebaseUser(userDoc.data()!, firebaseUser.uid);
         }

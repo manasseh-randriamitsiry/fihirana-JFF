@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class GoogleSignInButtonWidget extends StatelessWidget {
   final bool isLoading;
   final String text;

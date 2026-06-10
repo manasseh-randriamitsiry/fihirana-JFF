@@ -38,7 +38,8 @@ class BibleSearchResults extends StatelessWidget {
     );
   }
 
-  Widget _buildLoadingWidget(BuildContext context, ColorController colorController) {
+  Widget _buildLoadingWidget(
+      BuildContext context, ColorController colorController) {
     final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
@@ -62,7 +63,8 @@ class BibleSearchResults extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptySearchWidget(BuildContext context, ColorController colorController) {
+  Widget _buildEmptySearchWidget(
+      BuildContext context, ColorController colorController) {
     final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
@@ -87,7 +89,8 @@ class BibleSearchResults extends StatelessWidget {
     );
   }
 
-  Widget _buildNoResultsWidget(BuildContext context, ColorController colorController) {
+  Widget _buildNoResultsWidget(
+      BuildContext context, ColorController colorController) {
     final l10n = AppLocalizations.of(context);
     return Center(
       child: Column(
@@ -121,7 +124,8 @@ class BibleSearchResults extends StatelessWidget {
     );
   }
 
-  Widget _buildResultsList(BuildContext context, BibleController bibleController) {
+  Widget _buildResultsList(
+      BuildContext context, BibleController bibleController) {
     return ListView.builder(
       key: const PageStorageKey('bible_search_results_list'),
       padding: EdgeInsets.zero,

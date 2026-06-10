@@ -17,20 +17,25 @@ class FirebaseHymnService {
   Stream<List<Hymn>> getFirebaseHymnsStream() {
     try {
       return firestore.collection('hymns').snapshots().map((snapshot) {
-        final hymns = snapshot.docs.map((doc) {
-          try {
-            final data = doc.data();
-            return Hymn.fromJson(data, doc.id);
-          } catch (e) {
-            if (kDebugMode) {
-              print('Error parsing hymn ${doc.id}: $e');
-            }
-            return null;
-          }
-        }).where((hymn) => hymn != null).cast<Hymn>().toList();
-        
+        final hymns = snapshot.docs
+            .map((doc) {
+              try {
+                final data = doc.data();
+                return Hymn.fromJson(data, doc.id);
+              } catch (e) {
+                if (kDebugMode) {
+                  print('Error parsing hymn ${doc.id}: $e');
+                }
+                return null;
+              }
+            })
+            .where((hymn) => hymn != null)
+            .cast<Hymn>()
+            .toList();
+
         if (kDebugMode) {
-          print('🎵 FirebaseHymnService: Loaded ${hymns.length} hymns from Firebase');
+          print(
+              '🎵 FirebaseHymnService: Loaded ${hymns.length} hymns from Firebase');
         }
         return hymns;
       });
@@ -46,14 +51,14 @@ class FirebaseHymnService {
   Future<Hymn?> getHymnByIdFromFirebase(String hymnId) async {
     try {
       final doc = await firestore.collection('hymns').doc(hymnId).get();
-      
+
       if (!doc.exists) {
         if (kDebugMode) {
           print('⚠️ Hymn $hymnId not found in Firebase');
         }
         return null;
       }
-      
+
       final data = doc.data();
       if (data == null) {
         if (kDebugMode) {
@@ -61,7 +66,7 @@ class FirebaseHymnService {
         }
         return null;
       }
-      
+
       return Hymn.fromJson(data, doc.id);
     } catch (e) {
       if (kDebugMode) {
@@ -84,7 +89,7 @@ class FirebaseHymnService {
 
       // Generate a unique ID for the hymn
       final docRef = firestore.collection('hymns').doc();
-      
+
       // Create hymn with user metadata
       final hymnWithMetadata = Hymn(
         id: docRef.id,
@@ -100,14 +105,14 @@ class FirebaseHymnService {
 
       // Save to Firestore
       await docRef.set(hymnWithMetadata.toMap());
-      
+
       if (kDebugMode) {
         print('✅ Successfully added hymn ${hymn.hymnNumber}: ${hymn.title}');
       }
-      
+
       // Update user's hymn count for monthly tracking
       await _updateUserHymnCount(user.uid);
-      
+
       return true;
     } catch (e) {
       if (kDebugMode) {
@@ -140,19 +145,19 @@ class FirebaseHymnService {
       // Preserve original creation metadata
       final existingData = doc.data() ?? {};
       final updatedHymn = hymn.toMap();
-      
+
       // Keep original creation info
       updatedHymn['createdAt'] = existingData['createdAt'];
       updatedHymn['createdBy'] = existingData['createdBy'];
       updatedHymn['createdByEmail'] = existingData['createdByEmail'];
-      
+
       // Add update metadata
       updatedHymn['updatedAt'] = Timestamp.fromDate(DateTime.now());
       updatedHymn['updatedBy'] = user.displayName ?? 'Unknown';
       updatedHymn['updatedByEmail'] = user.email ?? '';
 
       await firestore.collection('hymns').doc(hymnId).update(updatedHymn);
-      
+
       if (kDebugMode) {
         print('✅ Successfully updated hymn $hymnId: ${hymn.title}');
       }
@@ -186,20 +191,21 @@ class FirebaseHymnService {
 
       final data = doc.data();
       final createdByEmail = data?['createdByEmail'] as String?;
-      
+
       // Check if user is authorized (creator or admin)
       final isCreator = createdByEmail == user.email;
       final isAdmin = await _isUserAdmin(user.uid);
-      
+
       if (!isCreator && !isAdmin) {
         if (kDebugMode) {
-          print('❌ Permission denied: User ${user.email} cannot delete hymn $hymnId');
+          print(
+              '❌ Permission denied: User ${user.email} cannot delete hymn $hymnId');
         }
         throw Exception('You do not have permission to delete this hymn');
       }
 
       await firestore.collection('hymns').doc(hymnId).delete();
-      
+
       if (kDebugMode) {
         print('✅ Successfully deleted hymn $hymnId');
       }
@@ -216,21 +222,22 @@ class FirebaseHymnService {
     try {
       final userDoc = firestore.collection('users').doc(userId);
       final now = DateTime.now();
-      final currentMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
-      
+      final currentMonth =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}';
+
       await firestore.runTransaction((transaction) async {
         final snapshot = await transaction.get(userDoc);
-        
+
         if (snapshot.exists) {
           final data = snapshot.data() ?? {};
           final lastMonth = data['lastHymnMonth'] as String?;
           int count = (data['hymnsThisMonth'] as int?) ?? 0;
-          
+
           // Reset count if it's a new month
           if (lastMonth != currentMonth) {
             count = 0;
           }
-          
+
           transaction.update(userDoc, {
             'hymnsThisMonth': count + 1,
             'lastHymnMonth': currentMonth,
@@ -250,7 +257,7 @@ class FirebaseHymnService {
     try {
       final userDoc = await firestore.collection('users').doc(userId).get();
       if (!userDoc.exists) return false;
-      
+
       final data = userDoc.data();
       return (data?['isAdmin'] == true) || (data?['isSuperAdmin'] == true);
     } catch (e) {

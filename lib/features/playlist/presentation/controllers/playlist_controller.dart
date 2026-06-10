@@ -20,8 +20,8 @@ class PlaylistController extends GetxController {
   PlaylistController({
     required PlaylistService playlistService,
     FirebaseAuth? auth,
-  }) : _playlistService = playlistService,
-       _auth = auth ?? FirebaseAuth.instance {
+  })  : _playlistService = playlistService,
+        _auth = auth ?? FirebaseAuth.instance {
     // Initialize sub-controllers
     dataController = Get.put(PlaylistDataController(
       playlistService: _playlistService,
@@ -113,7 +113,8 @@ class PlaylistController extends GetxController {
 
   Future<void> exportPlaylist(String playlistId) async {
     try {
-      final jsonContent = await shareController.exportPlaylistToJson(playlistId);
+      final jsonContent =
+          await shareController.exportPlaylistToJson(playlistId);
       await SharePlus.instance.share(
         ShareParams(text: jsonContent, subject: 'playlistExported'.tr),
       );

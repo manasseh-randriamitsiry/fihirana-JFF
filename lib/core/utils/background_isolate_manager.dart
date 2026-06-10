@@ -37,7 +37,8 @@ class IsolateTaskResult<T> {
 /// Background isolate manager for heavy operations
 /// This moves CPU-intensive tasks off the main thread
 class BackgroundIsolateManager {
-  static final BackgroundIsolateManager _instance = BackgroundIsolateManager._internal();
+  static final BackgroundIsolateManager _instance =
+      BackgroundIsolateManager._internal();
   factory BackgroundIsolateManager() => _instance;
   BackgroundIsolateManager._internal();
 
@@ -79,17 +80,19 @@ class BackgroundIsolateManager {
     _processQueue();
 
     final result = await completer.future;
-    
+
     if (result.error != null) {
       throw Exception(result.error);
     }
-    
+
     return result.result as T;
   }
 
   /// Process the task queue
   Future<void> _processQueue() async {
-    if (_isProcessing || _taskQueue.isEmpty || _isolates.length >= _maxConcurrentIsolates) {
+    if (_isProcessing ||
+        _taskQueue.isEmpty ||
+        _isolates.length >= _maxConcurrentIsolates) {
       return;
     }
 
@@ -106,7 +109,7 @@ class BackgroundIsolateManager {
   /// Execute a single task in an isolate
   Future<void> _executeTaskInIsolate<T>(IsolateTask<T> task) async {
     final stopwatch = Stopwatch()..start();
-    
+
     try {
       if (kDebugMode) {
         print('Executing task ${task.id} in isolate: ${task.description}');
@@ -115,9 +118,9 @@ class BackgroundIsolateManager {
       // For now, execute in the same isolate with a Future
       // In a full implementation, you would create actual isolates
       final result = await task.task();
-      
+
       stopwatch.stop();
-      
+
       final taskResult = IsolateTaskResult<T>(
         taskId: task.id,
         result: result,
@@ -127,11 +130,12 @@ class BackgroundIsolateManager {
       _completeTask(task.id, taskResult);
 
       if (kDebugMode) {
-        print('Task ${task.id} completed in ${stopwatch.elapsedMilliseconds}ms');
+        print(
+            'Task ${task.id} completed in ${stopwatch.elapsedMilliseconds}ms');
       }
     } catch (e) {
       stopwatch.stop();
-      
+
       final taskResult = IsolateTaskResult<T>(
         taskId: task.id,
         error: e.toString(),
@@ -160,11 +164,13 @@ class BackgroundIsolateManager {
     if (taskIndex != -1) {
       final task = _taskQueue.removeAt(taskIndex);
       if (task.isCancellable) {
-        _completeTask(taskId, IsolateTaskResult(
-          taskId: taskId,
-          error: 'Task cancelled',
-          executionTime: Duration.zero,
-        ));
+        _completeTask(
+            taskId,
+            IsolateTaskResult(
+              taskId: taskId,
+              error: 'Task cancelled',
+              executionTime: Duration.zero,
+            ));
         return true;
       }
     }
@@ -189,11 +195,13 @@ class BackgroundIsolateManager {
   /// Clear all pending tasks
   void clearPendingTasks() {
     for (final task in _taskQueue) {
-      _completeTask(task.id, IsolateTaskResult(
-        taskId: task.id,
-        error: 'Task cleared',
-        executionTime: Duration.zero,
-      ));
+      _completeTask(
+          task.id,
+          IsolateTaskResult(
+            taskId: task.id,
+            error: 'Task cleared',
+            executionTime: Duration.zero,
+          ));
     }
     _taskQueue.clear();
   }
@@ -201,14 +209,14 @@ class BackgroundIsolateManager {
   /// Shutdown the isolate manager
   Future<void> shutdown() async {
     clearPendingTasks();
-    
+
     // Close all isolates
     for (final entry in _isolates.entries) {
       entry.value.send({'command': 'shutdown'});
     }
-    
+
     _isolates.clear();
-    
+
     if (kDebugMode) {
       print('BackgroundIsolateManager shutdown complete');
     }

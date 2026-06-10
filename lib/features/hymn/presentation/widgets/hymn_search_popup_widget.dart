@@ -98,20 +98,19 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // Use dynamic colors or fallback to controller values if needed
     final surfaceColor = widget.colorController.backgroundColor.value;
     final onSurfaceColor = widget.colorController.textColor.value;
-    
+
     // M3 Search Bar Colors
-    // We want a "soft elevated container". 
+    // We want a "soft elevated container".
     // Using Surface Container High (or similar) from M3.
     // If not available, mix primary with surface.
     final searchBarColor = Color.alphaBlend(
       theme.colorScheme.primary.withValues(alpha: 0.08),
       surfaceColor,
     );
-
 
     return Dialog(
       backgroundColor: surfaceColor,
@@ -133,10 +132,12 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
               duration: const Duration(milliseconds: 200),
               curve: Curves.easeInOut,
               decoration: BoxDecoration(
-                color: _isFocused 
-                    ? searchBarColor 
-                    : searchBarColor.withValues(alpha: 0.8), // Slightly transparent when unfocused
-                borderRadius: BorderRadius.circular(28), // Fully rounded pill shape
+                color: _isFocused
+                    ? searchBarColor
+                    : searchBarColor.withValues(
+                        alpha: 0.8), // Slightly transparent when unfocused
+                borderRadius:
+                    BorderRadius.circular(28), // Fully rounded pill shape
                 boxShadow: _isFocused
                     ? [
                         BoxShadow(
@@ -166,7 +167,8 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                         ),
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 12),
                       ),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: onSurfaceColor,
@@ -185,7 +187,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                         decoration: BoxDecoration(
+                        decoration: BoxDecoration(
                           color: onSurfaceColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
@@ -199,19 +201,23 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // --- List Results ---
             Expanded(
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
+                  ? Center(
+                      child:
+                          CircularProgressIndicator(color: colorScheme.primary))
                   : _hymns.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.search_off_rounded, size: 48, color: onSurfaceColor.withValues(alpha: 0.2)),
+                              Icon(Icons.search_off_rounded,
+                                  size: 48,
+                                  color: onSurfaceColor.withValues(alpha: 0.2)),
                               const SizedBox(height: 16),
                               Text(
                                 l10n.noHymnsFound,
@@ -223,7 +229,8 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                           ),
                         )
                       : ClipRRect(
-                          borderRadius: BorderRadius.circular(16), // Rounded list corners
+                          borderRadius:
+                              BorderRadius.circular(16), // Rounded list corners
                           child: ListView.builder(
                             key: const PageStorageKey('hymn_search_list'),
                             itemCount: _hymns.length,
@@ -235,14 +242,18 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                                 child: InkWell(
                                   onTap: () => widget.onHymnSelected(hymn),
                                   borderRadius: BorderRadius.circular(12),
-                                  splashColor: colorScheme.primary.withValues(alpha: 0.1),
-                                  highlightColor: colorScheme.primary.withValues(alpha: 0.05),
+                                  splashColor: colorScheme.primary
+                                      .withValues(alpha: 0.1),
+                                  highlightColor: colorScheme.primary
+                                      .withValues(alpha: 0.05),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 12, horizontal: 16),
                                     decoration: BoxDecoration(
                                       border: Border(
                                         bottom: BorderSide(
-                                          color: onSurfaceColor.withValues(alpha: 0.05),
+                                          color: onSurfaceColor.withValues(
+                                              alpha: 0.05),
                                           width: 1,
                                         ),
                                       ),
@@ -254,13 +265,17 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                                           height: 40,
                                           alignment: Alignment.center,
                                           decoration: BoxDecoration(
-                                            color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                                            color: colorScheme
+                                                .secondaryContainer
+                                                .withValues(alpha: 0.3),
                                             shape: BoxShape.circle,
                                           ),
                                           child: Text(
                                             hymn.hymnNumber,
-                                            style: theme.textTheme.labelLarge?.copyWith(
-                                              color: colorScheme.onSecondaryContainer,
+                                            style: theme.textTheme.labelLarge
+                                                ?.copyWith(
+                                              color: colorScheme
+                                                  .onSecondaryContainer,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -268,11 +283,13 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 hymn.title,
-                                                style: theme.textTheme.bodyLarge?.copyWith(
+                                                style: theme.textTheme.bodyLarge
+                                                    ?.copyWith(
                                                   color: onSurfaceColor,
                                                   fontWeight: FontWeight.w500,
                                                 ),
@@ -287,7 +304,8 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                                         Icon(
                                           Icons.chevron_right_rounded,
                                           size: 20,
-                                          color: onSurfaceColor.withValues(alpha: 0.3),
+                                          color: onSurfaceColor.withValues(
+                                              alpha: 0.3),
                                         ),
                                       ],
                                     ),

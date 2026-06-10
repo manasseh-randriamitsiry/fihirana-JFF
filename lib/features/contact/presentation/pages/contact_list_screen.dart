@@ -130,19 +130,19 @@ class _ContactListScreenState extends State<ContactListScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(AppDimensions.md),
-              child: ContactSearchWidget(
-                controller: _searchController,
-                onChanged: (value) {
-                  _searchDebounce?.cancel();
-                  _searchDebounce = Timer(const Duration(milliseconds: 250), () {
-                    if (!mounted) return;
-                    setState(() {
-                      _searchQuery = value.toLowerCase();
-                    });
+            child: ContactSearchWidget(
+              controller: _searchController,
+              onChanged: (value) {
+                _searchDebounce?.cancel();
+                _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+                  if (!mounted) return;
+                  setState(() {
+                    _searchQuery = value.toLowerCase();
                   });
-                },
-                hintText: l10n.searchContacts,
-              ),
+                });
+              },
+              hintText: l10n.searchContacts,
+            ),
           ),
           Expanded(
             child: StreamBuilder<List<Contact>>(

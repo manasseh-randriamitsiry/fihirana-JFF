@@ -37,7 +37,8 @@ class BibleChapterModel extends BibleChapter {
     required super.verses,
   });
 
-  factory BibleChapterModel.fromJson(Map<String, dynamic> json, int chapterNumber) {
+  factory BibleChapterModel.fromJson(
+      Map<String, dynamic> json, int chapterNumber) {
     return BibleChapterModel(
       number: chapterNumber,
       verses: {},

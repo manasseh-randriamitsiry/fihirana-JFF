@@ -15,7 +15,7 @@ class FontController extends GetxController {
     // Primary fonts (heavily used)
     'Roboto': 'Roboto',
     'Lato': 'Lato',
-    
+
     // Secondary fonts (clean & modern)
     'Poppins': 'Poppins',
     'Open Sans': 'OpenSans',

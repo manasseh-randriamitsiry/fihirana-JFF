@@ -25,7 +25,6 @@ class BibleReaderScreen extends StatefulWidget {
 class _BibleReaderScreenState extends State<BibleReaderScreen> {
   late final BibleController bibleController;
 
-
   final ColorController colorController = Get.find<ColorController>();
   final FontController fontController = Get.find<FontController>();
 
@@ -92,50 +91,53 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: Obx(() => IconButton(
-          icon: Icon(
-            bibleController.selectedBook.isEmpty
-                ? Icons.menu_rounded
-                : Icons.arrow_back_ios_new_rounded,
-            color: colorController.iconColor.value,
-          ),
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            if (bibleController.selectedChapter > 0) {
-              bibleController
-                  .selectChapter(0); // Go back to chapter selection
-            } else if (bibleController.selectedBook.isNotEmpty) {
-              bibleController.selectBook(''); // Go back to book selection
-            } else {
-              Get.find<ShellController>().toggleDrawer();
-            }
-          },
-        )),
+              icon: Icon(
+                bibleController.selectedBook.isEmpty
+                    ? Icons.menu_rounded
+                    : Icons.arrow_back_ios_new_rounded,
+                color: colorController.iconColor.value,
+              ),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                if (bibleController.selectedChapter > 0) {
+                  bibleController
+                      .selectChapter(0); // Go back to chapter selection
+                } else if (bibleController.selectedBook.isNotEmpty) {
+                  bibleController.selectBook(''); // Go back to book selection
+                } else {
+                  Get.find<ShellController>().toggleDrawer();
+                }
+              },
+            )),
         title: Obx(() => Text(
-          _getAppBarTitle(context),
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            color: colorController.textColor.value,
-            fontWeight: FontWeight.w600,
-            fontSize: 18,
-          ),
-        )),
+              _getAppBarTitle(context),
+              style: TextStyle(
+                fontFamily: 'Roboto',
+                color: colorController.textColor.value,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            )),
         actions: [
           IconButton(
-            icon: Icon(Icons.bookmark_rounded, color: colorController.iconColor.value),
+            icon: Icon(Icons.bookmark_rounded,
+                color: colorController.iconColor.value),
             onPressed: () {
               HapticFeedback.lightImpact();
               _showHighlightsPage(context);
             },
           ),
           IconButton(
-            icon: Icon(Icons.search_rounded, color: colorController.iconColor.value),
+            icon: Icon(Icons.search_rounded,
+                color: colorController.iconColor.value),
             onPressed: () {
               HapticFeedback.lightImpact();
               _showSearchDialog(context);
             },
           ),
           IconButton(
-            icon: Icon(Icons.text_format_rounded, color: colorController.iconColor.value),
+            icon: Icon(Icons.text_format_rounded,
+                color: colorController.iconColor.value),
             onPressed: () {
               HapticFeedback.lightImpact();
               _showSettingsBottomSheet(context);
@@ -246,9 +248,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           children: [
             Expanded(
               child: Obx(() {
-                final highlightedVerse =
-                    bibleController.highlightedVerse.value;
-                
+                final highlightedVerse = bibleController.highlightedVerse.value;
+
                 return ListView.builder(
                   key: const PageStorageKey('bible_verses_list'),
                   controller: _verseScrollController,
@@ -278,11 +279,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                           bibleController.isVerseHighlighted(verseNumber),
                       isSearchHighlighted:
                           bibleController.isVerseSearchHighlighted(verseNumber),
-                       onTap: () {
-                         // Clear the highlighted verse when user interacts
-                         bibleController.highlightedVerse.value = 0;
-                         bibleController.toggleVerseSelection(verseNumber);
-                       },
+                      onTap: () {
+                        // Clear the highlighted verse when user interacts
+                        bibleController.highlightedVerse.value = 0;
+                        bibleController.toggleVerseSelection(verseNumber);
+                      },
                     );
                   },
                 );
@@ -395,8 +396,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   void _navigateChapter(int direction) {
     final currentChapter = bibleController.selectedChapter;
     final newChapter = currentChapter + direction;
-    final maxChapters = bibleController
-        .getChapterCountForBook(bibleController.selectedBook);
+    final maxChapters =
+        bibleController.getChapterCountForBook(bibleController.selectedBook);
 
     if (newChapter >= 1 && newChapter <= maxChapters) {
       // Clear highlighted verse when navigating to different chapter

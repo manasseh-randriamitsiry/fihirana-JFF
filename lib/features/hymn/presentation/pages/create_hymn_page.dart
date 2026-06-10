@@ -429,7 +429,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
                   // Add Verse Button
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppDimensions.sm),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppDimensions.sm),
                     child: OutlinedButton.icon(
                       onPressed: () {
                         setState(() {
@@ -480,7 +481,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   // Audio availability indicator
                   if (_audioChecked)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppDimensions.md),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: AppDimensions.md),
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(

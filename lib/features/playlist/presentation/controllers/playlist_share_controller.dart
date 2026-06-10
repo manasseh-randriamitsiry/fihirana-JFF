@@ -47,7 +47,7 @@ class PlaylistShareController extends GetxController {
       isSharing.value = true;
       final Map<String, dynamic> jsonMap = json.decode(jsonContent);
       final playlist = Playlist.fromJson(jsonMap);
-      
+
       // Create new playlist with "(Imported)" suffix
       await _playlistService.createPlaylist(
         '${playlist.title} (Imported)',
@@ -66,7 +66,7 @@ class PlaylistShareController extends GetxController {
       // Extract playlist ID from shared link
       final uri = Uri.parse(sharedLink);
       final playlistId = uri.queryParameters['id'];
-      
+
       if (playlistId != null) {
         final playlist = await _playlistService.getPlaylistById(playlistId);
         if (playlist != null) {

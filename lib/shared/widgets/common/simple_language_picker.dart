@@ -55,7 +55,8 @@ class SimpleLanguagePicker extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -90,21 +91,26 @@ class SimpleLanguagePicker extends StatelessWidget {
                   key: const PageStorageKey('language_picker_list'),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   children: languageController.supportedLocales.map((locale) {
-                    final isSelected = languageController.isCurrentLocale(locale);
-                    final languageName = languageController.getLanguageName(locale);
-                    final languageFlag = languageController.getLanguageFlag(locale);
+                    final isSelected =
+                        languageController.isCurrentLocale(locale);
+                    final languageName =
+                        languageController.getLanguageName(locale);
+                    final languageFlag =
+                        languageController.getLanguageFlag(locale);
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? colorController.primaryColor.value.withValues(alpha: 0.1)
+                            ? colorController.primaryColor.value
+                                .withValues(alpha: 0.1)
                             : colorController.backgroundColor.value,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isSelected
                               ? colorController.primaryColor.value
-                              : colorController.textColor.value.withValues(alpha: 0.1),
+                              : colorController.textColor.value
+                                  .withValues(alpha: 0.1),
                           width: isSelected ? 2 : 1,
                         ),
                       ),
@@ -112,7 +118,8 @@ class SimpleLanguagePicker extends StatelessWidget {
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
-                          onTap: () => languageController.changeLanguage(locale),
+                          onTap: () =>
+                              languageController.changeLanguage(locale),
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Row(
@@ -127,7 +134,9 @@ class SimpleLanguagePicker extends StatelessWidget {
                                     languageName,
                                     style: TextStyle(
                                       fontSize: 16,
-                                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w500,
                                       color: isSelected
                                           ? colorController.primaryColor.value
                                           : colorController.textColor.value,

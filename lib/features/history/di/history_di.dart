@@ -19,7 +19,8 @@ class HistoryDI {
   static void initialize() {
     // Services
     Get.lazyPut<SharedPreferences>(
-      () => throw UnimplementedError('SharedPreferences should be initialized globally'),
+      () => throw UnimplementedError(
+          'SharedPreferences should be initialized globally'),
     );
     Get.lazyPut<FirebaseAuth>(
       () => FirebaseAuth.instance,
@@ -68,7 +69,8 @@ class HistoryDI {
       () => HistoryController(
         loadUserHistoryUseCase: Get.find<LoadUserHistoryUseCase>(),
         addToHistoryUseCase: Get.find<AddToHistoryUseCase>(),
-        deleteSelectedHistoryItemsUseCase: Get.find<DeleteSelectedHistoryItemsUseCase>(),
+        deleteSelectedHistoryItemsUseCase:
+            Get.find<DeleteSelectedHistoryItemsUseCase>(),
         clearHistoryUseCase: Get.find<ClearHistoryUseCase>(),
       ),
       tag: _historyControllerTag,

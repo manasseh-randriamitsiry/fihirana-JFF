@@ -98,21 +98,26 @@ class RecordingDriveSyncManager extends GetxController {
       // Validate and cleanup orphaned public recordings every 5 minutes (every 10 ticks of 30-second timer)
       if (timer.tick % 10 == 0 && !_stateManager.isLoading.value) {
         if (kDebugMode) {
-          print('RecordingDriveSyncManager: Checking for orphaned recordings cleanup (tick: ${timer.tick})');
+          print(
+              'RecordingDriveSyncManager: Checking for orphaned recordings cleanup (tick: ${timer.tick})');
         }
 
         try {
-          final cleanedUpCount = await _recordingService.validateAndCleanupOrphanedPublicRecordings();
+          final cleanedUpCount = await _recordingService
+              .validateAndCleanupOrphanedPublicRecordings();
           if (kDebugMode) {
             if (cleanedUpCount > 0) {
-              print('RecordingDriveSyncManager: Cleaned up $cleanedUpCount orphaned public recordings');
+              print(
+                  'RecordingDriveSyncManager: Cleaned up $cleanedUpCount orphaned public recordings');
             } else {
-              print('RecordingDriveSyncManager: No orphaned recordings found to clean up');
+              print(
+                  'RecordingDriveSyncManager: No orphaned recordings found to clean up');
             }
           }
         } catch (e) {
           if (kDebugMode) {
-            print('RecordingDriveSyncManager: Error during orphaned recording cleanup: $e');
+            print(
+                'RecordingDriveSyncManager: Error during orphaned recording cleanup: $e');
           }
         }
       }
@@ -123,15 +128,18 @@ class RecordingDriveSyncManager extends GetxController {
   Future<int> cleanupOrphanedPublicRecordings() async {
     try {
       if (kDebugMode) {
-        print('RecordingDriveSyncManager: Manually cleaning up orphaned public recordings...');
+        print(
+            'RecordingDriveSyncManager: Manually cleaning up orphaned public recordings...');
       }
-      
-      final cleanedUpCount = await _recordingService.validateAndCleanupOrphanedPublicRecordings();
-      
+
+      final cleanedUpCount =
+          await _recordingService.validateAndCleanupOrphanedPublicRecordings();
+
       if (kDebugMode) {
-        print('RecordingDriveSyncManager: Manual cleanup completed. Cleaned up $cleanedUpCount orphaned recordings');
+        print(
+            'RecordingDriveSyncManager: Manual cleanup completed. Cleaned up $cleanedUpCount orphaned recordings');
       }
-      
+
       return cleanedUpCount;
     } catch (e) {
       if (kDebugMode) {

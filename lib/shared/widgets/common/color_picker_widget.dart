@@ -100,7 +100,8 @@ class ColorPickerWidget extends StatelessWidget {
                       pickerColor: currentColor,
                       onColorChanged: (color) {
                         // Validate the color change
-                        final validationError = ColorValidation.validateColorChange(
+                        final validationError =
+                            ColorValidation.validateColorChange(
                           colorType,
                           color,
                           colorController,
@@ -245,7 +246,8 @@ class ColorPickerWidget extends StatelessWidget {
                     pickerColor: controller.drawerColor.value,
                     onColorChanged: (color) {
                       // Validate the color change
-                      final validationError = ColorValidation.validateColorChange(
+                      final validationError =
+                          ColorValidation.validateColorChange(
                         'drawer',
                         color,
                         controller,
@@ -300,7 +302,8 @@ class ColorPickerWidget extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: AppDimensions.md),
+        padding: const EdgeInsets.symmetric(
+            vertical: 12.0, horizontal: AppDimensions.md),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -319,7 +322,8 @@ class ColorPickerWidget extends StatelessWidget {
                 color: color,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.3),
                   width: 2,
                 ),
                 boxShadow: [
@@ -362,15 +366,16 @@ class ColorPickerWidget extends StatelessWidget {
             itemCount: colorController.colorSchemes.length,
             itemBuilder: (context, index) {
               final scheme = colorController.colorSchemes[index];
-              final isSelected = colorController.currentSchemeIndex.value == index;
-
+              final isSelected =
+                  colorController.currentSchemeIndex.value == index;
 
               return GestureDetector(
                 key: ValueKey(index),
                 onTap: () async => await colorController.setColorScheme(index),
                 child: Container(
                   width: 110,
-                  margin: const EdgeInsets.symmetric(horizontal: AppDimensions.xs),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: AppDimensions.xs),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2A2A2E),
                     borderRadius: BorderRadius.circular(16),
@@ -406,8 +411,8 @@ class ColorPickerWidget extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color:
-                                  (scheme['primary'] as Color).withValues(alpha: 0.3),
+                              color: (scheme['primary'] as Color)
+                                  .withValues(alpha: 0.3),
                               blurRadius: 8,
                               offset: const Offset(0, 2),
                             ),
@@ -474,7 +479,8 @@ class ColorPickerWidget extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

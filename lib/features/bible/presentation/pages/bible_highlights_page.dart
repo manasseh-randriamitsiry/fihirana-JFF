@@ -6,7 +6,6 @@ import 'package:fihirana/features/bible/presentation/controllers/bible_controlle
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
-
 class BibleHighlightsPage extends StatefulWidget {
   const BibleHighlightsPage({super.key});
 
@@ -102,7 +101,8 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
     );
   }
 
-  Widget _buildHighlightsList(BuildContext context, List<BibleHighlight> highlights) {
+  Widget _buildHighlightsList(
+      BuildContext context, List<BibleHighlight> highlights) {
     // Group highlights by book
     final groupedHighlights = <String, List<BibleHighlight>>{};
     for (final highlight in highlights) {
@@ -134,8 +134,10 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                 ),
               ),
             ),
-            ...bookHighlights.map((highlight) => _buildHighlightItem(context, highlight)),
-            if (index < groupedHighlights.length - 1) const SizedBox(height: 16),
+            ...bookHighlights
+                .map((highlight) => _buildHighlightItem(context, highlight)),
+            if (index < groupedHighlights.length - 1)
+              const SizedBox(height: 16),
           ],
         );
       },
@@ -185,7 +187,8 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                   IconButton(
                     icon: Icon(
                       Icons.delete_outline_rounded,
-                      color: colorController.textColor.value.withValues(alpha: 0.5),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.5),
                       size: 20,
                     ),
                     onPressed: () => _showDeleteDialog(context, highlight),
@@ -201,7 +204,8 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                       'Loading...',
                       style: TextStyle(
                         fontFamily: 'Roboto',
-                        color: colorController.textColor.value.withValues(alpha: 0.7),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.7),
                         fontSize: 14,
                       ),
                     );
@@ -211,7 +215,8 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                     snapshot.data ?? 'Verse not found',
                     style: TextStyle(
                       fontFamily: 'Roboto',
-                      color: colorController.textColor.value.withValues(alpha: 0.8),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.8),
                       fontSize: 14,
                       height: 1.4,
                     ),

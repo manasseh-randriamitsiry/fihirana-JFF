@@ -99,8 +99,8 @@ class RecordingCard extends StatelessWidget {
               ),
               if (controller.isRecording.value)
                 IconButton(
-                  icon: Icon(Icons.close,
-                      color: colorController.textColor.value),
+                  icon:
+                      Icon(Icons.close, color: colorController.textColor.value),
                   onPressed: onClose,
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),

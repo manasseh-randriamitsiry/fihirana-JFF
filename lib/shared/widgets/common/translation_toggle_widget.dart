@@ -30,7 +30,9 @@ class TranslationToggleWidget extends StatelessWidget {
                         translationController.toggleAutoTranslate();
                         _showSnackBar(
                           context,
-                          value ? 'Auto-translate enabled' : 'Auto-translate disabled',
+                          value
+                              ? 'Auto-translate enabled'
+                              : 'Auto-translate disabled',
                         );
                       },
                     ),
@@ -40,8 +42,12 @@ class TranslationToggleWidget extends StatelessWidget {
                 Text(
                   'Automatically translate hymn content to your preferred language',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
-                  ),
+                        color: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.color
+                            ?.withValues(alpha: 0.7),
+                      ),
                 ),
                 if (translationController.isTranslating) ...[
                   const SizedBox(height: 12),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class UsernameInputWidget extends StatefulWidget {
   final TextEditingController controller;
   final String labelText;
@@ -121,7 +120,7 @@ class UsernameHelperTextWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final currentLength = controller.text.trim().length;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(

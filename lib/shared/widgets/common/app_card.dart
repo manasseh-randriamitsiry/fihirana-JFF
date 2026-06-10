@@ -44,12 +44,14 @@ class AppCard extends StatelessWidget {
       margin: margin ?? const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       color: backgroundColor ?? _getBackgroundColor(colorController),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
+        borderRadius:
+            BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
         side: _getBorder(colorController),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
+        borderRadius:
+            BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
         child: Padding(
           padding: padding ?? const EdgeInsets.all(AppDimensions.lg),
           child: child,
@@ -71,11 +73,13 @@ class AppCard extends StatelessWidget {
     switch (type) {
       case AppCardType.elevated:
         // Use primary color with low opacity to differentiate from background
-        return colorController?.primaryColor.value.withValues(alpha: 0.05) ?? Colors.grey.shade100;
+        return colorController?.primaryColor.value.withValues(alpha: 0.05) ??
+            Colors.grey.shade100;
       case AppCardType.outlined:
         return Colors.transparent;
       case AppCardType.filled:
-        return colorController?.primaryColor.value.withValues(alpha: 0.5) ?? Colors.grey.shade50;
+        return colorController?.primaryColor.value.withValues(alpha: 0.5) ??
+            Colors.grey.shade50;
     }
   }
 
@@ -89,7 +93,8 @@ class AppCard extends StatelessWidget {
         return BorderSide.none;
       case AppCardType.outlined:
         return BorderSide(
-          color: colorController?.primaryColor.value.withValues(alpha: 0.3) ?? Colors.grey.shade300,
+          color: colorController?.primaryColor.value.withValues(alpha: 0.3) ??
+              Colors.grey.shade300,
           width: 1.0,
         );
       case AppCardType.filled:

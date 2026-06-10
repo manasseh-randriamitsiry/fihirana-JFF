@@ -37,7 +37,8 @@ class FontSizeSliderWidget extends StatelessWidget {
             onChanged: onChanged,
             onChangeEnd: onChangeEnd,
             activeColor: colorController.primaryColor.value,
-            inactiveColor: colorController.primaryColor.value.withValues(alpha: 0.2),
+            inactiveColor:
+                colorController.primaryColor.value.withValues(alpha: 0.2),
             thumbColor: colorController.primaryColor.value,
           ),
         ),
@@ -144,7 +145,9 @@ class HymnPopupMenuWidget extends StatelessWidget {
             if (isUserAuthenticated)
               _buildMenuItem(
                 value: 'add_note',
-                icon: hasUserNote ? Icons.edit_note_rounded : Icons.note_add_rounded,
+                icon: hasUserNote
+                    ? Icons.edit_note_rounded
+                    : Icons.note_add_rounded,
                 label: hasUserNote
                     ? context.translate((l) => l.editNote)
                     : context.translate((l) => l.add),
@@ -285,7 +288,9 @@ class _FavoriteButtonWidgetState extends State<FavoriteButtonWidget>
           child: ScaleTransition(
             scale: _scaleAnimation,
             child: Icon(
-              widget.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              widget.isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
               color: widget.isFavorite ? Colors.red : primaryColor,
               size: 22,
             ),
@@ -333,7 +338,8 @@ class AudioButtonWidget extends StatelessWidget {
                 : primaryColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
             border: isPlaying
-                ? Border.all(color: primaryColor.withValues(alpha: 0.3), width: 1.5)
+                ? Border.all(
+                    color: primaryColor.withValues(alpha: 0.3), width: 1.5)
                 : null,
           ),
           child: Row(
@@ -345,7 +351,9 @@ class AudioButtonWidget extends StatelessWidget {
                   return ScaleTransition(scale: animation, child: child);
                 },
                 child: Icon(
-                  isPlaying ? Icons.graphic_eq_rounded : Icons.music_note_rounded,
+                  isPlaying
+                      ? Icons.graphic_eq_rounded
+                      : Icons.music_note_rounded,
                   key: ValueKey(isPlaying),
                   color: primaryColor,
                   size: 22,
@@ -417,7 +425,9 @@ class HymnActionButton extends StatelessWidget {
               : primaryColor.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
           border: isActive
-              ? Border.all(color: effectiveActiveColor.withValues(alpha: 0.3), width: 1.5)
+              ? Border.all(
+                  color: effectiveActiveColor.withValues(alpha: 0.3),
+                  width: 1.5)
               : null,
         ),
         child: Row(

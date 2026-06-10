@@ -25,7 +25,8 @@ class AppBootstrap extends StatefulWidget {
   State<AppBootstrap> createState() => _AppBootstrapState();
 }
 
-class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMixin {
+class _AppBootstrapState extends State<AppBootstrap>
+    with TickerProviderStateMixin {
   double _progress = 0.0;
   String _currentTask = 'Initializing app...';
   StreamSubscription<InitProgressEvent>? _progressSubscription;
@@ -46,8 +47,8 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
     _progressAnimation = Tween<double>(begin: 0.0, end: 0.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     )..addListener(() {
-      setState(() => _animatedProgress = _progressAnimation.value);
-    });
+        setState(() => _animatedProgress = _progressAnimation.value);
+      });
     _initialize();
   }
 
@@ -59,7 +60,8 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
   }
 
   void _animateProgress() {
-    _progressAnimation = Tween<double>(begin: _animatedProgress, end: _progress).animate(
+    _progressAnimation =
+        Tween<double>(begin: _animatedProgress, end: _progress).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
     _animationController.forward(from: 0);
@@ -89,87 +91,88 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-       // Initialize Firebase Crashlytics
-       FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
-       FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+      // Initialize Firebase Crashlytics
+      FlutterError.onError =
+          FirebaseCrashlytics.instance.recordFlutterFatalError;
+      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
 
-       setState(() {
-         _progress = 0.2;
-         _currentTask = 'Firebase initialized';
-         _animateProgress();
-       });
+      setState(() {
+        _progress = 0.2;
+        _currentTask = 'Firebase initialized';
+        _animateProgress();
+      });
 
-       // Initialize critical services first as they're needed by other services
-       Get.put(SecurityService());
-       Get.put(ShellController());
+      // Initialize critical services first as they're needed by other services
+      Get.put(SecurityService());
+      Get.put(ShellController());
 
-       setState(() {
-         _progress = 0.3;
-         _currentTask = 'Services initialized';
-         _animateProgress();
-       });
+      setState(() {
+        _progress = 0.3;
+        _currentTask = 'Services initialized';
+        _animateProgress();
+      });
 
-          await serviceLocator.initialize();
+      await serviceLocator.initialize();
 
-        setState(() => _servicesInitialized = true);
+      setState(() => _servicesInitialized = true);
 
-        // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
-        await InitService.initializeApp();
+      // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
+      await InitService.initializeApp();
 
-        setState(() {
-          _progress = 0.9;
-          _currentTask = 'App initialized';
-          _animateProgress();
-        });
+      setState(() {
+        _progress = 0.9;
+        _currentTask = 'App initialized';
+        _animateProgress();
+      });
 
-        // Verify critical controllers are initialized
-        if (!Get.isRegistered<ColorController>()) {
-          throw Exception('ColorController not initialized properly');
+      // Verify critical controllers are initialized
+      if (!Get.isRegistered<ColorController>()) {
+        throw Exception('ColorController not initialized properly');
+      }
+
+      // Step 4: Get SharedPreferences (90% -> 95%)
+      final prefs = await SharedPreferences.getInstance();
+      Get.put<SharedPreferences>(prefs);
+
+      // Initialize Playlist DI after SharedPreferences is ready
+      PlaylistDI.initialize();
+
+      setState(() {
+        _progress = 0.95;
+        _currentTask = 'Preferences loaded';
+        _animateProgress();
+      });
+
+      // Track installation
+      try {
+        final isFirstRun = prefs.getBool('first_run') ?? true;
+        if (isFirstRun) {
+          await FirebaseFirestore.instance
+              .collection('stats')
+              .doc('global')
+              .set({
+            'installations': FieldValue.increment(1),
+          }, SetOptions(merge: true));
+          await prefs.setBool('first_run', false);
         }
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error tracking installation: $e');
+        }
+      }
 
-         // Step 4: Get SharedPreferences (90% -> 95%)
-         final prefs = await SharedPreferences.getInstance();
-         Get.put<SharedPreferences>(prefs);
+      // Step 5: Final security check (95% -> 100%)
+      // Allow security service to complete its checks
+      await Future.delayed(const Duration(milliseconds: 500));
 
-         // Initialize Playlist DI after SharedPreferences is ready
-         PlaylistDI.initialize();
+      setState(() {
+        _progress = 1.0;
+        _currentTask = 'Ready!';
+        _animateProgress();
+      });
 
-         setState(() {
-           _progress = 0.95;
-           _currentTask = 'Preferences loaded';
-           _animateProgress();
-         });
-
-       // Track installation
-       try {
-         final isFirstRun = prefs.getBool('first_run') ?? true;
-         if (isFirstRun) {
-           await FirebaseFirestore.instance
-               .collection('stats')
-               .doc('global')
-               .set({
-             'installations': FieldValue.increment(1),
-           }, SetOptions(merge: true));
-           await prefs.setBool('first_run', false);
-         }
-       } catch (e) {
-         if (kDebugMode) {
-           print('Error tracking installation: $e');
-         }
-       }
-
-       // Step 5: Final security check (95% -> 100%)
-       // Allow security service to complete its checks
-       await Future.delayed(const Duration(milliseconds: 500));
-
-       setState(() {
-         _progress = 1.0;
-         _currentTask = 'Ready!';
-         _animateProgress();
-       });
-
-       // Small delay to show completion
-       await Future.delayed(const Duration(milliseconds: 300));
+      // Small delay to show completion
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (mounted) {
         runApp(
@@ -227,41 +230,43 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     LoadingAnimationWidget.staggeredDotsWave(
-                       color: colorScheme.primary,
-                       size: isTablet ? 60 : 100,
-                     ),
+                    LoadingAnimationWidget.staggeredDotsWave(
+                      color: colorScheme.primary,
+                      size: isTablet ? 60 : 100,
+                    ),
                     SizedBox(height: isTablet ? 30 : 40),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: SizedBox(
                         height: 8,
                         width: double.infinity,
-                         child: LinearProgressIndicator(
-                           value: _animatedProgress,
-                           backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
-                           valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-                         ),
-                       ),
-                     ),
+                        child: LinearProgressIndicator(
+                          value: _animatedProgress,
+                          backgroundColor:
+                              colorScheme.primary.withValues(alpha: 0.2),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              colorScheme.primary),
+                        ),
+                      ),
+                    ),
                     SizedBox(height: isTablet ? 15 : 20),
-                     Text(
-                       '${(_animatedProgress * 100).toInt()}%',
-                       style: TextStyle(
-                         fontSize: isTablet ? 24 : 32,
-                         fontWeight: FontWeight.bold,
-                         color: colorScheme.primary,
-                       ),
-                     ),
+                    Text(
+                      '${(_animatedProgress * 100).toInt()}%',
+                      style: TextStyle(
+                        fontSize: isTablet ? 24 : 32,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                    ),
                     const SizedBox(height: 10),
-                     Text(
-                       _currentTask,
-                       textAlign: TextAlign.center,
-                       style: TextStyle(
-                         fontSize: isTablet ? 14 : 16,
-                         color: colorScheme.onSurface.withValues(alpha: 0.7),
-                       ),
-                     ),
+                    Text(
+                      _currentTask,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: isTablet ? 14 : 16,
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -304,8 +309,10 @@ class _AppBootstrapState extends State<AppBootstrap> with TickerProviderStateMix
                       width: double.infinity,
                       child: LinearProgressIndicator(
                         value: _animatedProgress,
-                        backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
-                        valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                        backgroundColor:
+                            colorScheme.primary.withValues(alpha: 0.2),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(colorScheme.primary),
                       ),
                     ),
                   ),

@@ -4,7 +4,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:fihirana/core/utils/ui_service.dart';
 
 class ContactImportService {
-  static Future<List<flutter_contacts.Contact>?> importContacts(BuildContext context) async {
+  static Future<List<flutter_contacts.Contact>?> importContacts(
+      BuildContext context) async {
     final status = await Permission.contacts.request();
 
     if (!status.isGranted) {

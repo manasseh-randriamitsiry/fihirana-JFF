@@ -40,7 +40,8 @@ class BootstrapLoadingWidget extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(colorScheme.primary),
                 ),
               ),
             ),

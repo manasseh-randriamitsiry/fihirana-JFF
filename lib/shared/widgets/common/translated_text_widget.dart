@@ -51,7 +51,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
     if (!mounted || widget.text.trim().isEmpty) return;
 
     final translationController = context.read<TranslationController>();
-    
+
     // Check if auto-translate is enabled
     if (!translationController.autoTranslate) {
       setState(() {
@@ -68,7 +68,8 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
     });
 
     try {
-      final translated = await translationController.autoTranslateIfNeeded(widget.text);
+      final translated =
+          await translationController.autoTranslateIfNeeded(widget.text);
       if (mounted) {
         setState(() {
           _translatedText = translated != widget.text ? translated : null;
@@ -113,7 +114,9 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        widget.style?.color ?? Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black,
+                        widget.style?.color ??
+                            Theme.of(context).textTheme.bodyLarge?.color ??
+                            Colors.black,
                       ),
                     ),
                   ),
@@ -122,7 +125,8 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                     child: Text(
                       widget.text,
                       style: widget.style?.copyWith(
-                        color: (widget.style?.color ?? Theme.of(context).textTheme.bodyLarge?.color)
+                        color: (widget.style?.color ??
+                                Theme.of(context).textTheme.bodyLarge?.color)
                             ?.withValues(alpha: 0.6),
                       ),
                       textAlign: widget.textAlign,
@@ -171,7 +175,8 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
               displayText,
               style: widget.style?.copyWith(
                 color: isTranslated && widget.showTranslationIndicator
-                     ? (widget.style?.color ?? Theme.of(context).textTheme.bodyLarge?.color)
+                    ? (widget.style?.color ??
+                            Theme.of(context).textTheme.bodyLarge?.color)
                         ?.withValues(alpha: 0.8)
                     : widget.style?.color,
                 fontStyle: isTranslated && widget.showTranslationIndicator
@@ -196,9 +201,9 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                   Text(
                     'Translated',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w500,
-                    ),
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
                   ),
                   const SizedBox(width: 8),
                   GestureDetector(

@@ -28,7 +28,8 @@ class UsernameInputController extends GetxController {
     final length = usernameController.text.trim().length;
     usernameLength.value = length;
     if (kDebugMode) {
-      print('UsernameInputController: Text changed, length: $length, canSubmit: $canSubmit');
+      print(
+          'UsernameInputController: Text changed, length: $length, canSubmit: $canSubmit');
     }
   }
 
@@ -74,7 +75,8 @@ class UsernameInputController extends GetxController {
     final length = usernameController.text.trim().length;
     final result = length >= 4 && length <= 15;
     if (kDebugMode) {
-      print('UsernameInputController: canSubmit check - length: $length, result: $result');
+      print(
+          'UsernameInputController: canSubmit check - length: $length, result: $result');
     }
     return result;
   }

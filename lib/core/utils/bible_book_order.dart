@@ -72,7 +72,7 @@ class BibleBookOrder {
   // Old Testament books in correct biblical order (Testameta Taloha) - from order.txt
   static const List<String> oldTestamentOrder = [
     'Genesisy',
-    'Eksodosy', 
+    'Eksodosy',
     'Levitikosy',
     'Nomery',
     'Deoteronomia',
@@ -231,7 +231,7 @@ class BibleBookOrder {
     if (oldTestamentOrder.contains(bookName)) {
       return true;
     }
-    
+
     // Check if English name maps to Old Testament
     final malagasyName = translateToMalagasy(bookName);
     return oldTestamentOrder.contains(malagasyName);
@@ -242,7 +242,7 @@ class BibleBookOrder {
     if (newTestamentOrder.contains(bookName)) {
       return true;
     }
-    
+
     // Check if English name maps to New Testament
     final malagasyName = translateToMalagasy(bookName);
     return newTestamentOrder.contains(malagasyName);
@@ -251,48 +251,51 @@ class BibleBookOrder {
   // Get sorted list of Old Testament books based on biblical order
   static List<String> getSortedOldTestamentBooks(List<String> availableBooks) {
     final sortedBooks = <String>[];
-    
+
     for (final bookName in oldTestamentOrder) {
       if (availableBooks.contains(bookName)) {
         sortedBooks.add(bookName);
       }
     }
-    
+
     // Add any available books not in standard order (append at end)
     for (final bookName in availableBooks) {
-      if (oldTestamentOrder.contains(bookName) && !sortedBooks.contains(bookName)) {
+      if (oldTestamentOrder.contains(bookName) &&
+          !sortedBooks.contains(bookName)) {
         sortedBooks.add(bookName);
       }
     }
-    
+
     return sortedBooks;
   }
 
   // Get sorted list of New Testament books based on biblical order
   static List<String> getSortedNewTestamentBooks(List<String> availableBooks) {
     final sortedBooks = <String>[];
-    
+
     for (final bookName in newTestamentOrder) {
       if (availableBooks.contains(bookName)) {
         sortedBooks.add(bookName);
       }
     }
-    
+
     // Add any available books not in standard order (append at end)
     for (final bookName in availableBooks) {
-      if (newTestamentOrder.contains(bookName) && !sortedBooks.contains(bookName)) {
+      if (newTestamentOrder.contains(bookName) &&
+          !sortedBooks.contains(bookName)) {
         sortedBooks.add(bookName);
       }
     }
-    
+
     return sortedBooks;
   }
 
   // Get all books sorted by testament and biblical order
-  static Map<String, List<String>> getAllBooksSortedByTestament(List<String> allBooks) {
+  static Map<String, List<String>> getAllBooksSortedByTestament(
+      List<String> allBooks) {
     final oldTestamentBooks = <String>[];
     final newTestamentBooks = <String>[];
-    
+
     for (final bookName in allBooks) {
       if (isOldTestamentBook(bookName)) {
         oldTestamentBooks.add(bookName);
@@ -300,7 +303,7 @@ class BibleBookOrder {
         newTestamentBooks.add(bookName);
       }
     }
-    
+
     return {
       'Testameta Taloha': getSortedOldTestamentBooks(oldTestamentBooks),
       'Testameta Vaovao': getSortedNewTestamentBooks(newTestamentBooks),
@@ -319,34 +322,36 @@ class BibleBookOrder {
     if (oldTestamentIndex != -1) {
       return oldTestamentIndex;
     }
-    
+
     final newTestamentIndex = newTestamentOrder.indexOf(bookName);
     if (newTestamentIndex != -1) {
-      return oldTestamentOrder.length + newTestamentIndex; // New Testament comes after Old Testament
+      return oldTestamentOrder.length +
+          newTestamentIndex; // New Testament comes after Old Testament
     }
-    
+
     // Try translating from English to Malagasy
     final malagasyName = translateToMalagasy(bookName);
     final malagasyOldTestamentIndex = oldTestamentOrder.indexOf(malagasyName);
     if (malagasyOldTestamentIndex != -1) {
       return malagasyOldTestamentIndex;
     }
-    
+
     final malagasyNewTestamentIndex = newTestamentOrder.indexOf(malagasyName);
     if (malagasyNewTestamentIndex != -1) {
       return oldTestamentOrder.length + malagasyNewTestamentIndex;
     }
-    
+
     return 999; // Unknown books go to end
   }
 
   // Get display name for a book (translate English to Malagasy if needed)
   static String getDisplayName(String bookName) {
     // If it's already a Malagasy name, return as is
-    if (oldTestamentOrder.contains(bookName) || newTestamentOrder.contains(bookName)) {
+    if (oldTestamentOrder.contains(bookName) ||
+        newTestamentOrder.contains(bookName)) {
       return bookName;
     }
-    
+
     // Otherwise, try to translate from English
     return translateToMalagasy(bookName);
   }

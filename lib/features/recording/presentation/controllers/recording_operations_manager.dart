@@ -14,13 +14,13 @@ class RecordingOperationsManager extends GetxController {
   final RecordingAuthManager _authManager;
   final RecordingStateManager _stateManager;
 
-RecordingOperationsManager({
+  RecordingOperationsManager({
     required RecordingRepository recordingService,
     required RecordingAuthManager authManager,
     required RecordingStateManager stateManager,
-  }) : _recordingService = recordingService,
-       _authManager = authManager,
-       _stateManager = stateManager;
+  })  : _recordingService = recordingService,
+        _authManager = authManager,
+        _stateManager = stateManager;
 
   @override
   void onInit() {
@@ -34,10 +34,13 @@ RecordingOperationsManager({
 
   // Recording Actions
   Future<void> startRecording(String hymnId) async {
-    if (kDebugMode) print('RecordingOperationsManager: startRecording called for hymnId: $hymnId');
-    
+    if (kDebugMode)
+      print(
+          'RecordingOperationsManager: startRecording called for hymnId: $hymnId');
+
     if (!await _authManager.checkUserCanRecord()) {
-      if (kDebugMode) print('RecordingOperationsManager: User cannot record, returning');
+      if (kDebugMode)
+        print('RecordingOperationsManager: User cannot record, returning');
       return;
     }
 
@@ -52,17 +55,21 @@ RecordingOperationsManager({
       if (hymnId != 'unknown' && hymnId != 'standalone') {
         _stateManager.showOverlay(hymnId, 'Hymn $hymnId');
       }
-      
-      if (kDebugMode) print('RecordingOperationsManager: Recording started successfully');
+
+      if (kDebugMode)
+        print('RecordingOperationsManager: Recording started successfully');
     } catch (e) {
-      if (kDebugMode) print('RecordingOperationsManager: Error starting recording: $e');
+      if (kDebugMode)
+        print('RecordingOperationsManager: Error starting recording: $e');
       _stateManager.isRecording.value = false;
     }
   }
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
-    if (kDebugMode) print('RecordingOperationsManager: stopRecording called for hymnId: $hymnId, title: $title');
-    
+    if (kDebugMode)
+      print(
+          'RecordingOperationsManager: stopRecording called for hymnId: $hymnId, title: $title');
+
     // stopRecording now returns UserRecording? directly from the service
     // But we need to add metadata, so we get -> file path from recorder first
     final recordedData = await _recordingService.stopRecording();
@@ -70,7 +77,9 @@ RecordingOperationsManager({
 
     _stateManager.resetRecordingState();
 
-    if (kDebugMode) print('RecordingOperationsManager: recordedData from service: $recordedData');
+    if (kDebugMode)
+      print(
+          'RecordingOperationsManager: recordedData from service: $recordedData');
 
     // Get user info for metadata
     String? currentUserId;
@@ -97,8 +106,9 @@ RecordingOperationsManager({
 
     // If recordedData is provided by service, use it; otherwise we need file path
     if (recordedData != null) {
-      if (kDebugMode) print('RecordingOperationsManager: Creating recording with metadata');
-      
+      if (kDebugMode)
+        print('RecordingOperationsManager: Creating recording with metadata');
+
       // Update with user metadata
       final recording = recordedData.copyWith(
         hymnId: hymnId,
@@ -113,14 +123,18 @@ RecordingOperationsManager({
       try {
         await _recordingService.saveRecording(recording);
         _stateManager.currentHymnTitle.value = title;
-        if (kDebugMode) print('RecordingOperationsManager: Recording saved successfully');
+        if (kDebugMode)
+          print('RecordingOperationsManager: Recording saved successfully');
         return recording;
       } catch (e) {
-        if (kDebugMode) print('RecordingOperationsManager: Error saving recording: $e');
+        if (kDebugMode)
+          print('RecordingOperationsManager: Error saving recording: $e');
         return null;
       }
     } else {
-      if (kDebugMode) print('RecordingOperationsManager: No recorded data returned from service');
+      if (kDebugMode)
+        print(
+            'RecordingOperationsManager: No recorded data returned from service');
     }
 
     return null;
@@ -267,7 +281,8 @@ RecordingOperationsManager({
     }
   }
 
-  Future<void> permanentlyDeleteRecording(UserRecording deletedRecording) async {
+  Future<void> permanentlyDeleteRecording(
+      UserRecording deletedRecording) async {
     try {
       await _recordingService.permanentlyDeleteRecording(deletedRecording.id);
       Get.snackbar(
@@ -292,8 +307,7 @@ RecordingOperationsManager({
       final currentUser = FirebaseAuth.instance.currentUser;
       final authController = Get.find<AuthController>();
 
-      final isOwner =
-          recording.userId == currentUser?.uid ||
+      final isOwner = recording.userId == currentUser?.uid ||
           recording.userEmail == currentUser?.email ||
           recording.userEmail == _authManager.userEmail.value;
       final isAdmin = authController.isAdmin || authController.isSuperAdmin;
@@ -322,17 +336,20 @@ RecordingOperationsManager({
 
   Future<void> deleteRecordingPermanentlyDirect(UserRecording recording) async {
     if (kDebugMode) {
-      print('RecordingOperationsManager: deleteRecordingPermanentlyDirect called for recording: ${recording.id}');
+      print(
+          'RecordingOperationsManager: deleteRecordingPermanentlyDirect called for recording: ${recording.id}');
     }
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       await deleteRecordingPermanently(recording, currentUser);
       if (kDebugMode) {
-        print('RecordingOperationsManager: deleteRecordingPermanentlyDirect completed');
+        print(
+            'RecordingOperationsManager: deleteRecordingPermanentlyDirect completed');
       }
     } catch (e) {
       if (kDebugMode) {
-        print('RecordingOperationsManager: Error in deleteRecordingPermanentlyDirect: $e');
+        print(
+            'RecordingOperationsManager: Error in deleteRecordingPermanentlyDirect: $e');
       }
       Get.snackbar(
         'Error',
@@ -348,20 +365,23 @@ RecordingOperationsManager({
     User? currentUser,
   ) async {
     if (kDebugMode) {
-      print('RecordingOperationsManager: deleteRecordingPermanently called for recording: ${recording.id}');
+      print(
+          'RecordingOperationsManager: deleteRecordingPermanently called for recording: ${recording.id}');
     }
     try {
       // For public recordings, unpublish first to clean up Firestore
       if (recording.isPublic) {
         if (kDebugMode) {
-          print('RecordingOperationsManager: Recording is public, unpublishing from Firestore');
+          print(
+              'RecordingOperationsManager: Recording is public, unpublishing from Firestore');
         }
         await _recordingService.unpublishRecording(recording.id);
         if (kDebugMode) {
-          print('RecordingOperationsManager: Public recording unpublished from Firestore');
+          print(
+              'RecordingOperationsManager: Public recording unpublished from Firestore');
         }
       }
-      
+
       await _recordingService.deleteLocalRecordingPermanently(recording.id);
       if (kDebugMode) {
         print('RecordingOperationsManager: local delete completed');
@@ -369,20 +389,24 @@ RecordingOperationsManager({
 
       if (recording.driveFileId != null) {
         if (kDebugMode) {
-          print('RecordingOperationsManager: Recording has driveFileId: ${recording.driveFileId}, attempting Drive deletion');
+          print(
+              'RecordingOperationsManager: Recording has driveFileId: ${recording.driveFileId}, attempting Drive deletion');
         }
         try {
           if (_authManager.driveService != null) {
             // Check if Drive authentication is valid before attempting deletion
-            final isAuthValid = await _authManager.driveService!.isDriveAuthenticationValid();
+            final isAuthValid =
+                await _authManager.driveService!.isDriveAuthenticationValid();
             if (!isAuthValid) {
               if (kDebugMode) {
-                print('RecordingOperationsManager: Drive authentication is invalid, attempting to re-authenticate');
+                print(
+                    'RecordingOperationsManager: Drive authentication is invalid, attempting to re-authenticate');
               }
               final signInResult = await _authManager.driveService!.signIn();
               if (signInResult == null) {
                 if (kDebugMode) {
-                  print('RecordingOperationsManager: Re-authentication failed, cannot delete from Drive');
+                  print(
+                      'RecordingOperationsManager: Re-authentication failed, cannot delete from Drive');
                 }
                 Get.snackbar(
                   'Authentication Required',
@@ -393,16 +417,19 @@ RecordingOperationsManager({
                 );
               } else {
                 if (kDebugMode) {
-                  print('RecordingOperationsManager: Re-authentication successful, proceeding with deletion');
+                  print(
+                      'RecordingOperationsManager: Re-authentication successful, proceeding with deletion');
                 }
               }
             }
-            
+
             // Check if file can be deleted before attempting
-            final canDelete = await _authManager.driveService!.canDeleteFile(recording.driveFileId!);
+            final canDelete = await _authManager.driveService!
+                .canDeleteFile(recording.driveFileId!);
             if (!canDelete) {
               if (kDebugMode) {
-                print('RecordingOperationsManager: Cannot delete file - insufficient permissions');
+                print(
+                    'RecordingOperationsManager: Cannot delete file - insufficient permissions');
               }
               Get.snackbar(
                 'Cannot Delete',
@@ -412,14 +439,17 @@ RecordingOperationsManager({
                 duration: const Duration(seconds: 4),
               );
             } else {
-              final deleteSuccess = await _authManager.driveService!.deleteFile(recording.driveFileId!);
+              final deleteSuccess = await _authManager.driveService!
+                  .deleteFile(recording.driveFileId!);
               if (deleteSuccess) {
                 if (kDebugMode) {
-                  print('RecordingOperationsManager: Drive deletion successful');
+                  print(
+                      'RecordingOperationsManager: Drive deletion successful');
                 }
               } else {
                 if (kDebugMode) {
-                  print('RecordingOperationsManager: Drive file deletion failed');
+                  print(
+                      'RecordingOperationsManager: Drive file deletion failed');
                 }
                 Get.snackbar(
                   'Deletion Failed',
@@ -443,7 +473,8 @@ RecordingOperationsManager({
         }
       } else {
         if (kDebugMode) {
-          print('RecordingOperationsManager: Recording has no driveFileId, skipping Drive deletion');
+          print(
+              'RecordingOperationsManager: Recording has no driveFileId, skipping Drive deletion');
         }
       }
 
@@ -451,19 +482,22 @@ RecordingOperationsManager({
       try {
         await _recordingService.loadRecordings();
         if (kDebugMode) {
-          print('RecordingOperationsManager: Recording list refreshed after deletion');
+          print(
+              'RecordingOperationsManager: Recording list refreshed after deletion');
         }
-        
+
         // Also refresh public recordings if this was a public recording
         if (recording.isPublic) {
           await _recordingService.loadPublicRecordings();
           if (kDebugMode) {
-            print('RecordingOperationsManager: Public recordings list refreshed after deletion');
+            print(
+                'RecordingOperationsManager: Public recordings list refreshed after deletion');
           }
         }
       } catch (refreshError) {
         if (kDebugMode) {
-          print('RecordingOperationsManager: Error refreshing recording list: $refreshError');
+          print(
+              'RecordingOperationsManager: Error refreshing recording list: $refreshError');
         }
       }
 
@@ -476,19 +510,20 @@ RecordingOperationsManager({
       );
     } catch (e) {
       if (kDebugMode) {
-        print('RecordingOperationsManager: Error in deleteRecordingPermanently: $e');
+        print(
+            'RecordingOperationsManager: Error in deleteRecordingPermanently: $e');
       }
       rethrow;
     }
   }
 
-  Future<void> moveRecordingToTrashWithPermission(UserRecording recording) async {
+  Future<void> moveRecordingToTrashWithPermission(
+      UserRecording recording) async {
     try {
       final currentUser = FirebaseAuth.instance.currentUser;
       final authController = Get.find<AuthController>();
 
-      final isOwner =
-          recording.userId == currentUser?.uid ||
+      final isOwner = recording.userId == currentUser?.uid ||
           recording.userEmail == currentUser?.email ||
           recording.userEmail == _authManager.userEmail.value;
       final isAdmin = authController.isAdmin || authController.isSuperAdmin;

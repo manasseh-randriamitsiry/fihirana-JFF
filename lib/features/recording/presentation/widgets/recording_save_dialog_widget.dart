@@ -20,7 +20,8 @@ class RecordingSaveDialogWidget extends StatefulWidget {
   });
 
   @override
-  State<RecordingSaveDialogWidget> createState() => _RecordingSaveDialogWidgetState();
+  State<RecordingSaveDialogWidget> createState() =>
+      _RecordingSaveDialogWidgetState();
 }
 
 class _RecordingSaveDialogWidgetState extends State<RecordingSaveDialogWidget> {

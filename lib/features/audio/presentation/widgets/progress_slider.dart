@@ -74,13 +74,11 @@ class _ProgressSliderState extends State<ProgressSlider> {
                                 (widget.duration?.inMilliseconds ?? 0))
                             .round())
                     : widget.position ?? Duration.zero),
-                style: const TextStyle(
-                    color: secondaryTextColor, fontSize: 12),
+                style: const TextStyle(color: secondaryTextColor, fontSize: 12),
               ),
               Text(
                 _formatDuration(widget.duration ?? Duration.zero),
-                style: const TextStyle(
-                    color: secondaryTextColor, fontSize: 12),
+                style: const TextStyle(color: secondaryTextColor, fontSize: 12),
               ),
             ],
           ),

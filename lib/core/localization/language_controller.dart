@@ -3,8 +3,6 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
-
-
 class LanguageController extends GetxController {
   static const String _languageKey = 'selected_language';
 

@@ -15,10 +15,10 @@ class StorageManager {
   /// Initialize storage directories
   Future<void> initialize() async {
     if (_initialized) return;
-    
+
     try {
       Directory? baseDir;
-      
+
       if (Platform.isAndroid) {
         // Try app-specific external storage first (more user-accessible than internal)
         try {
@@ -36,7 +36,7 @@ class StorageManager {
           }
         }
       }
-      
+
       // Fallback to application documents directory
       if (baseDir == null) {
         final directory = await getApplicationDocumentsDirectory();
@@ -45,16 +45,17 @@ class StorageManager {
           print('StorageManager: Using internal storage: ${baseDir.path}');
         }
       }
-      
+
       _baseStorageDir = baseDir.path;
       _audioStorageDir = path.join(_baseStorageDir, 'Audio');
-      
+
       // Create directories if they don't exist
       await _createDirectories();
-      
+
       _initialized = true;
       if (kDebugMode) {
-        print('StorageManager: Initialized with base directory: $_baseStorageDir');
+        print(
+            'StorageManager: Initialized with base directory: $_baseStorageDir');
         print('StorageManager: Audio directory: $_audioStorageDir');
       }
     } catch (e) {
@@ -71,7 +72,7 @@ class StorageManager {
       Directory(_baseStorageDir),
       Directory(_audioStorageDir),
     ];
-    
+
     for (final dir in directories) {
       if (!await dir.exists()) {
         await dir.create(recursive: true);
@@ -106,14 +107,14 @@ class StorageManager {
   /// Test if we can write to the storage directory
   Future<bool> canWriteToStorage() async {
     if (!_initialized) return false;
-    
+
     try {
       // Ensure directory exists first
       final dir = Directory(_audioStorageDir);
       if (!await dir.exists()) {
         await dir.create(recursive: true);
       }
-      
+
       final testFile = File(path.join(_audioStorageDir, '.test_write'));
       await testFile.writeAsString('test');
       await testFile.delete();
@@ -137,7 +138,7 @@ class StorageManager {
           return stat.size;
         }
       }
-      
+
       // Fallback: return a reasonable estimate
       return 1024 * 1024 * 1024; // 1GB as fallback
     } catch (e) {
@@ -151,7 +152,7 @@ class StorageManager {
   /// Clean up temporary files
   Future<void> cleanupTempFiles() async {
     if (!_initialized) return;
-    
+
     try {
       final baseDir = Directory(_baseStorageDir);
       await for (final entity in baseDir.list()) {
@@ -172,12 +173,12 @@ class StorageManager {
   /// Get storage statistics
   Future<Map<String, dynamic>> getStorageStats() async {
     if (!_initialized) return {};
-    
+
     try {
       final audioDir = Directory(_audioStorageDir);
       int totalSize = 0;
       int fileCount = 0;
-      
+
       if (await audioDir.exists()) {
         await for (final entity in audioDir.list()) {
           if (entity is File && entity.path.endsWith('.mp3')) {
@@ -186,9 +187,9 @@ class StorageManager {
           }
         }
       }
-      
+
       final availableSpace = await getAvailableStorageSpace();
-      
+
       return {
         'totalSize': totalSize,
         'fileCount': fileCount,
@@ -208,7 +209,8 @@ class StorageManager {
   String formatBytes(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 }
