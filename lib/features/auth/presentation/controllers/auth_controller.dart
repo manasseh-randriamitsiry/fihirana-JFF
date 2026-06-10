@@ -69,7 +69,8 @@ class AuthController extends GetxController {
     _driveService = Get.find<GoogleDriveService>();
     _driveService.initialize(googleSignIn);
 
-    _authStateSubscription = _auth.authStateChanges().listen((firebase_auth.User? user) async {
+    _authStateSubscription =
+        _auth.authStateChanges().listen((firebase_auth.User? user) async {
       if (user != null) {
         _updateUserPermissions(user);
 

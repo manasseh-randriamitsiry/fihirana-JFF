@@ -135,10 +135,12 @@ class CreatePlaylistDialogWidget extends StatefulWidget {
   const CreatePlaylistDialogWidget({super.key});
 
   @override
-  State<CreatePlaylistDialogWidget> createState() => _CreatePlaylistDialogWidgetState();
+  State<CreatePlaylistDialogWidget> createState() =>
+      _CreatePlaylistDialogWidgetState();
 }
 
-class _CreatePlaylistDialogWidgetState extends State<CreatePlaylistDialogWidget> {
+class _CreatePlaylistDialogWidgetState
+    extends State<CreatePlaylistDialogWidget> {
   final titleController = TextEditingController();
   DateTime selectedDate = DateTime.now();
 
@@ -169,15 +171,15 @@ class _CreatePlaylistDialogWidgetState extends State<CreatePlaylistDialogWidget>
               labelText: l10n.title,
               hintText: l10n.playlistExampleHint,
               labelStyle: TextStyle(
-                  color: colorController.textColor.value
-                      .withValues(alpha: 0.7)),
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.7)),
               hintStyle: TextStyle(
-                  color: colorController.textColor.value
-                      .withValues(alpha: 0.5)),
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.5)),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(
-                    color: colorController.textColor.value
-                        .withValues(alpha: 0.3)),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.3)),
               ),
               focusedBorder: UnderlineInputBorder(
                 borderSide:
@@ -191,8 +193,7 @@ class _CreatePlaylistDialogWidgetState extends State<CreatePlaylistDialogWidget>
               final date = await showDatePicker(
                 context: context,
                 initialDate: selectedDate,
-                firstDate:
-                    DateTime.now().subtract(const Duration(days: 365)),
+                firstDate: DateTime.now().subtract(const Duration(days: 365)),
                 lastDate: DateTime.now().add(const Duration(days: 365)),
                 builder: (context, child) {
                   return Theme(
@@ -266,7 +267,7 @@ class DeletePlaylistDialogWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final l10n = AppLocalizations.of(context);
-    
+
     return AlertDialog(
       backgroundColor: colorController.backgroundColor.value,
       title: Text(

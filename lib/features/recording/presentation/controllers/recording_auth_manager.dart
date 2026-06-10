@@ -9,7 +9,6 @@ import 'package:fihirana/features/recording/data/services/google_drive_service.d
 import 'package:fihirana/core/security/security_service.dart';
 import 'recording_drive_sync_manager.dart';
 
-
 /// Manages authentication and user-related operations
 class RecordingAuthManager extends GetxController {
   GoogleDriveService? _driveService;
@@ -64,8 +63,7 @@ class RecordingAuthManager extends GetxController {
       }
 
       if (kDebugMode) {
-        print(
-            'RecordingAuthManager: Drive service initialized from GetX');
+        print('RecordingAuthManager: Drive service initialized from GetX');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -156,7 +154,8 @@ class RecordingAuthManager extends GetxController {
   void _runOrphanedCleanupAfterSignIn() async {
     try {
       if (kDebugMode) {
-        print('RecordingAuthManager: Running orphaned cleanup after Drive sign-in');
+        print(
+            'RecordingAuthManager: Running orphaned cleanup after Drive sign-in');
       }
 
       // Get the sync manager to run cleanup
@@ -165,11 +164,13 @@ class RecordingAuthManager extends GetxController {
       // Run cleanup in background
       Future.delayed(const Duration(seconds: 2), () async {
         try {
-          final cleanedUpCount = await syncManager.cleanupOrphanedPublicRecordings();
+          final cleanedUpCount =
+              await syncManager.cleanupOrphanedPublicRecordings();
 
           if (cleanedUpCount > 0) {
             if (kDebugMode) {
-              print('RecordingAuthManager: Cleaned up $cleanedUpCount orphaned recordings after sign-in');
+              print(
+                  'RecordingAuthManager: Cleaned up $cleanedUpCount orphaned recordings after sign-in');
             }
 
             // Show notification
@@ -184,13 +185,15 @@ class RecordingAuthManager extends GetxController {
           }
         } catch (e) {
           if (kDebugMode) {
-            print('RecordingAuthManager: Error during post-sign-in cleanup: $e');
+            print(
+                'RecordingAuthManager: Error during post-sign-in cleanup: $e');
           }
         }
       });
     } catch (e) {
       if (kDebugMode) {
-        print('RecordingAuthManager: Error setting up post-sign-in cleanup: $e');
+        print(
+            'RecordingAuthManager: Error setting up post-sign-in cleanup: $e');
       }
     }
   }

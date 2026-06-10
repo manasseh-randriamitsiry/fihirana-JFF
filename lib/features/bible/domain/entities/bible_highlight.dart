@@ -59,12 +59,12 @@ class BibleHighlight {
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
-  
+
   // Check if a verse is within this highlight range
   bool containsVerse(int verse) {
     return verse >= startVerse && verse <= endVerse;
   }
-  
+
   // Get highlight range as string
   String getRangeString() {
     if (startVerse == endVerse) {

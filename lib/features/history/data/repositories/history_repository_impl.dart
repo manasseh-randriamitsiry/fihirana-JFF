@@ -21,13 +21,16 @@ class HistoryRepositoryImpl implements HistoryRepository {
     final user = _auth.currentUser;
 
     if (user != null) {
-      final firebaseHistory = await _firebaseSyncService.loadHistoryFromFirebase();
+      final firebaseHistory =
+          await _firebaseSyncService.loadHistoryFromFirebase();
       return firebaseHistory.map((item) => HistoryItem.fromMap(item)).toList();
     } else {
       final localHistory = _prefs.getString(_localHistoryKey);
       if (localHistory != null) {
         final List<dynamic> decoded = json.decode(localHistory);
-        return decoded.map((item) => HistoryItem.fromMap(Map<String, dynamic>.from(item))).toList();
+        return decoded
+            .map((item) => HistoryItem.fromMap(Map<String, dynamic>.from(item)))
+            .toList();
       }
       return [];
     }
@@ -74,7 +77,8 @@ class HistoryRepositoryImpl implements HistoryRepository {
 
       await _prefs.setString(_localHistoryKey, json.encode(localHistory));
       if (kDebugMode) {
-        print('HistoryRepositoryImpl: Saved locally, total items: ${localHistory.length}');
+        print(
+            'HistoryRepositoryImpl: Saved locally, total items: ${localHistory.length}');
       }
     }
   }
@@ -88,7 +92,8 @@ class HistoryRepositoryImpl implements HistoryRepository {
       // If not, we need to implement it or use batch delete directly
       // For now, using the existing batch delete logic from controller
       // This might need to be moved to FirebaseSyncService
-      throw UnimplementedError('Delete multiple items from Firebase not implemented');
+      throw UnimplementedError(
+          'Delete multiple items from Firebase not implemented');
     } else {
       List<Map<String, dynamic>> localHistory = [];
       String? historyJson = _prefs.getString(_localHistoryKey);

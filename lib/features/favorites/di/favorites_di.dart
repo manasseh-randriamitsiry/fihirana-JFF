@@ -56,9 +56,11 @@ class FavoritesDI {
     // Controller
     Get.lazyPut<FavoritesController>(
       () => FavoritesController(
-        getFavoriteHymnsStreamUseCase: Get.find<GetFavoriteHymnsStreamUseCase>(),
+        getFavoriteHymnsStreamUseCase:
+            Get.find<GetFavoriteHymnsStreamUseCase>(),
         toggleFavoriteUseCase: Get.find<ToggleFavoriteUseCase>(),
-        checkAudioAvailabilityUseCase: Get.find<CheckAudioAvailabilityUseCase>(),
+        checkAudioAvailabilityUseCase:
+            Get.find<CheckAudioAvailabilityUseCase>(),
         isHymnPlayingUseCase: Get.find<IsHymnPlayingUseCase>(),
       ),
       tag: _favoritesControllerTag,

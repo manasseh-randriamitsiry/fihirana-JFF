@@ -10,7 +10,7 @@ class UpdateNotificationBuilder {
     String title = 'Misy rindrambaiko vaovao',
     String? downloadUrl,
   }) {
-    final body = releaseNotes != null 
+    final body = releaseNotes != null
         ? 'Version $version dia efa azo ampiasaina!\n\nVaovao:\n$releaseNotes'
         : 'Version $version dia efa azo ampiasaina! Tsindrio eto raha haka.';
 
@@ -37,7 +37,8 @@ class UpdateNotificationBuilder {
 
   static Future<void> showInAppUpdateAvailable({
     String title = 'Misy rindrambaiko vaovao',
-    String body = 'Misy Version vaovao efa azo ampiasaina! Tsindrio eto raha haka.',
+    String body =
+        'Misy Version vaovao efa azo ampiasaina! Tsindrio eto raha haka.',
   }) {
     final content = NotificationLayouts.createBasicNotification(
       id: notificationId,
@@ -81,7 +82,7 @@ class UpdateNotificationBuilder {
     String body = 'Nisy olana fa avereno alaina rehefa afaka kelikely.',
   }) {
     final errorMessage = error != null ? '$body: $error' : body;
-    
+
     final content = NotificationLayouts.createErrorNotification(
       id: notificationId + 1,
       title: title,
@@ -94,10 +95,11 @@ class UpdateNotificationBuilder {
   static Future<void> showInstallError({
     String? error,
     String title = 'Tsy afaka naka',
-    String body = 'Tsy afaka naka ny rindrambaiko vaovao. Avereno alaina rehefa afaka kelikely azafady.',
+    String body =
+        'Tsy afaka naka ny rindrambaiko vaovao. Avereno alaina rehefa afaka kelikely azafady.',
   }) {
     final errorMessage = error != null ? '$body: $error' : body;
-    
+
     final content = NotificationLayouts.createErrorNotification(
       id: notificationId + 1,
       title: title,

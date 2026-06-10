@@ -22,7 +22,7 @@ class SettingsCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return Card(
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),

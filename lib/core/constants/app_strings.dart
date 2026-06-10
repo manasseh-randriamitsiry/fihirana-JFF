@@ -97,9 +97,11 @@ class AppStrings {
   static const String disconnected = 'Disconnected';
 
   // Confirmation Messages
-  static const String confirmDelete = 'Are you sure you want to delete this item?';
+  static const String confirmDelete =
+      'Are you sure you want to delete this item?';
   static const String confirmExit = 'Are you sure you want to exit?';
-  static const String unsavedChanges = 'You have unsaved changes. Do you want to save them?';
+  static const String unsavedChanges =
+      'You have unsaved changes. Do you want to save them?';
 
   // Empty States
   static const String noFavorites = 'No favorites yet';
@@ -122,8 +124,10 @@ class AppStrings {
 
   static String formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes $bytes';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} $kilobytes';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} $megabytes';
+    if (bytes < 1024 * 1024)
+      return '${(bytes / 1024).toStringAsFixed(1)} $kilobytes';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} $megabytes';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} $gigabytes';
   }
 }

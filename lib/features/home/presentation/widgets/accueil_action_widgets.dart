@@ -37,10 +37,12 @@ class UpdateButtonWidget extends StatelessWidget {
               ),
             )
           : Icon(Icons.system_update, color: iconColor),
-      onPressed: onPressed != null ? () {
-        HapticFeedback.lightImpact();
-        onPressed!();
-      } : null,
+      onPressed: onPressed != null
+          ? () {
+              HapticFeedback.lightImpact();
+              onPressed!();
+            }
+          : null,
       tooltip: context.translate((l) => l.updateAvailable),
     );
   }

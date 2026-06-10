@@ -58,7 +58,7 @@ class BibleBookController extends GetxController {
       final book = _getBookUseCase(bookName);
       if (book != null) {
         chapterList.value = List.generate(book.chapters, (index) => index + 1);
-        
+
         // Don't auto-select first chapter - show chapter grid instead
         // selectedChapter stays 0, which triggers chapter selection view
       }
@@ -83,8 +83,7 @@ class BibleBookController extends GetxController {
       if (book != null && book.chapterData.containsKey(chapter)) {
         final chapterData = book.chapterData[chapter]!;
 
-        final passage = chapterData.verses
-            .entries
+        final passage = chapterData.verses.entries
             .map((entry) => '${entry.key}. ${entry.value}')
             .join('\n\n');
 
@@ -156,7 +155,8 @@ class BibleBookController extends GetxController {
 
   void _manageCacheSize() {
     if (_passageCache.length > _maxCacheSize) {
-      final keysToRemove = _passageCache.keys.take(_passageCache.length - _maxCacheSize);
+      final keysToRemove =
+          _passageCache.keys.take(_passageCache.length - _maxCacheSize);
       for (final key in keysToRemove) {
         _passageCache.remove(key);
       }

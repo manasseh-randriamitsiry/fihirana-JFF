@@ -33,7 +33,8 @@ class NotificationChannelBuilder {
     return NotificationChannel(
       channelKey: 'audio_player_channel',
       channelName: 'Fihirana Music Player',
-      channelDescription: 'Fihirana music player controls and playback information',
+      channelDescription:
+          'Fihirana music player controls and playback information',
       defaultColor: NotificationStyles.audioPlayerColor,
       importance: NotificationImportance.Low,
       channelShowBadge: false,

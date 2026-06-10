@@ -18,10 +18,11 @@ class AnnouncementScreen extends StatefulWidget {
 }
 
 class _AnnouncementScreenState extends State<AnnouncementScreen> {
-  final AnnouncementController _announcementController = Get.find<AnnouncementController>();
+  final AnnouncementController _announcementController =
+      Get.find<AnnouncementController>();
   final ColorController colorController = Get.find<ColorController>();
 
-void _showCreateAnnouncementDialog() {
+  void _showCreateAnnouncementDialog() {
     final l10n = AppLocalizations.of(context);
     String title = '';
     String message = '';
@@ -32,7 +33,8 @@ void _showCreateAnnouncementDialog() {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: colorController.backgroundColor.value,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             l10n.createAnnouncement,
             style: TextStyle(
@@ -47,15 +49,20 @@ void _showCreateAnnouncementDialog() {
                 TextField(
                   decoration: InputDecoration(
                     labelText: l10n.title,
-                    labelStyle: TextStyle(color: colorController.textColor.value),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    labelStyle:
+                        TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      borderSide: BorderSide(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                      borderSide: BorderSide(
+                          color: colorController.primaryColor.value, width: 2),
                     ),
                   ),
                   style: TextStyle(color: colorController.textColor.value),
@@ -65,15 +72,20 @@ void _showCreateAnnouncementDialog() {
                 TextField(
                   decoration: InputDecoration(
                     labelText: l10n.message,
-                    labelStyle: TextStyle(color: colorController.textColor.value),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    labelStyle:
+                        TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      borderSide: BorderSide(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                      borderSide: BorderSide(
+                          color: colorController.primaryColor.value, width: 2),
                     ),
                   ),
                   style: TextStyle(color: colorController.textColor.value),
@@ -99,12 +111,15 @@ void _showCreateAnnouncementDialog() {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      border: Border.all(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      border: Border.all(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today, color: colorController.iconColor.value, size: 20),
+                        Icon(Icons.calendar_today,
+                            color: colorController.iconColor.value, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -113,7 +128,8 @@ void _showCreateAnnouncementDialog() {
                               Text(
                                 l10n.expirationDate,
                                 style: TextStyle(
-                                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.7),
                                   fontSize: 12,
                                 ),
                               ),
@@ -141,25 +157,27 @@ void _showCreateAnnouncementDialog() {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel2, style: TextStyle(color: colorController.textColor.value)),
+              child: Text(l10n.cancel2,
+                  style: TextStyle(color: colorController.textColor.value)),
             ),
             ElevatedButton(
               onPressed: () async {
                 final navigator = Navigator.of(context, rootNavigator: false);
-                
+
                 if (title.trim().isEmpty || message.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.fillAllFields)),
                   );
                   return;
                 }
-                
-                final success = await _announcementController.createAnnouncement(
+
+                final success =
+                    await _announcementController.createAnnouncement(
                   title: title,
                   message: message,
                   expiresAt: expiresAt,
                 );
-                
+
                 if (success) {
                   SnackbarUtility.showSuccess(
                     title: 'Fahombiazana',
@@ -176,7 +194,8 @@ void _showCreateAnnouncementDialog() {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorController.primaryColor.value,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: Text(l10n.create),
             ),
@@ -186,7 +205,7 @@ void _showCreateAnnouncementDialog() {
     );
   }
 
-void _showEditAnnouncementDialog(Announcement announcement) {
+  void _showEditAnnouncementDialog(Announcement announcement) {
     String title = announcement.title;
     String message = announcement.message;
     DateTime? expiresAt = announcement.expiresAt;
@@ -197,7 +216,8 @@ void _showEditAnnouncementDialog(Announcement announcement) {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: colorController.backgroundColor.value,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: Text(
             l10n.editAnnouncement,
             style: TextStyle(
@@ -212,39 +232,53 @@ void _showEditAnnouncementDialog(Announcement announcement) {
                 TextField(
                   decoration: InputDecoration(
                     labelText: l10n.title,
-                    labelStyle: TextStyle(color: colorController.textColor.value),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    labelStyle:
+                        TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      borderSide: BorderSide(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                      borderSide: BorderSide(
+                          color: colorController.primaryColor.value, width: 2),
                     ),
                   ),
                   style: TextStyle(color: colorController.textColor.value),
-                  controller: TextEditingController(text: title)..selection = TextSelection.fromPosition(TextPosition(offset: title.length)),
+                  controller: TextEditingController(text: title)
+                    ..selection = TextSelection.fromPosition(
+                        TextPosition(offset: title.length)),
                   onChanged: (value) => title = value,
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   decoration: InputDecoration(
                     labelText: l10n.message,
-                    labelStyle: TextStyle(color: colorController.textColor.value),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    labelStyle:
+                        TextStyle(color: colorController.textColor.value),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12)),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      borderSide: BorderSide(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: colorController.primaryColor.value, width: 2),
+                      borderSide: BorderSide(
+                          color: colorController.primaryColor.value, width: 2),
                     ),
                   ),
                   style: TextStyle(color: colorController.textColor.value),
                   maxLines: 4,
-                  controller: TextEditingController(text: message)..selection = TextSelection.fromPosition(TextPosition(offset: message.length)),
+                  controller: TextEditingController(text: message)
+                    ..selection = TextSelection.fromPosition(
+                        TextPosition(offset: message.length)),
                   onChanged: (value) => message = value,
                 ),
                 const SizedBox(height: 16),
@@ -266,12 +300,15 @@ void _showEditAnnouncementDialog(Announcement announcement) {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      border: Border.all(color: colorController.textColor.value.withValues(alpha: 0.3)),
+                      border: Border.all(
+                          color: colorController.textColor.value
+                              .withValues(alpha: 0.3)),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today, color: colorController.iconColor.value, size: 20),
+                        Icon(Icons.calendar_today,
+                            color: colorController.iconColor.value, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -280,7 +317,8 @@ void _showEditAnnouncementDialog(Announcement announcement) {
                               Text(
                                 l10n.expirationDate,
                                 style: TextStyle(
-                                  color: colorController.textColor.value.withValues(alpha: 0.7),
+                                  color: colorController.textColor.value
+                                      .withValues(alpha: 0.7),
                                   fontSize: 12,
                                 ),
                               ),
@@ -308,26 +346,28 @@ void _showEditAnnouncementDialog(Announcement announcement) {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(l10n.cancel2, style: TextStyle(color: colorController.textColor.value)),
+              child: Text(l10n.cancel2,
+                  style: TextStyle(color: colorController.textColor.value)),
             ),
             ElevatedButton(
               onPressed: () async {
                 final navigator = Navigator.of(context, rootNavigator: false);
-                
+
                 if (title.trim().isEmpty || message.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(l10n.fillAllFields)),
                   );
                   return;
                 }
-                
-                final success = await _announcementController.updateAnnouncement(
+
+                final success =
+                    await _announcementController.updateAnnouncement(
                   id: announcement.id,
                   title: title,
                   message: message,
                   expiresAt: expiresAt,
                 );
-                
+
                 if (success) {
                   SnackbarUtility.showSuccess(
                     title: 'Fahombiazana',
@@ -344,7 +384,8 @@ void _showEditAnnouncementDialog(Announcement announcement) {
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorController.primaryColor.value,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
               ),
               child: Text(l10n.update),
             ),
@@ -359,7 +400,7 @@ void _showEditAnnouncementDialog(Announcement announcement) {
     super.initState();
   }
 
-Future<void> _resetSeenAnnouncements() async {
+  Future<void> _resetSeenAnnouncements() async {
     await _announcementController.clearSeenAnnouncements();
   }
 
@@ -387,23 +428,25 @@ Future<void> _resetSeenAnnouncements() async {
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
       ),
-floatingActionButton: _announcementController.isAdmin
+      floatingActionButton: _announcementController.isAdmin
           ? ContextAwareFAB(
               onAddAnnouncement: _showCreateAnnouncementDialog,
               onRefreshAnnouncements: _resetSeenAnnouncements,
             )
           : null,
-body: RefreshIndicator(
+      body: RefreshIndicator(
         onRefresh: () async {
           await _announcementController.refresh();
         },
         color: colorController.primaryColor.value,
         child: Obx(() {
           if (_announcementController.errorMessage.isNotEmpty) {
-            return AnnouncementErrorWidget(error: _announcementController.errorMessage.value);
+            return AnnouncementErrorWidget(
+                error: _announcementController.errorMessage.value);
           }
 
-          if (_announcementController.isLoading.value && _announcementController.activeAnnouncements.isEmpty) {
+          if (_announcementController.isLoading.value &&
+              _announcementController.activeAnnouncements.isEmpty) {
             return Center(
               child: CircularProgressIndicator(
                 color: colorController.primaryColor.value,
@@ -429,7 +472,8 @@ body: RefreshIndicator(
                 isAdmin: _announcementController.isAdmin,
                 onEdit: () => _showEditAnnouncementDialog(announcement),
                 onDelete: () async {
-                  final success = await _announcementController.deleteAnnouncement(announcement.id);
+                  final success = await _announcementController
+                      .deleteAnnouncement(announcement.id);
                   if (success) {
                     SnackbarUtility.showSuccess(
                       title: 'Fahombiazana',

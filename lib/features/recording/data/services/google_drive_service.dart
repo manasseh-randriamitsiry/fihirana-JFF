@@ -9,9 +9,9 @@ import 'package:collection/collection.dart';
 /// Custom HTTP client for Google APIs
 class GoogleHttpClient extends http.BaseClient {
   final String accessToken;
-  
+
   GoogleHttpClient(this.accessToken);
-  
+
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) {
     request.headers['Authorization'] = 'Bearer $accessToken';
@@ -42,7 +42,8 @@ class GoogleDriveService {
   void initialize(GoogleSignIn googleSignIn) {
     _googleSignIn = googleSignIn;
     if (kDebugMode) {
-      print('GoogleDriveService: Initialized with shared GoogleSignIn instance: $googleSignIn');
+      print(
+          'GoogleDriveService: Initialized with shared GoogleSignIn instance: $googleSignIn');
       print('GoogleDriveService: GoogleSignIn scopes: ${googleSignIn.scopes}');
     }
   }
@@ -133,7 +134,8 @@ class GoogleDriveService {
   Future<void> _initializeDriveApi() async {
     if (_currentUser == null) {
       if (kDebugMode) {
-        print('GoogleDriveService: Cannot initialize Drive API - no current user');
+        print(
+            'GoogleDriveService: Cannot initialize Drive API - no current user');
       }
       return;
     }
@@ -143,11 +145,11 @@ class GoogleDriveService {
         print(
             'GoogleDriveService: Initializing Drive API for user: ${_currentUser!.email}');
       }
-      
+
       // Force refresh the authentication to ensure we have a valid token
       await _googleSignIn.signInSilently();
       _currentUser = _googleSignIn.currentUser;
-      
+
       final auth = await _currentUser?.authentication;
       if (auth?.accessToken != null && auth?.idToken != null) {
         if (kDebugMode) {
@@ -155,7 +157,7 @@ class GoogleDriveService {
         }
         final httpClient = GoogleHttpClient(auth!.accessToken!);
         _driveApi = drive.DriveApi(httpClient);
-        
+
         // Test the API connection with a simple call
         try {
           await _driveApi!.about.get($fields: 'user');
@@ -164,11 +166,12 @@ class GoogleDriveService {
           }
         } catch (apiTestError) {
           if (kDebugMode) {
-            print('GoogleDriveService: API connection test failed: $apiTestError');
+            print(
+                'GoogleDriveService: API connection test failed: $apiTestError');
           }
           rethrow;
         }
-        
+
         await _ensureFolderExists();
         if (kDebugMode) {
           print('GoogleDriveService: Drive API initialized successfully');
@@ -176,7 +179,8 @@ class GoogleDriveService {
       } else {
         if (kDebugMode) {
           print('GoogleDriveService: Failed to get authenticated client');
-          print('GoogleDriveService: Access token null: ${auth?.accessToken == null}');
+          print(
+              'GoogleDriveService: Access token null: ${auth?.accessToken == null}');
           print('GoogleDriveService: ID token null: ${auth?.idToken == null}');
         }
         throw Exception('Authentication tokens not available');
@@ -304,7 +308,7 @@ class GoogleDriveService {
       // Ensure proper file extension and MIME type
       String fileName = title;
       String mimeType = 'audio/m4a'; // Default MIME type
-      
+
       if (fileName.toLowerCase().endsWith('.mp3')) {
         mimeType = 'audio/mpeg';
       } else if (fileName.toLowerCase().endsWith('.wav')) {
@@ -461,7 +465,8 @@ class GoogleDriveService {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null) {
       if (kDebugMode) {
-        print('GoogleDriveService: Cannot delete file - Drive API not initialized');
+        print(
+            'GoogleDriveService: Cannot delete file - Drive API not initialized');
       }
       return false;
     }
@@ -470,14 +475,16 @@ class GoogleDriveService {
       if (kDebugMode) {
         print('GoogleDriveService: Attempting to delete file with ID: $fileId');
         print('GoogleDriveService: Current user: ${_currentUser?.email}');
-        print('GoogleDriveService: User authenticated: ${_currentUser != null}');
+        print(
+            'GoogleDriveService: User authenticated: ${_currentUser != null}');
       }
 
       // First check if file can be deleted
       final canDelete = await canDeleteFile(fileId);
       if (!canDelete) {
         if (kDebugMode) {
-          print('GoogleDriveService: File cannot be deleted - insufficient permissions or capabilities');
+          print(
+              'GoogleDriveService: File cannot be deleted - insufficient permissions or capabilities');
         }
         return false;
       }
@@ -490,37 +497,41 @@ class GoogleDriveService {
 
       if (file.trashed == true) {
         if (kDebugMode) {
-          print('GoogleDriveService: File is already in trash, proceeding with permanent deletion');
+          print(
+              'GoogleDriveService: File is already in trash, proceeding with permanent deletion');
         }
       }
 
       // Check if current user is the owner or has delete permissions
       final userEmail = _currentUser?.email;
       bool hasDeletePermission = false;
-      
+
       if (file.owners != null) {
-        hasDeletePermission = file.owners!.any((owner) => owner.emailAddress == userEmail);
+        hasDeletePermission =
+            file.owners!.any((owner) => owner.emailAddress == userEmail);
       }
-      
+
       // Also check permissions for delete access
       if (!hasDeletePermission && file.permissions != null) {
-        hasDeletePermission = file.permissions!.any((perm) => 
-          perm.role == 'owner' || 
-          (perm.role == 'writer' && perm.emailAddress == userEmail)
-        );
+        hasDeletePermission = file.permissions!.any((perm) =>
+            perm.role == 'owner' ||
+            (perm.role == 'writer' && perm.emailAddress == userEmail));
       }
 
       if (!hasDeletePermission) {
         if (kDebugMode) {
-          print('GoogleDriveService: User does not have permission to delete this file');
-          print('GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
+          print(
+              'GoogleDriveService: User does not have permission to delete this file');
+          print(
+              'GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
           print('GoogleDriveService: Current user: $userEmail');
         }
         return false;
       }
 
       if (kDebugMode) {
-        print('GoogleDriveService: Permission verified, proceeding with deletion of file: ${file.name}');
+        print(
+            'GoogleDriveService: Permission verified, proceeding with deletion of file: ${file.name}');
       }
 
       // Permanently delete the file (not just move to trash)
@@ -533,16 +544,19 @@ class GoogleDriveService {
       );
 
       if (kDebugMode) {
-        print('GoogleDriveService: File deleted successfully from Google Drive');
+        print(
+            'GoogleDriveService: File deleted successfully from Google Drive');
       }
       return true;
     } catch (e) {
       if (kDebugMode) {
         print('GoogleDriveService: Error deleting file from Drive: $e');
         print('GoogleDriveService: File ID: $fileId');
-        print('GoogleDriveService: User authenticated: ${_currentUser != null}');
-        print('GoogleDriveService: Drive API initialized: ${_driveApi != null}');
-        
+        print(
+            'GoogleDriveService: User authenticated: ${_currentUser != null}');
+        print(
+            'GoogleDriveService: Drive API initialized: ${_driveApi != null}');
+
         // Check if it's a specific API error
         if (e.toString().contains('insufficientFilePermissions')) {
           print('GoogleDriveService: Error - Insufficient file permissions');
@@ -551,7 +565,8 @@ class GoogleDriveService {
         } else if (e.toString().contains('rateLimitExceeded')) {
           print('GoogleDriveService: Error - Rate limit exceeded');
         } else if (e.toString().contains('authError')) {
-          print('GoogleDriveService: Error - Authentication error, token may be expired');
+          print(
+              'GoogleDriveService: Error - Authentication error, token may be expired');
         }
       }
       return false;
@@ -565,24 +580,26 @@ class GoogleDriveService {
     try {
       // First verify file exists and is accessible
       if (kDebugMode) {
-        print('GoogleDriveService: Verifying file accessibility for ID: $fileId');
+        print(
+            'GoogleDriveService: Verifying file accessibility for ID: $fileId');
       }
-      
+
       final fileAccessMetadata = await _driveApi!.files.get(
         fileId,
         $fields: 'name, mimeType, size, trashed',
       ) as drive.File;
-      
+
       if (fileAccessMetadata.trashed == true) {
         throw Exception('File is in trash and cannot be accessed');
       }
-      
+
       if (fileAccessMetadata.size == null) {
         throw Exception('File size is unknown - file may be corrupted');
       }
-      
+
       if (kDebugMode) {
-        print('GoogleDriveService: File verified - Name: ${fileAccessMetadata.name}, Size: ${fileAccessMetadata.size}, MIME: ${fileAccessMetadata.mimeType}');
+        print(
+            'GoogleDriveService: File verified - Name: ${fileAccessMetadata.name}, Size: ${fileAccessMetadata.size}, MIME: ${fileAccessMetadata.mimeType}');
       }
       // First get file metadata to check MIME type
       final fileMetadata = await _driveApi!.files.get(
@@ -597,7 +614,8 @@ class GoogleDriveService {
 
       // Check if it's a Google Docs file (which can't be downloaded directly)
       if (fileAccessMetadata.mimeType != null &&
-          fileAccessMetadata.mimeType!.startsWith('application/vnd.google-apps')) {
+          fileAccessMetadata.mimeType!
+              .startsWith('application/vnd.google-apps')) {
         if (kDebugMode) {
           print(
               'GoogleDriveService: Cannot download Google Docs file directly, need to export');
@@ -612,9 +630,10 @@ class GoogleDriveService {
             // Default to MP3 for unknown audio formats
             exportMimeType = 'audio/mpeg';
           }
-          
+
           if (kDebugMode) {
-            print('GoogleDriveService: Exporting as MIME type: $exportMimeType');
+            print(
+                'GoogleDriveService: Exporting as MIME type: $exportMimeType');
           }
 
           final media = await _driveApi!.files.export(
@@ -653,58 +672,67 @@ class GoogleDriveService {
 
       final List<int> dataStore = [];
       int totalBytes = 0;
-      
+
       try {
         await for (final data in file.stream) {
           dataStore.addAll(data);
           totalBytes += data.length;
-          
+
           // Log progress for large files
           if (kDebugMode && totalBytes > 0 && totalBytes % (1024 * 100) == 0) {
-            debugPrint('GoogleDriveService: Downloaded ${totalBytes ~/ 1024} KB...');
+            debugPrint(
+                'GoogleDriveService: Downloaded ${totalBytes ~/ 1024} KB...');
           }
         }
-        
+
         if (kDebugMode) {
-          print('GoogleDriveService: Download completed. Total bytes: $totalBytes');
-          print('GoogleDriveService: Expected size: ${fileAccessMetadata.size}');
+          print(
+              'GoogleDriveService: Download completed. Total bytes: $totalBytes');
+          print(
+              'GoogleDriveService: Expected size: ${fileAccessMetadata.size}');
         }
-        
+
         // Validate download was successful
         if (totalBytes == 0) {
-          throw Exception('Downloaded file is empty (0 bytes). This may indicate a permission issue or file corruption.');
+          throw Exception(
+              'Downloaded file is empty (0 bytes). This may indicate a permission issue or file corruption.');
         }
-        
+
         final expectedSize = int.tryParse(fileAccessMetadata.size ?? '');
-        if (fileAccessMetadata.size != null && expectedSize != null && totalBytes != expectedSize) {
+        if (fileAccessMetadata.size != null &&
+            expectedSize != null &&
+            totalBytes != expectedSize) {
           if (kDebugMode) {
-            print('GoogleDriveService: Warning - Size mismatch. Downloaded: $totalBytes, Expected: ${fileAccessMetadata.size}');
+            print(
+                'GoogleDriveService: Warning - Size mismatch. Downloaded: $totalBytes, Expected: ${fileAccessMetadata.size}');
           }
           // Still try to use the file, but log the warning
         }
-        
+
         await saveFile.writeAsBytes(dataStore);
-        
+
         // Verify file was written correctly
         final writtenFile = File(savePath);
         if (await writtenFile.exists()) {
           final fileSize = await writtenFile.length();
           if (kDebugMode) {
-            print('GoogleDriveService: File written successfully. Size on disk: $fileSize bytes');
+            print(
+                'GoogleDriveService: File written successfully. Size on disk: $fileSize bytes');
           }
-          
+
           if (fileSize == 0) {
-            throw Exception('File was written but is empty (0 bytes). Download may have failed.');
+            throw Exception(
+                'File was written but is empty (0 bytes). Download may have failed.');
           }
-          
+
           return writtenFile;
         } else {
           throw Exception('Failed to write downloaded file to disk');
         }
-        
       } catch (e) {
         if (kDebugMode) {
-          print('GoogleDriveService: Error during download stream processing: $e');
+          print(
+              'GoogleDriveService: Error during download stream processing: $e');
         }
         throw Exception('Download failed: $e');
       }
@@ -835,7 +863,8 @@ class GoogleDriveService {
     if (_driveApi == null) await _initializeDriveApi();
     if (_driveApi == null) {
       if (kDebugMode) {
-        print('GoogleDriveService: Drive API not initialized, cannot check file existence');
+        print(
+            'GoogleDriveService: Drive API not initialized, cannot check file existence');
       }
       return false;
     }
@@ -857,7 +886,8 @@ class GoogleDriveService {
         print('GoogleDriveService: File ID: ${file.id}');
         print('GoogleDriveService: File name: ${file.name}');
         print('GoogleDriveService: File trashed: ${file.trashed}');
-        print('GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
+        print(
+            'GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
       }
 
       return exists;
@@ -885,16 +915,17 @@ class GoogleDriveService {
         fileId,
         $fields: 'capabilities, owners, name',
       ) as drive.File;
-      
+
       final canDelete = file.capabilities?.canDelete == true;
       if (kDebugMode) {
         print('GoogleDriveService: File "${file.name}" canDelete: $canDelete');
         if (!canDelete) {
-          print('GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
+          print(
+              'GoogleDriveService: File owners: ${file.owners?.map((o) => o.emailAddress).toList()}');
           print('GoogleDriveService: Current user: ${_currentUser?.email}');
         }
       }
-      
+
       return canDelete;
     } catch (e) {
       if (kDebugMode) {
@@ -907,30 +938,31 @@ class GoogleDriveService {
   /// Check if the current authentication is valid for Drive operations
   Future<bool> isDriveAuthenticationValid() async {
     if (_currentUser == null) return false;
-    
+
     try {
       // Try to refresh the authentication silently
       final refreshedUser = await _googleSignIn.signInSilently();
       if (refreshedUser == null) {
         if (kDebugMode) {
-          print('GoogleDriveService: Silent refresh failed, user needs to re-authenticate');
+          print(
+              'GoogleDriveService: Silent refresh failed, user needs to re-authenticate');
         }
         return false;
       }
-      
+
       _currentUser = refreshedUser;
-      
+
       // Test the Drive API connection
       if (_driveApi == null) {
         await _initializeDriveApi();
       }
-      
+
       if (_driveApi != null) {
         // Make a simple API call to test connectivity
         await _driveApi!.about.get($fields: 'user');
         return true;
       }
-      
+
       return false;
     } catch (e) {
       if (kDebugMode) {

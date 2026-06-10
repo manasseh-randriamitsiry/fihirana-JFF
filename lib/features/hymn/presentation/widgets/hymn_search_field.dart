@@ -50,7 +50,8 @@ class HymnSearchField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: iconColor.withValues(alpha: 0), width: 2),
+            borderSide:
+                BorderSide(color: iconColor.withValues(alpha: 0), width: 2),
           ),
         ),
         onChanged: (_) => onChanged(),

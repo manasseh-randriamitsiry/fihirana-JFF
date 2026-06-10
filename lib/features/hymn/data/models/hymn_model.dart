@@ -21,7 +21,8 @@ class HymnModel extends Hymn {
       verses: [],
       bridge: json['bridge']?.toString(),
       hymnHint: json['hymnHint']?.toString(),
-      createdAt: DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now(),
+      createdAt:
+          DateTime.tryParse(json['createdAt'].toString()) ?? DateTime.now(),
       createdBy: json['createdBy']?.toString() ?? 'Unknown',
       createdByEmail: json['createdByEmail']?.toString(),
     );

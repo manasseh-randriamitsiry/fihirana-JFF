@@ -30,7 +30,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   late TabController _tabController;
   List<String> selectedHymns = [];
   bool isLoading = false;
-  
+
   // Admin controller
   late final AdminController _adminController;
 
@@ -147,14 +147,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             ),
           ),
           actions: [
-             IconButton(
-               icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
-               onPressed: () {
-                 HapticFeedback.lightImpact();
-                 Get.to(() => const SuperAdminDashboard());
-               },
-               tooltip: l10n.superAdminDashboard,
-             ),
+            IconButton(
+              icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                Get.to(() => const SuperAdminDashboard());
+              },
+              tooltip: l10n.superAdminDashboard,
+            ),
             if (_tabController.index == 1 && selectedHymns.isNotEmpty)
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
@@ -173,7 +173,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             tabs: [
               Tab(text: l10n.userManagement), // Reuse string or add "Users"
               Tab(text: l10n.hymns), // Reuse string or add "Hymns"
-               Tab(text: l10n.deletedRecordings),
+              Tab(text: l10n.deletedRecordings),
             ],
           ),
         ),

@@ -85,11 +85,12 @@ class ContactController extends GetxController {
     } else {
       final query = searchQuery.value.toLowerCase();
       filteredContacts.assignAll(
-        contacts.where((contact) =>
-          contact.name.toLowerCase().contains(query) ||
-          contact.phoneNumber.contains(query) ||
-          (contact.location?.toLowerCase().contains(query) ?? false)
-        ).toList(),
+        contacts
+            .where((contact) =>
+                contact.name.toLowerCase().contains(query) ||
+                contact.phoneNumber.contains(query) ||
+                (contact.location?.toLowerCase().contains(query) ?? false))
+            .toList(),
       );
     }
   }

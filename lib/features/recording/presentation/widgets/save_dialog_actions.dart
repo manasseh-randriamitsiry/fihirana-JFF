@@ -22,7 +22,8 @@ class SaveDialogActions extends StatefulWidget {
 }
 
 class _SaveDialogActionsState extends State<SaveDialogActions> {
-  final RecordingController recordingController = Get.find<RecordingController>();
+  final RecordingController recordingController =
+      Get.find<RecordingController>();
   final ColorController colorController = Get.find<ColorController>();
 
   @override
@@ -61,7 +62,8 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
               children: [
                 Icon(Icons.save, size: 20),
                 SizedBox(width: 8),
-                Text('Save & Close', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text('Save & Close',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -105,11 +107,13 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.add, size: 16, color: Colors.white.withValues(alpha: 0.8)),
+                    Icon(Icons.add,
+                        size: 16, color: Colors.white.withValues(alpha: 0.8)),
                     const SizedBox(width: 4),
                     Text(
                       'Save & New',
-                      style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                      style:
+                          TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                     ),
                   ],
                 ),

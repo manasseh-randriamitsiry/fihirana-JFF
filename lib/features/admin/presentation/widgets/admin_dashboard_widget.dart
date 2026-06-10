@@ -34,7 +34,7 @@ class AdminDashboardWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            
+
             // Stats Grid
             Expanded(
               child: GridView.count(
@@ -46,7 +46,9 @@ class AdminDashboardWidget extends StatelessWidget {
                   _buildStatCard(
                     context,
                     title: 'Total Users',
-                    value: adminController.adminStats.value?.totalUsers.toString() ?? '0',
+                    value: adminController.adminStats.value?.totalUsers
+                            .toString() ??
+                        '0',
                     icon: Icons.people,
                     color: Colors.blue,
                     textColor: textColor,
@@ -55,7 +57,9 @@ class AdminDashboardWidget extends StatelessWidget {
                   _buildStatCard(
                     context,
                     title: 'Active Users',
-                    value: adminController.adminStats.value?.activeUsers.toString() ?? '0',
+                    value: adminController.adminStats.value?.activeUsers
+                            .toString() ??
+                        '0',
                     icon: Icons.person_pin,
                     color: Colors.green,
                     textColor: textColor,
@@ -64,7 +68,9 @@ class AdminDashboardWidget extends StatelessWidget {
                   _buildStatCard(
                     context,
                     title: 'Total Hymns',
-                    value: adminController.adminStats.value?.totalHymns.toString() ?? '0',
+                    value: adminController.adminStats.value?.totalHymns
+                            .toString() ??
+                        '0',
                     icon: Icons.music_note,
                     color: Colors.purple,
                     textColor: textColor,
@@ -73,7 +79,9 @@ class AdminDashboardWidget extends StatelessWidget {
                   _buildStatCard(
                     context,
                     title: 'Installations',
-                    value: adminController.adminStats.value?.installations.toString() ?? '0',
+                    value: adminController.adminStats.value?.installations
+                            .toString() ??
+                        '0',
                     icon: Icons.download,
                     color: Colors.orange,
                     textColor: textColor,

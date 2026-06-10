@@ -13,7 +13,8 @@ class BibleHighlightService implements IBibleHighlightService {
 
   // Get highlights for a specific book and chapter for the current user
   @override
-  Stream<List<BibleHighlight>> getHighlightsStream(String bookName, int chapter) {
+  Stream<List<BibleHighlight>> getHighlightsStream(
+      String bookName, int chapter) {
     final user = _auth.currentUser;
     if (user == null) return Stream.value([]);
 
@@ -34,7 +35,8 @@ class BibleHighlightService implements IBibleHighlightService {
 
   // Get all highlights for a specific book and chapter (public highlights)
   @override
-  Stream<List<BibleHighlight>> getPublicHighlightsStream(String bookName, int chapter) {
+  Stream<List<BibleHighlight>> getPublicHighlightsStream(
+      String bookName, int chapter) {
     return _firestore
         .collection('bible_highlights')
         .where('bookName', isEqualTo: bookName)
@@ -139,12 +141,15 @@ class BibleHighlightService implements IBibleHighlightService {
       if (user == null) return false;
 
       // Get the highlight to check ownership
-      final highlightDoc = await _firestore.collection('bible_highlights').doc(highlightId).get();
+      final highlightDoc = await _firestore
+          .collection('bible_highlights')
+          .doc(highlightId)
+          .get();
       if (!highlightDoc.exists) return false;
 
       final data = highlightDoc.data();
       if (data == null) return false;
-      
+
       data['id'] = highlightDoc.id;
       final highlight = BibleHighlight.fromJson(data);
 

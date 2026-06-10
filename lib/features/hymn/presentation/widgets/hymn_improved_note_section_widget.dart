@@ -78,7 +78,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
               ),
             ),
           ),
-          
+
           // Title with icon
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
@@ -92,7 +92,9 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
-                    widget.note != null ? Icons.edit_note_rounded : Icons.note_add_rounded,
+                    widget.note != null
+                        ? Icons.edit_note_rounded
+                        : Icons.note_add_rounded,
                     size: 24,
                     color: primaryColor,
                   ),
@@ -109,14 +111,14 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
               ],
             ),
           ),
-          
+
           // Divider
           Divider(
             color: primaryColor.withValues(alpha: 0.2),
             thickness: 1,
             height: 1,
           ),
-          
+
           // Content
           Padding(
             padding: const EdgeInsets.all(20),
@@ -154,7 +156,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                
+
                 // Text field
                 TextField(
                   controller: _noteController,
@@ -194,7 +196,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Action buttons
                 Row(
                   children: [
@@ -206,12 +208,13 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                           label: l10n.delete,
                           color: Colors.red,
                           backgroundColor: Colors.red.withValues(alpha: 0.1),
-                          onPressed: () => _showDeleteConfirmation(context, l10n, colorController),
+                          onPressed: () => _showDeleteConfirmation(
+                              context, l10n, colorController),
                         ),
                       ),
                     if (widget.note != null || widget.userNoteContent != null)
                       const SizedBox(width: 12),
-                    
+
                     // Cancel button
                     Expanded(
                       child: _buildActionButton(
@@ -223,7 +226,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    
+
                     // Save button
                     Expanded(
                       flex: 2,
@@ -350,7 +353,8 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                           side: BorderSide(
-                            color: colorController.textColor.value.withValues(alpha: 0.2),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.2),
                           ),
                         ),
                       ),
@@ -508,6 +512,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
   bool _isExpanded = false;
   bool _showCommunityNotes = false;
   final NoteService _noteService = NoteService();
+  final Map<String, bool> _editPermissionCache = {};
 
   @override
   void initState() {
@@ -564,15 +569,16 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
             child: Container(
               margin: const EdgeInsets.all(AppDimensions.md),
               decoration: BoxDecoration(
-                color: colorController.primaryColor.value.withValues(alpha: 0.08),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(16),
-                 border: Border.all(
-                   color: _isExpanded
-                       ? colorController.primaryColor.value
-                           .withValues(alpha: 0.15)
-                       : Colors.transparent,
-                   width: 1.5,
-                 ),
+                border: Border.all(
+                  color: _isExpanded
+                      ? colorController.primaryColor.value
+                          .withValues(alpha: 0.15)
+                      : Colors.transparent,
+                  width: 1.5,
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -624,7 +630,8 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 duration: const Duration(milliseconds: 300),
                 child: Icon(
                   Icons.note_alt_outlined,
-                  color: colorController.primaryColor.value.withValues(alpha: 0.5),
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.5),
                   size: widget.fontSize * 1.2,
                 ),
               ),
@@ -726,19 +733,17 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               child: _showCommunityNotes
-                  ? Column(
-                      children: widget.publicNotes.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final note = entry.value;
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              bottom: index < widget.publicNotes.length - 1
-                                  ? 12.0
-                                  : 0),
-                          child: _buildPublicNote(
-                              context, note, colorController, l10n),
-                        );
-                      }).toList(),
+                  ? ListView.separated(
+                      key: const PageStorageKey('community_notes_list'),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: widget.publicNotes.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final note = widget.publicNotes[index];
+                        return _buildPublicNote(
+                            context, note, colorController, l10n);
+                      },
                     )
                   : const SizedBox.shrink(),
             ),
@@ -926,7 +931,12 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
 
   // Helper method to check if current user can edit a note
   Future<bool> _canEditNote(Note note) async {
-    return await _noteService.canEditNote(note);
+    final cached = _editPermissionCache[note.id];
+    if (cached != null) return cached;
+
+    final canEdit = await _noteService.canEditNote(note);
+    _editPermissionCache[note.id] = canEdit;
+    return canEdit;
   }
 
   Widget _buildPublicNote(

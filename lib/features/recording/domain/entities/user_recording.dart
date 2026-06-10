@@ -102,7 +102,7 @@ class UserRecording {
     };
   }
 
-factory UserRecording.fromMap(Map<String, dynamic> map) {
+  factory UserRecording.fromMap(Map<String, dynamic> map) {
     // Handle different possible field names for duration
     int duration = 0;
     if (map.containsKey('durationSeconds')) {
@@ -110,11 +110,12 @@ factory UserRecording.fromMap(Map<String, dynamic> map) {
     } else if (map.containsKey('duration')) {
       duration = map['duration']?.toInt() ?? 0;
     }
-    
+
     if (kDebugMode) {
-      print('UserRecording.fromMap: Loaded recording with duration: $duration seconds from map');
+      print(
+          'UserRecording.fromMap: Loaded recording with duration: $duration seconds from map');
     }
-    
+
     return UserRecording(
       id: map['id'] ?? '',
       hymnId: map['hymnId'] ?? '',

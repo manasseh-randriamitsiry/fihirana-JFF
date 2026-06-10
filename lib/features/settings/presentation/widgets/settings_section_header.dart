@@ -16,7 +16,7 @@ class SettingsSectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
       child: Text(
@@ -29,8 +29,8 @@ class SettingsSectionHeader extends StatelessWidget {
         ),
       ),
     ).animate().fadeIn(
-      delay: Duration(milliseconds: animationDelay ?? 0),
-      duration: const Duration(milliseconds: 400),
-    );
+          delay: Duration(milliseconds: animationDelay ?? 0),
+          duration: const Duration(milliseconds: 400),
+        );
   }
 }

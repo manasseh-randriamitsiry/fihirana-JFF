@@ -86,7 +86,8 @@ class BibleSearchResultItem extends StatelessWidget {
     );
   }
 
-  Widget _buildHighlightedVerseText(BibleController bibleController, ColorController colorController) {
+  Widget _buildHighlightedVerseText(
+      BibleController bibleController, ColorController colorController) {
     final query = bibleController.searchQuery.value;
     if (query.isEmpty) {
       return Text(

@@ -37,8 +37,7 @@ class ContactListItemWidget extends StatelessWidget {
       color: colorController.backgroundColor.value,
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor:
               colorController.primaryColor.value.withValues(alpha: 0.15),
@@ -66,14 +65,14 @@ class ContactListItemWidget extends StatelessWidget {
               children: [
                 Icon(Icons.phone,
                     size: 14,
-                    color: colorController.iconColor.value
-                        .withValues(alpha: 0.7)),
+                    color:
+                        colorController.iconColor.value.withValues(alpha: 0.7)),
                 const SizedBox(width: 4),
                 Text(
                   contact.phoneNumber,
                   style: TextStyle(
-                    color: colorController.textColor.value
-                        .withValues(alpha: 0.7),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                 ),
@@ -123,10 +122,7 @@ class ContactListItemWidget extends StatelessWidget {
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0);
+    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0);
   }
 }
 

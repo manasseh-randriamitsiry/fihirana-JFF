@@ -19,8 +19,8 @@ class ClearHistoryDialogWidget extends StatelessWidget {
       backgroundColor: backgroundColor,
       title: Text(l10n.clearAllHistoryQuestion,
           style: TextStyle(color: textColor)),
-      content: Text(l10n.historyCannotBeUndone,
-          style: TextStyle(color: textColor)),
+      content:
+          Text(l10n.historyCannotBeUndone, style: TextStyle(color: textColor)),
       actions: [
         TextButton(
           onPressed: () => Get.back(),
@@ -53,8 +53,8 @@ class DeleteSelectedHistoryDialogWidget extends StatelessWidget {
       backgroundColor: backgroundColor,
       title: Text(l10n.deleteSelectedHistoryQuestion,
           style: TextStyle(color: textColor)),
-      content: Text(l10n.historyCannotBeUndone,
-          style: TextStyle(color: textColor)),
+      content:
+          Text(l10n.historyCannotBeUndone, style: TextStyle(color: textColor)),
       actions: [
         TextButton(
           onPressed: () => Get.back(),

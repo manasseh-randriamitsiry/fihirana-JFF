@@ -24,7 +24,8 @@ class TranslationService implements ITranslationService {
     try {
       // For now, return original text as placeholder
       // In a real implementation, you would integrate with a translation API
-      await Future.delayed(const Duration(milliseconds: 100)); // Simulate network delay
+      await Future.delayed(
+          const Duration(milliseconds: 100)); // Simulate network delay
       return text;
     } catch (e) {
       if (kDebugMode) {
@@ -42,7 +43,8 @@ class TranslationService implements ITranslationService {
 
   // Translate multiple texts at once
   @override
-  Future<Map<String, String>> translateBatch(Map<String, String> texts, String from, String to) async {
+  Future<Map<String, String>> translateBatch(
+      Map<String, String> texts, String from, String to) async {
     final results = <String, String>{};
     for (final entry in texts.entries) {
       results[entry.key] = await translateText(entry.value, from, to);
@@ -68,10 +70,10 @@ class TranslationService implements ITranslationService {
 
   // Get supported languages
   Map<String, String> get supportedLanguagesMap => {
-    'en': 'English',
-    'fr': 'Français',
-    'mg': 'Malagasy',
-  };
+        'en': 'English',
+        'fr': 'Français',
+        'mg': 'Malagasy',
+      };
 
   // Get supported languages as list
   List<String> get supportedLanguages => supportedLanguagesMap.keys.toList();
@@ -83,8 +85,8 @@ class TranslationService implements ITranslationService {
 
   // Check if translation is available
   bool isTranslationAvailable(String from, String to) {
-    return supportedLanguagesMap.containsKey(from) && 
-            supportedLanguagesMap.containsKey(to);
+    return supportedLanguagesMap.containsKey(from) &&
+        supportedLanguagesMap.containsKey(to);
   }
 
   // Check if language is supported
@@ -103,9 +105,10 @@ class TranslationService implements ITranslationService {
 
   // Simple cache implementation
   final Map<String, String> _translationCache = {};
-  
+
   // Get cached translation or translate if not cached
-  Future<String> getCachedTranslation(String text, String from, String to) async {
+  Future<String> getCachedTranslation(
+      String text, String from, String to) async {
     final cacheKey = '${text}_$from-$to';
     if (_translationCache.containsKey(cacheKey)) {
       return _translationCache[cacheKey]!;

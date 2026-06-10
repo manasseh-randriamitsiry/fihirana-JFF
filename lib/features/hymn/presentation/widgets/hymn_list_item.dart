@@ -109,20 +109,22 @@ class _HymnListItemState extends State<HymnListItem>
                     controller: confirmationController,
                     style: TextStyle(color: widget.textColor),
                     decoration: InputDecoration(
-                      hintText:
-                          context.translate((l) => l.yesLowercase),
+                      hintText: context.translate((l) => l.yesLowercase),
                       hintStyle: TextStyle(
                           color: widget.textColor.withValues(alpha: 0.5)),
                       border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                        borderRadius:
+                            BorderRadius.circular(AppDimensions.radiusSm),
                         borderSide: BorderSide(color: widget.textColor),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                        borderRadius:
+                            BorderRadius.circular(AppDimensions.radiusSm),
                         borderSide: BorderSide(color: widget.textColor),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppDimensions.radiusSm),
+                        borderRadius:
+                            BorderRadius.circular(AppDimensions.radiusSm),
                         borderSide: BorderSide(
                             color: Theme.of(context).colorScheme.primary),
                       ),
@@ -137,8 +139,7 @@ class _HymnListItemState extends State<HymnListItem>
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
-                              context.translate(
-                                  (l) => l.typeYesToConfirm),
+                              context.translate((l) => l.typeYesToConfirm),
                               style: const TextStyle(color: Colors.white),
                             ),
                             backgroundColor: Colors.red,
@@ -166,8 +167,7 @@ class _HymnListItemState extends State<HymnListItem>
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-context
-                                .translate((l) => l.typeYesToConfirm),
+                            context.translate((l) => l.typeYesToConfirm),
                             style: const TextStyle(color: Colors.white),
                           ),
                           backgroundColor: Colors.red,
@@ -195,8 +195,7 @@ context
           title: Text(context.translate((l) => l.deleteHymnQuestion),
               style: TextStyle(color: widget.textColor)),
           content: Text(
-            context.translate(
-                (l) => l.confirmDeleteHymn(widget.hymn.title)),
+            context.translate((l) => l.confirmDeleteHymn(widget.hymn.title)),
             style: TextStyle(color: widget.textColor),
           ),
           actions: <Widget>[
@@ -212,8 +211,10 @@ context
                 // Capture the context and localized messages before any async operations
                 final navigator = Navigator.of(context);
                 final scaffoldMessenger = ScaffoldMessenger.of(context);
-                final deleteHymnFailedMessage = context.translate((l) => l.deleteHymnFailed);
-                final hymnDeletedSuccessMessage = context.translate((l) => l.hymnDeletedSuccess);
+                final deleteHymnFailedMessage =
+                    context.translate((l) => l.deleteHymnFailed);
+                final hymnDeletedSuccessMessage =
+                    context.translate((l) => l.hymnDeletedSuccess);
                 final errorMessage = context.translate((l) => l.error);
 
                 navigator.pop();
@@ -347,8 +348,8 @@ context
                     height: 50,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: widget.primaryColor
-                          .withValues(alpha: 0.1), // Consistent accent/primary container
+                      color: widget.primaryColor.withValues(
+                          alpha: 0.1), // Consistent accent/primary container
                       shape: BoxShape.circle,
                     ),
                     child: Text(

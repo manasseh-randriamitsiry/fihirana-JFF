@@ -56,7 +56,8 @@ class AudioCacheDialog extends StatelessWidget {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -114,7 +115,8 @@ class AudioCacheDialog extends StatelessWidget {
                         Text(
                           l10n.withAudio(withAudio),
                           style: TextStyle(
-                            color: colorController.textColor.value.withValues(alpha: 0.8),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -122,7 +124,8 @@ class AudioCacheDialog extends StatelessWidget {
                         Text(
                           l10n.withoutAudio(withoutAudio),
                           style: TextStyle(
-                            color: colorController.textColor.value.withValues(alpha: 0.8),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.8),
                             fontSize: 14,
                           ),
                         ),
@@ -134,7 +137,8 @@ class AudioCacheDialog extends StatelessWidget {
                               child: TextButton(
                                 onPressed: () => Navigator.pop(context),
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                 ),
                                 child: Text(
                                   l10n.cancel,
@@ -153,12 +157,15 @@ class AudioCacheDialog extends StatelessWidget {
                                   if (context.mounted) {
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(l10n.expiredCacheCleared)),
+                                      SnackBar(
+                                          content:
+                                              Text(l10n.expiredCacheCleared)),
                                     );
                                   }
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                 ),
                                 child: Text(
                                   l10n.clearExpired,
@@ -178,12 +185,14 @@ class AudioCacheDialog extends StatelessWidget {
                                   if (context.mounted) {
                                     Navigator.pop(context);
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text(l10n.allCacheCleared)),
+                                      SnackBar(
+                                          content: Text(l10n.allCacheCleared)),
                                     );
                                   }
                                 },
                                 style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                 ),
                                 child: Text(
                                   l10n.clearAll,

@@ -15,10 +15,12 @@ class RecordingRepositoryImpl implements RecordingRepository {
   RxList<UserRecording> get recordings => _recordingService.recordings;
 
   @override
-  RxList<UserRecording> get publicRecordings => _recordingService.publicRecordings;
+  RxList<UserRecording> get publicRecordings =>
+      _recordingService.publicRecordings;
 
   @override
-  RxList<UserRecording> get deletedRecordings => _recordingService.deletedRecordings;
+  RxList<UserRecording> get deletedRecordings =>
+      _recordingService.deletedRecordings;
 
   @override
   bool get isRecording => _recordingService.isRecording;
@@ -81,7 +83,8 @@ class RecordingRepositoryImpl implements RecordingRepository {
   @override
   Future<void> deleteRecording(String recordingId) async {
     if (kDebugMode) {
-      print('RecordingRepositoryImpl: deleteRecording called with id: $recordingId');
+      print(
+          'RecordingRepositoryImpl: deleteRecording called with id: $recordingId');
     }
     return await _recordingService.deleteRecording(recordingId);
   }
@@ -92,8 +95,10 @@ class RecordingRepositoryImpl implements RecordingRepository {
   }
 
   @override
-  Future<void> permanentlyDeleteMultipleRecordings(List<String> recordingIds) async {
-    return await _recordingService.permanentlyDeleteMultipleRecordings(recordingIds);
+  Future<void> permanentlyDeleteMultipleRecordings(
+      List<String> recordingIds) async {
+    return await _recordingService
+        .permanentlyDeleteMultipleRecordings(recordingIds);
   }
 
   @override
@@ -108,7 +113,8 @@ class RecordingRepositoryImpl implements RecordingRepository {
 
   @override
   Future<void> toggleRecordingPrivacy(String recordingId, bool isPublic) async {
-    return await _recordingService.toggleRecordingPrivacy(recordingId, isPublic);
+    return await _recordingService.toggleRecordingPrivacy(
+        recordingId, isPublic);
   }
 
   @override

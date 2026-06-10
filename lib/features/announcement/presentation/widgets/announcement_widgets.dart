@@ -265,8 +265,7 @@ class AnnouncementEmptyStateWidget extends StatelessWidget {
           Icon(
             Icons.notifications_none_rounded,
             size: 80,
-            color: colorController.textColor.value
-                .withValues(alpha: 0.3),
+            color: colorController.textColor.value.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
@@ -281,8 +280,7 @@ class AnnouncementEmptyStateWidget extends StatelessWidget {
           Text(
             'Hiverina rehefa misy vaovao',
             style: TextStyle(
-              color: colorController.textColor.value
-                  .withValues(alpha: 0.6),
+              color: colorController.textColor.value.withValues(alpha: 0.6),
               fontSize: 14,
             ),
           ),
@@ -323,8 +321,7 @@ class AnnouncementErrorWidget extends StatelessWidget {
           Text(
             error,
             style: TextStyle(
-              color: colorController.textColor.value
-                  .withValues(alpha: 0.7),
+              color: colorController.textColor.value.withValues(alpha: 0.7),
               fontSize: 14,
             ),
             textAlign: TextAlign.center,

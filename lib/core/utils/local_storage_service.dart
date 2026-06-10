@@ -10,7 +10,7 @@ class LocalStorageService {
   Future<void> init() async {
     await Hive.initFlutter();
     hymnBox = await Hive.openBox<Map>(hymnBoxName);
-}
+  }
 
   Future<void> saveHymns(List<Hymn> hymns) async {
     final batch = Map.fromEntries(
@@ -169,7 +169,7 @@ class LocalStorageService {
     final usedBytes = itemCount * 1024; // Estimate 1KB per item
     const totalBytes = 100 * 1024 * 1024; // 100MB estimate
     final freeBytes = totalBytes - usedBytes;
-    
+
     return StorageInfo(
       totalBytes: totalBytes,
       usedBytes: usedBytes,

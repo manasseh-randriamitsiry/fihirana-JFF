@@ -173,13 +173,13 @@ class InitProgressTracker {
     ),
   ];
 
-  final StreamController<InitProgressEvent> _progressController = 
+  final StreamController<InitProgressEvent> _progressController =
       StreamController<InitProgressEvent>.broadcast();
-  
+
   final Map<String, DateTime> _stepStartTimes = {};
   final Map<String, DateTime> _stepEndTimes = {};
   final Map<String, String> _stepErrors = {};
-  
+
   double _currentProgress = 0.0;
   InitStepDetail? _currentStep;
   DateTime? _startTime;
@@ -194,9 +194,8 @@ class InitProgressTracker {
   InitStepDetail? get currentStep => _currentStep;
 
   /// Total initialization time
-  Duration? get totalTime => _startTime != null 
-      ? DateTime.now().difference(_startTime!) 
-      : null;
+  Duration? get totalTime =>
+      _startTime != null ? DateTime.now().difference(_startTime!) : null;
 
   /// Get all initialization steps
   List<InitStepDetail> get allSteps => List.unmodifiable(_steps);
@@ -248,14 +247,14 @@ class InitProgressTracker {
   void updateProgress(String stepId, double stepProgress) {
     final step = _steps.firstWhere((s) => s.id == stepId);
     final stepIndex = _steps.indexOf(step);
-    
+
     // Calculate overall progress
     double accumulatedProgress = 0.0;
     for (int i = 0; i < stepIndex; i++) {
       accumulatedProgress += _steps[i].weight;
     }
     accumulatedProgress += step.weight * stepProgress;
-    
+
     _currentProgress = accumulatedProgress;
     _currentStep = step;
 
@@ -266,7 +265,8 @@ class InitProgressTracker {
           ? DateTime.now().difference(_stepStartTimes[stepId]!)
           : null;
       if (kDebugMode) {
-        print('✅ Completed: ${step.name}${duration != null ? ' (${duration.inMilliseconds}ms)' : ''}');
+        print(
+            '✅ Completed: ${step.name}${duration != null ? ' (${duration.inMilliseconds}ms)' : ''}');
       }
     }
   }
@@ -308,7 +308,8 @@ class InitProgressTracker {
 
     if (kDebugMode) {
       final total = totalTime;
-      print('🎉 Initialization complete${total != null ? ' in ${total.inMilliseconds}ms' : ''}');
+      print(
+          '🎉 Initialization complete${total != null ? ' in ${total.inMilliseconds}ms' : ''}');
     }
   }
 
@@ -328,7 +329,7 @@ class InitProgressTracker {
   Duration? getStepDuration(String stepId) {
     final start = _stepStartTimes[stepId];
     final end = _stepEndTimes[stepId];
-    
+
     if (start != null && end != null) {
       return end.difference(start);
     }
@@ -343,17 +344,23 @@ class InitProgressTracker {
       'currentStep': _currentStep?.name,
       'completedSteps': _stepEndTimes.length,
       'failedSteps': _stepErrors.length,
-      'stepDetails': _steps.map((step) => {
-        'id': step.id,
-        'name': step.name,
-        'phase': step.phase.name,
-        'isCritical': step.isCritical,
-        'duration': getStepDuration(step.id)?.inMilliseconds,
-        'error': _stepErrors[step.id],
-        'status': _stepEndTimes.containsKey(step.id) 
-            ? (_stepErrors.containsKey(step.id) ? 'failed' : 'completed')
-            : (_stepStartTimes.containsKey(step.id) ? 'in_progress' : 'pending'),
-      }).toList(),
+      'stepDetails': _steps
+          .map((step) => {
+                'id': step.id,
+                'name': step.name,
+                'phase': step.phase.name,
+                'isCritical': step.isCritical,
+                'duration': getStepDuration(step.id)?.inMilliseconds,
+                'error': _stepErrors[step.id],
+                'status': _stepEndTimes.containsKey(step.id)
+                    ? (_stepErrors.containsKey(step.id)
+                        ? 'failed'
+                        : 'completed')
+                    : (_stepStartTimes.containsKey(step.id)
+                        ? 'in_progress'
+                        : 'pending'),
+              })
+          .toList(),
     };
   }
 

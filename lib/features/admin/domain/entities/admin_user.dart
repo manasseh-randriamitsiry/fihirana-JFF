@@ -96,8 +96,10 @@ class AdminUser {
       photoUrl: map['photoUrl'],
       isAdmin: map['isAdmin'] ?? false,
       isBlocked: map['isBlocked'] ?? false,
-      lastLogin: map['lastLogin'] != null ? DateTime.parse(map['lastLogin']) : null,
-      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+      lastLogin:
+          map['lastLogin'] != null ? DateTime.parse(map['lastLogin']) : null,
+      createdAt:
+          DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
       metadata: Map<String, dynamic>.from(map['metadata'] ?? {}),
     );
   }

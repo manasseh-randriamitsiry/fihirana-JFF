@@ -46,7 +46,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        Get.snackbar(AppLocalizations.of(context).error, AppLocalizations.of(context).failedToLoadConfiguration(e.toString()));
+        Get.snackbar(
+            AppLocalizations.of(context).error,
+            AppLocalizations.of(context)
+                .failedToLoadConfiguration(e.toString()));
       }
     }
   }
@@ -85,11 +88,15 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       await AdminControlService.setAdminConfig(updatedConfig);
       await _loadConfig(); // Reload to confirm
       if (mounted) {
-        Get.snackbar(AppLocalizations.of(context).success, AppLocalizations.of(context).configurationUpdatedSuccessfully);
+        Get.snackbar(AppLocalizations.of(context).success,
+            AppLocalizations.of(context).configurationUpdatedSuccessfully);
       }
     } catch (e) {
       if (mounted) {
-        Get.snackbar(AppLocalizations.of(context).error, AppLocalizations.of(context).failedToSaveConfiguration(e.toString()));
+        Get.snackbar(
+            AppLocalizations.of(context).error,
+            AppLocalizations.of(context)
+                .failedToSaveConfiguration(e.toString()));
       }
     } finally {
       setState(() => _isSaving = false);
@@ -262,14 +269,15 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   size: 24,
                 ),
                 const SizedBox(width: 8),
-                 Text(
-                   config.emergencyMode
-                       ? AppLocalizations.of(context).emergencyModeActive
-                       : config.updatesEnabled
-                           ? AppLocalizations.of(context).updatesEnabled
-                           : AppLocalizations.of(context).updatesDisabled,
-                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                 ),
+                Text(
+                  config.emergencyMode
+                      ? AppLocalizations.of(context).emergencyModeActive
+                      : config.updatesEnabled
+                          ? AppLocalizations.of(context).updatesEnabled
+                          : AppLocalizations.of(context).updatesDisabled,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -285,12 +293,13 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   children: [
                     const Icon(Icons.message, color: Colors.blue),
                     const SizedBox(width: 8),
-                       Expanded(
-                         child: Text(
-                           AppLocalizations.of(context).adminMessageLabel(config.adminMessage!),
-                           style: const TextStyle(color: Colors.blue),
-                         ),
-                       ),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)
+                            .adminMessageLabel(config.adminMessage!),
+                        style: const TextStyle(color: Colors.blue),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -307,12 +316,13 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   children: [
                     const Icon(Icons.block, color: Colors.red),
                     const SizedBox(width: 8),
-                     Expanded(
-                       child: Text(
-                         AppLocalizations.of(context).blockedVersionLabel(config.blockedVersion!),
-                         style: const TextStyle(color: Colors.red),
-                       ),
-                     ),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)
+                            .blockedVersionLabel(config.blockedVersion!),
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -329,10 +339,10 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text(
-               AppLocalizations.of(context).quickActions,
-               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-             ),
+            Text(
+              AppLocalizations.of(context).quickActions,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -352,7 +362,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   child: ElevatedButton.icon(
                     onPressed: () async {
                       final successText = AppLocalizations.of(context).success;
-                      final clearedText = AppLocalizations.of(context).allCacheCleared;
+                      final clearedText =
+                          AppLocalizations.of(context).allCacheCleared;
                       await AdminControlService.clearCache();
                       if (!mounted) return;
                       Get.snackbar(successText, clearedText);
@@ -382,16 +393,17 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-             Text(
-               AppLocalizations.of(context).configuration,
-               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-             ),
+            Text(
+              AppLocalizations.of(context).configuration,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
 
             // Toggle Switches
             SwitchListTile(
               title: Text(AppLocalizations.of(context).enableUpdates),
-              subtitle: Text(AppLocalizations.of(context).allowUsersToDownloadUpdates),
+              subtitle: Text(
+                  AppLocalizations.of(context).allowUsersToDownloadUpdates),
               value: config.updatesEnabled,
               onChanged: (value) {
                 setState(() {
@@ -481,7 +493,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               controller: _adminMessageController,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context).adminMessage,
-                hintText: AppLocalizations.of(context).messageToDisplayToAllUsers,
+                hintText:
+                    AppLocalizations.of(context).messageToDisplayToAllUsers,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.message),
               ),

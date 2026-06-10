@@ -92,7 +92,8 @@ class User {
       isSuperAdmin: isSuperAdmin ?? this.isSuperAdmin,
       addedHymnsCount: addedHymnsCount ?? this.addedHymnsCount,
       monthlyHymnCount: monthlyHymnCount ?? this.monthlyHymnCount,
-      lastHymnAdditionMonth: lastHymnAdditionMonth ?? this.lastHymnAdditionMonth,
+      lastHymnAdditionMonth:
+          lastHymnAdditionMonth ?? this.lastHymnAdditionMonth,
       createdAt: createdAt ?? this.createdAt,
       lastLogin: lastLogin ?? this.lastLogin,
     );

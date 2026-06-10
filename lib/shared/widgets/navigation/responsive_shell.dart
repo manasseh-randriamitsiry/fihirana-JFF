@@ -42,7 +42,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
             if (navigator != null && navigator.canPop()) {
               navigator.pop();
             } else {
-              if (shellController.zoomDrawerController.isOpen?.call()??
+              if (shellController.zoomDrawerController.isOpen?.call() ??
                   false) {
                 shellController.toggleDrawer();
               } else {
@@ -51,22 +51,22 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
             }
           },
           child: ZoomDrawer(
-              controller: shellController.zoomDrawerController,
-              style: DrawerStyle.defaultStyle,
-              menuScreen: DrawerWidget(
-                key: const ValueKey('zoom_drawer'),
-                openDrawer: shellController.toggleDrawer,
-              ),
-              mainScreen: widget.child,
-              borderRadius: AppDimensions.radiusXxl,
-              showShadow: true,
-              angle: -12.0,
-              menuBackgroundColor: _colorController.drawerColor.value,
-              slideWidth: width * 0.85,
-              mainScreenTapClose: true,
-              openCurve: Curves.fastOutSlowIn,
-              closeCurve: Curves.bounceIn,
+            controller: shellController.zoomDrawerController,
+            style: DrawerStyle.defaultStyle,
+            menuScreen: DrawerWidget(
+              key: const ValueKey('zoom_drawer'),
+              openDrawer: shellController.toggleDrawer,
             ),
+            mainScreen: widget.child,
+            borderRadius: AppDimensions.radiusXxl,
+            showShadow: true,
+            angle: -12.0,
+            menuBackgroundColor: _colorController.drawerColor.value,
+            slideWidth: width * 0.85,
+            mainScreenTapClose: true,
+            openCurve: Curves.fastOutSlowIn,
+            closeCurve: Curves.bounceIn,
+          ),
         );
       } else {
         // Tablet/Desktop Layout: Use Row with Side Drawer
@@ -142,18 +142,17 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
         );
       }
 
-      // Wrap the main content with the recording overlay manager
-      // This ensures only one instance of the overlay manager exists
+      // Keep the recording overlay in the same render tree as the app shell.
+      // Creating a fresh Overlay widget here would allocate a new overlay
+      // stack on every rebuild, which is unnecessary on low-end devices.
       return Stack(
         children: [
           mainContent,
-          // Single recording overlay manager for all layouts
-          Overlay(
-            initialEntries: [
-              OverlayEntry(
-                builder: (context) => const RecordingOverlayManager(),
-              ),
-            ],
+          const Positioned.fill(
+            child: IgnorePointer(
+              ignoring: false,
+              child: RecordingOverlayManager(),
+            ),
           ),
         ],
       );

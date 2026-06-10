@@ -119,11 +119,14 @@ class RecordingController extends GetxController {
   bool get isRecording => operationsController.isRecording;
   bool get isPaused => operationsController.isPaused;
   int get recordDuration => operationsController.recordDuration;
-  bool get isLoading => dataController.isLoading || publishingController.isLoading;
+  bool get isLoading =>
+      dataController.isLoading || publishingController.isLoading;
   bool get isUploading => driveController.isUploading;
   List<UserRecording> get recordings => dataController.recordings;
-  List<UserRecording> get publicRecordings => publishingController.publicRecordings;
-  Set<String> get uploadingRecordingIds => driveController.uploadingRecordingIds;
+  List<UserRecording> get publicRecordings =>
+      publishingController.publicRecordings;
+  Set<String> get uploadingRecordingIds =>
+      driveController.uploadingRecordingIds;
   Map<String, String> get uploadErrors => driveController.uploadErrors;
   bool get overlayVisible => uiController.overlayVisible;
   bool get isOverlayMinimized => uiController.isOverlayMinimized;

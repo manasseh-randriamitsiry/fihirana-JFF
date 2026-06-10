@@ -89,18 +89,15 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       if (!mounted) return;
 
       final newCurrentHymn = _audioService.currentHymn;
-      
-      setState(() {
-        _currentDisplayedHymn = newCurrentHymn;
-      });
-      
-      // Notify parent of the change
-      if (newCurrentHymn != null) {
-        widget.onHymnChange?.call(newCurrentHymn);
+      if (newCurrentHymn?.id != _currentDisplayedHymn?.id) {
+        setState(() {
+          _currentDisplayedHymn = newCurrentHymn;
+        });
+        if (newCurrentHymn != null) {
+          widget.onHymnChange?.call(newCurrentHymn);
+        }
+        _updatePlayingState();
       }
-
-      // Always update playing state when hymn changes
-      _updatePlayingState();
     });
 
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
@@ -136,16 +133,32 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
 
     _positionSubscription = _audioService.positionStream.listen((position) {
       if (!mounted || _isDraggingSlider) return;
-      setState(() {
-        _position = position;
-      });
+      final positionValue = position;
+      if (positionValue == null) return;
+      final currentPosition = _position;
+      if (currentPosition == null) {
+        setState(() {
+          _position = positionValue;
+        });
+        return;
+      }
+
+      final positionMillis = positionValue.inMilliseconds;
+      final currentPositionMillis = currentPosition.inMilliseconds;
+      if ((positionMillis - currentPositionMillis).abs() >= 500) {
+        setState(() {
+          _position = positionValue;
+        });
+      }
     });
 
     _durationSubscription = _audioService.durationStream.listen((duration) {
       if (!mounted) return;
-      setState(() {
-        _duration = duration;
-      });
+      if (_duration != duration) {
+        setState(() {
+          _duration = duration;
+        });
+      }
     });
   }
 
@@ -154,12 +167,19 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     final currentHymn = _audioService.currentHymn;
     if (currentHymn?.id == _currentDisplayedHymn?.id ||
         _currentDisplayedHymn == null) {
-      setState(() {
-        _isPlaying = _audioService.isPlaying;
-        _isLoading = false;
-        _duration = _audioService.player.duration;
-        _position = _audioService.player.position;
-      });
+      final nextDuration = _audioService.player.duration;
+      final nextPosition = _audioService.player.position;
+      if (_isPlaying != _audioService.isPlaying ||
+          _duration != nextDuration ||
+          _position != nextPosition ||
+          _isLoading) {
+        setState(() {
+          _isPlaying = _audioService.isPlaying;
+          _isLoading = false;
+          _duration = nextDuration;
+          _position = nextPosition;
+        });
+      }
     }
   }
 
@@ -171,13 +191,17 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
 
     // Update playing state if this matches current playing hymn
     if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
-      setState(() {
-        _isPlaying = _audioService.isPlaying;
-        _isLoading = _audioService.player.playerState.processingState ==
-                ProcessingState.loading ||
-            _audioService.player.playerState.processingState ==
-                ProcessingState.buffering;
-      });
+      final nextIsLoading = _audioService.player.playerState.processingState ==
+              ProcessingState.loading ||
+          _audioService.player.playerState.processingState ==
+              ProcessingState.buffering;
+      if (_isPlaying != _audioService.isPlaying ||
+          _isLoading != nextIsLoading) {
+        setState(() {
+          _isPlaying = _audioService.isPlaying;
+          _isLoading = nextIsLoading;
+        });
+      }
     }
   }
 
@@ -297,7 +321,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _audioService.currentDisplayTitle.isNotEmpty 
+                            _audioService.currentDisplayTitle.isNotEmpty
                                 ? _audioService.currentDisplayTitle
                                 : widget.hymn.title,
                             style: const TextStyle(

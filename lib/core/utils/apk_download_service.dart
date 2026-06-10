@@ -121,7 +121,8 @@ class ApkDownloadService {
         if (kDebugMode) {
           print('✅ Download completed at: ${DateTime.now()}');
         }
-        await DownloadNotificationBuilder.showDownloadComplete(fileName: fileName);
+        await DownloadNotificationBuilder.showDownloadComplete(
+            fileName: fileName);
       } else {
         // Download failed
         if (kDebugMode) {

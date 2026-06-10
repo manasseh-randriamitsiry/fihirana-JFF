@@ -12,7 +12,8 @@ class PlaylistDI {
   static void initialize() {
     // Services
     Get.lazyPut<SharedPreferences>(
-      () => throw UnimplementedError('SharedPreferences should be initialized globally'),
+      () => throw UnimplementedError(
+          'SharedPreferences should be initialized globally'),
     );
     Get.lazyPut<FirebaseAuth>(
       () => FirebaseAuth.instance,

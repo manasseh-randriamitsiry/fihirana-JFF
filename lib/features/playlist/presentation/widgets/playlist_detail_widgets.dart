@@ -131,7 +131,8 @@ class PlaylistHeaderInfo extends StatelessWidget {
                   Icon(
                     Icons.edit,
                     size: 14,
-                    color: colorController.textColor.value.withValues(alpha: 0.5),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.5),
                   ),
                 ],
               ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 
-
 class BibleChapterGridWidget extends StatelessWidget {
   final List<int> chapters;
   final Function(int) onChapterSelected;
@@ -16,7 +15,7 @@ class BibleChapterGridWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -35,7 +34,8 @@ class BibleChapterGridWidget extends StatelessWidget {
               color: colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: colorController.primaryColor.value.withValues(alpha: 0.2),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.2),
               ),
             ),
             child: Center(

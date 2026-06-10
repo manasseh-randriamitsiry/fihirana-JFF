@@ -19,10 +19,10 @@ class FavoritesController extends GetxController {
     required ToggleFavoriteUseCase toggleFavoriteUseCase,
     required CheckAudioAvailabilityUseCase checkAudioAvailabilityUseCase,
     required IsHymnPlayingUseCase isHymnPlayingUseCase,
-  }) : _getFavoriteHymnsStreamUseCase = getFavoriteHymnsStreamUseCase,
-       _toggleFavoriteUseCase = toggleFavoriteUseCase,
-       _checkAudioAvailabilityUseCase = checkAudioAvailabilityUseCase,
-       _isHymnPlayingUseCase = isHymnPlayingUseCase;
+  })  : _getFavoriteHymnsStreamUseCase = getFavoriteHymnsStreamUseCase,
+        _toggleFavoriteUseCase = toggleFavoriteUseCase,
+        _checkAudioAvailabilityUseCase = checkAudioAvailabilityUseCase,
+        _isHymnPlayingUseCase = isHymnPlayingUseCase;
 
   // Observable state
   final RxList<Hymn> favoriteHymns = <Hymn>[].obs;
@@ -70,10 +70,11 @@ class FavoritesController extends GetxController {
     } else {
       final query = searchQuery.value.toLowerCase();
       filteredHymns.assignAll(
-        favoriteHymns.where((hymn) =>
-          hymn.title.toLowerCase().contains(query) ||
-          hymn.hymnNumber.toLowerCase().contains(query)
-        ).toList(),
+        favoriteHymns
+            .where((hymn) =>
+                hymn.title.toLowerCase().contains(query) ||
+                hymn.hymnNumber.toLowerCase().contains(query))
+            .toList(),
       );
     }
   }

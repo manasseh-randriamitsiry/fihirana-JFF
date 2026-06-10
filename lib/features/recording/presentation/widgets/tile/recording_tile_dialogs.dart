@@ -17,6 +17,7 @@ class RecordingTileDialogs {
     }
     return ctrl;
   }
+
   static final AuthController authController = Get.find<AuthController>();
 
   static bool isAdminAndOwner(UserRecording recording) {
@@ -53,7 +54,8 @@ class RecordingTileDialogs {
   static void showDeleteConfirmation(
       BuildContext context, UserRecording recording) {
     if (kDebugMode) {
-      print('RecordingTileDialogs: showDeleteConfirmation called for recording: ${recording.id} - ${recording.title}');
+      print(
+          'RecordingTileDialogs: showDeleteConfirmation called for recording: ${recording.id} - ${recording.title}');
     }
     final l10n = AppLocalizations.of(context);
     final bool owner = isOwner(recording);
@@ -167,7 +169,8 @@ class RecordingTileDialogs {
             ElevatedButton(
               onPressed: () {
                 if (kDebugMode) {
-                  print('RecordingTileDialogs: Delete button pressed for recording: ${recording.id}');
+                  print(
+                      'RecordingTileDialogs: Delete button pressed for recording: ${recording.id}');
                 }
                 controller.deleteRecording(recording);
                 Navigator.pop(context);
@@ -340,7 +343,8 @@ class RecordingTileDialogs {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
-                    borderSide: const BorderSide(color: Colors.orange, width: 2),
+                    borderSide:
+                        const BorderSide(color: Colors.orange, width: 2),
                   ),
                   errorText: errorMessage,
                   errorBorder: OutlineInputBorder(

@@ -11,8 +11,10 @@ class StorageInfo {
     required this.itemCount,
   });
 
-  double get usedPercentage => totalBytes > 0 ? (usedBytes / totalBytes) * 100 : 0;
-  double get freePercentage => totalBytes > 0 ? (freeBytes / totalBytes) * 100 : 0;
+  double get usedPercentage =>
+      totalBytes > 0 ? (usedBytes / totalBytes) * 100 : 0;
+  double get freePercentage =>
+      totalBytes > 0 ? (freeBytes / totalBytes) * 100 : 0;
 
   @override
   String toString() {

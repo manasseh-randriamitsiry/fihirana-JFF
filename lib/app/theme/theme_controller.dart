@@ -10,7 +10,6 @@ class ThemeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadThemeFromPrefs();
 
     // Listen to system theme changes
     SchedulerBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
@@ -22,7 +21,7 @@ class ThemeController extends GetxController {
   }
 
   Future<void> loadThemeFromPrefs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     isAutoTheme.value = prefs.getBool('isAutoTheme') ?? true;
 
     if (isAutoTheme.value) {
@@ -40,7 +39,7 @@ class ThemeController extends GetxController {
     Get.changeThemeMode(isDarkMode.value ? ThemeMode.dark : ThemeMode.light);
   }
 
-  void toggleTheme() async {
+  Future<void> toggleTheme() async {
     // Manual toggle disables auto-theme
     isAutoTheme.value = false;
     isDarkMode.value = !isDarkMode.value;
@@ -51,7 +50,7 @@ class ThemeController extends GetxController {
     await prefs.setBool('isDarkMode', isDarkMode.value);
   }
 
-  void setAutoTheme(bool enabled) async {
+  Future<void> setAutoTheme(bool enabled) async {
     isAutoTheme.value = enabled;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isAutoTheme', enabled);

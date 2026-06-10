@@ -26,7 +26,6 @@ class AnnouncementService implements IAnnouncementService {
   @override
   Future<void> checkNewAnnouncements() async {
     try {
-
       final prefs = await SharedPreferences.getInstance();
       final lastCheck = prefs.getInt('last_announcement_check') ?? 0;
       final now = DateTime.now().millisecondsSinceEpoch;
@@ -53,7 +52,6 @@ class AnnouncementService implements IAnnouncementService {
           if (expiresAt != null) {
             final expirationDate = expiresAt.toDate();
             if (DateTime.now().isAfter(expirationDate)) {
-
               await _markAnnouncementAsSeen(id);
               continue;
             }
@@ -74,7 +72,8 @@ class AnnouncementService implements IAnnouncementService {
   }
 
   @override
-  Future<void> createAnnouncement(String title, String message, {DateTime? expiresAt}) async {
+  Future<void> createAnnouncement(String title, String message,
+      {DateTime? expiresAt}) async {
     try {
       final user = _auth.currentUser;
       if (user?.email != 'manassehrandriamitsiry@gmail.com') {
@@ -95,7 +94,9 @@ class AnnouncementService implements IAnnouncementService {
         createdByEmail: user?.email ?? '',
       );
 
-      await _firestore.collection('announcements').add(announcement.toFirestore());
+      await _firestore
+          .collection('announcements')
+          .add(announcement.toFirestore());
 
       SnackbarUtility.showSuccess(
         title: 'Fahombiazana',
@@ -126,7 +127,8 @@ class AnnouncementService implements IAnnouncementService {
   }
 
   @override
-  Future<void> updateAnnouncement(String id, String title, String message, {DateTime? expiresAt}) async {
+  Future<void> updateAnnouncement(String id, String title, String message,
+      {DateTime? expiresAt}) async {
     try {
       final user = _auth.currentUser;
       if (user?.email != 'manassehrandriamitsiry@gmail.com') {

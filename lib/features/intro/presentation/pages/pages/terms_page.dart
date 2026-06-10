@@ -15,7 +15,7 @@ class TermsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final splashController = SplashController.to;
-    
+
     // Soft Pastel Orange/Cream Palette
     const backgroundColor = Color(0xFFFFF8E1); // Very light amber/cream
     const primaryColor = Color(0xFFFF8F00); // Amber
@@ -29,10 +29,11 @@ class TermsPage extends StatelessWidget {
             SliverFillRemaining(
               hasScrollBody: false,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24.0, vertical: 16.0),
                 child: Column(
                   children: [
-                   // Icon
+                    // Icon
                     Center(
                       child: Container(
                         width: 60,
@@ -54,9 +55,9 @@ class TermsPage extends StatelessWidget {
                           color: primaryColor,
                         ),
                       )
-                      .animate()
-                      .scale(duration: 800.ms, curve: Curves.elasticOut)
-                      .fadeIn(duration: 600.ms),
+                          .animate()
+                          .scale(duration: 800.ms, curve: Curves.elasticOut)
+                          .fadeIn(duration: 600.ms),
                     ),
 
                     const SizedBox(height: 12),
@@ -64,20 +65,24 @@ class TermsPage extends StatelessWidget {
                     // Title
                     Text(
                       l10n.termsAndConditions,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: textColor,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: textColor,
+                              ),
                       textAlign: TextAlign.center,
-                    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
+                    )
+                        .animate()
+                        .fadeIn(delay: 200.ms)
+                        .slideY(begin: 0.2, end: 0),
 
                     const SizedBox(height: 4),
 
                     Text(
                       "Please review and accept our terms to continue",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: textColor.withValues(alpha: 0.7),
-                      ),
+                            color: textColor.withValues(alpha: 0.7),
+                          ),
                       textAlign: TextAlign.center,
                     ).animate().fadeIn(delay: 300.ms),
 
@@ -87,7 +92,8 @@ class TermsPage extends StatelessWidget {
                     // Using Flexible to allow minimizing if content is short, but taking space if needed.
                     Flexible(
                       child: Container(
-                        constraints: const BoxConstraints(minHeight: 150), // Ensure at least some visibility
+                        constraints: const BoxConstraints(
+                            minHeight: 150), // Ensure at least some visibility
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(28),
@@ -109,26 +115,39 @@ class TermsPage extends StatelessWidget {
                               children: [
                                 Text(
                                   l10n.agreement,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: textColor,
-                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: textColor,
+                                      ),
                                 ),
                                 const SizedBox(height: 16),
-                                AgreementItemWidget(text: l10n.term1,),
+                                AgreementItemWidget(
+                                  text: l10n.term1,
+                                ),
                                 const SizedBox(height: 16),
                                 AgreementItemWidget(text: l10n.term2),
                                 const SizedBox(height: 16),
                                 // Extra dummy text to ensure scrolling is testable
                                 Text(
                                   "By using this application, you agree to our Terms of Service and Privacy Policy. We respect your data and privacy.",
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: textColor.withValues(alpha: 0.6)),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                          color:
+                                              textColor.withValues(alpha: 0.6)),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                      ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2, end: 0),
+                      )
+                          .animate()
+                          .fadeIn(delay: 400.ms)
+                          .slideY(begin: 0.2, end: 0),
                     ),
 
                     const SizedBox(height: 16),
@@ -136,51 +155,59 @@ class TermsPage extends StatelessWidget {
                     // Checkbox and Accept
                     Column(
                       children: [
-                         InkWell(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              splashController.toggleAgreement();
-                            },
-                            borderRadius: BorderRadius.circular(16),
-                            child: Obx(() => Row(
-                              children: [
-                                AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  width: 24,
-                                  height: 24,
-                                  decoration: BoxDecoration(
-                                    color: splashController.agreementAccepted.value
-                                        ? primaryColor
-                                        : Colors.transparent,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: splashController.agreementAccepted.value
+                        InkWell(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            splashController.toggleAgreement();
+                          },
+                          borderRadius: BorderRadius.circular(16),
+                          child: Obx(() => Row(
+                                children: [
+                                  AnimatedContainer(
+                                    duration: const Duration(milliseconds: 200),
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: splashController
+                                              .agreementAccepted.value
                                           ? primaryColor
-                                          : textColor.withValues(alpha: 0.4),
-                                      width: 2,
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: splashController
+                                                .agreementAccepted.value
+                                            ? primaryColor
+                                            : textColor.withValues(alpha: 0.4),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child:
+                                        splashController.agreementAccepted.value
+                                            ? const Icon(Icons.check,
+                                                size: 16, color: Colors.white)
+                                            : null,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.acceptTerms,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodyLarge
+                                          ?.copyWith(
+                                            color: textColor,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                     ),
                                   ),
-                                  child: splashController.agreementAccepted.value
-                                      ? const Icon(Icons.check, size: 16, color: Colors.white)
-                                      : null,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    l10n.acceptTerms,
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: textColor,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            )),
-                          ),
-                          const SizedBox(height: 24),
+                                ],
+                              )),
+                        ),
+                        const SizedBox(height: 24),
 
-                          // Logic for Username / Google Sign In or Continue
-                          Obx(() => _buildActionButtons(context, l10n, splashController, primaryColor, textColor)),
+                        // Logic for Username / Google Sign In or Continue
+                        Obx(() => _buildActionButtons(context, l10n,
+                            splashController, primaryColor, textColor)),
                       ],
                     ),
                   ],
@@ -191,28 +218,29 @@ class TermsPage extends StatelessWidget {
         ),
       ),
     );
-
   }
 
-  Widget _buildActionButtons(BuildContext context, AppLocalizations l10n, SplashController splashController, Color primaryColor, Color textColor) {
+  Widget _buildActionButtons(BuildContext context, AppLocalizations l10n,
+      SplashController splashController, Color primaryColor, Color textColor) {
     // If not accepted yet, show disabled button or nothing?
     // The design usually shows a button that becomes active.
-    
+
     if (!splashController.agreementAccepted.value) {
-       return SizedBox(
-         width: double.infinity,
-         child: FilledButton(
-            onPressed: null, // Disabled
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.grey.withValues(alpha: 0.2),
-              padding: const EdgeInsets.symmetric(vertical: 18),
-               shape: RoundedRectangleBorder(
-                 borderRadius: BorderRadius.circular(28),
-               ),
+      return SizedBox(
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: null, // Disabled
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.grey.withValues(alpha: 0.2),
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(28),
             ),
-            child: Text(l10n.acceptTerms, style: TextStyle(color: textColor.withValues(alpha: 0.4))),
-         ),
-       );
+          ),
+          child: Text(l10n.acceptTerms,
+              style: TextStyle(color: textColor.withValues(alpha: 0.4))),
+        ),
+      );
     }
 
     // Accepted state: Show Google Sign In or Username Input
@@ -225,25 +253,36 @@ class TermsPage extends StatelessWidget {
             labelText: l10n.enterYourName,
             accentColor: primaryColor,
           ).animate().fadeIn(),
-          
+
           const SizedBox(height: 16),
-          
+
           // Google Sign In
           OutlinedButton.icon(
-             onPressed: !splashController.isSigningIn.value ? () {
-               HapticFeedback.lightImpact();
-               splashController.handleGoogleSignIn();
-             } : null,
-             icon: splashController.isSigningIn.value
-                ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: primaryColor))
-                : Image.asset('assets/images/google_logo.png', height: 24, errorBuilder: (_, __, ___) => const Icon(Icons.login)),
-             label: Text(splashController.isSigningIn.value ? l10n.signingIn : l10n.signInWithGoogle),
-             style: OutlinedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 56),
-                side: BorderSide(color: primaryColor.withValues(alpha: 0.5)),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                foregroundColor: textColor,
-             ),
+            onPressed: !splashController.isSigningIn.value
+                ? () {
+                    HapticFeedback.lightImpact();
+                    splashController.handleGoogleSignIn();
+                  }
+                : null,
+            icon: splashController.isSigningIn.value
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: primaryColor))
+                : Image.asset('assets/images/google_logo.png',
+                    height: 24,
+                    errorBuilder: (_, __, ___) => const Icon(Icons.login)),
+            label: Text(splashController.isSigningIn.value
+                ? l10n.signingIn
+                : l10n.signInWithGoogle),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(double.infinity, 56),
+              side: BorderSide(color: primaryColor.withValues(alpha: 0.5)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              foregroundColor: textColor,
+            ),
           ).animate().fadeIn(),
         ],
 
@@ -251,33 +290,38 @@ class TermsPage extends StatelessWidget {
 
         // Continue Button
         // Show if Google Signed In OR Username is valid
-        if (splashController.isGoogleUserSignedIn || Get.find<UsernameInputController>().usernameLength.value >= 4)
+        if (splashController.isGoogleUserSignedIn ||
+            Get.find<UsernameInputController>().usernameLength.value >= 4)
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
                 HapticFeedback.lightImpact();
-                 if (splashController.isGoogleUserSignedIn) {
-                   splashController.handleGoogleUserContinue();
-                 } else if (Get.find<UsernameInputController>().usernameLength.value >= 4) {
-                   splashController.handleUsernameSubmit();
-                 }
+                if (splashController.isGoogleUserSignedIn) {
+                  splashController.handleGoogleUserContinue();
+                } else if (Get.find<UsernameInputController>()
+                        .usernameLength
+                        .value >=
+                    4) {
+                  splashController.handleUsernameSubmit();
+                }
               },
               style: FilledButton.styleFrom(
                 backgroundColor: primaryColor,
                 foregroundColor: Colors.white,
-                 padding: const EdgeInsets.symmetric(vertical: 18),
-                 shape: RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(28),
-                 ),
-                 elevation: 4,
-                 shadowColor: primaryColor.withValues(alpha: 0.4),
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                elevation: 4,
+                shadowColor: primaryColor.withValues(alpha: 0.4),
               ),
               child: Text(
-                 splashController.isGoogleUserSignedIn 
+                splashController.isGoogleUserSignedIn
                     ? l10n.continueAs(splashController.googleUserName.value)
                     : l10n.continueAs(splashController.usernameController.text),
-                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
             ),
           ).animate().fadeIn().scale(begin: const Offset(0.95, 0.95)),

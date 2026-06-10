@@ -82,7 +82,8 @@ class AdminStats {
       installations: map['installations'] ?? 0,
       totalRecordings: map['totalRecordings'] ?? 0,
       deletedRecordings: map['deletedRecordings'] ?? 0,
-      lastUpdated: DateTime.parse(map['lastUpdated'] ?? DateTime.now().toIso8601String()),
+      lastUpdated: DateTime.parse(
+          map['lastUpdated'] ?? DateTime.now().toIso8601String()),
     );
   }
 }

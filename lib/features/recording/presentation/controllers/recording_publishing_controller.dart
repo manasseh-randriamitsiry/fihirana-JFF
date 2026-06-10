@@ -25,7 +25,6 @@ class RecordingPublishingController extends GetxController {
   String get lastError => _lastError.value;
   List<UserRecording> get publicRecordings => _publicRecordings;
 
-
   Future<void> publishRecording(UserRecording recording) async {
     try {
       _isLoading.value = true;
@@ -88,12 +87,13 @@ class RecordingPublishingController extends GetxController {
     try {
       _isLoading.value = true;
       _lastError.value = '';
-      
+
       await loadPublicRecordingsUseCase();
-      
+
       // If hymnId is provided, filter the recordings
       if (hymnId != null) {
-        _publicRecordings.assignAll(_publicRecordings.where((recording) => recording.hymnId == hymnId));
+        _publicRecordings.assignAll(
+            _publicRecordings.where((recording) => recording.hymnId == hymnId));
       }
     } catch (e) {
       _lastError.value = 'Failed to refresh public recordings: $e';

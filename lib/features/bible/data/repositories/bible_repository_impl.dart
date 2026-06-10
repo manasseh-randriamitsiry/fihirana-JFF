@@ -65,8 +65,10 @@ class BibleRepositoryImpl implements IBibleService {
   }
 
   @override
-  List<VerseSearchResult> getVerseRange(String bookName, int chapterNumber, int startVerse, int endVerse) {
-    return _bibleService.getVerseRange(bookName, chapterNumber, startVerse, endVerse);
+  List<VerseSearchResult> getVerseRange(
+      String bookName, int chapterNumber, int startVerse, int endVerse) {
+    return _bibleService.getVerseRange(
+        bookName, chapterNumber, startVerse, endVerse);
   }
 
   @override
@@ -125,14 +127,16 @@ class BibleRepositoryImpl implements IBibleService {
     final allBooks = getAllBooks();
     final bookNames = allBooks.map((book) => book.name).toList();
     final testamentOrganization = getAllBooksByTestament();
-    
+
     return {
       'totalBooks': allBooks.length,
       'bookNames': bookNames,
       'oldTestamentBooks': testamentOrganization['Testameta Taloha'] ?? [],
       'newTestamentBooks': testamentOrganization['Testameta Vaovao'] ?? [],
-      'oldTestamentCount': (testamentOrganization['Testameta Taloha'] as List?)?.length ?? 0,
-      'newTestamentCount': (testamentOrganization['Testameta Vaovao'] as List?)?.length ?? 0,
+      'oldTestamentCount':
+          (testamentOrganization['Testameta Taloha'] as List?)?.length ?? 0,
+      'newTestamentCount':
+          (testamentOrganization['Testameta Vaovao'] as List?)?.length ?? 0,
     };
   }
 }

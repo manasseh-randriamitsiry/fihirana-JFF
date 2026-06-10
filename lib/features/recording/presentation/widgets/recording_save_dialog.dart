@@ -54,7 +54,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                   end: Alignment.bottomCenter,
                   colors: [
                     widget.colorController.primaryColor.value,
-                    widget.colorController.primaryColor.value.withValues(alpha: 0.8),
+                    widget.colorController.primaryColor.value
+                        .withValues(alpha: 0.8),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
@@ -147,7 +148,9 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                         ),
                         child: SwitchListTile(
                           title: Text(
-                            _isPublic ? 'Public Recording' : 'Private Recording',
+                            _isPublic
+                                ? 'Public Recording'
+                                : 'Private Recording',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -167,8 +170,10 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                             setDialogState(() => _isPublic = value);
                           },
                           activeTrackColor: Colors.white,
-                          inactiveThumbColor: Colors.grey.withValues(alpha: 0.5),
-                          inactiveTrackColor: Colors.white.withValues(alpha: 0.1),
+                          inactiveThumbColor:
+                              Colors.grey.withValues(alpha: 0.5),
+                          inactiveTrackColor:
+                              Colors.white.withValues(alpha: 0.1),
                         ),
                       ),
 
@@ -220,7 +225,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                             child: OutlinedButton(
                               onPressed: widget.onDiscard,
                               style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
                                 side: BorderSide(
                                     color: Colors.white.withValues(alpha: 0.5)),
                               ),
@@ -239,7 +245,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                                 widget.onSave(_uploadToDrive, _isPublic);
                               },
                               style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 14),
                                 backgroundColor: Colors.white,
                                 foregroundColor:
                                     widget.colorController.primaryColor.value,
