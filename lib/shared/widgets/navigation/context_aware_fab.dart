@@ -68,14 +68,15 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
     // Determine if we're on the right side (for contact screen)
     final currentActions = _getActionsForRoute(context);
     final isOnRight = currentActions == _getContactActions();
-    
+
     return Stack(
       alignment: isOnRight ? Alignment.bottomRight : Alignment.bottomLeft,
       children: [
         // Speed dial action buttons and main FAB
         Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: isOnRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isOnRight ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             // Action buttons (shown when expanded)
             if (_isExpanded) ...[
@@ -84,107 +85,113 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                 final action = entry.value;
                 final delay = (index + 1) * 50;
 
-return Row(
+                return Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: isOnRight ? [
-                    // FAB comes first when on right
-                    FloatingActionButton(
-                      heroTag: "fab_${action.label}",
-                      mini: true,
-                      onPressed: () {
-                        setState(() {
-                          _isExpanded = false;
-                        });
-                        action.onTap();
-                      },
-                      backgroundColor: action.backgroundColor ??
-                          colorController.primaryColor.value
-                              .withValues(alpha: 0.9),
-                      shape: const CircleBorder(),
-                      elevation: 4,
-                      child: Icon(
-                        action.icon,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 12, bottom: 12),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorController.backgroundColor.value,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
+                  children: isOnRight
+                      ? [
+                          // FAB comes first when on right
+                          FloatingActionButton(
+                            heroTag: "fab_${action.label}",
+                            mini: true,
+                            onPressed: () {
+                              setState(() {
+                                _isExpanded = false;
+                              });
+                              action.onTap();
+                            },
+                            backgroundColor: action.backgroundColor ??
+                                colorController.primaryColor.value
+                                    .withValues(alpha: 0.9),
+                            shape: const CircleBorder(),
+                            elevation: 4,
+                            child: Icon(
+                              action.icon,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
+                          Container(
+                            margin: const EdgeInsets.only(left: 12, bottom: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colorController.backgroundColor.value,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              action.label,
+                              style: TextStyle(
+                                color: colorController.textColor.value,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ]
+                      : [
+                          // Original order when on left
+                          Container(
+                            margin:
+                                const EdgeInsets.only(right: 12, bottom: 12),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colorController.backgroundColor.value,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              action.label,
+                              style: TextStyle(
+                                color: colorController.textColor.value,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          FloatingActionButton(
+                            heroTag: "fab_${action.label}",
+                            mini: true,
+                            onPressed: () {
+                              setState(() {
+                                _isExpanded = false;
+                              });
+                              action.onTap();
+                            },
+                            backgroundColor: action.backgroundColor ??
+                                colorController.primaryColor.value
+                                    .withValues(alpha: 0.9),
+                            shape: const CircleBorder(),
+                            elevation: 4,
+                            child: Icon(
+                              action.icon,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ],
-                      ),
-                      child: Text(
-                        action.label,
-                        style: TextStyle(
-                          color: colorController.textColor.value,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ] : [
-                    // Original order when on left
-                    Container(
-                      margin: const EdgeInsets.only(right: 12, bottom: 12),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorController.backgroundColor.value,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        action.label,
-                        style: TextStyle(
-                          color: colorController.textColor.value,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    FloatingActionButton(
-                      heroTag: "fab_${action.label}",
-                      mini: true,
-                      onPressed: () {
-                        setState(() {
-                          _isExpanded = false;
-                        });
-                        action.onTap();
-                      },
-                      backgroundColor: action.backgroundColor ??
-                          colorController.primaryColor.value
-                              .withValues(alpha: 0.9),
-                      shape: const CircleBorder(),
-                      elevation: 4,
-                      child: Icon(
-                        action.icon,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                  ],
                 ).animate().fadeIn(duration: 200.ms, delay: delay.ms).slideX(
-                    begin: isOnRight ? 0.2 : -0.2, end: 0, duration: 200.ms, delay: delay.ms);
+                    begin: isOnRight ? 0.2 : -0.2,
+                    end: 0,
+                    duration: 200.ms,
+                    delay: delay.ms);
               }),
               const SizedBox(height: 4),
             ],
@@ -197,7 +204,9 @@ return Row(
                   _isExpanded = !_isExpanded;
                 });
               },
-              backgroundColor: _isRecordingScreen() ? Colors.red : colorController.primaryColor.value,
+              backgroundColor: _isRecordingScreen()
+                  ? Colors.red
+                  : colorController.primaryColor.value,
               shape: const CircleBorder(),
               elevation: 6,
               child: AnimatedRotation(
@@ -220,9 +229,10 @@ return Row(
     );
   }
 
-/// Check if current screen is a recording screen
+  /// Check if current screen is a recording screen
   bool _isRecordingScreen() {
-    return widget.onViewRecordingStats != null || widget.onStartRecording != null;
+    return widget.onViewRecordingStats != null ||
+        widget.onStartRecording != null;
   }
 
   /// Get actions based on current route
@@ -313,7 +323,7 @@ return Row(
     return actions;
   }
 
- /// Recording screen actions (for future use)
+  /// Recording screen actions (for future use)
   List<FABAction> _getRecordingActions() {
     final l10n = AppLocalizations.of(context);
     final actions = <FABAction>[];

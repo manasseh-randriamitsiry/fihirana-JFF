@@ -25,7 +25,8 @@ class RecordingTileMenu extends StatelessWidget {
     // Check if user is admin/super admin
     if (authController.isAdmin || authController.isSuperAdmin) {
       if (kDebugMode) {
-        print('RecordingTileMenu: User is admin, can delete recording ${recording.id}');
+        print(
+            'RecordingTileMenu: User is admin, can delete recording ${recording.id}');
       }
       return true;
     }
@@ -33,15 +34,18 @@ class RecordingTileMenu extends StatelessWidget {
     // Check if user is owner
     final canDelete = RecordingTileDialogs.isOwner(recording);
     if (kDebugMode) {
-      print('RecordingTileMenu: Can delete recording ${recording.id}: $canDelete (userId: ${recording.userId}, userEmail: ${recording.userEmail})');
+      print(
+          'RecordingTileMenu: Can delete recording ${recording.id}: $canDelete (userId: ${recording.userId}, userEmail: ${recording.userEmail})');
     }
     if (canDelete) {
       if (kDebugMode) {
-        print('RecordingTileMenu: Adding delete menu item for recording: ${recording.id}');
+        print(
+            'RecordingTileMenu: Adding delete menu item for recording: ${recording.id}');
       }
     } else {
       if (kDebugMode) {
-        print('RecordingTileMenu: NOT adding delete menu item for recording: ${recording.id}');
+        print(
+            'RecordingTileMenu: NOT adding delete menu item for recording: ${recording.id}');
       }
     }
     return canDelete;
@@ -61,7 +65,8 @@ class RecordingTileMenu extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         if (kDebugMode) {
-          print('RecordingTileMenu: Menu item selected: $value for recording: ${recording.id}');
+          print(
+              'RecordingTileMenu: Menu item selected: $value for recording: ${recording.id}');
         }
         switch (value) {
           case 'play':
@@ -91,7 +96,8 @@ class RecordingTileMenu extends StatelessWidget {
             break;
           case 'delete':
             if (kDebugMode) {
-              print('RecordingTileMenu: Delete menu item selected for recording: ${recording.id}');
+              print(
+                  'RecordingTileMenu: Delete menu item selected for recording: ${recording.id}');
             }
             RecordingTileDialogs.showDeleteConfirmation(context, recording);
             break;
@@ -103,7 +109,8 @@ class RecordingTileMenu extends StatelessWidget {
       },
       itemBuilder: (context) {
         if (kDebugMode) {
-          print('RecordingTileMenu: Building itemBuilder for recording: ${recording.id}, isPublic: $isPublic');
+          print(
+              'RecordingTileMenu: Building itemBuilder for recording: ${recording.id}, isPublic: $isPublic');
         }
         final items = <PopupMenuItem<String>>[
           PopupMenuItem(

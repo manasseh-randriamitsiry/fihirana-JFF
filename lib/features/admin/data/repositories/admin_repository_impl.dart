@@ -25,7 +25,8 @@ class AdminRepositoryImpl implements AdminRepository {
           .get();
 
       // Get user counts efficiently
-      final totalUsersQuery = await _firestore.collection(_usersCollection).count().get();
+      final totalUsersQuery =
+          await _firestore.collection(_usersCollection).count().get();
       final totalUsers = totalUsersQuery.count ?? 0;
 
       // Active users count (last 30 days)
@@ -45,14 +46,13 @@ class AdminRepositoryImpl implements AdminRepository {
       final installations = statsDoc.data()?['installations'] as int? ?? 0;
 
       // Recordings count
-      final recordingsQuery = await _firestore.collection('recordings').count().get();
+      final recordingsQuery =
+          await _firestore.collection('recordings').count().get();
       final totalRecordings = recordingsQuery.count ?? 0;
 
       // Deleted recordings count
-      final deletedRecordingsQuery = await _firestore
-          .collection('deleted_recordings')
-          .count()
-          .get();
+      final deletedRecordingsQuery =
+          await _firestore.collection('deleted_recordings').count().get();
       final deletedRecordings = deletedRecordingsQuery.count ?? 0;
 
       return AdminStats(
@@ -88,9 +88,7 @@ class AdminRepositoryImpl implements AdminRepository {
           .orderBy('createdAt', descending: true)
           .get();
 
-      return snapshot.docs
-          .map((doc) => _mapDocumentToAdminUser(doc))
-          .toList();
+      return snapshot.docs.map((doc) => _mapDocumentToAdminUser(doc)).toList();
     } catch (e) {
       throw Exception('Failed to get all users: $e');
     }
@@ -103,14 +101,13 @@ class AdminRepositoryImpl implements AdminRepository {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => _mapDocumentToAdminUser(doc))
-          .toList();
+      return snapshot.docs.map((doc) => _mapDocumentToAdminUser(doc)).toList();
     });
   }
 
   @override
-  Future<AdminActionResult> updateUserAdminStatus(String userId, bool isAdmin) async {
+  Future<AdminActionResult> updateUserAdminStatus(
+      String userId, bool isAdmin) async {
     try {
       await _firestore.collection(_usersCollection).doc(userId).update({
         'isAdmin': isAdmin,
@@ -159,11 +156,10 @@ class AdminRepositoryImpl implements AdminRepository {
 
       for (final doc in recordingsSnapshot.docs) {
         batch.delete(doc.reference);
-        
+
         // Also delete from deleted_recordings if it exists there
-        final deletedRecordingRef = _firestore
-            .collection('deleted_recordings')
-            .doc(doc.id);
+        final deletedRecordingRef =
+            _firestore.collection('deleted_recordings').doc(doc.id);
         batch.delete(deletedRecordingRef);
       }
 
@@ -245,7 +241,8 @@ class AdminRepositoryImpl implements AdminRepository {
       batch.delete(settingsDocRef);
 
       // 11. Clean up user's notification preferences
-      final notificationsDocRef = _firestore.collection('user_notifications').doc(userId);
+      final notificationsDocRef =
+          _firestore.collection('user_notifications').doc(userId);
       batch.delete(notificationsDocRef);
 
       // Execute the batch
@@ -273,10 +270,11 @@ class AdminRepositoryImpl implements AdminRepository {
   @override
   Future<AdminUser?> getUserById(String userId) async {
     try {
-      final doc = await _firestore.collection(_usersCollection).doc(userId).get();
-      
+      final doc =
+          await _firestore.collection(_usersCollection).doc(userId).get();
+
       if (!doc.exists) return null;
-      
+
       return _mapDocumentToAdminUser(doc);
     } catch (e) {
       throw Exception('Failed to get user by ID: $e');
@@ -302,7 +300,7 @@ class AdminRepositoryImpl implements AdminRepository {
       // Combine and deduplicate results
       final allDocs = [...snapshot.docs, ...emailSnapshot.docs];
       final uniqueDocs = <String, QueryDocumentSnapshot>{};
-      
+
       for (final doc in allDocs) {
         uniqueDocs[doc.id] = doc;
       }
@@ -324,7 +322,7 @@ class AdminRepositoryImpl implements AdminRepository {
           .where('lastLogin', isGreaterThan: Timestamp.fromDate(thirtyDaysAgo))
           .count()
           .get();
-      
+
       return query.count ?? 0;
     } catch (e) {
       throw Exception('Failed to get active users count: $e');
@@ -340,7 +338,7 @@ class AdminRepositoryImpl implements AdminRepository {
           .where('createdAt', isGreaterThan: Timestamp.fromDate(thirtyDaysAgo))
           .count()
           .get();
-      
+
       return query.count ?? 0;
     } catch (e) {
       throw Exception('Failed to get new users count: $e');
@@ -352,7 +350,7 @@ class AdminRepositoryImpl implements AdminRepository {
       List<String> userIds, Map<String, dynamic> updates) async {
     try {
       final batch = _firestore.batch();
-      
+
       for (final userId in userIds) {
         final docRef = _firestore.collection(_usersCollection).doc(userId);
         batch.update(docRef, {
@@ -376,19 +374,19 @@ class AdminRepositoryImpl implements AdminRepository {
   Future<String> exportUsersData() async {
     try {
       final users = await getAllUsers();
-      
+
       // Convert to CSV format
       final csvData = [
         'ID,Email,Display Name,Is Admin,Is Blocked,Last Login,Created At',
         ...users.map((user) => [
-          user.id,
-          user.email,
-          user.displayName,
-          user.isAdmin,
-          user.isBlocked,
-          user.lastLogin?.toIso8601String() ?? '',
-          user.createdAt.toIso8601String(),
-        ].join(',')),
+              user.id,
+              user.email,
+              user.displayName,
+              user.isAdmin,
+              user.isBlocked,
+              user.lastLogin?.toIso8601String() ?? '',
+              user.createdAt.toIso8601String(),
+            ].join(',')),
       ].join('\n');
 
       return csvData;
@@ -518,7 +516,7 @@ class AdminRepositoryImpl implements AdminRepository {
   /// Helper method to map Firestore document to AdminUser
   AdminUser _mapDocumentToAdminUser(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
-    
+
     return AdminUser(
       id: doc.id,
       email: data['email'] ?? '',
@@ -526,11 +524,11 @@ class AdminRepositoryImpl implements AdminRepository {
       photoUrl: data['photoUrl'],
       isAdmin: data['isAdmin'] ?? false,
       isBlocked: data['isBlocked'] ?? false,
-      lastLogin: data['lastLogin'] != null 
-          ? (data['lastLogin'] as Timestamp).toDate() 
+      lastLogin: data['lastLogin'] != null
+          ? (data['lastLogin'] as Timestamp).toDate()
           : null,
-      createdAt: data['createdAt'] != null 
-          ? (data['createdAt'] as Timestamp).toDate() 
+      createdAt: data['createdAt'] != null
+          ? (data['createdAt'] as Timestamp).toDate()
           : DateTime.now(),
       metadata: Map<String, dynamic>.from(data['metadata'] ?? {}),
     );

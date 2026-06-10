@@ -45,15 +45,19 @@ class _CreatePlaylistDialogState extends State<CreatePlaylistDialog> {
               labelText: l10n.title,
               hintText: widget.hint,
               labelStyle: TextStyle(
-                  color: colorController.textColor.value.withValues(alpha: 0.7)),
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.7)),
               hintStyle: TextStyle(
-                  color: colorController.textColor.value.withValues(alpha: 0.5)),
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.5)),
               enabledBorder: UnderlineInputBorder(
                 borderSide: BorderSide(
-                    color: colorController.textColor.value.withValues(alpha: 0.3)),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.3)),
               ),
               focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: colorController.primaryColor.value),
+                borderSide:
+                    BorderSide(color: colorController.primaryColor.value),
               ),
             ),
           ),

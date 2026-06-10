@@ -16,7 +16,8 @@ class RecordingMiniPlayer extends StatelessWidget {
       bottom: 20,
       right: 20,
       child: Obx(() {
-        if (!controller.shouldShowOverlay() || !controller.isOverlayMinimized.value) {
+        if (!controller.shouldShowOverlay() ||
+            !controller.isOverlayMinimized.value) {
           return const SizedBox.shrink();
         }
 
@@ -46,26 +47,30 @@ class RecordingMiniPlayer extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               onTap: () => controller.restoreOverlay(),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                     // Recording indicator
-                     Container(
+                    // Recording indicator
+                    Container(
                       width: 12,
                       height: 12,
                       decoration: const BoxDecoration(
                         color: Colors.red,
                         shape: BoxShape.circle,
                       ),
-                    ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                     .scale(
-                       duration: 1000.ms,
-                       curve: Curves.easeInOut,
-                     ),
-                    
+                    )
+                        .animate(
+                            onPlay: (controller) =>
+                                controller.repeat(reverse: true))
+                        .scale(
+                          duration: 1000.ms,
+                          curve: Curves.easeInOut,
+                        ),
+
                     const SizedBox(width: 12),
-                    
+
                     // Recording info
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -90,29 +95,30 @@ class RecordingMiniPlayer extends StatelessWidget {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(width: 12),
-                    
+
                     // Timer
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Obx(() => Text(
-                        _formatDuration(controller.recordDuration.value),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontFamily: 'monospace',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      )),
+                            _formatDuration(controller.recordDuration.value),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'monospace',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          )),
                     ),
-                    
+
                     const SizedBox(width: 8),
-                    
+
                     // Expand icon
                     const Icon(
                       Icons.open_in_full,
@@ -124,11 +130,14 @@ class RecordingMiniPlayer extends StatelessWidget {
               ),
             ),
           ),
-        ).animate().slideY(
-          duration: 300.ms,
-          begin: 1.0,
-          curve: Curves.easeOut,
-        ).fadeIn(duration: 300.ms);
+        )
+            .animate()
+            .slideY(
+              duration: 300.ms,
+              begin: 1.0,
+              curve: Curves.easeOut,
+            )
+            .fadeIn(duration: 300.ms);
       }),
     );
   }

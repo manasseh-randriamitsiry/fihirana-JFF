@@ -38,7 +38,8 @@ class SaveDialogNameInput extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.white, width: 2),
         ),
-        prefixIcon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.8)),
+        prefixIcon:
+            Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.8)),
       ),
     );
   }

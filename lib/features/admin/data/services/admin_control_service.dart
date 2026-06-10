@@ -38,8 +38,8 @@ class AdminConfig {
       recommendedVersion: map['recommendedVersion'],
       adminMessage: map['adminMessage'],
       emergencyMode: map['emergencyMode'] ?? false,
-      configTimestamp: map['timestamp'] != null 
-          ? (map['timestamp'] as Timestamp).toDate() 
+      configTimestamp: map['timestamp'] != null
+          ? (map['timestamp'] as Timestamp).toDate()
           : null,
       allowedVersions: List<String>.from(map['allowedVersions'] ?? []),
       featureFlags: map['featureFlags'],
@@ -55,9 +55,8 @@ class AdminConfig {
       'recommendedVersion': recommendedVersion,
       'adminMessage': adminMessage,
       'emergencyMode': emergencyMode,
-      'timestamp': configTimestamp != null 
-          ? Timestamp.fromDate(configTimestamp!) 
-          : null,
+      'timestamp':
+          configTimestamp != null ? Timestamp.fromDate(configTimestamp!) : null,
       'allowedVersions': allowedVersions,
       'featureFlags': featureFlags,
     };
@@ -80,9 +79,11 @@ class AdminConfig {
 
   bool _isNewerVersion(String version1, String version2) {
     try {
-      final v1Parts = version1.split('.').map((s) => int.tryParse(s) ?? 0).toList();
-      final v2Parts = version2.split('.').map((s) => int.tryParse(s) ?? 0).toList();
-      
+      final v1Parts =
+          version1.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+      final v2Parts =
+          version2.split('.').map((s) => int.tryParse(s) ?? 0).toList();
+
       for (int i = 0; i < v1Parts.length && i < v2Parts.length; i++) {
         if (v1Parts[i] > v2Parts[i]) return true;
         if (v1Parts[i] < v2Parts[i]) return false;
@@ -100,7 +101,7 @@ class AdminControlService {
   static const String _updateControlDoc = 'update_control';
   static const String _cachedConfigKey = 'cached_admin_config';
   static const Duration _cacheExpiry = Duration(minutes: 30);
-  
+
   static AdminConfig? _cachedConfig;
   static DateTime? _lastConfigFetch;
 
@@ -108,8 +109,8 @@ class AdminControlService {
   static Future<AdminConfig> fetchAdminConfig() async {
     try {
       // Check cache first
-      if (_cachedConfig != null && 
-          _lastConfigFetch != null && 
+      if (_cachedConfig != null &&
+          _lastConfigFetch != null &&
           DateTime.now().difference(_lastConfigFetch!) < _cacheExpiry) {
         if (kDebugMode) {
           print('📋 Using cached admin config');
@@ -122,15 +123,15 @@ class AdminControlService {
           .doc(_updateControlDoc);
 
       final docSnapshot = await docRef.get();
-      
+
       if (docSnapshot.exists) {
         final config = AdminConfig.fromMap(docSnapshot.data()!);
         _cachedConfig = config;
         _lastConfigFetch = DateTime.now();
-        
+
         // Cache locally
         await _cacheConfigLocally(config);
-        
+
         if (kDebugMode) {
           print('📋 Fetched admin config from Firestore');
           print('   Updates enabled: ${config.updatesEnabled}');
@@ -138,7 +139,7 @@ class AdminControlService {
           print('   Blocked version: ${config.blockedVersion}');
           print('   Emergency mode: ${config.emergencyMode}');
         }
-        
+
         return config;
       } else {
         // Create default config if none exists
@@ -150,7 +151,7 @@ class AdminControlService {
       if (kDebugMode) {
         print('❌ Failed to fetch admin config: $e');
       }
-      
+
       // Fallback to cached config or default
       return await _getCachedConfigOrDefault();
     }
@@ -177,12 +178,12 @@ class AdminControlService {
       );
 
       await docRef.set(configWithTimestamp.toMap());
-      
+
       _cachedConfig = configWithTimestamp;
       _lastConfigFetch = DateTime.now();
-      
+
       await _cacheConfigLocally(configWithTimestamp);
-      
+
       if (kDebugMode) {
         print('✅ Admin config updated successfully');
       }
@@ -253,7 +254,8 @@ class AdminControlService {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_cachedConfigKey, jsonEncode(config.toMap()));
-      await prefs.setString('config_cache_time', DateTime.now().toIso8601String());
+      await prefs.setString(
+          'config_cache_time', DateTime.now().toIso8601String());
     } catch (e) {
       if (kDebugMode) {
         print('⚠️ Failed to cache config locally: $e');
@@ -266,7 +268,7 @@ class AdminControlService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final cachedConfigJson = prefs.getString(_cachedConfigKey);
-      
+
       if (cachedConfigJson != null) {
         final configMap = jsonDecode(cachedConfigJson) as Map<String, dynamic>;
         return AdminConfig.fromMap(configMap);
@@ -276,7 +278,7 @@ class AdminControlService {
         print('⚠️ Failed to get cached config: $e');
       }
     }
-    
+
     // Return default configuration
     return const AdminConfig();
   }

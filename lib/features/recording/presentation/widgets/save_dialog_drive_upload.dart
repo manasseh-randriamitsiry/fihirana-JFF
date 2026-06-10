@@ -18,7 +18,8 @@ class SaveDialogDriveUpload extends StatefulWidget {
 
 class _SaveDialogDriveUploadState extends State<SaveDialogDriveUpload> {
   late bool _uploadToDrive;
-  final RecordingController recordingController = Get.find<RecordingController>();
+  final RecordingController recordingController =
+      Get.find<RecordingController>();
 
   @override
   void initState() {
@@ -57,7 +58,8 @@ class _SaveDialogDriveUploadState extends State<SaveDialogDriveUpload> {
               widget.onChanged(_uploadToDrive);
             },
             checkColor: Colors.white,
-            fillColor: WidgetStateProperty.all(Colors.white.withValues(alpha: 0.2)),
+            fillColor:
+                WidgetStateProperty.all(Colors.white.withValues(alpha: 0.2)),
           ),
         ));
   }

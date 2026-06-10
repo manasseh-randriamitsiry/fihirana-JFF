@@ -121,6 +121,10 @@ class _LightweightAudioPlayerWidgetState
     try {
       final position = _audioService.player.position;
       final duration = _audioService.player.duration;
+      final currentHymn = _audioService.currentHymn;
+      if (currentHymn?.id != widget.hymn.id) {
+        return;
+      }
 
       // Only update if values changed significantly
       if (_position == null ||
@@ -135,7 +139,8 @@ class _LightweightAudioPlayerWidgetState
 
       if (_duration == null ||
           (_duration != null &&
-              (duration! - _duration!).inMilliseconds.abs() > 500)) {
+              duration != null &&
+              (duration - _duration!).inMilliseconds.abs() > 500)) {
         if (mounted) {
           setState(() {
             _duration = duration;

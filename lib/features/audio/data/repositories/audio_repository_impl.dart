@@ -27,7 +27,8 @@ class AudioRepositoryImpl implements AudioRepository {
       createdAt: track.createdAt,
       createdBy: track.artist ?? '',
     );
-    return _audioService.playHymn(hymn, customAudioUrl: track.audioUrl ?? track.localPath);
+    return _audioService.playHymn(hymn,
+        customAudioUrl: track.audioUrl ?? track.localPath);
   }
 
   @override
@@ -91,7 +92,8 @@ class AudioRepositoryImpl implements AudioRepository {
   }
 
   @override
-  Future<void> downloadAudioForHymn(Hymn hymn, {Function(double)? onProgress}) async {
+  Future<void> downloadAudioForHymn(Hymn hymn,
+      {Function(double)? onProgress}) async {
     await _audioService.downloadAudioForHymn(hymn, onProgress: onProgress);
   }
 
@@ -145,12 +147,14 @@ class AudioRepositoryImpl implements AudioRepository {
 
   @override
   Stream<Duration> get positionStream {
-    return _audioService.positionStream.map((position) => position ?? Duration.zero);
+    return _audioService.positionStream
+        .map((position) => position ?? Duration.zero);
   }
 
   @override
   Stream<Duration> get durationStream {
-    return _audioService.durationStream.map((duration) => duration ?? Duration.zero);
+    return _audioService.durationStream
+        .map((duration) => duration ?? Duration.zero);
   }
 
   @override

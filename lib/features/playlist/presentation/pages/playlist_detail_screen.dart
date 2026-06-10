@@ -24,7 +24,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Synchronous initialization for instant loading
     try {
       _playlistController = PlaylistDI.playlistController;
@@ -47,7 +47,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         child: Obx(() {
           final playlist = _playlistController.playlists
               .firstWhereOrNull((p) => p.id == widget.playlistId);
-          
+
           return AppBar(
             title: Text(
               playlist?.title ?? l10n.playlistNotFound,
@@ -60,7 +60,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 ? [
                     IconButton(
                       icon: const Icon(Icons.share),
-                      onPressed: () => _playlistController.sharePlaylist(playlist.id),
+                      onPressed: () =>
+                          _playlistController.sharePlaylist(playlist.id),
                     ),
                   ]
                 : [],
@@ -100,8 +101,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                       ),
                     )
                   : FutureBuilder<List<Hymn>>(
-                      key: ValueKey(playlist.hymnIds
-                          .length), // Force rebuild when count changes
+                      key: ValueKey(playlist
+                          .hymnIds.length), // Force rebuild when count changes
                       future: hymnService.getHymnsByIds(playlist.hymnIds),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
@@ -135,8 +136,7 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                               hymn: hymn,
                               index: index,
                               onTap: () {
-                                Get.to(
-                                    () => HymnDetailScreen(hymnId: hymn.id));
+                                Get.to(() => HymnDetailScreen(hymnId: hymn.id));
                               },
                               onRemove: () {
                                 _playlistController.removeHymnFromPlaylist(

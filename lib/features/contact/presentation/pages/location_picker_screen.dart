@@ -9,7 +9,6 @@ import 'package:http/http.dart' as http;
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/contact/presentation/widgets/contact_location_picker_widgets.dart';
 
-
 class LocationPickerScreen extends StatefulWidget {
   final double? initialLat;
   final double? initialLng;
@@ -109,7 +108,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
     _addMarker(coordinates);
   }
 
-Future<void> _addMarker(LatLng coordinates) async {
+  Future<void> _addMarker(LatLng coordinates) async {
     if (mapController == null) return;
 
     if (_selectedCircle != null) {
@@ -137,7 +136,7 @@ Future<void> _addMarker(LatLng coordinates) async {
     });
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -151,7 +150,8 @@ Future<void> _addMarker(LatLng coordinates) async {
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
-            icon: Icon(Icons.arrow_back, color: colorController.textColor.value),
+            icon:
+                Icon(Icons.arrow_back, color: colorController.textColor.value),
             onPressed: () => Navigator.pop(context),
           ),
         ),
@@ -159,7 +159,8 @@ Future<void> _addMarker(LatLng coordinates) async {
           Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: colorController.backgroundColor.value.withValues(alpha: 0.9),
+              color:
+                  colorController.backgroundColor.value.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
@@ -196,7 +197,7 @@ Future<void> _addMarker(LatLng coordinates) async {
                   () => HorizontalDragGestureRecognizer()),
             },
           ),
-          
+
           // Search overlay
           if (_isSearchExpanded)
             Positioned(
@@ -219,7 +220,7 @@ Future<void> _addMarker(LatLng coordinates) async {
                 },
               ),
             ),
-          
+
           // Confirm button overlay
           Positioned(
             bottom: 20,
@@ -232,8 +233,6 @@ Future<void> _addMarker(LatLng coordinates) async {
               },
             ),
           ),
-          
-          
         ],
       ),
     );

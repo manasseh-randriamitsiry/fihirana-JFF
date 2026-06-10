@@ -170,7 +170,8 @@ class RecordingFileManager extends GetxController {
         targetPath = path.join(dir, 'recording_${recording.id}.m4a');
       }
 
-      final driveService = _authManager.driveService ?? Get.find<GoogleDriveService>();
+      final driveService =
+          _authManager.driveService ?? Get.find<GoogleDriveService>();
       if (!driveService.isSignedIn) {
         await driveService.signInSilently();
       }
@@ -260,11 +261,14 @@ class RecordingFileManager extends GetxController {
 
       if (await File(filePath).exists()) {
         await SharePlus.instance.share(
-          ShareParams(text: 'Check out my recording of ${recording.title}', files: [XFile(filePath)]),
+          ShareParams(
+              text: 'Check out my recording of ${recording.title}',
+              files: [XFile(filePath)]),
         );
       } else if (recording.driveWebLink != null) {
         await SharePlus.instance.share(
-          ShareParams(text: 'Check out this recording: ${recording.driveWebLink}'),
+          ShareParams(
+              text: 'Check out this recording: ${recording.driveWebLink}'),
         );
       } else {
         Get.snackbar('Error', 'Could not share recording. File not found.');

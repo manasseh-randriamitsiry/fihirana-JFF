@@ -50,7 +50,8 @@ class BibleController extends GetxController {
   set selectedBook(String value) => bookController.selectedBook.value = value;
 
   int get selectedChapter => bookController.selectedChapter.value;
-  set selectedChapter(int value) => bookController.selectedChapter.value = value;
+  set selectedChapter(int value) =>
+      bookController.selectedChapter.value = value;
 
   String get passageText => bookController.passageText.value;
   bool get isLoading => bookController.isLoading.value;
@@ -61,7 +62,8 @@ class BibleController extends GetxController {
   bool get isSelecting => bookController.isSelecting.value;
 
   RxList<BibleHighlight> get highlights => highlightController.highlights;
-  RxList<BibleHighlight> get publicHighlights => highlightController.publicHighlights;
+  RxList<BibleHighlight> get publicHighlights =>
+      highlightController.publicHighlights;
 
   RxString get searchQuery => searchController.searchQuery;
 
@@ -78,12 +80,12 @@ class BibleController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    
+
     // Set up callback for search controller to set highlighted verse
     searchController.onSetHighlightedVerse = (verse) {
       highlightedVerse.value = verse;
     };
-    
+
     _initializeBibleService();
     _loadLastViewedPassage();
     // Populate books by testament
@@ -152,7 +154,8 @@ class BibleController extends GetxController {
   }
 
   void addHighlight(int verse, String color) {
-    highlightController.addHighlight(selectedBook, selectedChapter, verse, color);
+    highlightController.addHighlight(
+        selectedBook, selectedChapter, verse, color);
   }
 
   void removeHighlight(String highlightId) {
@@ -210,26 +213,33 @@ class BibleController extends GetxController {
     };
   }
 
-  int getChapterCountForBook(String bookName) => bookController.getChapterCountForBook(bookName);
+  int getChapterCountForBook(String bookName) =>
+      bookController.getChapterCountForBook(bookName);
 
   bool isVerseSelected(int verse) => bookController.isVerseSelected(verse);
 
-  bool isVerseHighlighted(int verse) => highlightController.isVerseHighlighted(verse);
+  bool isVerseHighlighted(int verse) =>
+      highlightController.isVerseHighlighted(verse);
 
-  bool isVerseSearchHighlighted(int verse) => searchController.isVerseSearchHighlighted(verse);
+  bool isVerseSearchHighlighted(int verse) =>
+      searchController.isVerseSearchHighlighted(verse);
 
-  void setSearchContext(BibleSearchContext context) => searchController.setSearchContext(context);
+  void setSearchContext(BibleSearchContext context) =>
+      searchController.setSearchContext(context);
 
-  void navigateToSearchResult(BibleSearchResult result) => searchController.navigateToSearchResult(result);
+  void navigateToSearchResult(BibleSearchResult result) =>
+      searchController.navigateToSearchResult(result);
 
   void clearSelection() => bookController.clearVerseSelection();
 
   void saveHighlight() {
     for (final verse in selectedVerses) {
-      highlightController.addHighlight(selectedBook, selectedChapter, verse, 'yellow');
+      highlightController.addHighlight(
+          selectedBook, selectedChapter, verse, 'yellow');
     }
     clearSelection();
   }
 
-  List<String> getCurrentChapterVerses() => bookController.getCurrentChapterVerses();
+  List<String> getCurrentChapterVerses() =>
+      bookController.getCurrentChapterVerses();
 }

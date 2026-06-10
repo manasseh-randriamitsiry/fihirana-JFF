@@ -12,28 +12,31 @@ class AudioPlayerNotificationBuilder {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  static String buildNotificationBody(Hymn hymn, {Duration? position, Duration? duration}) {
+  static String buildNotificationBody(Hymn hymn,
+      {Duration? position, Duration? duration}) {
     String body;
-    
+
     // Check if this is a recording
     if (hymn.id.startsWith('recording_')) {
       body = 'Recording by ${hymn.createdBy.replaceAll('User: ', '')}';
     } else {
       body = 'Hira faha ${hymn.hymnNumber}';
     }
-    
+
     if (position != null && duration != null) {
       final positionText = formatDuration(position);
       final durationText = formatDuration(duration);
       body += ' • $positionText / $durationText';
     }
-    
+
     return body;
   }
 
   static double? calculateProgress(Duration? position, Duration? duration) {
     if (position != null && duration != null && duration.inMilliseconds > 0) {
-      final progress = (position.inMilliseconds.toDouble() / duration.inMilliseconds.toDouble()) * 100;
+      final progress = (position.inMilliseconds.toDouble() /
+              duration.inMilliseconds.toDouble()) *
+          100;
       return progress.clamp(0.0, 100.0);
     }
     return null;
@@ -47,7 +50,8 @@ class AudioPlayerNotificationBuilder {
     required bool canGoNext,
     required bool canGoPrevious,
   }) async {
-    final body = buildNotificationBody(hymn, position: position, duration: duration);
+    final body =
+        buildNotificationBody(hymn, position: position, duration: duration);
     final progress = calculateProgress(position, duration);
     final actionButtons = NotificationButtons.createAudioPlayerButtons(
       isPlaying: isPlaying,

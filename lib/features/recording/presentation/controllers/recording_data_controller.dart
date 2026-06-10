@@ -127,7 +127,8 @@ class RecordingDataController extends GetxController {
     }
   }
 
-  Future<void> permanentlyDeleteRecording(UserRecording deletedRecording) async {
+  Future<void> permanentlyDeleteRecording(
+      UserRecording deletedRecording) async {
     try {
       _isLoading.value = true;
       _lastError.value = '';

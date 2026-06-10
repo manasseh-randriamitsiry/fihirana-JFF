@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
 import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -89,10 +88,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               fontSize: 20,
             ),
           ),
-           leading: historyController!.isSelectionMode.value
-               ? IconButton(
-                   icon: Icon(Icons.close, color: iconColor),
-                   onPressed: historyController!.toggleSelectionMode,
+          leading: historyController!.isSelectionMode.value
+              ? IconButton(
+                  icon: Icon(Icons.close, color: iconColor),
+                  onPressed: historyController!.toggleSelectionMode,
                 )
               : IconButton(
                   icon: Icon(Icons.menu_rounded, color: iconColor),
@@ -120,17 +119,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.history,
-                                size: 64,
-                                color: textColor.withValues(alpha: 0.3))
-                            .animate(
-                                onPlay: (controller) =>
-                                    controller.repeat(reverse: true))
-                            .scale(
-                                duration: const Duration(seconds: 2),
-                                begin: const Offset(1, 1),
-                                end: const Offset(1.1, 1.1),
-                                curve: Curves.easeInOut),
+                        Icon(
+                          Icons.history,
+                          size: 64,
+                          color: textColor.withValues(alpha: 0.3),
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           l10n.noHistory,
@@ -146,38 +139,44 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     itemCount: historyController!.userHistory.length,
-                      itemBuilder: (context, index) {
-                        final history = historyController!.userHistory[index];
-                        final isSelected = historyController!.selectedItems.contains(history['id']);
+                    itemBuilder: (context, index) {
+                      final history = historyController!.userHistory[index];
+                      final isSelected = historyController!.selectedItems
+                          .contains(history['id']);
 
-                       return HistoryItemCard(
-                         key: ValueKey(history['id']),
-                         history: history,
-                         index: index,
-                         isSelected: isSelected,
-                          isSelectionMode: historyController!.isSelectionMode.value,
-                          onTap: () {
-                            if (historyController!.isSelectionMode.value) {
-                              historyController!.toggleItemSelection(history['id']);
-                            } else {
-                              Get.to(() => HymnDetailScreen(hymnId: history['hymnId']));
-                            }
-                          },
-                          onLongPress: () {
-                            if (!historyController!.isSelectionMode.value) {
-                              historyController!.toggleSelectionMode();
-                              historyController!.toggleItemSelection(history['id']);
-                            }
-                          },
-                          onSelectionChanged: (_) => historyController!.toggleItemSelection(history['id']),
-                       );
-                     },
+                      return HistoryItemCard(
+                        key: ValueKey(history['id']),
+                        history: history,
+                        index: index,
+                        isSelected: isSelected,
+                        isSelectionMode:
+                            historyController!.isSelectionMode.value,
+                        onTap: () {
+                          if (historyController!.isSelectionMode.value) {
+                            historyController!
+                                .toggleItemSelection(history['id']);
+                          } else {
+                            Get.to(() =>
+                                HymnDetailScreen(hymnId: history['hymnId']));
+                          }
+                        },
+                        onLongPress: () {
+                          if (!historyController!.isSelectionMode.value) {
+                            historyController!.toggleSelectionMode();
+                            historyController!
+                                .toggleItemSelection(history['id']);
+                          }
+                        },
+                        onSelectionChanged: (_) => historyController!
+                            .toggleItemSelection(history['id']),
+                      );
+                    },
                   ),
       );
     });
   }
 
-void _showClearHistoryDialog(BuildContext context) {
+  void _showClearHistoryDialog(BuildContext context) {
     final textColor = colorController.textColor.value;
     final backgroundColor = colorController.backgroundColor.value;
 
@@ -191,21 +190,23 @@ void _showClearHistoryDialog(BuildContext context) {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text(context.translate((l) => l.no), style: TextStyle(color: textColor)),
+            child: Text(context.translate((l) => l.no),
+                style: TextStyle(color: textColor)),
           ),
           TextButton(
             onPressed: () {
               historyController!.clearHistory();
               Get.back();
             },
-            child: Text(context.translate((l) => l.yes), style: const TextStyle(color: Colors.red)),
+            child: Text(context.translate((l) => l.yes),
+                style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
   }
 
-void _showDeleteSelectedDialog(BuildContext context) {
+  void _showDeleteSelectedDialog(BuildContext context) {
     final textColor = colorController.textColor.value;
     final backgroundColor = colorController.backgroundColor.value;
 
@@ -219,14 +220,16 @@ void _showDeleteSelectedDialog(BuildContext context) {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: Text(context.translate((l) => l.no), style: TextStyle(color: textColor)),
+            child: Text(context.translate((l) => l.no),
+                style: TextStyle(color: textColor)),
           ),
           TextButton(
             onPressed: () {
               historyController!.deleteSelectedItems();
               Get.back();
             },
-            child: Text(context.translate((l) => l.yes), style: const TextStyle(color: Colors.red)),
+            child: Text(context.translate((l) => l.yes),
+                style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

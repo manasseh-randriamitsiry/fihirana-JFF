@@ -16,8 +16,7 @@ import 'recording_file_manager.dart';
 import 'package:flutter/foundation.dart';
 
 // Export enums for backward compatibility
-export 'recording_publishing_manager.dart'
-    show PublishRecordingResult;
+export 'recording_publishing_manager.dart' show PublishRecordingResult;
 
 /// Main controller that coordinates all recording-related managers
 /// Now uses DI pattern with use cases
@@ -45,7 +44,8 @@ class RecordingController extends GetxController {
   final LoadDeletedRecordingsUseCase loadDeletedRecordingsUseCase;
   final RestoreRecordingUseCase restoreRecordingUseCase;
   final PermanentlyDeleteRecordingUseCase permanentlyDeleteRecordingUseCase;
-  final PermanentlyDeleteMultipleRecordingsUseCase permanentlyDeleteMultipleRecordingsUseCase;
+  final PermanentlyDeleteMultipleRecordingsUseCase
+      permanentlyDeleteMultipleRecordingsUseCase;
 
   // Legacy managers (for backward compatibility)
   late final RecordingStateManager stateManager;
@@ -78,28 +78,56 @@ class RecordingController extends GetxController {
     LoadDeletedRecordingsUseCase? loadDeletedRecordingsUseCase,
     RestoreRecordingUseCase? restoreRecordingUseCase,
     PermanentlyDeleteRecordingUseCase? permanentlyDeleteRecordingUseCase,
-    PermanentlyDeleteMultipleRecordingsUseCase? permanentlyDeleteMultipleRecordingsUseCase,
+    PermanentlyDeleteMultipleRecordingsUseCase?
+        permanentlyDeleteMultipleRecordingsUseCase,
   })  : repository = repository ?? RecordingRepositoryImpl(),
-        startRecordingUseCase = startRecordingUseCase ?? StartRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        stopRecordingUseCase = stopRecordingUseCase ?? StopRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        cancelRecordingUseCase = cancelRecordingUseCase ?? CancelRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        loadRecordingsUseCase = loadRecordingsUseCase ?? LoadRecordingsUseCase(repository ?? RecordingRepositoryImpl()),
-        saveRecordingUseCase = saveRecordingUseCase ?? SaveRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        updateRecordingUseCase = updateRecordingUseCase ?? UpdateRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        deleteRecordingUseCase = deleteRecordingUseCase ?? DeleteRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        getRecordingByIdUseCase = getRecordingByIdUseCase ?? GetRecordingByIdUseCase(repository ?? RecordingRepositoryImpl()),
-        loadPublicRecordingsUseCase = loadPublicRecordingsUseCase ?? LoadPublicRecordingsUseCase(repository ?? RecordingRepositoryImpl()),
-        publishRecordingUseCase = publishRecordingUseCase ?? PublishRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        unpublishRecordingUseCase = unpublishRecordingUseCase ?? UnpublishRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        toggleRecordingPrivacyUseCase = toggleRecordingPrivacyUseCase ?? ToggleRecordingPrivacyUseCase(repository ?? RecordingRepositoryImpl()),
-        searchRecordingsUseCase = searchRecordingsUseCase ?? SearchRecordingsUseCase(repository ?? RecordingRepositoryImpl()),
-        getRecordingsByHymnIdUseCase = getRecordingsByHymnIdUseCase ?? GetRecordingsByHymnIdUseCase(repository ?? RecordingRepositoryImpl()),
-        uploadToGoogleDriveUseCase = uploadToGoogleDriveUseCase ?? UploadToGoogleDriveUseCase(repository ?? RecordingRepositoryImpl()),
-        syncFromDriveUseCase = syncFromDriveUseCase ?? SyncFromDriveUseCase(repository ?? RecordingRepositoryImpl()),
-        loadDeletedRecordingsUseCase = loadDeletedRecordingsUseCase ?? LoadDeletedRecordingsUseCase(repository ?? RecordingRepositoryImpl()),
-        restoreRecordingUseCase = restoreRecordingUseCase ?? RestoreRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        permanentlyDeleteRecordingUseCase = permanentlyDeleteRecordingUseCase ?? PermanentlyDeleteRecordingUseCase(repository ?? RecordingRepositoryImpl()),
-        permanentlyDeleteMultipleRecordingsUseCase = permanentlyDeleteMultipleRecordingsUseCase ?? PermanentlyDeleteMultipleRecordingsUseCase(repository ?? RecordingRepositoryImpl());
+        startRecordingUseCase = startRecordingUseCase ??
+            StartRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        stopRecordingUseCase = stopRecordingUseCase ??
+            StopRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        cancelRecordingUseCase = cancelRecordingUseCase ??
+            CancelRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        loadRecordingsUseCase = loadRecordingsUseCase ??
+            LoadRecordingsUseCase(repository ?? RecordingRepositoryImpl()),
+        saveRecordingUseCase = saveRecordingUseCase ??
+            SaveRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        updateRecordingUseCase = updateRecordingUseCase ??
+            UpdateRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        deleteRecordingUseCase = deleteRecordingUseCase ??
+            DeleteRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        getRecordingByIdUseCase = getRecordingByIdUseCase ??
+            GetRecordingByIdUseCase(repository ?? RecordingRepositoryImpl()),
+        loadPublicRecordingsUseCase = loadPublicRecordingsUseCase ??
+            LoadPublicRecordingsUseCase(
+                repository ?? RecordingRepositoryImpl()),
+        publishRecordingUseCase = publishRecordingUseCase ??
+            PublishRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        unpublishRecordingUseCase = unpublishRecordingUseCase ??
+            UnpublishRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        toggleRecordingPrivacyUseCase = toggleRecordingPrivacyUseCase ??
+            ToggleRecordingPrivacyUseCase(
+                repository ?? RecordingRepositoryImpl()),
+        searchRecordingsUseCase = searchRecordingsUseCase ??
+            SearchRecordingsUseCase(repository ?? RecordingRepositoryImpl()),
+        getRecordingsByHymnIdUseCase = getRecordingsByHymnIdUseCase ??
+            GetRecordingsByHymnIdUseCase(
+                repository ?? RecordingRepositoryImpl()),
+        uploadToGoogleDriveUseCase = uploadToGoogleDriveUseCase ??
+            UploadToGoogleDriveUseCase(repository ?? RecordingRepositoryImpl()),
+        syncFromDriveUseCase = syncFromDriveUseCase ??
+            SyncFromDriveUseCase(repository ?? RecordingRepositoryImpl()),
+        loadDeletedRecordingsUseCase = loadDeletedRecordingsUseCase ??
+            LoadDeletedRecordingsUseCase(
+                repository ?? RecordingRepositoryImpl()),
+        restoreRecordingUseCase = restoreRecordingUseCase ??
+            RestoreRecordingUseCase(repository ?? RecordingRepositoryImpl()),
+        permanentlyDeleteRecordingUseCase = permanentlyDeleteRecordingUseCase ??
+            PermanentlyDeleteRecordingUseCase(
+                repository ?? RecordingRepositoryImpl()),
+        permanentlyDeleteMultipleRecordingsUseCase =
+            permanentlyDeleteMultipleRecordingsUseCase ??
+                PermanentlyDeleteMultipleRecordingsUseCase(
+                    repository ?? RecordingRepositoryImpl());
 
   // Delegated properties for backward compatibility
   // Recording state
@@ -155,7 +183,7 @@ class RecordingController extends GetxController {
   final RxBool isMultiSelectMode = false.obs;
   final RxSet<String> selectedRecordingIds = <String>{}.obs;
 
-@override
+  @override
   void onInit() {
     super.onInit();
     _initializeManagers();
@@ -237,7 +265,8 @@ class RecordingController extends GetxController {
   void _cleanupOrphanedRecordingsOnStartup() async {
     try {
       if (kDebugMode) {
-        print('RecordingController: Starting orphaned recordings cleanup on app startup');
+        print(
+            'RecordingController: Starting orphaned recordings cleanup on app startup');
       }
 
       // Wait a bit to ensure everything is initialized
@@ -245,11 +274,13 @@ class RecordingController extends GetxController {
 
       // Only run cleanup if user is signed in to Drive
       if (syncManager.isDriveSignedIn.value) {
-        final cleanedUpCount = await syncManager.cleanupOrphanedPublicRecordings();
+        final cleanedUpCount =
+            await syncManager.cleanupOrphanedPublicRecordings();
 
         if (cleanedUpCount > 0) {
           if (kDebugMode) {
-            print('RecordingController: Cleaned up $cleanedUpCount orphaned recordings on startup');
+            print(
+                'RecordingController: Cleaned up $cleanedUpCount orphaned recordings on startup');
           }
 
           // Show notification to user about cleanup
@@ -265,12 +296,14 @@ class RecordingController extends GetxController {
           });
         } else {
           if (kDebugMode) {
-            print('RecordingController: No orphaned recordings found on startup');
+            print(
+                'RecordingController: No orphaned recordings found on startup');
           }
         }
       } else {
         if (kDebugMode) {
-          print('RecordingController: Skipping orphaned cleanup - user not signed in to Drive');
+          print(
+              'RecordingController: Skipping orphaned cleanup - user not signed in to Drive');
         }
       }
     } catch (e) {
@@ -352,7 +385,8 @@ class RecordingController extends GetxController {
   Future<void> updateRecording(UserRecording recording) async {
     try {
       await updateRecordingUseCase(recording);
-      await operationsManager.updateRecording(recording); // Keep for backward compatibility
+      await operationsManager
+          .updateRecording(recording); // Keep for backward compatibility
     } catch (e) {
       stateManager.lastError.value = 'Failed to update recording: $e';
     }
@@ -361,7 +395,8 @@ class RecordingController extends GetxController {
   Future<void> deleteRecording(UserRecording recording) async {
     try {
       if (kDebugMode) {
-        print('RecordingController: deleteRecording called for recording: ${recording.id} - ${recording.title}');
+        print(
+            'RecordingController: deleteRecording called for recording: ${recording.id} - ${recording.title}');
       }
 
       // Check if user is the owner of the recording
@@ -372,7 +407,8 @@ class RecordingController extends GetxController {
           (userEmail.value != null && recording.userEmail == userEmail.value);
 
       if (kDebugMode) {
-        print('RecordingController: currentUser=${currentUser?.uid}, recording.userId=${recording.userId}, recording.userEmail=${recording.userEmail}, controller.userEmail=${userEmail.value}');
+        print(
+            'RecordingController: currentUser=${currentUser?.uid}, recording.userId=${recording.userId}, recording.userEmail=${recording.userEmail}, controller.userEmail=${userEmail.value}');
       }
       if (kDebugMode) {
         print('RecordingController: isOwner=$isOwner');
@@ -381,7 +417,8 @@ class RecordingController extends GetxController {
       // For debugging, if no owner info, assume owner
       if (recording.userId == null || recording.userId!.isEmpty) {
         if (kDebugMode) {
-          print('RecordingController: No userId found, assuming owner for debugging');
+          print(
+              'RecordingController: No userId found, assuming owner for debugging');
         }
         // isOwner = true; // Uncomment this line for debugging
       }
@@ -394,13 +431,15 @@ class RecordingController extends GetxController {
       repository.recordings.removeWhere((r) => r.id == recording.id);
       final finalLength = repository.recordings.length;
       if (kDebugMode) {
-        print('RecordingController: Recording removed from list: $initialLength -> $finalLength');
+        print(
+            'RecordingController: Recording removed from list: $initialLength -> $finalLength');
       }
 
       // Also try to delete the file if owner
       if (isOwner) {
         if (kDebugMode) {
-          print('RecordingController: Owner detected, attempting file deletion');
+          print(
+              'RecordingController: Owner detected, attempting file deletion');
         }
         try {
           // This is a simplified approach - just remove from list for now
@@ -413,7 +452,8 @@ class RecordingController extends GetxController {
       }
 
       if (kDebugMode) {
-        print('RecordingController: Recordings list length after delete: ${repository.recordings.length}');
+        print(
+            'RecordingController: Recordings list length after delete: ${repository.recordings.length}');
       }
 
       // Force UI refresh by triggering reactive update
@@ -453,7 +493,8 @@ class RecordingController extends GetxController {
   Future<List<UserRecording>> loadPublicRecordings({String? hymnId}) async {
     try {
       await loadPublicRecordingsUseCase();
-      return publishingManager.loadPublicRecordings(hymnId: hymnId); // Keep for backward compatibility
+      return publishingManager.loadPublicRecordings(
+          hymnId: hymnId); // Keep for backward compatibility
     } catch (e) {
       stateManager.lastError.value = 'Failed to load public recordings: $e';
       return [];
@@ -463,7 +504,8 @@ class RecordingController extends GetxController {
   Future<void> refreshPublicRecordings({String? hymnId}) async {
     try {
       await loadPublicRecordingsUseCase();
-      await publishingManager.refreshPublicRecordings(hymnId: hymnId); // Keep for backward compatibility
+      await publishingManager.refreshPublicRecordings(
+          hymnId: hymnId); // Keep for backward compatibility
     } catch (e) {
       stateManager.lastError.value = 'Failed to refresh public recordings: $e';
     }
@@ -473,19 +515,24 @@ class RecordingController extends GetxController {
   Future<int> cleanupOrphanedPublicRecordings() async {
     try {
       if (kDebugMode) {
-        print('RecordingController: Starting manual cleanup of orphaned recordings');
+        print(
+            'RecordingController: Starting manual cleanup of orphaned recordings');
       }
 
-      final cleanedUpCount = await syncManager.cleanupOrphanedPublicRecordings();
+      final cleanedUpCount =
+          await syncManager.cleanupOrphanedPublicRecordings();
 
       if (kDebugMode) {
-        print('RecordingController: Cleanup completed, cleaned up $cleanedUpCount recordings');
+        print(
+            'RecordingController: Cleanup completed, cleaned up $cleanedUpCount recordings');
       }
 
       // Force refresh public recordings to update UI
       if (kDebugMode) {
-        print('RecordingController: Refreshing public recordings after cleanup');
-        print('RecordingController: Public recordings before refresh: ${publicRecordings.length}');
+        print(
+            'RecordingController: Refreshing public recordings after cleanup');
+        print(
+            'RecordingController: Public recordings before refresh: ${publicRecordings.length}');
       }
 
       await loadPublicRecordingsUseCase();
@@ -496,8 +543,10 @@ class RecordingController extends GetxController {
 
       if (kDebugMode) {
         print('RecordingController: Public recordings refresh completed');
-        print('RecordingController: Current public recordings count: ${publicRecordings.length}');
-        print('RecordingController: Publishing manager recordings count: ${publishingManager.publicRecordings.length}');
+        print(
+            'RecordingController: Current public recordings count: ${publicRecordings.length}');
+        print(
+            'RecordingController: Publishing manager recordings count: ${publishingManager.publicRecordings.length}');
       }
 
       if (cleanedUpCount > 0) {
@@ -523,7 +572,8 @@ class RecordingController extends GetxController {
       if (kDebugMode) {
         print('RecordingController: Error during cleanup: $e');
       }
-      stateManager.lastError.value = 'Failed to cleanup orphaned recordings: $e';
+      stateManager.lastError.value =
+          'Failed to cleanup orphaned recordings: $e';
       Get.snackbar(
         'Cleanup Failed',
         'Failed to cleanup orphaned recordings: $e',
@@ -573,8 +623,10 @@ class RecordingController extends GetxController {
       // Check orphaned count before cleanup
       final orphanedBefore = await checkOrphanedRecordings();
       if (kDebugMode) {
-        print('RecordingController: Orphaned recordings before cleanup: $orphanedBefore');
-        print('RecordingController: Public recordings in UI before cleanup: ${publicRecordings.length}');
+        print(
+            'RecordingController: Orphaned recordings before cleanup: $orphanedBefore');
+        print(
+            'RecordingController: Public recordings in UI before cleanup: ${publicRecordings.length}');
       }
 
       // Run cleanup
@@ -583,9 +635,11 @@ class RecordingController extends GetxController {
       // Check orphaned count after cleanup
       final orphanedAfter = await checkOrphanedRecordings();
       if (kDebugMode) {
-        print('RecordingController: Orphaned recordings after cleanup: $orphanedAfter');
+        print(
+            'RecordingController: Orphaned recordings after cleanup: $orphanedAfter');
         print('RecordingController: Cleaned up: $cleanedUpCount');
-        print('RecordingController: Public recordings in UI after cleanup: ${publicRecordings.length}');
+        print(
+            'RecordingController: Public recordings in UI after cleanup: ${publicRecordings.length}');
       }
 
       // Show detailed results
@@ -636,7 +690,8 @@ class RecordingController extends GetxController {
       );
     } catch (e) {
       if (kDebugMode) {
-        print('RecordingController: Error during force refresh and cleanup: $e');
+        print(
+            'RecordingController: Error during force refresh and cleanup: $e');
       }
       Get.snackbar(
         'Refresh Failed',
@@ -653,7 +708,8 @@ class RecordingController extends GetxController {
     try {
       if (kDebugMode) {
         print('RecordingController: Force refresh UI triggered');
-        print('RecordingController: Public recordings before refresh: ${publicRecordings.length}');
+        print(
+            'RecordingController: Public recordings before refresh: ${publicRecordings.length}');
       }
 
       // Force refresh public recordings
@@ -662,7 +718,8 @@ class RecordingController extends GetxController {
       publicRecordings.refresh();
 
       if (kDebugMode) {
-        print('RecordingController: Public recordings after refresh: ${publicRecordings.length}');
+        print(
+            'RecordingController: Public recordings after refresh: ${publicRecordings.length}');
       }
 
       Get.snackbar(
@@ -694,7 +751,8 @@ class RecordingController extends GetxController {
   Future<void> publishRecording(UserRecording recording) async {
     try {
       await publishRecordingUseCase(recording);
-      await publishingManager.publishRecording(recording); // Keep for backward compatibility
+      await publishingManager
+          .publishRecording(recording); // Keep for backward compatibility
     } catch (e) {
       stateManager.lastError.value = 'Failed to publish recording: $e';
     }
@@ -703,7 +761,8 @@ class RecordingController extends GetxController {
   Future<void> unpublishRecording(UserRecording recording) async {
     try {
       await unpublishRecordingUseCase(recording.id);
-      await publishingManager.unpublishRecording(recording); // Keep for backward compatibility
+      await publishingManager
+          .unpublishRecording(recording); // Keep for backward compatibility
     } catch (e) {
       stateManager.lastError.value = 'Failed to unpublish recording: $e';
     }
@@ -801,12 +860,14 @@ class RecordingController extends GetxController {
     if (selectedRecordingIds.contains(recordingId)) {
       selectedRecordingIds.remove(recordingId);
       if (kDebugMode) {
-        print('RecordingController: Deselected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
+        print(
+            'RecordingController: Deselected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
       }
     } else {
       selectedRecordingIds.add(recordingId);
       if (kDebugMode) {
-        print('RecordingController: Selected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
+        print(
+            'RecordingController: Selected recording: $recordingId, selected count: ${selectedRecordingIds.length}');
       }
     }
   }
@@ -821,7 +882,8 @@ class RecordingController extends GetxController {
 
   Future<void> permanentlyDeleteSelectedRecordings() async {
     if (kDebugMode) {
-      print('RecordingController: permanentlyDeleteSelectedRecordings called with ${selectedRecordingIds.length} recordings');
+      print(
+          'RecordingController: permanentlyDeleteSelectedRecordings called with ${selectedRecordingIds.length} recordings');
     }
     if (selectedRecordingIds.isEmpty) {
       if (kDebugMode) {
@@ -839,28 +901,33 @@ class RecordingController extends GetxController {
         .toList();
 
     if (kDebugMode) {
-      print('RecordingController: Found ${recordingsToDelete.length} recordings to delete');
+      print(
+          'RecordingController: Found ${recordingsToDelete.length} recordings to delete');
     }
 
     // Separate public and private recordings
-    final publicRecordings = recordingsToDelete.where((r) => r.isPublic).toList();
-    final privateRecordings = recordingsToDelete.where((r) => !r.isPublic).toList();
+    final publicRecordings =
+        recordingsToDelete.where((r) => r.isPublic).toList();
+    final privateRecordings =
+        recordingsToDelete.where((r) => !r.isPublic).toList();
 
     if (kDebugMode) {
-      print('RecordingController: Public recordings: ${publicRecordings.length}, Private recordings: ${privateRecordings.length}');
+      print(
+          'RecordingController: Public recordings: ${publicRecordings.length}, Private recordings: ${privateRecordings.length}');
     }
 
     // Handle public recordings - unpublish them
     for (final recording in publicRecordings) {
       if (kDebugMode) {
-        print('RecordingController: Unpublishing public recording: ${recording.id} - ${recording.title} (driveFileId: ${recording.driveFileId})');
+        print(
+            'RecordingController: Unpublishing public recording: ${recording.id} - ${recording.title} (driveFileId: ${recording.driveFileId})');
       }
       try {
         await unpublishRecordingUseCase(recording.id);
         if (kDebugMode) {
           print('RecordingController: Unpublished recording: ${recording.id}');
         }
-        
+
         // Also remove from local recordings list since it's no longer public
         repository.recordings.removeWhere((r) => r.id == recording.id);
         if (kDebugMode) {
@@ -876,22 +943,24 @@ class RecordingController extends GetxController {
     // Handle private recordings - permanently delete them
     for (final recording in privateRecordings) {
       if (kDebugMode) {
-        print('RecordingController: Permanently deleting private recording: ${recording.id} - ${recording.title}');
+        print(
+            'RecordingController: Permanently deleting private recording: ${recording.id} - ${recording.title}');
       }
       await operationsManager.deleteRecordingPermanentlyDirect(recording);
       if (kDebugMode) {
-        print('RecordingController: Permanently deleted recording: ${recording.id}');
+        print(
+            'RecordingController: Permanently deleted recording: ${recording.id}');
       }
     }
 
     if (kDebugMode) {
       print('RecordingController: Finished processing all selected recordings');
     }
-    
+
     // Force UI refresh
     repository.recordings.refresh();
     update();
-    
+
     disableMultiSelectMode();
   }
 }

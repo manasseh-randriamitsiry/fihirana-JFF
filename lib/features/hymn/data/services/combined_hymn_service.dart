@@ -25,7 +25,7 @@ class CombinedHymnService {
     try {
       await _loadCombinedHymns();
       // Optimization: Don't load all Firebase hymns at startup
-      // await _loadFirebaseHymns(); 
+      // await _loadFirebaseHymns();
       _isInitialized = true;
       if (kDebugMode) {
         print(
@@ -120,7 +120,8 @@ class CombinedHymnService {
       } else {
         // Combine with existing hymns, avoiding duplicates
         final existingIds = _allHymns!.map((h) => h.id).toSet();
-        final newHymns = firebaseHymns.where((h) => !existingIds.contains(h.id)).toList();
+        final newHymns =
+            firebaseHymns.where((h) => !existingIds.contains(h.id)).toList();
         _allHymns!.addAll(newHymns);
       }
 
@@ -169,7 +170,7 @@ class CombinedHymnService {
     return _allHymns ?? [];
   }
 
-Future<Hymn?> getHymnById(String id) async {
+  Future<Hymn?> getHymnById(String id) async {
     if (!_isInitialized) {
       await initialize();
     }
@@ -230,8 +231,10 @@ Future<Hymn?> getHymnById(String id) async {
     final results = allHymns.where((hymn) {
       final numberMatch = hymn.hymnNumber.toLowerCase().contains(lowerQuery);
       final titleMatch = hymn.title.toLowerCase().contains(lowerQuery);
-      final chorusMatch = hymn.bridge?.toLowerCase().contains(lowerQuery) ?? false;
-      final verseMatch = hymn.verses.any((v) => v.toLowerCase().contains(lowerQuery));
+      final chorusMatch =
+          hymn.bridge?.toLowerCase().contains(lowerQuery) ?? false;
+      final verseMatch =
+          hymn.verses.any((v) => v.toLowerCase().contains(lowerQuery));
 
       return numberMatch || titleMatch || chorusMatch || verseMatch;
     }).toList();

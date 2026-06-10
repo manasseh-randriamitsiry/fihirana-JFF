@@ -106,16 +106,4 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
       ),
     );
   }
-
-
-
-
-
-
-
-
-
-
-
-
 }

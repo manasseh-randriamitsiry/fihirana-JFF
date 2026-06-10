@@ -51,17 +51,20 @@ class AccueilScreenState extends State<AccueilScreen> {
   void initState() {
     super.initState();
     _colorController = Get.find<ColorController>();
-    
+
     // Initialize the controller properly to avoid disposal issues
     final hymnService = HymnService();
     final hymnRepository = HymnRepositoryImpl(hymnService);
-    
-    _hymnController = Get.put<HymnController>(HymnController(
-      searchHymnsUseCase: SearchHymnsUseCase(hymnRepository),
-      addToFavoritesUseCase: AddToFavoritesUseCase(hymnRepository),
-      removeFromFavoritesUseCase: RemoveFromFavoritesUseCase(hymnRepository),
-      isFavoriteUseCase: IsFavoriteUseCase(hymnRepository),
-    ), permanent: true);
+
+    _hymnController = Get.put<HymnController>(
+        HymnController(
+          searchHymnsUseCase: SearchHymnsUseCase(hymnRepository),
+          addToFavoritesUseCase: AddToFavoritesUseCase(hymnRepository),
+          removeFromFavoritesUseCase:
+              RemoveFromFavoritesUseCase(hymnRepository),
+          isFavoriteUseCase: IsFavoriteUseCase(hymnRepository),
+        ),
+        permanent: true);
 
     // Initial audio check for first batch of hymns
     _checkInitialAudio();
@@ -89,11 +92,12 @@ class AccueilScreenState extends State<AccueilScreen> {
         .map((h) => h.id)
         .where((id) => !_checkedHymnIds.contains(id))
         .toList();
-    
+
     if (idsToCheck.isEmpty) return;
-    
+
     _checkedHymnIds.addAll(idsToCheck);
-    final results = await AudioService.instance.checkAudioFilesExist(idsToCheck);
+    final results =
+        await AudioService.instance.checkAudioFilesExist(idsToCheck);
     _audioAvailability.addAll(results);
   }
 
@@ -160,168 +164,164 @@ class AccueilScreenState extends State<AccueilScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(
-      builder: (colorController) {
-        final textColor = colorController.textColor.value;
-        final backgroundColor = colorController.backgroundColor.value;
-        final iconColor = colorController.iconColor.value;
-        final defaultTextStyle = TextStyle(color: textColor, inherit: true);
+    return GetBuilder<ColorController>(builder: (colorController) {
+      final textColor = colorController.textColor.value;
+      final backgroundColor = colorController.backgroundColor.value;
+      final iconColor = colorController.iconColor.value;
+      final defaultTextStyle = TextStyle(color: textColor, inherit: true);
 
-        return Scaffold(
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
           backgroundColor: backgroundColor,
-          appBar: AppBar(
-            backgroundColor: backgroundColor,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            leading: widget.showMenuButton
-                ? IconButton(
-                    key: const ValueKey('menu_button'),
-                    icon: Icon(Icons.menu, color: iconColor),
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      widget.openDrawer();
-                    },
-                  )
-                : null,
-            title: Text(
-              context.translate((l) => l.appTitleShort),
-              style: defaultTextStyle.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: widget.showMenuButton
+              ? IconButton(
+                  key: const ValueKey('menu_button'),
+                  icon: Icon(Icons.menu, color: iconColor),
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    widget.openDrawer();
+                  },
+                )
+              : null,
+          title: Text(
+            context.translate((l) => l.appTitleShort),
+            style: defaultTextStyle.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 26,
+            ),
+          ),
+          actions: [
+            UpdateButtonWidget(
+              isDownloading: _isDownloading,
+              updateAvailable: _updateAvailable,
+              onPressed: _isDownloading ? null : _downloadAndInstallUpdate,
+            ),
+            Obx(() {
+              final audioService = AudioService.instance;
+              final currentHymnId = audioService.currentPlayingHymnId;
+              final isPlaying =
+                  currentHymnId.isNotEmpty && audioService.isPlaying;
+
+              return NowPlayingButtonWidget(
+                currentHymnId: currentHymnId,
+                isPlaying: isPlaying,
+                onPressed: () async {
+                  if (isPlaying) {
+                    _showCurrentPlayingDialog();
+                  } else {
+                    await _showAudioPlayerWithFirstHymn();
+                  }
+                },
+              );
+            }),
+            IconButton(
+              key: const ValueKey('language_button'),
+              icon: Icon(Icons.language, color: iconColor),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                SimpleLanguagePicker.showLanguagePicker(context);
+              },
+            ),
+            IconButton(
+              key: const ValueKey('favorites_button'),
+              icon: Icon(Icons.favorite, color: iconColor),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                NavigationUtility.navigateToFavorites();
+              },
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppDimensions.md),
+              child: HymnSearchField(
+                controller: _hymnController.safeSearchController,
+                defaultTextStyle: defaultTextStyle,
+                textColor: textColor,
+                iconColor: iconColor,
+                backgroundColor: backgroundColor,
+                onChanged: () {
+                  if (mounted && !_hymnController.isDisposed) {
+                    setState(() {});
+                  }
+                },
               ),
             ),
-            actions: [
-              UpdateButtonWidget(
-                isDownloading: _isDownloading,
-                updateAvailable: _updateAvailable,
-                onPressed: _isDownloading ? null : _downloadAndInstallUpdate,
-              ),
-              Obx(() {
-                final audioService = AudioService.instance;
-                final currentHymnId = audioService.currentPlayingHymnId;
-                final isPlaying =
-                    currentHymnId.isNotEmpty && audioService.isPlaying;
+            Expanded(
+              child: Obx(() {
+                if (_hymnController.isLoading.value) {
+                  return const SkeletonHymnList();
+                }
 
-                return NowPlayingButtonWidget(
-                  currentHymnId: currentHymnId,
-                  isPlaying: isPlaying,
-                  onPressed: () async {
-                    if (isPlaying) {
-                      _showCurrentPlayingDialog();
-                    } else {
-                      await _showAudioPlayerWithFirstHymn();
+                final hymns = _hymnController.filteredHymns;
+                if (hymns.isEmpty) {
+                  return EmptyStateWidget(
+                    message: context.translate((l) => l.noHymnsFound),
+                    icon: Icons.music_off_rounded,
+                    actionLabel: context.translate((l) => l.clearSearch),
+                    onActionPressed: () {
+                      if (!_hymnController.isDisposed) {
+                        _hymnController.safeSearchController.clear();
+                      }
+                    },
+                  );
+                }
+
+                return ListView.builder(
+                  key: const PageStorageKey('home_hymns_list'),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+                  itemCount: hymns.length,
+                  itemBuilder: (context, index) {
+                    final hymn = hymns[index];
+
+                    // Batch check audio for next items as we scroll
+                    if (index > 0 && index % 15 == 0) {
+                      final nextBatch = hymns.skip(index).take(20).toList();
+                      _checkAudioForVisibleHymns(nextBatch);
                     }
+
+                    return Obx(() {
+                      final isFavorite = _hymnController
+                              .favoriteStatuses[hymn.id]?.isNotEmpty ??
+                          false;
+                      final hasAudio = _audioAvailability[hymn.id] ?? false;
+
+                      return HymnListItem(
+                        key: ValueKey(hymn.id),
+                        hymn: hymn,
+                        textColor: textColor,
+                        backgroundColor: backgroundColor,
+                        primaryColor: _colorController.primaryColor.value,
+                        isFavorite: isFavorite,
+                        hasAudio: hasAudio,
+                        onFavoritePressed: () =>
+                            _hymnController.toggleFavorite(hymn),
+                        onMusicPressed: () => _showAudioPlayerDialog(hymn),
+                      );
+                    })
+                        .animate()
+                        .fadeIn(
+                            duration: 400.ms,
+                            delay: (50 * index).clamp(0, 500).ms)
+                        .slideY(
+                            begin: 0.2,
+                            end: 0,
+                            curve: Curves.easeOutQuad,
+                            duration: 400.ms);
                   },
                 );
               }),
-              IconButton(
-                key: const ValueKey('language_button'),
-                icon: Icon(Icons.language, color: iconColor),
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  SimpleLanguagePicker.showLanguagePicker(context);
-                },
-              ),
-              IconButton(
-                key: const ValueKey('favorites_button'),
-                icon: Icon(Icons.favorite, color: iconColor),
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  NavigationUtility.navigateToFavorites();
-                },
-              ),
-            ],
-          ),
-          body: Column(
-            children: [
-               Padding(
-                padding: const EdgeInsets.all(AppDimensions.md),
-                child: HymnSearchField(
-                  controller: _hymnController.safeSearchController,
-                  defaultTextStyle: defaultTextStyle,
-                  textColor: textColor,
-                  iconColor: iconColor,
-                  backgroundColor: backgroundColor,
-                  onChanged: () {
-                    if (mounted && !_hymnController.isDisposed) {
-                      setState(() {});
-                    }
-                  },
-                ),
-              ),
-              Expanded(
-                child: Obx(() {
-                  if (_hymnController.isLoading.value) {
-                    return const SkeletonHymnList();
-                  }
-
-                  final hymns = _hymnController.filteredHymns;
-                  if (hymns.isEmpty) {
-                    return EmptyStateWidget(
-                      message: context.translate((l) => l.noHymnsFound),
-                      icon: Icons.music_off_rounded,
-                      actionLabel: context.translate((l) => l.clearSearch),
-                      onActionPressed: () {
-                        if (!_hymnController.isDisposed) {
-                          _hymnController.safeSearchController.clear();
-                        }
-                      },
-                    );
-                  }
-
-                  return ListView.builder(
-                    key: const PageStorageKey('home_hymns_list'),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: AppDimensions.md),
-                    itemCount: hymns.length,
-                    itemBuilder: (context, index) {
-                      final hymn = hymns[index];
-
-                      // Batch check audio for next items as we scroll
-                      if (index > 0 && index % 15 == 0) {
-                        final nextBatch =
-                            hymns.skip(index).take(20).toList();
-                        _checkAudioForVisibleHymns(nextBatch);
-                      }
-
-                      return Obx(() {
-                        final isFavorite = _hymnController
-                                .favoriteStatuses[hymn.id]?.isNotEmpty ??
-                            false;
-                        final hasAudio =
-                            _audioAvailability[hymn.id] ?? false;
-
-                        return HymnListItem(
-                          key: ValueKey(hymn.id),
-                          hymn: hymn,
-                          textColor: textColor,
-                          backgroundColor: backgroundColor,
-                          primaryColor: _colorController.primaryColor.value,
-                          isFavorite: isFavorite,
-                          hasAudio: hasAudio,
-                          onFavoritePressed: () =>
-                              _hymnController.toggleFavorite(hymn),
-                          onMusicPressed: () => _showAudioPlayerDialog(hymn),
-                        );
-                      })
-                          .animate()
-                          .fadeIn(
-                              duration: 400.ms,
-                              delay: (50 * index).clamp(0, 500).ms)
-                          .slideY(
-                              begin: 0.2,
-                              end: 0,
-                              curve: Curves.easeOutQuad,
-                              duration: 400.ms);
-                    },
-                  );
-                }),
-              ),
-            ],
-          ),
-        );
-      }
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   @override

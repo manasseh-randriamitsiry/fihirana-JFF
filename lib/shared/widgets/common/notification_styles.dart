@@ -4,7 +4,8 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 
 class NotificationStyles {
-  static Color get primaryColor => Get.find<ColorController>().primaryColor.value;
+  static Color get primaryColor =>
+      Get.find<ColorController>().primaryColor.value;
   static const Color successColor = Colors.green;
   static const Color errorColor = Colors.red;
   static const Color audioPlayerColor = Colors.blue;
@@ -156,7 +157,7 @@ class NotificationButtons {
     bool showCancel = true,
   }) {
     final buttons = <NotificationActionButton>[];
-    
+
     if (showCancel) {
       buttons.add(NotificationActionButton(
         key: cancelKey,
@@ -165,7 +166,7 @@ class NotificationButtons {
         icon: cancelIcon ?? 'resource://mipmap/ic_launcher',
       ));
     }
-    
+
     return buttons;
   }
 

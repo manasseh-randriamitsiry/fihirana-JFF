@@ -92,6 +92,7 @@ class RecordingOperationsController extends GetxController {
   }
 
   void _startRecordingTimer() {
+    _recordingTimer?.cancel();
     _recordDuration.value = 0;
     _recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _recordDuration.value++;

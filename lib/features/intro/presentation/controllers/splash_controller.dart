@@ -28,8 +28,10 @@ class SplashController extends GetxController {
   RxString get googleUserEmail => _onboardingAuthController.googleUserEmail;
   Rx<Locale?> get selectedLocale => _languageSelectionController.selectedLocale;
   RxInt get usernameLength => _usernameInputController.usernameLength;
-  TextEditingController get usernameController => _usernameInputController.usernameController;
-  LiquidController get liquidController => _languageSelectionController.liquidController;
+  TextEditingController get usernameController =>
+      _usernameInputController.usernameController;
+  LiquidController get liquidController =>
+      _languageSelectionController.liquidController;
 
   @override
   void onInit() {
@@ -46,7 +48,8 @@ class SplashController extends GetxController {
   }
 
   // Delegate to sub-controllers
-  bool get isGoogleUserSignedIn => _onboardingAuthController.isGoogleUserSignedIn;
+  bool get isGoogleUserSignedIn =>
+      _onboardingAuthController.isGoogleUserSignedIn;
 
   Future<void> selectLanguage(Locale locale) async {
     HapticFeedback.selectionClick();
@@ -62,7 +65,8 @@ class SplashController extends GetxController {
     HapticFeedback.mediumImpact();
 
     // Validate username using sub-controller
-    final validationError = _usernameInputController.validateUsername(_usernameInputController.usernameController.text);
+    final validationError = _usernameInputController
+        .validateUsername(_usernameInputController.usernameController.text);
     if (validationError != null) {
       Get.snackbar(
         'Error',
@@ -83,7 +87,8 @@ class SplashController extends GetxController {
       await _usernameInputController.submitUsername();
 
       if (kDebugMode) {
-        final username = _usernameInputController.usernameController.text.trim();
+        final username =
+            _usernameInputController.usernameController.text.trim();
         print('✅ Splash: Saved username to SharedPreferences: $username');
       }
     } catch (e) {
@@ -96,9 +101,12 @@ class SplashController extends GetxController {
     await _onboardingAuthController.handleGoogleUserContinue();
   }
 
-  String getContinueButtonText(String continueAsTemplate, String continueAsGuest) {
-    if (isGoogleUserSignedIn && _onboardingAuthController.googleUserName.value.isNotEmpty) {
-      return continueAsTemplate.replaceFirst('{name}', _onboardingAuthController.googleUserName.value);
+  String getContinueButtonText(
+      String continueAsTemplate, String continueAsGuest) {
+    if (isGoogleUserSignedIn &&
+        _onboardingAuthController.googleUserName.value.isNotEmpty) {
+      return continueAsTemplate.replaceFirst(
+          '{name}', _onboardingAuthController.googleUserName.value);
     } else {
       final username = _usernameInputController.usernameController.text.trim();
       if (username.isNotEmpty) {
@@ -112,7 +120,8 @@ class SplashController extends GetxController {
   Future<void> _checkAgreementStatus() async {
     final hasAgreed = await _userAgreementController.hasAgreedToTerms();
     final username = _usernameInputController.usernameController.text.trim();
-    final hasSelectedLanguage = _languageSelectionController.selectedLocale.value != null;
+    final hasSelectedLanguage =
+        _languageSelectionController.selectedLocale.value != null;
 
     if (hasAgreed && username.isNotEmpty && hasSelectedLanguage) {
       Get.offAll(() => const HomeScreen());
@@ -131,4 +140,3 @@ class SplashController extends GetxController {
     _userAgreementController.toggleTermsExpanded();
   }
 }
-

@@ -14,7 +14,7 @@ class RecordingTileInfo extends StatelessWidget {
     required this.isPublic,
   });
 
-String _formatDuration(int seconds) {
+  String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
     return '${minutes}m ${remainingSeconds.toString().padLeft(2, '0')}s';
@@ -36,7 +36,8 @@ String _formatDuration(int seconds) {
 
     // For standalone recordings or unknown hymns
     final date = recording.createdAt;
-    final timeString = '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    final timeString =
+        '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
     return 'Recording ${date.day}/${date.month}/${date.year} $timeString';
   }
 
@@ -97,8 +98,8 @@ String _formatDuration(int seconds) {
                 child: Text(
                   recording.userName!,
                   style: TextStyle(
-                    color: colorController.textColor.value
-                        .withValues(alpha: 0.5),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                   maxLines: 1,

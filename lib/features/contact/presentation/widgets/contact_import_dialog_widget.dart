@@ -17,7 +17,8 @@ class ContactImportDialogWidget extends StatefulWidget {
   });
 
   @override
-  State<ContactImportDialogWidget> createState() => _ContactImportDialogWidgetState();
+  State<ContactImportDialogWidget> createState() =>
+      _ContactImportDialogWidgetState();
 }
 
 class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
@@ -41,9 +42,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
         ? widget.contacts
         : widget.contacts.where((contact) {
             final name = contact.displayName.toLowerCase();
-            final phone = contact.phones.isNotEmpty
-                ? contact.phones.first.number
-                : '';
+            final phone =
+                contact.phones.isNotEmpty ? contact.phones.first.number : '';
             return name.contains(searchQuery) || phone.contains(searchQuery);
           }).toList();
   }
@@ -126,7 +126,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
           color: widget.colorController.backgroundColor.value,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: widget.colorController.textColor.value.withValues(alpha: 0.1),
+            color:
+                widget.colorController.textColor.value.withValues(alpha: 0.1),
             width: 1,
           ),
           boxShadow: [
@@ -143,7 +144,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
           decoration: InputDecoration(
             hintText: AppLocalizations.of(context).searchContacts,
             hintStyle: TextStyle(
-              color: widget.colorController.iconColor.value.withValues(alpha: 0.5),
+              color:
+                  widget.colorController.iconColor.value.withValues(alpha: 0.5),
             ),
             prefixIcon: Icon(
               Icons.search,
@@ -196,7 +198,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
             Icon(
               Icons.search_off,
               size: 64,
-              color: widget.colorController.textColor.value.withValues(alpha: 0.3),
+              color:
+                  widget.colorController.textColor.value.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
             Text(
@@ -222,9 +225,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
       itemBuilder: (context, index) {
         final contact = _filteredContacts[index];
         final displayName = contact.displayName;
-        final phoneNumber = contact.phones.isNotEmpty
-            ? contact.phones.first.number
-            : '';
+        final phoneNumber =
+            contact.phones.isNotEmpty ? contact.phones.first.number : '';
 
         return Card(
           key: ValueKey(displayName + phoneNumber),
@@ -233,7 +235,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: widget.colorController.textColor.value.withValues(alpha: 0.1),
+              color:
+                  widget.colorController.textColor.value.withValues(alpha: 0.1),
               width: 1,
             ),
           ),
@@ -252,7 +255,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
               child: Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: widget.colorController.primaryColor.value.withValues(alpha: 0.15),
+                    backgroundColor: widget.colorController.primaryColor.value
+                        .withValues(alpha: 0.15),
                     radius: 24,
                     child: Text(
                       displayName.isNotEmpty
@@ -285,13 +289,15 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
                               Icon(
                                 Icons.phone,
                                 size: 14,
-                                color: widget.colorController.iconColor.value.withValues(alpha: 0.7),
+                                color: widget.colorController.iconColor.value
+                                    .withValues(alpha: 0.7),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 phoneNumber,
                                 style: TextStyle(
-                                  color: widget.colorController.textColor.value.withValues(alpha: 0.7),
+                                  color: widget.colorController.textColor.value
+                                      .withValues(alpha: 0.7),
                                   fontSize: 14,
                                 ),
                               ),
@@ -304,7 +310,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
                   Icon(
                     Icons.arrow_forward_ios,
                     size: 16,
-                    color: widget.colorController.iconColor.value.withValues(alpha: 0.3),
+                    color: widget.colorController.iconColor.value
+                        .withValues(alpha: 0.3),
                   ),
                 ],
               ),

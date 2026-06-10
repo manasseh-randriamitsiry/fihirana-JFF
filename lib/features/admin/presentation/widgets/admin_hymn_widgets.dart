@@ -35,7 +35,8 @@ class AdminHymnListItemWidget extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         color: backgroundColor,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           leading: Checkbox(
             value: isSelected,
             activeColor: primaryColor,
@@ -61,27 +62,21 @@ class AdminHymnListItemWidget extends StatelessWidget {
                 Text(
                   l10n.emailLabel(hymn.createdByEmail!),
                   style: TextStyle(
-                      color: textColor.withValues(alpha: 0.6),
-                      fontSize: 12),
+                      color: textColor.withValues(alpha: 0.6), fontSize: 12),
                 ),
               Text(
                 '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}',
                 style: TextStyle(
-                    color: textColor.withValues(alpha: 0.5),
-                    fontSize: 12),
+                    color: textColor.withValues(alpha: 0.5), fontSize: 12),
               ),
             ],
           ),
         ),
-      )
-          .animate()
-          .fadeIn(
-              duration: const Duration(milliseconds: 300))
-          .slideY(
-              begin: 0.1,
-              end: 0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut),
+      ).animate().fadeIn(duration: const Duration(milliseconds: 300)).slideY(
+          begin: 0.1,
+          end: 0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut),
     );
   }
 }
@@ -101,9 +96,7 @@ class AdminEmptyHymnsWidget extends StatelessWidget {
         children: [
           Icon(Icons.library_books_outlined,
                   size: 64, color: textColor.withValues(alpha: 0.3))
-              .animate(
-                  onPlay: (controller) =>
-                      controller.repeat(reverse: true))
+              .animate(onPlay: (controller) => controller.repeat(reverse: true))
               .scale(
                   duration: const Duration(seconds: 2),
                   begin: const Offset(1, 1),

@@ -28,8 +28,6 @@ class FavoriteModel extends Favorite {
     );
   }
 
-
-
   Favorite toEntity() {
     return Favorite(
       id: id,

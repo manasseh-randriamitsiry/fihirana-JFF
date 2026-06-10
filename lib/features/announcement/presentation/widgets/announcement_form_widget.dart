@@ -106,8 +106,7 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: l10n.title,
-                  labelStyle:
-                      TextStyle(color: colorController.textColor.value),
+                  labelStyle: TextStyle(color: colorController.textColor.value),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
                   enabledBorder: OutlineInputBorder(
@@ -129,8 +128,7 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                 controller: _messageController,
                 decoration: InputDecoration(
                   labelText: l10n.message,
-                  labelStyle:
-                      TextStyle(color: colorController.textColor.value),
+                  labelStyle: TextStyle(color: colorController.textColor.value),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
                   enabledBorder: OutlineInputBorder(
@@ -222,8 +220,8 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
             style: ElevatedButton.styleFrom(
               backgroundColor: colorController.primaryColor.value,
               foregroundColor: Colors.white,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
             ),
             child: Text(widget.submitButtonText),
           ),

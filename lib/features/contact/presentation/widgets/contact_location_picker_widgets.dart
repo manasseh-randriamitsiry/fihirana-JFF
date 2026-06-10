@@ -32,7 +32,8 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
       children: [
         Container(
           decoration: BoxDecoration(
-            color: colorController.backgroundColor.value.withValues(alpha: 0.95),
+            color:
+                colorController.backgroundColor.value.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -46,10 +47,12 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
             controller: widget.controller,
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context).searchForAPlace,
-              prefixIcon: Icon(Icons.search, color: colorController.iconColor.value),
+              prefixIcon:
+                  Icon(Icons.search, color: colorController.iconColor.value),
               suffixIcon: widget.controller.text.isNotEmpty
                   ? IconButton(
-                      icon: Icon(Icons.clear, color: colorController.iconColor.value),
+                      icon: Icon(Icons.clear,
+                          color: colorController.iconColor.value),
                       onPressed: widget.onClear,
                     )
                   : null,
@@ -59,7 +62,8 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
                 borderRadius: BorderRadius.circular(16),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             ),
             style: TextStyle(color: colorController.textColor.value),
             onChanged: widget.onChanged,
@@ -70,7 +74,8 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
             margin: const EdgeInsets.only(top: 8),
             constraints: const BoxConstraints(maxHeight: 200),
             decoration: BoxDecoration(
-              color: colorController.backgroundColor.value.withValues(alpha: 0.95),
+              color:
+                  colorController.backgroundColor.value.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(

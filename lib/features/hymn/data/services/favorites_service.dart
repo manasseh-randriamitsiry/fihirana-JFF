@@ -14,10 +14,11 @@ class FavoritesService {
   final Future<Hymn?> Function(String) getHymnById;
 
   // Local cache and stream controllers
-  final _favoriteStatusController = StreamController<Map<String, String>>.broadcast();
+  final _favoriteStatusController =
+      StreamController<Map<String, String>>.broadcast();
   final _favoriteIdsController = StreamController<List<String>>.broadcast();
   final _favoriteHymnsController = StreamController<List<Hymn>>.broadcast();
-  
+
   Set<String> _cachedFavorites = {};
   Map<String, String> _currentStatusMap = {};
 
@@ -38,11 +39,11 @@ class FavoritesService {
   /// Initialize the favorites service
   Future<void> _initialize() async {
     if (_isInitialized) return;
-    
+
     try {
       // Load local favorites first
       await _loadLocalFavorites();
-      
+
       // Listen to auth changes
       auth.authStateChanges().listen((user) {
         if (user != null) {
@@ -52,12 +53,12 @@ class FavoritesService {
           _updateStreams();
         }
       });
-      
+
       // If user is already authenticated, load Firebase favorites
       if (auth.currentUser != null) {
         await _loadFirebaseFavorites();
       }
-      
+
       _isInitialized = true;
     } catch (e) {
       if (kDebugMode) {
@@ -71,12 +72,13 @@ class FavoritesService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final localFavoritesJson = prefs.getString(_localFavoritesKey);
-      
+
       if (localFavoritesJson != null) {
         final List<dynamic> localFavorites = json.decode(localFavoritesJson);
         _cachedFavorites = localFavorites.whereType<String>().toSet();
         if (kDebugMode) {
-          print('📚 Loaded ${_cachedFavorites.length} favorites from local storage');
+          print(
+              '📚 Loaded ${_cachedFavorites.length} favorites from local storage');
         }
         _updateStreams();
       }
@@ -95,7 +97,7 @@ class FavoritesService {
     try {
       // Cancel existing subscription
       await _firestoreSubscription?.cancel();
-      
+
       // Set up real-time listener
       _firestoreSubscription = FirebaseFirestore.instance
           .collection('users')
@@ -107,18 +109,19 @@ class FavoritesService {
             .map((doc) => doc.data()['hymnId'] as String?)
             .whereType<String>()
             .toSet();
-        
+
         // MERGE logic: Add Firebase favorites to local cache instead of overwriting
         // This ensures we don't lose local favorites when syncing/logging in
         _cachedFavorites.addAll(firebaseFavorites);
-        
+
         if (kDebugMode) {
-          print('🎵 Merged favorites from Firebase. Total: ${_cachedFavorites.length}');
+          print(
+              '🎵 Merged favorites from Firebase. Total: ${_cachedFavorites.length}');
         }
-        
+
         // Update local storage with merged list
         _saveLocalFavorites();
-        
+
         // Update streams
         _updateStreams();
       }, onError: (error) {
@@ -161,13 +164,13 @@ class FavoritesService {
     for (final hymnId in _cachedFavorites) {
       statusMap[hymnId] = status;
     }
-    
+
     _currentStatusMap = statusMap;
     _favoriteStatusController.add(statusMap);
-    
+
     // Update favorite IDs stream
     _favoriteIdsController.add(_cachedFavorites.toList());
-    
+
     // Update favorite hymns stream (load actual hymn objects)
     _loadAndStreamFavoriteHymns();
   }
@@ -176,7 +179,7 @@ class FavoritesService {
   Future<void> _loadAndStreamFavoriteHymns() async {
     try {
       final hymns = <Hymn>[];
-      
+
       // Create a copy of the list to avoid ConcurrentModificationError
       final favoriteIds = _cachedFavorites.toList();
       for (final hymnId in favoriteIds) {
@@ -185,7 +188,7 @@ class FavoritesService {
           hymns.add(hymn);
         }
       }
-      
+
       _favoriteHymnsController.add(hymns);
     } catch (e) {
       if (kDebugMode) {
@@ -212,7 +215,7 @@ class FavoritesService {
   /// Get favorite hymns (one-time fetch)
   Future<List<Hymn>> getFavoriteHymns() async {
     final hymns = <Hymn>[];
-    
+
     // Create a copy of the list to avoid ConcurrentModificationError
     final favoriteIds = _cachedFavorites.toList();
     for (final hymnId in favoriteIds) {
@@ -221,18 +224,19 @@ class FavoritesService {
         hymns.add(hymn);
       }
     }
-    
+
     return hymns;
   }
 
   /// Get current favorite status map synchronously (for initial UI state)
-  Map<String, String> get currentFavoriteStatus => Map.unmodifiable(_currentStatusMap);
+  Map<String, String> get currentFavoriteStatus =>
+      Map.unmodifiable(_currentStatusMap);
 
   /// Toggle favorite status for a hymn
   Future<void> toggleFavorite(Hymn hymn) async {
     try {
       final isFavorite = _cachedFavorites.contains(hymn.id);
-      
+
       if (isFavorite) {
         await removeFromFavorites(hymn.id);
         if (kDebugMode) {
@@ -257,16 +261,16 @@ class FavoritesService {
     try {
       // Add to cache
       _cachedFavorites.add(hymnId);
-      
+
       // Update local storage
       await _saveLocalFavorites();
-      
+
       // Update Firebase if user is authenticated
       final user = auth.currentUser;
       if (user != null) {
         await firebaseSyncService.addFavoriteToFirebase(hymnId);
       }
-      
+
       // Update streams
       _updateStreams();
     } catch (e) {
@@ -282,16 +286,16 @@ class FavoritesService {
     try {
       // Remove from cache
       _cachedFavorites.remove(hymnId);
-      
+
       // Update local storage
       await _saveLocalFavorites();
-      
+
       // Update Firebase if user is authenticated
       final user = auth.currentUser;
       if (user != null) {
         await firebaseSyncService.removeFavoriteFromFirebase(hymnId);
       }
-      
+
       // Update streams
       _updateStreams();
     } catch (e) {

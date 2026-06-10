@@ -58,12 +58,11 @@ class RecordingCloseConfirmation extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color:
-                  colorController.primaryColor.value.withValues(alpha: 0.1),
+              color: colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: colorController.primaryColor.value
-                    .withValues(alpha: 0.3),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.3),
               ),
             ),
             child: Row(

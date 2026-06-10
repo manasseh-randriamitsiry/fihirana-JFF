@@ -78,7 +78,8 @@ class HymnPageWidget extends StatelessWidget {
                 delegate: _BridgeHeaderDelegate(
                   bridge: hymn.bridge!,
                   fontSize: fontSize,
-                  maxWidth: screenWidth - 32, // Horizontal padding of screen (16*2)
+                  maxWidth:
+                      screenWidth - 32, // Horizontal padding of screen (16*2)
                   textScaler: MediaQuery.of(context).textScaler,
                   defaultTextStyle: DefaultTextStyle.of(context).style,
                 ),
@@ -170,7 +171,8 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     final controller = Get.find<ColorController>();
 
     // The bridge content
@@ -209,7 +211,7 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
       height: 1.6,
       color: controller.primaryColor.value,
     );
-    
+
     // Merge with default global style to pick up fonts etc, but let our style override.
     final mergedStyle = defaultTextStyle.merge(calculatedStyle);
 
@@ -228,7 +230,7 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
 
     // Height = TextHeight + TitleHeight(approx 24) + Spacing(12) + CardPadding(40).
     // Height = TextHeight + TitleHeight(approx 24) + Spacing(12) + CardPadding(40).
-     return textPainter.height + 24 + 12 + 40 + 12;
+    return textPainter.height + 24 + 12 + 40 + 12;
   }
 
   @override
@@ -254,34 +256,31 @@ class HymnHeaderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ColorController>();
+    final textColor = controller.textColor.value;
 
-    return Obx(() {
-      final textColor = controller.textColor.value;
-      
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(32),
-            bottom: Radius.circular(32),
-          ),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(32),
+          bottom: Radius.circular(32),
         ),
-        child: Column(
-          children: [
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: textColor,
-                fontSize: fontSize * 1.5,
-                height: 1.2,
-              ),
+      ),
+      child: Column(
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: textColor,
+              fontSize: fontSize * 1.5,
+              height: 1.2,
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -299,49 +298,46 @@ class HymnBridgeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<ColorController>();
     final l10n = AppLocalizations.of(context);
+    final primaryColor = controller.primaryColor.value;
+    final accentColor = controller.accentColor.value;
 
-    return Obx(() {
-      final primaryColor = controller.primaryColor.value;
-      final accentColor = controller.accentColor.value;
-
-      return Card(
-        elevation: 0,
-        color: primaryColor.withValues(alpha: 0.05),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.repeat_rounded, size: 20, color: accentColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.chorus,
-                    style: TextStyle(
-                      color: accentColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14, // titleSmall default approx
-                    ),
+    return Card(
+      elevation: 0,
+      color: primaryColor.withValues(alpha: 0.05),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.repeat_rounded, size: 20, color: accentColor),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.chorus,
+                  style: TextStyle(
+                    color: accentColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                bridge,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  fontStyle: FontStyle.italic,
-                  height: 1.6,
-                  color: primaryColor,
                 ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              bridge,
+              style: TextStyle(
+                fontSize: fontSize,
+                fontStyle: FontStyle.italic,
+                height: 1.6,
+                color: primaryColor,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }
 
@@ -361,49 +357,45 @@ class HymnVerseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<ColorController>();
     final l10n = AppLocalizations.of(context);
-
-    return Obx(() {
-      final primaryColor = controller.primaryColor.value;
-      final textColor = controller.textColor.value;
-      return Card(
-        elevation: 0,
-        color: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: primaryColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  l10n.verseWithNumber(verseNumber), // Verse N
-                  style: TextStyle(
-                    color: primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12, // labelMedium
-                  ),
-                ),
+    final primaryColor = controller.primaryColor.value;
+    final textColor = controller.textColor.value;
+    return Card(
+      elevation: 0,
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: primaryColor.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(height: 16),
-              Text(
-                verseText,
+              child: Text(
+                l10n.verseWithNumber(verseNumber),
                 style: TextStyle(
-                  fontSize: fontSize,
-                  height: 1.8, // Relaxed line height for readability
-                  color: textColor,
+                  color: primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              verseText,
+              style: TextStyle(
+                fontSize: fontSize,
+                height: 1.8,
+                color: textColor,
+              ),
+            ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }
 
@@ -433,71 +425,69 @@ class HymnInfoCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Obx(() {
-      final primaryColor = controller.primaryColor.value;
-      final textColor = controller.textColor.value;
+    final primaryColor = controller.primaryColor.value;
+    final textColor = controller.textColor.value;
 
-      return Card(
-        elevation: 0,
-        color: primaryColor.withValues(alpha: 0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              if (showCreatedBy) ...[
-                Row(
-                  children: [
-                    Icon(Icons.person_outline_rounded,
-                        size: 20, color: primaryColor),
-                    const SizedBox(width: 8),
-                    Text(
-                      l10n.createdBy(''),
+    return Card(
+      elevation: 0,
+      color: primaryColor.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            if (showCreatedBy) ...[
+              Row(
+                children: [
+                  Icon(Icons.person_outline_rounded,
+                      size: 20, color: primaryColor),
+                  const SizedBox(width: 8),
+                  Text(
+                    l10n.createdBy(''),
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                  const Spacer(),
+                  Expanded(
+                    flex: 2,
+                    child: Text(
+                      hymn.createdBy,
+                      textAlign: TextAlign.end,
                       style: TextStyle(
-                        color: primaryColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12, // labelMedium
+                        color: textColor.withValues(alpha: 0.8),
+                        fontSize: 14,
                       ),
                     ),
-                    const Spacer(),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        hymn.createdBy,
-                        textAlign: TextAlign.end,
-                        style: TextStyle(
-                          color: textColor.withValues(alpha: 0.8),
-                          fontSize: 14, // bodyMedium
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (showHint) const SizedBox(height: 12),
-              ],
-              if (showHint)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.info_outline_rounded,
-                        size: 20, color: primaryColor),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        hymn.hymnHint!,
-                        style: TextStyle(
-                          color: textColor.withValues(alpha: 0.8),
-                          fontStyle: FontStyle.italic,
-                          fontSize: 14, // bodyMedium
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+              if (showHint) const SizedBox(height: 12),
             ],
-          ),
+            if (showHint)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.info_outline_rounded,
+                      size: 20, color: primaryColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      hymn.hymnHint!,
+                      style: TextStyle(
+                        color: textColor.withValues(alpha: 0.8),
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
         ),
-      );
-    });
+      ),
+    );
   }
 }

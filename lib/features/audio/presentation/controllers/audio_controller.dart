@@ -231,8 +231,8 @@ class AudioController extends GetxController {
     if (_repository.currentHymn?.id.startsWith('recording_') == true) {
       return 'Recording';
     }
-    return _repository.currentHymn != null 
-        ? 'Hymn ${_repository.currentHymn!.hymnNumber}' 
+    return _repository.currentHymn != null
+        ? 'Hymn ${_repository.currentHymn!.hymnNumber}'
         : '';
   }
 
@@ -241,8 +241,6 @@ class AudioController extends GetxController {
     _isLoading.value = loading;
     _playerState.value = _playerState.value.copyWith(isLoading: loading);
   }
-
-
 
   void _clearError() {
     if (_error.value.isNotEmpty) {

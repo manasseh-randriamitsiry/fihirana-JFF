@@ -138,60 +138,60 @@ class VersionCheckService {
         return;
       }
 
-       // Check InAppUpdate as fallback
-       try {
-         final updateInfo = await InAppUpdate.checkForUpdate();
-         _updateInfo = updateInfo;
+      // Check InAppUpdate as fallback
+      try {
+        final updateInfo = await InAppUpdate.checkForUpdate();
+        _updateInfo = updateInfo;
 
-         if (updateInfo.updateAvailability == UpdateAvailability.updateAvailable) {
-           // Don't show notification if user already dismissed this version
-           if (dismissedVersion == currentVersion) {
-             stopPeriodicCheck();
-             return;
-           }
+        if (updateInfo.updateAvailability ==
+            UpdateAvailability.updateAvailable) {
+          // Don't show notification if user already dismissed this version
+          if (dismissedVersion == currentVersion) {
+            stopPeriodicCheck();
+            return;
+          }
 
-           _onUpdateAvailable?.call();
+          _onUpdateAvailable?.call();
 
-           // Check if admin wants to force update
-           if (adminConfig.forceUpdate || updateInfo.updatePriority >= 4) {
-             await _performImmediateUpdate();
-           } else {
-             // Start flexible update for non-critical updates
-             await startFlexibleUpdate();
-           }
-         } else {
-           // InAppUpdate says no update, but GitHub said yes.
-           // This means the Play Store is behind or app is not from Play Store. Fallback to GitHub update.
-           if (githubHasUpdate) {
-             if (kDebugMode) {
-               print(
-                   '⚠️ InAppUpdate found nothing, but GitHub has update. Falling back to GitHub.');
-             }
-             await _checkForUpdateFromGitHub();
-           } else {
-             stopPeriodicCheck();
-           }
-         }
-       } catch (playStoreError) {
-         // InAppUpdate failed, likely because app is not from Play Store
-         if (kDebugMode) {
-           print('❌ InAppUpdate failed: $playStoreError');
-           print('📱 App likely not installed from Play Store, falling back to GitHub update');
-         }
+          // Check if admin wants to force update
+          if (adminConfig.forceUpdate || updateInfo.updatePriority >= 4) {
+            await _performImmediateUpdate();
+          } else {
+            // Start flexible update for non-critical updates
+            await startFlexibleUpdate();
+          }
+        } else {
+          // InAppUpdate says no update, but GitHub said yes.
+          // This means the Play Store is behind or app is not from Play Store. Fallback to GitHub update.
+          if (githubHasUpdate) {
+            if (kDebugMode) {
+              print(
+                  '⚠️ InAppUpdate found nothing, but GitHub has update. Falling back to GitHub.');
+            }
+            await _checkForUpdateFromGitHub();
+          } else {
+            stopPeriodicCheck();
+          }
+        }
+      } catch (playStoreError) {
+        // InAppUpdate failed, likely because app is not from Play Store
+        if (kDebugMode) {
+          print('❌ InAppUpdate failed: $playStoreError');
+          print(
+              '📱 App likely not installed from Play Store, falling back to GitHub update');
+        }
 
-         // Fallback to GitHub update
-         if (githubHasUpdate) {
-           await _checkForUpdateFromGitHub();
-         } else {
-           stopPeriodicCheck();
-         }
-       }
+        // Fallback to GitHub update
+        if (githubHasUpdate) {
+          await _checkForUpdateFromGitHub();
+        } else {
+          stopPeriodicCheck();
+        }
+      }
     } catch (e) {
       await _checkForUpdateFromGitHub();
     }
   }
-
-
 
   @pragma('vm:entry-point')
   static Future<void> onActionReceivedMethod(
@@ -242,8 +242,9 @@ class VersionCheckService {
           }
         } else if (result == AppUpdateResult.success) {}
       }
-} catch (e) {
-      final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+    } catch (e) {
+      final isNotificationAllowed =
+          await AwesomeNotifications().isNotificationAllowed();
       if (isNotificationAllowed) {
         await UpdateNotificationBuilder.showDownloadError(error: e.toString());
       }
@@ -257,7 +258,8 @@ class VersionCheckService {
         await InAppUpdate.startFlexibleUpdate();
         _flexibleUpdateAvailable = true;
 
-        final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+        final isNotificationAllowed =
+            await AwesomeNotifications().isNotificationAllowed();
         if (isNotificationAllowed) {
           await UpdateNotificationBuilder.showFlexibleUpdateDownloading();
         }
@@ -683,11 +685,12 @@ class VersionCheckService {
     }
   }
 
-static Future<void> _showUpdateNotification() async {
+  static Future<void> _showUpdateNotification() async {
     if (_cachedVersion == null || _cachedDownloadUrl == null) return;
 
     // Check if notifications are allowed
-    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+    final isNotificationAllowed =
+        await AwesomeNotifications().isNotificationAllowed();
     if (isNotificationAllowed) {
       await UpdateNotificationBuilder.showUpdateAvailable(
         version: _cachedVersion!,
@@ -713,15 +716,18 @@ static Future<void> _showUpdateNotification() async {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('La version ${_cachedVersion ?? ""} est maintenant disponible !'),
+              Text(
+                  'La version ${_cachedVersion ?? ""} est maintenant disponible !'),
               const SizedBox(height: 8),
-              if (_cachedReleaseNotes != null && _cachedReleaseNotes!.isNotEmpty) ...[
+              if (_cachedReleaseNotes != null &&
+                  _cachedReleaseNotes!.isNotEmpty) ...[
                 const Text('Nouvelles :'),
                 const SizedBox(height: 4),
                 Text(_cachedReleaseNotes!),
                 const SizedBox(height: 8),
               ],
-              const Text('Impossible d\'afficher la notification car la permission n\'est pas accordée. Accordez la permission de notification pour installer la mise à jour.'),
+              const Text(
+                  'Impossible d\'afficher la notification car la permission n\'est pas accordée. Accordez la permission de notification pour installer la mise à jour.'),
             ],
           ),
           actions: [
@@ -735,7 +741,8 @@ static Future<void> _showUpdateNotification() async {
               onPressed: () async {
                 Navigator.of(context).pop();
                 // Request notification permission
-                final granted = await AwesomeNotifications().requestPermissionToSendNotifications();
+                final granted = await AwesomeNotifications()
+                    .requestPermissionToSendNotifications();
                 if (granted) {
                   // Show the update notification after permission is granted
                   await _showUpdateNotification();
@@ -792,7 +799,8 @@ static Future<void> _showUpdateNotification() async {
         }
       }
     } catch (e) {
-      final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+      final isNotificationAllowed =
+          await AwesomeNotifications().isNotificationAllowed();
       if (isNotificationAllowed) {
         await UpdateNotificationBuilder.showInstallError(error: e.toString());
       }

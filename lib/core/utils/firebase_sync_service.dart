@@ -194,13 +194,15 @@ class FirebaseSyncService {
       final user = _auth.currentUser;
       if (user == null) {
         if (kDebugMode) {
-          print('FirebaseSyncService: User not authenticated, returning empty history');
+          print(
+              'FirebaseSyncService: User not authenticated, returning empty history');
         }
         return [];
       }
 
       if (kDebugMode) {
-        print('FirebaseSyncService: Loading history from Firebase for user ${user.uid}');
+        print(
+            'FirebaseSyncService: Loading history from Firebase for user ${user.uid}');
       }
 
       final snapshot = await _firestore
@@ -219,12 +221,14 @@ class FirebaseSyncService {
           'hymnId': data['hymnId'] as String? ?? '',
           'title': data['title'] as String? ?? '',
           'number': data['number'] as String? ?? '',
-          'timestamp': (data['timestamp'] as Timestamp).toDate().toIso8601String(),
+          'timestamp':
+              (data['timestamp'] as Timestamp).toDate().toIso8601String(),
         });
       }
 
       if (kDebugMode) {
-        print('FirebaseSyncService: Loaded ${history.length} history items from Firebase');
+        print(
+            'FirebaseSyncService: Loaded ${history.length} history items from Firebase');
       }
 
       return history;
@@ -304,13 +308,15 @@ class FirebaseSyncService {
       final user = _auth.currentUser;
       if (user == null) {
         if (kDebugMode) {
-          print('FirebaseSyncService: User not authenticated, skipping Firebase save');
+          print(
+              'FirebaseSyncService: User not authenticated, skipping Firebase save');
         }
         return;
       }
 
       if (kDebugMode) {
-        print('FirebaseSyncService: Saving history to Firebase for user ${user.uid}');
+        print(
+            'FirebaseSyncService: Saving history to Firebase for user ${user.uid}');
       }
 
       final historyRef = _firestore

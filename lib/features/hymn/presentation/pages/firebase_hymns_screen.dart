@@ -116,7 +116,8 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                 return StreamBuilder<Map<String, String>>(
                   stream: _hymnService.getFavoriteStatusStream(),
                   builder: (context, favSnapshot) {
-                    final isFavorite = favSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
+                    final isFavorite =
+                        favSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
                     return HymnListItem(
                       key: ValueKey(hymn.id),
                       hymn: hymn,

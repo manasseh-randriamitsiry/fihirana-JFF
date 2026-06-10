@@ -30,7 +30,7 @@ class LanguageSelectionPage extends StatelessWidget {
             Column(
               children: [
                 const Spacer(flex: 1),
-                
+
                 // Illustration Area
                 Center(
                   child: Container(
@@ -54,14 +54,26 @@ class LanguageSelectionPage extends StatelessWidget {
                       color: primaryColor,
                     ),
                   )
-                  .animate(onPlay: (controller) => controller.repeat(reverse: true))
-                  .scale(duration: 2000.ms, begin: const Offset(1, 1), end: const Offset(1.05, 1.05))
-                  .then()
-                  .scale(duration: 2000.ms, begin: const Offset(1.05, 1.05), end: const Offset(1, 1)),
+                      .animate(
+                          onPlay: (controller) =>
+                              controller.repeat(reverse: true))
+                      .scale(
+                          duration: 2000.ms,
+                          begin: const Offset(1, 1),
+                          end: const Offset(1.05, 1.05))
+                      .then()
+                      .scale(
+                          duration: 2000.ms,
+                          begin: const Offset(1.05, 1.05),
+                          end: const Offset(1, 1)),
                 )
-                .animate()
-                .slideY(begin: -0.2, end: 0, duration: 600.ms, curve: Curves.easeOutBack)
-                .fadeIn(duration: 600.ms),
+                    .animate()
+                    .slideY(
+                        begin: -0.2,
+                        end: 0,
+                        duration: 600.ms,
+                        curve: Curves.easeOutBack)
+                    .fadeIn(duration: 600.ms),
 
                 const SizedBox(height: 40),
 
@@ -69,10 +81,10 @@ class LanguageSelectionPage extends StatelessWidget {
                 Text(
                   l10n.chooseLanguage,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF4A148C), // Dark Purple
-                    letterSpacing: -0.5,
-                  ),
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF4A148C), // Dark Purple
+                        letterSpacing: -0.5,
+                      ),
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.2, end: 0),
 
@@ -81,8 +93,8 @@ class LanguageSelectionPage extends StatelessWidget {
                 Text(
                   'Select your preferred language to get started',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: const Color(0xFF7B1FA2).withValues(alpha: 0.7),
-                  ),
+                        color: const Color(0xFF7B1FA2).withValues(alpha: 0.7),
+                      ),
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
 
@@ -90,16 +102,21 @@ class LanguageSelectionPage extends StatelessWidget {
 
                 // Language Cards
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
                   child: Column(
                     children: [
                       for (final locale in languageController.supportedLocales)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Obx(() {
-                            final isSelected = splashController.selectedLocale.value?.languageCode == locale.languageCode;
+                            final isSelected = splashController
+                                    .selectedLocale.value?.languageCode ==
+                                locale.languageCode;
                             return Material(
-                              color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.6),
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.white.withValues(alpha: 0.6),
                               elevation: isSelected ? 4 : 0,
                               shadowColor: primaryColor.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(24),
@@ -110,10 +127,13 @@ class LanguageSelectionPage extends StatelessWidget {
                                 },
                                 borderRadius: BorderRadius.circular(24),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 18),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 18),
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: isSelected ? primaryColor : Colors.transparent,
+                                      color: isSelected
+                                          ? primaryColor
+                                          : Colors.transparent,
                                       width: 2,
                                     ),
                                     borderRadius: BorderRadius.circular(24),
@@ -123,22 +143,32 @@ class LanguageSelectionPage extends StatelessWidget {
                                       Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: isSelected ? primaryColor.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.1),
+                                          color: isSelected
+                                              ? primaryColor.withValues(
+                                                  alpha: 0.1)
+                                              : Colors.grey
+                                                  .withValues(alpha: 0.1),
                                           shape: BoxShape.circle,
                                         ),
                                         child: Text(
-                                          languageController.getLanguageFlag(locale),
+                                          languageController
+                                              .getLanguageFlag(locale),
                                           style: const TextStyle(fontSize: 24),
                                         ),
                                       ),
                                       const SizedBox(width: 20),
                                       Expanded(
                                         child: Text(
-                                          languageController.getLanguageName(locale),
+                                          languageController
+                                              .getLanguageName(locale),
                                           style: TextStyle(
                                             fontSize: 18,
-                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                            color: isSelected ? const Color(0xFF4A148C) : Colors.black87,
+                                            fontWeight: isSelected
+                                                ? FontWeight.bold
+                                                : FontWeight.w500,
+                                            color: isSelected
+                                                ? const Color(0xFF4A148C)
+                                                : Colors.black87,
                                           ),
                                         ),
                                       ),
@@ -169,23 +199,25 @@ class LanguageSelectionPage extends StatelessWidget {
                 const Spacer(flex: 2),
 
                 // Continue Button (Only visible logic is handled in PageView flow usually, but layout wise it sits here)
-                // Actually in the original code, there was no continue button on this page, 
+                // Actually in the original code, there was no continue button on this page,
                 // but the prompt asked for "Big rounded primary button Continue at bottom"
                 // However, the original flow uses a PageView with `PageIndicatorWidget`.
                 // I should assume the PageView controller swipes or there is a "Continue" to swipe.
                 // Looking at `splash_screen_authenticated.dart` or wrapper might reveal how navigation works.
-                // But the user prompt explicitly requested a button. 
+                // But the user prompt explicitly requested a button.
                 // "Big rounded primary button “Continue” at bottom"
                 // I will add a button that swipes to the next page.
-                
+
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppDimensions.lg),
                   child: SizedBox(
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () {
                         HapticFeedback.lightImpact();
-                         splashController.liquidController.animateToPage(page: 1, duration: 600);
+                        splashController.liquidController
+                            .animateToPage(page: 1, duration: 600);
                       },
                       style: FilledButton.styleFrom(
                         backgroundColor: primaryColor,
@@ -198,7 +230,8 @@ class LanguageSelectionPage extends StatelessWidget {
                       ),
                       child: const Text(
                         "Continue",
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -207,12 +240,14 @@ class LanguageSelectionPage extends StatelessWidget {
                 const SizedBox(height: 40),
               ],
             ),
-             Positioned(
-               bottom: 10,
-               left: 0,
-               right: 0,
-               child: Obx(() => PageIndicatorWidget(currentPage: splashController.currentPage.value, totalPages: 3)),
-             ), 
+            Positioned(
+              bottom: 10,
+              left: 0,
+              right: 0,
+              child: Obx(() => PageIndicatorWidget(
+                  currentPage: splashController.currentPage.value,
+                  totalPages: 3)),
+            ),
           ],
         ),
       ),

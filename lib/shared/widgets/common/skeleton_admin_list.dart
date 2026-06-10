@@ -34,7 +34,8 @@ class SkeletonAdminList extends StatelessWidget {
                     width: 24,
                     height: 24,
                     decoration: BoxDecoration(
-                      color: colorController.textColor.value.withValues(alpha: 0.1),
+                      color: colorController.textColor.value
+                          .withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -49,7 +50,8 @@ class SkeletonAdminList extends StatelessWidget {
                           width: double.infinity,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.1),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -59,7 +61,8 @@ class SkeletonAdminList extends StatelessWidget {
                           width: 180,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.08),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -69,7 +72,8 @@ class SkeletonAdminList extends StatelessWidget {
                           width: 120,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.08),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -79,7 +83,8 @@ class SkeletonAdminList extends StatelessWidget {
                           width: 100,
                           height: 10,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.06),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -93,9 +98,13 @@ class SkeletonAdminList extends StatelessWidget {
               .animate(onPlay: (controller) => controller.repeat())
               .shimmer(
                   duration: 1200.ms,
-                  color: colorController.textColor.value.withValues(alpha: 0.05))
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.05))
               .animate() // Separate animation for fade in
-              .fadeIn(duration: 600.ms, delay: Duration(milliseconds: 50 * index), curve: Curves.easeOut),
+              .fadeIn(
+                  duration: 600.ms,
+                  delay: Duration(milliseconds: 50 * index),
+                  curve: Curves.easeOut),
         );
       },
     );

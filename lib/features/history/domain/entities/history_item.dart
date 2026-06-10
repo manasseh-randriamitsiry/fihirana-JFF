@@ -66,7 +66,8 @@ class HistoryItem {
       hymnId: map['hymnId'] ?? '',
       title: map['title'] ?? '',
       number: map['number'] ?? '',
-      timestamp: DateTime.parse(map['timestamp'] ?? DateTime.now().toIso8601String()),
+      timestamp:
+          DateTime.parse(map['timestamp'] ?? DateTime.now().toIso8601String()),
     );
   }
 }

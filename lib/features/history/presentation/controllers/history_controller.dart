@@ -12,7 +12,6 @@ import 'package:fihirana/features/history/domain/usecases/add_to_history_usecase
 import 'package:fihirana/features/history/domain/usecases/delete_selected_history_items_usecase.dart';
 import 'package:fihirana/features/history/domain/usecases/clear_history_usecase.dart';
 
-
 class HistoryController extends GetxController {
   final LoadUserHistoryUseCase _loadUserHistoryUseCase;
   final AddToHistoryUseCase _addToHistoryUseCase;
@@ -29,12 +28,13 @@ class HistoryController extends GetxController {
   HistoryController({
     required LoadUserHistoryUseCase loadUserHistoryUseCase,
     required AddToHistoryUseCase addToHistoryUseCase,
-    required DeleteSelectedHistoryItemsUseCase deleteSelectedHistoryItemsUseCase,
+    required DeleteSelectedHistoryItemsUseCase
+        deleteSelectedHistoryItemsUseCase,
     required ClearHistoryUseCase clearHistoryUseCase,
-  }) : _loadUserHistoryUseCase = loadUserHistoryUseCase,
-       _addToHistoryUseCase = addToHistoryUseCase,
-       _deleteSelectedHistoryItemsUseCase = deleteSelectedHistoryItemsUseCase,
-       _clearHistoryUseCase = clearHistoryUseCase;
+  })  : _loadUserHistoryUseCase = loadUserHistoryUseCase,
+        _addToHistoryUseCase = addToHistoryUseCase,
+        _deleteSelectedHistoryItemsUseCase = deleteSelectedHistoryItemsUseCase,
+        _clearHistoryUseCase = clearHistoryUseCase;
 
   final RxList<Map<String, dynamic>> userHistory = <Map<String, dynamic>>[].obs;
   final RxBool isLoading = false.obs;
@@ -108,12 +108,16 @@ class HistoryController extends GetxController {
       final translationService = TranslationService();
 
       Get.snackbar(
-        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'History deleted successfully', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'History deleted successfully',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );
-} catch (e) {
+    } catch (e) {
       ErrorHandler.handleError(e, message: 'errorOccurred'.tr);
     } finally {
       isLoading.value = false;
@@ -155,8 +159,12 @@ class HistoryController extends GetxController {
 
       final translationService = TranslationService();
       Get.snackbar(
-        await translationService.translate(text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
-        await translationService.translate(text: 'History cleared successfully', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'Success', sourceLanguage: 'en', targetLanguage: 'en'),
+        await translationService.translate(
+            text: 'History cleared successfully',
+            sourceLanguage: 'en',
+            targetLanguage: 'en'),
         snackPosition: SnackPosition.BOTTOM,
         duration: const Duration(seconds: 2),
       );

@@ -18,7 +18,8 @@ class StandaloneRecordingScreen extends StatefulWidget {
   const StandaloneRecordingScreen({super.key});
 
   @override
-  State<StandaloneRecordingScreen> createState() => _StandaloneRecordingScreenState();
+  State<StandaloneRecordingScreen> createState() =>
+      _StandaloneRecordingScreenState();
 }
 
 class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
@@ -26,7 +27,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   final ColorController _colorController = Get.find<ColorController>();
   final HymnController _hymnController = Get.find<HymnController>();
   final TextEditingController _nameController = TextEditingController();
-  
+
   String _recordingTitle = '';
   bool _showHymnList = false;
 
@@ -52,7 +53,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
   void _initializeRecordingName() {
     final now = DateTime.now();
-    final timestamp = '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+    final timestamp =
+        '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     _recordingTitle = 'Recording - $timestamp';
     _nameController.text = _recordingTitle;
   }
@@ -71,9 +73,9 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
       Get.snackbar('Info', 'Recording already in progress');
       return;
     }
-    
+
     _controller.hideOverlay();
-    
+
     // Start recording without hymn context
     try {
       await _controller.startRecording('standalone');
@@ -90,23 +92,27 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         print('StandaloneRecording: Stopping recording...');
       }
       // Use current text from name controller instead of _recordingTitle
-      final currentTitle = _nameController.text.trim().isNotEmpty 
-          ? _nameController.text.trim() 
+      final currentTitle = _nameController.text.trim().isNotEmpty
+          ? _nameController.text.trim()
           : _recordingTitle;
       if (kDebugMode) {
         print('StandaloneRecording: Using title: "$currentTitle"');
-        print('StandaloneRecording: Name controller text: "${_nameController.text}"');
+        print(
+            'StandaloneRecording: Name controller text: "${_nameController.text}"');
       }
-      
-      final recording = await _controller.stopRecording('standalone', currentTitle);
+
+      final recording =
+          await _controller.stopRecording('standalone', currentTitle);
       if (kDebugMode) {
-        print('StandaloneRecording: Recording result title: ${recording?.title}');
+        print(
+            'StandaloneRecording: Recording result title: ${recording?.title}');
         print('StandaloneRecording: Recording result: $recording');
       }
       if (recording != null && mounted) {
         _showSaveDialog();
       } else if (mounted && recording == null) {
-        Get.snackbar('Error', 'Failed to save recording - no recording returned');
+        Get.snackbar(
+            'Error', 'Failed to save recording - no recording returned');
       }
     } catch (e) {
       if (kDebugMode) {
@@ -138,7 +144,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         // Only rename if the name is different from current recording title
         if (lastRecording.title != name) {
           if (kDebugMode) {
-            print('StandaloneRecording: Renaming from "${lastRecording.title}" to "$name"');
+            print(
+                'StandaloneRecording: Renaming from "${lastRecording.title}" to "$name"');
           }
           await _controller.renameRecording(lastRecording, name);
         }
@@ -218,9 +225,9 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       color: Colors.green,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
                   const Text(
                     'Recording Complete!',
                     style: TextStyle(
@@ -229,9 +236,9 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       color: Colors.white,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Name input
                   TextField(
                     controller: _nameController,
@@ -248,25 +255,30 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                     smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
                       labelText: 'Recording Name',
-                      labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                      labelStyle:
+                          TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                        borderSide: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.3)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                        borderSide: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.3)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Colors.white, width: 2),
+                        borderSide:
+                            const BorderSide(color: Colors.white, width: 2),
                       ),
-                      prefixIcon: Icon(Icons.edit, color: Colors.white.withValues(alpha: 0.8)),
+                      prefixIcon: Icon(Icons.edit,
+                          color: Colors.white.withValues(alpha: 0.8)),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 24),
-                  
+
                   // Action buttons
                   Row(
                     children: [
@@ -275,11 +287,13 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                           onPressed: _discardRecording,
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
+                            side: BorderSide(
+                                color: Colors.white.withValues(alpha: 0.5)),
                           ),
                           child: Text(
                             'Discard',
-                            style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                            style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.8)),
                           ),
                         ),
                       ),
@@ -290,7 +304,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             backgroundColor: Colors.white,
-                            foregroundColor: _colorController.primaryColor.value,
+                            foregroundColor:
+                                _colorController.primaryColor.value,
                           ),
                           child: Text(AppLocalizations.of(context).save),
                         ),
@@ -335,7 +350,9 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
             actions: [
               IconButton(
                 icon: Icon(
-                  _showHymnList ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                  _showHymnList
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                   color: iconColor,
                 ),
                 onPressed: () {
@@ -365,7 +382,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                     },
                   ),
                 ),
-              
+
               // Recording title input
               if (!_showHymnList)
                 Padding(
@@ -392,13 +409,15 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                          color: colorController.primaryColor.value
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                          color: colorController.primaryColor.value.withValues(alpha: 0.3),
+                          color: colorController.primaryColor.value
+                              .withValues(alpha: 0.3),
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -410,16 +429,18 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                       ),
                       prefixIcon: Icon(
                         Icons.edit,
-                        color: colorController.primaryColor.value.withValues(alpha: 0.7),
+                        color: colorController.primaryColor.value
+                            .withValues(alpha: 0.7),
                       ),
                     ),
                   ),
                 ),
-              
+
               // Content area - either hymn list or recording controls
               Expanded(
                 child: _showHymnList
-                    ? _buildHymnList(defaultTextStyle, textColor, backgroundColor)
+                    ? _buildHymnList(
+                        defaultTextStyle, textColor, backgroundColor)
                     : _buildRecordingControls(),
               ),
             ],
@@ -451,7 +472,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     );
   }
 
-  Widget _buildHymnList(TextStyle defaultTextStyle, Color textColor, Color backgroundColor) {
+  Widget _buildHymnList(
+      TextStyle defaultTextStyle, Color textColor, Color backgroundColor) {
     return StreamBuilder<List<Hymn>>(
       stream: _hymnController.hymnsStream,
       builder: (context, snapshot) {
@@ -460,7 +482,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
         if (snapshot.hasError) {
           return Center(
             child: Text(
-              context.translate((l) => l.errorOccurredWithDetails(snapshot.error.toString())),
+              context.translate(
+                  (l) => l.errorOccurredWithDetails(snapshot.error.toString())),
               style: defaultTextStyle,
             ),
           );

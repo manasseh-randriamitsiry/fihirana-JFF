@@ -18,13 +18,14 @@ class BibleVerseItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return GetBuilder<BibleController>(
       id: 'verse_$verseNumber', // Unique ID for this specific verse
       builder: (controller) {
         final isSelected = controller.isVerseSelected(verseNumber);
         final isHighlighted = controller.isVerseHighlighted(verseNumber);
-        final isSearchHighlighted = controller.isVerseSearchHighlighted(verseNumber);
+        final isSearchHighlighted =
+            controller.isVerseSearchHighlighted(verseNumber);
         final isTargetVerse = verseNumber == controller.highlightedVerse.value;
 
         Color backgroundColor = Colors.transparent;

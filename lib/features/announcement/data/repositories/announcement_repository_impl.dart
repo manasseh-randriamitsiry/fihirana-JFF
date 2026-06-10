@@ -27,7 +27,9 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
       createdByEmail: createdByEmail,
     );
 
-    await _firestore.collection('announcements').add(announcement.toFirestore());
+    await _firestore
+        .collection('announcements')
+        .add(announcement.toFirestore());
   }
 
   @override
@@ -65,7 +67,9 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
   @override
   Future<List<Announcement>> getActiveAnnouncements() async {
     final allAnnouncements = await getAllAnnouncements();
-    return allAnnouncements.where((announcement) => announcement.isActive()).toList();
+    return allAnnouncements
+        .where((announcement) => announcement.isActive())
+        .toList();
   }
 
   @override
@@ -81,8 +85,9 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
 
   @override
   Stream<List<Announcement>> streamActiveAnnouncements() {
-    return streamAllAnnouncements().map((announcements) =>
-        announcements.where((announcement) => announcement.isActive()).toList());
+    return streamAllAnnouncements().map((announcements) => announcements
+        .where((announcement) => announcement.isActive())
+        .toList());
   }
 
   @override
@@ -165,11 +170,12 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
   Future<List<Announcement>> searchAnnouncements(String query) async {
     final allAnnouncements = await getAllAnnouncements();
     final lowerQuery = query.toLowerCase();
-    
-    return allAnnouncements.where((announcement) =>
-        announcement.title.toLowerCase().contains(lowerQuery) ||
-        announcement.message.toLowerCase().contains(lowerQuery)
-    ).toList();
+
+    return allAnnouncements
+        .where((announcement) =>
+            announcement.title.toLowerCase().contains(lowerQuery) ||
+            announcement.message.toLowerCase().contains(lowerQuery))
+        .toList();
   }
 
   @override

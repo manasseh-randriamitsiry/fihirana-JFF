@@ -5,7 +5,6 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
-import 'package:fihirana/features/audio/data/services/audio_file_mapping.dart';
 import 'package:fihirana/features/audio/data/services/local_audio_service.dart';
 import 'package:fihirana/features/audio/presentation/widgets/modern_audio_player_widget.dart';
 
@@ -90,73 +89,13 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       }
     }
 
-    // Create playlist of hymns that have audio (local or remote)
-    if (kDebugMode) {
-      print('EnhancedAudioPlayer: Creating playlist of hymns with audio');
-    }
+    // Keep the full hymn library in the playlist.
+    // AudioService will prefer local files when available and fall back to
+    // remote audio for the rest.
+    final filteredList = List<Hymn>.from(initialList);
 
-    final audioMapping = AudioFileMapping();
-
-    // Ensure mapping is up to date
-    if (audioMapping.isCacheExpired()) {
-      if (kDebugMode) {
-        print('EnhancedAudioPlayer: Audio mapping expired, updating...');
-      }
-      await audioMapping.updateAudioFileMapping();
-    }
-
-    // Get local audio files
-    await _localAudioService.initialize();
-    final localHymnIds = await _localAudioService.getLocalHymnIds();
-    final remoteAudioFiles = audioMapping.getAllAudioFiles();
-
-    // Combine local and remote audio availability
-    final allAvailableHymnIds = <String>{};
-    allAvailableHymnIds.addAll(localHymnIds);
-    allAvailableHymnIds.addAll(remoteAudioFiles.keys);
-
-    final audioCount = allAvailableHymnIds.length;
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Found $audioCount hymns with audio (${localHymnIds.length} local, ${remoteAudioFiles.length} remote)');
-    }
-
-    // Debug: Print sample info
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Sample local hymn IDs: ${localHymnIds.take(5).toList()}');
-    }
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Sample remote audio files: ${remoteAudioFiles.entries.take(5).toList()}');
-    }
-    if (kDebugMode) {
-      print('EnhancedAudioPlayer: Current hymn ID: ${widget.hymn.id}');
-    }
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Current hymn has local audio: ${localHymnIds.contains(widget.hymn.id)}');
-    }
-
-    // Create playlist by matching hymns with available audio files
-    final filteredList = <Hymn>[];
-
-    for (final hymn in initialList) {
-      if (allAvailableHymnIds.contains(hymn.id)) {
-        filteredList.add(hymn);
-        if (kDebugMode) {
-          print('EnhancedAudioPlayer: Added hymn ${hymn.id} to playlist');
-        }
-      }
-    }
-
-    // Always include current hymn even if not in audio files (to avoid empty screen)
     if (!filteredList.any((h) => h.id == widget.hymn.id)) {
       filteredList.insert(0, widget.hymn);
-      if (kDebugMode) {
-        print(
-            'EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
-      }
     }
 
     if (kDebugMode) {
@@ -180,19 +119,15 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       if (filteredList.isNotEmpty) {
         final initialIndex = _currentIndex == -1 ? 0 : _currentIndex;
         _audioService.setPlaylist(filteredList, initialIndex);
-        if (kDebugMode) {
-          print(
-              'AudioPlayerScreen: Set AudioService playlist with ${filteredList.length} hymns, starting at index $initialIndex');
-        }
       }
     }
   }
 
   void _onHymnChange(Hymn newHymn) {
     // Determine if we need to actually play the song or just update UI (if it's already playing)
-    // But since this is usually called from user interaction (playlist tap), 
+    // But since this is usually called from user interaction (playlist tap),
     // we generally want to play it.
-    
+
     setState(() {
       _currentHymn = newHymn;
       final newIndex = _playlist.indexWhere(
@@ -203,7 +138,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       }
       _checkFavoriteStatus();
     });
-    
+
     // Actually play the selected hymn
     _audioService.playHymn(newHymn);
   }

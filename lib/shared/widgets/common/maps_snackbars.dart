@@ -26,7 +26,8 @@ class MapsErrorSnackBar {
               final appStoreUrl = Uri.parse(
                   'https://apps.apple.com/app/google-maps/id585027354');
               if (await canLaunchUrl(appStoreUrl)) {
-                await launchUrl(appStoreUrl, mode: LaunchMode.externalApplication);
+                await launchUrl(appStoreUrl,
+                    mode: LaunchMode.externalApplication);
               }
             }
           },

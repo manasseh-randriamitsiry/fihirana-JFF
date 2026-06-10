@@ -58,9 +58,9 @@ class RecordingUploadDialog extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                 const Row(
-                   children: [
-                     Icon(
+                const Row(
+                  children: [
+                    Icon(
                       Icons.cloud_upload,
                       color: Colors.white,
                       size: 24,
@@ -82,8 +82,7 @@ class RecordingUploadDialog extends StatelessWidget {
                 Obx(() {
                   final isUploading =
                       controller.isUploadingRecording(recording.id);
-                  final uploadError =
-                      controller.getUploadError(recording.id);
+                  final uploadError = controller.getUploadError(recording.id);
 
                   if (isUploading) {
                     return Column(
@@ -174,8 +173,7 @@ class RecordingUploadDialog extends StatelessWidget {
                           onPressed: onDone,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
-                            foregroundColor:
-                                colorController.primaryColor.value,
+                            foregroundColor: colorController.primaryColor.value,
                           ),
                           child: Text(l10n.done),
                         ),

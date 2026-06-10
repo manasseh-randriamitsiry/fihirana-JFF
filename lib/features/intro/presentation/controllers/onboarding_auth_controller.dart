@@ -24,7 +24,8 @@ class OnboardingAuthController extends GetxController {
   void _setupAuthListeners() {
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user != null) {
-        googleUserName.value = user.displayName ?? user.email?.split('@')[0] ?? '';
+        googleUserName.value =
+            user.displayName ?? user.email?.split('@')[0] ?? '';
         googleUserEmail.value = user.email ?? '';
       } else {
         googleUserName.value = '';
