@@ -5,7 +5,6 @@ import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
-import 'package:fihirana/features/audio/data/services/audio_file_mapping.dart';
 import 'package:fihirana/features/audio/data/services/local_audio_service.dart';
 import 'package:fihirana/features/audio/presentation/widgets/modern_audio_player_widget.dart';
 
@@ -90,53 +89,10 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       }
     }
 
-    // Create playlist of hymns that have audio (local or remote)
-    if (kDebugMode) {
-      print('EnhancedAudioPlayer: Creating playlist of hymns with audio');
-    }
-
-    final audioMapping = AudioFileMapping();
-
-    // Ensure mapping is up to date
-    if (audioMapping.isCacheExpired()) {
-      if (kDebugMode) {
-        print('EnhancedAudioPlayer: Audio mapping expired, updating...');
-      }
-      await audioMapping.updateAudioFileMapping();
-    }
-
     // Get local audio files
     await _localAudioService.initialize();
     final localHymnIds = await _localAudioService.getLocalHymnIds();
-    final remoteAudioFiles = audioMapping.getAllAudioFiles();
-
-    // Combine local and remote audio availability
-    final allAvailableHymnIds = <String>{};
-    allAvailableHymnIds.addAll(localHymnIds);
-    allAvailableHymnIds.addAll(remoteAudioFiles.keys);
-
-    final audioCount = allAvailableHymnIds.length;
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Found $audioCount hymns with audio (${localHymnIds.length} local, ${remoteAudioFiles.length} remote)');
-    }
-
-    // Debug: Print sample info
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Sample local hymn IDs: ${localHymnIds.take(5).toList()}');
-    }
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Sample remote audio files: ${remoteAudioFiles.entries.take(5).toList()}');
-    }
-    if (kDebugMode) {
-      print('EnhancedAudioPlayer: Current hymn ID: ${widget.hymn.id}');
-    }
-    if (kDebugMode) {
-      print(
-          'EnhancedAudioPlayer: Current hymn has local audio: ${localHymnIds.contains(widget.hymn.id)}');
-    }
+    final allAvailableHymnIds = localHymnIds.toSet();
 
     // Create playlist by matching hymns with available audio files
     final filteredList = <Hymn>[];
@@ -180,10 +136,6 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       if (filteredList.isNotEmpty) {
         final initialIndex = _currentIndex == -1 ? 0 : _currentIndex;
         _audioService.setPlaylist(filteredList, initialIndex);
-        if (kDebugMode) {
-          print(
-              'AudioPlayerScreen: Set AudioService playlist with ${filteredList.length} hymns, starting at index $initialIndex');
-        }
       }
     }
   }

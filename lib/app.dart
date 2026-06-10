@@ -63,6 +63,15 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     // Initialize intro controllers
     IntroDI.initialize();
+
+    // Load persisted UI preferences once, here, instead of having each
+    // controller hit SharedPreferences independently during startup.
+    Get.find<ColorController>().loadColors();
+    Get.find<ThemeController>().loadThemeFromPrefs();
+    Get.find<LanguageController>().currentLocale.value =
+        widget.prefs.getString('selected_language') != null
+            ? Locale(widget.prefs.getString('selected_language')!)
+            : Get.find<LanguageController>().currentLocale.value;
   }
 
   @override
@@ -137,7 +146,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       final currentFont = fontController.currentFont.value;
       final isDark = themeController.isDarkMode.value;
       final currentLocale = languageController.currentLocale.value;
-      languageController.refreshCounter.value; // Force rebuild on language change
 
       final theme = isDark
           ? _themeManager.getDarkTheme(currentFont)

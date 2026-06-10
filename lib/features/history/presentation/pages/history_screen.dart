@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
 import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -120,17 +119,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.history,
-                                size: 64,
-                                color: textColor.withValues(alpha: 0.3))
-                            .animate(
-                                onPlay: (controller) =>
-                                    controller.repeat(reverse: true))
-                            .scale(
-                                duration: const Duration(seconds: 2),
-                                begin: const Offset(1, 1),
-                                end: const Offset(1.1, 1.1),
-                                curve: Curves.easeInOut),
+                        Icon(
+                          Icons.history,
+                          size: 64,
+                          color: textColor.withValues(alpha: 0.3),
+                        ),
                         const SizedBox(height: 16),
                         Text(
                           l10n.noHistory,

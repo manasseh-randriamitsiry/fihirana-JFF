@@ -508,6 +508,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
   bool _isExpanded = false;
   bool _showCommunityNotes = false;
   final NoteService _noteService = NoteService();
+  final Map<String, bool> _editPermissionCache = {};
 
   @override
   void initState() {
@@ -726,19 +727,17 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
             AnimatedSize(
               duration: const Duration(milliseconds: 300),
               child: _showCommunityNotes
-                  ? Column(
-                      children: widget.publicNotes.asMap().entries.map((entry) {
-                        final index = entry.key;
-                        final note = entry.value;
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              bottom: index < widget.publicNotes.length - 1
-                                  ? 12.0
-                                  : 0),
-                          child: _buildPublicNote(
-                              context, note, colorController, l10n),
-                        );
-                      }).toList(),
+                  ? ListView.separated(
+                      key: const PageStorageKey('community_notes_list'),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: widget.publicNotes.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        final note = widget.publicNotes[index];
+                        return _buildPublicNote(
+                            context, note, colorController, l10n);
+                      },
                     )
                   : const SizedBox.shrink(),
             ),
@@ -926,7 +925,12 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
 
   // Helper method to check if current user can edit a note
   Future<bool> _canEditNote(Note note) async {
-    return await _noteService.canEditNote(note);
+    final cached = _editPermissionCache[note.id];
+    if (cached != null) return cached;
+
+    final canEdit = await _noteService.canEditNote(note);
+    _editPermissionCache[note.id] = canEdit;
+    return canEdit;
   }
 
   Widget _buildPublicNote(

@@ -178,6 +178,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return ListView.builder(
       key: const PageStorageKey('bible_books_list'),
+      cacheExtent: 1200,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
@@ -245,13 +246,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           children: [
             Expanded(
               child: Obx(() {
-                // Force rebuild when selectedVerses or highlights change
-                bibleController.selectedVerses.length; // Access to trigger reactivity
-                bibleController.highlights.length; // Access to trigger reactivity
+                final highlightedVerse =
+                    bibleController.highlightedVerse.value;
                 
                 return ListView.builder(
                   key: const PageStorageKey('bible_verses_list'),
                   controller: _verseScrollController,
+                  cacheExtent: 1200,
                   padding: const EdgeInsets.fromLTRB(
                       20, 16, 20, 100), // Add bottom padding for FAB
                   itemCount:
@@ -271,6 +272,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                       verseText: verseText,
                       verseStyle: _verseStyle,
                       fontSize: _fontSize,
+                      highlightedVerse: highlightedVerse,
                       isSelected: bibleController.isVerseSelected(verseNumber),
                       isHighlighted:
                           bibleController.isVerseHighlighted(verseNumber),
@@ -289,60 +291,64 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           ],
         ),
 // Selection Action Bar
-        Obx(() => bibleController.isSelecting ? Positioned(
-          bottom: 24,
-          left: 24,
-          right: 24,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: colorController.backgroundColor.value,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
-                  blurRadius: 15,
-                  offset: const Offset(0, 5),
+        Obx(() {
+          if (!bibleController.isSelecting) {
+            return const SizedBox.shrink();
+          }
+
+          return Positioned(
+            bottom: 24,
+            left: 24,
+            right: 24,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: colorController.backgroundColor.value,
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+                border: Border.all(
+                  color:
+                      colorController.primaryColor.value.withValues(alpha: 0.1),
                 ),
-              ],
-              border: Border.all(
-                color:
-                    colorController.primaryColor.value.withValues(alpha: 0.1),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      bibleController.clearSelection();
+                    },
+                    icon: Icon(Icons.close,
+                        color: colorController.textColor.value),
+                    tooltip: AppLocalizations.of(context).clear,
+                  ),
+                  Container(
+                    width: 1,
+                    height: 24,
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.2),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      bibleController.saveHighlight();
+                    },
+                    icon: const Icon(Icons.highlight_rounded,
+                        color: Colors.orange),
+                    tooltip: AppLocalizations.of(context).saveChanges,
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Clear Selection
-                IconButton(
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    bibleController.clearSelection();
-                  },
-                  icon: Icon(Icons.close,
-                      color: colorController.textColor.value),
-                  tooltip: AppLocalizations.of(context).clear,
-                ),
-                Container(
-                  width: 1,
-                  height: 24,
-                  color:
-                      colorController.textColor.value.withValues(alpha: 0.2),
-                ),
-                // Highlight/Save
-                IconButton(
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    bibleController.saveHighlight();
-                  },
-                  icon: const Icon(Icons.highlight_rounded,
-                      color: Colors.orange),
-                  tooltip: AppLocalizations.of(context).saveChanges,
-                ),
-              ],
-            ),
-          ),
-        ) : const SizedBox.shrink()),
+          );
+        }),
       ],
     );
   }
@@ -418,8 +424,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   void _scrollToHighlightedVerse() {
     final highlightedVerse = bibleController.highlightedVerse.value;
     if (highlightedVerse > 0 && _verseScrollController.hasClients && mounted) {
-      // Use a delay to ensure the list is fully built
-      Future.delayed(const Duration(milliseconds: 100), () {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || !_verseScrollController.hasClients) return;
 
         // Better height estimation considering padding and line height

@@ -14,6 +14,7 @@ import 'package:fihirana/features/contact/presentation/widgets/contact_import_di
 import 'package:fihirana/features/contact/presentation/widgets/contact_widgets.dart';
 import 'package:fihirana/shared/widgets/common/confirm_delete_dialog.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'dart:async';
 
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
@@ -26,10 +27,13 @@ class _ContactListScreenState extends State<ContactListScreen> {
   final IContactService _contactService = Get.find<IContactService>();
   final ColorController colorController = Get.find<ColorController>();
   final TextEditingController _searchController = TextEditingController();
+  Timer? _searchDebounce;
   String _searchQuery = '';
+  final Map<String, bool> _editPermissionCache = {};
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -126,15 +130,19 @@ class _ContactListScreenState extends State<ContactListScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(AppDimensions.md),
-            child: ContactSearchWidget(
-              controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value.toLowerCase();
-                });
-              },
-              hintText: l10n.searchContacts,
-            ),
+              child: ContactSearchWidget(
+                controller: _searchController,
+                onChanged: (value) {
+                  _searchDebounce?.cancel();
+                  _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+                    if (!mounted) return;
+                    setState(() {
+                      _searchQuery = value.toLowerCase();
+                    });
+                  });
+                },
+                hintText: l10n.searchContacts,
+              ),
           ),
           Expanded(
             child: StreamBuilder<List<Contact>>(
@@ -184,10 +192,16 @@ class _ContactListScreenState extends State<ContactListScreen> {
                   itemCount: filteredContacts.length,
                   itemBuilder: (context, index) {
                     final contact = filteredContacts[index];
+                    final cachedCanEdit = _editPermissionCache[contact.id];
                     return FutureBuilder<bool>(
-                      future: _contactService.canEditContact(contact),
+                      future: cachedCanEdit == null
+                          ? _contactService.canEditContact(contact)
+                          : Future<bool>.value(cachedCanEdit),
                       builder: (context, permissionSnapshot) {
                         final canEdit = permissionSnapshot.data ?? false;
+                        if (permissionSnapshot.hasData) {
+                          _editPermissionCache[contact.id] = canEdit;
+                        }
 
                         return ContactListItemWidget(
                           key: ValueKey(contact.id),

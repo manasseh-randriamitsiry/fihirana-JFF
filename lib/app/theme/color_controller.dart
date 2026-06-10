@@ -151,21 +151,16 @@ class ColorController extends GetxController {
     return MaterialColor(color.toARGB32(), shades);
   }
 
-  @override
-  void onInit() {
-    super.onInit();
-    loadColors();
-  }
-
   Future<void> loadColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
       final hasSavedScheme = prefs.containsKey('currentSchemeIndex');
-      
+
       // Auto-switch to AMOLED if fresh install and system is dark
       if (!hasSavedScheme) {
-        final brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+        final brightness =
+            SchedulerBinding.instance.platformDispatcher.platformBrightness;
         if (brightness == Brightness.dark) {
            await setColorScheme(4); // AMOLED Black
            return;

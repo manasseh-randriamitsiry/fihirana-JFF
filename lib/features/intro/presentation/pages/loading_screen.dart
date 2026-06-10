@@ -43,32 +43,18 @@ class _LoadingScreenState extends State<LoadingScreen> {
     try {
       // Step 1: Initialize storage (0% -> 30%)
       _updateProgress(0.0, 'Manomana ny fitahirizana...');
-      await Future.delayed(const Duration(milliseconds: 200));
 
-      if (kDebugMode) {
-        print('Initializing storage service...');
-      }
       await _storageService.init().timeout(
         const Duration(seconds: 10),
         onTimeout: () {
-          if (kDebugMode) {
-            print('Storage initialization timeout');
-          }
+          if (kDebugMode) {}
         },
       );
 
       _updateProgress(0.3, 'Fitahirizana vonona');
-      if (kDebugMode) {
-        print('Storage initialized');
-      }
-      await Future.delayed(const Duration(milliseconds: 400));
 
       // Step 2: Download Firebase hymns (30% -> 90%)
       _updateProgress(0.35, 'Maka ny hira avy amin\'ny Firebase...');
-      await Future.delayed(const Duration(milliseconds: 200));
-      if (kDebugMode) {
-        print('Downloading Firebase hymns...');
-      }
 
       await _downloadFirebaseHymns(
         onProgress: (progress) {
@@ -82,37 +68,22 @@ class _LoadingScreenState extends State<LoadingScreen> {
       ).timeout(
         const Duration(seconds: 15),
         onTimeout: () {
-          if (kDebugMode) {
-            print('Firebase download timeout');
-          }
+          if (kDebugMode) {}
         },
       );
 
       _updateProgress(0.9, 'Hira vita');
-      if (kDebugMode) {
-        print('Firebase hymns downloaded');
-      }
-      await Future.delayed(const Duration(milliseconds: 400));
 
       // Step 3: Finalize (90% -> 100%)
       _updateProgress(0.95, 'Mamita...');
-      await Future.delayed(const Duration(milliseconds: 400));
 
       _updateProgress(1.0, 'Vita!');
-      if (kDebugMode) {
-        print('Navigating to HomeScreen...');
-      }
-      await Future.delayed(const Duration(milliseconds: 500));
 
       if (mounted) {
         Get.off(() => const HomeScreen());
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error during initialization: $e');
-      }
       _updateProgress(1.0, 'Nisy olana, fa mandeha ihany...');
-      await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
         Get.off(() => const HomeScreen());
       }
@@ -125,28 +96,19 @@ class _LoadingScreenState extends State<LoadingScreen> {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        if (kDebugMode) {
-          print('No user logged in, skipping Firebase hymns download');
-        }
-        // Simulate progress for better UX
-        for (int i = 0; i <= 10; i++) {
-          onProgress(i / 10);
-          await Future.delayed(const Duration(milliseconds: 50));
+        // Keep the logged-out path fast; only emit a few coarse updates.
+        for (final progress in const [0.25, 0.6, 1.0]) {
+          onProgress(progress);
+          await Future.delayed(const Duration(milliseconds: 20));
         }
         return;
       }
 
-      if (kDebugMode) {
-        print('Fetching hymns from Firebase...');
-      }
       onProgress(0.2);
 
       final snapshot = await _firestore.collection('hymns').get().timeout(
         const Duration(seconds: 10),
         onTimeout: () {
-          if (kDebugMode) {
-            print('Firebase fetch timeout');
-          }
           throw TimeoutException('Firebase fetch timed out');
         },
       );
@@ -161,20 +123,11 @@ class _LoadingScreenState extends State<LoadingScreen> {
       onProgress(0.8);
 
       if (firebaseHymns.isNotEmpty) {
-        if (kDebugMode) {
-          print('Saving ${firebaseHymns.length} hymns...');
-        }
         await _storageService.saveHymns(firebaseHymns);
-        if (kDebugMode) {
-          print('Hymns saved successfully');
-        }
       }
 
       onProgress(1.0);
     } catch (e) {
-      if (kDebugMode) {
-        print('Error downloading Firebase hymns: $e');
-      }
       onProgress(1.0);
     }
   }

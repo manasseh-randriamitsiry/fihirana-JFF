@@ -61,7 +61,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   StreamSubscription? _durationSubscription;
   StreamSubscription? _playlistChangeSubscription;
   StreamSubscription? _currentHymnSubscription;
-  StreamSubscription? _errorStateSubscription;
 
   @override
   void initState() {
@@ -121,54 +120,45 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
             widget.playlist != null) {
           _playNext();
         }
+        if (state.processingState == ProcessingState.idle &&
+            !currentHymn.id.startsWith('recording_') &&
+            currentHymn.id == _currentDisplayedHymn?.id) {
+          setState(() {
+            _isLoading = false;
+            _isPlaying = false;
+          });
+        }
       }
     });
 
     _positionSubscription = _audioService.positionStream.listen((position) {
       if (!mounted || _isDraggingSlider) return;
-      // Only update position for regular hymns, not recordings
       final currentHymn = _audioService.currentHymn;
       if (currentHymn != null && !currentHymn.id.startsWith('recording_')) {
-        setState(() {
-          _position = position;
-        });
+        if (_position != position) {
+          setState(() {
+            _position = position;
+          });
+        }
       }
     });
 
     _durationSubscription = _audioService.durationStream.listen((duration) {
       if (!mounted) return;
-      // Only update duration for regular hymns, not recordings
       final currentHymn = _audioService.currentHymn;
       if (currentHymn != null && !currentHymn.id.startsWith('recording_')) {
-        setState(() {
-          _duration = duration;
-        });
+        if (_duration != duration) {
+          setState(() {
+            _duration = duration;
+          });
+        }
       }
     });
 
-    // Listen to playlist changes
     _playlistChangeSubscription =
         _audioService.playlistChangeNotifier.listen((_) {
       if (!mounted) return;
-      // Update UI when playlist changes
       setState(() {});
-    });
-
-    // Listen to player errors via playerStateStream
-    _errorStateSubscription = _audioService.playerStateStream.listen((state) {
-      if (!mounted) return;
-
-      // Handle error states for regular hymns only
-      final currentHymn = _audioService.currentHymn;
-      if (state.processingState == ProcessingState.idle &&
-          currentHymn != null &&
-          !currentHymn.id.startsWith('recording_') &&
-          currentHymn.id == _currentDisplayedHymn?.id) {
-        setState(() {
-          _isLoading = false;
-          _isPlaying = false;
-        });
-      }
     });
   }
 
@@ -266,7 +256,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     _durationSubscription?.cancel();
     _playlistChangeSubscription?.cancel();
     _currentHymnSubscription?.cancel();
-    _errorStateSubscription?.cancel();
     super.dispose();
   }
 

@@ -142,18 +142,17 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
         );
       }
 
-      // Wrap the main content with the recording overlay manager
-      // This ensures only one instance of the overlay manager exists
+      // Keep the recording overlay in the same render tree as the app shell.
+      // Creating a fresh Overlay widget here would allocate a new overlay
+      // stack on every rebuild, which is unnecessary on low-end devices.
       return Stack(
         children: [
           mainContent,
-          // Single recording overlay manager for all layouts
-          Overlay(
-            initialEntries: [
-              OverlayEntry(
-                builder: (context) => const RecordingOverlayManager(),
-              ),
-            ],
+          const Positioned.fill(
+            child: IgnorePointer(
+              ignoring: false,
+              child: RecordingOverlayManager(),
+            ),
           ),
         ],
       );
