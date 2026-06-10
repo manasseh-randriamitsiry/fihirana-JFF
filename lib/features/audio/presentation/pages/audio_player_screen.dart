@@ -89,30 +89,13 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       }
     }
 
-    // Get local audio files
-    await _localAudioService.initialize();
-    final localHymnIds = await _localAudioService.getLocalHymnIds();
-    final allAvailableHymnIds = localHymnIds.toSet();
+    // Keep the full hymn library in the playlist.
+    // AudioService will prefer local files when available and fall back to
+    // remote audio for the rest.
+    final filteredList = List<Hymn>.from(initialList);
 
-    // Create playlist by matching hymns with available audio files
-    final filteredList = <Hymn>[];
-
-    for (final hymn in initialList) {
-      if (allAvailableHymnIds.contains(hymn.id)) {
-        filteredList.add(hymn);
-        if (kDebugMode) {
-          print('EnhancedAudioPlayer: Added hymn ${hymn.id} to playlist');
-        }
-      }
-    }
-
-    // Always include current hymn even if not in audio files (to avoid empty screen)
     if (!filteredList.any((h) => h.id == widget.hymn.id)) {
       filteredList.insert(0, widget.hymn);
-      if (kDebugMode) {
-        print(
-            'EnhancedAudioPlayer: Added current hymn ${widget.hymn.id} at beginning of playlist');
-      }
     }
 
     if (kDebugMode) {
