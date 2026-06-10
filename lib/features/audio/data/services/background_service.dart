@@ -4,7 +4,8 @@ import 'package:fihirana/features/announcement/domain/repositories/i_announcemen
 
 class BackgroundService extends GetxService {
   Timer? _announcementTimer;
-  final IAnnouncementService _announcementService = Get.find<IAnnouncementService>();
+  final IAnnouncementService _announcementService =
+      Get.find<IAnnouncementService>();
 
   @override
   void onInit() {

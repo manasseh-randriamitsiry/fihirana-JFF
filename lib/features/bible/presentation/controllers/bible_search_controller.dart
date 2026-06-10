@@ -26,7 +26,7 @@ class BibleSearchController extends GetxController {
   final RxList<String> searchHistory = <String>[].obs;
   String _lastExecutedQuery = '';
   BibleSearchContext? _lastExecutedContext;
-  
+
   // Callback to set highlighted verse (set by parent controller)
   Function(int)? onSetHighlightedVerse;
 
@@ -56,19 +56,21 @@ class BibleSearchController extends GetxController {
       isSearching.value = true;
 
       List<BibleSearchResult> results = [];
-      
+
       // Search based on current context
       if (context == BibleSearchContext.books) {
         // Search for books
         final books = _searchBooksUseCase(query);
-        results = books.map((book) => BibleSearchResult(
-          type: BibleSearchResultType.book,
-          bookName: book.name,
-          chapter: 0,
-          verse: 0,
-          text: book.name,
-          relevance: 1.0,
-        )).toList();
+        results = books
+            .map((book) => BibleSearchResult(
+                  type: BibleSearchResultType.book,
+                  bookName: book.name,
+                  chapter: 0,
+                  verse: 0,
+                  text: book.name,
+                  relevance: 1.0,
+                ))
+            .toList();
       } else if (context == BibleSearchContext.allBible) {
         // Search all verses
         final verses = _searchVersesUseCase(query);
@@ -78,13 +80,15 @@ class BibleSearchController extends GetxController {
         final bookController = Get.find<BibleBookController>();
         final currentBook = bookController.selectedBook.value;
         final currentChapter = bookController.selectedChapter.value;
-        
+
         if (currentBook.isNotEmpty && currentChapter > 0) {
           final allVerses = _searchVersesUseCase(query);
           // Filter to only current chapter
-          final filteredVerses = allVerses.where((verse) =>
-            verse.bookName == currentBook && verse.chapter == currentChapter
-          ).toList();
+          final filteredVerses = allVerses
+              .where((verse) =>
+                  verse.bookName == currentBook &&
+                  verse.chapter == currentChapter)
+              .toList();
           results = _convertVerseSearchResults(filteredVerses);
         }
       }
@@ -103,15 +107,18 @@ class BibleSearchController extends GetxController {
   }
 
   /// Convert VerseSearchResult to BibleSearchResult
-  List<BibleSearchResult> _convertVerseSearchResults(List<VerseSearchResult> verses) {
-    return verses.map((verse) => BibleSearchResult(
-      type: BibleSearchResultType.verse,
-      bookName: verse.bookName,
-      chapter: verse.chapter,
-      verse: verse.verse,
-      text: verse.text,
-      relevance: 1.0,
-    )).toList();
+  List<BibleSearchResult> _convertVerseSearchResults(
+      List<VerseSearchResult> verses) {
+    return verses
+        .map((verse) => BibleSearchResult(
+              type: BibleSearchResultType.verse,
+              bookName: verse.bookName,
+              chapter: verse.chapter,
+              verse: verse.verse,
+              text: verse.text,
+              relevance: 1.0,
+            ))
+        .toList();
   }
 
   void clearSearchResults() {
@@ -155,8 +162,9 @@ class BibleSearchController extends GetxController {
 
   List<String> getFilteredSearchHistory(String filter) {
     if (filter.isEmpty) return searchHistory;
-    return searchHistory.where((item) =>
-        item.toLowerCase().contains(filter.toLowerCase())).toList();
+    return searchHistory
+        .where((item) => item.toLowerCase().contains(filter.toLowerCase()))
+        .toList();
   }
 
   void setSearchContext(BibleSearchContext context) {
@@ -165,13 +173,13 @@ class BibleSearchController extends GetxController {
 
   void navigateToSearchResult(BibleSearchResult result) {
     final bookController = Get.find<BibleBookController>();
-    
+
     if (result.type == BibleSearchResultType.book) {
       bookController.selectBook(result.bookName);
     } else if (result.type == BibleSearchResultType.verse) {
       bookController.selectBook(result.bookName);
       bookController.selectChapter(result.chapter);
-      
+
       // Set the highlighted verse using the callback
       if (onSetHighlightedVerse != null) {
         // Increase delay to ensure chapter loads first

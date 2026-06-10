@@ -44,7 +44,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
       PlaylistDI.initialize();
       _playlistController = PlaylistDI.playlistController;
     }
-    
+
     if (mounted) {
       setState(() {
         _isLoading = false;
@@ -86,7 +86,8 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
           return Container(
             decoration: BoxDecoration(
               color: _colorController.backgroundColor.value,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
             ),
             child: Center(
               child: CircularProgressIndicator(
@@ -341,98 +342,91 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                 // Existing Playlists List
                 Expanded(
                   child: _playlistController!.playlists.isEmpty
-                          ? Center(
-                              child: Text(
-                                l10n.noPlaylistsYet,
-                                style: TextStyle(
-                                  color: textColor.withValues(alpha: 0.5),
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              key: const PageStorageKey('add_to_playlist_list'),
-                              controller: scrollController,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: _playlistController!.playlists.length,
-                              itemBuilder: (context, index) {
-                                final playlist =
-                                    _playlistController!.playlists[index];
-                                final isAdded =
-                                    playlist.hymnIds.contains(widget.hymnId);
-
-                                return Container(
-                                  key: ValueKey(playlist.id),
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  decoration: BoxDecoration(
-                                    color: textColor.withValues(alpha: 0.05),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: ListTile(
-                                    onTap: () async {
-                                      if (!isAdded) {
-                                        await _playlistController!
-                                            .addHymnToPlaylist(
-                                          playlist.id,
-                                          widget.hymnId,
-                                        );
-                                        widget.onHymnAdded?.call();
-                                        Get.back();
-                                      }
-                                    },
-                                    leading: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: isAdded
-                                            ? Colors.green
-                                                .withValues(alpha: 0.1)
-                                            : primaryColor.withValues(
-                                                alpha: 0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        isAdded
-                                            ? Icons.check
-                                            : Icons.queue_music,
-                                        color: isAdded
-                                            ? Colors.green
-                                            : primaryColor,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    title: Text(
-                                      playlist.title,
-                                      style: TextStyle(
-                                        color: textColor,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    subtitle: Text(
-                                      DateFormat('MMM d, yyyy')
-                                          .format(playlist.date),
-                                      style: TextStyle(
-                                        color: textColor.withValues(alpha: 0.6),
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    trailing: isAdded
-                                        ? Text(
-                                            l10n.added,
-                                            style: const TextStyle(
-                                              color: Colors.green,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          )
-                                        : Icon(
-                                            Icons.add_circle_outline,
-                                            color: textColor.withValues(
-                                                alpha: 0.3),
-                                          ),
-                                  ),
-                                );
-                              },
+                      ? Center(
+                          child: Text(
+                            l10n.noPlaylistsYet,
+                            style: TextStyle(
+                              color: textColor.withValues(alpha: 0.5),
                             ),
+                          ),
+                        )
+                      : ListView.builder(
+                          key: const PageStorageKey('add_to_playlist_list'),
+                          controller: scrollController,
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          itemCount: _playlistController!.playlists.length,
+                          itemBuilder: (context, index) {
+                            final playlist =
+                                _playlistController!.playlists[index];
+                            final isAdded =
+                                playlist.hymnIds.contains(widget.hymnId);
+
+                            return Container(
+                              key: ValueKey(playlist.id),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              decoration: BoxDecoration(
+                                color: textColor.withValues(alpha: 0.05),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ListTile(
+                                onTap: () async {
+                                  if (!isAdded) {
+                                    await _playlistController!
+                                        .addHymnToPlaylist(
+                                      playlist.id,
+                                      widget.hymnId,
+                                    );
+                                    widget.onHymnAdded?.call();
+                                    Get.back();
+                                  }
+                                },
+                                leading: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: isAdded
+                                        ? Colors.green.withValues(alpha: 0.1)
+                                        : primaryColor.withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    isAdded ? Icons.check : Icons.queue_music,
+                                    color:
+                                        isAdded ? Colors.green : primaryColor,
+                                    size: 20,
+                                  ),
+                                ),
+                                title: Text(
+                                  playlist.title,
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  DateFormat('MMM d, yyyy')
+                                      .format(playlist.date),
+                                  style: TextStyle(
+                                    color: textColor.withValues(alpha: 0.6),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                trailing: isAdded
+                                    ? Text(
+                                        l10n.added,
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      )
+                                    : Icon(
+                                        Icons.add_circle_outline,
+                                        color: textColor.withValues(alpha: 0.3),
+                                      ),
+                              ),
+                            );
+                          },
+                        ),
                 ),
               ],
             ),

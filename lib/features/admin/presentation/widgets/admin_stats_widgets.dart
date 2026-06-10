@@ -88,29 +88,30 @@ class AdminStatsRowWidget extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-           AdminStatTileWidget(
-             title: AppLocalizations.of(context).users,
-             value: '${stats['totalUsers']}',
-             subtitle: AppLocalizations.of(context).activeUsersCount(stats['activeUsers']),
-             icon: Icons.people,
-             color: Colors.blue,
-           ),
+          AdminStatTileWidget(
+            title: AppLocalizations.of(context).users,
+            value: '${stats['totalUsers']}',
+            subtitle: AppLocalizations.of(context)
+                .activeUsersCount(stats['activeUsers']),
+            icon: Icons.people,
+            color: Colors.blue,
+          ),
           const SizedBox(width: 12),
-           AdminStatTileWidget(
-             title: AppLocalizations.of(context).hymns,
-             value: '${stats['totalHymns']}',
-             subtitle: AppLocalizations.of(context).totalAdded,
-             icon: Icons.library_music,
-             color: Colors.orange,
-           ),
-           const SizedBox(width: 12),
-           AdminStatTileWidget(
-             title: AppLocalizations.of(context).installs,
-             value: '${stats['installations']}',
-             subtitle: AppLocalizations.of(context).allTime,
-             icon: Icons.download,
-             color: Colors.green,
-           ),
+          AdminStatTileWidget(
+            title: AppLocalizations.of(context).hymns,
+            value: '${stats['totalHymns']}',
+            subtitle: AppLocalizations.of(context).totalAdded,
+            icon: Icons.library_music,
+            color: Colors.orange,
+          ),
+          const SizedBox(width: 12),
+          AdminStatTileWidget(
+            title: AppLocalizations.of(context).installs,
+            value: '${stats['installations']}',
+            subtitle: AppLocalizations.of(context).allTime,
+            icon: Icons.download,
+            color: Colors.green,
+          ),
         ],
       ),
     );

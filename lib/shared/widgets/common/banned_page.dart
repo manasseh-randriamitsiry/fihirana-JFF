@@ -54,7 +54,7 @@ class BannedPage extends StatelessWidget {
                     return Text(
                       securityService.isPermanentlyBlocked
                           ? 'PERMANENTLY BANNED'
-                           : context.translate((l) => l.accessDenied),
+                          : context.translate((l) => l.accessDenied),
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                         color: Colors.white,
@@ -71,8 +71,7 @@ class BannedPage extends StatelessWidget {
                     return Text(
                       securityService.isPermanentlyBlocked
                           ? 'Your account has been permanently banned due to violations of our terms of service. All your data has been removed from the platform.'
-                           : context
-                               .translate((l) => l.accountRestricted),
+                          : context.translate((l) => l.accountRestricted),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.8),
@@ -139,8 +138,8 @@ class BannedPage extends StatelessWidget {
                             return Text(
                               securityService.isPermanentlyBlocked
                                   ? 'This action is permanent and cannot be reversed.'
-                                   : context.translate(
-                                       (l) => l.alternativeAccess),
+                                  : context
+                                      .translate((l) => l.alternativeAccess),
                               style: TextStyle(
                                 color: Colors.orange.shade300,
                                 fontSize: 13,

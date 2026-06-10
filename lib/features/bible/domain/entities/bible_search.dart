@@ -48,7 +48,7 @@ class BibleSearchResult {
     if (type == BibleSearchResultType.book) {
       return bookName;
     }
-    
+
     // For verses, we'll implement highlighting in the UI
     return text;
   }
@@ -57,7 +57,7 @@ class BibleSearchResult {
     if (type == BibleSearchResultType.book) {
       return 'Boky iray';
     }
-    
+
     // Show first 100 characters of verse
     if (text.length <= 100) return text;
     return '${text.substring(0, 100)}...';

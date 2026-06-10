@@ -18,7 +18,7 @@ class BibleBookItemWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
@@ -70,7 +70,7 @@ class BibleChapterGridWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
-    
+
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -89,7 +89,8 @@ class BibleChapterGridWidget extends StatelessWidget {
               color: colorController.primaryColor.value.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: colorController.primaryColor.value.withValues(alpha: 0.2),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.2),
               ),
             ),
             child: Center(
@@ -145,7 +146,8 @@ class BibleVerseItemWidget extends StatelessWidget {
     } else if (isSearchHighlighted) {
       backgroundColor = Colors.yellow.withValues(alpha: 0.3);
     } else if (isSelected) {
-      backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
+      backgroundColor =
+          colorController.primaryColor.value.withValues(alpha: 0.15);
     } else if (isHighlighted) {
       // Use yellow for saved highlights
       backgroundColor = Colors.yellow.withValues(alpha: 0.3);
@@ -206,7 +208,7 @@ class BibleChapterNavigationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: Row(

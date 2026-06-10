@@ -30,7 +30,8 @@ class AdminActionResult {
         data.hashCode;
   }
 
-  factory AdminActionResult.success(String message, {Map<String, dynamic>? data}) {
+  factory AdminActionResult.success(String message,
+      {Map<String, dynamic>? data}) {
     return AdminActionResult(
       success: true,
       message: message,

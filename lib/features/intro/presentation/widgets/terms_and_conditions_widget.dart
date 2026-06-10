@@ -16,14 +16,15 @@ class TermsAndConditionsWidget extends StatefulWidget {
   });
 
   @override
-  State<TermsAndConditionsWidget> createState() => _TermsAndConditionsWidgetState();
+  State<TermsAndConditionsWidget> createState() =>
+      _TermsAndConditionsWidgetState();
 }
 
 class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    
+
     return IntroCardWidget(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -46,9 +47,7 @@ class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
               ),
               IconButton(
                 icon: Icon(
-                  widget.isExpanded
-                      ? Icons.expand_less
-                      : Icons.expand_more,
+                  widget.isExpanded ? Icons.expand_less : Icons.expand_more,
                   color: Colors.green,
                 ),
                 onPressed: () {
@@ -80,7 +79,9 @@ class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
             ),
             secondChild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: widget.terms.map((term) => AgreementItemWidget(text: term)).toList(),
+              children: widget.terms
+                  .map((term) => AgreementItemWidget(text: term))
+                  .toList(),
             ),
             crossFadeState: widget.isExpanded
                 ? CrossFadeState.showSecond

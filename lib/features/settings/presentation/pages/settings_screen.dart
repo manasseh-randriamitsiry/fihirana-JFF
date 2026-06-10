@@ -78,14 +78,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     SettingsCard(
                       icon: Icons.color_lens_outlined,
                       label: context.translate((l) => l.changeColor),
-                      onTap: () => ColorPickerWidget.showColorPickerDialog(context),
+                      onTap: () =>
+                          ColorPickerWidget.showColorPickerDialog(context),
                       animationDelay: 100,
                     ),
                     const SizedBox(height: AppDimensions.sm),
                     SettingsCard(
                       icon: Icons.language,
                       label: context.translate((l) => l.language),
-                       onTap: () => SimpleLanguagePicker.showLanguagePicker(context),
+                      onTap: () =>
+                          SimpleLanguagePicker.showLanguagePicker(context),
                       animationDelay: 125,
                     ),
                     const SizedBox(height: AppDimensions.sm),

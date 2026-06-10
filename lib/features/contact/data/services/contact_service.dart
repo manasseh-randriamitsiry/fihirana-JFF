@@ -143,7 +143,8 @@ class ContactService implements IContactService {
   // Get all contacts (one-time fetch)
   @override
   Future<List<Contact>> getAllContacts() async {
-    final snapshot = await _firestore.collection('contacts').orderBy('name').get();
+    final snapshot =
+        await _firestore.collection('contacts').orderBy('name').get();
     return snapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
@@ -171,9 +172,7 @@ class ContactService implements IContactService {
     final snapshot = await _firestore
         .collection('contacts')
         .orderBy('name')
-        .startAt([query])
-        .endAt(['$query\uf8ff'])
-        .get();
+        .startAt([query]).endAt(['$query\uf8ff']).get();
 
     return snapshot.docs.map((doc) {
       final data = doc.data();

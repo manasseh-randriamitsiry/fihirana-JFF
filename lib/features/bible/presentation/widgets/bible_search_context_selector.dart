@@ -16,10 +16,12 @@ class BibleSearchContextSelector extends StatefulWidget {
   });
 
   @override
-  State<BibleSearchContextSelector> createState() => _BibleSearchContextSelectorState();
+  State<BibleSearchContextSelector> createState() =>
+      _BibleSearchContextSelectorState();
 }
 
-class _BibleSearchContextSelectorState extends State<BibleSearchContextSelector> {
+class _BibleSearchContextSelectorState
+    extends State<BibleSearchContextSelector> {
   final BibleController bibleController = Get.find<BibleController>();
 
   @override

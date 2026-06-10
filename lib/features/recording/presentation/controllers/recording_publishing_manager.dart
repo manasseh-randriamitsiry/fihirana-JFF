@@ -132,16 +132,16 @@ class RecordingPublishingManager extends GetxController {
         recordingToPublish = recording.copyWith(title: customTitle);
       }
 
-       // Add user info if not already present
-       if (recordingToPublish.userPhotoUrl == null ||
-           recordingToPublish.userName == null ||
-           recordingToPublish.userId == null) {
-         recordingToPublish = recordingToPublish.copyWith(
-           userName: userName.isNotEmpty ? userName : currentUser?.displayName,
-           userPhotoUrl: photoUrl,
-           userId: FirebaseAuth.instance.currentUser?.uid,
-         );
-       }
+      // Add user info if not already present
+      if (recordingToPublish.userPhotoUrl == null ||
+          recordingToPublish.userName == null ||
+          recordingToPublish.userId == null) {
+        recordingToPublish = recordingToPublish.copyWith(
+          userName: userName.isNotEmpty ? userName : currentUser?.displayName,
+          userPhotoUrl: photoUrl,
+          userId: FirebaseAuth.instance.currentUser?.uid,
+        );
+      }
 
       if (recording.driveFileId == null) {
         Get.snackbar(
@@ -340,7 +340,8 @@ class RecordingPublishingManager extends GetxController {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('A recording with this title already exists. Please enter a new title.'),
+              const Text(
+                  'A recording with this title already exists. Please enter a new title.'),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,

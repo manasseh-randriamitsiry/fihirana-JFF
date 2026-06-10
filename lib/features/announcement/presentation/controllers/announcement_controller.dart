@@ -114,7 +114,7 @@ class AnnouncementController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      
+
       final announcementList = await _getAllAnnouncementsUseCase.execute();
       announcements.assignAll(announcementList);
       _applySearchFilter();
@@ -130,7 +130,7 @@ class AnnouncementController extends GetxController {
     try {
       isLoadingActive.value = true;
       errorMessage.value = '';
-      
+
       final activeList = await _getActiveAnnouncementsUseCase.execute();
       activeAnnouncements.assignAll(activeList);
     } catch (e) {
@@ -282,10 +282,11 @@ class AnnouncementController extends GetxController {
     } else {
       final query = searchQuery.value.toLowerCase();
       filteredAnnouncements.assignAll(
-        announcements.where((announcement) =>
-          announcement.title.toLowerCase().contains(query) ||
-          announcement.message.toLowerCase().contains(query)
-        ).toList(),
+        announcements
+            .where((announcement) =>
+                announcement.title.toLowerCase().contains(query) ||
+                announcement.message.toLowerCase().contains(query))
+            .toList(),
       );
     }
   }
@@ -299,7 +300,8 @@ class AnnouncementController extends GetxController {
   /// Get announcement by ID
   Announcement? getAnnouncementById(String id) {
     try {
-      return announcements.firstWhereOrNull((announcement) => announcement.id == id);
+      return announcements
+          .firstWhereOrNull((announcement) => announcement.id == id);
     } catch (e) {
       return null;
     }
@@ -307,17 +309,20 @@ class AnnouncementController extends GetxController {
 
   /// Get expired announcements
   List<Announcement> get expiredAnnouncements {
-    return announcements.where((announcement) => announcement.isExpired()).toList();
+    return announcements
+        .where((announcement) => announcement.isExpired())
+        .toList();
   }
 
   /// Get announcements expiring soon (within 7 days)
   List<Announcement> get announcementsExpiringSoon {
     final sevenDaysFromNow = DateTime.now().add(const Duration(days: 7));
-    return announcements.where((announcement) =>
-        announcement.expiresAt != null &&
-        announcement.expiresAt!.isBefore(sevenDaysFromNow) &&
-        announcement.expiresAt!.isAfter(DateTime.now())
-    ).toList();
+    return announcements
+        .where((announcement) =>
+            announcement.expiresAt != null &&
+            announcement.expiresAt!.isBefore(sevenDaysFromNow) &&
+            announcement.expiresAt!.isAfter(DateTime.now()))
+        .toList();
   }
 
   /// Get announcements count

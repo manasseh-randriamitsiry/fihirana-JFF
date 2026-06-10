@@ -14,7 +14,8 @@ class AudioCacheService {
   final Map<String, bool> _memoryCache = {};
   final Set<String> _pendingChecks = {};
   static const String _tableName = 'audio_cache';
-  static const Duration _cacheExpiry = Duration(minutes: 5); // Cache for 5 minutes for testing
+  static const Duration _cacheExpiry =
+      Duration(minutes: 5); // Cache for 5 minutes for testing
 
   Future<Database> get database async {
     _database ??= await _initDatabase();
@@ -57,7 +58,7 @@ class AudioCacheService {
     if (_memoryCache.containsKey(hymnId)) {
       if (kDebugMode) {
         print(
-          'AudioCache: Found $hymnId in memory cache: ${_memoryCache[hymnId]}');
+            'AudioCache: Found $hymnId in memory cache: ${_memoryCache[hymnId]}');
       }
       return _memoryCache[hymnId]!;
     }
@@ -201,7 +202,7 @@ class AudioCacheService {
     if (networkCheckIds.isNotEmpty) {
       if (kDebugMode) {
         print(
-          'AudioCache: Checking ${networkCheckIds.length} hymns from network');
+            'AudioCache: Checking ${networkCheckIds.length} hymns from network');
       }
       final networkResults =
           await _batchCheckNetworkAvailability(networkCheckIds);
@@ -221,7 +222,8 @@ class AudioCacheService {
   Future<bool> _checkActualAudioAvailability(String hymnId) async {
     // For our hymns, the audio files are named exactly like the hymn IDs with .mp3 extension
     // So try the direct URL first
-    final directUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
+    final directUrl =
+        'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$hymnId.mp3';
 
     try {
       if (kDebugMode) {
@@ -242,7 +244,8 @@ class AudioCacheService {
         return true;
       } else {
         if (kDebugMode) {
-          print('AudioCache: ❌ Direct URL returned ${response.statusCode} for $hymnId');
+          print(
+              'AudioCache: ❌ Direct URL returned ${response.statusCode} for $hymnId');
         }
       }
     } catch (e) {
@@ -299,7 +302,8 @@ class AudioCacheService {
     final numberMatch = RegExp(r'^(\d+)').firstMatch(hymnId);
     if (numberMatch != null) {
       final numberOnly = numberMatch.group(1)!;
-      final numberUrl = 'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$numberOnly.mp3';
+      final numberUrl =
+          'https://raw.githubusercontent.com/manasseh-randriamitsiry/Fihirana-audio/main/$numberOnly.mp3';
 
       try {
         if (kDebugMode) {
@@ -346,7 +350,7 @@ class AudioCacheService {
 
       if (kDebugMode) {
         print(
-          'AudioCache: Processing batch ${i ~/ batchSize + 1} of ${(hymnIds.length + batchSize - 1) ~/ batchSize} (${batch.length} hymns)');
+            'AudioCache: Processing batch ${i ~/ batchSize + 1} of ${(hymnIds.length + batchSize - 1) ~/ batchSize} (${batch.length} hymns)');
       }
 
       final List<Future<bool>> futures = [];

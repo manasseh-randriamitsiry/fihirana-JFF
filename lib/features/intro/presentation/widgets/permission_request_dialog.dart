@@ -14,7 +14,8 @@ class PermissionRequestDialog extends StatefulWidget {
   });
 
   @override
-  State<PermissionRequestDialog> createState() => _PermissionRequestDialogState();
+  State<PermissionRequestDialog> createState() =>
+      _PermissionRequestDialogState();
 }
 
 class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
@@ -29,8 +30,10 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
   }
 
   Future<void> _checkCurrentPermissions() async {
-    final notificationStatus = await AwesomeNotifications().isNotificationAllowed();
-    final installPackagesStatus = await Permission.requestInstallPackages.status;
+    final notificationStatus =
+        await AwesomeNotifications().isNotificationAllowed();
+    final installPackagesStatus =
+        await Permission.requestInstallPackages.status;
 
     setState(() {
       _notificationGranted = notificationStatus;
@@ -44,7 +47,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
     try {
       // Request notification permission
       if (!_notificationGranted) {
-        final notificationAllowed = await AwesomeNotifications().requestPermissionToSendNotifications();
+        final notificationAllowed =
+            await AwesomeNotifications().requestPermissionToSendNotifications();
         setState(() => _notificationGranted = notificationAllowed);
       }
 
@@ -91,7 +95,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
               width: isTablet ? 80 : 60,
               height: isTablet ? 80 : 60,
               decoration: BoxDecoration(
-                color: colorController.primaryColor.value.withValues(alpha: 0.1),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -135,7 +140,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
               context,
               icon: Icons.notifications_none_rounded,
               title: 'Notifications',
-              description: 'Receive daily verses, announcements, and update notifications',
+              description:
+                  'Receive daily verses, announcements, and update notifications',
               isGranted: _notificationGranted,
               isTablet: isTablet,
             ),
@@ -163,7 +169,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                       Navigator.pop(context);
                     },
                     style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
+                      padding:
+                          EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -171,7 +178,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                     child: Text(
                       'Skip for now',
                       style: TextStyle(
-                        color: colorController.textColor.value.withValues(alpha: 0.6),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.6),
                         fontSize: isTablet ? 16 : 14,
                       ),
                     ),
@@ -180,13 +188,16 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                 SizedBox(width: isTablet ? 16 : 12),
                 Expanded(
                   child: FilledButton(
-                    onPressed: _isRequesting ? null : () {
-                      HapticFeedback.lightImpact();
-                      _requestPermissions();
-                    },
+                    onPressed: _isRequesting
+                        ? null
+                        : () {
+                            HapticFeedback.lightImpact();
+                            _requestPermissions();
+                          },
                     style: FilledButton.styleFrom(
                       backgroundColor: colorController.primaryColor.value,
-                      padding: EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
+                      padding:
+                          EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -287,7 +298,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                   description,
                   style: TextStyle(
                     fontSize: isTablet ? 14 : 12,
-                    color: colorController.textColor.value.withValues(alpha: 0.6),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.6),
                     height: 1.3,
                   ),
                 ),

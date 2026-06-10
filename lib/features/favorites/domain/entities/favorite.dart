@@ -66,7 +66,8 @@ class Favorite {
       hymnId: map['hymnId'] ?? '',
       userId: map['userId'] ?? '',
       userEmail: map['userEmail'] ?? '',
-      addedDate: DateTime.parse(map['addedDate'] ?? DateTime.now().toIso8601String()),
+      addedDate:
+          DateTime.parse(map['addedDate'] ?? DateTime.now().toIso8601String()),
     );
   }
 }

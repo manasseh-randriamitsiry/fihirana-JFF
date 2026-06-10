@@ -65,18 +65,22 @@ class _AppSliderState extends State<AppSlider>
 
   void _increment() {
     if (!widget.enabled || widget.onChanged == null) return;
-    final newValue = (widget.value + (widget.divisions != null
-        ? (widget.max - widget.min) / widget.divisions!
-        : 0.1)).clamp(widget.min, widget.max);
+    final newValue = (widget.value +
+            (widget.divisions != null
+                ? (widget.max - widget.min) / widget.divisions!
+                : 0.1))
+        .clamp(widget.min, widget.max);
     widget.onChanged!(newValue);
     widget.onChangeEnd?.call(newValue);
   }
 
   void _decrement() {
     if (!widget.enabled || widget.onChanged == null) return;
-    final newValue = (widget.value - (widget.divisions != null
-        ? (widget.max - widget.min) / widget.divisions!
-        : 0.1)).clamp(widget.min, widget.max);
+    final newValue = (widget.value -
+            (widget.divisions != null
+                ? (widget.max - widget.min) / widget.divisions!
+                : 0.1))
+        .clamp(widget.min, widget.max);
     widget.onChanged!(newValue);
     widget.onChangeEnd?.call(newValue);
   }
@@ -108,7 +112,9 @@ class _AppSliderState extends State<AppSlider>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (widget.label != null || widget.subtitle != null || widget.valueDisplay != null)
+                    if (widget.label != null ||
+                        widget.subtitle != null ||
+                        widget.valueDisplay != null)
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -131,7 +137,8 @@ class _AppSliderState extends State<AppSlider>
                                     child: Text(
                                       widget.subtitle!,
                                       style: TextStyle(
-                                        color: colorController.textColor.value.withValues(alpha: 0.7),
+                                        color: colorController.textColor.value
+                                            .withValues(alpha: 0.7),
                                         fontSize: AppDimensions.fontSm,
                                       ),
                                     ),
@@ -160,7 +167,8 @@ class _AppSliderState extends State<AppSlider>
                               Icons.remove_circle_outline,
                               color: widget.enabled
                                   ? colorController.primaryColor.value
-                                  : colorController.textColor.value.withValues(alpha: 0.3),
+                                  : colorController.textColor.value
+                                      .withValues(alpha: 0.3),
                             ),
                             iconSize: 24,
                             padding: EdgeInsets.zero,
@@ -173,17 +181,23 @@ class _AppSliderState extends State<AppSlider>
                           child: SliderTheme(
                             data: SliderThemeData(
                               trackHeight: 4,
-                              activeTrackColor: colorController.primaryColor.value,
-                              inactiveTrackColor: colorController.primaryColor.value.withValues(alpha: 0.2),
+                              activeTrackColor:
+                                  colorController.primaryColor.value,
+                              inactiveTrackColor: colorController
+                                  .primaryColor.value
+                                  .withValues(alpha: 0.2),
                               thumbColor: colorController.primaryColor.value,
                               thumbShape: const RoundSliderThumbShape(
                                 enabledThumbRadius: 12,
                                 elevation: 4,
                                 pressedElevation: 8,
                               ),
-                              overlayColor: colorController.primaryColor.value.withValues(alpha: 0.2),
-                              overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
-                              valueIndicatorColor: colorController.primaryColor.value,
+                              overlayColor: colorController.primaryColor.value
+                                  .withValues(alpha: 0.2),
+                              overlayShape: const RoundSliderOverlayShape(
+                                  overlayRadius: 24),
+                              valueIndicatorColor:
+                                  colorController.primaryColor.value,
                               valueIndicatorTextStyle: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 14,
@@ -195,7 +209,8 @@ class _AppSliderState extends State<AppSlider>
                               min: widget.min,
                               max: widget.max,
                               divisions: widget.divisions,
-                              onChanged: widget.enabled ? widget.onChanged : null,
+                              onChanged:
+                                  widget.enabled ? widget.onChanged : null,
                               onChangeEnd: widget.onChangeEnd,
                             ),
                           ),
@@ -207,7 +222,8 @@ class _AppSliderState extends State<AppSlider>
                               Icons.add_circle_outline,
                               color: widget.enabled
                                   ? colorController.primaryColor.value
-                                  : colorController.textColor.value.withValues(alpha: 0.3),
+                                  : colorController.textColor.value
+                                      .withValues(alpha: 0.3),
                             ),
                             iconSize: 24,
                             padding: EdgeInsets.zero,

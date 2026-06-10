@@ -20,8 +20,8 @@ class SkeletonUserList extends StatelessWidget {
           key: ValueKey(index),
           elevation: 2,
           margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           color: colorController.backgroundColor.value,
           child: Padding(
             padding: const EdgeInsets.all(AppDimensions.md),
@@ -36,7 +36,8 @@ class SkeletonUserList extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: colorController.textColor.value.withValues(alpha: 0.1),
+                        color: colorController.textColor.value
+                            .withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -51,7 +52,8 @@ class SkeletonUserList extends StatelessWidget {
                             width: 150,
                             height: 16,
                             decoration: BoxDecoration(
-                              color: colorController.textColor.value.withValues(alpha: 0.1),
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -61,7 +63,8 @@ class SkeletonUserList extends StatelessWidget {
                             width: 200,
                             height: 13,
                             decoration: BoxDecoration(
-                              color: colorController.textColor.value.withValues(alpha: 0.08),
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
@@ -74,7 +77,8 @@ class SkeletonUserList extends StatelessWidget {
                 // Divider skeleton
                 Container(
                   height: 1,
-                  color: colorController.textColor.value.withValues(alpha: 0.05),
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.05),
                 ),
                 const SizedBox(height: 12),
 
@@ -89,7 +93,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 16,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.08),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -98,7 +103,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 60,
                           height: 13,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.06),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -111,7 +117,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 16,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.08),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -120,7 +127,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 80,
                           height: 13,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.06),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -132,7 +140,8 @@ class SkeletonUserList extends StatelessWidget {
                 // Divider skeleton
                 Container(
                   height: 1,
-                  color: colorController.textColor.value.withValues(alpha: 0.05),
+                  color:
+                      colorController.textColor.value.withValues(alpha: 0.05),
                 ),
                 const SizedBox(height: 8),
 
@@ -147,7 +156,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 70,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.06),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -156,7 +166,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 30,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.08),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -169,7 +180,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 40,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.06),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -178,7 +190,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 30,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.08),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -191,7 +204,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 40,
                           height: 12,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.06),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.06),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -200,7 +214,8 @@ class SkeletonUserList extends StatelessWidget {
                           width: 30,
                           height: 16,
                           decoration: BoxDecoration(
-                            color: colorController.textColor.value.withValues(alpha: 0.08),
+                            color: colorController.textColor.value
+                                .withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
@@ -217,7 +232,10 @@ class SkeletonUserList extends StatelessWidget {
                 duration: 1200.ms,
                 color: colorController.textColor.value.withValues(alpha: 0.05))
             .animate() // Separate animation for fade in
-            .fadeIn(duration: 600.ms, delay: Duration(milliseconds: 50 * index), curve: Curves.easeOut);
+            .fadeIn(
+                duration: 600.ms,
+                delay: Duration(milliseconds: 50 * index),
+                curve: Curves.easeOut);
       },
     );
   }

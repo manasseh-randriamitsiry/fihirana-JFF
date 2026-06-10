@@ -11,7 +11,8 @@ class SaveDialogPrivacyToggle extends StatefulWidget {
   });
 
   @override
-  State<SaveDialogPrivacyToggle> createState() => _SaveDialogPrivacyToggleState();
+  State<SaveDialogPrivacyToggle> createState() =>
+      _SaveDialogPrivacyToggleState();
 }
 
 class _SaveDialogPrivacyToggleState extends State<SaveDialogPrivacyToggle> {

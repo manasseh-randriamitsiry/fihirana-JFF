@@ -12,7 +12,8 @@ class IntroDI {
   /// Initialize intro dependencies
   static void initialize() {
     // Sub-controllers
-    Get.lazyPut<LanguageSelectionController>(() => LanguageSelectionController());
+    Get.lazyPut<LanguageSelectionController>(
+        () => LanguageSelectionController());
     Get.lazyPut<UserAgreementController>(() => UserAgreementController());
     Get.lazyPut<OnboardingAuthController>(() => OnboardingAuthController());
     Get.lazyPut<UsernameInputController>(() => UsernameInputController());

@@ -52,7 +52,8 @@ class AudioPlayerState {
   }
 
   bool get hasError => error != null;
-  bool get canPlayNext => playlist.isNotEmpty && currentPlaylistIndex < playlist.length - 1;
+  bool get canPlayNext =>
+      playlist.isNotEmpty && currentPlaylistIndex < playlist.length - 1;
   bool get canPlayPrevious => playlist.isNotEmpty && currentPlaylistIndex > 0;
   bool get hasNext => canPlayNext || isRepeating;
   bool get hasPrevious => canPlayPrevious || isRepeating;

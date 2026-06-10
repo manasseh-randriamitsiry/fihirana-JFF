@@ -38,7 +38,8 @@ abstract class AdminRepository {
   Future<int> getNewUsersCount();
 
   /// Bulk operations on users
-  Future<AdminActionResult> bulkUpdateUsers(List<String> userIds, Map<String, dynamic> updates);
+  Future<AdminActionResult> bulkUpdateUsers(
+      List<String> userIds, Map<String, dynamic> updates);
 
   /// Export user data
   Future<String> exportUsersData();

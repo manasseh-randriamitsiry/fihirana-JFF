@@ -142,9 +142,9 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
 
   void _onHymnChange(Hymn newHymn) {
     // Determine if we need to actually play the song or just update UI (if it's already playing)
-    // But since this is usually called from user interaction (playlist tap), 
+    // But since this is usually called from user interaction (playlist tap),
     // we generally want to play it.
-    
+
     setState(() {
       _currentHymn = newHymn;
       final newIndex = _playlist.indexWhere(
@@ -155,7 +155,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
       }
       _checkFavoriteStatus();
     });
-    
+
     // Actually play the selected hymn
     _audioService.playHymn(newHymn);
   }

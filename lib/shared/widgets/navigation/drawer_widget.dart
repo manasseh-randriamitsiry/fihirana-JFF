@@ -41,7 +41,7 @@ class DrawerWidgetState extends State<DrawerWidget>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize UserController with fallback
     try {
       _userController = Get.find<UserController>();
@@ -49,7 +49,7 @@ class DrawerWidgetState extends State<DrawerWidget>
       // UserController not initialized yet, initialize it
       _userController = Get.put(UserController());
     }
-    
+
     WidgetsBinding.instance.addObserver(this);
     try {
       _googleSignIn = Get.find<GoogleSignIn>();
@@ -63,7 +63,8 @@ class DrawerWidgetState extends State<DrawerWidget>
       Get.put(_googleSignIn!);
     }
     _checkAuthStatus();
-    _googleSignInSubscription = _googleSignIn?.onCurrentUserChanged.listen((GoogleSignInAccount? account) {
+    _googleSignInSubscription = _googleSignIn?.onCurrentUserChanged
+        .listen((GoogleSignInAccount? account) {
       if (mounted) {
         setState(() {
           _currentUser = account;
@@ -80,10 +81,9 @@ class DrawerWidgetState extends State<DrawerWidget>
     super.dispose();
   }
 
-
-
   void _checkAuthStatus() {
-    _authStateSubscription = FirebaseAuth.instance.authStateChanges().listen((user) {
+    _authStateSubscription =
+        FirebaseAuth.instance.authStateChanges().listen((user) {
       if (mounted) {
         if (user != null) {
           _updateCurrentUser();
@@ -139,7 +139,7 @@ class DrawerWidgetState extends State<DrawerWidget>
         _userController.setAuthenticated(true);
 
         _updateCurrentUser();
-        
+
         if (mounted) {
           final l10n = AppLocalizations.of(context);
           Get.snackbar(
@@ -158,8 +158,6 @@ class DrawerWidgetState extends State<DrawerWidget>
       }
     }
   }
-
-
 
   Widget _buildSectionHeader(String title) {
     return Padding(
@@ -235,7 +233,6 @@ class DrawerWidgetState extends State<DrawerWidget>
 
   @override
   Widget build(BuildContext context) {
-
     return Material(
       color: _colorController.drawerColor.value,
       child: Column(
@@ -247,10 +244,12 @@ class DrawerWidgetState extends State<DrawerWidget>
             child: Row(
               children: [
                 GestureDetector(
-                  onTap: _isAuthenticated ? null : () {
-                    HapticFeedback.lightImpact();
-                    _signInWithGoogle();
-                  },
+                  onTap: _isAuthenticated
+                      ? null
+                      : () {
+                          HapticFeedback.lightImpact();
+                          _signInWithGoogle();
+                        },
                   child: Container(
                     width: 80,
                     height: 80,
@@ -299,28 +298,32 @@ class DrawerWidgetState extends State<DrawerWidget>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                        Obx(() => Text(
-                          _isAuthenticated
-                              ? (_currentUser?.displayName ??
-                                  _firebaseAuth.currentUser?.displayName ??
-                                  (_userController.username.value.isNotEmpty ? _userController.username.value : null) ??
-                                  'User')
-                              : (_userController.username.value.isNotEmpty ? _userController.username.value : AppLocalizations.of(context).guest),
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.95),
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                              color: Colors.black.withValues(alpha: 0.3),
-                              offset: const Offset(0, 2),
-                              blurRadius: 4,
+                      Obx(() => Text(
+                            _isAuthenticated
+                                ? (_currentUser?.displayName ??
+                                    _firebaseAuth.currentUser?.displayName ??
+                                    (_userController.username.value.isNotEmpty
+                                        ? _userController.username.value
+                                        : null) ??
+                                    'User')
+                                : (_userController.username.value.isNotEmpty
+                                    ? _userController.username.value
+                                    : AppLocalizations.of(context).guest),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.95),
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.black.withValues(alpha: 0.3),
+                                  offset: const Offset(0, 2),
+                                  blurRadius: 4,
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      )),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          )),
                       if (_isAuthenticated) ...[
                         const SizedBox(height: 4),
                         Text(
@@ -348,14 +351,14 @@ class DrawerWidgetState extends State<DrawerWidget>
                               color: _colorController.primaryColor.value,
                               borderRadius: BorderRadius.circular(20),
                             ),
-                              child: Text(
-                                AppLocalizations.of(context).signIn,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                            child: Text(
+                              AppLocalizations.of(context).signIn,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
                               ),
+                            ),
                           ),
                         ),
                       ],
@@ -370,107 +373,107 @@ class DrawerWidgetState extends State<DrawerWidget>
             child: Obx(() {
               final currentRoute =
                   Get.find<ShellController>().currentRoute.value;
-final l10n = AppLocalizations.of(context);
+              final l10n = AppLocalizations.of(context);
               return ListView(
                 padding: EdgeInsets.zero,
                 children: [
-                   _buildSectionHeader(l10n.library),
-                   _buildDrawerItem(
-                     icon: Icons.home_rounded,
-                     title: l10n.home,
-                     isActive: currentRoute == '/home',
-                     onTap: () => Get.offAllNamed('/home'),
-                   ),
-                   if (_isAuthenticated)
-                     _buildDrawerItem(
-                       icon: Icons.add_circle_outline,
-                       title: l10n.createHymn,
-                       isActive: currentRoute == '/create_hymn',
-                       onTap: () => Get.toNamed('/create_hymn'),
-                     ),
-                   _buildDrawerItem(
-                     icon: Icons.library_music_outlined,
-                     title: l10n.additionalHymns,
-                     isActive: currentRoute == '/firebase_hymns',
-                     onTap: () => Get.toNamed('/firebase_hymns'),
-                   ),
-                   _buildDrawerItem(
-                     icon: Icons.menu_book_rounded,
-                     title: l10n.bible,
-                     isActive: currentRoute == '/bible',
-                     onTap: () => Get.toNamed('/bible'),
-                   ),
-                   _buildSectionHeader(l10n.personal),
-                   _buildDrawerItem(
-                     icon: Icons.favorite_border_rounded,
-                     title: l10n.favoriteHymns,
-                     isActive: currentRoute == '/favorites',
-                     onTap: () => Get.toNamed('/favorites'),
-                   ),
-                   _buildDrawerItem(
-                     icon: Icons.history_rounded,
-                     title: l10n.hymnHistory,
-                     isActive: currentRoute == '/history',
-                     onTap: () => Get.toNamed('/history'),
-                   ),
-                   _buildDrawerItem(
-                     icon: Icons.mic_rounded,
-                     title: 'Recordings',
-                     isActive: currentRoute == '/recordings',
-                     onTap: () => Get.toNamed('/recordings'),
-                   ),
-                   _buildDrawerItem(
-                     icon: Icons.contacts_rounded,
-                     title: l10n.contacts,
-                     isActive: currentRoute == '/contacts',
-                     onTap: () => Get.toNamed('/contacts'),
-                   ),
-                   _buildDrawerItem(
-                     icon: Icons.playlist_play_rounded,
-                     title: l10n.playlists,
-                     isActive: currentRoute == '/playlists',
-                     onTap: () => Get.toNamed('/playlists'),
-                   ),
-                   _buildSectionHeader(l10n.appSection),
-                   _buildDrawerItem(
-                     icon: Icons.notifications_none_rounded,
-                     title: l10n.announcements,
-                     isActive: currentRoute == '/announcements',
-                     onTap: () => Get.toNamed('/announcements'),
-                   ),
-                     if (Get.find<AuthController>().isAdmin)
-                     _buildDrawerItem(
-                       icon: Icons.admin_panel_settings_outlined,
-                       title: l10n.adminPanel,
-                       isActive: currentRoute == '/admin',
-                       onTap: () => Get.toNamed('/admin'),
-                     ),
-                   _buildDrawerItem(
-                     icon: Icons.settings_outlined,
-                     title: l10n.settings,
-                     isActive: currentRoute == '/settings',
-                     onTap: () => Get.toNamed('/settings'),
-                   ),
-                   _buildDrawerItem(
-                     icon: Icons.info_outline_rounded,
-                     title: l10n.aboutUs,
-                     isActive: currentRoute == '/about',
-                     onTap: () => Get.toNamed('/about'),
-                   ),
-                   if (_isAuthenticated)
-                     _buildDrawerItem(
-                       icon: Icons.logout_rounded,
-                       title: l10n.signOut,
-                       color: _colorController.iconColor.value,
-                        onTap: () {
-                          FirebaseAuth.instance.signOut();
-                          _userController.setAuthenticated(false);
-                          setState(() {
-                            _isAuthenticated = false;
-                            _currentUser = null;
-                          });
-                        },
-                     ),
+                  _buildSectionHeader(l10n.library),
+                  _buildDrawerItem(
+                    icon: Icons.home_rounded,
+                    title: l10n.home,
+                    isActive: currentRoute == '/home',
+                    onTap: () => Get.offAllNamed('/home'),
+                  ),
+                  if (_isAuthenticated)
+                    _buildDrawerItem(
+                      icon: Icons.add_circle_outline,
+                      title: l10n.createHymn,
+                      isActive: currentRoute == '/create_hymn',
+                      onTap: () => Get.toNamed('/create_hymn'),
+                    ),
+                  _buildDrawerItem(
+                    icon: Icons.library_music_outlined,
+                    title: l10n.additionalHymns,
+                    isActive: currentRoute == '/firebase_hymns',
+                    onTap: () => Get.toNamed('/firebase_hymns'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.menu_book_rounded,
+                    title: l10n.bible,
+                    isActive: currentRoute == '/bible',
+                    onTap: () => Get.toNamed('/bible'),
+                  ),
+                  _buildSectionHeader(l10n.personal),
+                  _buildDrawerItem(
+                    icon: Icons.favorite_border_rounded,
+                    title: l10n.favoriteHymns,
+                    isActive: currentRoute == '/favorites',
+                    onTap: () => Get.toNamed('/favorites'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.history_rounded,
+                    title: l10n.hymnHistory,
+                    isActive: currentRoute == '/history',
+                    onTap: () => Get.toNamed('/history'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.mic_rounded,
+                    title: 'Recordings',
+                    isActive: currentRoute == '/recordings',
+                    onTap: () => Get.toNamed('/recordings'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.contacts_rounded,
+                    title: l10n.contacts,
+                    isActive: currentRoute == '/contacts',
+                    onTap: () => Get.toNamed('/contacts'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.playlist_play_rounded,
+                    title: l10n.playlists,
+                    isActive: currentRoute == '/playlists',
+                    onTap: () => Get.toNamed('/playlists'),
+                  ),
+                  _buildSectionHeader(l10n.appSection),
+                  _buildDrawerItem(
+                    icon: Icons.notifications_none_rounded,
+                    title: l10n.announcements,
+                    isActive: currentRoute == '/announcements',
+                    onTap: () => Get.toNamed('/announcements'),
+                  ),
+                  if (Get.find<AuthController>().isAdmin)
+                    _buildDrawerItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: l10n.adminPanel,
+                      isActive: currentRoute == '/admin',
+                      onTap: () => Get.toNamed('/admin'),
+                    ),
+                  _buildDrawerItem(
+                    icon: Icons.settings_outlined,
+                    title: l10n.settings,
+                    isActive: currentRoute == '/settings',
+                    onTap: () => Get.toNamed('/settings'),
+                  ),
+                  _buildDrawerItem(
+                    icon: Icons.info_outline_rounded,
+                    title: l10n.aboutUs,
+                    isActive: currentRoute == '/about',
+                    onTap: () => Get.toNamed('/about'),
+                  ),
+                  if (_isAuthenticated)
+                    _buildDrawerItem(
+                      icon: Icons.logout_rounded,
+                      title: l10n.signOut,
+                      color: _colorController.iconColor.value,
+                      onTap: () {
+                        FirebaseAuth.instance.signOut();
+                        _userController.setAuthenticated(false);
+                        setState(() {
+                          _isAuthenticated = false;
+                          _currentUser = null;
+                        });
+                      },
+                    ),
                   const SizedBox(height: 32),
                 ],
               );

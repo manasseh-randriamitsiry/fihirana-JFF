@@ -15,17 +15,19 @@ class BibleReaderScreenOptimized extends StatefulWidget {
   const BibleReaderScreenOptimized({super.key});
 
   @override
-  State<BibleReaderScreenOptimized> createState() => _BibleReaderScreenOptimizedState();
+  State<BibleReaderScreenOptimized> createState() =>
+      _BibleReaderScreenOptimizedState();
 }
 
-class _BibleReaderScreenOptimizedState extends State<BibleReaderScreenOptimized> {
+class _BibleReaderScreenOptimizedState
+    extends State<BibleReaderScreenOptimized> {
   late final BibleController bibleController;
 
   void _initializeBibleController() {
     BibleDI.init();
     bibleController = Get.find<BibleController>();
   }
-  
+
   final ColorController colorController = Get.find<ColorController>();
   final FontController fontController = Get.find<FontController>();
 

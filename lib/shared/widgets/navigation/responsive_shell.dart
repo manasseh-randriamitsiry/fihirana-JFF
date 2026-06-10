@@ -42,7 +42,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
             if (navigator != null && navigator.canPop()) {
               navigator.pop();
             } else {
-              if (shellController.zoomDrawerController.isOpen?.call()??
+              if (shellController.zoomDrawerController.isOpen?.call() ??
                   false) {
                 shellController.toggleDrawer();
               } else {
@@ -51,22 +51,22 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
             }
           },
           child: ZoomDrawer(
-              controller: shellController.zoomDrawerController,
-              style: DrawerStyle.defaultStyle,
-              menuScreen: DrawerWidget(
-                key: const ValueKey('zoom_drawer'),
-                openDrawer: shellController.toggleDrawer,
-              ),
-              mainScreen: widget.child,
-              borderRadius: AppDimensions.radiusXxl,
-              showShadow: true,
-              angle: -12.0,
-              menuBackgroundColor: _colorController.drawerColor.value,
-              slideWidth: width * 0.85,
-              mainScreenTapClose: true,
-              openCurve: Curves.fastOutSlowIn,
-              closeCurve: Curves.bounceIn,
+            controller: shellController.zoomDrawerController,
+            style: DrawerStyle.defaultStyle,
+            menuScreen: DrawerWidget(
+              key: const ValueKey('zoom_drawer'),
+              openDrawer: shellController.toggleDrawer,
             ),
+            mainScreen: widget.child,
+            borderRadius: AppDimensions.radiusXxl,
+            showShadow: true,
+            angle: -12.0,
+            menuBackgroundColor: _colorController.drawerColor.value,
+            slideWidth: width * 0.85,
+            mainScreenTapClose: true,
+            openCurve: Curves.fastOutSlowIn,
+            closeCurve: Curves.bounceIn,
+          ),
         );
       } else {
         // Tablet/Desktop Layout: Use Row with Side Drawer

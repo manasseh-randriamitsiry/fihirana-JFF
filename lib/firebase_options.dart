@@ -57,7 +57,8 @@ class DefaultFirebaseOptions {
     projectId: 'fihirana-jff',
     databaseURL: 'https://fihirana-jff-default-rtdb.firebaseio.com',
     storageBucket: 'fihirana-jff.firebasestorage.app',
-    iosClientId: '293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com',
+    iosClientId:
+        '293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com',
     iosBundleId: 'com.manasseh.fihirana_jff',
   );
 
@@ -68,7 +69,8 @@ class DefaultFirebaseOptions {
     projectId: 'fihirana-jff',
     databaseURL: 'https://fihirana-jff-default-rtdb.firebaseio.com',
     storageBucket: 'fihirana-jff.firebasestorage.app',
-    iosClientId: '293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com',
+    iosClientId:
+        '293518669331-um9st6ar1dj57439ljhbvaml0ouoefsb.apps.googleusercontent.com',
     iosBundleId: 'com.manasseh.fihirana_jff',
   );
 }

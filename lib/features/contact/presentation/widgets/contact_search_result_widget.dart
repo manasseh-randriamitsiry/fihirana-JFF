@@ -18,9 +18,8 @@ class ContactSearchResultWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final displayName = contact.displayName;
-    final phoneNumber = contact.phones.isNotEmpty
-        ? contact.phones.first.number
-        : '';
+    final phoneNumber =
+        contact.phones.isNotEmpty ? contact.phones.first.number : '';
 
     return Card(
       elevation: 0,
@@ -41,12 +40,11 @@ class ContactSearchResultWidget extends StatelessWidget {
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: colorController.primaryColor.value.withValues(alpha: 0.15),
+                backgroundColor:
+                    colorController.primaryColor.value.withValues(alpha: 0.15),
                 radius: 24,
                 child: Text(
-                  displayName.isNotEmpty
-                      ? displayName[0].toUpperCase()
-                      : '?',
+                  displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
                   style: TextStyle(
                     color: colorController.primaryColor.value,
                     fontWeight: FontWeight.bold,
@@ -74,13 +72,15 @@ class ContactSearchResultWidget extends StatelessWidget {
                           Icon(
                             Icons.phone,
                             size: 14,
-                            color: colorController.iconColor.value.withValues(alpha: 0.7),
+                            color: colorController.iconColor.value
+                                .withValues(alpha: 0.7),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             phoneNumber,
                             style: TextStyle(
-                              color: colorController.textColor.value.withValues(alpha: 0.7),
+                              color: colorController.textColor.value
+                                  .withValues(alpha: 0.7),
                               fontSize: 14,
                             ),
                           ),

@@ -24,12 +24,12 @@ class DailyVerseController extends GetxController {
     required ToggleDailyVerseUseCase toggleDailyVerseUseCase,
     required UpdateNotificationTimeUseCase updateNotificationTimeUseCase,
     required SendTestNotificationUseCase sendTestNotificationUseCase,
-  }) : _getVerseOfTheDayUseCase = getVerseOfTheDayUseCase,
-       _loadSettingsUseCase = loadSettingsUseCase,
-       _saveSettingsUseCase = saveSettingsUseCase,
-       _toggleDailyVerseUseCase = toggleDailyVerseUseCase,
-       _updateNotificationTimeUseCase = updateNotificationTimeUseCase,
-       _sendTestNotificationUseCase = sendTestNotificationUseCase;
+  })  : _getVerseOfTheDayUseCase = getVerseOfTheDayUseCase,
+        _loadSettingsUseCase = loadSettingsUseCase,
+        _saveSettingsUseCase = saveSettingsUseCase,
+        _toggleDailyVerseUseCase = toggleDailyVerseUseCase,
+        _updateNotificationTimeUseCase = updateNotificationTimeUseCase,
+        _sendTestNotificationUseCase = sendTestNotificationUseCase;
 
   // Observable state
   final RxBool isEnabled = false.obs;
@@ -37,8 +37,6 @@ class DailyVerseController extends GetxController {
       const TimeOfDay(hour: 7, minute: 0).obs;
   final Rx<DailyVerse?> todaysVerse = Rx<DailyVerse?>(null);
   final RxBool isLoading = false.obs;
-
-
 
   @override
   void onInit() {
@@ -76,15 +74,18 @@ class DailyVerseController extends GetxController {
   /// Toggle daily verse feature
   Future<void> toggleDailyVerse(bool enabled) async {
     isEnabled.value = enabled;
-    await _saveSettingsUseCase(enabled, notificationTime.value.hour, notificationTime.value.minute);
-    await _toggleDailyVerseUseCase(enabled, notificationTime.value.hour, notificationTime.value.minute);
+    await _saveSettingsUseCase(
+        enabled, notificationTime.value.hour, notificationTime.value.minute);
+    await _toggleDailyVerseUseCase(
+        enabled, notificationTime.value.hour, notificationTime.value.minute);
   }
 
   /// Update notification time
   Future<void> updateNotificationTime(TimeOfDay time) async {
     notificationTime.value = time;
     await _saveSettingsUseCase(isEnabled.value, time.hour, time.minute);
-    await _updateNotificationTimeUseCase(time.hour, time.minute, isEnabled.value);
+    await _updateNotificationTimeUseCase(
+        time.hour, time.minute, isEnabled.value);
   }
 
   /// Send test notification

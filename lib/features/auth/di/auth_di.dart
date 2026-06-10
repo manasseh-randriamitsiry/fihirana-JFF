@@ -54,7 +54,8 @@ class AuthDI {
       () => AuthController(
         signInWithGoogleUseCase: Get.find<SignInWithGoogleUseCase>(),
         signOutUseCase: Get.find<SignOutUseCase>(),
-        ensureUserDocumentExistsUseCase: Get.find<EnsureUserDocumentExistsUseCase>(),
+        ensureUserDocumentExistsUseCase:
+            Get.find<EnsureUserDocumentExistsUseCase>(),
       ),
     );
   }

@@ -38,17 +38,19 @@ class BibleVerseItemWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final bibleController = Get.find<BibleController>();
-    
+
     return Obx(() {
       final isSelected = bibleController.isVerseSelected(verseNumber);
       final isHighlighted = bibleController.isVerseHighlighted(verseNumber);
-      final isSearchHighlighted = bibleController.isVerseSearchHighlighted(verseNumber);
+      final isSearchHighlighted =
+          bibleController.isVerseSearchHighlighted(verseNumber);
 
       Color backgroundColor = Colors.transparent;
       if (isSearchHighlighted) {
         backgroundColor = Colors.yellow.withValues(alpha: 0.3);
       } else if (isSelected) {
-        backgroundColor = colorController.primaryColor.value.withValues(alpha: 0.15);
+        backgroundColor =
+            colorController.primaryColor.value.withValues(alpha: 0.15);
       } else if (isHighlighted) {
         // Get the actual highlight to use its color
         final highlight = bibleController.getHighlightForVerse(verseNumber);

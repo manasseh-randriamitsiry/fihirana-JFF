@@ -12,11 +12,14 @@ class DownloadNotificationBuilder {
     int progress = 0,
     bool showCancelButton = true,
   }) async {
-    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed) return; // Don't show download notifications if disabled
+    final isNotificationAllowed =
+        await AwesomeNotifications().isNotificationAllowed();
+    if (!isNotificationAllowed)
+      return; // Don't show download notifications if disabled
 
     final actionButtons = showCancelButton
-        ? NotificationButtons.createDownloadButtons(cancelKey: 'CANCEL_DOWNLOAD')
+        ? NotificationButtons.createDownloadButtons(
+            cancelKey: 'CANCEL_DOWNLOAD')
         : null;
 
     final content = NotificationLayouts.createProgressBarNotification(
@@ -38,8 +41,10 @@ class DownloadNotificationBuilder {
     required int progress,
     String title = 'Fangalana fanavaozana',
   }) async {
-    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed) return; // Don't show download notifications if disabled
+    final isNotificationAllowed =
+        await AwesomeNotifications().isNotificationAllowed();
+    if (!isNotificationAllowed)
+      return; // Don't show download notifications if disabled
 
     final body = 'Fangalana... $progress%';
 
@@ -65,8 +70,10 @@ class DownloadNotificationBuilder {
     required String fileName,
     String title = 'Vita ny fangalana',
   }) async {
-    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed) return; // Don't show download notifications if disabled
+    final isNotificationAllowed =
+        await AwesomeNotifications().isNotificationAllowed();
+    if (!isNotificationAllowed)
+      return; // Don't show download notifications if disabled
 
     final content = NotificationLayouts.createSuccessNotification(
       id: notificationId,
@@ -82,7 +89,8 @@ class DownloadNotificationBuilder {
     String title = 'Tsy nety',
     String body = 'Nisy olana teo ampanavaozana',
   }) async {
-    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+    final isNotificationAllowed =
+        await AwesomeNotifications().isNotificationAllowed();
     if (isNotificationAllowed) {
       final errorMessage = error != null ? '$body: $error' : body;
 
@@ -104,7 +112,8 @@ class DownloadNotificationBuilder {
     String title = 'Nisy olana',
     String body = 'Tsy afaka nametraka ny fanavaozana',
   }) async {
-    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
+    final isNotificationAllowed =
+        await AwesomeNotifications().isNotificationAllowed();
     if (isNotificationAllowed) {
       final errorMessage = error != null ? '$body: $error' : body;
 
@@ -125,8 +134,10 @@ class DownloadNotificationBuilder {
     String title = 'Ajanona',
     String body = 'Najanony ny fanavaozana',
   }) async {
-    final isNotificationAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed) return; // Don't show download notifications if disabled
+    final isNotificationAllowed =
+        await AwesomeNotifications().isNotificationAllowed();
+    if (!isNotificationAllowed)
+      return; // Don't show download notifications if disabled
 
     final content = NotificationLayouts.createBasicNotification(
       id: notificationId + 3,
@@ -148,7 +159,8 @@ class DownloadNotificationBuilder {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Permissions requises'),
-          content: const Text('Les notifications sont désactivées. Veuillez accorder la permission de notification pour recevoir les mises à jour de téléchargement.'),
+          content: const Text(
+              'Les notifications sont désactivées. Veuillez accorder la permission de notification pour recevoir les mises à jour de téléchargement.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -160,7 +172,8 @@ class DownloadNotificationBuilder {
               onPressed: () async {
                 Navigator.of(context).pop();
                 // Request notification permission
-                final granted = await AwesomeNotifications().requestPermissionToSendNotifications();
+                final granted = await AwesomeNotifications()
+                    .requestPermissionToSendNotifications();
                 if (granted) {
                   // Show success message
                   Get.snackbar(

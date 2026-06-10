@@ -17,7 +17,7 @@ class BibleBook {
     // Handle new format with "chapters" array
     if (json.containsKey('chapters')) {
       final chaptersList = json['chapters'] as List<dynamic>;
-      
+
       // Pre-size map for better performance
       chapters.reserve(chaptersList.length);
 
@@ -25,7 +25,8 @@ class BibleBook {
         if (chapterData is Map<String, dynamic>) {
           final chapterNum = chapterData['chapter'] as int? ?? 0;
           if (chapterNum > 0) {
-            chapters[chapterNum] = BibleChapter.fromJson(chapterData, chapterNum);
+            chapters[chapterNum] =
+                BibleChapter.fromJson(chapterData, chapterNum);
           }
         }
       }
@@ -98,7 +99,7 @@ class BibleChapter {
     // Handle new format with "verses" array
     if (json.containsKey('verses')) {
       final versesList = json['verses'] as List<dynamic>;
-      
+
       // Pre-size map for better performance
       verses.reserve(versesList.length);
 

@@ -40,10 +40,15 @@ class WelcomePage extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.5),
                         shape: BoxShape.circle,
                       ),
-                    ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-                     .scale(duration: 3000.ms, begin: const Offset(1, 1), end: const Offset(1.1, 1.1)),
-                     
-                     Container(
+                    )
+                        .animate(
+                            onPlay: (controller) =>
+                                controller.repeat(reverse: true))
+                        .scale(
+                            duration: 3000.ms,
+                            begin: const Offset(1, 1),
+                            end: const Offset(1.1, 1.1)),
+                    Container(
                       width: 200,
                       height: 200,
                       decoration: BoxDecoration(
@@ -62,7 +67,10 @@ class WelcomePage extends StatelessWidget {
                         size: 100,
                         color: primaryColor,
                       ),
-                    ).animate().scale(duration: 800.ms, curve: Curves.elasticOut).fadeIn(duration: 600.ms),
+                    )
+                        .animate()
+                        .scale(duration: 800.ms, curve: Curves.elasticOut)
+                        .fadeIn(duration: 600.ms),
                   ],
                 ),
 
@@ -75,26 +83,33 @@ class WelcomePage extends StatelessWidget {
                     children: [
                       Text(
                         "Jesosy Famonjena Fahamarinantsika",
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: textColor,
-                          letterSpacing: -0.5,
-                          height: 1.2,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: textColor,
+                              letterSpacing: -0.5,
+                              height: 1.2,
+                            ),
                         textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.2, end: 0),
-
+                      )
+                          .animate()
+                          .fadeIn(delay: 300.ms)
+                          .slideY(begin: 0.2, end: 0),
                       const SizedBox(height: 16),
-
                       Text(
                         l10n.splashScreenSubtitle,
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          fontSize: 18,
-                          color: textColor.withValues(alpha: 0.8),
-                          height: 1.5,
-                        ),
+                              fontSize: 18,
+                              color: textColor.withValues(alpha: 0.8),
+                              height: 1.5,
+                            ),
                         textAlign: TextAlign.center,
-                      ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2, end: 0),
+                      )
+                          .animate()
+                          .fadeIn(delay: 500.ms)
+                          .slideY(begin: 0.2, end: 0),
                     ],
                   ),
                 ),
@@ -118,7 +133,8 @@ class WelcomePage extends StatelessWidget {
                               builder: (context) => PermissionRequestDialog(
                                 onPermissionsGranted: () {
                                   Navigator.pop(context); // Close dialog
-                                  splashController.liquidController.animateToPage(page: 2, duration: 600);
+                                  splashController.liquidController
+                                      .animateToPage(page: 2, duration: 600);
                                 },
                               ),
                             );
@@ -138,14 +154,18 @@ class WelcomePage extends StatelessWidget {
                             children: [
                               Text(
                                 l10n.getStarted,
-                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(width: 8),
                               const Icon(Icons.arrow_forward_rounded),
                             ],
                           ),
                         ),
-                      ).animate().fadeIn(delay: 700.ms).slideY(begin: 0.5, end: 0),
+                      )
+                          .animate()
+                          .fadeIn(delay: 700.ms)
+                          .slideY(begin: 0.5, end: 0),
                       const SizedBox(height: 16),
                     ],
                   ),
@@ -154,12 +174,14 @@ class WelcomePage extends StatelessWidget {
                 const SizedBox(height: 48),
               ],
             ),
-             Positioned(
-               bottom: 10,
-               left: 0,
-               right: 0,
-               child: Obx(() => PageIndicatorWidget(currentPage: splashController.currentPage.value, totalPages: 3)),
-             ), 
+            Positioned(
+              bottom: 10,
+              left: 0,
+              right: 0,
+              child: Obx(() => PageIndicatorWidget(
+                  currentPage: splashController.currentPage.value,
+                  totalPages: 3)),
+            ),
           ],
         ),
       ),

@@ -16,23 +16,24 @@ class LanguageDetectionService {
   Future<String> detectLanguage(String text) async {
     try {
       if (text.isEmpty) return 'en';
-      
+
       // Simple heuristic-based language detection as placeholder
       // In a real implementation, you would use ML Kit or similar
-      
+
       // Check for French characters/words
       if (RegExp(r'[àâäéèêëïîôöùûüÿç]').hasMatch(text) ||
-          text.toLowerCase().contains(RegExp(r'\b(le|la|les|de|du|des|et|est|dans|pour|que|qui|ce|se|ne|me|te|lui|leur|y|en)\b'))) {
+          text.toLowerCase().contains(RegExp(
+              r'\b(le|la|les|de|du|des|et|est|dans|pour|que|qui|ce|se|ne|me|te|lui|leur|y|en)\b'))) {
         return 'fr';
       }
-      
 
-      
       // Check for Malagasy characters/words
-      if (text.toLowerCase().contains(RegExp(r'\b(ny|ho|dia|amin|tsy|mitovy)\b'))) {
+      if (text
+          .toLowerCase()
+          .contains(RegExp(r'\b(ny|ho|dia|amin|tsy|mitovy)\b'))) {
         return 'mg';
       }
-      
+
       // Default to English
       return 'en';
     } catch (e) {
@@ -59,13 +60,13 @@ class LanguageDetectionService {
     try {
       // Simple confidence calculation based on text length and language indicators
       if (text.isEmpty) return 0.0;
-      
+
       double confidence = 0.5; // Base confidence
-      
+
       // Increase confidence based on text length
       if (text.length > 50) confidence += 0.2;
       if (text.length > 100) confidence += 0.1;
-      
+
       // Increase confidence if we found strong language indicators
       switch (detectedLanguage) {
         case 'fr':
@@ -73,18 +74,21 @@ class LanguageDetectionService {
           break;
 
         case 'mg':
-          if (text.toLowerCase().contains('ny') || text.toLowerCase().contains('ho')) {
+          if (text.toLowerCase().contains('ny') ||
+              text.toLowerCase().contains('ho')) {
             confidence += 0.3;
           }
           break;
         case 'en':
-          if (RegExp(r'\b(the|and|is|are|was|were|have|has|will|would|could|should)\b', caseSensitive: false)
+          if (RegExp(
+                  r'\b(the|and|is|are|was|were|have|has|will|would|could|should)\b',
+                  caseSensitive: false)
               .hasMatch(text)) {
             confidence += 0.3;
           }
           break;
       }
-      
+
       return confidence.clamp(0.0, 1.0);
     } catch (e) {
       if (kDebugMode) {
@@ -99,7 +103,7 @@ class LanguageDetectionService {
     try {
       final detectedLanguage = await detectLanguage(text);
       final confidence = await getConfidence(text, detectedLanguage);
-      
+
       return {
         detectedLanguage: confidence,
         // Add other languages with lower confidence
@@ -118,10 +122,10 @@ class LanguageDetectionService {
 
   // Get supported languages
   Map<String, String> get supportedLanguages => {
-    'en': 'English',
-    'fr': 'Français',
-    'mg': 'Malagasy',
-  };
+        'en': 'English',
+        'fr': 'Français',
+        'mg': 'Malagasy',
+      };
 
   // Get language name from code
   String getLanguageName(String code) {

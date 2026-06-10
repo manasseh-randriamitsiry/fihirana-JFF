@@ -120,7 +120,8 @@ class _AppToggleState extends State<AppToggle>
                                 child: Text(
                                   widget.subtitle!,
                                   style: TextStyle(
-                                    color: colorController.textColor.value.withValues(alpha: 0.7),
+                                    color: colorController.textColor.value
+                                        .withValues(alpha: 0.7),
                                     fontSize: AppDimensions.fontSm,
                                   ),
                                 ),
@@ -134,20 +135,25 @@ class _AppToggleState extends State<AppToggle>
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
                         color: widget.value
-                            ? (widget.activeColor ?? colorController.primaryColor.value).withValues(alpha: 0.2)
+                            ? (widget.activeColor ??
+                                    colorController.primaryColor.value)
+                                .withValues(alpha: 0.2)
                             : Colors.grey.shade300,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: AnimatedAlign(
                         duration: AppDimensions.normal,
                         curve: Curves.easeInOut,
-                        alignment: widget.value ? Alignment.centerRight : Alignment.centerLeft,
+                        alignment: widget.value
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                         child: Container(
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
                             color: widget.value
-                                ? (widget.activeColor ?? colorController.primaryColor.value)
+                                ? (widget.activeColor ??
+                                    colorController.primaryColor.value)
                                 : Colors.white,
                             shape: BoxShape.circle,
                             boxShadow: [
@@ -161,7 +167,9 @@ class _AppToggleState extends State<AppToggle>
                           child: Icon(
                             widget.value ? Icons.check : Icons.close,
                             size: 16,
-                            color: widget.value ? Colors.white : Colors.grey.shade600,
+                            color: widget.value
+                                ? Colors.white
+                                : Colors.grey.shade600,
                           ),
                         ),
                       ),

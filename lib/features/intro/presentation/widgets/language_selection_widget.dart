@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'splash_widgets.dart';
 
@@ -18,13 +17,13 @@ class LanguageSelectionWidget extends StatefulWidget {
   });
 
   @override
-  State<LanguageSelectionWidget> createState() => _LanguageSelectionWidgetState();
+  State<LanguageSelectionWidget> createState() =>
+      _LanguageSelectionWidgetState();
 }
 
 class _LanguageSelectionWidgetState extends State<LanguageSelectionWidget> {
   @override
   Widget build(BuildContext context) {
-    
     return IntroCardWidget(
       color: Colors.white.withValues(alpha: 0.95),
       child: Column(
@@ -44,12 +43,14 @@ class _LanguageSelectionWidgetState extends State<LanguageSelectionWidget> {
                   duration: const Duration(milliseconds: 300),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: widget.selectedLocale?.languageCode == locale.languageCode
+                    color: widget.selectedLocale?.languageCode ==
+                            locale.languageCode
                         ? Colors.orange.shade100
                         : Colors.grey.shade50,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: widget.selectedLocale?.languageCode == locale.languageCode
+                      color: widget.selectedLocale?.languageCode ==
+                              locale.languageCode
                           ? Colors.orange.shade300
                           : Colors.transparent,
                       width: 2,
@@ -78,7 +79,8 @@ class _LanguageSelectionWidgetState extends State<LanguageSelectionWidget> {
                           ),
                         ),
                       ),
-                      if (widget.selectedLocale?.languageCode == locale.languageCode)
+                      if (widget.selectedLocale?.languageCode ==
+                          locale.languageCode)
                         Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(

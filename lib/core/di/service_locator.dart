@@ -50,13 +50,13 @@ class ServiceLocator {
     try {
       // Register core services first
       await _registerCoreServices();
-      
+
       // Register feature services
       await _registerFeatureServices();
-      
+
       // Register data services
       await _registerDataServices();
-      
+
       _isInitialized = true;
       if (kDebugMode) print('✅ ServiceLocator initialized successfully');
     } catch (e) {
@@ -84,19 +84,22 @@ class ServiceLocator {
     final driveService = GoogleDriveService();
     if (kDebugMode) {
       print('ServiceLocator: Creating GoogleDriveService instance');
-      print('ServiceLocator: Initializing GoogleDriveService with googleSignIn: $googleSignIn');
+      print(
+          'ServiceLocator: Initializing GoogleDriveService with googleSignIn: $googleSignIn');
     }
     driveService.initialize(googleSignIn);
     Get.put<GoogleDriveService>(driveService);
     if (kDebugMode) {
-      print('ServiceLocator: GoogleDriveService initialized and registered with GetX');
-      print('ServiceLocator: Verifying GetX registration: ${Get.isRegistered<GoogleDriveService>()}');
+      print(
+          'ServiceLocator: GoogleDriveService initialized and registered with GetX');
+      print(
+          'ServiceLocator: Verifying GetX registration: ${Get.isRegistered<GoogleDriveService>()}');
     }
 
     // Storage Service
     final storageService = LocalStorageService();
     Get.put<LocalStorageService>(storageService);
-    
+
     // Translation Service
     final translationService = TranslationService();
     await translationService.initialize();
@@ -108,12 +111,12 @@ class ServiceLocator {
     // Bible Service
     final bibleService = BibleService();
     Get.put<IBibleService>(bibleService);
-    
+
     // Hymn Service
     final hymnService = HymnService();
     await hymnService.initialize();
     Get.put<IHymnService>(hymnService);
-    
+
     // Recording Service
     final recordingService = RecordingService();
     await recordingService.initialize();
@@ -121,22 +124,22 @@ class ServiceLocator {
 
     // Recording Feature (initialize before Admin to ensure dependencies are available)
     RecordingDI.initialize();
-    
+
     // Admin Feature
     AdminDI.initialize();
-    
+
     // Announcement Feature
     AnnouncementDI.init();
-    
+
     // Audio Feature
     AudioDI.init();
 
     // Bible Feature
     BibleDI.init();
-    
+
     // Hymn Feature
     HymnDI.init();
-    
+
     // Auth Feature
     AuthDI.init();
   }
@@ -240,7 +243,25 @@ class ServiceLocator {
   List<String> getRegisteredServices() {
     try {
       // Return a simple list since getAllDependencies is not available
-      return ['IRecordingService', 'IBibleService', 'ITranslationService', 'IHymnService', 'LocalStorageService', 'RecordingRepository', 'RecordingController', 'AnnouncementController', 'AnnouncementRepository', 'AudioRepository', 'AudioController', 'BibleRepository', 'BibleController', 'HymnRepository', 'HymnController', 'AuthRepository', 'AuthController'];
+      return [
+        'IRecordingService',
+        'IBibleService',
+        'ITranslationService',
+        'IHymnService',
+        'LocalStorageService',
+        'RecordingRepository',
+        'RecordingController',
+        'AnnouncementController',
+        'AnnouncementRepository',
+        'AudioRepository',
+        'AudioController',
+        'BibleRepository',
+        'BibleController',
+        'HymnRepository',
+        'HymnController',
+        'AuthRepository',
+        'AuthController'
+      ];
     } catch (e) {
       return [];
     }
@@ -254,22 +275,23 @@ class ServiceLocator {
 extension ServiceLocatorExtensions on ServiceLocator {
   /// Get Recording Service
   RecordingService get recordingService => getService<RecordingService>();
-  
+
   /// Get Bible Service
   IBibleService get bibleService => getService<IBibleService>();
-  
+
   /// Get Translation Service
-  ITranslationService get translationService => getService<ITranslationService>();
-  
+  ITranslationService get translationService =>
+      getService<ITranslationService>();
+
   /// Get Hymn Service
   IHymnService get hymnService => getService<IHymnService>();
-  
+
   /// Get Storage Service
   LocalStorageService get storageService => getService<LocalStorageService>();
-  
+
   /// Get Recording Controller (via DI)
   dynamic get recordingController => RecordingDI.recordingController;
-  
+
   /// Get Recording Repository (via DI)
   dynamic get recordingRepository => RecordingDI.recordingRepository;
 }

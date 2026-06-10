@@ -45,9 +45,11 @@ class RecordingTileWidget extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Obx(() {
         final isMultiSelect = controller.isMultiSelectMode.value;
-        final isSelected = controller.selectedRecordingIds.contains(recording.id);
+        final isSelected =
+            controller.selectedRecordingIds.contains(recording.id);
         if (kDebugMode) {
-          print('RecordingTileWidget: Building tile for ${recording.id}, isMultiSelect=$isMultiSelect');
+          print(
+              'RecordingTileWidget: Building tile for ${recording.id}, isMultiSelect=$isMultiSelect');
         }
 
         return InkWell(
@@ -55,7 +57,8 @@ class RecordingTileWidget extends StatelessWidget {
           onTap: () {
             if (isMultiSelect) {
               if (kDebugMode) {
-                print('RecordingTileWidget: Tapping in multi-select mode for recording: ${recording.id}');
+                print(
+                    'RecordingTileWidget: Tapping in multi-select mode for recording: ${recording.id}');
               }
               controller.toggleRecordingSelection(recording.id);
             } else {
@@ -132,10 +135,12 @@ class RecordingTileWidget extends StatelessWidget {
                 // Temporary: always show menu for debugging
                 if (isMultiSelect)
                   IconButton(
-                    icon: Icon(Icons.more_vert, color: colorController.textColor.value),
+                    icon: Icon(Icons.more_vert,
+                        color: colorController.textColor.value),
                     onPressed: () {
                       if (kDebugMode) {
-                        print('RecordingTileWidget: Menu button pressed in multi-select mode');
+                        print(
+                            'RecordingTileWidget: Menu button pressed in multi-select mode');
                       }
                       // Show a simple menu or force exit multi-select
                       controller.disableMultiSelectMode();

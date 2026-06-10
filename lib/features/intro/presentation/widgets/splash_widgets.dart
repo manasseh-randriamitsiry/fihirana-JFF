@@ -20,7 +20,8 @@ class SplashCardWidget extends StatelessWidget {
     return Container(
       padding: padding ?? const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: color ?? colorController.backgroundColor.value.withValues(alpha: 0.95),
+        color: color ??
+            colorController.backgroundColor.value.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
@@ -140,4 +141,3 @@ class AgreementItemWidget extends StatelessWidget {
     );
   }
 }
-

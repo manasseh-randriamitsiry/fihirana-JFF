@@ -47,7 +47,7 @@ class LazyServiceManager {
 
     await loader();
     _loadedServices[serviceName] = true;
-    
+
     return Get.find<T>();
   }
 
@@ -150,11 +150,11 @@ class LazyServiceManager {
 /// Extension methods for easy lazy service access
 extension LazyServiceExtensions on LazyServiceManager {
   /// Get Bible Service (lazy loaded)
-  Future<BibleService> get bibleService async => 
+  Future<BibleService> get bibleService async =>
       await loadService<BibleService>('bible_data');
 
   /// Get Daily Verse Controller (lazy loaded)
-  Future<DailyVerseController> get dailyVerseController async => 
+  Future<DailyVerseController> get dailyVerseController async =>
       await loadService<DailyVerseController>('daily_verse');
 
   /// Get History Controller (lazy loaded)

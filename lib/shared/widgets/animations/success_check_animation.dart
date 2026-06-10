@@ -23,7 +23,7 @@ class SuccessCheckAnimation extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: color.withValues(alpha:0.1),
+              color: color.withValues(alpha: 0.1),
             ),
           )
               .animate()

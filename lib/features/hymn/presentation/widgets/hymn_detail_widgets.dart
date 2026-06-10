@@ -78,7 +78,8 @@ class HymnPageWidget extends StatelessWidget {
                 delegate: _BridgeHeaderDelegate(
                   bridge: hymn.bridge!,
                   fontSize: fontSize,
-                  maxWidth: screenWidth - 32, // Horizontal padding of screen (16*2)
+                  maxWidth:
+                      screenWidth - 32, // Horizontal padding of screen (16*2)
                   textScaler: MediaQuery.of(context).textScaler,
                   defaultTextStyle: DefaultTextStyle.of(context).style,
                 ),
@@ -170,7 +171,8 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
   });
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     final controller = Get.find<ColorController>();
 
     // The bridge content
@@ -209,7 +211,7 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
       height: 1.6,
       color: controller.primaryColor.value,
     );
-    
+
     // Merge with default global style to pick up fonts etc, but let our style override.
     final mergedStyle = defaultTextStyle.merge(calculatedStyle);
 
@@ -228,7 +230,7 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
 
     // Height = TextHeight + TitleHeight(approx 24) + Spacing(12) + CardPadding(40).
     // Height = TextHeight + TitleHeight(approx 24) + Spacing(12) + CardPadding(40).
-     return textPainter.height + 24 + 12 + 40 + 12;
+    return textPainter.height + 24 + 12 + 40 + 12;
   }
 
   @override

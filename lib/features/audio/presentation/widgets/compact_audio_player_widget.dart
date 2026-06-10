@@ -191,12 +191,12 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
 
     // Update playing state if this matches current playing hymn
     if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
-      final nextIsLoading =
+      final nextIsLoading = _audioService.player.playerState.processingState ==
+              ProcessingState.loading ||
           _audioService.player.playerState.processingState ==
-                  ProcessingState.loading ||
-              _audioService.player.playerState.processingState ==
-                  ProcessingState.buffering;
-      if (_isPlaying != _audioService.isPlaying || _isLoading != nextIsLoading) {
+              ProcessingState.buffering;
+      if (_isPlaying != _audioService.isPlaying ||
+          _isLoading != nextIsLoading) {
         setState(() {
           _isPlaying = _audioService.isPlaying;
           _isLoading = nextIsLoading;
@@ -321,7 +321,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _audioService.currentDisplayTitle.isNotEmpty 
+                            _audioService.currentDisplayTitle.isNotEmpty
                                 ? _audioService.currentDisplayTitle
                                 : widget.hymn.title,
                             style: const TextStyle(

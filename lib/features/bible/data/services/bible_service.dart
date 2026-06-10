@@ -412,18 +412,20 @@ class BibleService implements IBibleService {
   VerseSearchResult? getRandomVerse() {
     final books = _bibleCache.values.where(_bookHasContent).toList();
     if (books.isEmpty) return null;
-    
+
     books.shuffle();
     final book = books.first;
-    final chapterNumber = (book.chapters * (DateTime.now().millisecond % 1000) / 1000).floor() + 1;
+    final chapterNumber =
+        (book.chapters * (DateTime.now().millisecond % 1000) / 1000).floor() +
+            1;
     final chapter = book.getChapter(chapterNumber);
-    
+
     if (chapter == null || chapter.verses.isEmpty) return getRandomVerse();
-    
+
     final verseEntries = chapter.verses.entries.toList();
     verseEntries.shuffle();
     final verse = verseEntries.first;
-    
+
     return VerseSearchResult(
       bookName: book.name,
       chapter: chapterNumber,
@@ -433,11 +435,12 @@ class BibleService implements IBibleService {
   }
 
   @override
-  List<VerseSearchResult> getVerseRange(String bookName, int chapterNumber, int startVerse, int endVerse) {
+  List<VerseSearchResult> getVerseRange(
+      String bookName, int chapterNumber, int startVerse, int endVerse) {
     final results = <VerseSearchResult>[];
     final chapter = getChapter(bookName, chapterNumber);
     if (chapter == null) return results;
-    
+
     for (int verse = startVerse; verse <= endVerse; verse++) {
       final text = chapter.verses[verse];
       if (text != null) {

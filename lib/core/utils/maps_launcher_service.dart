@@ -5,7 +5,8 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:fihirana/core/utils/ui_service.dart';
 
 class MapsLauncherService {
-  static Future<void> launchMaps(double lat, double lng, {BuildContext? context}) async {
+  static Future<void> launchMaps(double lat, double lng,
+      {BuildContext? context}) async {
     try {
       if (Platform.isAndroid) {
         await _launchAndroidMaps(lat, lng, context);
@@ -19,7 +20,8 @@ class MapsLauncherService {
     }
   }
 
-  static Future<void> _launchAndroidMaps(double lat, double lng, BuildContext? context) async {
+  static Future<void> _launchAndroidMaps(
+      double lat, double lng, BuildContext? context) async {
     final AndroidIntent intent = AndroidIntent(
       action: 'action_view',
       data: Uri.encodeFull('geo:$lat,$lng?q=$lat,$lng'),
@@ -44,7 +46,8 @@ class MapsLauncherService {
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     } else {
-      final googleMapsUrl = Uri.parse('https://www.google.com/maps?q=$lat,$lng');
+      final googleMapsUrl =
+          Uri.parse('https://www.google.com/maps?q=$lat,$lng');
       if (await canLaunchUrl(googleMapsUrl)) {
         await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
       } else {
@@ -53,7 +56,8 @@ class MapsLauncherService {
     }
   }
 
-  static Future<void> _redirectToGoogleMapsPlayStore(BuildContext context) async {
+  static Future<void> _redirectToGoogleMapsPlayStore(
+      BuildContext context) async {
     final playStoreIntent = AndroidIntent(
       action: 'action_view',
       data: Uri.encodeFull(
@@ -65,6 +69,4 @@ class MapsLauncherService {
       UIService.showMapsRedirectSnackBar(context);
     }
   }
-
-
 }

@@ -333,13 +333,15 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   Future<void> _checkAudioAvailability() async {
     if (_hymn != null) {
       if (kDebugMode) {
-        print('HymnDetailScreen: Checking audio for hymn ${_hymn!.id} (${_hymn!.title})');
+        print(
+            'HymnDetailScreen: Checking audio for hymn ${_hymn!.id} (${_hymn!.title})');
       }
       final audioService = AudioService.instance;
       final hasAudio = await audioService.checkAudioFileExists(_hymn!.id);
       if (mounted) {
         if (kDebugMode) {
-          print('HymnDetailScreen: Audio check result for ${_hymn!.id}: $hasAudio');
+          print(
+              'HymnDetailScreen: Audio check result for ${_hymn!.id}: $hasAudio');
         }
         setState(() {
           _hasAudio = hasAudio;
@@ -455,61 +457,61 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               ),
             ),
           ),
-        actions: [
-          AudioButtonWidget(
-            hasAudio: _audioChecked && _hasAudio,
-            isPlaying: _audioService.isHymnPlaying(_hymn?.id ?? ''),
-            hymnId: _hymn?.id ?? '',
-            onPressed: () => _showAudioPlayerDialog(),
-          ),
-          StreamBuilder<Map<String, String>>(
-            initialData: _hymnService.currentFavoriteStatus,
-            stream: _hymnService.getFavoriteStatusStream(),
-            builder: (context, snapshot) {
-              final favoriteStatus =
-                  snapshot.data?[_hymn?.id ?? widget.hymnId] ?? '';
-              final isFavorite = favoriteStatus.isNotEmpty;
+          actions: [
+            AudioButtonWidget(
+              hasAudio: _audioChecked && _hasAudio,
+              isPlaying: _audioService.isHymnPlaying(_hymn?.id ?? ''),
+              hymnId: _hymn?.id ?? '',
+              onPressed: () => _showAudioPlayerDialog(),
+            ),
+            StreamBuilder<Map<String, String>>(
+              initialData: _hymnService.currentFavoriteStatus,
+              stream: _hymnService.getFavoriteStatusStream(),
+              builder: (context, snapshot) {
+                final favoriteStatus =
+                    snapshot.data?[_hymn?.id ?? widget.hymnId] ?? '';
+                final isFavorite = favoriteStatus.isNotEmpty;
 
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FavoriteButtonWidget(
-                    isFavorite: isFavorite,
-                    favoriteStatus: favoriteStatus,
-                    onPressed: () {
-                      if (_hymn != null) {
-                        _hymnService.toggleFavorite(_hymn!);
-                      }
-                    },
-                  ),
-                  HymnPopupMenuWidget(
-                    isFavorite: isFavorite,
-                    canEditHymn: canEditCurrentHymn,
-                    isUserAuthenticated: isAuthenticated,
-                    hasUserNote: _userNote != null,
-                    onToggleFavorite: () {
-                      if (_hymn != null) {
-                        _hymnService.toggleFavorite(_hymn!);
-                      }
-                    },
-                    onEditHymn: () => _navigateToEditScreen(context),
-                    onShowNoteEditor: () => _showNoteEditor(),
-                    onShowFontSizeSlider: () {
-                      setState(() {
-                        _showSlider = !_showSlider;
-                      });
-                    },
-                    onShowColorPicker: () =>
-                        ColorPickerWidget.showColorPickerDialog(context),
-                    onShowAudioPlayer: () => _showAudioPlayerDialog(),
-                    onAddToPlaylist: () => _showAddToPlaylistDialog(),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FavoriteButtonWidget(
+                      isFavorite: isFavorite,
+                      favoriteStatus: favoriteStatus,
+                      onPressed: () {
+                        if (_hymn != null) {
+                          _hymnService.toggleFavorite(_hymn!);
+                        }
+                      },
+                    ),
+                    HymnPopupMenuWidget(
+                      isFavorite: isFavorite,
+                      canEditHymn: canEditCurrentHymn,
+                      isUserAuthenticated: isAuthenticated,
+                      hasUserNote: _userNote != null,
+                      onToggleFavorite: () {
+                        if (_hymn != null) {
+                          _hymnService.toggleFavorite(_hymn!);
+                        }
+                      },
+                      onEditHymn: () => _navigateToEditScreen(context),
+                      onShowNoteEditor: () => _showNoteEditor(),
+                      onShowFontSizeSlider: () {
+                        setState(() {
+                          _showSlider = !_showSlider;
+                        });
+                      },
+                      onShowColorPicker: () =>
+                          ColorPickerWidget.showColorPickerDialog(context),
+                      onShowAudioPlayer: () => _showAudioPlayerDialog(),
+                      onAddToPlaylist: () => _showAddToPlaylistDialog(),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
         body: Stack(
           alignment: Alignment.center,
           children: [
@@ -542,7 +544,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                         ignoreUserGestureWhileAnimating: true,
                         disableUserGesture: false,
                       ),
-            
+
             // Heart Animation Overlay
             IgnorePointer(
               child: AnimatedBuilder(
@@ -554,8 +556,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                       scale: _heartScaleAnimation.value,
                       child: Icon(
                         Icons.favorite,
-                        color: Colors.red
-                            .withValues(alpha: 0.8),
+                        color: Colors.red.withValues(alpha: 0.8),
                         size: 100,
                       ),
                     ),
@@ -572,13 +573,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 right: 20,
                 child: Card(
                   elevation: 0,
-                  color: colorController.primaryColor.value.withValues(alpha: 0.08),
+                  color: colorController.primaryColor.value
+                      .withValues(alpha: 0.08),
                   shadowColor: Colors.black.withValues(alpha: 0.2),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                       side: BorderSide(
-                          color:
-                              colorController.primaryColor.value.withValues(alpha: 0.1),
+                          color: colorController.primaryColor.value
+                              .withValues(alpha: 0.1),
                           width: 1)),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -689,8 +691,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content:
-                            Text(AppLocalizations.of(context).noteDeleted),
+                        content: Text(AppLocalizations.of(context).noteDeleted),
                         backgroundColor: Colors.green,
                       ),
                     );

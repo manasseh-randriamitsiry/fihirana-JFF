@@ -59,7 +59,8 @@ class BibleHighlightController extends GetxController {
           publicHighlights.value = pubHighlights;
         },
         onError: (error) {
-          ErrorHandler.handleError(error, message: 'errorLoadingPublicHighlights'.tr);
+          ErrorHandler.handleError(error,
+              message: 'errorLoadingPublicHighlights'.tr);
         },
       );
     } catch (e) {
@@ -67,7 +68,8 @@ class BibleHighlightController extends GetxController {
     }
   }
 
-  Future<void> addHighlight(String bookName, int chapter, int verse, String color) async {
+  Future<void> addHighlight(
+      String bookName, int chapter, int verse, String color) async {
     try {
       final highlight = BibleHighlight(
         id: '',
@@ -90,7 +92,8 @@ class BibleHighlightController extends GetxController {
           highlightedVerse.value = null;
         });
       } else {
-        ErrorHandler.handleError('Failed to save highlight', message: 'errorSavingHighlight'.tr);
+        ErrorHandler.handleError('Failed to save highlight',
+            message: 'errorSavingHighlight'.tr);
       }
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorSavingHighlight'.tr);
@@ -101,7 +104,8 @@ class BibleHighlightController extends GetxController {
     try {
       final success = await _highlightService.deleteHighlight(highlightId);
       if (!success) {
-        ErrorHandler.handleError('Failed to delete highlight', message: 'errorDeletingHighlight'.tr);
+        ErrorHandler.handleError('Failed to delete highlight',
+            message: 'errorDeletingHighlight'.tr);
       }
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorDeletingHighlight'.tr);
@@ -112,7 +116,8 @@ class BibleHighlightController extends GetxController {
     try {
       final success = await _highlightService.updateHighlight(highlight);
       if (!success) {
-        ErrorHandler.handleError('Failed to update highlight', message: 'errorUpdatingHighlight'.tr);
+        ErrorHandler.handleError('Failed to update highlight',
+            message: 'errorUpdatingHighlight'.tr);
       }
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorUpdatingHighlight'.tr);
@@ -123,14 +128,15 @@ class BibleHighlightController extends GetxController {
     try {
       return await _highlightService.canEditHighlight(highlight);
     } catch (e) {
-      ErrorHandler.handleError(e, message: 'errorCheckingHighlightPermission'.tr);
+      ErrorHandler.handleError(e,
+          message: 'errorCheckingHighlightPermission'.tr);
       return false;
     }
   }
 
   BibleHighlight? getHighlightForVerse(int verseNumber) {
     return highlights.firstWhereOrNull((h) => h.containsVerse(verseNumber)) ??
-           publicHighlights.firstWhereOrNull((h) => h.containsVerse(verseNumber));
+        publicHighlights.firstWhereOrNull((h) => h.containsVerse(verseNumber));
   }
 
   void clearHighlights() {

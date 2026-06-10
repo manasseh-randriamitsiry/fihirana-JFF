@@ -74,7 +74,8 @@ class DailyVerseDI {
         loadSettingsUseCase: Get.find<LoadDailyVerseSettingsUseCase>(),
         saveSettingsUseCase: Get.find<SaveDailyVerseSettingsUseCase>(),
         toggleDailyVerseUseCase: Get.find<ToggleDailyVerseUseCase>(),
-        updateNotificationTimeUseCase: Get.find<UpdateNotificationTimeUseCase>(),
+        updateNotificationTimeUseCase:
+            Get.find<UpdateNotificationTimeUseCase>(),
         sendTestNotificationUseCase: Get.find<SendTestNotificationUseCase>(),
       ),
       tag: _dailyVerseControllerTag,
@@ -83,7 +84,8 @@ class DailyVerseDI {
 
   /// Get daily verse controller
   static DailyVerseController get dailyVerseController {
-    if (!Get.isRegistered<DailyVerseController>(tag: _dailyVerseControllerTag)) {
+    if (!Get.isRegistered<DailyVerseController>(
+        tag: _dailyVerseControllerTag)) {
       initialize();
     }
 

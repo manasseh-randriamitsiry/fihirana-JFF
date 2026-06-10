@@ -22,7 +22,7 @@ class PlaylistListScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: colorController.backgroundColor.value,
       appBar: AppBar(
-title: Text(
+        title: Text(
           context.translate((l) => l.myPlaylists),
           style: TextStyle(color: colorController.textColor.value),
         ),
@@ -93,12 +93,12 @@ title: Text(
             return PlaylistItemCard(
               key: ValueKey(playlist.id),
               playlist: playlist,
-               onTap: () => Get.to(
-                 () => PlaylistDetailScreen(playlistId: playlist.id),
-                 transition: Transition.fadeIn,
-                 duration: const Duration(milliseconds: 400),
-                 curve: Curves.easeInOut,
-               ),
+              onTap: () => Get.to(
+                () => PlaylistDetailScreen(playlistId: playlist.id),
+                transition: Transition.fadeIn,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+              ),
               onShare: () => playlistController.sharePlaylist(playlist.id),
               onDelete: () => _confirmDelete(context, playlist),
             );
@@ -107,8 +107,6 @@ title: Text(
       }),
     );
   }
-
-
 
   void _showCreatePlaylistDialog(BuildContext context) {
     final playlistController = PlaylistDI.playlistController;
@@ -150,7 +148,8 @@ title: Text(
               playlistController.deletePlaylist(playlist.id);
               Navigator.pop(context);
             },
-            child: Text(context.translate((l) => l.delete), style: const TextStyle(color: Colors.red)),
+            child: Text(context.translate((l) => l.delete),
+                style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),

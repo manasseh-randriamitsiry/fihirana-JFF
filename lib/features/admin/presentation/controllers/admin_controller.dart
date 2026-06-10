@@ -74,7 +74,8 @@ class AdminController extends GetxController {
       (stats) {
         adminStats.value = stats;
         if (kDebugMode) {
-          print('📊 Admin stats updated: ${stats.totalUsers} users, ${stats.activeUsers} active');
+          print(
+              '📊 Admin stats updated: ${stats.totalUsers} users, ${stats.activeUsers} active');
         }
       },
       onError: (error) {
@@ -108,7 +109,7 @@ class AdminController extends GetxController {
     try {
       isLoading.value = true;
       errorMessage.value = '';
-      
+
       final stats = await _getAdminStatsUseCase.execute();
       adminStats.value = stats;
     } catch (e) {
@@ -126,7 +127,7 @@ class AdminController extends GetxController {
     try {
       isLoadingUsers.value = true;
       errorMessage.value = '';
-      
+
       final userList = await _getAllUsersUseCase.execute();
       users.assignAll(userList);
       _applyUserFilter();
@@ -144,9 +145,10 @@ class AdminController extends GetxController {
   Future<bool> updateUserAdminStatus(String userId, bool isAdmin) async {
     try {
       errorMessage.value = '';
-      
-      final result = await _updateUserAdminStatusUseCase.execute(userId, isAdmin);
-      
+
+      final result =
+          await _updateUserAdminStatusUseCase.execute(userId, isAdmin);
+
       if (result.success) {
         if (kDebugMode) {
           print('✅ ${result.message}');
@@ -172,9 +174,9 @@ class AdminController extends GetxController {
   Future<bool> blockUser(String userId, bool isBlocked) async {
     try {
       errorMessage.value = '';
-      
+
       final result = await _blockUserUseCase.execute(userId, isBlocked);
-      
+
       if (result.success) {
         if (kDebugMode) {
           print('✅ ${result.message}');
@@ -200,9 +202,9 @@ class AdminController extends GetxController {
   Future<bool> deleteUser(String userId) async {
     try {
       errorMessage.value = '';
-      
+
       final result = await _deleteUserUseCase.execute(userId);
-      
+
       if (result.success) {
         selectedUserIds.remove(userId);
         if (kDebugMode) {
@@ -251,10 +253,11 @@ class AdminController extends GetxController {
     } else {
       final query = searchQuery.value.toLowerCase();
       filteredUsers.assignAll(
-        users.where((user) =>
-          user.displayName.toLowerCase().contains(query) ||
-          user.email.toLowerCase().contains(query)
-        ).toList(),
+        users
+            .where((user) =>
+                user.displayName.toLowerCase().contains(query) ||
+                user.email.toLowerCase().contains(query))
+            .toList(),
       );
     }
   }
@@ -319,15 +322,18 @@ class AdminController extends GetxController {
   /// Get active users (logged in within 30 days)
   List<AdminUser> get activeUsers {
     final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-    return users.where((user) => 
-      user.lastLogin != null && user.lastLogin!.isAfter(thirtyDaysAgo)
-    ).toList();
+    return users
+        .where((user) =>
+            user.lastLogin != null && user.lastLogin!.isAfter(thirtyDaysAgo))
+        .toList();
   }
 
   /// Get new users (created within 30 days)
   List<AdminUser> get newUsers {
     final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-    return users.where((user) => user.createdAt.isAfter(thirtyDaysAgo)).toList();
+    return users
+        .where((user) => user.createdAt.isAfter(thirtyDaysAgo))
+        .toList();
   }
 
   @override

@@ -21,9 +21,7 @@ class SaveDialogHeader extends StatelessWidget {
             size: 32,
             color: Colors.green,
           ),
-        )
-            .animate()
-            .scale(duration: 400.ms, curve: Curves.elasticOut),
+        ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
 
         const SizedBox(height: 20),
 

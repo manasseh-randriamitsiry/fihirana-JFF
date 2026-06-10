@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 class AgreementCheckboxWidget extends StatelessWidget {
   final bool isAccepted;
   final String text;
@@ -26,14 +25,10 @@ class AgreementCheckboxWidget extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isAccepted
-              ? Colors.green.shade50
-              : Colors.grey.shade100,
+          color: isAccepted ? Colors.green.shade50 : Colors.grey.shade100,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isAccepted
-                ? Colors.green
-                : Colors.grey.shade300,
+            color: isAccepted ? Colors.green : Colors.grey.shade300,
             width: 2,
           ),
         ),
@@ -44,14 +39,10 @@ class AgreementCheckboxWidget extends StatelessWidget {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: isAccepted
-                    ? Colors.green
-                    : Colors.white,
+                color: isAccepted ? Colors.green : Colors.white,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: isAccepted
-                      ? Colors.green
-                      : Colors.grey,
+                  color: isAccepted ? Colors.green : Colors.grey,
                   width: 2,
                 ),
               ),

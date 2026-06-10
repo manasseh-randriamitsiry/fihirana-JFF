@@ -259,8 +259,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     // Dark theme colors based on the image
@@ -297,7 +295,8 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                 Expanded(
                   flex: 5,
                   child: AlbumArtCard(
-                    hymnNumber: _currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber,
+                    hymnNumber: _currentDisplayedHymn?.hymnNumber ??
+                        widget.hymn.hymnNumber,
                   ),
                 ),
 
@@ -313,8 +312,10 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
                       children: [
                         // Title and Heart
                         SongInfoSection(
-                          title: _currentDisplayedHymn?.title ?? widget.hymn.title,
-                          hymnNumber: _currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber,
+                          title:
+                              _currentDisplayedHymn?.title ?? widget.hymn.title,
+                          hymnNumber: _currentDisplayedHymn?.hymnNumber ??
+                              widget.hymn.hymnNumber,
                           isFavorite: widget.isFavorite,
                           onToggleFavorite: widget.onToggleFavorite,
                         ),

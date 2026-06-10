@@ -19,8 +19,6 @@ import 'package:fihirana/features/intro/di/intro_di.dart';
 import 'package:fihirana/core/error/error_handler.dart';
 import 'package:fihirana/core/localization/fallback_localization_delegate.dart';
 
-
-
 class MyApp extends StatefulWidget {
   final SharedPreferences prefs;
 
@@ -118,7 +116,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         shellController.currentRoute.value = routing.current;
 
         // Disable drawer on splash and loading screens
-        final disableDrawer = routing.current == '/splash' || routing.current == '/loading';
+        final disableDrawer =
+            routing.current == '/splash' || routing.current == '/loading';
         shellController.setDrawerEnabled(!disableDrawer);
       });
     }
@@ -154,27 +153,27 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       return ErrorHandler.withErrorBoundary(
         GetMaterialApp(
           debugShowCheckedModeBanner: false,
-        locale: currentLocale,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          // Add fallback delegates for 'mg' support in Material/Cupertino widgets
-          FallbackMaterialLocalizationsDelegate(),
-          FallbackCupertinoLocalizationsDelegate(),
-        ],
-        localeResolutionCallback: (locale, supportedLocales) {
-          return languageController.currentLocale.value;
-        },
-        supportedLocales: languageController.supportedLocales,
-        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-        theme: theme,
-        darkTheme: theme,
-        builder: (context, child) => ResponsiveShell(child: child!),
-        initialRoute: initialRoute,
-        routingCallback: _handleRoutingCallback,
-        getPages: AppRouter.getPages(),
+          locale: currentLocale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            // Add fallback delegates for 'mg' support in Material/Cupertino widgets
+            FallbackMaterialLocalizationsDelegate(),
+            FallbackCupertinoLocalizationsDelegate(),
+          ],
+          localeResolutionCallback: (locale, supportedLocales) {
+            return languageController.currentLocale.value;
+          },
+          supportedLocales: languageController.supportedLocales,
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          theme: theme,
+          darkTheme: theme,
+          builder: (context, child) => ResponsiveShell(child: child!),
+          initialRoute: initialRoute,
+          routingCallback: _handleRoutingCallback,
+          getPages: AppRouter.getPages(),
         ),
       );
     });

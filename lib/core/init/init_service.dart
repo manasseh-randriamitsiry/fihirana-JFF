@@ -63,12 +63,13 @@ class InitService {
       Get.find<GoogleSignIn>(),
       Get.find<SecurityService>(),
     );
-    
+
     if (!Get.isRegistered<AuthController>()) {
       Get.put(AuthController(
         signInWithGoogleUseCase: SignInWithGoogleUseCase(authRepository),
         signOutUseCase: SignOutUseCase(authRepository),
-        ensureUserDocumentExistsUseCase: EnsureUserDocumentExistsUseCase(authRepository),
+        ensureUserDocumentExistsUseCase:
+            EnsureUserDocumentExistsUseCase(authRepository),
       ));
     }
 
@@ -111,11 +112,11 @@ class InitService {
     Get.put(HymnService());
     Get.put(BackgroundService());
     Get.put(AudioForegroundService());
-    
+
     // Initialize local audio service (fast, just setup)
     final localAudioService = LocalAudioService();
     await localAudioService.initialize();
-    
+
     // Defer audio mapping until a user actually opens audio-related screens.
     // This keeps startup lighter on low-end devices and avoids a network hit
     // before the first frame.
@@ -146,7 +147,7 @@ class InitService {
   }) async {
     // Start progress tracking
     initProgressTracker.startTracking();
-    
+
     // Listen to progress events and forward to callback
     StreamSubscription? progressSubscription;
     if (onProgress != null) {
@@ -212,17 +213,16 @@ class InitService {
 
       // Complete initialization
       initProgressTracker.complete();
-
     } catch (e) {
       final currentStep = initProgressTracker.currentStep;
       if (currentStep != null) {
         initProgressTracker.failStep(currentStep.id, e.toString());
       }
-      
+
       if (kDebugMode) {
         debugPrint('Initialization failed: $e');
       }
-      
+
       rethrow;
     } finally {
       await progressSubscription?.cancel();
@@ -239,13 +239,13 @@ class InitService {
         // Schedule heavy operations in background isolates
         unawaited(_scheduleBackgroundTasks());
 
-if (kDebugMode) {
-        debugPrint('Background tasks scheduled in isolates');
-      }
+        if (kDebugMode) {
+          debugPrint('Background tasks scheduled in isolates');
+        }
       } catch (e) {
-if (kDebugMode) {
-        debugPrint('Error scheduling background tasks: $e');
-      }
+        if (kDebugMode) {
+          debugPrint('Error scheduling background tasks: $e');
+        }
       }
     });
   }
@@ -266,7 +266,7 @@ if (kDebugMode) {
 
     // Audio mapping is now initialized in foreground during _initAudioServices()
     // to provide better error handling and user feedback
-    
+
     // Schedule Bible service initialization in background
     unawaited(
       backgroundIsolateManager.executeTask<void>(
@@ -274,9 +274,9 @@ if (kDebugMode) {
         task: () async {
           final bibleService = Get.find<BibleService>();
           await bibleService.initialize((message) {
-if (kDebugMode) {
-          debugPrint('Bible service (isolate): $message');
-        }
+            if (kDebugMode) {
+              debugPrint('Bible service (isolate): $message');
+            }
           });
         },
         description: 'Initialize Bible service data',

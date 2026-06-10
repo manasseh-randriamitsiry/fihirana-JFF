@@ -16,7 +16,7 @@ class HymnService implements IHymnService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final LocalStorageService _localStorageService = LocalStorageService();
-  
+
   late final FavoritesService _favoritesService;
   late final FirebaseHymnService _firebaseHymnService;
 
@@ -65,7 +65,8 @@ class HymnService implements IHymnService {
     return _favoritesService.getFavoriteStatusStream();
   }
 
-  Map<String, String> get currentFavoriteStatus => _favoritesService.currentFavoriteStatus;
+  Map<String, String> get currentFavoriteStatus =>
+      _favoritesService.currentFavoriteStatus;
 
   Stream<List<String>> getFavoriteHymnIdsStream() {
     return _favoritesService.getFavoriteHymnIdsStream();
@@ -254,12 +255,13 @@ class HymnService implements IHymnService {
     };
   }
 
-@override
+  @override
   Future<void> importData(Map<String, dynamic> data) async {
     try {
       // Validate data structure
       if (!data.containsKey('hymns') || data['hymns'] is! List) {
-        throw Exception('Invalid import data format: missing or invalid hymns array');
+        throw Exception(
+            'Invalid import data format: missing or invalid hymns array');
       }
 
       final hymnsData = data['hymns'] as List;
@@ -270,7 +272,8 @@ class HymnService implements IHymnService {
         if (hymnData is Map<String, dynamic>) {
           try {
             // Generate a unique ID for the imported hymn
-            final id = 'imported_${DateTime.now().millisecondsSinceEpoch}_${importedHymns.length}';
+            final id =
+                'imported_${DateTime.now().millisecondsSinceEpoch}_${importedHymns.length}';
             final hymn = Hymn.fromJson(hymnData, id);
             importedHymns.add(hymn);
           } catch (e) {

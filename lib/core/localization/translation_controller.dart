@@ -4,13 +4,14 @@ import 'package:fihirana/core/utils/language_detection_service.dart';
 
 class TranslationController extends ChangeNotifier {
   final TranslationService _translationService = TranslationService();
-  final LanguageDetectionService _languageDetectionService = LanguageDetectionService();
-  
+  final LanguageDetectionService _languageDetectionService =
+      LanguageDetectionService();
+
   bool _isTranslating = false;
   bool _isInitialized = false;
   String _currentLocale = 'en';
   bool _autoTranslate = true;
-  
+
   // Translation cache for UI state
   final Map<String, String> _translatedTexts = {};
   final Map<String, bool> _translationStatus = {};
@@ -25,7 +26,7 @@ class TranslationController extends ChangeNotifier {
   /// Initialize the translation controller
   Future<void> initialize(String locale) async {
     if (_isInitialized) return;
-    
+
     try {
       await _translationService.initialize();
       await _languageDetectionService.initialize();
@@ -69,7 +70,7 @@ class TranslationController extends ChangeNotifier {
     if (text.trim().isEmpty) return text;
 
     final cacheKey = '${text.hashCode}_${targetLanguage ?? _currentLocale}';
-    
+
     // Return cached translation if available
     if (_translatedTexts.containsKey(cacheKey)) {
       return _translatedTexts[cacheKey]!;
@@ -87,10 +88,11 @@ class TranslationController extends ChangeNotifier {
       }
 
       final toLang = targetLanguage ?? _currentLocale;
-      
+
       // Only translate if languages are different
       if (fromLang != toLang) {
-        final translatedText = await _translationService.translateText(text, fromLang, toLang);
+        final translatedText =
+            await _translationService.translateText(text, fromLang, toLang);
         _translatedTexts[cacheKey] = translatedText;
         return translatedText;
       } else {
@@ -115,7 +117,8 @@ class TranslationController extends ChangeNotifier {
     }
 
     try {
-      final needsTranslation = await _languageDetectionService.needsTranslation(text, _currentLocale);
+      final needsTranslation = await _languageDetectionService.needsTranslation(
+          text, _currentLocale);
       if (needsTranslation) {
         return await translateText(text);
       }
@@ -140,15 +143,16 @@ class TranslationController extends ChangeNotifier {
     try {
       final fromLang = sourceLanguage ?? 'en';
       final toLang = targetLanguage ?? _currentLocale;
-      
-      final results = await _translationService.translateBatch(texts, fromLang, toLang);
-      
+
+      final results =
+          await _translationService.translateBatch(texts, fromLang, toLang);
+
       // Update cache
       for (final entry in results.entries) {
         final cacheKey = '${entry.key.hashCode}_$toLang';
         _translatedTexts[cacheKey] = entry.value;
       }
-      
+
       return results;
     } catch (e) {
       debugPrint('Batch translation error: $e');
@@ -201,7 +205,9 @@ class TranslationController extends ChangeNotifier {
 
   /// Clear specific text from cache
   void clearTextFromCache(String text) {
-    final keysToRemove = _translatedTexts.keys.where((key) => key.startsWith('${text.hashCode}_')).toList();
+    final keysToRemove = _translatedTexts.keys
+        .where((key) => key.startsWith('${text.hashCode}_'))
+        .toList();
     for (final key in keysToRemove) {
       _translatedTexts.remove(key);
       _translationStatus.remove(key);
@@ -213,7 +219,8 @@ class TranslationController extends ChangeNotifier {
   Map<String, dynamic> getTranslationStats() {
     return {
       'cacheSize': _translatedTexts.length,
-      'currentlyTranslating': _translationStatus.values.where((status) => status).length,
+      'currentlyTranslating':
+          _translationStatus.values.where((status) => status).length,
       'autoTranslateEnabled': _autoTranslate,
       'currentLocale': _currentLocale,
       'supportedLanguages': getSupportedLanguages(),

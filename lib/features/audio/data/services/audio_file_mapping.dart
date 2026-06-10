@@ -40,11 +40,13 @@ class AudioFileMapping {
     while (attempt < retries) {
       try {
         if (kDebugMode) {
-          print('AudioFileMapping: Fetching audio file list from GitHub (attempt ${attempt + 1}/$retries)...');
+          print(
+              'AudioFileMapping: Fetching audio file list from GitHub (attempt ${attempt + 1}/$retries)...');
         }
 
         final response = await http.get(
-          Uri.parse('https://api.github.com/repos/manasseh-randriamitsiry/Fihirana-audio/contents'),
+          Uri.parse(
+              'https://api.github.com/repos/manasseh-randriamitsiry/Fihirana-audio/contents'),
           headers: {
             'Accept': 'application/vnd.github.v3+json',
             'User-Agent': 'Fihirana-JFF-App/1.0',
@@ -56,14 +58,14 @@ class AudioFileMapping {
           final Map<String, String> mapping = {};
 
           for (final file in files) {
-            if (file['name'] != null && 
+            if (file['name'] != null &&
                 file['name'].toString().endsWith('.mp3') &&
                 file['type'] == 'file') {
               final fileName = file['name'] as String;
               // Remove .mp3 extension to get the hymn ID
               final hymnId = fileName.replaceAll('.mp3', '');
               mapping[hymnId] = fileName;
-              
+
               // Also map by just the number for backward compatibility
               final match = RegExp(r'^(\d+)').firstMatch(fileName);
               if (match != null) {
@@ -77,8 +79,10 @@ class AudioFileMapping {
           _lastUpdated = DateTime.now();
 
           if (kDebugMode) {
-            print('AudioFileMapping: ✅ Successfully updated mapping with ${mapping.length} files');
-            print('AudioFileMapping: Sample mappings: ${mapping.entries.take(5).toList()}');
+            print(
+                'AudioFileMapping: ✅ Successfully updated mapping with ${mapping.length} files');
+            print(
+                'AudioFileMapping: Sample mappings: ${mapping.entries.take(5).toList()}');
             // Check if our test IDs are mapped
             final testIds = ['1', '10', '100'];
             for (final id in testIds) {
@@ -86,10 +90,9 @@ class AudioFileMapping {
               print('AudioFileMapping: $id -> $filename');
             }
           }
-          
+
           // Success - exit retry loop
           return;
-          
         } else if (response.statusCode == 403) {
           if (kDebugMode) {
             print('AudioFileMapping: ⚠️ GitHub API rate limit exceeded (403)');
@@ -97,16 +100,17 @@ class AudioFileMapping {
           lastError = Exception('GitHub API rate limit exceeded');
           // Don't retry on rate limit - wait for cache to expire
           break;
-          
         } else {
           if (kDebugMode) {
-            print('AudioFileMapping: ❌ Failed to fetch file list: ${response.statusCode}');
+            print(
+                'AudioFileMapping: ❌ Failed to fetch file list: ${response.statusCode}');
           }
           lastError = Exception('HTTP ${response.statusCode}');
         }
       } catch (e) {
         if (kDebugMode) {
-          print('AudioFileMapping: ❌ Error updating mapping (attempt ${attempt + 1}/$retries): $e');
+          print(
+              'AudioFileMapping: ❌ Error updating mapping (attempt ${attempt + 1}/$retries): $e');
         }
         lastError = e is Exception ? e : Exception(e.toString());
       }
@@ -120,12 +124,14 @@ class AudioFileMapping {
 
     // If we get here, all retries failed
     if (kDebugMode) {
-      print('AudioFileMapping: ❌ Failed to update mapping after $retries attempts');
+      print(
+          'AudioFileMapping: ❌ Failed to update mapping after $retries attempts');
       if (lastError != null) {
         print('AudioFileMapping: Last error: $lastError');
       }
       if (_audioFileMapping != null) {
-        print('AudioFileMapping: ⚠️ Using cached mapping with ${_audioFileMapping!.length} files');
+        print(
+            'AudioFileMapping: ⚠️ Using cached mapping with ${_audioFileMapping!.length} files');
       }
     }
   }
