@@ -253,11 +253,8 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     return ReorderableListView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      onReorder: (oldIndex, newIndex) {
+      onReorderItem: (oldIndex, newIndex) {
         setState(() {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
           final item = _verseControllers.removeAt(oldIndex);
           _verseControllers.insert(newIndex, item);
         });

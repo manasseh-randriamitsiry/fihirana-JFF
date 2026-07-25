@@ -230,9 +230,10 @@ class RecordingService extends GetxService implements IRecordingService {
   @override
   Future<UserRecording?> stopRecording() async {
     try {
-      if (kDebugMode)
+      if (kDebugMode) {
         print(
             'RecordingService: Stopping recording, current path: $_currentRecordingPath');
+      }
 
       await _audioRecorder.stop();
       _isRecording.value = false;
@@ -252,20 +253,23 @@ class RecordingService extends GetxService implements IRecordingService {
           );
 
           _currentRecordingPath = null; // Clear path
-          if (kDebugMode)
+          if (kDebugMode) {
             print(
                 'RecordingService: Recording stopped and UserRecording created');
+          }
           return recording;
         } else {
-          if (kDebugMode)
+          if (kDebugMode) {
             print(
                 'RecordingService: Recording file does not exist at path: $_currentRecordingPath');
+          }
           _currentRecordingPath = null;
           return null;
         }
       } else {
-        if (kDebugMode)
+        if (kDebugMode) {
           print('RecordingService: No current recording path available');
+        }
         return null;
       }
     } catch (e) {
@@ -424,8 +428,9 @@ class RecordingService extends GetxService implements IRecordingService {
       final file = File(recording.filePath);
 
       if (!await file.exists()) {
-        if (kDebugMode)
+        if (kDebugMode) {
           print('Recording file not found: ${recording.filePath}');
+        }
         return false;
       }
 

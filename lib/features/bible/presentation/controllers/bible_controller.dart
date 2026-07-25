@@ -11,6 +11,7 @@ import 'package:fihirana/features/bible/data/services/bible_highlight_service.da
 import 'package:fihirana/features/bible/presentation/controllers/bible_book_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_highlight_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_search_controller.dart';
+import 'package:fihirana/features/bible/presentation/models/bible_share_data.dart';
 import 'package:fihirana/core/error/error_handler.dart';
 
 class BibleController extends GetxController {
@@ -60,6 +61,7 @@ class BibleController extends GetxController {
   List<int> get chapterList => bookController.chapterList;
   Set<int> get selectedVerses => bookController.selectedVerses;
   bool get isSelecting => bookController.isSelecting.value;
+  int get selectedVerseCount => bookController.selectedVerses.length;
 
   RxList<BibleHighlight> get highlights => highlightController.highlights;
   RxList<BibleHighlight> get publicHighlights =>
@@ -137,6 +139,17 @@ class BibleController extends GetxController {
     highlightController.loadHighlights(selectedBook, chapter);
   }
 
+  void selectChapterWithVerseRange(int chapter, int startVerse, int endVerse) {
+    bookController.selectChapterWithVerseRange(chapter, startVerse, endVerse);
+    highlightController.loadHighlights(selectedBook, chapter);
+    if (startVerse > 0) {
+      highlightedVerse.value = startVerse;
+    }
+  }
+
+  int getVerseCountForChapter(String bookName, int chapterNumber) =>
+      bookController.getVerseCount(bookName, chapterNumber);
+
   void toggleVerseSelection(int verseNumber) {
     bookController.toggleVerseSelection(verseNumber);
   }
@@ -151,6 +164,10 @@ class BibleController extends GetxController {
 
   String getSelectedVersesText() {
     return bookController.getSelectedVersesText();
+  }
+
+  BibleShareData? buildSelectedShareData() {
+    return bookController.buildSelectedShareData();
   }
 
   void addHighlight(int verse, String color) {
