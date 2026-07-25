@@ -276,6 +276,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             Expanded(
               child: Obx(() {
                 final highlightedVerse = bibleController.highlightedVerse.value;
+                final selectedVersesSet = bibleController.selectedVerses.toSet();
 
                 return ListView.builder(
                   key: const PageStorageKey('bible_verses_list'),
@@ -294,6 +295,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     }
                     final verseNumber = index + 1;
                     final verseText = verses[index];
+                    final isSelected = selectedVersesSet.contains(verseNumber);
+
                     return BibleVerseItemWidget(
                       key: ValueKey(verseNumber),
                       verseNumber: verseNumber,
@@ -301,7 +304,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                       verseStyle: _verseStyle,
                       fontSize: _fontSize,
                       highlightedVerse: highlightedVerse,
-                      isSelected: bibleController.isVerseSelected(verseNumber),
+                      isSelected: isSelected,
                       isHighlighted:
                           bibleController.isVerseHighlighted(verseNumber),
                       isSearchHighlighted:

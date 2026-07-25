@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -26,7 +28,6 @@ class BibleVerseSelectionSheet extends StatefulWidget {
 class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
   int? _startVerse;
   int? _endVerse;
-  bool _isRangeSelectionActive = false;
 
   @override
   void initState() {
@@ -39,25 +40,45 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
   void _onVerseTap(int verseNumber) {
     HapticFeedback.selectionClick();
     setState(() {
-      if (_startVerse == null) {
-        // First tap: set single verse start and end
+      if (_startVerse == null || _endVerse == null) {
+        // Nothing selected -> select single verse
         _startVerse = verseNumber;
         _endVerse = verseNumber;
-        _isRangeSelectionActive = true;
-      } else if (_isRangeSelectionActive) {
-        // Second tap: set range
-        if (verseNumber < _startVerse!) {
-          _endVerse = _startVerse;
-          _startVerse = verseNumber;
+      } else if (_startVerse == _endVerse) {
+        // Single verse selected
+        if (verseNumber == _startVerse) {
+          // Tap same verse -> deselect all
+          _startVerse = null;
+          _endVerse = null;
         } else {
+          // Tap another verse -> form range
+          final lower = min(_startVerse!, verseNumber);
+          final upper = max(_startVerse!, verseNumber);
+          _startVerse = lower;
+          _endVerse = upper;
+        }
+      } else {
+        // Multi-verse range selected
+        final minV = _startVerse!;
+        final maxV = _endVerse!;
+
+        if (verseNumber == minV - 1) {
+          // Tap top neighbor -> expand top
+          _startVerse = verseNumber;
+        } else if (verseNumber == maxV + 1) {
+          // Tap bottom neighbor -> expand bottom
+          _endVerse = verseNumber;
+        } else if (verseNumber == minV) {
+          // Tap top boundary -> shrink top
+          _startVerse = minV + 1;
+        } else if (verseNumber == maxV) {
+          // Tap bottom boundary -> shrink bottom
+          _endVerse = maxV - 1;
+        } else {
+          // Tap inside range or far away -> deselect previous, select ONLY this 1 verse
+          _startVerse = verseNumber;
           _endVerse = verseNumber;
         }
-        _isRangeSelectionActive = false; // Reset for next range selection
-      } else {
-        // Start a fresh selection
-        _startVerse = verseNumber;
-        _endVerse = verseNumber;
-        _isRangeSelectionActive = true;
       }
     });
   }
@@ -447,7 +468,9 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: value != null ? textColor : textColor.withValues(alpha: 0.4),
+                    color: value != null
+                        ? textColor
+                        : textColor.withValues(alpha: 0.4),
                   ),
                 ),
               ),
