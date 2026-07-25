@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -10,10 +11,11 @@ import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_search_dialog.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_reader_widgets.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_settings_bottom_sheet_widget.dart';
+import 'package:fihirana/features/bible/presentation/widgets/bible_selection_action_bar_widget.dart';
 import 'package:fihirana/features/bible/presentation/pages/bible_highlights_page.dart';
+import 'package:fihirana/features/bible/presentation/widgets/bible_verse_selection_sheet.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/l10n/app_localizations.dart';
 
 class BibleReaderScreen extends StatefulWidget {
   const BibleReaderScreen({super.key});
@@ -180,7 +182,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return ListView.builder(
       key: const PageStorageKey('bible_books_list'),
-      cacheExtent: 1200,
+      scrollCacheExtent: const ScrollCacheExtent.pixels(1200),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
@@ -228,11 +230,33 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return BibleChapterGridWidget(
       chapters: chapters,
-      onChapterSelected: (chapter) {
-        // Clear highlighted verse when selecting different chapter
-        bibleController.highlightedVerse.value = 0;
-        bibleController.selectChapter(chapter);
-      },
+      onChapterSelected: (chapter) => _showVerseSelectionSheet(context, chapter),
+    );
+  }
+
+  void _showVerseSelectionSheet(BuildContext context, int chapter) {
+    final bookName = bibleController.selectedBook;
+    final totalVerses =
+        bibleController.getVerseCountForChapter(bookName, chapter);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BibleVerseSelectionSheet(
+        bookName: bookName,
+        chapter: chapter,
+        totalVerses: totalVerses,
+        onReadVerses: (startVerse, endVerse) {
+          if (startVerse == 1 && endVerse == totalVerses) {
+            bibleController.highlightedVerse.value = 0;
+            bibleController.selectChapter(chapter);
+          } else {
+            bibleController.selectChapterWithVerseRange(
+                chapter, startVerse, endVerse);
+          }
+        },
+      ),
     );
   }
 
@@ -253,7 +277,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 return ListView.builder(
                   key: const PageStorageKey('bible_verses_list'),
                   controller: _verseScrollController,
-                  cacheExtent: 1200,
+                  scrollCacheExtent: const ScrollCacheExtent.pixels(1200),
                   padding: const EdgeInsets.fromLTRB(
                       20, 16, 20, 100), // Add bottom padding for FAB
                   itemCount:
@@ -291,65 +315,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             ),
           ],
         ),
-// Selection Action Bar
-        Obx(() {
-          if (!bibleController.isSelecting) {
-            return const SizedBox.shrink();
-          }
-
-          return Positioned(
-            bottom: 24,
-            left: 24,
-            right: 24,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: colorController.backgroundColor.value,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 15,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-                border: Border.all(
-                  color:
-                      colorController.primaryColor.value.withValues(alpha: 0.1),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      bibleController.clearSelection();
-                    },
-                    icon: Icon(Icons.close,
-                        color: colorController.textColor.value),
-                    tooltip: AppLocalizations.of(context).clear,
-                  ),
-                  Container(
-                    width: 1,
-                    height: 24,
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.2),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      bibleController.saveHighlight();
-                    },
-                    icon: const Icon(Icons.highlight_rounded,
-                        color: Colors.orange),
-                    tooltip: AppLocalizations.of(context).saveChanges,
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
+        const BibleSelectionActionBarWidget(),
       ],
     );
   }
@@ -424,9 +390,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   void _scrollToHighlightedVerse() {
     final highlightedVerse = bibleController.highlightedVerse.value;
-    if (highlightedVerse > 0 && _verseScrollController.hasClients && mounted) {
+    if (highlightedVerse > 0 && mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted || !_verseScrollController.hasClients) return;
+        if (!mounted) return;
+        if (!_verseScrollController.hasClients) {
+          Future.delayed(const Duration(milliseconds: 50), () {
+            if (mounted) _scrollToHighlightedVerse();
+          });
+          return;
+        }
 
         // Better height estimation considering padding and line height
         // Average verse takes about 80-120 pixels depending on length

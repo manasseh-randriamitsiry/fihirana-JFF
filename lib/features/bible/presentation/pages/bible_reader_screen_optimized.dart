@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/features/bible/di/bible_di.dart';
+import 'package:fihirana/features/bible/presentation/pages/bible_share_composer_screen.dart';
 
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_search_dialog.dart';
@@ -436,6 +437,15 @@ class _BibleReaderScreenOptimizedState
   }
 
   void _shareSelectedVerses(BuildContext context) {
-    // Implement sharing functionality
+    final shareData = bibleController.buildSelectedShareData();
+    if (shareData == null) {
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => BibleShareComposerScreen(data: shareData),
+      ),
+    );
   }
 }

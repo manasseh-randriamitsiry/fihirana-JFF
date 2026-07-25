@@ -161,6 +161,16 @@ class BibleVerseItemWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(8),
+          border: isSelected
+              ? Border.all(
+                  color: colorController.primaryColor.value.withValues(
+                    alpha: 0.35,
+                  ),
+                  width: 1.2,
+                )
+              : Border.all(
+                  color: Colors.transparent,
+                ),
         ),
         child: RichText(
           text: TextSpan(

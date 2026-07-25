@@ -210,46 +210,66 @@ class RecordingDI {
     if (Get.isRegistered<RecordingController>()) {
       Get.delete<RecordingController>(); // Also delete untagged version
     }
-    if (Get.isRegistered<PermanentlyDeleteRecordingUseCase>())
+    if (Get.isRegistered<PermanentlyDeleteRecordingUseCase>()) {
       Get.delete<PermanentlyDeleteRecordingUseCase>();
-    if (Get.isRegistered<RestoreRecordingUseCase>())
+    }
+    if (Get.isRegistered<RestoreRecordingUseCase>()) {
       Get.delete<RestoreRecordingUseCase>();
-    if (Get.isRegistered<LoadDeletedRecordingsUseCase>())
+    }
+    if (Get.isRegistered<LoadDeletedRecordingsUseCase>()) {
       Get.delete<LoadDeletedRecordingsUseCase>();
-    if (Get.isRegistered<SyncFromDriveUseCase>())
+    }
+    if (Get.isRegistered<SyncFromDriveUseCase>()) {
       Get.delete<SyncFromDriveUseCase>();
-    if (Get.isRegistered<UploadToGoogleDriveUseCase>())
+    }
+    if (Get.isRegistered<UploadToGoogleDriveUseCase>()) {
       Get.delete<UploadToGoogleDriveUseCase>();
-    if (Get.isRegistered<GetRecordingsByHymnIdUseCase>())
+    }
+    if (Get.isRegistered<GetRecordingsByHymnIdUseCase>()) {
       Get.delete<GetRecordingsByHymnIdUseCase>();
-    if (Get.isRegistered<SearchRecordingsUseCase>())
+    }
+    if (Get.isRegistered<SearchRecordingsUseCase>()) {
       Get.delete<SearchRecordingsUseCase>();
-    if (Get.isRegistered<ToggleRecordingPrivacyUseCase>())
+    }
+    if (Get.isRegistered<ToggleRecordingPrivacyUseCase>()) {
       Get.delete<ToggleRecordingPrivacyUseCase>();
-    if (Get.isRegistered<UnpublishRecordingUseCase>())
+    }
+    if (Get.isRegistered<UnpublishRecordingUseCase>()) {
       Get.delete<UnpublishRecordingUseCase>();
-    if (Get.isRegistered<PublishRecordingUseCase>())
+    }
+    if (Get.isRegistered<PublishRecordingUseCase>()) {
       Get.delete<PublishRecordingUseCase>();
-    if (Get.isRegistered<LoadPublicRecordingsUseCase>())
+    }
+    if (Get.isRegistered<LoadPublicRecordingsUseCase>()) {
       Get.delete<LoadPublicRecordingsUseCase>();
-    if (Get.isRegistered<GetRecordingByIdUseCase>())
+    }
+    if (Get.isRegistered<GetRecordingByIdUseCase>()) {
       Get.delete<GetRecordingByIdUseCase>();
-    if (Get.isRegistered<DeleteRecordingUseCase>())
+    }
+    if (Get.isRegistered<DeleteRecordingUseCase>()) {
       Get.delete<DeleteRecordingUseCase>();
-    if (Get.isRegistered<UpdateRecordingUseCase>())
+    }
+    if (Get.isRegistered<UpdateRecordingUseCase>()) {
       Get.delete<UpdateRecordingUseCase>();
-    if (Get.isRegistered<SaveRecordingUseCase>())
+    }
+    if (Get.isRegistered<SaveRecordingUseCase>()) {
       Get.delete<SaveRecordingUseCase>();
-    if (Get.isRegistered<LoadRecordingsUseCase>())
+    }
+    if (Get.isRegistered<LoadRecordingsUseCase>()) {
       Get.delete<LoadRecordingsUseCase>();
-    if (Get.isRegistered<CancelRecordingUseCase>())
+    }
+    if (Get.isRegistered<CancelRecordingUseCase>()) {
       Get.delete<CancelRecordingUseCase>();
-    if (Get.isRegistered<StopRecordingUseCase>())
+    }
+    if (Get.isRegistered<StopRecordingUseCase>()) {
       Get.delete<StopRecordingUseCase>();
-    if (Get.isRegistered<StartRecordingUseCase>())
+    }
+    if (Get.isRegistered<StartRecordingUseCase>()) {
       Get.delete<StartRecordingUseCase>();
-    if (Get.isRegistered<RecordingRepository>(tag: _recordingRepositoryTag))
+    }
+    if (Get.isRegistered<RecordingRepository>(tag: _recordingRepositoryTag)) {
       Get.delete<RecordingRepository>(tag: _recordingRepositoryTag);
+    }
   }
 
   /// Reset recording dependencies (for testing)
