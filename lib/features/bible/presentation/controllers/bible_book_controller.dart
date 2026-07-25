@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_all_books_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_book_usecase.dart';
 import 'package:fihirana/core/error/error_handler.dart';
+import 'package:fihirana/features/bible/presentation/models/bible_share_data.dart';
 
 class BibleBookController extends GetxController {
   final GetAllBooksUseCase _getAllBooksUseCase;
@@ -25,6 +28,7 @@ class BibleBookController extends GetxController {
   // Verse selection
   final RxSet<int> selectedVerses = <int>{}.obs;
   final RxBool isSelecting = false.obs;
+  final RxInt selectionAnchorVerse = 0.obs;
 
   // Passage cache
   final Map<String, String> _passageCache = {};
@@ -104,35 +108,116 @@ class BibleBookController extends GetxController {
     selectedBook.value = bookName;
     selectedChapter.value = 0;
     passageText.value = '';
-    selectedVerses.clear();
+    clearVerseSelection();
+
+    if (bookName.isEmpty) {
+      chapterList.clear();
+      return;
+    }
+
     loadChaptersForBook(bookName);
   }
 
   void selectChapter(int chapter) {
     selectedChapter.value = chapter;
-    selectedVerses.clear();
+    clearVerseSelection();
     loadPassage(selectedBook.value, chapter);
   }
 
+  void selectChapterWithVerseRange(int chapter, int startVerse, int endVerse) {
+    selectedChapter.value = chapter;
+    clearVerseSelection();
+    loadPassage(selectedBook.value, chapter);
+    if (startVerse > 0) {
+      final lower = min(startVerse, endVerse > 0 ? endVerse : startVerse);
+      final upper = max(startVerse, endVerse > 0 ? endVerse : startVerse);
+      selectedVerses
+        ..clear()
+        ..addAll(
+            List<int>.generate(upper - lower + 1, (index) => lower + index));
+      selectedVerses.refresh();
+      isSelecting.value = true;
+    }
+  }
+
+  int getVerseCount(String bookName, int chapterNumber) {
+    final book = _getBookUseCase(bookName);
+    if (book != null && book.chapterData.containsKey(chapterNumber)) {
+      return book.chapterData[chapterNumber]?.verses.length ?? 0;
+    }
+    return 0;
+  }
+
   void toggleVerseSelection(int verseNumber) {
-    if (selectedVerses.contains(verseNumber)) {
-      selectedVerses.remove(verseNumber);
-      // If no verses left, stop selecting mode
-      if (selectedVerses.isEmpty) {
-        isSelecting.value = false;
+    if (verseNumber <= 0) {
+      return;
+    }
+
+    if (selectedVerses.isEmpty) {
+      selectedVerses.add(verseNumber);
+      selectionAnchorVerse.value = verseNumber;
+      isSelecting.value = true;
+      selectedVerses.refresh();
+      return;
+    }
+
+    final sorted = selectedVerses.toList()..sort();
+    final minV = sorted.first;
+    final maxV = sorted.last;
+
+    if (sorted.length == 1) {
+      // Single verse currently selected
+      if (verseNumber == minV) {
+        // Tap same verse -> deselect
+        clearVerseSelection();
+        return;
+      } else {
+        // Tap another verse -> form range between minV and verseNumber
+        final lower = min(minV, verseNumber);
+        final upper = max(minV, verseNumber);
+        selectedVerses
+          ..clear()
+          ..addAll(List<int>.generate(upper - lower + 1, (i) => lower + i));
+        selectionAnchorVerse.value = lower;
+        isSelecting.value = true;
       }
     } else {
-      selectedVerses.add(verseNumber);
-      // Enable selecting mode when first verse is added
-      if (!isSelecting.value) {
+      // Multi-verse range currently selected
+      if (verseNumber == minV - 1) {
+        // Tap top neighbor -> expand top
+        selectedVerses.add(verseNumber);
+        selectionAnchorVerse.value = verseNumber;
+        isSelecting.value = true;
+      } else if (verseNumber == maxV + 1) {
+        // Tap bottom neighbor -> expand bottom
+        selectedVerses.add(verseNumber);
+        isSelecting.value = true;
+      } else if (verseNumber == minV) {
+        // Tap top boundary -> shrink top
+        selectedVerses.remove(verseNumber);
+        selectionAnchorVerse.value = sorted[1];
+        isSelecting.value = true;
+      } else if (verseNumber == maxV) {
+        // Tap bottom boundary -> shrink bottom
+        selectedVerses.remove(verseNumber);
+        isSelecting.value = true;
+      } else {
+        // Tap inside range or far away -> deselect previous, select ONLY this 1 verse
+        selectedVerses.clear();
+        selectedVerses.add(verseNumber);
+        selectionAnchorVerse.value = verseNumber;
         isSelecting.value = true;
       }
     }
+
+    selectedVerses.refresh();
   }
 
   void clearVerseSelection() {
     selectedVerses.clear();
     isSelecting.value = false;
+    selectionAnchorVerse.value = 0;
+    selectedVerses.refresh();
   }
 
   void startVerseSelection() {
@@ -149,8 +234,65 @@ class BibleBookController extends GetxController {
     final sortedVerses = selectedVerses.toList()..sort();
     final book = selectedBook.value;
     final chapter = selectedChapter.value;
+    final verseLabel = _formatVerseLabel(sortedVerses);
 
-    return '$book $chapter:${sortedVerses.join(',')}';
+    return '$book $chapter:$verseLabel';
+  }
+
+  BibleShareData? buildSelectedShareData() {
+    if (selectedBook.value.isEmpty ||
+        selectedChapter.value == 0 ||
+        selectedVerses.isEmpty) {
+      return null;
+    }
+
+    final verseLines = getSelectedVerseLines();
+    if (verseLines.isEmpty) {
+      return null;
+    }
+
+    return BibleShareData(
+      bookName: selectedBook.value,
+      chapter: selectedChapter.value,
+      verses: verseLines,
+    );
+  }
+
+  List<BibleShareVerseLine> getSelectedVerseLines() {
+    final book = _getBookUseCase(selectedBook.value);
+    final chapterData = book?.chapterData[selectedChapter.value];
+    if (chapterData == null || selectedVerses.isEmpty) {
+      return <BibleShareVerseLine>[];
+    }
+
+    final sortedVerses = selectedVerses.toList()..sort();
+
+    return sortedVerses
+        .map((verseNumber) => BibleShareVerseLine(
+              number: verseNumber,
+              text: chapterData.verses[verseNumber] ?? '',
+            ))
+        .toList(growable: false);
+  }
+
+  String _formatVerseLabel(List<int> sortedVerses) {
+    if (sortedVerses.length == 1) {
+      return sortedVerses.first.toString();
+    }
+
+    var isContinuous = true;
+    for (var index = 1; index < sortedVerses.length; index++) {
+      if (sortedVerses[index] != sortedVerses[index - 1] + 1) {
+        isContinuous = false;
+        break;
+      }
+    }
+
+    if (isContinuous) {
+      return '${sortedVerses.first}-${sortedVerses.last}';
+    }
+
+    return sortedVerses.join(',');
   }
 
   void _manageCacheSize() {

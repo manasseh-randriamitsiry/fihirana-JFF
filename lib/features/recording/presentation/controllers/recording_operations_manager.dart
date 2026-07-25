@@ -34,13 +34,15 @@ class RecordingOperationsManager extends GetxController {
 
   // Recording Actions
   Future<void> startRecording(String hymnId) async {
-    if (kDebugMode)
+    if (kDebugMode) {
       print(
           'RecordingOperationsManager: startRecording called for hymnId: $hymnId');
+    }
 
     if (!await _authManager.checkUserCanRecord()) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print('RecordingOperationsManager: User cannot record, returning');
+      }
       return;
     }
 
@@ -56,19 +58,22 @@ class RecordingOperationsManager extends GetxController {
         _stateManager.showOverlay(hymnId, 'Hymn $hymnId');
       }
 
-      if (kDebugMode)
+      if (kDebugMode) {
         print('RecordingOperationsManager: Recording started successfully');
+      }
     } catch (e) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print('RecordingOperationsManager: Error starting recording: $e');
+      }
       _stateManager.isRecording.value = false;
     }
   }
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
-    if (kDebugMode)
+    if (kDebugMode) {
       print(
           'RecordingOperationsManager: stopRecording called for hymnId: $hymnId, title: $title');
+    }
 
     // stopRecording now returns UserRecording? directly from the service
     // But we need to add metadata, so we get -> file path from recorder first
@@ -77,9 +82,10 @@ class RecordingOperationsManager extends GetxController {
 
     _stateManager.resetRecordingState();
 
-    if (kDebugMode)
+    if (kDebugMode) {
       print(
           'RecordingOperationsManager: recordedData from service: $recordedData');
+    }
 
     // Get user info for metadata
     String? currentUserId;
@@ -106,8 +112,9 @@ class RecordingOperationsManager extends GetxController {
 
     // If recordedData is provided by service, use it; otherwise we need file path
     if (recordedData != null) {
-      if (kDebugMode)
+      if (kDebugMode) {
         print('RecordingOperationsManager: Creating recording with metadata');
+      }
 
       // Update with user metadata
       final recording = recordedData.copyWith(
@@ -123,18 +130,21 @@ class RecordingOperationsManager extends GetxController {
       try {
         await _recordingService.saveRecording(recording);
         _stateManager.currentHymnTitle.value = title;
-        if (kDebugMode)
+        if (kDebugMode) {
           print('RecordingOperationsManager: Recording saved successfully');
+        }
         return recording;
       } catch (e) {
-        if (kDebugMode)
+        if (kDebugMode) {
           print('RecordingOperationsManager: Error saving recording: $e');
+        }
         return null;
       }
     } else {
-      if (kDebugMode)
+      if (kDebugMode) {
         print(
             'RecordingOperationsManager: No recorded data returned from service');
+      }
     }
 
     return null;

@@ -2343,4 +2343,77 @@ class AppLocalizationsMg extends AppLocalizations {
   @override
   String get widgetErrorBoundaryCaughtError =>
       'Widget error boundary caught error';
+
+  @override
+  String versesCount(int count) {
+    return '$count andininy';
+  }
+
+  @override
+  String readEntireChapter(int chapter) {
+    return 'Hamaky ny toko $chapter manontolo';
+  }
+
+  @override
+  String get orChooseVerseRange => 'na fidio ny andininy';
+
+  @override
+  String get fromVerse => 'Sy andininy';
+
+  @override
+  String get toVerse => 'Hatramin\'ny';
+
+  @override
+  String get noVersesFound => 'Tsy misy andininy';
+
+  @override
+  String readPassage(String passage) {
+    return 'Hamaky $passage';
+  }
+
+  @override
+  String get verseStudio => 'Verse Studio';
+
+  @override
+  String get shapeThePassageBeforeYouShareIt =>
+      'Amboary ny andininy mialoha ny fizarana';
+
+  @override
+  String get background => 'Sary ambadika';
+
+  @override
+  String get customImage => 'Hisafidy Sary';
+
+  @override
+  String get backgroundTransparency => 'Fangaraharan\'ny ambadika';
+
+  @override
+  String get fontSize => 'Haben\'ny soratra';
+
+  @override
+  String get fontFamily => 'Karazan-tsoratra';
+
+  @override
+  String get copied => 'Voadika';
+
+  @override
+  String get passageTextCopied => 'Voadika ny soratra';
+
+  @override
+  String get preparing => 'Manomana...';
+
+  @override
+  String get sharingUnavailable => 'Tsy afaka mizara';
+
+  @override
+  String get tryCopyingPassage => 'Andramo adika ny soratr\'andiny.';
+
+  @override
+  String get shareFailed => 'Tsy afaka mizara';
+
+  @override
+  String get chooseTextColor => 'Safidio ny lokon\'ny soratra';
+
+  @override
+  String get apply => 'Ekena';
 }

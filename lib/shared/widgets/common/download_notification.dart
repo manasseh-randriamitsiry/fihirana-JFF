@@ -14,8 +14,9 @@ class DownloadNotificationBuilder {
   }) async {
     final isNotificationAllowed =
         await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed)
+    if (!isNotificationAllowed) {
       return; // Don't show download notifications if disabled
+    }
 
     final actionButtons = showCancelButton
         ? NotificationButtons.createDownloadButtons(
@@ -43,8 +44,9 @@ class DownloadNotificationBuilder {
   }) async {
     final isNotificationAllowed =
         await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed)
+    if (!isNotificationAllowed) {
       return; // Don't show download notifications if disabled
+    }
 
     final body = 'Fangalana... $progress%';
 
@@ -72,8 +74,9 @@ class DownloadNotificationBuilder {
   }) async {
     final isNotificationAllowed =
         await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed)
+    if (!isNotificationAllowed) {
       return; // Don't show download notifications if disabled
+    }
 
     final content = NotificationLayouts.createSuccessNotification(
       id: notificationId,
@@ -136,8 +139,9 @@ class DownloadNotificationBuilder {
   }) async {
     final isNotificationAllowed =
         await AwesomeNotifications().isNotificationAllowed();
-    if (!isNotificationAllowed)
+    if (!isNotificationAllowed) {
       return; // Don't show download notifications if disabled
+    }
 
     final content = NotificationLayouts.createBasicNotification(
       id: notificationId + 3,
