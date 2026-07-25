@@ -89,7 +89,8 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
                     HapticFeedback.lightImpact();
                     bibleController.saveHighlight();
                   },
-                  icon: const Icon(Icons.highlight_rounded, color: Colors.orange),
+                  icon:
+                      const Icon(Icons.highlight_rounded, color: Colors.orange),
                   tooltip: l10n.saveChanges,
                 ),
               IconButton(

@@ -153,18 +153,71 @@ class BibleBookController extends GetxController {
       return;
     }
 
-    if (selectedVerses.isEmpty || selectionAnchorVerse.value == 0) {
-      _startSelectionAt(verseNumber);
+    if (selectedVerses.isEmpty) {
+      selectedVerses.add(verseNumber);
+      selectionAnchorVerse.value = verseNumber;
+      isSelecting.value = true;
+      selectedVerses.refresh();
       return;
     }
 
-    _selectContinuousRangeTo(verseNumber);
+    final sorted = selectedVerses.toList()..sort();
+    final minV = sorted.first;
+    final maxV = sorted.last;
+
+    if (sorted.length == 1) {
+      // Single verse currently selected
+      if (verseNumber == minV) {
+        // Tap same verse -> deselect
+        clearVerseSelection();
+        return;
+      } else {
+        // Tap another verse -> form range between minV and verseNumber
+        final lower = min(minV, verseNumber);
+        final upper = max(minV, verseNumber);
+        selectedVerses
+          ..clear()
+          ..addAll(List<int>.generate(upper - lower + 1, (i) => lower + i));
+        selectionAnchorVerse.value = lower;
+        isSelecting.value = true;
+      }
+    } else {
+      // Multi-verse range currently selected
+      if (verseNumber == minV - 1) {
+        // Tap top neighbor -> expand top
+        selectedVerses.add(verseNumber);
+        selectionAnchorVerse.value = verseNumber;
+        isSelecting.value = true;
+      } else if (verseNumber == maxV + 1) {
+        // Tap bottom neighbor -> expand bottom
+        selectedVerses.add(verseNumber);
+        isSelecting.value = true;
+      } else if (verseNumber == minV) {
+        // Tap top boundary -> shrink top
+        selectedVerses.remove(verseNumber);
+        selectionAnchorVerse.value = sorted[1];
+        isSelecting.value = true;
+      } else if (verseNumber == maxV) {
+        // Tap bottom boundary -> shrink bottom
+        selectedVerses.remove(verseNumber);
+        isSelecting.value = true;
+      } else {
+        // Tap inside range or far away -> deselect previous, select ONLY this 1 verse
+        selectedVerses.clear();
+        selectedVerses.add(verseNumber);
+        selectionAnchorVerse.value = verseNumber;
+        isSelecting.value = true;
+      }
+    }
+
+    selectedVerses.refresh();
   }
 
   void clearVerseSelection() {
     selectedVerses.clear();
     isSelecting.value = false;
     selectionAnchorVerse.value = 0;
+    selectedVerses.refresh();
   }
 
   void startVerseSelection() {
@@ -220,24 +273,6 @@ class BibleBookController extends GetxController {
               text: chapterData.verses[verseNumber] ?? '',
             ))
         .toList(growable: false);
-  }
-
-  void _startSelectionAt(int verseNumber) {
-    selectionAnchorVerse.value = verseNumber;
-    isSelecting.value = true;
-    _selectContinuousRangeTo(verseNumber);
-  }
-
-  void _selectContinuousRangeTo(int verseNumber) {
-    final anchorVerse = selectionAnchorVerse.value;
-    final lower = min(anchorVerse, verseNumber);
-    final upper = max(anchorVerse, verseNumber);
-
-    selectedVerses
-      ..clear()
-      ..addAll(List<int>.generate(upper - lower + 1, (index) => lower + index));
-    selectedVerses.refresh();
-    isSelecting.value = true;
   }
 
   String _formatVerseLabel(List<int> sortedVerses) {

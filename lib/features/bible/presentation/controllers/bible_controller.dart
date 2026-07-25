@@ -135,16 +135,15 @@ class BibleController extends GetxController {
   }
 
   void selectChapter(int chapter) {
+    highlightedVerse.value = 0;
     bookController.selectChapter(chapter);
     highlightController.loadHighlights(selectedBook, chapter);
   }
 
   void selectChapterWithVerseRange(int chapter, int startVerse, int endVerse) {
+    highlightedVerse.value = 0;
     bookController.selectChapterWithVerseRange(chapter, startVerse, endVerse);
     highlightController.loadHighlights(selectedBook, chapter);
-    if (startVerse > 0) {
-      highlightedVerse.value = startVerse;
-    }
   }
 
   int getVerseCountForChapter(String bookName, int chapterNumber) =>

@@ -226,8 +226,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                 Text(
                   widget.data.verseCountLabel,
                   style: TextStyle(
-                    color: colorController.textColor.value
-                        .withValues(alpha: 0.60),
+                    color:
+                        colorController.textColor.value.withValues(alpha: 0.60),
                     fontSize: 10,
                   ),
                 ),
@@ -438,8 +438,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _textColor.withValues(alpha: 0.12),
-              border:
-                  Border.all(color: _textColor.withValues(alpha: 0.16)),
+              border: Border.all(color: _textColor.withValues(alpha: 0.16)),
             ),
             child: Center(
               child: Text(
@@ -486,8 +485,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           color: colorController.primaryColor.value.withValues(alpha: 0.08),
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black.withValues(alpha: isSelected ? 0.16 : 0.06),
+              color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.06),
               blurRadius: isSelected ? 18 : 8,
               offset: const Offset(0, 6),
             ),
@@ -495,8 +493,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           border: Border.all(
             color: isSelected
                 ? colorController.primaryColor.value
-                : colorController.primaryColor.value
-                    .withValues(alpha: 0.15),
+                : colorController.primaryColor.value.withValues(alpha: 0.15),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -506,8 +503,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
             children: [
               if (_customImagePath != null)
                 Positioned.fill(
-                  child: Image.file(File(_customImagePath!),
-                      fit: BoxFit.cover),
+                  child: Image.file(File(_customImagePath!), fit: BoxFit.cover),
                 )
               else
                 Center(
@@ -588,8 +584,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black.withValues(alpha: isSelected ? 0.16 : 0.06),
+              color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.06),
               blurRadius: isSelected ? 18 : 8,
               offset: const Offset(0, 6),
             ),
@@ -597,8 +592,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           border: Border.all(
             color: isSelected
                 ? colorController.primaryColor.value
-                : colorController.primaryColor.value
-                    .withValues(alpha: 0.08),
+                : colorController.primaryColor.value.withValues(alpha: 0.08),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -781,7 +775,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                   colorController.primaryColor.value.withValues(alpha: 0.12),
               trackHeight: 3,
             ),
-            child: Slider(value: value, min: min, max: max, onChanged: onChanged),
+            child:
+                Slider(value: value, min: min, max: max, onChanged: onChanged),
           ),
         ],
       ),
@@ -888,7 +883,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           style: fontController.getFontStyle(
             font,
             TextStyle(
-              color: isSelected ? Colors.white : colorController.textColor.value,
+              color:
+                  isSelected ? Colors.white : colorController.textColor.value,
               fontSize: 12,
               fontWeight: FontWeight.w700,
             ),
@@ -917,8 +913,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           ),
           boxShadow: [
             BoxShadow(
-              color:
-                  Colors.black.withValues(alpha: isSelected ? 0.16 : 0.08),
+              color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.08),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -1061,10 +1056,11 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
       }
 
       final image = await renderObject.toImage(pixelRatio: 3.0);
-      final byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
 
-      if (byteData == null) throw StateError('Failed to encode the preview image.');
+      if (byteData == null) {
+        throw StateError('Failed to encode the preview image.');
+      }
 
       final pngBytes = byteData.buffer.asUint8List();
       final result = await SharePlus.instance.share(
@@ -1124,8 +1120,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
               color: colorController.backgroundColor.value,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
-                color: colorController.primaryColor.value
-                    .withValues(alpha: 0.18),
+                color:
+                    colorController.primaryColor.value.withValues(alpha: 0.18),
               ),
             ),
             child: Padding(
