@@ -1140,5 +1140,48 @@
    "requestTimedOut": "La requête a expiré. Veuillez réessayer.",
    "resourceNotFound": "Ressource introuvable. Veuillez réessayer plus tard.",
    "somethingWentWrong": "Quelque chose s'est mal passé. Veuillez réessayer.",
-   "widgetErrorBoundaryCaughtError": "Erreur capturée par la limite d'erreur du widget"
+   "widgetErrorBoundaryCaughtError": "Erreur capturée par la limite d'erreur du widget",
+  "versesCount": "{count} versets",
+  "@versesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readEntireChapter": "Lire tout le chapitre {chapter}",
+  "@readEntireChapter": {
+    "placeholders": {
+      "chapter": {
+        "type": "int"
+      }
+    }
+  },
+  "orChooseVerseRange": "ou choisir les versets",
+  "fromVerse": "Du verset",
+  "toVerse": "Au verset",
+  "noVersesFound": "Aucun verset trouvé",
+  "readPassage": "Lire {passage}",
+  "@readPassage": {
+    "placeholders": {
+      "passage": {
+        "type": "String"
+      }
+    }
+  },
+  "verseStudio": "Studio de Versets",
+  "shapeThePassageBeforeYouShareIt": "Façonnez le passage avant de le partager",
+  "background": "Arrière-plan",
+  "customImage": "Personnalisé",
+  "backgroundTransparency": "Transparence de l'arrière-plan",
+  "fontSize": "Taille de la police",
+  "fontFamily": "Police de caractères",
+  "copied": "Copié",
+  "passageTextCopied": "Texte du passage copié dans le presse-papiers",
+  "preparing": "Préparation...",
+  "sharingUnavailable": "Partage indisponible",
+  "tryCopyingPassage": "Essayez plutôt de copier le texte du passage.",
+  "shareFailed": "Échec du partage",
+  "chooseTextColor": "Choisir la couleur du texte",
+  "apply": "Appliquer"
 }

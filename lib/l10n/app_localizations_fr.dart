@@ -2374,4 +2374,79 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get widgetErrorBoundaryCaughtError =>
       'Erreur capturée par la limite d\'erreur du widget';
+
+  @override
+  String versesCount(int count) {
+    return '$count versets';
+  }
+
+  @override
+  String readEntireChapter(int chapter) {
+    return 'Lire tout le chapitre $chapter';
+  }
+
+  @override
+  String get orChooseVerseRange => 'ou choisir les versets';
+
+  @override
+  String get fromVerse => 'Du verset';
+
+  @override
+  String get toVerse => 'Au verset';
+
+  @override
+  String get noVersesFound => 'Aucun verset trouvé';
+
+  @override
+  String readPassage(String passage) {
+    return 'Lire $passage';
+  }
+
+  @override
+  String get verseStudio => 'Studio de Versets';
+
+  @override
+  String get shapeThePassageBeforeYouShareIt =>
+      'Façonnez le passage avant de le partager';
+
+  @override
+  String get background => 'Arrière-plan';
+
+  @override
+  String get customImage => 'Personnalisé';
+
+  @override
+  String get backgroundTransparency => 'Transparence de l\'arrière-plan';
+
+  @override
+  String get fontSize => 'Taille de la police';
+
+  @override
+  String get fontFamily => 'Police de caractères';
+
+  @override
+  String get copied => 'Copié';
+
+  @override
+  String get passageTextCopied =>
+      'Texte du passage copié dans le presse-papiers';
+
+  @override
+  String get preparing => 'Préparation...';
+
+  @override
+  String get sharingUnavailable => 'Partage indisponible';
+
+  @override
+  String get tryCopyingPassage =>
+      'Essayez plutôt de copier le texte du passage.';
+
+  @override
+  String get shareFailed => 'Échec du partage';
+
+  @override
+  String get chooseTextColor => 'Choisir la couleur du texte';
+
+  @override
+  String get apply => 'Appliquer';
 }

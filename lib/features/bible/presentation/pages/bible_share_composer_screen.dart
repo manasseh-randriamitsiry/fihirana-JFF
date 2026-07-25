@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
 import 'package:fihirana/app/theme/color_controller.dart';
@@ -41,6 +44,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   late double _fontSize;
   late Color _textColor;
   late String _fontFamily;
+  String? _customImagePath;
   bool _isSharing = false;
 
   BibleShareBackgroundPreset get _selectedBackground =>
@@ -116,17 +120,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                     children: [
                       _buildSelectionSummary(),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Live preview',
-                        style: TextStyle(
-                          color: colorController.textColor.value,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       RepaintBoundary(
                         key: _previewKey,
                         child: _buildPreviewCard(context),
@@ -136,7 +130,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                       const SizedBox(height: 20),
                       _buildSliderSection(
                         context: context,
-                        title: 'Background transparency',
+                        title: l10n.backgroundTransparency,
                         valueLabel: '${(_backgroundOpacity * 100).round()}%',
                         icon: Icons.opacity_rounded,
                         value: _backgroundOpacity,
@@ -149,7 +143,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                       const SizedBox(height: 20),
                       _buildSliderSection(
                         context: context,
-                        title: 'Font size',
+                        title: l10n.fontSize,
                         valueLabel: '${_fontSize.round()}',
                         icon: Icons.text_fields_rounded,
                         value: _fontSize,
@@ -210,6 +204,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
       child: Row(
@@ -224,7 +219,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Verse Studio',
+                  l10n.verseStudio,
                   style: TextStyle(
                     color: colorController.textColor.value,
                     fontSize: 24,
@@ -234,7 +229,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Shape the passage before you share it',
+                  l10n.shapeThePassageBeforeYouShareIt,
                   style: TextStyle(
                     color:
                         colorController.textColor.value.withValues(alpha: 0.72),
@@ -317,30 +312,15 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.data.reference,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: colorController.textColor.value,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Preview, fine-tune, and share a polished scripture card.',
-                  style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.70),
-                    fontSize: 13,
-                    height: 1.35,
-                  ),
-                ),
-              ],
+            child: Text(
+              widget.data.reference,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: colorController.textColor.value,
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
@@ -368,10 +348,15 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
             Positioned.fill(
               child: Opacity(
                 opacity: _backgroundOpacity,
-                child: SvgPicture.asset(
-                  _selectedBackground.assetPath,
-                  fit: BoxFit.cover,
-                ),
+                child: _customImagePath != null
+                    ? Image.file(
+                        File(_customImagePath!),
+                        fit: BoxFit.cover,
+                      )
+                    : SvgPicture.asset(
+                        _selectedBackground.assetPath,
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
             Positioned.fill(
@@ -462,7 +447,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
-                      'Fihirana Bible',
+                      DateFormat('dd/MM/yyyy').format(DateTime.now()),
                       style: TextStyle(
                         color: _textColor.withValues(alpha: 0.82),
                         fontSize: 12,
@@ -530,11 +515,12 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   }
 
   Widget _buildBackgroundSection() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Background',
+          l10n.background,
           style: TextStyle(
             color: colorController.textColor.value,
             fontSize: 14,
@@ -547,11 +533,15 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           height: 124,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: _backgrounds.length,
+            itemCount: _backgrounds.length + 1,
             separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
-              final preset = _backgrounds[index];
-              final isSelected = preset.id == _selectedBackgroundId;
+              if (index == 0) {
+                return _buildCustomImageCard();
+              }
+              final preset = _backgrounds[index - 1];
+              final isSelected = _customImagePath == null &&
+                  preset.id == _selectedBackgroundId;
               return _buildBackgroundCard(preset, isSelected);
             },
           ),
@@ -560,12 +550,142 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     );
   }
 
+  Widget _buildCustomImageCard() {
+    final isSelected = _customImagePath != null;
+    return GestureDetector(
+      onTap: _pickCustomImage,
+      child: AnimatedContainer(
+        duration: AppDimensions.normal,
+        width: 95,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: colorController.primaryColor.value.withValues(alpha: 0.1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.08),
+              blurRadius: isSelected ? 18 : 10,
+              offset: const Offset(0, 8),
+            ),
+          ],
+          border: Border.all(
+            color: isSelected
+                ? colorController.primaryColor.value
+                : colorController.primaryColor.value.withValues(alpha: 0.15),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              if (_customImagePath != null)
+                Positioned.fill(
+                  child: Image.file(
+                    File(_customImagePath!),
+                    fit: BoxFit.cover,
+                  ),
+                )
+              else
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add_photo_alternate_rounded,
+                        color: colorController.primaryColor.value,
+                        size: 28,
+                      ),
+                      const SizedBox(height: 6),
+                      Builder(
+                        builder: (context) => Text(
+                          AppLocalizations.of(context).customImage,
+                          style: TextStyle(
+                            color: colorController.textColor.value,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (_customImagePath != null)
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.black.withValues(alpha: 0.10),
+                          Colors.black.withValues(alpha: 0.34),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              if (_customImagePath != null)
+                Positioned(
+                  left: 10,
+                  right: 10,
+                  bottom: 12,
+                  child: Builder(
+                    builder: (context) => Text(
+                      AppLocalizations.of(context).customImage,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              if (isSelected)
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: colorController.primaryColor.value,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 16,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickCustomImage() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _customImagePath = result.files.single.path;
+      });
+    }
+  }
+
   Widget _buildBackgroundCard(
     BibleShareBackgroundPreset preset,
     bool isSelected,
   ) {
     return GestureDetector(
-      onTap: () => setState(() => _selectedBackgroundId = preset.id),
+      onTap: () => setState(() {
+        _customImagePath = null;
+        _selectedBackgroundId = preset.id;
+      }),
       child: AnimatedContainer(
         duration: AppDimensions.normal,
         width: 95,
@@ -735,7 +855,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         Row(
           children: [
             Text(
-              'Text color',
+              AppLocalizations.of(context).chooseTextColor,
               style: TextStyle(
                 color: colorController.textColor.value,
                 fontSize: 14,
@@ -864,7 +984,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         Row(
           children: [
             Text(
-              'Font family',
+              AppLocalizations.of(context).fontFamily,
               style: TextStyle(
                 color: colorController.textColor.value,
                 fontSize: 14,
@@ -971,7 +1091,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                         ),
                       )
                     : const Icon(Icons.share_rounded),
-                label: Text(_isSharing ? 'Preparing...' : l10n.share),
+                label: Text(_isSharing ? l10n.preparing : l10n.share),
                 style: FilledButton.styleFrom(
                   backgroundColor: colorController.primaryColor.value,
                   foregroundColor: Colors.white,
@@ -992,9 +1112,10 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     await Clipboard.setData(ClipboardData(text: widget.data.shareText));
     if (!mounted) return;
 
+    final l10n = AppLocalizations.of(context);
     Get.snackbar(
-      'Copied',
-      'Passage text copied to clipboard',
+      l10n.copied,
+      l10n.passageTextCopied,
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: colorController.primaryColor.value,
       colorText: Colors.white,
@@ -1041,10 +1162,12 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         return;
       }
 
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       if (result.status == ShareResultStatus.unavailable) {
         Get.snackbar(
-          'Sharing unavailable',
-          'Try copying the passage text instead.',
+          l10n.sharingUnavailable,
+          l10n.tryCopyingPassage,
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
@@ -1054,8 +1177,9 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
       }
     } catch (error) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         Get.snackbar(
-          'Share failed',
+          l10n.shareFailed,
           error.toString(),
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
@@ -1099,7 +1223,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Choose text color',
+                    AppLocalizations.of(context).chooseTextColor,
                     style: TextStyle(
                       color: colorController.textColor.value,
                       fontSize: 18,
@@ -1122,7 +1246,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                     child: TextButton(
                       onPressed: () => Navigator.of(context).pop(tempColor),
                       child: Text(
-                        'Apply',
+                        AppLocalizations.of(context).apply,
                         style: TextStyle(
                           color: colorController.primaryColor.value,
                           fontWeight: FontWeight.w700,

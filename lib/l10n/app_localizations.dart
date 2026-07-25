@@ -4383,6 +4383,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Widget error boundary caught error'**
   String get widgetErrorBoundaryCaughtError;
+
+  /// No description provided for @versesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses'**
+  String versesCount(int count);
+
+  /// No description provided for @readEntireChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Read chapter {chapter} whole'**
+  String readEntireChapter(int chapter);
+
+  /// No description provided for @orChooseVerseRange.
+  ///
+  /// In en, this message translates to:
+  /// **'or choose verse range'**
+  String get orChooseVerseRange;
+
+  /// No description provided for @fromVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'From verse'**
+  String get fromVerse;
+
+  /// No description provided for @toVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'To verse'**
+  String get toVerse;
+
+  /// No description provided for @noVersesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No verses found'**
+  String get noVersesFound;
+
+  /// No description provided for @readPassage.
+  ///
+  /// In en, this message translates to:
+  /// **'Read {passage}'**
+  String readPassage(String passage);
+
+  /// No description provided for @verseStudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Verse Studio'**
+  String get verseStudio;
+
+  /// No description provided for @shapeThePassageBeforeYouShareIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Shape the passage before you share it'**
+  String get shapeThePassageBeforeYouShareIt;
+
+  /// No description provided for @background.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get background;
+
+  /// No description provided for @customImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get customImage;
+
+  /// No description provided for @backgroundTransparency.
+  ///
+  /// In en, this message translates to:
+  /// **'Background transparency'**
+  String get backgroundTransparency;
+
+  /// No description provided for @fontSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Font size'**
+  String get fontSize;
+
+  /// No description provided for @fontFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Font family'**
+  String get fontFamily;
+
+  /// No description provided for @copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get copied;
+
+  /// No description provided for @passageTextCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Passage text copied to clipboard'**
+  String get passageTextCopied;
+
+  /// No description provided for @preparing.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing...'**
+  String get preparing;
+
+  /// No description provided for @sharingUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Sharing unavailable'**
+  String get sharingUnavailable;
+
+  /// No description provided for @tryCopyingPassage.
+  ///
+  /// In en, this message translates to:
+  /// **'Try copying the passage text instead.'**
+  String get tryCopyingPassage;
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Share failed'**
+  String get shareFailed;
+
+  /// No description provided for @chooseTextColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose text color'**
+  String get chooseTextColor;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
 }
 
 class _AppLocalizationsDelegate

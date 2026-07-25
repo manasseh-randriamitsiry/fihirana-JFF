@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class BibleVerseSelectionSheet extends StatefulWidget {
   final String bookName;
@@ -69,14 +70,14 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
     final primaryColor = colorController.primaryColor.value;
     final backgroundColor = colorController.backgroundColor.value;
     final textColor = colorController.textColor.value;
 
     final isSingleVerse = _startVerse == _endVerse;
-    final isFullChapter =
-        _startVerse == 1 && _endVerse == widget.totalVerses;
+    final isFullChapter = _startVerse == 1 && _endVerse == widget.totalVerses;
 
     final rangeText = isFullChapter
         ? '${widget.bookName} ${widget.chapter}'
@@ -139,7 +140,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                       ),
                     ),
                     Text(
-                      '${widget.totalVerses} andininy',
+                      l10n.versesCount(widget.totalVerses),
                       style: TextStyle(
                         fontSize: 13,
                         color: textColor.withValues(alpha: 0.6),
@@ -165,7 +166,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             onPressed: _selectEntireChapter,
             icon: Icon(Icons.auto_stories_rounded, color: primaryColor),
             label: Text(
-              'Hamaky ny toko ${widget.chapter} manontolo',
+              l10n.readEntireChapter(widget.chapter),
               style: TextStyle(
                 color: primaryColor,
                 fontWeight: FontWeight.w600,
@@ -191,7 +192,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
-                  'na fidio ny andininy',
+                  l10n.orChooseVerseRange,
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -212,7 +213,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             children: [
               // Start Verse Selector
               _buildVerseStepper(
-                label: 'Sy andininy',
+                label: l10n.fromVerse,
                 value: _startVerse,
                 onDecrement: () {
                   if (_startVerse > 1) {
@@ -242,7 +243,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
 
               // End Verse Selector
               _buildVerseStepper(
-                label: 'Hatsram-parin\'ny',
+                label: l10n.toVerse,
                 value: _endVerse,
                 onDecrement: () {
                   if (_endVerse > _startVerse) {
@@ -271,7 +272,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             child: widget.totalVerses == 0
                 ? Center(
                     child: Text(
-                      'Tsy misy andininy',
+                      l10n.noVersesFound,
                       style: TextStyle(color: textColor),
                     ),
                   )
@@ -288,7 +289,8 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                       final verse = index + 1;
                       final isStart = verse == _startVerse;
                       final isEnd = verse == _endVerse;
-                      final inRange = verse >= _startVerse && verse <= _endVerse;
+                      final inRange =
+                          verse >= _startVerse && verse <= _endVerse;
 
                       Color itemBg;
                       Color itemFg;
@@ -342,7 +344,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             onPressed: _confirmSelection,
             icon: const Icon(Icons.menu_book_rounded, color: Colors.white),
             label: Text(
-              'Hamaky $rangeText',
+              l10n.readPassage(rangeText),
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

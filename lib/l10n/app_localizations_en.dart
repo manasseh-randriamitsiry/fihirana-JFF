@@ -2340,4 +2340,77 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get widgetErrorBoundaryCaughtError =>
       'Widget error boundary caught error';
+
+  @override
+  String versesCount(int count) {
+    return '$count verses';
+  }
+
+  @override
+  String readEntireChapter(int chapter) {
+    return 'Read chapter $chapter whole';
+  }
+
+  @override
+  String get orChooseVerseRange => 'or choose verse range';
+
+  @override
+  String get fromVerse => 'From verse';
+
+  @override
+  String get toVerse => 'To verse';
+
+  @override
+  String get noVersesFound => 'No verses found';
+
+  @override
+  String readPassage(String passage) {
+    return 'Read $passage';
+  }
+
+  @override
+  String get verseStudio => 'Verse Studio';
+
+  @override
+  String get shapeThePassageBeforeYouShareIt =>
+      'Shape the passage before you share it';
+
+  @override
+  String get background => 'Background';
+
+  @override
+  String get customImage => 'Custom';
+
+  @override
+  String get backgroundTransparency => 'Background transparency';
+
+  @override
+  String get fontSize => 'Font size';
+
+  @override
+  String get fontFamily => 'Font family';
+
+  @override
+  String get copied => 'Copied';
+
+  @override
+  String get passageTextCopied => 'Passage text copied to clipboard';
+
+  @override
+  String get preparing => 'Preparing...';
+
+  @override
+  String get sharingUnavailable => 'Sharing unavailable';
+
+  @override
+  String get tryCopyingPassage => 'Try copying the passage text instead.';
+
+  @override
+  String get shareFailed => 'Share failed';
+
+  @override
+  String get chooseTextColor => 'Choose text color';
+
+  @override
+  String get apply => 'Apply';
 }
