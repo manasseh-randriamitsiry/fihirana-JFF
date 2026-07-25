@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -184,7 +183,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return ListView.builder(
       key: const PageStorageKey('bible_books_list'),
-      scrollCacheExtent: const ScrollCacheExtent.pixels(1200),
+      cacheExtent: 1200.0,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
@@ -281,7 +280,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 return ListView.builder(
                   key: const PageStorageKey('bible_verses_list'),
                   controller: _verseScrollController,
-                  scrollCacheExtent: const ScrollCacheExtent.pixels(1200),
+                  cacheExtent: 1200.0,
                   padding: const EdgeInsets.fromLTRB(
                       20, 16, 20, 100), // Add bottom padding for FAB
                   itemCount:
