@@ -282,8 +282,9 @@ class AudioService implements IAudioService {
           await _player.play();
         } catch (e) {
           // If play fails, might need full reload, so fall through
-          if (kDebugMode)
+          if (kDebugMode) {
             print('AudioService: Resume failed, falling back to reload: $e');
+          }
         }
       }
       return;
