@@ -1113,5 +1113,48 @@
   "saveRecording": "Save Recording",
   "skip": "Skip",
   "done": "Done",
-  "recordingNotSaved": "Recording was not saved"
+  "recordingNotSaved": "Recording was not saved",
+  "versesCount": "{count} andininy",
+  "@versesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readEntireChapter": "Hamaky ny toko {chapter} manontolo",
+  "@readEntireChapter": {
+    "placeholders": {
+      "chapter": {
+        "type": "int"
+      }
+    }
+  },
+  "orChooseVerseRange": "na fidio ny andininy",
+  "fromVerse": "Sy andininy",
+  "toVerse": "Hatramin'ny",
+  "noVersesFound": "Tsy misy andininy",
+  "readPassage": "Hamaky {passage}",
+  "@readPassage": {
+    "placeholders": {
+      "passage": {
+        "type": "String"
+      }
+    }
+  },
+  "verseStudio": "Verse Studio",
+  "shapeThePassageBeforeYouShareIt": "Amboary ny andininy mialoha ny fizarana",
+  "background": "Sary ambadika",
+  "customImage": "Hisafidy Sary",
+  "backgroundTransparency": "Fangaraharan'ny ambadika",
+  "fontSize": "Haben'ny soratra",
+  "fontFamily": "Karazan-tsoratra",
+  "copied": "Voadika",
+  "passageTextCopied": "Voadika ny soratra",
+  "preparing": "Manomana...",
+  "sharingUnavailable": "Tsy afaka mizara",
+  "tryCopyingPassage": "Andramo adika ny soratr'andiny.",
+  "shareFailed": "Tsy afaka mizara",
+  "chooseTextColor": "Safidio ny lokon'ny soratra",
+  "apply": "Ekena"
 }

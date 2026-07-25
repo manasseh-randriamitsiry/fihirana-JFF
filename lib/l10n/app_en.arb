@@ -1140,5 +1140,48 @@
    "requestTimedOut": "Request timed out. Please try again.",
    "resourceNotFound": "Resource not found. Please try again later.",
    "somethingWentWrong": "Something went wrong. Please try again.",
-   "widgetErrorBoundaryCaughtError": "Widget error boundary caught error"
+   "widgetErrorBoundaryCaughtError": "Widget error boundary caught error",
+  "versesCount": "{count} verses",
+  "@versesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readEntireChapter": "Read chapter {chapter} whole",
+  "@readEntireChapter": {
+    "placeholders": {
+      "chapter": {
+        "type": "int"
+      }
+    }
+  },
+  "orChooseVerseRange": "or choose verse range",
+  "fromVerse": "From verse",
+  "toVerse": "To verse",
+  "noVersesFound": "No verses found",
+  "readPassage": "Read {passage}",
+  "@readPassage": {
+    "placeholders": {
+      "passage": {
+        "type": "String"
+      }
+    }
+  },
+  "verseStudio": "Verse Studio",
+  "shapeThePassageBeforeYouShareIt": "Shape the passage before you share it",
+  "background": "Background",
+  "customImage": "Custom",
+  "backgroundTransparency": "Background transparency",
+  "fontSize": "Font size",
+  "fontFamily": "Font family",
+  "copied": "Copied",
+  "passageTextCopied": "Passage text copied to clipboard",
+  "preparing": "Preparing...",
+  "sharingUnavailable": "Sharing unavailable",
+  "tryCopyingPassage": "Try copying the passage text instead.",
+  "shareFailed": "Share failed",
+  "chooseTextColor": "Choose text color",
+  "apply": "Apply"
 }

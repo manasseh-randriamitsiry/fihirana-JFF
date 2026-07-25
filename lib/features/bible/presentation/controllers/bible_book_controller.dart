@@ -133,7 +133,8 @@ class BibleBookController extends GetxController {
       final upper = max(startVerse, endVerse > 0 ? endVerse : startVerse);
       selectedVerses
         ..clear()
-        ..addAll(List<int>.generate(upper - lower + 1, (index) => lower + index));
+        ..addAll(
+            List<int>.generate(upper - lower + 1, (index) => lower + index));
       selectedVerses.refresh();
       isSelecting.value = true;
     }

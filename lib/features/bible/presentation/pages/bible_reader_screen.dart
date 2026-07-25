@@ -230,7 +230,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return BibleChapterGridWidget(
       chapters: chapters,
-      onChapterSelected: (chapter) => _showVerseSelectionSheet(context, chapter),
+      onChapterSelected: (chapter) =>
+          _showVerseSelectionSheet(context, chapter),
     );
   }
 
