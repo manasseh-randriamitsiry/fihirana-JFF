@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/features/bible/di/bible_di.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
@@ -121,14 +122,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               ),
             )),
         actions: [
-          IconButton(
-            icon: Icon(Icons.bookmark_rounded,
-                color: colorController.iconColor.value),
-            onPressed: () {
-              HapticFeedback.lightImpact();
-              _showHighlightsPage(context);
-            },
-          ),
+          if (AuthController.instance.isAuthenticated)
+            IconButton(
+              icon: Icon(Icons.bookmark_rounded,
+                  color: colorController.iconColor.value),
+              onPressed: () {
+                HapticFeedback.lightImpact();
+                _showHighlightsPage(context);
+              },
+            ),
           IconButton(
             icon: Icon(Icons.search_rounded,
                 color: colorController.iconColor.value),

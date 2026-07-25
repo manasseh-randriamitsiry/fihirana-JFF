@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 import 'package:fihirana/features/bible/data/services/bible_highlight_service.dart';
@@ -53,6 +54,7 @@ class BibleHighlightController extends GetxController {
   }
 
   void _loadPublicHighlights(String bookName, int chapter) {
+    if (FirebaseAuth.instance.currentUser == null) return;
     try {
       _highlightService.getPublicHighlightsStream(bookName, chapter).listen(
         (pubHighlights) {

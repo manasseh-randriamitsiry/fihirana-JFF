@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/features/bible/presentation/pages/bible_share_composer_screen.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -13,6 +14,7 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     final bibleController = Get.find<BibleController>();
+    final authController = Get.find<AuthController>();
     final l10n = AppLocalizations.of(context);
 
     return Obx(() {
@@ -20,6 +22,8 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
       if (!bibleController.isSelecting || !hasSelection) {
         return const SizedBox.shrink();
       }
+
+      final isLoggedIn = authController.isAuthenticated;
 
       final selectedReference = bibleController.getSelectedVersesText();
       final shareData = bibleController.buildSelectedShareData();
@@ -79,14 +83,15 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              IconButton(
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  bibleController.saveHighlight();
-                },
-                icon: const Icon(Icons.highlight_rounded, color: Colors.orange),
-                tooltip: l10n.saveChanges,
-              ),
+              if (isLoggedIn)
+                IconButton(
+                  onPressed: () {
+                    HapticFeedback.lightImpact();
+                    bibleController.saveHighlight();
+                  },
+                  icon: const Icon(Icons.highlight_rounded, color: Colors.orange),
+                  tooltip: l10n.saveChanges,
+                ),
               IconButton(
                 onPressed: shareData == null
                     ? null
