@@ -24,34 +24,40 @@ class BibleVerseSelectionSheet extends StatefulWidget {
 }
 
 class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
-  late int _startVerse;
-  late int _endVerse;
+  int? _startVerse;
+  int? _endVerse;
   bool _isRangeSelectionActive = false;
 
   @override
   void initState() {
     super.initState();
-    _startVerse = 1;
-    _endVerse = widget.totalVerses > 0 ? widget.totalVerses : 1;
+    // Do not preselect any verse by default when opening the sheet
+    _startVerse = null;
+    _endVerse = null;
   }
 
   void _onVerseTap(int verseNumber) {
     HapticFeedback.selectionClick();
     setState(() {
-      if (!_isRangeSelectionActive) {
+      if (_startVerse == null) {
         // First tap: set single verse start and end
         _startVerse = verseNumber;
         _endVerse = verseNumber;
         _isRangeSelectionActive = true;
-      } else {
+      } else if (_isRangeSelectionActive) {
         // Second tap: set range
-        if (verseNumber < _startVerse) {
+        if (verseNumber < _startVerse!) {
           _endVerse = _startVerse;
           _startVerse = verseNumber;
         } else {
           _endVerse = verseNumber;
         }
         _isRangeSelectionActive = false; // Reset for next range selection
+      } else {
+        // Start a fresh selection
+        _startVerse = verseNumber;
+        _endVerse = verseNumber;
+        _isRangeSelectionActive = true;
       }
     });
   }
@@ -65,7 +71,9 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
   void _confirmSelection() {
     HapticFeedback.mediumImpact();
     Navigator.of(context).pop();
-    widget.onReadVerses(_startVerse, _endVerse);
+    final start = _startVerse ?? 1;
+    final end = _endVerse ?? widget.totalVerses;
+    widget.onReadVerses(start, end);
   }
 
   @override
@@ -76,10 +84,18 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
     final backgroundColor = colorController.backgroundColor.value;
     final textColor = colorController.textColor.value;
 
-    final isSingleVerse = _startVerse == _endVerse;
-    final isFullChapter = _startVerse == 1 && _endVerse == widget.totalVerses;
+    // Use two distinct colors for start and end verses
+    final startColor = primaryColor;
+    final isPrimaryWarm = HSLColor.fromColor(primaryColor).hue > 15 &&
+        HSLColor.fromColor(primaryColor).hue < 50;
+    final endColor = isPrimaryWarm
+        ? const Color(0xFF0284C7) // Sky Blue if primary is warm
+        : const Color(0xFFEA580C); // Deep Orange if primary is cool
 
-    final rangeText = isFullChapter
+    final isSingleVerse =
+        _startVerse != null && _endVerse != null && _startVerse == _endVerse;
+
+    final rangeText = _startVerse == null
         ? '${widget.bookName} ${widget.chapter}'
         : isSingleVerse
             ? '${widget.bookName} ${widget.chapter}:$_startVerse'
@@ -211,27 +227,31 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Start Verse Selector
+              // Start Verse Selector (using startColor accent)
               _buildVerseStepper(
                 label: l10n.fromVerse,
                 value: _startVerse,
                 onDecrement: () {
-                  if (_startVerse > 1) {
-                    setState(() {
-                      _startVerse--;
-                      if (_endVerse < _startVerse) _endVerse = _startVerse;
-                    });
-                  }
+                  setState(() {
+                    final current = _startVerse ?? 1;
+                    if (current > 1) {
+                      _startVerse = current - 1;
+                      _endVerse ??= widget.totalVerses;
+                      if (_endVerse! < _startVerse!) _endVerse = _startVerse;
+                    }
+                  });
                 },
                 onIncrement: () {
-                  if (_startVerse < widget.totalVerses) {
-                    setState(() {
-                      _startVerse++;
-                      if (_endVerse < _startVerse) _endVerse = _startVerse;
-                    });
-                  }
+                  setState(() {
+                    final current = _startVerse ?? 1;
+                    if (current < widget.totalVerses) {
+                      _startVerse = current + 1;
+                      _endVerse ??= widget.totalVerses;
+                      if (_endVerse! < _startVerse!) _endVerse = _startVerse;
+                    }
+                  });
                 },
-                primaryColor: primaryColor,
+                accentColor: startColor,
                 textColor: textColor,
               ),
 
@@ -241,25 +261,29 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                 size: 20,
               ),
 
-              // End Verse Selector
+              // End Verse Selector (using distinct endColor accent)
               _buildVerseStepper(
                 label: l10n.toVerse,
                 value: _endVerse,
                 onDecrement: () {
-                  if (_endVerse > _startVerse) {
-                    setState(() {
-                      _endVerse--;
-                    });
-                  }
+                  setState(() {
+                    _startVerse ??= 1;
+                    final current = _endVerse ?? widget.totalVerses;
+                    if (current > _startVerse!) {
+                      _endVerse = current - 1;
+                    }
+                  });
                 },
                 onIncrement: () {
-                  if (_endVerse < widget.totalVerses) {
-                    setState(() {
-                      _endVerse++;
-                    });
-                  }
+                  setState(() {
+                    _startVerse ??= 1;
+                    final current = _endVerse ?? widget.totalVerses;
+                    if (current < widget.totalVerses) {
+                      _endVerse = current + 1;
+                    }
+                  });
                 },
-                primaryColor: primaryColor,
+                accentColor: endColor,
                 textColor: textColor,
               ),
             ],
@@ -287,21 +311,34 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                     itemCount: widget.totalVerses,
                     itemBuilder: (context, index) {
                       final verse = index + 1;
-                      final isStart = verse == _startVerse;
-                      final isEnd = verse == _endVerse;
-                      final inRange =
-                          verse >= _startVerse && verse <= _endVerse;
+                      final isStart =
+                          _startVerse != null && verse == _startVerse;
+                      final isEnd = _endVerse != null &&
+                          verse == _endVerse &&
+                          _startVerse != _endVerse;
+                      final inRange = _startVerse != null &&
+                          _endVerse != null &&
+                          verse > _startVerse! &&
+                          verse < _endVerse!;
 
                       Color itemBg;
                       Color itemFg;
                       Border? border;
 
-                      if (isStart || isEnd) {
-                        itemBg = primaryColor;
+                      if (isStart) {
+                        itemBg = startColor;
+                        itemFg = Colors.white;
+                      } else if (isEnd) {
+                        itemBg = endColor;
                         itemFg = Colors.white;
                       } else if (inRange) {
-                        itemBg = primaryColor.withValues(alpha: 0.25);
+                        itemBg = Color.lerp(startColor, endColor, 0.5)!
+                            .withValues(alpha: 0.25);
                         itemFg = primaryColor;
+                        border = Border.all(
+                          color: Color.lerp(startColor, endColor, 0.5)!
+                              .withValues(alpha: 0.35),
+                        );
                       } else {
                         itemBg = primaryColor.withValues(alpha: 0.08);
                         itemFg = textColor;
@@ -367,10 +404,10 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
 
   Widget _buildVerseStepper({
     required String label,
-    required int value,
+    required int? value,
     required VoidCallback onDecrement,
     required VoidCallback onIncrement,
-    required Color primaryColor,
+    required Color accentColor,
     required Color textColor,
   }) {
     return Column(
@@ -379,17 +416,17 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
           label,
           style: TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: textColor.withValues(alpha: 0.6),
+            fontWeight: FontWeight.w600,
+            color: accentColor,
           ),
         ),
         const SizedBox(height: 4),
         Container(
           decoration: BoxDecoration(
-            color: primaryColor.withValues(alpha: 0.08),
+            color: accentColor.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: primaryColor.withValues(alpha: 0.2),
+              color: accentColor.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -397,7 +434,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
               IconButton(
                 onPressed: onDecrement,
                 icon: const Icon(Icons.remove_rounded),
-                color: primaryColor,
+                color: accentColor,
                 iconSize: 20,
                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                 padding: EdgeInsets.zero,
@@ -405,19 +442,19 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
               Container(
                 constraints: const BoxConstraints(minWidth: 36),
                 child: Text(
-                  '$value',
+                  value != null ? '$value' : '—',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: textColor,
+                    color: value != null ? textColor : textColor.withValues(alpha: 0.4),
                   ),
                 ),
               ),
               IconButton(
                 onPressed: onIncrement,
                 icon: const Icon(Icons.add_rounded),
-                color: primaryColor,
+                color: accentColor,
                 iconSize: 20,
                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                 padding: EdgeInsets.zero,
