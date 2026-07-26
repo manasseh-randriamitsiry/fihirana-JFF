@@ -36,7 +36,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get darkMode => 'Maody maizina';
 
   @override
-  String get lightMode => 'Maody mazava';
+  String get lightMode => 'Moody mazava';
 
   @override
   String get system => 'Rafitra';
@@ -63,16 +63,16 @@ class AppLocalizationsMg extends AppLocalizations {
   String get terms => 'Fepetra fampiasana';
 
   @override
-  String get rateApp => 'Omeo naoty ny application';
+  String get rateApp => 'Hanome naoty ny application';
 
   @override
-  String get shareApp => 'Zarao ny rindrambaiko';
+  String get shareApp => 'Hizara ny rindrambaiko';
 
   @override
   String get feedback => 'Hanome sosokevitra';
 
   @override
-  String get help => 'Fanampiana';
+  String get help => 'Hanampy';
 
   @override
   String get logout => 'Hivoaka';
@@ -96,34 +96,34 @@ class AppLocalizationsMg extends AppLocalizations {
   String get resetPassword => 'Hanova ny teny miafina';
 
   @override
-  String get send => 'Alefaso';
+  String get send => 'Alefa';
 
   @override
-  String get cancel => 'Ajanony';
+  String get cancel => 'Ajanona';
 
   @override
   String get ok => 'OK';
 
   @override
-  String get save => 'Tehirizo';
+  String get save => 'Hitahiry';
 
   @override
-  String get delete => 'Fafao';
+  String get delete => 'Hamafa';
 
   @override
   String get edit => 'Hanova';
 
   @override
-  String get add => 'Ampidiro';
+  String get add => 'Hampiditra';
 
   @override
-  String get remove => 'Esory';
+  String get remove => 'Hanaisotra';
 
   @override
   String get clear => 'Hanadio';
 
   @override
-  String get all => 'Rehetra';
+  String get all => 'Izy rehetra';
 
   @override
   String get none => 'Tsy misy';
@@ -132,7 +132,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get select => 'Hisafidy';
 
   @override
-  String get selected => 'Voafidy';
+  String get selected => 'Voasafidy';
 
   @override
   String get no => 'Tsia';
@@ -147,10 +147,10 @@ class AppLocalizationsMg extends AppLocalizations {
   String get off => 'Vonoina';
 
   @override
-  String get enabled => 'Ampiasaina';
+  String get enabled => 'Miasa';
 
   @override
-  String get disabled => 'Tsy ampiasaina';
+  String get disabled => 'Tsy miasa';
 
   @override
   String get available => 'Misy';
@@ -162,11 +162,11 @@ class AppLocalizationsMg extends AppLocalizations {
   String get loading => 'Mahandrasa kely …';
 
   @override
-  String get error => 'Hadisoana';
+  String get error => 'Misy olana';
 
   @override
   String get errorUpdatingFavorites =>
-      'Nisy hadisoana tamin’ny fanavaozana ny hira tiana';
+      'Nisy olana tamin’ny fanavaozana ny hira tiana';
 
   @override
   String get success => 'Nahomby';
@@ -193,10 +193,10 @@ class AppLocalizationsMg extends AppLocalizations {
   String get hymnHint => 'Soso-kevitra momba ny hira';
 
   @override
-  String get confirmDelete => 'Tena hamafa?';
+  String get confirmDelete => 'Manaiky fa hamafa?';
 
   @override
-  String get confirmLogout => 'Tena hivoaka?';
+  String get confirmLogout => 'Manaiky fa hivoaka?';
 
   @override
   String get noResults => 'Tsy misy vokatra';
@@ -210,13 +210,13 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get hymnAlreadyDownloaded => 'Efa nadika ny hira';
+  String get hymnAlreadyDownloaded => 'Efa dowloadé ny hira';
 
   @override
   String get playlistNotFound => 'Tsy hita ny playlist';
 
   @override
-  String get share => 'Zarao';
+  String get share => 'Hizara';
 
   @override
   String get copy => 'Handika';
@@ -225,7 +225,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get view => 'Hijery';
 
   @override
-  String get download => 'Alahao';
+  String get download => 'Haka';
 
   @override
   String get hymnNotDownloaded => 'Tsy mbola tafiditra ny hira';
@@ -273,31 +273,31 @@ class AppLocalizationsMg extends AppLocalizations {
   String get checkForUpdates => 'Hijery fanavaozana';
 
   @override
-  String get updateAvailable => 'Misy fanavaozana';
+  String get updateAvailable => 'Misy fanavaozana azo alaina';
 
   @override
-  String get updateNow => 'Hanavao';
+  String get updateNow => 'Haka fanavaozana';
 
   @override
-  String get updateLater => 'Rehefa kelikely';
+  String get updateLater => 'Hafa afaka kelikely';
 
   @override
   String get noUpdates => 'Tsy misy fanavaozana';
 
   @override
-  String get lastUpdated => 'Fanavaozana farany';
+  String get lastUpdated => 'Efa version farany';
 
   @override
-  String get version => 'Kinova';
+  String get version => 'Version';
 
   @override
-  String get newVersionAvailable => 'Misy kinova vaovao';
+  String get newVersionAvailable => 'Misy version vaovao';
 
   @override
-  String get pleaseUpdate => 'Tokony hoavaozina';
+  String get pleaseUpdate => 'Mila hoavaozina';
 
   @override
-  String get networkError => 'Olana ara-tambazotra';
+  String get networkError => 'Misy olana ara-tambazotra';
 
   @override
   String get connectionError => 'Olana ara-pifandraisana';
@@ -306,16 +306,16 @@ class AppLocalizationsMg extends AppLocalizations {
   String get serverError => 'Olana foibe';
 
   @override
-  String get unknownError => 'Olana tsy fantatra';
+  String get unknownError => 'Misy olana tsy fantatra';
 
   @override
-  String get retry => 'Andramo indray';
+  String get retry => 'Averina atao';
 
   @override
-  String get tryAgain => 'Andramo indray';
+  String get tryAgain => 'Avereno atao';
 
   @override
-  String get close => 'Hidio';
+  String get close => 'Akatona';
 
   @override
   String get back => 'Hiverina';
@@ -327,25 +327,25 @@ class AppLocalizationsMg extends AppLocalizations {
   String get previous => 'Teo aloha';
 
   @override
-  String get finish => 'Vita';
+  String get finish => 'Tapitra';
 
   @override
   String get start => 'Manomboka';
 
   @override
-  String get stop => 'Ajanony';
+  String get stop => 'Ajanona';
 
   @override
-  String get pause => 'Atohizo';
+  String get pause => 'Atsahatra';
 
   @override
-  String get resume => 'Tohizo';
+  String get resume => 'Tohizana';
 
   @override
-  String get play => 'Alefaso';
+  String get play => 'Alefa';
 
   @override
-  String get alphabeticalOrder => 'Filaharana abidy';
+  String get alphabeticalOrder => 'Filaharana ara-abidy';
 
   @override
   String get numericalOrder => 'Filaharana isa';
@@ -1787,13 +1787,13 @@ class AppLocalizationsMg extends AppLocalizations {
   String get playFirstHymn => 'Alefaso ny hira voalohany';
 
   @override
-  String get nowPlaying => 'Mamaky';
+  String get nowPlaying => 'en cours';
 
   @override
-  String get accessDenied => 'Tsy misy fidirana';
+  String get accessDenied => 'Tsy mety';
 
   @override
-  String get accountRestricted => 'Ny kaontinao voasakidy';
+  String get accountRestricted => 'Mihidy ny kaontinao';
 
   @override
   String get reason => 'Antony';
@@ -1808,7 +1808,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get translationEnabled => 'Fandikana voalefa';
 
   @override
-  String get translationDisabled => 'Fandikana voatery';
+  String get translationDisabled => 'Fandikana voahidy';
 
   @override
   String get translating => 'Mandika...';
@@ -2372,7 +2372,7 @@ class AppLocalizationsMg extends AppLocalizations {
   }
 
   @override
-  String get verseStudio => 'Verse Studio';
+  String get verseStudio => 'Fizarana andininy';
 
   @override
   String get shapeThePassageBeforeYouShareIt =>
