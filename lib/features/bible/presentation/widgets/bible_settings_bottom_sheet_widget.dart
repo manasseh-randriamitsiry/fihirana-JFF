@@ -66,7 +66,7 @@ class _BibleSettingsBottomSheetWidgetState
           ),
           const SizedBox(height: 24),
           Text(
-            'Appearance',
+            'Apparence',
             style: TextStyle(
               fontFamily: 'Roboto',
               color: colorController.textColor.value,
@@ -102,7 +102,7 @@ class _BibleSettingsBottomSheetWidgetState
           const SizedBox(height: 24),
           // Font Family Selector
           Text(
-            'Font Family (${fontController.availableFonts.length} fonts)',
+            'Police (${fontController.availableFonts.length} polices)',
             style: TextStyle(
               fontFamily: 'Roboto',
               color: colorController.textColor.value,
@@ -129,9 +129,9 @@ class _BibleSettingsBottomSheetWidgetState
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _buildThemeOption(
-                  ThemeMode.light, Icons.light_mode_rounded, 'Light'),
+                  ThemeMode.light, Icons.light_mode_rounded, 'Clair'),
               _buildThemeOption(
-                  ThemeMode.dark, Icons.dark_mode_rounded, 'Dark'),
+                  ThemeMode.dark, Icons.dark_mode_rounded, 'Sombre'),
             ],
           ),
           const SizedBox(height: 16),

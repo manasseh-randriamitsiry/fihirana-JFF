@@ -33,7 +33,7 @@ class _SaveDialogPrivacyToggleState extends State<SaveDialogPrivacyToggle> {
       ),
       child: SwitchListTile(
         title: Text(
-          _isPublic ? 'Public Recording' : 'Private Recording',
+          _isPublic ? 'Enregistrement public' : 'Enregistrement privé',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
@@ -41,8 +41,8 @@ class _SaveDialogPrivacyToggleState extends State<SaveDialogPrivacyToggle> {
         ),
         subtitle: Text(
           _isPublic
-              ? 'Anyone can listen to this recording'
-              : 'Only you can listen to this recording',
+              ? 'Tout le monde peut écouter cet enregistrement'
+              : 'Vous seul pouvez écouter cet enregistrement',
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.7),
             fontSize: 12,

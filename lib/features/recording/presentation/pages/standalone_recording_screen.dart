@@ -229,7 +229,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                   const SizedBox(height: 20),
 
                   const Text(
-                    'Recording Complete!',
+                    'Enregistrement terminé !',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -254,7 +254,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                     smartDashesType: SmartDashesType.disabled,
                     smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
-                      labelText: 'Recording Name',
+                      labelText: "Nom de l'enregistrement",
                       labelStyle:
                           TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                       border: OutlineInputBorder(
@@ -291,7 +291,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                                 color: Colors.white.withValues(alpha: 0.5)),
                           ),
                           child: Text(
-                            'Discard',
+                            'Ignorer',
                             style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8)),
                           ),
@@ -341,7 +341,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
               onPressed: () => Get.back(),
             ),
             title: Text(
-              'Recording',
+              'Enregistrement',
               style: defaultTextStyle.copyWith(
                 fontWeight: FontWeight.bold,
                 fontSize: 26,
@@ -402,7 +402,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                     smartDashesType: SmartDashesType.disabled,
                     smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
-                      labelText: 'Recording Name',
+                      labelText: "Nom de l'enregistrement",
                       labelStyle: TextStyle(
                         color: textColor.withValues(alpha: 0.7),
                       ),

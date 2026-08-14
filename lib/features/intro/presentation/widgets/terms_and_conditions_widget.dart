@@ -68,7 +68,7 @@ class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Tap to expand and read full terms...',
+                  'Appuyez pour développer et lire toutes les conditions...',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey.shade600,

@@ -92,7 +92,7 @@ class RecordingTileDeleted extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: const Text(
-                'DELETED',
+                'SUPPRIMÉ',
                 style: TextStyle(
                   color: Colors.red,
                   fontSize: 10,
@@ -175,7 +175,7 @@ class RecordingTileDeleted extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Restore',
+                    'Restaurer',
                     style: TextStyle(
                         color: colorController.textColor.value, fontSize: 13),
                   ),
@@ -194,7 +194,7 @@ class RecordingTileDeleted extends StatelessWidget {
                   ),
                   SizedBox(width: 12),
                   Text(
-                    'Delete Permanently',
+                    'Supprimer définitivement',
                     style: TextStyle(color: Colors.red, fontSize: 13),
                   ),
                 ],

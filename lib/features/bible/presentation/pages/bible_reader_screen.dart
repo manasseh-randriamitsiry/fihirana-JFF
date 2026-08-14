@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -87,9 +88,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: colorController.backgroundColor.value,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: Obx(() => IconButton(
@@ -183,7 +184,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return ListView.builder(
       key: const PageStorageKey('bible_books_list'),
-      cacheExtent: 1200.0,
+      scrollCacheExtent: const ScrollCacheExtent.pixels(600),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
@@ -275,12 +276,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             Expanded(
               child: Obx(() {
                 final highlightedVerse = bibleController.highlightedVerse.value;
-                final selectedVersesSet = bibleController.selectedVerses.toSet();
+                final selectedVersesSet =
+                    bibleController.selectedVerses.toSet();
 
                 return ListView.builder(
                   key: const PageStorageKey('bible_verses_list'),
                   controller: _verseScrollController,
-                  cacheExtent: 1200.0,
+                  scrollCacheExtent: const ScrollCacheExtent.pixels(600),
                   padding: const EdgeInsets.fromLTRB(
                       20, 16, 20, 100), // Add bottom padding for FAB
                   itemCount:

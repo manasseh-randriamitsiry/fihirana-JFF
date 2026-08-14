@@ -87,7 +87,7 @@ class RecordingMiniPlayer extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         Text(
-                          'Hymn ${controller.currentHymnId.value}',
+                          'Cantique ${controller.currentHymnId.value}',
                           style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 12,

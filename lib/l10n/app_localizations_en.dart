@@ -2413,4 +2413,73 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apply => 'Apply';
+
+  @override
+  String get languageSelectionDescription =>
+      'Select your preferred language to get started.';
+
+  @override
+  String get reviewOnboardingEssentials =>
+      'Review the essentials, then choose how you want to continue.';
+
+  @override
+  String get acceptTermsToContinue => 'Accept the terms to continue';
+
+  @override
+  String get enterAtLeastCharacters => 'Enter at least 4 characters';
+
+  @override
+  String get appPermissions => 'App permissions';
+
+  @override
+  String get permissionRequestDescription =>
+      'To provide the best experience, we need the following permissions:';
+
+  @override
+  String get notificationsPermissionDescription =>
+      'Receive daily verses, announcements, and update notifications';
+
+  @override
+  String get installPackages => 'Install packages';
+
+  @override
+  String get installPackagesPermissionDescription =>
+      'Allow app updates to be installed automatically';
+
+  @override
+  String errorRequestingPermissions(String error) {
+    return 'Error requesting permissions: $error';
+  }
+
+  @override
+  String get audioSection => 'Audio';
+
+  @override
+  String get moreActions => 'More actions';
+
+  @override
+  String get clearName => 'Clear';
+
+  @override
+  String get enterNameHint => 'Enter your name';
+
+  @override
+  String get unableToLoadFavorites => 'Unable to load favorites';
+
+  @override
+  String get checkConnectionAndTryAgain =>
+      'Check your connection and try again.';
+
+  @override
+  String get savedHymnsWillAppear => 'Hymns you save will appear here.';
+
+  @override
+  String get unableToLoadAdditionalHymns => 'Unable to load additional hymns';
+
+  @override
+  String get communityHymnsWillAppear =>
+      'New community hymns will appear here.';
+
+  @override
+  String get notificationsLabel => 'Notifications';
 }

@@ -83,7 +83,7 @@ class PlaylistItemWidget extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              '${playlist.hymnIds.length} hymns',
+              '${playlist.hymnIds.length} cantiques',
               style: TextStyle(
                 color: colorController.textColor.value.withValues(alpha: 0.5),
                 fontSize: 12,
@@ -275,7 +275,7 @@ class DeletePlaylistDialogWidget extends StatelessWidget {
         style: TextStyle(color: colorController.textColor.value),
       ),
       content: Text(
-        'Are you sure you want to delete playlist "${playlist.title}"?',
+        'Voulez-vous vraiment supprimer la liste de lecture "${playlist.title}" ?',
         style: TextStyle(color: colorController.textColor.value),
       ),
       actions: [

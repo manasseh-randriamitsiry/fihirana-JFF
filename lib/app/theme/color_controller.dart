@@ -8,25 +8,24 @@ import 'package:flutter/scheduler.dart';
 class ColorController extends GetxController {
   static ColorController get to => Get.find();
 
-  final Rx<Color> primaryColor = const Color(0xFF9C27B0).obs; // Colors.purple
-  final Rx<Color> accentColor =
-      const Color(0xFFFF5722).obs; // Colors.deepOrange
-  final Rx<Color> textColor = const Color(0xFF000000).obs; // Colors.black
-  final Rx<Color> backgroundColor = const Color(0xFFFFFFFF).obs; // Colors.white
-  final Rx<Color> drawerColor = const Color(0xFF9C27B0).obs; // Colors.purple
-  final Rx<Color> iconColor = const Color(0xFF000000).obs; // Colors.black
+  final Rx<Color> primaryColor = const Color(0xFF2F6FED).obs;
+  final Rx<Color> accentColor = const Color(0xFF2F6FED).obs;
+  final Rx<Color> textColor = const Color(0xFF111113).obs;
+  final Rx<Color> backgroundColor = const Color(0xFFF2F2F7).obs;
+  final Rx<Color> drawerColor = const Color(0xFFFFFFFF).obs;
+  final Rx<Color> iconColor = const Color(0xFF111113).obs;
 
   final RxInt currentSchemeIndex = 0.obs;
 
   final List<Map<String, dynamic>> colorSchemes = [
     {
       'name': 'Default',
-      'primary': const Color(0xFF2196F3), // Colors.blue
-      'accent': const Color(0xFF40C4FF), // Colors.blueAccent
-      'text': const Color(0xDD000000), // Colors.black87
-      'background': const Color(0xFFFFFFFF), // Colors.white
-      'drawer': const Color(0xFF6A1B9A), // Colors.purple.shade900
-      'icon': const Color(0xFFFF5722), // Colors.deepOrange
+      'primary': const Color(0xFF2F6FED),
+      'accent': const Color(0xFF2F6FED),
+      'text': const Color(0xFF111113),
+      'background': const Color(0xFFF2F2F7),
+      'drawer': const Color(0xFFFFFFFF),
+      'icon': const Color(0xFF111113),
     },
     {
       'name': 'Ocean Blue',
@@ -170,13 +169,13 @@ class ColorController extends GetxController {
       currentSchemeIndex.value = prefs.getInt('currentSchemeIndex') ?? 0;
 
       // Load colors with defaults if null
-      primaryColor.value = Color(prefs.getInt('primaryColor') ?? 0xFF2196F3);
-      accentColor.value = Color(prefs.getInt('accentColor') ?? 0xFFFF5722);
-      textColor.value = Color(prefs.getInt('textColor') ?? 0xFF000000);
+      primaryColor.value = Color(prefs.getInt('primaryColor') ?? 0xFF2F6FED);
+      accentColor.value = Color(prefs.getInt('accentColor') ?? 0xFF2F6FED);
+      textColor.value = Color(prefs.getInt('textColor') ?? 0xFF111113);
       backgroundColor.value =
-          Color(prefs.getInt('backgroundColor') ?? 0xFFFFFFFF);
-      drawerColor.value = Color(prefs.getInt('drawerColor') ?? 0xFF9C27B0);
-      iconColor.value = Color(prefs.getInt('iconColor') ?? 0xFF000000);
+          Color(prefs.getInt('backgroundColor') ?? 0xFFF2F2F7);
+      drawerColor.value = Color(prefs.getInt('drawerColor') ?? 0xFFFFFFFF);
+      iconColor.value = Color(prefs.getInt('iconColor') ?? 0xFF111113);
 
       // Apply system UI overlay style after loading colors
       SystemChrome.setSystemUIOverlayStyle(
@@ -410,27 +409,105 @@ class ColorController extends GetxController {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primaryColor.value,
       brightness: Brightness.light,
+    ).copyWith(
+      surface: const Color(0xFFFFFFFF),
+      surfaceContainerHighest: const Color(0xFFE5E5EA),
+      surfaceContainerLow: const Color(0xFFF7F7FA),
+      onSurface: const Color(0xFF111113),
+      onSurfaceVariant: const Color(0xFF6E6E73),
+      outline: const Color(0xFFD1D1D6),
+      outlineVariant: const Color(0xFFD1D1D6),
     );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: backgroundColor.value,
-      canvasColor: backgroundColor.value,
+      scaffoldBackgroundColor: const Color(0xFFF2F2F7),
+      canvasColor: const Color(0xFFF2F2F7),
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
+        backgroundColor: const Color(0xFFF2F2F7),
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       iconTheme: IconThemeData(
         color: colorScheme.onSurface,
       ),
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(color: colorScheme.onSurface),
-        bodyMedium: TextStyle(color: colorScheme.onSurface),
-        titleLarge: TextStyle(color: colorScheme.onSurface),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFFD1D1D6),
+        thickness: .5,
+        space: 1,
+      ),
+      textTheme: const TextTheme(
+        displaySmall: TextStyle(
+            fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.8),
+        headlineMedium: TextStyle(
+            fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(fontSize: 16),
+        bodyMedium: TextStyle(fontSize: 15),
+        bodySmall: TextStyle(fontSize: 13),
+        labelLarge: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       ).apply(
         bodyColor: colorScheme.onSurface,
         displayColor: colorScheme.onSurface,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        isDense: true,
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: .65),
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: BorderSide(color: colorScheme.outline),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 68,
+        elevation: 0,
+        backgroundColor: colorScheme.surface,
+        indicatorColor: colorScheme.primary.withValues(alpha: .14),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
+              fontSize: 11,
+              fontWeight: states.contains(WidgetState.selected)
+                  ? FontWeight.w700
+                  : FontWeight.w500,
+            )),
       ),
     );
   }
@@ -439,27 +516,99 @@ class ColorController extends GetxController {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: primaryColor.value,
       brightness: Brightness.dark,
+    ).copyWith(
+      surface: const Color(0xFF1C1C1E),
+      surfaceContainerHighest: const Color(0xFF2C2C2E),
+      surfaceContainerLow: const Color(0xFF242426),
+      onSurface: const Color(0xFFF2F2F7),
+      onSurfaceVariant: const Color(0xFFAEAEB2),
+      outline: const Color(0xFF38383A),
+      outlineVariant: const Color(0xFF38383A),
     );
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: backgroundColor.value,
-      canvasColor: backgroundColor.value,
+      scaffoldBackgroundColor: const Color(0xFF000000),
+      canvasColor: const Color(0xFF000000),
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
+        backgroundColor: const Color(0xFF000000),
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       iconTheme: IconThemeData(
         color: colorScheme.onSurface,
       ),
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(color: colorScheme.onSurface),
-        bodyMedium: TextStyle(color: colorScheme.onSurface),
-        titleLarge: TextStyle(color: colorScheme.onSurface),
+      dividerTheme: const DividerThemeData(
+        color: Color(0xFF38383A),
+        thickness: .5,
+        space: 1,
+      ),
+      textTheme: const TextTheme(
+        displaySmall: TextStyle(
+            fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.8),
+        headlineMedium: TextStyle(
+            fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(fontSize: 16),
+        bodyMedium: TextStyle(fontSize: 15),
+        bodySmall: TextStyle(fontSize: 13),
+        labelLarge: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       ).apply(
         bodyColor: colorScheme.onSurface,
         displayColor: colorScheme.onSurface,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        isDense: true,
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest,
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: BorderSide(color: colorScheme.outline),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 68,
+        elevation: 0,
+        backgroundColor: colorScheme.surface,
+        indicatorColor: colorScheme.primary.withValues(alpha: .25),
       ),
     );
   }

@@ -201,7 +201,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text(
-                      'Loading...',
+                      'Chargement...',
                       style: TextStyle(
                         fontFamily: 'Roboto',
                         color: colorController.textColor.value

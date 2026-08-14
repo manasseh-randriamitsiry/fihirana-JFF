@@ -21,7 +21,7 @@ class PlayerTopBar extends StatelessWidget {
             onPressed: onClose ?? () => Navigator.of(context).pop(),
           ),
           Text(
-            'Now Playing',
+            'Lecture en cours',
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.9),
               fontSize: 14,

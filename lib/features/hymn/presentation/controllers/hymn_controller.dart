@@ -88,7 +88,16 @@ class HymnController extends GetxController {
   void _initHymnsStream() {
     isLoading.value = true;
     _hymnsSubscription = _hymnService.getLocalHymnsStream().listen((hymns) {
-      _allHymns.value = hymns;
+      final sortedHymns = List<Hymn>.of(hymns)
+        ..sort((a, b) {
+          final numberA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+          final numberB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+          if (numberA.isNotEmpty && numberB.isNotEmpty) {
+            return int.parse(numberA).compareTo(int.parse(numberB));
+          }
+          return a.hymnNumber.compareTo(b.hymnNumber);
+        });
+      _allHymns.value = sortedHymns;
       _applyFilter();
       isLoading.value = false;
     });
@@ -97,19 +106,7 @@ class HymnController extends GetxController {
   void _applyFilter() {
     final searchQuery = searchController.text.toLowerCase();
 
-    List<Hymn> results = List.from(_allHymns);
-
-    // Sort all hymns first (if not already sorted by service)
-    results.sort((a, b) {
-      String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-      String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-
-      if (numA.isNotEmpty && numB.isNotEmpty) {
-        return int.parse(numA).compareTo(int.parse(numB));
-      }
-
-      return a.hymnNumber.compareTo(b.hymnNumber);
-    });
+    Iterable<Hymn> results = _allHymns;
 
     if (searchQuery.isNotEmpty) {
       results = results
@@ -118,10 +115,12 @@ class HymnController extends GetxController {
               hymn.title.toLowerCase().contains(searchQuery) ||
               hymn.verses
                   .any((verse) => verse.toLowerCase().contains(searchQuery)))
-          .toList();
+          .toList(growable: false);
     }
 
-    filteredHymns.value = results;
+    filteredHymns.value = results is List<Hymn>
+        ? List<Hymn>.from(results, growable: false)
+        : results.toList(growable: false);
   }
 
   Stream<Map<String, String>> getFavoriteStatusStream() {

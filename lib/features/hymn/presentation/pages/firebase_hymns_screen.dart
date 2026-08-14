@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
-import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
-import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
-import 'package:fihirana/features/hymn/presentation/widgets/hymn_list_item.dart';
 
+import 'package:fihirana/core/navigation/shell_controller.dart';
+import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
+import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
+import 'package:fihirana/features/hymn/presentation/widgets/hymn_list_item.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class FirebaseHymnsScreen extends StatefulWidget {
   const FirebaseHymnsScreen({super.key});
@@ -18,126 +18,68 @@ class FirebaseHymnsScreen extends StatefulWidget {
 class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
   final HymnService _hymnService = Get.find<HymnService>();
 
-  void _showAudioPlayerDialog(Hymn hymn) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final ColorController colorController = Get.find<ColorController>();
-        return Dialog(
-          backgroundColor: colorController.backgroundColor.value,
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      l10n.audioPlayer,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: colorController.textColor.value,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
-                        Icons.close,
-                        color: colorController.iconColor.value,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return GetBuilder<ColorController>(
-      builder: (colorController) => Scaffold(
-        backgroundColor: colorController.backgroundColor.value,
-        appBar: AppBar(
-          backgroundColor: colorController.backgroundColor.value,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          title: Text(
-            l10n.additionalHymns,
-            style: TextStyle(
-              color: colorController.textColor.value,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          leading: IconButton(
-            icon: Icon(Icons.menu_rounded,
-                color: colorController.iconColor.value),
-            onPressed: () => Get.find<ShellController>().toggleDrawer(),
-          ),
-        ),
-        body: StreamBuilder<List<Hymn>>(
-          stream: _hymnService.getFirebaseHymnsStream(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(
-                child: Text(
-                  l10n.errorOccurredColon(snapshot.error.toString()),
-                  style: TextStyle(color: colorController.textColor.value),
-                ),
-              );
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final hymns = snapshot.data ?? [];
-            if (hymns.isEmpty) {
-              return Center(
-                child: Text(
-                  l10n.noAdditionalHymns,
-                  style: TextStyle(color: colorController.textColor.value),
-                ),
-              );
-            }
-
-            return ListView.builder(
-              key: const PageStorageKey('firebase_hymns_list'),
-              itemCount: hymns.length,
-              itemBuilder: (context, index) {
-                final hymn = hymns[index];
-                return StreamBuilder<Map<String, String>>(
-                  stream: _hymnService.getFavoriteStatusStream(),
-                  builder: (context, favSnapshot) {
-                    final isFavorite =
-                        favSnapshot.data?[hymn.id]?.isNotEmpty ?? false;
-                    return HymnListItem(
-                      key: ValueKey(hymn.id),
-                      hymn: hymn,
-                      textColor: colorController.textColor.value,
-                      backgroundColor: colorController.backgroundColor.value,
-                      primaryColor: colorController.primaryColor.value,
-                      onFavoritePressed: () =>
-                          _hymnService.toggleFavorite(hymn),
-                      onMusicPressed: () => _showAudioPlayerDialog(hymn),
-                      isFirebaseHymn: true,
-                      isFavorite: isFavorite,
-                      // Note: We could also check audio here, but for now defaulting to false or adding a check
-                      hasAudio: false,
-                    );
-                  },
-                );
-              },
+    final colors = Theme.of(context).colorScheme;
+    return AppPageScaffold(
+      title: l10n.additionalHymns,
+      leading: IconButton(
+        tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        icon: const Icon(Icons.menu_rounded),
+        onPressed: Get.find<ShellController>().toggleDrawer,
+      ),
+      body: StreamBuilder<List<Hymn>>(
+        stream: _hymnService.getFirebaseHymnsStream(),
+        builder: (context, hymnSnapshot) {
+          if (hymnSnapshot.hasError) {
+            return AppEmptyState(
+              icon: Icons.cloud_off_rounded,
+              title: l10n.unableToLoadAdditionalHymns,
+              message: l10n.checkConnectionAndTryAgain,
+              action: TextButton(
+                  onPressed: () => setState(() {}), child: Text(l10n.tryAgain)),
             );
-          },
-        ),
+          }
+          if (!hymnSnapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final hymns = hymnSnapshot.data!;
+          if (hymns.isEmpty) {
+            return AppEmptyState(
+              icon: Icons.library_music_outlined,
+              title: l10n.noAdditionalHymns,
+              message: l10n.communityHymnsWillAppear,
+            );
+          }
+          return StreamBuilder<Map<String, String>>(
+            stream: _hymnService.getFavoriteStatusStream(),
+            initialData: _hymnService.currentFavoriteStatus,
+            builder: (context, favoriteSnapshot) {
+              final favorites =
+                  favoriteSnapshot.data ?? const <String, String>{};
+              return ListView.separated(
+                key: const PageStorageKey('firebase_hymns_list'),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                itemCount: hymns.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final hymn = hymns[index];
+                  return HymnListItem(
+                    key: ValueKey(hymn.id),
+                    hymn: hymn,
+                    textColor: colors.onSurface,
+                    backgroundColor: colors.surface,
+                    primaryColor: colors.primary,
+                    onFavoritePressed: () => _hymnService.toggleFavorite(hymn),
+                    isFirebaseHymn: true,
+                    isFavorite: favorites[hymn.id]?.isNotEmpty ?? false,
+                  );
+                },
+              );
+            },
+          );
+        },
       ),
     );
   }

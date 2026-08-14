@@ -345,7 +345,7 @@ class _LightweightAudioPlayerWidgetState
               ),
               const SizedBox(height: 2),
               Text(
-                'Hymn ${widget.hymn.hymnNumber}',
+                'Cantique ${widget.hymn.hymnNumber}',
                 style: TextStyle(
                   fontSize: 12,
                   color:

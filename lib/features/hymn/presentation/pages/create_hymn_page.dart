@@ -328,7 +328,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'Hymns remaining this month: ${authController.remainingHymnsThisMonth}',
+                              'Cantiques restants ce mois-ci : ${authController.remainingHymnsThisMonth}',
                               style: TextStyle(
                                 color: colorController.textColor.value,
                                 fontWeight: FontWeight.w500,
@@ -398,11 +398,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   ReorderableListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    onReorder: (oldIndex, newIndex) {
+                    onReorderItem: (oldIndex, newIndex) {
                       setState(() {
-                        if (newIndex > oldIndex) {
-                          newIndex -= 1;
-                        }
                         final item = _verseControllers.removeAt(oldIndex);
                         _verseControllers.insert(newIndex, item);
                       });
