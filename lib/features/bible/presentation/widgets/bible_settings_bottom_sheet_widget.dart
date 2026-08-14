@@ -34,16 +34,16 @@ class _BibleSettingsBottomSheetWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
     final fontController = Get.find<FontController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: colorController.backgroundColor.value,
+        color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: colors.shadow.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -59,7 +59,7 @@ class _BibleSettingsBottomSheetWidgetState
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.3),
+                color: colors.onSurfaceVariant.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -69,7 +69,7 @@ class _BibleSettingsBottomSheetWidgetState
             'Apparence',
             style: TextStyle(
               fontFamily: 'Roboto',
-              color: colorController.textColor.value,
+              color: colors.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -78,15 +78,14 @@ class _BibleSettingsBottomSheetWidgetState
           // Font Size
           Row(
             children: [
-              Icon(Icons.text_fields,
-                  size: 20, color: colorController.textColor.value),
+              Icon(Icons.text_fields, size: 20, color: colors.onSurface),
               const SizedBox(width: 16),
               Expanded(
                 child: Slider(
                   value: _currentFontSize,
                   min: 12,
                   max: 32,
-                  activeColor: colorController.primaryColor.value,
+                  activeColor: colors.primary,
                   onChanged: (value) {
                     setState(() => _currentFontSize = value);
                     widget.onSettingsChanged(value, _currentFontFamily);
@@ -95,7 +94,7 @@ class _BibleSettingsBottomSheetWidgetState
               ),
               Text(
                 '${_currentFontSize.toInt()}',
-                style: TextStyle(color: colorController.textColor.value),
+                style: TextStyle(color: colors.onSurface),
               ),
             ],
           ),
@@ -105,7 +104,7 @@ class _BibleSettingsBottomSheetWidgetState
             'Police (${fontController.availableFonts.length} polices)',
             style: TextStyle(
               fontFamily: 'Roboto',
-              color: colorController.textColor.value,
+              color: colors.onSurface,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
@@ -142,7 +141,7 @@ class _BibleSettingsBottomSheetWidgetState
 
   Widget _buildHorizontalFontOption(String family, String fontName) {
     final isSelected = _currentFontFamily == family;
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () {
@@ -152,14 +151,10 @@ class _BibleSettingsBottomSheetWidgetState
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? colorController.primaryColor.value
-              : colorController.primaryColor.value.withValues(alpha: 0.1),
+          color: isSelected ? colors.primary : colors.primaryContainer,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected
-                ? colorController.primaryColor.value
-                : colorController.textColor.value.withValues(alpha: 0.2),
+            color: isSelected ? colors.primary : colors.outlineVariant,
             width: 1.5,
           ),
         ),
@@ -168,8 +163,7 @@ class _BibleSettingsBottomSheetWidgetState
           style: Get.find<FontController>().getFontStyle(
             fontName,
             TextStyle(
-              color:
-                  isSelected ? Colors.white : colorController.textColor.value,
+              color: isSelected ? colors.onPrimary : colors.onPrimaryContainer,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
@@ -181,6 +175,7 @@ class _BibleSettingsBottomSheetWidgetState
 
   Widget _buildThemeOption(ThemeMode mode, IconData icon, String label) {
     final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Obx(() {
       final isSelected = colorController.themeMode == mode;
@@ -197,20 +192,19 @@ class _BibleSettingsBottomSheetWidgetState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? colorController.primaryColor.value
-                    : colorController.textColor.value.withValues(alpha: 0.1),
+                    ? colors.primary
+                    : colors.surfaceContainerHighest,
               ),
               child: Icon(
                 icon,
-                color:
-                    isSelected ? Colors.white : colorController.textColor.value,
+                color: isSelected ? colors.onPrimary : colors.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
-                color: colorController.textColor.value,
+                color: colors.onSurface,
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),

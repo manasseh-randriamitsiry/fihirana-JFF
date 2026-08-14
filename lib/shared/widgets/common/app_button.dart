@@ -43,7 +43,7 @@ class AppButton extends StatelessWidget {
     final buttonStyle = _getButtonStyle(context);
     final buttonSize = _getButtonSize();
 
-    Widget buttonChild = _buildButtonChild();
+    Widget buttonChild = _buildButtonChild(_foregroundColor(context));
 
     if (fullWidth) {
       return SizedBox(
@@ -69,6 +69,7 @@ class AppButton extends StatelessWidget {
 
   ButtonStyle _getButtonStyle(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final disabledBackground = colors.onSurface.withValues(alpha: 0.12);
     final baseStyle = ElevatedButton.styleFrom(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -80,18 +81,18 @@ class AppButton extends StatelessWidget {
       case AppButtonType.primary:
         return baseStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : colors.primary,
+            isDisabled ? disabledBackground : colors.primary,
           ),
-          foregroundColor: WidgetStateProperty.all(Colors.white),
+          foregroundColor: WidgetStateProperty.all(_foregroundColor(context)),
         );
 
       case AppButtonType.secondary:
         return baseStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : Colors.white,
+            isDisabled ? disabledBackground : colors.surface,
           ),
           foregroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : colors.primary,
+            _foregroundColor(context),
           ),
           side: WidgetStateProperty.all(
             BorderSide(color: colors.outline),
@@ -101,24 +102,24 @@ class AppButton extends StatelessWidget {
       case AppButtonType.danger:
         return baseStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : Colors.red,
+            isDisabled ? disabledBackground : colors.error,
           ),
-          foregroundColor: WidgetStateProperty.all(Colors.white),
+          foregroundColor: WidgetStateProperty.all(_foregroundColor(context)),
         );
 
       case AppButtonType.success:
         return baseStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : Colors.green,
+            isDisabled ? disabledBackground : colors.secondary,
           ),
-          foregroundColor: WidgetStateProperty.all(Colors.white),
+          foregroundColor: WidgetStateProperty.all(_foregroundColor(context)),
         );
 
       case AppButtonType.outline:
         return baseStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(Colors.transparent),
           foregroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : colors.primary,
+            _foregroundColor(context),
           ),
           side: WidgetStateProperty.all(
             BorderSide(color: colors.primary),
@@ -126,6 +127,18 @@ class AppButton extends StatelessWidget {
           elevation: WidgetStateProperty.all(0),
         );
     }
+  }
+
+  Color _foregroundColor(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    if (isDisabled) return colors.onSurfaceVariant;
+
+    return switch (type) {
+      AppButtonType.primary => colors.onPrimary,
+      AppButtonType.secondary || AppButtonType.outline => colors.primary,
+      AppButtonType.danger => colors.onError,
+      AppButtonType.success => colors.onSecondary,
+    };
   }
 
   Size _getButtonSize() {
@@ -139,14 +152,14 @@ class AppButton extends StatelessWidget {
     }
   }
 
-  Widget _buildButtonChild() {
+  Widget _buildButtonChild(Color foregroundColor) {
     if (isLoading) {
-      return const SizedBox(
+      return SizedBox(
         width: 20,
         height: 20,
         child: CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          valueColor: AlwaysStoppedAnimation<Color>(foregroundColor),
         ),
       );
     }

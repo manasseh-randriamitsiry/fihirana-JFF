@@ -247,6 +247,40 @@ class ColorController extends GetxController {
     return ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
   }
 
+  ColorScheme _colorSchemeFor(Brightness brightness) {
+    final generated = ColorScheme.fromSeed(
+      seedColor: primaryColor.value,
+      brightness: brightness,
+    );
+    final isDarkTheme = brightness == Brightness.dark;
+    final configuredBackground = backgroundColor.value;
+    final surface = _isDark(configuredBackground) == isDarkTheme
+        ? configuredBackground
+        : generated.surface;
+    final configuredText = textColor.value;
+    final onSurface = _isDark(configuredText) != _isDark(surface)
+        ? configuredText
+        : generated.onSurface;
+
+    return generated.copyWith(
+      primary: primaryColor.value,
+      secondary: accentColor.value,
+      surface: surface,
+      surfaceContainerLow: Color.alphaBlend(
+        primaryColor.value.withValues(alpha: 0.04),
+        surface,
+      ),
+      surfaceContainerHighest: Color.alphaBlend(
+        primaryColor.value.withValues(alpha: 0.10),
+        surface,
+      ),
+      onSurface: onSurface,
+      onSurfaceVariant: Color.lerp(onSurface, surface, 0.35)!,
+      outline: Color.lerp(onSurface, surface, 0.70)!,
+      outlineVariant: Color.lerp(onSurface, surface, 0.82)!,
+    );
+  }
+
   String get currentSchemeName =>
       colorSchemes[currentSchemeIndex.value]['name'] as String;
 
@@ -339,42 +373,6 @@ class ColorController extends GetxController {
 
     update();
     Get.forceAppUpdate();
-
-    if (accent != null) {
-      accentColor.value = accent;
-      await prefs.setInt('accentColor', accentColor.value.toARGB32());
-    }
-    if (text != null) {
-      textColor.value = text;
-      await prefs.setInt('textColor', textColor.value.toARGB32());
-    }
-    if (background != null) {
-      backgroundColor.value = background;
-      await prefs.setInt('backgroundColor', backgroundColor.value.toARGB32());
-    }
-    if (drawer != null) {
-      drawerColor.value = drawer;
-      await prefs.setInt('drawerColor', drawerColor.value.toARGB32());
-    }
-    if (icon != null) {
-      iconColor.value = icon;
-      await prefs.setInt('iconColor', iconColor.value.toARGB32());
-    }
-
-    // Apply system UI overlay style after color changes
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: backgroundColor.value,
-        systemNavigationBarIconBrightness:
-            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
-      ),
-    );
-
-    update();
-    Get.forceAppUpdate();
   }
 
   Future<void> saveAllColors() async {
@@ -406,26 +404,15 @@ class ColorController extends GetxController {
   }
 
   ThemeData getLightTheme() {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: primaryColor.value,
-      brightness: Brightness.light,
-    ).copyWith(
-      surface: const Color(0xFFFFFFFF),
-      surfaceContainerHighest: const Color(0xFFE5E5EA),
-      surfaceContainerLow: const Color(0xFFF7F7FA),
-      onSurface: const Color(0xFF111113),
-      onSurfaceVariant: const Color(0xFF6E6E73),
-      outline: const Color(0xFFD1D1D6),
-      outlineVariant: const Color(0xFFD1D1D6),
-    );
+    final colorScheme = _colorSchemeFor(Brightness.light);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFFF2F2F7),
-      canvasColor: const Color(0xFFF2F2F7),
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFFF2F2F7),
+        backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -439,8 +426,8 @@ class ColorController extends GetxController {
       iconTheme: IconThemeData(
         color: colorScheme.onSurface,
       ),
-      dividerTheme: const DividerThemeData(
-        color: Color(0xFFD1D1D6),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
         thickness: .5,
         space: 1,
       ),
@@ -513,26 +500,15 @@ class ColorController extends GetxController {
   }
 
   ThemeData getDarkTheme() {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: primaryColor.value,
-      brightness: Brightness.dark,
-    ).copyWith(
-      surface: const Color(0xFF1C1C1E),
-      surfaceContainerHighest: const Color(0xFF2C2C2E),
-      surfaceContainerLow: const Color(0xFF242426),
-      onSurface: const Color(0xFFF2F2F7),
-      onSurfaceVariant: const Color(0xFFAEAEB2),
-      outline: const Color(0xFF38383A),
-      outlineVariant: const Color(0xFF38383A),
-    );
+    final colorScheme = _colorSchemeFor(Brightness.dark);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: const Color(0xFF000000),
-      canvasColor: const Color(0xFF000000),
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: const Color(0xFF000000),
+        backgroundColor: colorScheme.surface,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -546,8 +522,8 @@ class ColorController extends GetxController {
       iconTheme: IconThemeData(
         color: colorScheme.onSurface,
       ),
-      dividerTheme: const DividerThemeData(
-        color: Color(0xFF38383A),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
         thickness: .5,
         space: 1,
       ),

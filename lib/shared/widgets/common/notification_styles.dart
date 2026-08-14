@@ -1,24 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
+import 'dart:ui' show Brightness, Color, PlatformDispatcher;
 
-class NotificationStyles {
-  static Color get primaryColor =>
-      Get.find<ColorController>().primaryColor.value;
-  static const Color successColor = Colors.green;
-  static const Color errorColor = Colors.red;
-  static const Color audioPlayerColor = Colors.blue;
-  static const Color dailyVerseColor = Color(0xFF4CAF50);
-}
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class NotificationLayouts {
+  /// Awesome Notifications defaults to black when no color is provided.
+  /// Select the seed from the device's light/dark mode instead of the app theme.
+  static Color get _systemNotificationColor =>
+      PlatformDispatcher.instance.platformBrightness == Brightness.dark
+          ? const Color(0xFF000000)
+          : const Color(0xFFFFFFFF);
+
   static NotificationContent createBasicNotification({
     required int id,
     required String channelKey,
     required String title,
     required String body,
-    Color? color,
     String? payload,
     NotificationLayout? layout,
   }) {
@@ -27,7 +23,7 @@ class NotificationLayouts {
       channelKey: channelKey,
       title: title,
       body: body,
-      color: color ?? NotificationStyles.primaryColor,
+      color: _systemNotificationColor,
       notificationLayout: layout ?? NotificationLayout.Default,
       payload: payload != null ? {'data': payload} : null,
     );
@@ -44,7 +40,7 @@ class NotificationLayouts {
       channelKey: 'basic_channel',
       title: title,
       body: body,
-      color: NotificationStyles.successColor,
+      color: _systemNotificationColor,
       notificationLayout: NotificationLayout.Inbox,
       badge: AwesomeNotifications.maxID,
       payload: payload != null ? {'data': payload} : null,
@@ -72,7 +68,6 @@ class NotificationLayouts {
     required String channelKey,
     required String title,
     required String body,
-    Color? color,
     String? payload,
     Map<String, String>? additionalPayload,
   }) {
@@ -86,7 +81,7 @@ class NotificationLayouts {
       title: title,
       body: body,
       notificationLayout: NotificationLayout.BigText,
-      color: color ?? NotificationStyles.primaryColor,
+      color: _systemNotificationColor,
       payload: fullPayload.isNotEmpty ? fullPayload : null,
     );
   }
@@ -97,7 +92,6 @@ class NotificationLayouts {
     required String title,
     required String body,
     required double progress,
-    Color? color,
     bool locked = false,
     bool autoDismissible = true,
     List<NotificationActionButton>? actionButtons,
@@ -111,7 +105,7 @@ class NotificationLayouts {
       progress: progress,
       locked: locked,
       autoDismissible: autoDismissible,
-      color: color ?? NotificationStyles.primaryColor,
+      color: _systemNotificationColor,
     );
   }
 
@@ -120,7 +114,6 @@ class NotificationLayouts {
     required String title,
     required String body,
     String? largeIcon,
-    Color? color,
     double? progress,
     bool locked = false,
     bool autoDismissible = true,
@@ -133,14 +126,13 @@ class NotificationLayouts {
       body: body,
       category: NotificationCategory.Transport,
       notificationLayout: NotificationLayout.MediaPlayer,
-      color: color ?? NotificationStyles.audioPlayerColor,
+      color: _systemNotificationColor,
       autoDismissible: autoDismissible,
       displayOnForeground: true,
       displayOnBackground: true,
       wakeUpScreen: false,
       fullScreenIntent: false,
       locked: locked,
-      backgroundColor: Colors.black87,
       summary: summary ?? 'Fihirana - Music Player',
       largeIcon: largeIcon ?? 'resource://mipmap/ic_launcher',
       roundedLargeIcon: true,
@@ -206,6 +198,7 @@ class NotificationButtons {
         enabled: canGoPrevious,
         autoDismissible: false,
         showInCompactView: true,
+        actionType: ActionType.KeepOnTop,
       ),
       NotificationActionButton(
         key: isPlaying ? 'pause' : 'play',
@@ -216,30 +209,16 @@ class NotificationButtons {
         enabled: true,
         autoDismissible: false,
         showInCompactView: true,
+        actionType: ActionType.KeepOnTop,
       ),
       NotificationActionButton(
         key: 'next',
-        label: 'Next',
+        label: 'Suivant',
         icon: 'resource://drawable/ic_skip_next',
         enabled: canGoNext,
         autoDismissible: false,
         showInCompactView: true,
-      ),
-      NotificationActionButton(
-        key: 'rewind',
-        label: '-10s',
-        icon: 'resource://drawable/ic_rewind',
-        enabled: true,
-        autoDismissible: false,
-        showInCompactView: false,
-      ),
-      NotificationActionButton(
-        key: 'forward',
-        label: '+10s',
-        icon: 'resource://drawable/ic_forward',
-        enabled: true,
-        autoDismissible: false,
-        showInCompactView: false,
+        actionType: ActionType.KeepOnTop,
       ),
       NotificationActionButton(
         key: 'stop',
@@ -248,6 +227,7 @@ class NotificationButtons {
         enabled: true,
         autoDismissible: false,
         showInCompactView: false,
+        actionType: ActionType.KeepOnTop,
       ),
     ];
   }

@@ -39,6 +39,7 @@ class RecordingService extends GetxService implements IRecordingService {
 
   // Track current recording file path
   String? _currentRecordingPath;
+  bool _isStartingRecording = false;
 
   @override
   void onInit() {
@@ -120,6 +121,13 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<String> startRecording() async {
+    if (_isStartingRecording ||
+        _isRecording.value ||
+        await _audioRecorder.isRecording()) {
+      throw StateError('A recording session is already active.');
+    }
+
+    _isStartingRecording = true;
     try {
       if (!await hasPermission()) {
         if (kDebugMode) print('RecordingService: No recording permission');
@@ -132,34 +140,22 @@ class RecordingService extends GetxService implements IRecordingService {
         await recordingsDir.create(recursive: true);
       }
 
-      // Enhanced format selection based on device type
-      String fileName;
-      RecordConfig config;
+      // Use WAV on emulators and only use AAC where the device supports it.
+      // The extension must match the encoder; interpolating the enum here
+      // previously produced invalid filenames such as `AudioEncoder.aacLc`.
+      final useWav = await AudioConfig.isEmulator ||
+          !await _audioRecorder.isEncoderSupported(AudioEncoder.aacLc);
+      final fileName =
+          'rec_${DateTime.now().millisecondsSinceEpoch}${useWav ? '.wav' : '.m4a'}';
+      var config = RecordConfig(
+        encoder: useWav ? AudioEncoder.wav : AudioEncoder.aacLc,
+        sampleRate: 44100,
+        bitRate: 128000,
+      );
 
-      if (await AudioConfig.isEmulator) {
-        // Use WAV format for emulator compatibility
-        fileName = 'rec_${DateTime.now().millisecondsSinceEpoch}.wav';
-        config = const RecordConfig(
-          encoder: AudioEncoder.wav,
-          sampleRate: 44100,
-          bitRate: 128000,
-        );
-        if (kDebugMode) {
-          print('RecordingService: Using WAV format for emulator');
-        }
-      } else {
-        // Use AAC format for physical devices
-        final format = await AudioConfig.preferredFormat;
-        fileName = 'rec_${DateTime.now().millisecondsSinceEpoch}$format';
-        config = const RecordConfig(
-          encoder: AudioEncoder.aacLc,
-          sampleRate: 44100,
-          bitRate: 128000,
-        );
-        if (kDebugMode) {
-          print(
-              'RecordingService: Using AAC format for physical device: $format');
-        }
+      if (kDebugMode) {
+        print(
+            'RecordingService: Using ${useWav ? 'WAV' : 'AAC'} recording format');
       }
 
       final filePath = path.join(recordingsDir.path, fileName);
@@ -188,9 +184,8 @@ class RecordingService extends GetxService implements IRecordingService {
           }
 
           if (retryCount >= maxRetries) {
-            // Try fallback format for emulator
-            if (await AudioConfig.isEmulator &&
-                config.encoder != AudioEncoder.wav) {
+            // Fall back to WAV on any device when AAC is unavailable.
+            if (config.encoder != AudioEncoder.wav) {
               if (kDebugMode) {
                 print('RecordingService: Trying fallback to WAV format...');
               }
@@ -198,7 +193,11 @@ class RecordingService extends GetxService implements IRecordingService {
                   'rec_${DateTime.now().millisecondsSinceEpoch}.wav';
               final fallbackPath =
                   path.join(recordingsDir.path, fallbackFileName);
-              const fallbackConfig = RecordConfig(encoder: AudioEncoder.wav);
+              const fallbackConfig = RecordConfig(
+                encoder: AudioEncoder.wav,
+                sampleRate: 44100,
+                bitRate: 128000,
+              );
 
               await _audioRecorder.start(fallbackConfig, path: fallbackPath);
               _isRecording.value = true;
@@ -224,6 +223,8 @@ class RecordingService extends GetxService implements IRecordingService {
       _isRecording.value = false;
       _currentRecordingPath = null;
       rethrow;
+    } finally {
+      _isStartingRecording = false;
     }
   }
 
@@ -235,19 +236,21 @@ class RecordingService extends GetxService implements IRecordingService {
             'RecordingService: Stopping recording, current path: $_currentRecordingPath');
       }
 
-      await _audioRecorder.stop();
+      final completedPath = await _audioRecorder.stop();
       _isRecording.value = false;
 
-      // Create a UserRecording object if we have a file path
-      if (_currentRecordingPath != null) {
+      // Prefer the native recorder result. Some Android implementations write
+      // to a final path that differs from the requested output path.
+      final outputPath = completedPath ?? _currentRecordingPath;
+      if (outputPath != null) {
         // Verify the file exists
-        final file = File(_currentRecordingPath!);
-        if (await file.exists()) {
+        final file = File(outputPath);
+        if (await file.exists() && await file.length() > 0) {
           final recording = UserRecording(
             id: _uuid.v4(),
             hymnId: '', // Will be set by operations manager
             title: '', // Will be set by operations manager
-            filePath: _currentRecordingPath!,
+            filePath: outputPath,
             durationSeconds: 0, // Will be set by operations manager
             createdAt: DateTime.now(),
           );
@@ -260,8 +263,8 @@ class RecordingService extends GetxService implements IRecordingService {
           return recording;
         } else {
           if (kDebugMode) {
-            print(
-                'RecordingService: Recording file does not exist at path: $_currentRecordingPath');
+            print('RecordingService: Recording file is missing or empty at '
+                'path: $outputPath');
           }
           _currentRecordingPath = null;
           return null;
@@ -288,7 +291,7 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> cancelRecording() async {
-    await _audioRecorder.stop();
+    await _audioRecorder.cancel();
     _isRecording.value = false;
 
     // Clean up the recording file if it exists
@@ -504,12 +507,24 @@ class RecordingService extends GetxService implements IRecordingService {
 
   @override
   Future<void> pauseRecording() async {
+    if (!_isRecording.value || !await _audioRecorder.isRecording()) {
+      throw StateError('No active recording session to pause.');
+    }
     await _audioRecorder.pause();
   }
 
   @override
   Future<void> resumeRecording() async {
+    if (!_isRecording.value || !await _audioRecorder.isRecording()) {
+      throw StateError('No active recording session to resume.');
+    }
     await _audioRecorder.resume();
+  }
+
+  @override
+  void onClose() {
+    unawaited(_audioRecorder.dispose());
+    super.onClose();
   }
 
   @override

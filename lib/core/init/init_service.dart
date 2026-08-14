@@ -13,7 +13,8 @@ import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/app/theme/theme_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/audio/data/services/audio_foreground_service.dart';
+import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/data/services/hymn_audio_handler.dart';
 import 'package:fihirana/features/audio/data/services/background_service.dart';
 import 'package:fihirana/features/bible/data/services/bible_service.dart';
 import 'package:fihirana/core/utils/firebase_sync_service.dart';
@@ -111,7 +112,7 @@ class InitService {
   static Future<void> _initAudioServices() async {
     Get.put(HymnService());
     Get.put(BackgroundService());
-    Get.put(AudioForegroundService());
+    await HymnMediaSession.initialize(AudioService.instance);
 
     // Initialize local audio service (fast, just setup)
     final localAudioService = LocalAudioService();

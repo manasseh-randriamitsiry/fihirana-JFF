@@ -7,9 +7,11 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 
 /// Service to manage audio player notifications in foreground
 class AudioForegroundService extends GetxService {
+  static const _progressNotificationInterval = Duration(seconds: 15);
+
   static AudioForegroundService? _instance;
   bool _isForeground = false;
-  Timer? _notificationUpdateTimer;
+  Duration? _lastNotifiedPosition;
   late AudioService _audioService;
   StreamSubscription? _playerStateSubscription;
   StreamSubscription? _positionSubscription;
@@ -33,6 +35,7 @@ class AudioForegroundService extends GetxService {
     // Listen to current hymn changes
     ever(_audioService.currentPlayingHymnIdRx, (String hymnId) {
       if (hymnId.isNotEmpty) {
+        _lastNotifiedPosition = null;
         if (!_isForeground) {
           _startForegroundService();
         }
@@ -60,16 +63,22 @@ class AudioForegroundService extends GetxService {
       }
     });
 
-    // Listen to position changes to update progress bar (more frequent updates)
+    // Keep media controls stable while the user targets them. Recreating the
+    // notification on every position tick replaces its actions before a tap
+    // can be handled reliably. State and track changes still update at once.
     _positionSubscription = _audioService.positionStream.listen((position) {
       if (_isForeground && position != null) {
+        final lastPosition = _lastNotifiedPosition;
+        final hasMovedBackwards =
+            lastPosition != null && position < lastPosition;
+        final isProgressUpdateDue = lastPosition == null ||
+            position - lastPosition >= _progressNotificationInterval;
+
+        if (!hasMovedBackwards && !isProgressUpdateDue) return;
+        _lastNotifiedPosition = position;
+
         final currentHymn = _audioService.currentHymn;
         if (currentHymn != null) {
-          if (kDebugMode) {
-            print(
-                'AudioForegroundService: Position received: ${position.inMilliseconds}ms');
-          }
-          // Update notification immediately with current position
           NotificationService.updateAudioPlayerProgress(
             currentHymn,
             _audioService.isPlaying,
@@ -102,6 +111,7 @@ class AudioForegroundService extends GetxService {
       print('AudioForegroundService: Starting foreground service');
     }
     _isForeground = true;
+    _lastNotifiedPosition = null;
   }
 
   void _stopForegroundService() {
@@ -109,8 +119,7 @@ class AudioForegroundService extends GetxService {
       print('AudioForegroundService: Stopping foreground service');
     }
     _isForeground = false;
-    _notificationUpdateTimer?.cancel();
-    _notificationUpdateTimer = null;
+    _lastNotifiedPosition = null;
     NotificationService.hideAudioPlayerNotification();
   }
 

@@ -51,13 +51,14 @@ class _HymnListItemState extends State<HymnListItem> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
+        final colors = Theme.of(context).colorScheme;
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              backgroundColor: widget.backgroundColor,
+              backgroundColor: colors.surface,
               title: Text(
                 context.translate((l) => l.deleteHymnQuestion),
-                style: TextStyle(color: widget.textColor),
+                style: TextStyle(color: colors.onSurface),
               ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -65,25 +66,24 @@ class _HymnListItemState extends State<HymnListItem> {
                   Text(
                     context.translate(
                         (l) => l.confirmDeleteHymn(widget.hymn.title)),
-                    style: TextStyle(color: widget.textColor),
+                    style: TextStyle(color: colors.onSurface),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: confirmationController,
-                    style: TextStyle(color: widget.textColor),
+                    style: TextStyle(color: colors.onSurface),
                     decoration: InputDecoration(
                       hintText: context.translate((l) => l.yesLowercase),
-                      hintStyle: TextStyle(
-                          color: widget.textColor.withValues(alpha: 0.5)),
+                      hintStyle: TextStyle(color: colors.onSurfaceVariant),
                       border: OutlineInputBorder(
                         borderRadius:
                             BorderRadius.circular(AppDimensions.radiusSm),
-                        borderSide: BorderSide(color: widget.textColor),
+                        borderSide: BorderSide(color: colors.outline),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius:
                             BorderRadius.circular(AppDimensions.radiusSm),
-                        borderSide: BorderSide(color: widget.textColor),
+                        borderSide: BorderSide(color: colors.outline),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius:
@@ -103,9 +103,9 @@ class _HymnListItemState extends State<HymnListItem> {
                           SnackBar(
                             content: Text(
                               context.translate((l) => l.typeYesToConfirm),
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: colors.onError),
                             ),
-                            backgroundColor: Colors.red,
+                            backgroundColor: colors.error,
                           ),
                         );
                       }
@@ -116,12 +116,12 @@ class _HymnListItemState extends State<HymnListItem> {
               actions: <Widget>[
                 TextButton(
                   child: Text(context.translate((l) => l.cancel),
-                      style: TextStyle(color: widget.textColor)),
+                      style: TextStyle(color: colors.onSurface)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
                   child: Text(context.translate((l) => l.delete),
-                      style: const TextStyle(color: Colors.red)),
+                      style: TextStyle(color: colors.error)),
                   onPressed: () {
                     if (confirmationController.text.toLowerCase() == 'eny') {
                       isConfirmed = true;
@@ -131,9 +131,9 @@ class _HymnListItemState extends State<HymnListItem> {
                         SnackBar(
                           content: Text(
                             context.translate((l) => l.typeYesToConfirm),
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(color: colors.onError),
                           ),
-                          backgroundColor: Colors.red,
+                          backgroundColor: colors.error,
                         ),
                       );
                     }
@@ -153,23 +153,24 @@ class _HymnListItemState extends State<HymnListItem> {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
+        final colors = Theme.of(context).colorScheme;
         return AlertDialog(
-          backgroundColor: widget.backgroundColor,
+          backgroundColor: colors.surface,
           title: Text(context.translate((l) => l.deleteHymnQuestion),
-              style: TextStyle(color: widget.textColor)),
+              style: TextStyle(color: colors.onSurface)),
           content: Text(
             context.translate((l) => l.confirmDeleteHymn(widget.hymn.title)),
-            style: TextStyle(color: widget.textColor),
+            style: TextStyle(color: colors.onSurface),
           ),
           actions: <Widget>[
             TextButton(
               child: Text(context.translate((l) => l.no),
-                  style: TextStyle(color: widget.textColor)),
+                  style: TextStyle(color: colors.onSurface)),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               child: Text(context.translate((l) => l.yes),
-                  style: const TextStyle(color: Colors.red)),
+                  style: TextStyle(color: colors.error)),
               onPressed: () async {
                 // Capture the context and localized messages before any async operations
                 final navigator = Navigator.of(context);
@@ -192,7 +193,7 @@ class _HymnListItemState extends State<HymnListItem> {
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
                         content: Text(deleteHymnFailedMessage),
-                        backgroundColor: Colors.red,
+                        backgroundColor: colors.error,
                       ),
                     );
                   }
@@ -209,7 +210,7 @@ class _HymnListItemState extends State<HymnListItem> {
                     scaffoldMessenger.showSnackBar(
                       SnackBar(
                         content: Text(hymnDeletedSuccessMessage),
-                        backgroundColor: Colors.green,
+                        backgroundColor: colors.primary,
                       ),
                     );
                   }
@@ -220,7 +221,7 @@ class _HymnListItemState extends State<HymnListItem> {
                   scaffoldMessenger.showSnackBar(
                     SnackBar(
                       content: Text('$errorMessage: $e'),
-                      backgroundColor: Colors.red,
+                      backgroundColor: colors.error,
                     ),
                   );
                 }
@@ -236,6 +237,7 @@ class _HymnListItemState extends State<HymnListItem> {
     // Capture scaffold messenger and localization function before async operations
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final localizations = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
 
     try {
       if (kDebugMode) {
@@ -263,7 +265,7 @@ class _HymnListItemState extends State<HymnListItem> {
         scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text(errorMessage),
-            backgroundColor: Colors.red,
+            backgroundColor: colors.error,
           ),
         );
       }
@@ -277,13 +279,15 @@ class _HymnListItemState extends State<HymnListItem> {
     final authController = Get.find<AuthController>();
     final isAdmin = authController.isAdmin || authController.isSuperAdmin;
 
-    // Using values passed from parent instead of Obx
-    final pastelColor = Color.alphaBlend(
-      widget.primaryColor.withValues(alpha: 0.05),
-      widget.backgroundColor,
-    );
-
     final textTheme = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
+    final primaryColor = colors.primary;
+    final backgroundColor = colors.surface;
+    final textColor = colors.onSurface;
+    final pastelColor = Color.alphaBlend(
+      primaryColor.withValues(alpha: 0.05),
+      backgroundColor,
+    );
 
     return Semantics(
       button: true,
@@ -308,14 +312,14 @@ class _HymnListItemState extends State<HymnListItem> {
                     height: 50,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: widget.primaryColor.withValues(
+                      color: primaryColor.withValues(
                           alpha: 0.1), // Consistent accent/primary container
                       shape: BoxShape.circle,
                     ),
                     child: Text(
                       widget.hymn.hymnNumber,
                       style: textTheme.titleMedium?.copyWith(
-                        color: widget.primaryColor,
+                        color: primaryColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -337,7 +341,7 @@ class _HymnListItemState extends State<HymnListItem> {
                             widget.hymn.title,
                             style: textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.bold,
-                              color: widget.textColor,
+                              color: textColor,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -349,7 +353,7 @@ class _HymnListItemState extends State<HymnListItem> {
                         Text(
                           widget.hymn.verses[0],
                           style: textTheme.bodyMedium?.copyWith(
-                            color: widget.textColor.withValues(alpha: 0.7),
+                            color: colors.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -364,7 +368,7 @@ class _HymnListItemState extends State<HymnListItem> {
                                     ? ' (${widget.hymn.createdByEmail})'
                                     : ''),
                             style: textTheme.labelSmall?.copyWith(
-                              color: widget.textColor.withValues(alpha: 0.5),
+                              color: colors.onSurfaceVariant,
                               fontStyle: FontStyle.italic,
                             ),
                             maxLines: 1,
@@ -392,7 +396,7 @@ class _HymnListItemState extends State<HymnListItem> {
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: isPlaying
-                                  ? widget.primaryColor.withValues(alpha: 0.1)
+                                  ? primaryColor.withValues(alpha: 0.1)
                                   : Colors.transparent,
                               shape: BoxShape.circle,
                             ),
@@ -402,8 +406,8 @@ class _HymnListItemState extends State<HymnListItem> {
                                   : Icons.music_note_outlined,
                               size: 20,
                               color: isPlaying
-                                  ? widget.primaryColor
-                                  : widget.textColor.withValues(alpha: 0.6),
+                                  ? primaryColor
+                                  : colors.onSurfaceVariant,
                             ),
                           ),
                           style: IconButton.styleFrom(
@@ -422,8 +426,8 @@ class _HymnListItemState extends State<HymnListItem> {
                             ? Icons.favorite_rounded
                             : Icons.favorite_border_rounded,
                         color: widget.isFavorite
-                            ? Colors.redAccent
-                            : widget.textColor.withValues(alpha: 0.6),
+                            ? colors.error
+                            : colors.onSurfaceVariant,
                         size: 22,
                       ),
                       style: IconButton.styleFrom(
@@ -437,8 +441,7 @@ class _HymnListItemState extends State<HymnListItem> {
                         (widget.hymn.createdByEmail == user.email || isAdmin))
                       PopupMenuButton<String>(
                         icon: Icon(Icons.more_vert_rounded,
-                            color: widget.textColor.withValues(alpha: 0.6),
-                            size: 20),
+                            color: colors.onSurfaceVariant, size: 20),
                         onSelected: (value) {
                           if (value == 'edit') {
                             NavigationUtility.navigateToEditScreen(
@@ -462,16 +465,16 @@ class _HymnListItemState extends State<HymnListItem> {
                             value: 'delete',
                             child: Row(
                               children: [
-                                const Icon(Icons.delete_rounded,
-                                    color: Colors.red, size: 20),
+                                Icon(Icons.delete_rounded,
+                                    color: colors.error, size: 20),
                                 const SizedBox(width: 12),
                                 Text(AppLocalizations.of(context).delete,
-                                    style: const TextStyle(color: Colors.red)),
+                                    style: TextStyle(color: colors.error)),
                               ],
                             ),
                           ),
                         ],
-                        color: widget.backgroundColor,
+                        color: backgroundColor,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16)),
                       ),
