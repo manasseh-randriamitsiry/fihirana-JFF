@@ -38,7 +38,7 @@ class HymnPageWidget extends StatelessWidget {
         slivers: [
           // 1. Header (Title & Number)
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
             sliver: SliverToBoxAdapter(
               child: HymnHeaderCard(
                 title: hymn.title,
@@ -48,12 +48,12 @@ class HymnPageWidget extends StatelessWidget {
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // 2. First Verse
           if (hymn.verses.isNotEmpty)
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverToBoxAdapter(
                 child: HymnVerseCard(
                   verseNumber: 1,
@@ -64,7 +64,7 @@ class HymnPageWidget extends StatelessWidget {
             ),
 
           if (hymn.verses.isNotEmpty)
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // 3. Bridge (Sticky)
           if (hymn.bridge != null && hymn.bridge!.trim().isNotEmpty) ...[
@@ -73,25 +73,24 @@ class HymnPageWidget extends StatelessWidget {
               delegate: _BridgeHeaderDelegate(
                 bridge: hymn.bridge!,
                 fontSize: fontSize,
-                maxWidth:
-                    screenWidth - 32, // Horizontal padding of screen (16*2)
+                maxWidth: screenWidth - 40,
                 textScaler: MediaQuery.of(context).textScaler,
                 defaultTextStyle: DefaultTextStyle.of(context).style,
               ),
             ),
-            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            const SliverToBoxAdapter(child: SizedBox(height: 16)),
           ],
 
           // 4. Remaining Verses
           if (hymn.verses.length > 1)
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     // Start from the second verse (index 1)
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+                      padding: const EdgeInsets.only(bottom: 12.0),
                       child: HymnVerseCard(
                         verseNumber: index + 2,
                         verseText: hymn.verses[index + 1],
@@ -104,11 +103,11 @@ class HymnPageWidget extends StatelessWidget {
               ),
             ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // 4. Notes / Info
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverToBoxAdapter(
               child: HymnInfoCard(
                 hymn: hymn,
@@ -117,11 +116,11 @@ class HymnPageWidget extends StatelessWidget {
             ),
           ),
 
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+          const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
           // 5. User Notes
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 100),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
             sliver: SliverToBoxAdapter(
               child: ImprovedNoteSectionWidget(
                 isUserAuthenticated: isUserAuthenticated,
@@ -169,7 +168,7 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
       BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: Theme.of(context).colorScheme.surface,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       alignment: Alignment.center,
       child: HymnBridgeCard(
         bridge: bridge,
@@ -212,9 +211,8 @@ class _BridgeHeaderDelegate extends SliverPersistentHeaderDelegate {
 
     textPainter.layout(maxWidth: cardContentWidth);
 
-    // Height = TextHeight + TitleHeight(approx 24) + Spacing(12) + CardPadding(40).
-    // Height = TextHeight + TitleHeight(approx 24) + Spacing(12) + CardPadding(40).
-    return textPainter.height + 24 + 12 + 40 + 12;
+    // Height = text + label row + spacing + vertical card and header padding.
+    return textPainter.height + 80;
   }
 
   @override
@@ -242,18 +240,52 @@ class HymnHeaderCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(32),
-          bottom: Radius.circular(32),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: .65),
         ),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.music_note_rounded,
+                  color: colorScheme.onPrimaryContainer,
+                  size: 20,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  number,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
           Text(
             title,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.start,
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: colorScheme.onSurface,
@@ -282,42 +314,52 @@ class HymnBridgeCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
 
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerLow,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.repeat_rounded,
-                    size: 20, color: colorScheme.secondary),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.chorus,
-                  style: TextStyle(
-                    color: colorScheme.secondary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              bridge,
-              style: TextStyle(
-                fontSize: fontSize,
-                fontStyle: FontStyle.italic,
-                height: 1.6,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: .65),
         ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(7),
+                decoration: BoxDecoration(
+                  color: colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.circular(9),
+                ),
+                child: Icon(
+                  Icons.repeat_rounded,
+                  size: 18,
+                  color: colorScheme.onSecondaryContainer,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                l10n.chorus,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            bridge,
+            style: TextStyle(
+              fontSize: fontSize,
+              fontStyle: FontStyle.italic,
+              height: 1.6,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -339,41 +381,43 @@ class HymnVerseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
-    return Card(
-      elevation: 0,
-      color: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                l10n.verseWithNumber(verseNumber),
-                style: TextStyle(
-                  color: colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              verseText,
-              style: TextStyle(
-                fontSize: fontSize,
-                height: 1.8,
-                color: colorScheme.onSurface,
-              ),
-            ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: .65),
         ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              l10n.verseWithNumber(verseNumber),
+              style: TextStyle(
+                color: colorScheme.onPrimaryContainer,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Text(
+            verseText,
+            style: TextStyle(
+              fontSize: fontSize,
+              height: 1.8,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -405,65 +449,67 @@ class HymnInfoCard extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return Card(
-      elevation: 0,
-      color: colorScheme.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            if (showCreatedBy) ...[
-              Row(
-                children: [
-                  Icon(Icons.person_outline_rounded,
-                      size: 20, color: colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    l10n.createdBy(''),
-                    style: TextStyle(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const Spacer(),
-                  Expanded(
-                    flex: 2,
-                    child: Text(
-                      hymn.createdBy,
-                      textAlign: TextAlign.end,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (showHint) const SizedBox(height: 12),
-            ],
-            if (showHint)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline_rounded,
-                      size: 20, color: colorScheme.primary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      hymn.hymnHint!,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontStyle: FontStyle.italic,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-          ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: .65),
         ),
+      ),
+      child: Column(
+        children: [
+          if (showCreatedBy) ...[
+            Row(
+              children: [
+                Icon(Icons.person_outline_rounded,
+                    size: 20, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.createdBy(''),
+                  style: TextStyle(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                const Spacer(),
+                Expanded(
+                  flex: 2,
+                  child: Text(
+                    hymn.createdBy,
+                    textAlign: TextAlign.end,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (showHint) const SizedBox(height: 12),
+          ],
+          if (showHint)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.info_outline_rounded,
+                    size: 20, color: colorScheme.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    hymn.hymnHint!,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }

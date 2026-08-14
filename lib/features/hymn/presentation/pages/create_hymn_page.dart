@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
@@ -13,6 +12,7 @@ import 'package:fihirana/features/hymn/presentation/widgets/hymn_form_widgets.da
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class CreateHymnPage extends StatefulWidget {
   const CreateHymnPage({super.key});
@@ -77,7 +77,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         barrierDismissible: false,
         builder: (context) => Center(
           child: CircularProgressIndicator(
-            color: Get.find<ColorController>().primaryColor.value,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
       );
@@ -109,11 +109,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              l10n.hymnSavedSuccessfully,
-              style: const TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Colors.green,
+            content: Text(l10n.hymnSavedSuccessfully),
+            backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
         _clearForm();
@@ -125,11 +122,8 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            l10n.errorSavingHymn(error.toString()),
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Colors.red,
+          content: Text(l10n.errorSavingHymn(error.toString())),
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -153,10 +147,6 @@ class CreateHymnPageState extends State<CreateHymnPage> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Get.find<ColorController>().backgroundColor.value,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
             padding: const EdgeInsets.all(20),
@@ -168,18 +158,14 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                   children: [
                     Text(
                       l10n.audioPlayer,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Get.find<ColorController>().textColor.value,
                       ),
                     ),
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      icon: Icon(
-                        Icons.close,
-                        color: Get.find<ColorController>().iconColor.value,
-                      ),
+                      icon: const Icon(Icons.close),
                     ),
                   ],
                 ),
@@ -215,348 +201,280 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         message = l10n.noPermissionToCreate(user?.email ?? '');
       }
 
-      return Scaffold(
-        backgroundColor: Get.find<ColorController>().backgroundColor.value,
-        appBar: AppBar(
-          backgroundColor: Get.find<ColorController>().backgroundColor.value,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          title: Text(
-            l10n.createHymn,
-            style: TextStyle(
-              color: Get.find<ColorController>().textColor.value,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_rounded,
-              color: Get.find<ColorController>().iconColor.value,
-            ),
-            onPressed: () => Get.back(),
-          ),
+      return AppPageScaffold(
+        title: l10n.createHymn,
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: Get.back,
         ),
-        body: Center(
-          child: Card(
-            margin: const EdgeInsets.all(24),
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            color: Get.find<ColorController>().backgroundColor.value,
-            child: Padding(
-              padding: const EdgeInsets.all(AppDimensions.lg),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.lock_outline,
-                    size: 48,
-                    color: Get.find<ColorController>()
-                        .iconColor
-                        .value
-                        .withValues(alpha: 0.5),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    message,
-                    style: TextStyle(
-                      color: Get.find<ColorController>().textColor.value,
-                      fontSize: 16,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
+        body: AppEmptyState(
+          icon: Icons.lock_outline_rounded,
+          title: l10n.createHymn,
+          message: message,
         ),
       );
     }
 
-    return GetBuilder<ColorController>(
-      builder: (colorController) => Scaffold(
-        backgroundColor: colorController.backgroundColor.value,
-        appBar: AppBar(
-          backgroundColor: colorController.backgroundColor.value,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leading: IconButton(
-            icon: Icon(
-              Icons.menu,
-              color: colorController.iconColor.value,
-            ),
-            onPressed: () => Get.find<ShellController>().toggleDrawer(),
-          ),
-          title: Text(
-            l10n.addHymn,
-            style: TextStyle(
-              color: colorController.textColor.value,
-              fontWeight: FontWeight.bold,
-              fontSize: 22,
-            ),
-          ),
+    final colors = Theme.of(context).colorScheme;
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.md),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (!authController.isAdmin)
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 24),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: colorController.primaryColor.value
-                            .withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.2),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.info_outline_rounded,
-                            color: colorController.primaryColor.value,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Cantiques restants ce mois-ci : ${authController.remainingHymnsThisMonth}',
-                              style: TextStyle(
-                                color: colorController.textColor.value,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  FormTextFieldWidget(
-                    controller: _hymnNumberController,
-                    label: l10n.number,
-                    keyboardType: TextInputType.number,
-                    icon: Icons.tag,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.enterHymnNumber;
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: AppDimensions.md),
-                  FormTextFieldWidget(
-                    controller: _titleController,
-                    label: l10n.title,
-                    icon: Icons.title,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.enterTitle;
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: AppDimensions.lg),
-
-                  // Verses Section Header
+        title: Text(l10n.addHymn),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(AppDimensions.md),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (!authController.isAdmin)
                   Container(
+                    margin: const EdgeInsets.only(bottom: 24),
                     padding: const EdgeInsets.symmetric(
-                        vertical: 12, horizontal: 16),
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: colorController.primaryColor.value
-                          .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: colors.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: colors.outlineVariant,
+                      ),
                     ),
                     child: Row(
                       children: [
                         Icon(
-                          Icons.format_list_numbered,
-                          color: colorController.primaryColor.value,
+                          Icons.info_outline_rounded,
+                          color: colors.primary,
                           size: 20,
                         ),
                         const SizedBox(width: 12),
-                        Text(
-                          l10n.verses,
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                            color: colorController.textColor.value,
+                        Expanded(
+                          child: Text(
+                            'Cantiques restants ce mois-ci : ${authController.remainingHymnsThisMonth}',
+                            style: TextStyle(
+                              color: colors.onSurface,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                FormTextFieldWidget(
+                  controller: _hymnNumberController,
+                  label: l10n.number,
+                  keyboardType: TextInputType.number,
+                  icon: Icons.tag,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.enterHymnNumber;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppDimensions.md),
+                FormTextFieldWidget(
+                  controller: _titleController,
+                  label: l10n.title,
+                  icon: Icons.title,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.enterTitle;
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: AppDimensions.lg),
 
-                  ReorderableListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    onReorderItem: (oldIndex, newIndex) {
-                      setState(() {
-                        final item = _verseControllers.removeAt(oldIndex);
-                        _verseControllers.insert(newIndex, item);
-                      });
-                    },
-                    children: List.generate(_verseControllers.length, (index) {
-                      return VerseFieldWidget(
-                        key: ValueKey('verse_$index'),
-                        index: index,
-                        controller: _verseControllers[index],
-                        onDelete: () {
-                          setState(() {
-                            _verseControllers[index].dispose();
-                            _verseControllers.removeAt(index);
-                          });
-                        },
-                        onChanged: () {
-                          _debouncer.run(() {
-                            setState(() {});
-                          });
-                        },
-                      );
-                    }),
+                // Verses Section Header
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: colors.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.format_list_numbered,
+                        color: colors.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        l10n.verses,
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: colors.onPrimaryContainer,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
 
-                  // Add Verse Button
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: AppDimensions.sm),
-                    child: OutlinedButton.icon(
-                      onPressed: () {
+                ReorderableListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  onReorderItem: (oldIndex, newIndex) {
+                    setState(() {
+                      final item = _verseControllers.removeAt(oldIndex);
+                      _verseControllers.insert(newIndex, item);
+                    });
+                  },
+                  children: List.generate(_verseControllers.length, (index) {
+                    return VerseFieldWidget(
+                      key: ValueKey('verse_$index'),
+                      index: index,
+                      controller: _verseControllers[index],
+                      onDelete: () {
                         setState(() {
-                          _verseControllers.add(TextEditingController());
+                          _verseControllers[index].dispose();
+                          _verseControllers.removeAt(index);
                         });
                       },
-                      icon: Icon(
-                        Icons.add_circle_outline,
-                        color: colorController.primaryColor.value,
-                      ),
-                      label: Text(
-                        l10n.addVerse,
-                        style: TextStyle(
-                          color: colorController.primaryColor.value,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.5),
-                          width: 2,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AppDimensions.md),
+                      onChanged: () {
+                        _debouncer.run(() {
+                          setState(() {});
+                        });
+                      },
+                    );
+                  }),
+                ),
 
-                  FormTextFieldWidget(
-                    controller: _bridgeController,
-                    label: l10n.bridgeOptional,
-                    maxLines: 3,
-                    icon: Icons.repeat,
-                  ),
-                  const SizedBox(height: AppDimensions.md),
-
-                  FormTextFieldWidget(
-                    controller: _hymnHintController,
-                    label: l10n.hymnHint,
-                    maxLines: 2,
-                    icon: Icons.lightbulb_outline,
-                  ),
-
-                  // Audio availability indicator
-                  if (_audioChecked)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: AppDimensions.md),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: _hasAudio
-                              ? Colors.green.withValues(alpha: 0.1)
-                              : Colors.grey.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _hasAudio ? Colors.green : Colors.grey,
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _hasAudio ? Icons.music_note : Icons.music_off,
-                              color: _hasAudio ? Colors.green : Colors.grey,
-                              size: 24,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                _hasAudio
-                                    ? l10n.audioAvailable
-                                    : l10n.noAudioAvailable,
-                                style: TextStyle(
-                                  color: _hasAudio ? Colors.green : Colors.grey,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            if (_hasAudio)
-                              IconButton(
-                                onPressed: _showAudioPlayerDialog,
-                                icon: Icon(
-                                  Icons.play_circle_outline,
-                                  color: colorController.primaryColor.value,
-                                  size: 28,
-                                ),
-                                tooltip: l10n.playAudio,
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: AppDimensions.lg),
-
-                  // Submit Button
-                  ElevatedButton(
+                // Add Verse Button
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppDimensions.sm),
+                  child: OutlinedButton.icon(
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _createHymn();
-                      }
+                      setState(() {
+                        _verseControllers.add(TextEditingController());
+                      });
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorController.primaryColor.value,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      elevation: 4,
-                      shadowColor: colorController.primaryColor.value
-                          .withValues(alpha: 0.4),
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      color: colors.primary,
+                    ),
+                    label: Text(
+                      l10n.addVerse,
+                      style: TextStyle(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      side: BorderSide(
+                        color: colors.primary,
+                        width: 2,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(
-                      l10n.submit,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: AppDimensions.md),
+
+                FormTextFieldWidget(
+                  controller: _bridgeController,
+                  label: l10n.bridgeOptional,
+                  maxLines: 3,
+                  icon: Icons.repeat,
+                ),
+                const SizedBox(height: AppDimensions.md),
+
+                FormTextFieldWidget(
+                  controller: _hymnHintController,
+                  label: l10n.hymnHint,
+                  maxLines: 2,
+                  icon: Icons.lightbulb_outline,
+                ),
+
+                // Audio availability indicator
+                if (_audioChecked)
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppDimensions.md),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: _hasAudio
+                            ? colors.primaryContainer
+                            : colors.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: _hasAudio ? colors.primary : colors.outline,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            _hasAudio ? Icons.music_note : Icons.music_off,
+                            color: _hasAudio ? colors.primary : colors.outline,
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              _hasAudio
+                                  ? l10n.audioAvailable
+                                  : l10n.noAudioAvailable,
+                              style: TextStyle(
+                                color: _hasAudio
+                                    ? colors.onPrimaryContainer
+                                    : colors.onSurfaceVariant,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          if (_hasAudio)
+                            IconButton(
+                              onPressed: _showAudioPlayerDialog,
+                              icon: Icon(
+                                Icons.play_circle_outline,
+                                color: colors.primary,
+                                size: 28,
+                              ),
+                              tooltip: l10n.playAudio,
+                            ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
-              ),
+                const SizedBox(height: AppDimensions.lg),
+
+                // Submit Button
+                FilledButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      _createHymn();
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                  ),
+                  child: Text(
+                    l10n.submit,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
           ),
         ),

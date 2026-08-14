@@ -40,7 +40,6 @@ class PlaylistListScreen extends StatelessWidget {
           return AppEmptyState(
             icon: Icons.playlist_play_rounded,
             title: l10n.noPlaylistsYet,
-            message: 'Organize hymns for worship, practice, or sharing.',
             action: FilledButton(
               onPressed: () => _showCreatePlaylistDialog(context),
               child: Text(l10n.createFirstPlaylist),
@@ -49,9 +48,9 @@ class PlaylistListScreen extends StatelessWidget {
         }
         return ListView.separated(
           key: const PageStorageKey('playlists_list'),
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
           itemCount: playlistController.playlists.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          separatorBuilder: (_, __) => const SizedBox(height: 10),
           itemBuilder: (context, index) {
             final playlist = playlistController.playlists[index];
             return PlaylistItemCard(

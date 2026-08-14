@@ -14,6 +14,7 @@ class RecordingTileIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     // Check if we have a valid photo URL
     final hasPhotoUrl =
         recording.userPhotoUrl != null && recording.userPhotoUrl!.isNotEmpty;
@@ -23,26 +24,10 @@ class RecordingTileIcon extends StatelessWidget {
       height: 50,
       decoration: BoxDecoration(
         color: hasPhotoUrl
-            ? Colors.transparent
-            : (isPublic
-                ? Colors.blue.withValues(alpha: 0.1)
-                : Colors.orange.withValues(alpha: 0.1)),
-        borderRadius: BorderRadius.circular(12),
-        gradient: hasPhotoUrl
             ? null
-            : LinearGradient(
-                colors: isPublic
-                    ? [
-                        Colors.blue.withValues(alpha: 0.1),
-                        Colors.purple.withValues(alpha: 0.1)
-                      ]
-                    : [
-                        Colors.orange.withValues(alpha: 0.1),
-                        Colors.deepOrange.withValues(alpha: 0.1)
-                      ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            : (isPublic ? colors.secondaryContainer : colors.primaryContainer),
+        borderRadius: BorderRadius.circular(12),
+        gradient: hasPhotoUrl ? null : null,
       ),
       child: Center(
         child: hasPhotoUrl
@@ -54,19 +39,21 @@ class RecordingTileIcon extends StatelessWidget {
                   height: 50,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: Colors.grey[200],
-                    child: const Icon(Icons.person, color: Colors.grey),
+                    color: colors.surfaceContainerHighest,
+                    child: Icon(Icons.person, color: colors.onSurfaceVariant),
                   ),
-                  errorWidget: (context, url, error) => const Icon(
+                  errorWidget: (context, url, error) => Icon(
                     Icons.person,
-                    color: Colors.blue,
+                    color: colors.onSurfaceVariant,
                     size: 24,
                   ),
                 ),
               )
             : Icon(
                 isPublic ? Icons.person : Icons.music_note_rounded,
-                color: isPublic ? Colors.blue : Colors.orange,
+                color: isPublic
+                    ? colors.onSecondaryContainer
+                    : colors.onPrimaryContainer,
                 size: 24,
               ),
       ),

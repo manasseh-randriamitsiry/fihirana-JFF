@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class BibleSettingsBottomSheetWidget extends StatefulWidget {
   final double fontSize;
@@ -41,6 +42,9 @@ class _BibleSettingsBottomSheetWidgetState
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: colors.outlineVariant.withValues(alpha: .7)),
+        ),
         boxShadow: [
           BoxShadow(
             color: colors.shadow.withValues(alpha: 0.1),
@@ -75,62 +79,75 @@ class _BibleSettingsBottomSheetWidgetState
             ),
           ),
           const SizedBox(height: 24),
-          // Font Size
-          Row(
+          AppGroupedSurface(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             children: [
-              Icon(Icons.text_fields, size: 20, color: colors.onSurface),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Slider(
-                  value: _currentFontSize,
-                  min: 12,
-                  max: 32,
-                  activeColor: colors.primary,
-                  onChanged: (value) {
-                    setState(() => _currentFontSize = value);
-                    widget.onSettingsChanged(value, _currentFontFamily);
+              Row(
+                children: [
+                  Icon(Icons.text_fields, size: 20, color: colors.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Slider(
+                      value: _currentFontSize,
+                      min: 12,
+                      max: 32,
+                      activeColor: colors.primary,
+                      onChanged: (value) {
+                        setState(() => _currentFontSize = value);
+                        widget.onSettingsChanged(value, _currentFontFamily);
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: colors.primaryContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${_currentFontSize.toInt()}',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: colors.onPrimaryContainer,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 24),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Police (${fontController.availableFonts.length} polices)',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 50,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: fontController.availableFonts.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final fontName = fontController.availableFonts[index];
+                    return _buildHorizontalFontOption(fontName, fontName);
                   },
                 ),
               ),
-              Text(
-                '${_currentFontSize.toInt()}',
-                style: TextStyle(color: colors.onSurface),
+              const Divider(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildThemeOption(
+                      ThemeMode.light, Icons.light_mode_rounded, 'Clair'),
+                  _buildThemeOption(
+                      ThemeMode.dark, Icons.dark_mode_rounded, 'Sombre'),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          // Font Family Selector
-          Text(
-            'Police (${fontController.availableFonts.length} polices)',
-            style: TextStyle(
-              fontFamily: 'Roboto',
-              color: colors.onSurface,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 50,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: fontController.availableFonts.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final fontName = fontController.availableFonts[index];
-                return _buildHorizontalFontOption(fontName, fontName);
-              },
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Theme
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildThemeOption(
-                  ThemeMode.light, Icons.light_mode_rounded, 'Clair'),
-              _buildThemeOption(
-                  ThemeMode.dark, Icons.dark_mode_rounded, 'Sombre'),
             ],
           ),
           const SizedBox(height: 16),

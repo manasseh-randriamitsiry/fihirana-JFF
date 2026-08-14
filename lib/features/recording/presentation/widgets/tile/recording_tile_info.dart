@@ -14,7 +14,7 @@ class RecordingTileInfo extends StatelessWidget {
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
-    return '${minutes}m ${remainingSeconds.toString().padLeft(2, '0')}s';
+    return '$minutes min ${remainingSeconds.toString().padLeft(2, '0')} s';
   }
 
   String _formatDate(DateTime date) {
@@ -28,14 +28,14 @@ class RecordingTileInfo extends StatelessWidget {
 
     // Fallback for recordings without titles
     if (recording.hymnId != 'standalone' && recording.hymnId.isNotEmpty) {
-      return 'Hymn ${recording.hymnId}';
+      return 'Cantique ${recording.hymnId}';
     }
 
     // For standalone recordings or unknown hymns
     final date = recording.createdAt;
     final timeString =
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    return 'Recording ${date.day}/${date.month}/${date.year} $timeString';
+    return 'Enregistrement ${date.day}/${date.month}/${date.year} $timeString';
   }
 
   @override

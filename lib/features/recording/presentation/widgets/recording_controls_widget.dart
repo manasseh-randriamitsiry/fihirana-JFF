@@ -55,20 +55,20 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: Colors.red,
+            color: colors.error,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.red.withValues(alpha: 0.4),
+                color: colors.error.withValues(alpha: 0.35),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: const Icon(
+          child: Icon(
             Icons.mic,
             size: 40,
-            color: Colors.white,
+            color: colors.onError,
           ),
         ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack),
       );
@@ -100,7 +100,9 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
             ),
             child: Icon(
               widget.isPaused ? Icons.play_arrow : Icons.pause,
-              color: widget.isPaused ? Colors.white : colors.onPrimaryContainer,
+              color: widget.isPaused
+                  ? colors.onPrimary
+                  : colors.onPrimaryContainer,
               size: 32,
             ),
           ),
@@ -120,11 +122,11 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: colors.error,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withValues(alpha: 0.4),
+                        color: colors.error.withValues(alpha: 0.35),
                         blurRadius: 16,
                         offset: const Offset(0, 8),
                       ),
@@ -140,16 +142,16 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3),
+                            color: colors.onError.withValues(alpha: 0.35),
                             width: 2,
                           ),
                         ),
                       ),
                       // Stop icon
-                      const Icon(
+                      Icon(
                         Icons.stop,
                         size: 36,
-                        color: Colors.white,
+                        color: colors.onError,
                       ),
                     ],
                   ),

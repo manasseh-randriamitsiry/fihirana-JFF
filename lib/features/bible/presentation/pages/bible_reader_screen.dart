@@ -18,6 +18,7 @@ import 'package:fihirana/features/bible/presentation/widgets/bible_selection_act
 import 'package:fihirana/features/bible/presentation/pages/bible_highlights_page.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_verse_selection_sheet.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 
 class BibleReaderScreen extends StatefulWidget {
@@ -175,7 +176,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   String _getAppBarTitle(BuildContext context) {
-    if (bibleController.selectedBook.isEmpty &&
+    if (bibleController.selectedBook.isNotEmpty &&
         bibleController.selectedChapter > 0) {
       return '${bibleController.selectedBook} ${bibleController.selectedChapter}';
     } else if (bibleController.selectedBook.isNotEmpty) {
@@ -206,35 +207,27 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     return ListView.builder(
       key: const PageStorageKey('bible_books_list'),
       scrollCacheExtent: const ScrollCacheExtent.pixels(600),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.only(bottom: 24),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
         final testamentName = booksByTestament.keys.elementAt(index);
         final books = booksByTestament[testamentName]!;
 
-        return Column(
+        return AppSection(
           key: ValueKey(testamentName),
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-              child: Text(
-                testamentName.toUpperCase(),
-                style: TextStyle(
-                  fontFamily: 'Roboto',
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
+          title: testamentName.toUpperCase(),
+          child: AppGroupedSurface(
+            children: [
+              for (var bookIndex = 0; bookIndex < books.length; bookIndex++)
+                BibleBookItemWidget(
+                  bookName: books[bookIndex],
+                  chapterCount:
+                      bibleController.getChapterCountForBook(books[bookIndex]),
+                  onTap: () => bibleController.selectBook(books[bookIndex]),
+                  showDivider: bookIndex != books.length - 1,
                 ),
-              ),
-            ),
-            ...books.map((book) => BibleBookItemWidget(
-                  bookName: book,
-                  chapterCount: bibleController.getChapterCountForBook(book),
-                  onTap: () => bibleController.selectBook(book),
-                )),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -305,7 +298,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   itemScrollController: _verseScrollController,
                   minCacheExtent: 600,
                   padding: const EdgeInsets.fromLTRB(
-                      20, 16, 20, 100), // Add bottom padding for FAB
+                      20, 20, 20, 100), // Add bottom padding for FAB
                   itemCount:
                       verses.length + 1, // +1 for bottom spacing/navigation
                   itemBuilder: (context, index) {

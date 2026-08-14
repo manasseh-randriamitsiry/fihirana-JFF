@@ -5,8 +5,8 @@ import 'package:fihirana/features/recording/presentation/controllers/recording_c
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/shared/widgets/navigation/context_aware_fab.dart';
 import 'package:fihirana/features/recording/presentation/widgets/recording_tile_widget.dart';
-import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_field.dart';
 import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'standalone_recording_screen.dart';
@@ -97,7 +97,6 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
     final textColor = colors.onSurface;
     final backgroundColor = colors.surface;
     final iconColor = colors.onSurface;
-    final defaultTextStyle = TextStyle(color: textColor, inherit: true);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -110,13 +109,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
           icon: Icon(Icons.menu, color: iconColor),
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
-        title: Text(
-          'Enregistrements',
-          style: defaultTextStyle.copyWith(
-            fontWeight: FontWeight.bold,
-            fontSize: 26,
-          ),
-        ),
+        title: const Text('Enregistrements'),
         actions: [
           // Multi-select mode buttons
           Obx(() {
@@ -143,7 +136,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                     onPressed: () => _recordingController.clearSelection(),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_forever, color: Colors.red),
+                    icon: Icon(Icons.delete_forever, color: colors.error),
                     tooltip: 'Supprimer définitivement',
                     onPressed: () async {
                       final confirmed = await showDialog<bool>(
@@ -168,7 +161,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                             TextButton(
                               onPressed: () => Navigator.pop(context, true),
                               style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
+                                foregroundColor: colors.error,
                               ),
                               child: const Text('Supprimer'),
                             ),
@@ -198,18 +191,25 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
         children: [
           // Search bar
           Padding(
-            padding: const EdgeInsets.all(AppDimensions.md),
-            child: HymnSearchField(
+            padding: const EdgeInsets.fromLTRB(
+              AppDimensions.md,
+              AppDimensions.md,
+              AppDimensions.md,
+              8,
+            ),
+            child: AppSearchField(
               controller: _searchController,
-              defaultTextStyle: defaultTextStyle,
-              textColor: textColor,
-              iconColor: iconColor,
-              backgroundColor: backgroundColor,
-              onChanged: () {
+              hintText: 'Rechercher un enregistrement',
+              onChanged: (_) {
                 if (mounted) {
                   _searchQuery.value = _searchController.text;
                   setState(() {});
                 }
+              },
+              onClear: () {
+                _searchController.clear();
+                _searchQuery.value = '';
+                setState(() {});
               },
             ),
           ),
@@ -245,10 +245,9 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                 final filteredRecordings = _getFilteredRecordings();
                 return Text(
                   '${filteredRecordings.length} enregistrement${filteredRecordings.length == 1 ? '' : 's'} trouvé${filteredRecordings.length == 1 ? '' : 's'}',
-                  style: defaultTextStyle.copyWith(
-                    color: textColor.withValues(alpha: 0.7),
-                    fontSize: 12,
-                  ),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: textColor.withValues(alpha: 0.7),
+                      ),
                 );
               }),
             ),
@@ -269,23 +268,24 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                       Icon(
                         Icons.block,
                         size: 80,
-                        color: Colors.red.withValues(alpha: 0.5),
+                        color: colors.error.withValues(alpha: 0.6),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
+                      Text(
                         'Accès restreint',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style:
+                            Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  color: colors.error,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         "Votre compte n'a pas accès aux fonctions d'enregistrement.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colors.red.withValues(alpha: 0.7),
+                          color: colors.onErrorContainer,
                           fontSize: 16,
                         ),
                       ),
@@ -293,20 +293,21 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.1),
+                          color: colors.errorContainer,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                              color: Colors.red.withValues(alpha: 0.3)),
                         ),
                         child: Column(
                           children: [
-                            const Icon(Icons.warning_amber,
-                                color: Colors.orange, size: 24),
+                            Icon(
+                              Icons.warning_amber_rounded,
+                              color: colors.onErrorContainer,
+                              size: 24,
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               securityService.blockReason.isNotEmpty
                                   ? securityService.blockReason
-                                  : 'Account suspended',
+                                  : 'Compte suspendu',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: colors.onErrorContainer,

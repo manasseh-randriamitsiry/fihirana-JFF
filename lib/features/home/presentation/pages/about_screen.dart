@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:fihirana/core/utils/version_check_service.dart';
-import 'package:fihirana/core/utils/pubspec_service.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:fihirana/core/navigation/shell_controller.dart';
+import 'package:fihirana/core/utils/pubspec_service.dart';
+import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/shared/widgets/common/app_card.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -31,7 +31,6 @@ class _AboutScreenState extends State<AboutScreen> {
     PubspecService.clearCache();
     _getAppInfo();
 
-    // Check if update info is already cached from startup check
     if (VersionCheckService.hasUpdateCached()) {
       _updateAvailable = true;
       _latestVersion = VersionCheckService.getCachedVersion();
@@ -40,17 +39,12 @@ class _AboutScreenState extends State<AboutScreen> {
 
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) {
-        setState(() {
-          _updateAvailable = true;
-        });
+        setState(() => _updateAvailable = true);
       }
     });
-
     VersionCheckService.setOnFlexibleUpdateDownloadedCallback(() {
       if (mounted) {
-        setState(() {
-          _flexibleUpdateDownloaded = true;
-        });
+        setState(() => _flexibleUpdateDownloaded = true);
       }
     });
   }
@@ -58,6 +52,7 @@ class _AboutScreenState extends State<AboutScreen> {
   Future<void> _getAppInfo() async {
     final appVersion = await PubspecService.getAppVersion();
     final appName = await PubspecService.getAppName();
+    if (!mounted) return;
     setState(() {
       _appVersion = appVersion;
       _appName = appName;
@@ -65,645 +60,268 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   Future<void> _launchURL(String url) async {
-    final Uri uri = Uri.parse(url);
+    final uri = Uri.parse(url);
     if (!await launchUrl(uri)) {
-      throw Exception('Could not launch $url');
+      throw Exception('Impossible d’ouvrir $url');
     }
   }
 
-  Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
-    await launchUrl(launchUri);
+  Future<void> _makePhoneCall(String phoneNumber) {
+    return launchUrl(Uri(scheme: 'tel', path: phoneNumber));
   }
 
-  Future<void> _sendEmail(String email) async {
-    final Uri launchUri = Uri(
+  Future<void> _sendEmail(String email) {
+    return launchUrl(Uri(
       scheme: 'mailto',
       path: email,
-      query: 'subject=Contact from Hymns App&body=Hello,',
-    );
-    await launchUrl(launchUri);
+      query: 'subject=Contact depuis Fihirana&body=Bonjour,',
+    ));
   }
 
   Future<void> _checkForUpdates() async {
-    setState(() {
-      _checkingForUpdates = true;
-    });
-
+    setState(() => _checkingForUpdates = true);
     try {
       final updateAvailable =
           await VersionCheckService.checkForUpdateManually();
-
-      if (mounted) {
-        setState(() {
-          _updateAvailable = updateAvailable;
-          _checkingForUpdates = false;
-
-          // Get cached version info if update is available
-          if (updateAvailable) {
-            _latestVersion = VersionCheckService.getCachedVersion();
-            _releaseNotes = VersionCheckService.getCachedReleaseNotes();
-          }
-        });
-
-        // Show "up to date" message if no update is available
-        if (!updateAvailable && context.mounted) {
-          final l10n = AppLocalizations.of(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.appIsUpToDate),
-              backgroundColor: Colors.green,
-            ),
-          );
+      if (!mounted) return;
+      setState(() {
+        _updateAvailable = updateAvailable;
+        _checkingForUpdates = false;
+        if (updateAvailable) {
+          _latestVersion = VersionCheckService.getCachedVersion();
+          _releaseNotes = VersionCheckService.getCachedReleaseNotes();
         }
+      });
+      if (!updateAvailable && mounted) {
+        final colors = Theme.of(context).colorScheme;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context).appIsUpToDate),
+            backgroundColor: colors.primary,
+          ),
+        );
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _checkingForUpdates = false;
-        });
-
-        if (context.mounted) {
-          final l10n = AppLocalizations.of(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(l10n.errorCheckingUpdate),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _checkingForUpdates = false);
+      final colors = Theme.of(context).colorScheme;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).errorCheckingUpdate),
+          backgroundColor: colors.error,
+        ),
+      );
     }
   }
 
   Future<void> _downloadAndInstallUpdate() async {
+    setState(() => _downloadingUpdate = true);
     try {
-      setState(() {
-        _downloadingUpdate = true;
-      });
-
       await VersionCheckService.downloadAndInstallLatestVersion();
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _downloadingUpdate = false;
-        });
-
-        if (context.mounted) {
-          final l10n = AppLocalizations.of(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('${l10n.errorDownloadingUpdate}: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _downloadingUpdate = false;
-        });
-      }
-    }
-  }
-
-  Widget _buildSectionTitle(String title) {
-    final colors = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          color: colors.onSurfaceVariant,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          letterSpacing: 1.2,
+    } catch (error) {
+      if (!mounted) return;
+      final colors = Theme.of(context).colorScheme;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${AppLocalizations.of(context).errorDownloadingUpdate}: $error',
+          ),
+          backgroundColor: colors.error,
         ),
-      ),
-    );
-  }
-
-  Widget _buildActionCard({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    Color? iconColor,
-    Color? backgroundColor,
-  }) {
-    final colors = Theme.of(context).colorScheme;
-    return AppCard(
-      backgroundColor: backgroundColor,
-      onTap: onTap,
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: (iconColor ?? colors.primary).withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              color: iconColor ?? colors.primary,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(
-                color: iconColor ?? colors.onSurface,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Icon(
-            Icons.arrow_forward_ios,
-            size: 16,
-            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-          ),
-        ],
-      ),
-    );
+      );
+    } finally {
+      if (mounted) setState(() => _downloadingUpdate = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    return Scaffold(
-      backgroundColor: colors.surface,
-      appBar: AppBar(
-        backgroundColor: colors.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(
-          l10n.aboutUs,
-          style: TextStyle(
-            color: colors.onSurface,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        leading: IconButton(
-          onPressed: () => Get.find<ShellController>().toggleDrawer(),
-          icon: Icon(
-            Icons.menu_rounded,
-            color: colors.onSurface,
-          ),
-        ),
+    final l10n = AppLocalizations.of(context);
+    final busy = _checkingForUpdates || _downloadingUpdate;
+
+    return AppPageScaffold(
+      title: l10n.aboutUs,
+      leading: IconButton(
+        tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        onPressed: Get.find<ShellController>().toggleDrawer,
+        icon: const Icon(Icons.menu_rounded),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // App Info Card
-            Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              color: colors.primaryContainer,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: colors.primaryContainer,
-                        shape: BoxShape.circle,
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          AppSection(
+            title: 'Application',
+            child: AppGroupedSurface(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Icon(Icons.music_note_rounded, size: 42, color: colors.primary),
+                const SizedBox(height: 12),
+                Text(
+                  '$_appName ${l10n.appNameSuffix}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
-                      child: Icon(
-                        Icons.music_note,
-                        size: 60,
-                        color: colors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      '$_appName ${l10n.appNameSuffix}',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: colors.onSurface,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.appVersion(_appVersion),
-                      style: TextStyle(
-                        fontSize: 16,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.appVersion(_appVersion),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '${l10n.headquarters} ${l10n.headquartersAddress}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colors.onSurfaceVariant,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${l10n.headquarters} ${l10n.headquartersAddress}',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
+          AppSection(
+            title: 'Contact',
+            child: AppGroupedSurface(
+              children: [
+                AppListRow(
+                  icon: Icons.phone_rounded,
+                  title: l10n.phoneNumber,
+                  onTap: () => _makePhoneCall('+261342943971'),
+                ),
+                const AppGroupDivider(),
+                AppListRow(
+                  icon: Icons.email_rounded,
+                  title: l10n.email,
+                  onTap: () => _sendEmail('manassehrandriamitsiry@gmail.com'),
+                ),
+                const AppGroupDivider(),
+                AppListRow(
+                  icon: Icons.language_rounded,
+                  title: l10n.portfolio,
+                  onTap: () =>
+                      _launchURL('https://manassehrandriamitsiry.netlify.app/'),
+                ),
+              ],
+            ),
+          ),
+          AppSection(
+            title: 'Soutien',
+            child: AppGroupedSurface(
+              children: [
+                AppListRow(
+                  icon: Icons.volunteer_activism_outlined,
+                  title: l10n.support,
+                  subtitle: 'Soutenir le développement de Fihirana',
+                  onTap: () => _makePhoneCall('*111*1*2*0342943971#'),
+                ),
+              ],
+            ),
+          ),
+          AppSection(
+            title: 'Mises à jour',
+            child: AppGroupedSurface(
+              children: [
+                AppListRow(
+                  icon: Icons.system_update_rounded,
+                  title: _downloadingUpdate
+                      ? l10n.downloading
+                      : _checkingForUpdates
+                          ? l10n.checkingForUpdates
+                          : l10n.checkForUpdates,
+                  trailing: busy
+                      ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.primary,
+                          ),
+                        )
+                      : null,
+                  onTap: busy ? null : _checkForUpdates,
+                ),
+                if (!_updateAvailable &&
+                    (VersionCheckService.isUpToDate() ||
+                        VersionCheckService.hasCheckedManually())) ...[
+                  const AppGroupDivider(),
+                  AppListRow(
+                    icon: Icons.check_circle_outline_rounded,
+                    title: l10n.upToDate,
+                    subtitle: l10n.appIsUpToDate,
+                    trailing: const SizedBox.shrink(),
+                    onTap: null,
+                  ),
+                ],
+                if (_updateAvailable) ...[
+                  const AppGroupDivider(),
+                  AppListRow(
+                    icon: Icons.new_releases_outlined,
+                    title: l10n.updateAvailableTitle,
+                    subtitle:
+                        '${l10n.currentVersion}: $_appVersion  •  ${l10n.latestVersion}: ${_latestVersion ?? '—'}',
+                    trailing: const SizedBox.shrink(),
+                    onTap: null,
+                  ),
+                  if (_releaseNotes?.isNotEmpty == true) ...[
+                    const AppGroupDivider(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                      child: Text(
+                        _releaseNotes!.length > 200
+                            ? '${_releaseNotes!.substring(0, 200)}…'
+                            : _releaseNotes!,
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ],
-                ),
-              ),
-            )
-                .animate()
-                .fadeIn(duration: const Duration(milliseconds: 400))
-                .slideY(begin: -0.1, end: 0, curve: Curves.easeOut),
-
-            // Contact Section
-            _buildSectionTitle('Contact')
-                .animate()
-                .fadeIn(delay: const Duration(milliseconds: 100)),
-
-            _buildActionCard(
-              icon: Icons.phone_rounded,
-              label: l10n.phoneNumber,
-              onTap: () => _makePhoneCall('+261342943971'),
-            )
-                .animate()
-                .fadeIn(
-                    delay: const Duration(milliseconds: 150),
-                    duration: const Duration(milliseconds: 300))
-                .slideX(begin: -0.1, end: 0),
-
-            const SizedBox(height: 12),
-
-            _buildActionCard(
-              icon: Icons.email_rounded,
-              label: l10n.email,
-              onTap: () => _sendEmail('manassehrandriamitsiry@gmail.com'),
-            )
-                .animate()
-                .fadeIn(
-                    delay: const Duration(milliseconds: 200),
-                    duration: const Duration(milliseconds: 300))
-                .slideX(begin: -0.1, end: 0),
-
-            const SizedBox(height: 12),
-
-            _buildActionCard(
-              icon: Icons.code_rounded,
-              label: l10n.portfolio,
-              onTap: () =>
-                  _launchURL('https://manassehrandriamitsiry.netlify.app/'),
-            )
-                .animate()
-                .fadeIn(
-                    delay: const Duration(milliseconds: 250),
-                    duration: const Duration(milliseconds: 300))
-                .slideX(begin: -0.1, end: 0),
-
-            // Support Section
-            _buildSectionTitle('Support')
-                .animate()
-                .fadeIn(delay: const Duration(milliseconds: 300)),
-
-            _buildActionCard(
-              icon: Icons.monetization_on_rounded,
-              label: l10n.support,
-              onTap: () => _makePhoneCall('*111*1*2*0342943971#'),
-              iconColor: Colors.green,
-              backgroundColor: Colors.green.withValues(alpha: 0.05),
-            )
-                .animate()
-                .fadeIn(
-                    delay: const Duration(milliseconds: 350),
-                    duration: const Duration(milliseconds: 300))
-                .slideX(begin: -0.1, end: 0),
-
-            // Updates Section
-            _buildSectionTitle('Updates')
-                .animate()
-                .fadeIn(delay: const Duration(milliseconds: 400)),
-
-            AppCard(
-              onTap: (_checkingForUpdates || _downloadingUpdate)
-                  ? null
-                  : _checkForUpdates,
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: colors.primaryContainer,
-                      shape: BoxShape.circle,
-                    ),
-                    child: (_checkingForUpdates || _downloadingUpdate)
-                        ? SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(colors.primary),
-                            ),
-                          )
-                        : Icon(
-                            Icons.system_update_rounded,
-                            color: colors.primary,
-                            size: 24,
-                          ),
+                  const AppGroupDivider(),
+                  AppListRow(
+                    icon: _flexibleUpdateDownloaded
+                        ? Icons.install_mobile_outlined
+                        : Icons.download_rounded,
+                    title: _flexibleUpdateDownloaded
+                        ? l10n.downloadAndInstall
+                        : _downloadingUpdate
+                            ? l10n.downloading
+                            : l10n.download,
+                    onTap: busy ? null : _downloadAndInstallUpdate,
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      _downloadingUpdate
-                          ? l10n.downloading
-                          : _checkingForUpdates
-                              ? l10n.checkingForUpdates
-                              : l10n.checkForUpdates,
-                      style: TextStyle(
-                        color: colors.onSurface,
-                        fontSize: 16,
+                ],
+              ],
+            ),
+          ),
+          AppSection(
+            title: 'Développement',
+            child: AppGroupedSurface(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Text(
+                  l10n.developedBy,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Randriamitsiry Valimbavaka Nandrasana Manassé',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
-                    ),
-                  ),
-                  if (!_checkingForUpdates && !_downloadingUpdate)
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-                    ),
-                ],
-              ),
-            )
-                .animate()
-                .fadeIn(
-                    delay: const Duration(milliseconds: 450),
-                    duration: const Duration(milliseconds: 300))
-                .slideX(begin: -0.1, end: 0),
-
-            // Show "Up to date" status when no updates available
-            if (!_updateAvailable &&
-                (VersionCheckService.isUpToDate() ||
-                    VersionCheckService.hasCheckedManually())) ...[
-              const SizedBox(height: 12),
-              Card(
-                elevation: 1,
-                shadowColor: Colors.black.withValues(alpha: 0.05),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: Colors.green.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
                 ),
-                color: Colors.green.withValues(alpha: 0.05),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check_circle_outline,
-                          color: Colors.green,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              l10n.upToDate,
-                              style: TextStyle(
-                                color: colors.onSurface,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              l10n.appIsUpToDate,
-                              style: TextStyle(
-                                color: colors.onSurfaceVariant,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                const SizedBox(height: 4),
+                Text(
+                  '${l10n.addressLabel} Ambalavao Tsienimparihy',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-              )
-                  .animate()
-                  .fadeIn(duration: const Duration(milliseconds: 300))
-                  .slideY(begin: -0.1, end: 0),
-            ],
-
-            if (_updateAvailable) ...[
-              const SizedBox(height: 12),
-
-              // Version info card
-              Card(
-                elevation: 1,
-                shadowColor: Colors.black.withValues(alpha: 0.05),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: Colors.orange.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                color: Colors.orange.withValues(alpha: 0.05),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline,
-                            color: Colors.orange,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            l10n.updateAvailableTitle,
-                            style: TextStyle(
-                              color: colors.onSurface,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.currentVersion,
-                                style: TextStyle(
-                                  color: colors.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _appVersion,
-                                style: TextStyle(
-                                  color: colors.onSurface,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Icon(
-                            Icons.arrow_forward,
-                            color: colors.onSurfaceVariant,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                l10n.latestVersion,
-                                style: TextStyle(
-                                  color: colors.onSurfaceVariant,
-                                  fontSize: 12,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _latestVersion ?? 'Unknown',
-                                style: const TextStyle(
-                                  color: Colors.orange,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      if (_releaseNotes != null &&
-                          _releaseNotes!.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        Divider(
-                          color: colors.outlineVariant,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          l10n.whatsNew,
-                          style: TextStyle(
-                            color: colors.onSurfaceVariant,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _releaseNotes!.length > 200
-                              ? '${_releaseNotes!.substring(0, 200)}...'
-                              : _releaseNotes!,
-                          style: TextStyle(
-                            color: colors.onSurfaceVariant,
-                            fontSize: 13,
-                          ),
-                          maxLines: 5,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              )
-                  .animate()
-                  .fadeIn(duration: const Duration(milliseconds: 300))
-                  .slideY(begin: -0.1, end: 0),
-
-              const SizedBox(height: 12),
-
-              _buildActionCard(
-                icon: _downloadingUpdate
-                    ? Icons.downloading_rounded
-                    : Icons.download_rounded,
-                label: _flexibleUpdateDownloaded
-                    ? l10n.downloadAndInstall
-                    : (_downloadingUpdate ? l10n.downloading : l10n.download),
-                onTap: (_checkingForUpdates || _downloadingUpdate)
-                    ? () {}
-                    : _downloadAndInstallUpdate,
-                iconColor: Colors.orange,
-                backgroundColor: Colors.orange.withValues(alpha: 0.05),
-              )
-                  .animate()
-                  .fadeIn(duration: const Duration(milliseconds: 300))
-                  .scale(curve: Curves.easeOutBack),
-            ],
-
-            const SizedBox(height: 32),
-
-            // Developer Info
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    l10n.developedBy,
-                    style: TextStyle(
-                      color: colors.onSurfaceVariant,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Randriamitsiry Valimbavaka Nandrasana Manassé',
-                    style: TextStyle(
-                      color: colors.onSurface,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${l10n.addressLabel} Ambalavao tsienimparihy',
-                    textAlign: TextAlign.center,
-                    style:
-                        TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(
-                delay: const Duration(milliseconds: 500),
-                duration: const Duration(milliseconds: 400)),
-
-            const SizedBox(height: 20),
-          ],
-        ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

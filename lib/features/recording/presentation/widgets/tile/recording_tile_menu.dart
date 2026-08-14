@@ -178,9 +178,9 @@ class RecordingTileMenu extends StatelessWidget {
             height: 40,
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.public,
-                  color: Colors.blue,
+                  color: colors.secondary,
                   size: 18,
                 ),
                 const SizedBox(width: 12),
@@ -220,9 +220,9 @@ class RecordingTileMenu extends StatelessWidget {
             height: 40,
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.cloud_upload,
-                  color: Colors.orange,
+                  color: colors.primary,
                   size: 18,
                 ),
                 const SizedBox(width: 12),
@@ -265,16 +265,16 @@ class RecordingTileMenu extends StatelessWidget {
             height: 40,
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.delete_outline,
-                  color: Colors.red,
+                  color: colors.error,
                   size: 18,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   isPublic ? 'Retirer de la liste publique' : 'Supprimer',
-                  style: const TextStyle(
-                    color: Colors.red,
+                  style: TextStyle(
+                    color: colors.error,
                     fontSize: 13,
                   ),
                 ),
@@ -288,21 +288,21 @@ class RecordingTileMenu extends StatelessWidget {
         }
 
         if (RecordingTileDialogs.isAdmin(recording)) {
-          items.add(const PopupMenuItem(
+          items.add(PopupMenuItem(
             value: 'delete_permanently',
             height: 40,
             child: Row(
               children: [
                 Icon(
                   Icons.delete_forever,
-                  color: Colors.red,
+                  color: colors.error,
                   size: 18,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
                 Text(
                   'Supprimer définitivement',
                   style: TextStyle(
-                    color: Colors.red,
+                    color: colors.error,
                     fontSize: 13,
                   ),
                 ),

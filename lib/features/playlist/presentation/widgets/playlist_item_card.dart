@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
+
 import 'package:fihirana/features/playlist/domain/entities/playlist.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class PlaylistItemCard extends StatelessWidget {
   final Playlist playlist;
@@ -21,106 +21,132 @@ class PlaylistItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
-    final dateFormat = DateFormat('EEE, MMM d, yyyy');
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final dateFormat = DateFormat.yMMMd(locale);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: colorController.textColor.value.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        border: Border.all(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-        ),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        onTap: onTap,
-        leading: Container(
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            color: colorController.primaryColor.value.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(
-            Icons.music_note,
-            color: colorController.primaryColor.value,
-          ),
-        ),
-        title: Text(
-          playlist.title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colorController.textColor.value,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              dateFormat.format(playlist.date),
-              style: TextStyle(
-                color: colorController.textColor.value.withValues(alpha: 0.6),
-                fontSize: 13,
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              '${playlist.hymnIds.length} cantiques',
-              style: TextStyle(
-                color: colorController.textColor.value.withValues(alpha: 0.5),
-                fontSize: 12,
-              ),
-            ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          icon: Icon(
-            Icons.more_vert,
-            color: colorController.iconColor.value,
-          ),
-          onSelected: (value) {
-            if (value == 'share') {
-              onShare();
-            } else if (value == 'delete') {
-              onDelete();
-            }
-          },
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: 'share',
+    return AppGroupedSurface(
+      children: [
+        Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 10, 14),
               child: Row(
                 children: [
-                  const Icon(Icons.share, size: 20),
-                  const SizedBox(width: 12),
-                  Text(l10n.share),
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: colors.primaryContainer,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Icon(
+                      Icons.queue_music_rounded,
+                      color: colors.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          playlist.title,
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    color: colors.onSurface,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          dateFormat.format(playlist.date),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          l10n.hymnsCount(playlist.hymnIds.length),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<_PlaylistAction>(
+                    tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                    icon: Icon(
+                      Icons.more_horiz_rounded,
+                      color: colors.onSurfaceVariant,
+                    ),
+                    onSelected: (action) {
+                      if (action == _PlaylistAction.share) {
+                        onShare();
+                      } else {
+                        onDelete();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: _PlaylistAction.share,
+                        child: _PlaylistMenuItem(
+                          icon: Icons.share_outlined,
+                          label: l10n.share,
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: _PlaylistAction.delete,
+                        child: _PlaylistMenuItem(
+                          icon: Icons.delete_outline_rounded,
+                          label: l10n.delete,
+                          color: colors.error,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
-            PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  const Icon(Icons.delete, color: Colors.red, size: 20),
-                  const SizedBox(width: 12),
-                  Text(l10n.delete, style: const TextStyle(color: Colors.red)),
-                ],
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
+      ],
+    );
+  }
+}
+
+enum _PlaylistAction { share, delete }
+
+class _PlaylistMenuItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color? color;
+
+  const _PlaylistMenuItem({
+    required this.icon,
+    required this.label,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = color ?? Theme.of(context).colorScheme.onSurface;
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: foreground),
+        const SizedBox(width: 12),
+        Text(label, style: TextStyle(color: foreground)),
+      ],
     );
   }
 }
