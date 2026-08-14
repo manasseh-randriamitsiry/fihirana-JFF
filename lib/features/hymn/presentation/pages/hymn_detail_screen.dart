@@ -17,6 +17,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
+import 'package:fihirana/features/recording/presentation/widgets/recording_overlay_manager.dart';
 import 'package:fihirana/shared/widgets/common/color_picker_widget.dart';
 import 'package:fihirana/shared/widgets/animations/success_animation_dialog.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_detail_widgets.dart';
@@ -371,6 +372,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
     final authController = Get.find<AuthController>();
     final currentUser = FirebaseAuth.instance.currentUser;
     final isAuthenticated = currentUser != null;
@@ -382,180 +384,183 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             authController.isSuperAdmin ||
             _hymn!.createdByEmail == currentUser.email);
 
-    return GetBuilder<ColorController>(
-      builder: (colorController) => Scaffold(
-        backgroundColor: colorController.backgroundColor.value,
-        appBar: AppBar(
-          leading: IconButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                Get.back();
-              },
-              icon: Icon(
-                Icons.arrow_back_ios_outlined,
-                color: colorController.iconColor.value,
-              )),
-          backgroundColor: colorController.backgroundColor.value,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          centerTitle: true,
-          title: GestureDetector(
-            onTap: () {
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () {
               HapticFeedback.lightImpact();
-              _showSearchDialog(colorController);
+              Get.back();
             },
-            child: Text(
-              _hymn?.hymnNumber ?? '',
-              style: TextStyle(
-                color: colorController.textColor.value,
-                fontWeight: FontWeight.bold,
-              ),
+            icon: Icon(
+              Icons.arrow_back_ios_outlined,
+              color: colorScheme.onSurface,
+            )),
+        backgroundColor: colorScheme.surface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        title: GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            _showSearchDialog(colorController);
+          },
+          child: Text(
+            _hymn?.hymnNumber ?? '',
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          actions: [
-            AudioButtonWidget(
-              hasAudio: _audioChecked && _hasAudio,
-              isPlaying: _audioService.isHymnPlaying(_hymn?.id ?? ''),
-              hymnId: _hymn?.id ?? '',
-              onPressed: () => _showAudioPlayerDialog(),
-            ),
-            StreamBuilder<Map<String, String>>(
-              initialData: _hymnService.currentFavoriteStatus,
-              stream: _hymnService.getFavoriteStatusStream(),
-              builder: (context, snapshot) {
-                final favoriteStatus =
-                    snapshot.data?[_hymn?.id ?? widget.hymnId] ?? '';
-                final isFavorite = favoriteStatus.isNotEmpty;
+        ),
+        actions: [
+          AudioButtonWidget(
+            hasAudio: _audioChecked && _hasAudio,
+            isPlaying: _audioService.isHymnPlaying(_hymn?.id ?? ''),
+            hymnId: _hymn?.id ?? '',
+            onPressed: () => _showAudioPlayerDialog(),
+          ),
+          StreamBuilder<Map<String, String>>(
+            initialData: _hymnService.currentFavoriteStatus,
+            stream: _hymnService.getFavoriteStatusStream(),
+            builder: (context, snapshot) {
+              final favoriteStatus =
+                  snapshot.data?[_hymn?.id ?? widget.hymnId] ?? '';
+              final isFavorite = favoriteStatus.isNotEmpty;
 
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FavoriteButtonWidget(
-                      isFavorite: isFavorite,
-                      favoriteStatus: favoriteStatus,
-                      onPressed: () {
-                        if (_hymn != null) {
-                          _hymnService.toggleFavorite(_hymn!);
-                        }
-                      },
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FavoriteButtonWidget(
+                    isFavorite: isFavorite,
+                    favoriteStatus: favoriteStatus,
+                    onPressed: () {
+                      if (_hymn != null) {
+                        _hymnService.toggleFavorite(_hymn!);
+                      }
+                    },
+                  ),
+                  HymnPopupMenuWidget(
+                    isFavorite: isFavorite,
+                    canEditHymn: canEditCurrentHymn,
+                    isUserAuthenticated: isAuthenticated,
+                    hasUserNote: _userNote != null,
+                    onToggleFavorite: () {
+                      if (_hymn != null) {
+                        _hymnService.toggleFavorite(_hymn!);
+                      }
+                    },
+                    onEditHymn: () => _navigateToEditScreen(context),
+                    onShowNoteEditor: () => _showNoteEditor(),
+                    onShowFontSizeSlider: () {
+                      setState(() {
+                        _showSlider = !_showSlider;
+                      });
+                    },
+                    onShowColorPicker: () =>
+                        ColorPickerWidget.showColorPickerDialog(context),
+                    onShowAudioPlayer: () => _showAudioPlayerDialog(),
+                    onAddToPlaylist: () => _showAddToPlaylistDialog(),
+                  ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          // PageView lazily builds only the visible hymn and its neighbours.
+          _isLoadingHymns
+              ? HymnDetailSkeleton(
+                  fontSize: _fontSize,
+                  countFontSize: _countFontSize,
+                )
+              : _allHymns.isEmpty
+                  ? Center(
+                      child: Text(
+                        l10n.noHymnsAvailable,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    )
+                  : PageView.builder(
+                      controller: _pageController,
+                      itemCount: _allHymns.length,
+                      onPageChanged: _onPageChangeCallback,
+                      itemBuilder: (context, index) =>
+                          _buildHymnPage(_allHymns[index], l10n),
                     ),
-                    HymnPopupMenuWidget(
-                      isFavorite: isFavorite,
-                      canEditHymn: canEditCurrentHymn,
-                      isUserAuthenticated: isAuthenticated,
-                      hasUserNote: _userNote != null,
-                      onToggleFavorite: () {
-                        if (_hymn != null) {
-                          _hymnService.toggleFavorite(_hymn!);
-                        }
-                      },
-                      onEditHymn: () => _navigateToEditScreen(context),
-                      onShowNoteEditor: () => _showNoteEditor(),
-                      onShowFontSizeSlider: () {
-                        setState(() {
-                          _showSlider = !_showSlider;
-                        });
-                      },
-                      onShowColorPicker: () =>
-                          ColorPickerWidget.showColorPickerDialog(context),
-                      onShowAudioPlayer: () => _showAudioPlayerDialog(),
-                      onAddToPlaylist: () => _showAddToPlaylistDialog(),
+
+          // Heart Animation Overlay
+          IgnorePointer(
+            child: AnimatedBuilder(
+              animation: _heartAnimationController,
+              builder: (context, child) {
+                return Opacity(
+                  opacity: _heartOpacityAnimation.value,
+                  child: Transform.scale(
+                    scale: _heartScaleAnimation.value,
+                    child: Icon(
+                      Icons.favorite,
+                      color: Colors.red.withValues(alpha: 0.8),
+                      size: 100,
                     ),
-                  ],
+                  ),
                 );
               },
             ),
-          ],
-        ),
-        body: Stack(
-          alignment: Alignment.center,
-          children: [
-            // PageView lazily builds only the visible hymn and its neighbours.
-            _isLoadingHymns
-                ? HymnDetailSkeleton(
+          ),
+
+          // Font Size Slider Overlay
+          if (_showSlider)
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: Card(
+                elevation: 0,
+                color: colorScheme.primary.withValues(alpha: 0.08),
+                shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                        color: colorScheme.primary.withValues(alpha: 0.1),
+                        width: 1)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FontSizeSliderWidget(
                     fontSize: _fontSize,
-                    countFontSize: _countFontSize,
-                  )
-                : _allHymns.isEmpty
-                    ? Center(
-                        child: Text(
-                          l10n.noHymnsAvailable,
-                          style: TextStyle(
-                            color: colorController.textColor.value,
-                          ),
-                        ),
-                      )
-                    : PageView.builder(
-                        controller: _pageController,
-                        itemCount: _allHymns.length,
-                        onPageChanged: _onPageChangeCallback,
-                        itemBuilder: (context, index) =>
-                            _buildHymnPage(_allHymns[index], l10n),
-                      ),
-
-            // Heart Animation Overlay
-            IgnorePointer(
-              child: AnimatedBuilder(
-                animation: _heartAnimationController,
-                builder: (context, child) {
-                  return Opacity(
-                    opacity: _heartOpacityAnimation.value,
-                    child: Transform.scale(
-                      scale: _heartScaleAnimation.value,
-                      child: Icon(
-                        Icons.favorite,
-                        color: Colors.red.withValues(alpha: 0.8),
-                        size: 100,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            // Font Size Slider Overlay
-            if (_showSlider)
-              Positioned(
-                bottom: 20,
-                left: 20,
-                right: 20,
-                child: Card(
-                  elevation: 0,
-                  color: colorController.primaryColor.value
-                      .withValues(alpha: 0.08),
-                  shadowColor: Colors.black.withValues(alpha: 0.2),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.1),
-                          width: 1)),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: FontSizeSliderWidget(
-                      fontSize: _fontSize,
-                      onChanged: (double value) {
+                    onChanged: (double value) {
+                      setState(() {
+                        _fontSize = value;
+                        _countFontSize =
+                            value * (_baseCountFontSize / _baseFontSize);
+                      });
+                    },
+                    onChangeEnd: (double value) async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setDouble('fontSize', value);
+                      if (mounted) {
                         setState(() {
-                          _fontSize = value;
-                          _countFontSize =
-                              value * (_baseCountFontSize / _baseFontSize);
+                          _showSlider = false;
                         });
-                      },
-                      onChangeEnd: (double value) async {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setDouble('fontSize', value);
-                        if (mounted) {
-                          setState(() {
-                            _showSlider = false;
-                          });
-                        }
-                      },
-                    ),
+                      }
+                    },
                   ),
                 ),
               ),
-          ],
-        ),
+            ),
+
+          // Recording controls are intentionally scoped to the hymn reader.
+          // Keeping this out of the global shell prevents it from covering
+          // unrelated routes such as the Bible reader.
+          const Positioned.fill(
+            child: RecordingOverlayManager(),
+          ),
+        ],
       ),
     );
   }

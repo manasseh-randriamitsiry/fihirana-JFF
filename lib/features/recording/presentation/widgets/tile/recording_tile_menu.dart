@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'recording_tile_dialogs.dart';
 
 class RecordingTileMenu extends StatelessWidget {
@@ -13,7 +12,6 @@ class RecordingTileMenu extends StatelessWidget {
   final bool isPublic;
   final RecordingController controller = Get.find<RecordingController>();
   final AuthController authController = Get.find<AuthController>();
-  final ColorController colorController = Get.find<ColorController>();
 
   RecordingTileMenu({
     super.key,
@@ -53,15 +51,16 @@ class RecordingTileMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     if (kDebugMode) {
       print('RecordingTileMenu: Building menu for recording: ${recording.id}');
     }
     return PopupMenuButton<String>(
       icon: Icon(
         Icons.more_vert,
-        color: colorController.textColor.value,
+        color: colors.onSurface,
       ),
-      color: colorController.backgroundColor.value,
+      color: colors.surfaceContainerHigh,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         if (kDebugMode) {
@@ -120,14 +119,13 @@ class RecordingTileMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.play_arrow,
-                  color: colorController.iconColor.value,
+                  color: colors.onSurfaceVariant,
                   size: 18,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Lire',
-                  style: TextStyle(
-                      color: colorController.textColor.value, fontSize: 13),
+                  style: TextStyle(color: colors.onSurface, fontSize: 13),
                 ),
               ],
             ),
@@ -142,14 +140,13 @@ class RecordingTileMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.edit,
-                  color: colorController.iconColor.value,
+                  color: colors.onSurfaceVariant,
                   size: 18,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Renommer',
-                  style: TextStyle(
-                      color: colorController.textColor.value, fontSize: 13),
+                  style: TextStyle(color: colors.onSurface, fontSize: 13),
                 ),
               ],
             ),
@@ -163,14 +160,13 @@ class RecordingTileMenu extends StatelessWidget {
             children: [
               Icon(
                 Icons.share,
-                color: colorController.iconColor.value,
+                color: colors.onSurfaceVariant,
                 size: 18,
               ),
               const SizedBox(width: 12),
               Text(
                 'Partager',
-                style: TextStyle(
-                    color: colorController.textColor.value, fontSize: 13),
+                style: TextStyle(color: colors.onSurface, fontSize: 13),
               ),
             ],
           ),
@@ -190,8 +186,7 @@ class RecordingTileMenu extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   'Rendre public',
-                  style: TextStyle(
-                      color: colorController.textColor.value, fontSize: 13),
+                  style: TextStyle(color: colors.onSurface, fontSize: 13),
                 ),
               ],
             ),
@@ -206,14 +201,13 @@ class RecordingTileMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.download,
-                  color: colorController.iconColor.value,
+                  color: colors.onSurfaceVariant,
                   size: 18,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Télécharger',
-                  style: TextStyle(
-                      color: colorController.textColor.value, fontSize: 13),
+                  style: TextStyle(color: colors.onSurface, fontSize: 13),
                 ),
               ],
             ),
@@ -234,8 +228,7 @@ class RecordingTileMenu extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(
                   "Réparer l'envoi",
-                  style: TextStyle(
-                      color: colorController.textColor.value, fontSize: 13),
+                  style: TextStyle(color: colors.onSurface, fontSize: 13),
                 ),
               ],
             ),
@@ -250,14 +243,13 @@ class RecordingTileMenu extends StatelessWidget {
               children: [
                 Icon(
                   Icons.drive_file_move_outlined,
-                  color: colorController.iconColor.value,
+                  color: colors.onSurfaceVariant,
                   size: 18,
                 ),
                 const SizedBox(width: 12),
                 Text(
                   'Exporter vers...',
-                  style: TextStyle(
-                      color: colorController.textColor.value, fontSize: 13),
+                  style: TextStyle(color: colors.onSurface, fontSize: 13),
                 ),
               ],
             ),

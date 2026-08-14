@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 
 class RecordingTileInfo extends StatelessWidget {
   final UserRecording recording;
   final bool isPublic;
-  final ColorController colorController = Get.find<ColorController>();
 
-  RecordingTileInfo({
+  const RecordingTileInfo({
     super.key,
     required this.recording,
     required this.isPublic,
@@ -43,13 +40,14 @@ class RecordingTileInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           _getDisplayTitle(),
           style: TextStyle(
-            color: colorController.textColor.value,
+            color: colors.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -62,13 +60,13 @@ class RecordingTileInfo extends StatelessWidget {
             Icon(
               Icons.access_time,
               size: 12,
-              color: colorController.textColor.value.withValues(alpha: 0.5),
+              color: colors.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
             Text(
               _formatDuration(recording.durationSeconds),
               style: TextStyle(
-                color: colorController.textColor.value.withValues(alpha: 0.5),
+                color: colors.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -76,13 +74,13 @@ class RecordingTileInfo extends StatelessWidget {
             Icon(
               Icons.calendar_today,
               size: 12,
-              color: colorController.textColor.value.withValues(alpha: 0.5),
+              color: colors.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
             Text(
               _formatDate(recording.createdAt),
               style: TextStyle(
-                color: colorController.textColor.value.withValues(alpha: 0.5),
+                color: colors.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -91,15 +89,14 @@ class RecordingTileInfo extends StatelessWidget {
               Icon(
                 Icons.person_outline,
                 size: 12,
-                color: colorController.textColor.value.withValues(alpha: 0.5),
+                color: colors.onSurfaceVariant,
               ),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   recording.userName!,
                   style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.5),
+                    color: colors.onSurfaceVariant,
                     fontSize: 12,
                   ),
                   maxLines: 1,

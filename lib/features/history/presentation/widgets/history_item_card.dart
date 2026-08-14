@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/shared/widgets/common/app_card.dart';
 
@@ -28,10 +26,10 @@ class HistoryItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final backgroundColor = colorController.backgroundColor.value;
-    final primaryColor = colorController.primaryColor.value;
-    final textColor = colorController.textColor.value;
+    final colors = Theme.of(context).colorScheme;
+    final backgroundColor = colors.surface;
+    final primaryColor = colors.primary;
+    final textColor = colors.onSurface;
 
     // Pastel color like hymn list item
     final pastelColor = Color.alphaBlend(

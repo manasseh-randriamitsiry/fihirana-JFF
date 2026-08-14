@@ -55,6 +55,7 @@ class ColorPickerWidget extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
         return ColorPickerWidget();
@@ -62,85 +63,122 @@ class ColorPickerWidget extends StatelessWidget {
     );
   }
 
-  void _showColorPicker(BuildContext context, String colorType,
-      Color currentColor, Function(Color) onColorChanged) {
+  void _showColorPicker(
+    BuildContext context,
+    String colorType,
+    Color currentColor,
+    ValueChanged<Color> onColorChanged,
+  ) {
     final l10n = AppLocalizations.of(context);
     final colorController = Get.find<ColorController>();
+    _showPaletteDialog(
+      context: context,
+      title: l10n.chooseColorFor(colorType),
+      pickerColor: currentColor,
+      confirmLabel: l10n.accept,
+      onColorChanged: (color) {
+        final validationError = ColorValidation.validateColorChange(
+          colorType,
+          color,
+          colorController,
+        );
+        if (validationError != null) {
+          _showValidationError(context, validationError);
+          return;
+        }
+        onColorChanged(color);
+      },
+    );
+  }
+
+  void _pickIconColor(BuildContext context, ColorController controller) {
+    final l10n = AppLocalizations.of(context);
+    _showPaletteDialog(
+      context: context,
+      title: l10n.chooseColor,
+      pickerColor: controller.iconColor.value,
+      confirmLabel: l10n.ok,
+      onColorChanged: controller.updateIconColor,
+    );
+  }
+
+  void _pickDrawerColor(BuildContext context, ColorController controller) {
+    final l10n = AppLocalizations.of(context);
+    _showPaletteDialog(
+      context: context,
+      title: l10n.drawerColor,
+      pickerColor: controller.drawerColor.value,
+      confirmLabel: l10n.ok,
+      onColorChanged: (color) {
+        final validationError = ColorValidation.validateColorChange(
+          'drawer',
+          color,
+          controller,
+        );
+        if (validationError != null) {
+          _showValidationError(context, validationError);
+          return;
+        }
+        controller.updateDrawerColor(color);
+      },
+    );
+  }
+
+  void _showPaletteDialog({
+    required BuildContext context,
+    required String title,
+    required Color pickerColor,
+    required String confirmLabel,
+    required ValueChanged<Color> onColorChanged,
+  }) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (dialogContext) {
+        final size = MediaQuery.sizeOf(dialogContext);
+        final colorScheme = Theme.of(dialogContext).colorScheme;
+        final isCompact = size.width < 360 || size.height < 640;
+
         return Dialog(
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
           backgroundColor: Colors.transparent,
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorController.backgroundColor.value,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorController.primaryColor.value,
-                width: 2,
-              ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 440,
+              maxHeight: size.height * .84,
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.chooseColorFor(colorType),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: colorScheme.outlineVariant),
+              ),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(isCompact ? 14 : 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(dialogContext).textTheme.titleLarge,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  SingleChildScrollView(
-                    child: MaterialPicker(
-                      pickerColor: currentColor,
-                      onColorChanged: (color) {
-                        // Validate the color change
-                        final validationError =
-                            ColorValidation.validateColorChange(
-                          colorType,
-                          color,
-                          colorController,
-                        );
-                        if (validationError != null) {
-                          Get.snackbar(
-                            'Erreur de validation',
-                            validationError,
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                            duration: const Duration(seconds: 4),
-                          );
-                          // Don't apply the color change
-                          return;
-                        }
-                        // Apply the color change if validation passes
-                        onColorChanged(color);
-                      },
-                      enableLabel: true,
+                    SizedBox(height: isCompact ? 12 : 16),
+                    _buildAdaptivePalette(
+                      context: dialogContext,
+                      pickerColor: pickerColor,
+                      onColorChanged: onColorChanged,
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(
-                          l10n.accept,
-                          style: TextStyle(
-                            color: colorController.primaryColor.value,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: Text(confirmLabel),
                       ),
-                    ],
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -149,181 +187,120 @@ class ColorPickerWidget extends StatelessWidget {
     );
   }
 
-  void _pickIconColor(BuildContext context, ColorController controller) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          decoration: BoxDecoration(
-            color: controller.backgroundColor.value,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: controller.primaryColor.value,
-              width: 2,
-            ),
+  Widget _buildAdaptivePalette({
+    required BuildContext context,
+    required Color pickerColor,
+    required ValueChanged<Color> onColorChanged,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final colorScheme = Theme.of(context).colorScheme;
+        final isCompact = constraints.maxWidth < 330;
+        final columnCount = isCompact ? 4 : 5;
+        final spacing = isCompact ? 6.0 : 8.0;
+        final itemSize =
+            (constraints.maxWidth - (spacing * (columnCount - 1))) /
+                columnCount;
+
+        return BlockPicker(
+          pickerColor: pickerColor,
+          onColorChanged: onColorChanged,
+          useInShowDialog: false,
+          layoutBuilder: (context, colors, child) => Wrap(
+            spacing: spacing,
+            runSpacing: spacing,
+            children: [
+              for (final color in colors)
+                SizedBox(
+                    width: itemSize, height: itemSize, child: child(color)),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.chooseColor,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: controller.textColor.value,
+          itemBuilder: (color, isSelected, selectColor) => Material(
+            color: color,
+            shape: const CircleBorder(),
+            child: InkWell(
+              onTap: selectColor,
+              customBorder: const CircleBorder(),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: isSelected
+                        ? colorScheme.onSurface
+                        : colorScheme.outlineVariant.withValues(alpha: .55),
+                    width: isSelected ? 3 : 1,
                   ),
                 ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  child: BlockPicker(
-                    pickerColor: controller.iconColor.value,
-                    onColorChanged: (color) async {
-                      await controller.updateIconColor(color);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
-                        l10n.ok,
-                        style: TextStyle(
-                          color: controller.primaryColor.value,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                child: isSelected
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: ThemeData.estimateBrightnessForColor(color) ==
+                                Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                      )
+                    : null,
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  void _pickDrawerColor(BuildContext context, ColorController controller) {
-    final l10n = AppLocalizations.of(context);
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          decoration: BoxDecoration(
-            color: controller.backgroundColor.value,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: controller.primaryColor.value,
-              width: 2,
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n.drawerColor,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: controller.textColor.value,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SingleChildScrollView(
-                  child: BlockPicker(
-                    pickerColor: controller.drawerColor.value,
-                    onColorChanged: (color) {
-                      // Validate the color change
-                      final validationError =
-                          ColorValidation.validateColorChange(
-                        'drawer',
-                        color,
-                        controller,
-                      );
-                      if (validationError != null) {
-                        Get.snackbar(
-                          'Erreur de validation',
-                          validationError,
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.red,
-                          colorText: Colors.white,
-                          duration: const Duration(seconds: 4),
-                        );
-                        // Don't apply the color change
-                        return;
-                      }
-                      // Apply the color change if validation passes
-                      controller.updateDrawerColor(color);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
-                        l10n.ok,
-                        style: TextStyle(
-                          color: controller.primaryColor.value,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+  void _showValidationError(BuildContext context, String message) {
+    final colorScheme = Theme.of(context).colorScheme;
+    Get.snackbar(
+      'Erreur de validation',
+      message,
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: colorScheme.errorContainer,
+      colorText: colorScheme.onErrorContainer,
+      duration: const Duration(seconds: 4),
     );
   }
 
   Widget _buildColorButton(
+    BuildContext context,
     String label,
     Color color,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    bool compact = false,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textStyle = TextStyle(
+      fontSize: compact ? 14 : 16,
+      fontWeight: FontWeight.w500,
+      color: colorScheme.onSurface,
+    );
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-            vertical: 12.0, horizontal: AppDimensions.md),
+        padding: EdgeInsets.symmetric(
+          vertical: compact ? 8 : 12,
+          horizontal: AppDimensions.md,
+        ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: colorController.textColor.value,
+            Expanded(
+              child: Text(
+                label,
+                style: textStyle,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            const SizedBox(width: 12),
             Container(
-              width: 40,
-              height: 40,
+              width: compact ? 34 : 40,
+              height: compact ? 34 : 40,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color:
-                      colorController.primaryColor.value.withValues(alpha: 0.3),
+                  color: colorScheme.outlineVariant,
                   width: 2,
                 ),
                 boxShadow: [
@@ -341,24 +318,31 @@ class ColorPickerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPresetSchemes() {
-    final l10n = AppLocalizations.of(Get.context!);
+  Widget _buildPresetSchemes(BuildContext context, {required bool compact}) {
+    final l10n = AppLocalizations.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+    final cardWidth = compact ? 96.0 : 110.0;
+    final previewSize = compact ? 56.0 : 70.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: AppDimensions.md,
+            vertical: compact ? 8 : 12,
+          ),
           child: Text(
             l10n.presetColors,
             style: TextStyle(
-              fontSize: 18,
+              fontSize: compact ? 16 : 18,
               fontWeight: FontWeight.bold,
-              color: colorController.textColor.value,
+              color: colorScheme.onSurface,
             ),
           ),
         ),
         SizedBox(
-          height: 140,
+          height: compact ? 112 : 140,
           child: ListView.builder(
             key: const PageStorageKey('color_schemes_list'),
             scrollDirection: Axis.horizontal,
@@ -373,21 +357,23 @@ class ColorPickerWidget extends StatelessWidget {
                 key: ValueKey(index),
                 onTap: () async => await colorController.setColorScheme(index),
                 child: Container(
-                  width: 110,
+                  width: cardWidth,
                   margin:
                       const EdgeInsets.symmetric(horizontal: AppDimensions.xs),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2A2A2E),
+                    color: colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: isSelected ? Colors.white : Colors.white12,
+                      color: isSelected
+                          ? colorScheme.primary
+                          : colorScheme.outlineVariant,
                       width: isSelected ? 3 : 1,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: isSelected
-                            ? Colors.white.withValues(alpha: 0.2)
-                            : Colors.black.withValues(alpha: 0.1),
+                            ? colorScheme.primary.withValues(alpha: 0.22)
+                            : colorScheme.shadow.withValues(alpha: 0.1),
                         blurRadius: isSelected ? 12 : 4,
                         offset: const Offset(0, 2),
                       ),
@@ -397,8 +383,8 @@ class ColorPickerWidget extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        width: 70,
-                        height: 70,
+                        width: previewSize,
+                        height: previewSize,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
@@ -419,14 +405,14 @@ class ColorPickerWidget extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: compact ? 6 : 8),
                       Text(
                         scheme['name'] as String,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: compact ? 11 : 12,
                           fontWeight:
                               isSelected ? FontWeight.w600 : FontWeight.w500,
-                          color: Colors.white,
+                          color: colorScheme.onSurface,
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 1,
@@ -446,145 +432,169 @@ class ColorPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final mediaQuery = MediaQuery.of(context);
+    final availableHeight = mediaQuery.size.height -
+        mediaQuery.padding.top -
+        mediaQuery.padding.bottom;
+    final isCompact = mediaQuery.size.width < 360 || availableHeight < 600;
+    final sheetHeight = (availableHeight * (isCompact ? .90 : .82))
+        .clamp(360.0, 680.0)
+        .toDouble();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return GetBuilder<ColorController>(
-      builder: (colorController) => Container(
-        height: MediaQuery.of(context).size.height * 0.75,
-        decoration: BoxDecoration(
-          color: colorController.backgroundColor.value,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-          border: Border(
-            top: BorderSide(
-              color: colorController.primaryColor.value,
-              width: 2,
-            ),
-            left: BorderSide(
-              color: colorController.primaryColor.value,
-              width: 2,
-            ),
-            right: BorderSide(
-              color: colorController.primaryColor.value,
-              width: 2,
+      builder: (colorController) => SizedBox(
+        height: sheetHeight,
+        child: Container(
+          decoration: BoxDecoration(
+            color: colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border(
+              top: BorderSide(
+                color: colorScheme.outlineVariant,
+                width: 1,
+              ),
+              left: BorderSide(
+                color: colorScheme.outlineVariant,
+                width: 1,
+              ),
+              right: BorderSide(
+                color: colorScheme.outlineVariant,
+                width: 1,
+              ),
             ),
           ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Drag handle
-            Center(
-              child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color:
-                      colorController.primaryColor.value.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag handle
+              Center(
+                child: Container(
+                  margin: EdgeInsets.only(top: isCompact ? 8 : 12, bottom: 8),
+                  width: isCompact ? 32 : 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.35),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
               ),
-            ),
-            // Title
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.color_lens,
-                    size: 28,
-                    color: colorController.primaryColor.value,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    l10n.chooseColor,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: colorController.textColor.value,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            // Preset schemes (horizontal scroll)
-            _buildPresetSchemes(),
-            const SizedBox(height: 16),
-            // Divider
-            const Divider(
-              color: Colors.white12,
-              thickness: 1,
-              height: 1,
-            ),
-            const SizedBox(height: 8),
-            // Custom colors section
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // Title
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    AppDimensions.md, 8, AppDimensions.md, isCompact ? 8 : 16),
+                child: Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 12.0),
+                    Icon(
+                      Icons.color_lens,
+                      size: 28,
+                      color: colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
                       child: Text(
-                        l10n.customColors,
+                        l10n.chooseColor,
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: isCompact ? 20 : 24,
                           fontWeight: FontWeight.bold,
-                          color: colorController.textColor.value,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                     ),
-                    _buildColorButton(
-                      l10n.primaryColor,
-                      colorController.primaryColor.value,
-                      () => _showColorPicker(
-                        context,
-                        'fototra',
-                        colorController.primaryColor.value,
-                        (color) async =>
-                            await colorController.updateColors(primary: color),
-                      ),
-                    ),
-                    _buildColorButton(
-                      l10n.textColor,
-                      colorController.textColor.value,
-                      () => _showColorPicker(
-                        context,
-                        'soratra',
-                        colorController.textColor.value,
-                        (color) async =>
-                            await colorController.updateColors(text: color),
-                      ),
-                    ),
-                    _buildColorButton(
-                      l10n.backgroundColor,
-                      colorController.backgroundColor.value,
-                      () => _showColorPicker(
-                        context,
-                        'ambadika',
-                        colorController.backgroundColor.value,
-                        (color) async => await colorController.updateColors(
-                            background: color),
-                      ),
-                    ),
-                    _buildColorButton(
-                      l10n.drawerColor,
-                      colorController.drawerColor.value,
-                      () => _pickDrawerColor(context, colorController),
-                    ),
-                    _buildColorButton(
-                      l10n.iconColor,
-                      colorController.iconColor.value,
-                      () => _pickIconColor(context, colorController),
-                    ),
-                    const SizedBox(height: 20),
                   ],
                 ),
               ),
-            ),
-          ],
+              // Preset schemes (horizontal scroll)
+              _buildPresetSchemes(context, compact: isCompact),
+              SizedBox(height: isCompact ? 8 : 16),
+              // Divider
+              Divider(
+                color: colorScheme.outlineVariant,
+                thickness: 1,
+                height: 1,
+              ),
+              SizedBox(height: isCompact ? 4 : 8),
+              // Custom colors section
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppDimensions.md,
+                          vertical: isCompact ? 8 : 12,
+                        ),
+                        child: Text(
+                          l10n.customColors,
+                          style: TextStyle(
+                            fontSize: isCompact ? 16 : 18,
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      _buildColorButton(
+                        context,
+                        l10n.primaryColor,
+                        colorController.primaryColor.value,
+                        () => _showColorPicker(
+                          context,
+                          'fototra',
+                          colorController.primaryColor.value,
+                          (color) async => await colorController.updateColors(
+                              primary: color),
+                        ),
+                        compact: isCompact,
+                      ),
+                      _buildColorButton(
+                        context,
+                        l10n.textColor,
+                        colorController.textColor.value,
+                        () => _showColorPicker(
+                          context,
+                          'soratra',
+                          colorController.textColor.value,
+                          (color) async =>
+                              await colorController.updateColors(text: color),
+                        ),
+                        compact: isCompact,
+                      ),
+                      _buildColorButton(
+                        context,
+                        l10n.backgroundColor,
+                        colorController.backgroundColor.value,
+                        () => _showColorPicker(
+                          context,
+                          'ambadika',
+                          colorController.backgroundColor.value,
+                          (color) async => await colorController.updateColors(
+                              background: color),
+                        ),
+                        compact: isCompact,
+                      ),
+                      _buildColorButton(
+                        context,
+                        l10n.drawerColor,
+                        colorController.drawerColor.value,
+                        () => _pickDrawerColor(context, colorController),
+                        compact: isCompact,
+                      ),
+                      _buildColorButton(
+                        context,
+                        l10n.iconColor,
+                        colorController.iconColor.value,
+                        () => _pickIconColor(context, colorController),
+                        compact: isCompact,
+                      ),
+                      SizedBox(height: isCompact ? 12 : 20),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

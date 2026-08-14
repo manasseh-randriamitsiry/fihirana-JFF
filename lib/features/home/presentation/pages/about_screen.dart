@@ -4,7 +4,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/core/utils/pubspec_service.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_card.dart';
@@ -25,7 +24,6 @@ class _AboutScreenState extends State<AboutScreen> {
   bool _flexibleUpdateDownloaded = false;
   String? _latestVersion;
   String? _releaseNotes;
-  final ColorController colorController = Get.find<ColorController>();
 
   @override
   void initState() {
@@ -174,12 +172,13 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
+    final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: colorController.textColor.value.withValues(alpha: 0.6),
+          color: colors.onSurfaceVariant,
           fontSize: 12,
           fontWeight: FontWeight.bold,
           letterSpacing: 1.2,
@@ -195,6 +194,7 @@ class _AboutScreenState extends State<AboutScreen> {
     Color? iconColor,
     Color? backgroundColor,
   }) {
+    final colors = Theme.of(context).colorScheme;
     return AppCard(
       backgroundColor: backgroundColor,
       onTap: onTap,
@@ -203,13 +203,12 @@ class _AboutScreenState extends State<AboutScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: (iconColor ?? colorController.primaryColor.value)
-                  .withValues(alpha: 0.15),
+              color: (iconColor ?? colors.primary).withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              color: iconColor ?? colorController.primaryColor.value,
+              color: iconColor ?? colors.primary,
               size: 24,
             ),
           ),
@@ -218,7 +217,7 @@ class _AboutScreenState extends State<AboutScreen> {
             child: Text(
               label,
               style: TextStyle(
-                color: iconColor ?? colorController.textColor.value,
+                color: iconColor ?? colors.onSurface,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
@@ -227,7 +226,7 @@ class _AboutScreenState extends State<AboutScreen> {
           Icon(
             Icons.arrow_forward_ios,
             size: 16,
-            color: colorController.textColor.value.withValues(alpha: 0.3),
+            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
           ),
         ],
       ),
@@ -237,16 +236,17 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
+      backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colorController.backgroundColor.value,
+        backgroundColor: colors.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
           l10n.aboutUs,
           style: TextStyle(
-            color: colorController.textColor.value,
+            color: colors.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -255,7 +255,7 @@ class _AboutScreenState extends State<AboutScreen> {
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
           icon: Icon(
             Icons.menu_rounded,
-            color: colorController.iconColor.value,
+            color: colors.onSurface,
           ),
         ),
       ),
@@ -270,7 +270,7 @@ class _AboutScreenState extends State<AboutScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              color: colorController.primaryColor.value.withValues(alpha: 0.1),
+              color: colors.primaryContainer,
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
@@ -278,14 +278,13 @@ class _AboutScreenState extends State<AboutScreen> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: colorController.primaryColor.value
-                            .withValues(alpha: 0.2),
+                        color: colors.primaryContainer,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.music_note,
                         size: 60,
-                        color: colorController.primaryColor.value,
+                        color: colors.primary,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -294,7 +293,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: colorController.textColor.value,
+                        color: colors.onSurface,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -303,8 +302,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       l10n.appVersion(_appVersion),
                       style: TextStyle(
                         fontSize: 16,
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.7),
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -312,8 +310,7 @@ class _AboutScreenState extends State<AboutScreen> {
                       '${l10n.headquarters} ${l10n.headquartersAddress}',
                       style: TextStyle(
                         fontSize: 14,
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.6),
+                        color: colors.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -400,8 +397,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: colorController.primaryColor.value
-                          .withValues(alpha: 0.15),
+                      color: colors.primaryContainer,
                       shape: BoxShape.circle,
                     ),
                     child: (_checkingForUpdates || _downloadingUpdate)
@@ -410,13 +406,13 @@ class _AboutScreenState extends State<AboutScreen> {
                             height: 24,
                             child: CircularProgressIndicator(
                               strokeWidth: 2.5,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  colorController.primaryColor.value),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(colors.primary),
                             ),
                           )
                         : Icon(
                             Icons.system_update_rounded,
-                            color: colorController.primaryColor.value,
+                            color: colors.primary,
                             size: 24,
                           ),
                   ),
@@ -429,7 +425,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               ? l10n.checkingForUpdates
                               : l10n.checkForUpdates,
                       style: TextStyle(
-                        color: colorController.textColor.value,
+                        color: colors.onSurface,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                       ),
@@ -439,8 +435,7 @@ class _AboutScreenState extends State<AboutScreen> {
                     Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.3),
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.5),
                     ),
                 ],
               ),
@@ -491,7 +486,7 @@ class _AboutScreenState extends State<AboutScreen> {
                             Text(
                               l10n.upToDate,
                               style: TextStyle(
-                                color: colorController.textColor.value,
+                                color: colors.onSurface,
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -500,8 +495,7 @@ class _AboutScreenState extends State<AboutScreen> {
                             Text(
                               l10n.appIsUpToDate,
                               style: TextStyle(
-                                color: colorController.textColor.value
-                                    .withValues(alpha: 0.7),
+                                color: colors.onSurfaceVariant,
                                 fontSize: 13,
                               ),
                             ),
@@ -548,7 +542,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           Text(
                             l10n.updateAvailableTitle,
                             style: TextStyle(
-                              color: colorController.textColor.value,
+                              color: colors.onSurface,
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -565,8 +559,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               Text(
                                 l10n.currentVersion,
                                 style: TextStyle(
-                                  color: colorController.textColor.value
-                                      .withValues(alpha: 0.6),
+                                  color: colors.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                               ),
@@ -574,7 +567,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               Text(
                                 _appVersion,
                                 style: TextStyle(
-                                  color: colorController.textColor.value,
+                                  color: colors.onSurface,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -583,8 +576,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           ),
                           Icon(
                             Icons.arrow_forward,
-                            color: colorController.textColor.value
-                                .withValues(alpha: 0.4),
+                            color: colors.onSurfaceVariant,
                           ),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -592,8 +584,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               Text(
                                 l10n.latestVersion,
                                 style: TextStyle(
-                                  color: colorController.textColor.value
-                                      .withValues(alpha: 0.6),
+                                  color: colors.onSurfaceVariant,
                                   fontSize: 12,
                                 ),
                               ),
@@ -614,15 +605,13 @@ class _AboutScreenState extends State<AboutScreen> {
                           _releaseNotes!.isNotEmpty) ...[
                         const SizedBox(height: 12),
                         Divider(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.1),
+                          color: colors.outlineVariant,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           l10n.whatsNew,
                           style: TextStyle(
-                            color: colorController.textColor.value
-                                .withValues(alpha: 0.6),
+                            color: colors.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                           ),
@@ -633,8 +622,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               ? '${_releaseNotes!.substring(0, 200)}...'
                               : _releaseNotes!,
                           style: TextStyle(
-                            color: colorController.textColor.value
-                                .withValues(alpha: 0.8),
+                            color: colors.onSurfaceVariant,
                             fontSize: 13,
                           ),
                           maxLines: 5,
@@ -675,7 +663,7 @@ class _AboutScreenState extends State<AboutScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colorController.textColor.value.withValues(alpha: 0.03),
+                color: colors.surfaceContainerLow,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -683,8 +671,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   Text(
                     l10n.developedBy,
                     style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.6),
+                      color: colors.onSurfaceVariant,
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
@@ -695,7 +682,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   Text(
                     'Randriamitsiry Valimbavaka Nandrasana Manassé',
                     style: TextStyle(
-                      color: colorController.textColor.value,
+                      color: colors.onSurface,
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
@@ -705,10 +692,8 @@ class _AboutScreenState extends State<AboutScreen> {
                   Text(
                     '${l10n.addressLabel} Ambalavao tsienimparihy',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.7),
-                        fontSize: 13),
+                    style:
+                        TextStyle(color: colors.onSurfaceVariant, fontSize: 13),
                   ),
                 ],
               ),
