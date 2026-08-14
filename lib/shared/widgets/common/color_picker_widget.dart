@@ -498,7 +498,7 @@ class ColorPickerWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Choose Color',
+                    l10n.chooseColor,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -528,7 +528,7 @@ class ColorPickerWidget extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 12.0),
                       child: Text(
-                        'Custom Colors',
+                        l10n.customColors,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

@@ -1183,5 +1183,32 @@
   "tryCopyingPassage": "Essayez plutôt de copier le texte du passage.",
   "shareFailed": "Échec du partage",
   "chooseTextColor": "Choisir la couleur du texte",
-  "apply": "Appliquer"
+  "apply": "Appliquer",
+  "languageSelectionDescription": "Sélectionnez votre langue préférée pour commencer.",
+  "reviewOnboardingEssentials": "Consultez les informations essentielles, puis choisissez comment continuer.",
+  "acceptTermsToContinue": "Acceptez les conditions pour continuer",
+  "enterAtLeastCharacters": "Saisissez au moins 4 caractères",
+  "appPermissions": "Autorisations de l'application",
+  "permissionRequestDescription": "Pour une meilleure expérience, nous avons besoin des autorisations suivantes :",
+  "notificationsPermissionDescription": "Recevez les versets du jour, les annonces et les notifications de mise à jour",
+  "installPackages": "Installer des paquets",
+  "installPackagesPermissionDescription": "Autorisez l'installation automatique des mises à jour de l'application",
+  "errorRequestingPermissions": "Erreur lors de la demande d'autorisations : {error}",
+  "@errorRequestingPermissions": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "audioSection": "Audio",
+  "moreActions": "Plus d'actions",
+  "clearName": "Effacer",
+  "enterNameHint": "Saisissez votre nom",
+  "unableToLoadFavorites": "Impossible de charger les favoris",
+  "checkConnectionAndTryAgain": "Vérifiez votre connexion et réessayez.",
+  "savedHymnsWillAppear": "Les cantiques que vous enregistrez apparaîtront ici.",
+  "unableToLoadAdditionalHymns": "Impossible de charger les cantiques supplémentaires",
+  "communityHymnsWillAppear": "Les nouveaux cantiques de la communauté apparaîtront ici.",
+  "notificationsLabel": "Notifications"
 }

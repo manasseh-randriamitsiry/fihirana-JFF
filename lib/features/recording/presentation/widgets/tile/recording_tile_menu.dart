@@ -125,7 +125,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Play',
+                  'Lire',
                   style: TextStyle(
                       color: colorController.textColor.value, fontSize: 13),
                 ),
@@ -147,7 +147,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Rename',
+                  'Renommer',
                   style: TextStyle(
                       color: colorController.textColor.value, fontSize: 13),
                 ),
@@ -168,7 +168,7 @@ class RecordingTileMenu extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Text(
-                'Share',
+                'Partager',
                 style: TextStyle(
                     color: colorController.textColor.value, fontSize: 13),
               ),
@@ -189,7 +189,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Make Public',
+                  'Rendre public',
                   style: TextStyle(
                       color: colorController.textColor.value, fontSize: 13),
                 ),
@@ -211,7 +211,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Download',
+                  'Télécharger',
                   style: TextStyle(
                       color: colorController.textColor.value, fontSize: 13),
                 ),
@@ -233,7 +233,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Fix Upload',
+                  "Réparer l'envoi",
                   style: TextStyle(
                       color: colorController.textColor.value, fontSize: 13),
                 ),
@@ -255,7 +255,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Export to...',
+                  'Exporter vers...',
                   style: TextStyle(
                       color: colorController.textColor.value, fontSize: 13),
                 ),
@@ -280,7 +280,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  isPublic ? 'Remove from Public' : 'Delete',
+                  isPublic ? 'Retirer de la liste publique' : 'Supprimer',
                   style: const TextStyle(
                     color: Colors.red,
                     fontSize: 13,
@@ -308,7 +308,7 @@ class RecordingTileMenu extends StatelessWidget {
                 ),
                 SizedBox(width: 12),
                 Text(
-                  'Delete Permanently',
+                  'Supprimer définitivement',
                   style: TextStyle(
                     color: Colors.red,
                     fontSize: 13,

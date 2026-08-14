@@ -2,86 +2,89 @@
 class AppStrings {
   // Common Actions
   static const String ok = 'OK';
-  static const String cancel = 'Cancel';
-  static const String save = 'Save';
-  static const String delete = 'Delete';
-  static const String edit = 'Edit';
-  static const String add = 'Add';
-  static const String remove = 'Remove';
-  static const String close = 'Close';
-  static const String back = 'Back';
-  static const String next = 'Next';
-  static const String previous = 'Previous';
-  static const String retry = 'Retry';
-  static const String refresh = 'Refresh';
-  static const String loading = 'Loading...';
-  static const String error = 'Error';
-  static const String success = 'Success';
-  static const String warning = 'Warning';
+  static const String cancel = 'Annuler';
+  static const String save = 'Enregistrer';
+  static const String delete = 'Supprimer';
+  static const String edit = 'Modifier';
+  static const String add = 'Ajouter';
+  static const String remove = 'Retirer';
+  static const String close = 'Fermer';
+  static const String back = 'Retour';
+  static const String next = 'Suivant';
+  static const String previous = 'Précédent';
+  static const String retry = 'Réessayer';
+  static const String refresh = 'Actualiser';
+  static const String loading = 'Chargement...';
+  static const String error = 'Erreur';
+  static const String success = 'Succès';
+  static const String warning = 'Avertissement';
   static const String info = 'Info';
 
   // Navigation
-  static const String home = 'Home';
-  static const String settings = 'Settings';
-  static const String profile = 'Profile';
-  static const String favorites = 'Favorites';
-  static const String history = 'History';
-  static const String search = 'Search';
+  static const String home = 'Accueil';
+  static const String settings = 'Paramètres';
+  static const String profile = 'Profil';
+  static const String favorites = 'Favoris';
+  static const String history = 'Historique';
+  static const String search = 'Rechercher';
 
   // Status Messages
-  static const String noData = 'No data available';
-  static const String noResults = 'No results found';
-  static const String connectionError = 'Connection error';
-  static const String serverError = 'Server error';
-  static const String timeoutError = 'Request timeout';
-  static const String unknownError = 'Unknown error occurred';
+  static const String noData = 'Aucune donnée disponible';
+  static const String noResults = 'Aucun résultat trouvé';
+  static const String connectionError = 'Erreur de connexion';
+  static const String serverError = 'Erreur du serveur';
+  static const String timeoutError = "Délai d'attente dépassé";
+  static const String unknownError = "Une erreur inconnue s'est produite";
 
   // Validation Messages
-  static const String requiredField = 'This field is required';
-  static const String invalidEmail = 'Invalid email address';
-  static const String invalidPhone = 'Invalid phone number';
-  static const String passwordTooShort = 'Password too short';
-  static const String passwordsDontMatch = 'Passwords don\'t match';
+  static const String requiredField = 'Ce champ est obligatoire';
+  static const String invalidEmail = 'Adresse e-mail invalide';
+  static const String invalidPhone = 'Numéro de téléphone invalide';
+  static const String passwordTooShort = 'Mot de passe trop court';
+  static const String passwordsDontMatch =
+      'Les mots de passe ne correspondent pas';
 
   // Permissions
-  static const String cameraPermission = 'Camera permission required';
-  static const String microphonePermission = 'Microphone permission required';
-  static const String storagePermission = 'Storage permission required';
-  static const String locationPermission = 'Location permission required';
+  static const String cameraPermission = 'Autorisation de la caméra requise';
+  static const String microphonePermission =
+      'Autorisation du microphone requise';
+  static const String storagePermission = 'Autorisation de stockage requise';
+  static const String locationPermission =
+      'Autorisation de localisation requise';
 
   // File Operations
-  static const String fileNotFound = 'File not found';
-  static const String fileTooLarge = 'File too large';
-  static const String invalidFileFormat = 'Invalid file format';
-  static const String uploadFailed = 'Upload failed';
-  static const String downloadFailed = 'Download failed';
+  static const String fileNotFound = 'Fichier introuvable';
+  static const String fileTooLarge = 'Fichier trop volumineux';
+  static const String invalidFileFormat = 'Format de fichier invalide';
+  static const String uploadFailed = "Échec de l'envoi";
+  static const String downloadFailed = 'Échec du téléchargement';
 
   // Audio
-  static const String play = 'Play';
+  static const String play = 'Lire';
   static const String pause = 'Pause';
-  static const String stop = 'Stop';
-  static const String nextTrack = 'Next';
-  static const String previousTrack = 'Previous';
-  static const String shuffle = 'Shuffle';
-  static const String repeat = 'Repeat';
+  static const String stop = 'Arrêter';
+  static const String nextTrack = 'Suivant';
+  static const String previousTrack = 'Précédent';
+  static const String shuffle = 'Lecture aléatoire';
+  static const String repeat = 'Répéter';
   static const String volume = 'Volume';
 
   // Time
-  static const String today = 'Today';
-  static const String yesterday = 'Yesterday';
-  static const String tomorrow = 'Tomorrow';
-  static const String now = 'Now';
-  static const String ago = 'ago';
-  static const String justNow = 'Just now';
+  static const String today = "Aujourd'hui";
+  static const String yesterday = 'Hier';
+  static const String tomorrow = 'Demain';
+  static const String now = 'Maintenant';
+  static const String ago = 'il y a';
+  static const String justNow = "À l'instant";
 
   // Units
-  static const String seconds = 'seconds';
+  static const String seconds = 'secondes';
   static const String minutes = 'minutes';
-  static const String hours = 'hours';
-  static const String days = 'days';
-  static const String weeks = 'weeks';
-  static const String months = 'months';
-  static const String years = 'years';
+  static const String hours = 'heures';
+  static const String days = 'jours';
+  static const String weeks = 'semaines';
+  static const String months = 'mois';
+  static const String years = 'ans';
 
   // Sizes
   static const String bytes = 'B';
@@ -90,24 +93,24 @@ class AppStrings {
   static const String gigabytes = 'GB';
 
   // Network
-  static const String online = 'Online';
-  static const String offline = 'Offline';
-  static const String connecting = 'Connecting...';
-  static const String connected = 'Connected';
-  static const String disconnected = 'Disconnected';
+  static const String online = 'En ligne';
+  static const String offline = 'Hors ligne';
+  static const String connecting = 'Connexion...';
+  static const String connected = 'Connecté';
+  static const String disconnected = 'Déconnecté';
 
   // Confirmation Messages
   static const String confirmDelete =
-      'Are you sure you want to delete this item?';
-  static const String confirmExit = 'Are you sure you want to exit?';
+      'Voulez-vous vraiment supprimer cet élément ?';
+  static const String confirmExit = 'Voulez-vous vraiment quitter ?';
   static const String unsavedChanges =
-      'You have unsaved changes. Do you want to save them?';
+      'Des modifications ne sont pas enregistrées. Voulez-vous les enregistrer ?';
 
   // Empty States
-  static const String noFavorites = 'No favorites yet';
-  static const String noHistory = 'No history available';
-  static const String noSearchResults = 'No search results';
-  static const String emptyList = 'List is empty';
+  static const String noFavorites = 'Aucun favori pour le moment';
+  static const String noHistory = 'Aucun historique disponible';
+  static const String noSearchResults = 'Aucun résultat de recherche';
+  static const String emptyList = 'La liste est vide';
 
   // Helper methods
   static String formatDuration(Duration duration) {

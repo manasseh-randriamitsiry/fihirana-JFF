@@ -393,7 +393,7 @@ class _BibleReaderScreenOptimizedState
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Highlight Color',
+              'Couleur du surlignage',
               style: TextStyle(
                 color: colorController.textColor.value,
                 fontSize: 18,

@@ -77,7 +77,7 @@ class PlaylistItemCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              '${playlist.hymnIds.length} hymns',
+              '${playlist.hymnIds.length} cantiques',
               style: TextStyle(
                 color: colorController.textColor.value.withValues(alpha: 0.5),
                 fontSize: 12,

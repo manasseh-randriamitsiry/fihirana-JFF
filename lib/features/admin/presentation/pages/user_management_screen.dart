@@ -184,7 +184,7 @@ class UserManagementScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -202,7 +202,7 @@ class UserManagementScreen extends StatelessWidget {
                 );
               }
             },
-            child: const Text('Confirm'),
+            child: const Text('Confirmer'),
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class UserManagementScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -260,14 +260,14 @@ class UserManagementScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete User'),
+        title: const Text("Supprimer l'utilisateur"),
         content: Text(
           l10n.confirmDeleteUser(user.displayName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -283,7 +283,7 @@ class UserManagementScreen extends StatelessWidget {
               }
             },
             child: const Text(
-              'Delete',
+              'Supprimer',
               style: TextStyle(color: Colors.red),
             ),
           ),
@@ -346,7 +346,7 @@ class _UserListItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
-                  'Admin',
+                  'Administrateur',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 10,
@@ -362,7 +362,7 @@ class _UserListItem extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
-                  'Blocked',
+                  'Bloqué',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 10,
@@ -383,7 +383,7 @@ class _UserListItem extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Last Login: ${user.lastLogin != null ? _formatDate(user.lastLogin!, context) : 'Never'}',
+              "Dernière connexion : ${user.lastLogin != null ? _formatDate(user.lastLogin!, context) : 'Jamais'}",
               style: TextStyle(
                 color: textColor.withValues(alpha: 0.6),
                 fontSize: 12,

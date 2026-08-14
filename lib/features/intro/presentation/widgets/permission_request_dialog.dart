@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class PermissionRequestDialog extends StatefulWidget {
   final VoidCallback onPermissionsGranted;
@@ -64,8 +65,9 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error requesting permissions: $e')),
+          SnackBar(content: Text(l10n.errorRequestingPermissions('$e'))),
         );
       }
     } finally {
@@ -78,6 +80,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
   @override
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
+    final l10n = AppLocalizations.of(context);
     final isTablet = MediaQuery.of(context).size.width >= 600;
 
     return Dialog(
@@ -110,7 +113,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
 
             // Title
             Text(
-              'App Permissions',
+              l10n.appPermissions,
               style: TextStyle(
                 fontSize: isTablet ? 24 : 20,
                 fontWeight: FontWeight.bold,
@@ -120,28 +123,13 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
             ),
 
             SizedBox(height: isTablet ? 16 : 12),
-
-            // Description
-            Text(
-              'To provide the best experience, we need the following permissions:',
-              style: TextStyle(
-                fontSize: isTablet ? 16 : 14,
-                color: colorController.textColor.value.withValues(alpha: 0.7),
-                height: 1.4,
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            SizedBox(height: isTablet ? 24 : 20),
-
             // Permission items
             const SizedBox(height: 8),
             _buildPermissionItem(
               context,
               icon: Icons.notifications_none_rounded,
-              title: 'Notifications',
-              description:
-                  'Receive daily verses, announcements, and update notifications',
+              title: l10n.notificationsLabel,
+              description: l10n.notificationsPermissionDescription,
               isGranted: _notificationGranted,
               isTablet: isTablet,
             ),
@@ -151,8 +139,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
             _buildPermissionItem(
               context,
               icon: Icons.system_update_rounded,
-              title: 'Install Packages',
-              description: 'Allow app updates to be installed automatically',
+              title: l10n.installPackages,
+              description: l10n.installPackagesPermissionDescription,
               isGranted: _installPackagesGranted,
               isTablet: isTablet,
             ),
@@ -164,10 +152,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () {
-                      HapticFeedback.lightImpact();
-                      Navigator.pop(context);
-                    },
+                    onPressed: widget.onPermissionsGranted,
                     style: TextButton.styleFrom(
                       padding:
                           EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
@@ -176,7 +161,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                       ),
                     ),
                     child: Text(
-                      'Skip for now',
+                      l10n.skipForNow,
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: colorController.textColor.value
                             .withValues(alpha: 0.6),
@@ -212,7 +198,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                             ),
                           )
                         : Text(
-                            'Grant Permissions',
+                            l10n.grantPermission,
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: isTablet ? 16 : 14,
                               fontWeight: FontWeight.w600,

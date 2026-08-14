@@ -145,8 +145,8 @@ class RecordingPublishingManager extends GetxController {
 
       if (recording.driveFileId == null) {
         Get.snackbar(
-          'Uploading',
-          'Uploading recording to Drive first...',
+          'Envoi en cours',
+          "Envoi préalable de l'enregistrement vers Drive...",
           backgroundColor: Colors.blue,
           colorText: Colors.white,
         );
@@ -341,7 +341,7 @@ class RecordingPublishingManager extends GetxController {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                  'A recording with this title already exists. Please enter a new title.'),
+                  "Un enregistrement porte déjà ce titre. Saisissez un autre titre."),
               const SizedBox(height: 16),
               TextField(
                 controller: controller,

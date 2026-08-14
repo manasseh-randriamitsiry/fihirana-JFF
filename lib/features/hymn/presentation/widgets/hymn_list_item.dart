@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
@@ -11,7 +10,6 @@ import 'package:fihirana/features/auth/presentation/controllers/auth_controller.
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
-import 'package:fihirana/shared/widgets/common/app_card.dart';
 
 class HymnListItem extends StatefulWidget {
   final Hymn hymn;
@@ -41,44 +39,9 @@ class HymnListItem extends StatefulWidget {
   State<HymnListItem> createState() => _HymnListItemState();
 }
 
-class _HymnListItemState extends State<HymnListItem>
-    with SingleTickerProviderStateMixin {
+class _HymnListItemState extends State<HymnListItem> {
   final HymnService _hymnService = HymnService();
   final AudioService _audioService = AudioService.instance;
-  late AnimationController _scaleController;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _scaleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-      lowerBound: 0.0,
-      upperBound: 0.05,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _scaleController.dispose();
-    super.dispose();
-  }
-
-  void _handleTapDown(_) {
-    _scaleController.forward();
-  }
-
-  void _handleTapUp(_) {
-    _scaleController.reverse();
-  }
-
-  void _handleTapCancel() {
-    _scaleController.reverse();
-  }
 
   Future<bool> _confirmDeletion(BuildContext context) async {
     final confirmationController = TextEditingController();
@@ -322,21 +285,18 @@ class _HymnListItemState extends State<HymnListItem>
 
     final textTheme = Theme.of(context).textTheme;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Listener(
-        onPointerDown: _handleTapDown,
-        onPointerUp: _handleTapUp,
-        onPointerCancel: (_) => _handleTapCancel(),
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: AppCard(
-            backgroundColor: pastelColor,
-            borderRadius: AppDimensions.radiusXxl,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              NavigationUtility.navigateToDetailScreen(context, widget.hymn);
-            },
+    return Semantics(
+      button: true,
+      label: '${widget.hymn.hymnNumber} ${widget.hymn.title}',
+      child: Material(
+        color: pastelColor,
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
+          onTap: () =>
+              NavigationUtility.navigateToDetailScreen(context, widget.hymn),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [

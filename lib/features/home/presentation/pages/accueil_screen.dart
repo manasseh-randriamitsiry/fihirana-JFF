@@ -1,32 +1,28 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
-import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
+
+import 'package:fihirana/core/utils/navigation_utility.dart';
+import 'package:fihirana/core/utils/version_check_service.dart';
+import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/presentation/pages/audio_player_screen.dart';
 import 'package:fihirana/features/hymn/data/repositories/hymn_repository_impl.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
-import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
-import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
-import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_usecase.dart';
-import 'package:fihirana/features/hymn/domain/usecases/is_favorite_usecase.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
-import 'package:fihirana/features/audio/data/services/audio_service.dart';
-import 'package:fihirana/core/utils/version_check_service.dart';
-import 'package:fihirana/core/utils/navigation_utility.dart';
-import 'package:fihirana/features/home/presentation/widgets/accueil_action_widgets.dart';
-import 'package:fihirana/shared/widgets/common/localization_extension.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
-import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
+import 'package:fihirana/features/hymn/domain/usecases/add_to_favorites_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/is_favorite_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/remove_from_favorites_usecase.dart';
+import 'package:fihirana/features/hymn/domain/usecases/search_hymns_usecase.dart';
+import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_list_item.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_field.dart';
-import 'package:fihirana/features/audio/presentation/pages/audio_player_screen.dart';
+import 'package:fihirana/features/home/presentation/widgets/accueil_action_widgets.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/shared/widgets/common/simple_language_picker.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 
 class AccueilScreen extends StatefulWidget {
-  final Function() openDrawer;
+  final VoidCallback openDrawer;
   final bool showMenuButton;
 
   const AccueilScreen({
@@ -36,300 +32,233 @@ class AccueilScreen extends StatefulWidget {
   });
 
   @override
-  AccueilScreenState createState() => AccueilScreenState();
+  State<AccueilScreen> createState() => _AccueilScreenState();
 }
 
-class AccueilScreenState extends State<AccueilScreen> {
+class _AccueilScreenState extends State<AccueilScreen> {
   late final HymnController _hymnController;
-  late final ColorController _colorController;
-  bool _updateAvailable = false;
-  bool _isDownloading = false;
+  final AudioService _audioService = AudioService.instance;
+  final ScrollController _scrollController = ScrollController();
   final Set<String> _checkedHymnIds = <String>{};
   final RxMap<String, bool> _audioAvailability = <String, bool>{}.obs;
+  Worker? _hymnListWorker;
+  bool _updateAvailable = false;
+  bool _isDownloading = false;
 
   @override
   void initState() {
     super.initState();
-    _colorController = Get.find<ColorController>();
-
-    // Initialize the controller properly to avoid disposal issues
-    final hymnService = HymnService();
-    final hymnRepository = HymnRepositoryImpl(hymnService);
-
-    _hymnController = Get.put<HymnController>(
-        HymnController(
-          searchHymnsUseCase: SearchHymnsUseCase(hymnRepository),
-          addToFavoritesUseCase: AddToFavoritesUseCase(hymnRepository),
-          removeFromFavoritesUseCase:
-              RemoveFromFavoritesUseCase(hymnRepository),
-          isFavoriteUseCase: IsFavoriteUseCase(hymnRepository),
-        ),
-        permanent: true);
-
-    // Initial audio check for first batch of hymns
-    _checkInitialAudio();
-
+    _hymnController = _getHymnController();
+    _hymnListWorker = ever<List<Hymn>>(
+      _hymnController.filteredHymns,
+      (hymns) => _checkAudioForHymns(hymns.take(16)),
+    );
+    _scrollController.addListener(_loadAudioNearViewport);
     VersionCheckService.setOnUpdateAvailableCallback(() {
-      if (mounted) {
-        setState(() {
-          _updateAvailable = true;
-        });
-      }
+      if (mounted) setState(() => _updateAvailable = true);
     });
   }
 
-  void _checkInitialAudio() async {
-    // Wait for hymns to load
-    ever(_hymnController.filteredHymns, (hymns) {
-      if (hymns.isNotEmpty) {
-        _checkAudioForVisibleHymns(hymns.take(20).toList());
-      }
-    });
+  HymnController _getHymnController() {
+    if (Get.isRegistered<HymnController>()) return Get.find<HymnController>();
+    final repository = HymnRepositoryImpl(HymnService());
+    return Get.put(
+      HymnController(
+        searchHymnsUseCase: SearchHymnsUseCase(repository),
+        addToFavoritesUseCase: AddToFavoritesUseCase(repository),
+        removeFromFavoritesUseCase: RemoveFromFavoritesUseCase(repository),
+        isFavoriteUseCase: IsFavoriteUseCase(repository),
+      ),
+      permanent: true,
+    );
   }
 
-  Future<void> _checkAudioForVisibleHymns(List<Hymn> hymns) async {
-    final idsToCheck = hymns
-        .map((h) => h.id)
-        .where((id) => !_checkedHymnIds.contains(id))
-        .toList();
-
-    if (idsToCheck.isEmpty) return;
-
-    _checkedHymnIds.addAll(idsToCheck);
-    final results =
-        await AudioService.instance.checkAudioFilesExist(idsToCheck);
-    _audioAvailability.addAll(results);
+  void _loadAudioNearViewport() {
+    if (!_scrollController.hasClients ||
+        _scrollController.position.extentAfter > 840) {
+      return;
+    }
+    final startIndex = (_scrollController.offset / 82)
+        .floor()
+        .clamp(0, _hymnController.filteredHymns.length);
+    _checkAudioForHymns(
+        _hymnController.filteredHymns.skip(startIndex).take(20));
   }
 
-  void _showAudioPlayerDialog(Hymn hymn) {
-    // Navigate to enhanced player - it will load all hymns as playlist
+  Future<void> _checkAudioForHymns(Iterable<Hymn> hymns) async {
+    final ids = hymns
+        .map((hymn) => hymn.id)
+        .where(_checkedHymnIds.add)
+        .toList(growable: false);
+    if (ids.isEmpty) return;
+    final results = await _audioService.checkAudioFilesExist(ids);
+    if (mounted) _audioAvailability.addAll(results);
+  }
+
+  void _showAudioPlayer(Hymn hymn) {
     AudioPlayerNavigator.navigateToEnhancedPlayer(
       context,
       hymn: hymn,
-      playlist: null, // Let the enhanced player handle loading all hymns
+      playlist: null,
       initialIndex: null,
     );
   }
 
-  void _showCurrentPlayingDialog() {
-    final audioService = AudioService.instance;
-    final currentHymn = audioService.currentHymn;
-
-    if (currentHymn != null && context.mounted) {
-      _showAudioPlayerDialog(currentHymn);
+  Future<void> _openNowPlaying() async {
+    final current = _audioService.currentHymn;
+    if (current != null) {
+      _showAudioPlayer(current);
+      return;
     }
-  }
-
-  Future<void> _showAudioPlayerWithFirstHymn() async {
-    // Get the first hymn from the current filtered list
-    final hymns =
-        _hymnController.filterHymnList(await _hymnController.hymnsStream.first);
-
-    if (hymns.isNotEmpty && context.mounted) {
-      _showAudioPlayerDialog(hymns.first);
-    }
+    final hymns = _hymnController.filteredHymns;
+    if (hymns.isNotEmpty) _showAudioPlayer(hymns.first);
   }
 
   Future<void> _downloadAndInstallUpdate() async {
+    setState(() => _isDownloading = true);
     try {
-      setState(() {
-        _isDownloading = true;
-      });
-
       await VersionCheckService.downloadAndInstallLatestVersion();
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
-        setState(() {
-          _isDownloading = false;
-        });
-
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  '${context.translate((l) => l.errorDownloadingUpdate)}: ${e.toString()}'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text(context.translate((l) => l.errorDownloadingUpdate))),
+        );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isDownloading = false;
-        });
-      }
+      if (mounted) setState(() => _isDownloading = false);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(builder: (colorController) {
-      final textColor = colorController.textColor.value;
-      final backgroundColor = colorController.backgroundColor.value;
-      final iconColor = colorController.iconColor.value;
-      final defaultTextStyle = TextStyle(color: textColor, inherit: true);
-
-      return Scaffold(
-        backgroundColor: backgroundColor,
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leading: widget.showMenuButton
-              ? IconButton(
-                  key: const ValueKey('menu_button'),
-                  icon: Icon(Icons.menu, color: iconColor),
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    widget.openDrawer();
-                  },
-                )
-              : null,
-          title: Text(
-            context.translate((l) => l.appTitleShort),
-            style: defaultTextStyle.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 26,
-            ),
-          ),
-          actions: [
-            UpdateButtonWidget(
-              isDownloading: _isDownloading,
-              updateAvailable: _updateAvailable,
-              onPressed: _isDownloading ? null : _downloadAndInstallUpdate,
-            ),
-            Obx(() {
-              final audioService = AudioService.instance;
-              final currentHymnId = audioService.currentPlayingHymnId;
-              final isPlaying =
-                  currentHymnId.isNotEmpty && audioService.isPlaying;
-
-              return NowPlayingButtonWidget(
-                currentHymnId: currentHymnId,
-                isPlaying: isPlaying,
-                onPressed: () async {
-                  if (isPlaying) {
-                    _showCurrentPlayingDialog();
-                  } else {
-                    await _showAudioPlayerWithFirstHymn();
-                  }
-                },
-              );
-            }),
-            IconButton(
-              key: const ValueKey('language_button'),
-              icon: Icon(Icons.language, color: iconColor),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                SimpleLanguagePicker.showLanguagePicker(context);
-              },
-            ),
-            IconButton(
-              key: const ValueKey('favorites_button'),
-              icon: Icon(Icons.favorite, color: iconColor),
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                NavigationUtility.navigateToFavorites();
-              },
-            ),
-          ],
-        ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(AppDimensions.md),
-              child: HymnSearchField(
-                controller: _hymnController.safeSearchController,
-                defaultTextStyle: defaultTextStyle,
-                textColor: textColor,
-                iconColor: iconColor,
-                backgroundColor: backgroundColor,
-                onChanged: () {
-                  if (mounted && !_hymnController.isDisposed) {
-                    setState(() {});
-                  }
-                },
-              ),
-            ),
-            Expanded(
-              child: Obx(() {
-                if (_hymnController.isLoading.value) {
-                  return const SkeletonHymnList();
-                }
-
-                final hymns = _hymnController.filteredHymns;
-                if (hymns.isEmpty) {
-                  return EmptyStateWidget(
-                    message: context.translate((l) => l.noHymnsFound),
-                    icon: Icons.music_off_rounded,
-                    actionLabel: context.translate((l) => l.clearSearch),
-                    onActionPressed: () {
-                      if (!_hymnController.isDisposed) {
-                        _hymnController.safeSearchController.clear();
-                      }
-                    },
-                  );
-                }
-
-                return ListView.builder(
-                  key: const PageStorageKey('home_hymns_list'),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppDimensions.md),
-                  itemCount: hymns.length,
-                  itemBuilder: (context, index) {
-                    final hymn = hymns[index];
-
-                    // Batch check audio for next items as we scroll
-                    if (index > 0 && index % 15 == 0) {
-                      final nextBatch = hymns.skip(index).take(20).toList();
-                      _checkAudioForVisibleHymns(nextBatch);
-                    }
-
-                    return Obx(() {
-                      final isFavorite = _hymnController
-                              .favoriteStatuses[hymn.id]?.isNotEmpty ??
-                          false;
-                      final hasAudio = _audioAvailability[hymn.id] ?? false;
-
-                      return HymnListItem(
-                        key: ValueKey(hymn.id),
-                        hymn: hymn,
-                        textColor: textColor,
-                        backgroundColor: backgroundColor,
-                        primaryColor: _colorController.primaryColor.value,
-                        isFavorite: isFavorite,
-                        hasAudio: hasAudio,
-                        onFavoritePressed: () =>
-                            _hymnController.toggleFavorite(hymn),
-                        onMusicPressed: () => _showAudioPlayerDialog(hymn),
-                      );
-                    })
-                        .animate()
-                        .fadeIn(
-                            duration: 400.ms,
-                            delay: (50 * index).clamp(0, 500).ms)
-                        .slideY(
-                            begin: 0.2,
-                            end: 0,
-                            curve: Curves.easeOutQuad,
-                            duration: 400.ms);
-                  },
-                );
-              }),
-            ),
-          ],
-        ),
-      );
-    });
   }
 
   @override
   void dispose() {
-    // Cancel any pending operations
-    _checkedHymnIds.clear();
-    // Don't dispose the controller here since it's managed by GetX
-    // Just clean up any local resources
+    _hymnListWorker?.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return AppPageScaffold(
+      title: context.translate((l) => l.appTitleShort),
+      largeTitle: true,
+      leading: widget.showMenuButton
+          ? IconButton(
+              key: const ValueKey('menu_button'),
+              tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+              onPressed: widget.openDrawer,
+              icon: const Icon(Icons.menu_rounded),
+            )
+          : null,
+      actions: [
+        if (_updateAvailable)
+          UpdateButtonWidget(
+            isDownloading: _isDownloading,
+            updateAvailable: true,
+            onPressed: _isDownloading ? null : _downloadAndInstallUpdate,
+          ),
+        Obx(
+          () => NowPlayingButtonWidget(
+            currentHymnId: _audioService.currentPlayingHymnId,
+            isPlaying: _audioService.isPlaying,
+            onPressed: _openNowPlaying,
+          ),
+        ),
+        PopupMenuButton<String>(
+          tooltip: context.translate((l) => l.moreActions),
+          onSelected: (value) {
+            if (value == 'language') {
+              SimpleLanguagePicker.showLanguagePicker(context);
+            } else if (value == 'favorites') {
+              NavigationUtility.navigateToFavorites();
+            }
+          },
+          itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'language',
+              child: Row(
+                children: [
+                  const Icon(Icons.language_rounded),
+                  const SizedBox(width: 12),
+                  Text(context.translate((l) => l.language)),
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              value: 'favorites',
+              child: Row(
+                children: [
+                  const Icon(Icons.favorite_border_rounded),
+                  const SizedBox(width: 12),
+                  Text(context.translate((l) => l.favorites)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+            child: HymnSearchField(
+              controller: _hymnController.searchController,
+              defaultTextStyle: Theme.of(context).textTheme.bodyLarge!,
+              textColor: colors.onSurface,
+              iconColor: colors.onSurfaceVariant,
+              backgroundColor: colors.surfaceContainerHighest,
+              onChanged: () {},
+            ),
+          ),
+          Expanded(
+            child: Obx(() {
+              if (_hymnController.isLoading.value) {
+                return const SkeletonHymnList();
+              }
+              final hymns = _hymnController.filteredHymns;
+              if (hymns.isEmpty) {
+                return AppEmptyState(
+                  icon: Icons.music_off_rounded,
+                  title: context.translate((l) => l.noHymnsFound),
+                  message: 'Try a hymn number, title, or lyric.',
+                  action: TextButton(
+                    onPressed: _hymnController.searchController.clear,
+                    child: Text(context.translate((l) => l.clearSearch)),
+                  ),
+                );
+              }
+              return ListView.separated(
+                key: const PageStorageKey('home_hymns_list'),
+                controller: _scrollController,
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                itemCount: hymns.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final hymn = hymns[index];
+                  return Obx(
+                    () => HymnListItem(
+                      key: ValueKey(hymn.id),
+                      hymn: hymn,
+                      textColor: colors.onSurface,
+                      backgroundColor: colors.surface,
+                      primaryColor: colors.primary,
+                      isFavorite: _hymnController
+                              .favoriteStatuses[hymn.id]?.isNotEmpty ??
+                          false,
+                      hasAudio: _audioAvailability[hymn.id] ?? false,
+                      onFavoritePressed: () =>
+                          _hymnController.toggleFavorite(hymn),
+                      onMusicPressed: () => _showAudioPlayer(hymn),
+                    ),
+                  );
+                },
+              );
+            }),
+          ),
+        ],
+      ),
+    );
   }
 }

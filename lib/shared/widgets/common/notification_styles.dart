@@ -201,7 +201,7 @@ class NotificationButtons {
     return [
       NotificationActionButton(
         key: 'prev',
-        label: 'Previous',
+        label: 'Précédent',
         icon: 'resource://drawable/ic_skip_previous',
         enabled: canGoPrevious,
         autoDismissible: false,
@@ -209,7 +209,7 @@ class NotificationButtons {
       ),
       NotificationActionButton(
         key: isPlaying ? 'pause' : 'play',
-        label: isPlaying ? 'Pause' : 'Play',
+        label: isPlaying ? 'Pause' : 'Lire',
         icon: isPlaying
             ? 'resource://drawable/ic_pause'
             : 'resource://drawable/ic_play',

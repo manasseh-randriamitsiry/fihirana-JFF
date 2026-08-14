@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class UsernameInputWidget extends StatefulWidget {
   final TextEditingController controller;
@@ -47,61 +48,35 @@ class _UsernameInputWidgetState extends State<UsernameInputWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      child: TextField(
-        controller: widget.controller,
-        maxLength: 15,
-        enabled: widget.enabled,
-        keyboardType: TextInputType.name,
-        textInputAction: TextInputAction.done,
-        autofillHints: const [AutofillHints.givenName, AutofillHints.nickname],
-        style: const TextStyle(
-          fontSize: 16, // Slightly larger for better readability
-          color: Colors.black,
-          fontWeight: FontWeight.w500,
+    final l10n = AppLocalizations.of(context);
+    return TextField(
+      controller: widget.controller,
+      maxLength: 15,
+      enabled: widget.enabled,
+      keyboardType: TextInputType.name,
+      textInputAction: TextInputAction.done,
+      autofillHints: const [AutofillHints.givenName, AutofillHints.nickname],
+      style: Theme.of(context).textTheme.bodyLarge,
+      decoration: InputDecoration(
+        labelText: widget.labelText,
+        labelStyle: TextStyle(
+            color: widget.accentColor ?? Theme.of(context).colorScheme.primary),
+        prefixIcon: Icon(
+          Icons.person_outline,
+          color: widget.accentColor ?? Theme.of(context).colorScheme.primary,
+          size: 24,
         ),
-        decoration: InputDecoration(
-          labelText: widget.labelText,
-          labelStyle: TextStyle(
-            color: widget.accentColor ?? Colors.green.shade700,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-          prefixIcon: Icon(
-            Icons.person_outline,
-            color: widget.accentColor ?? Colors.green.shade600,
-            size: 24,
-          ),
-          suffixIcon: _showClearButton && widget.enabled
-              ? IconButton(
-                  icon: const Icon(Icons.clear, size: 20, color: Colors.grey),
-                  onPressed: () {
-                    widget.controller.clear();
-                  },
-                  tooltip: 'Clear',
-                )
-              : null,
-          border: InputBorder.none,
-          counterText: '',
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
-          hintText: 'Enter your name',
-          hintStyle: TextStyle(
-            color: Colors.grey.withValues(alpha: 0.5),
-            fontSize: 14,
-          ),
-        ),
+        suffixIcon: _showClearButton && widget.enabled
+            ? IconButton(
+                icon: const Icon(Icons.clear, size: 20),
+                onPressed: () {
+                  widget.controller.clear();
+                },
+                tooltip: l10n.clearName,
+              )
+            : null,
+        counterText: '',
+        hintText: l10n.enterNameHint,
       ),
     );
   }
@@ -124,7 +99,7 @@ class UsernameHelperTextWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(
-        '$currentLength/15 characters (minimum $minLength)',
+        '$currentLength/15 caractères (minimum $minLength)',
         style: TextStyle(
           fontSize: 12,
           color: currentLength >= minLength

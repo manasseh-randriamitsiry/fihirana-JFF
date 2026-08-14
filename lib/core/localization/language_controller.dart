@@ -6,16 +6,16 @@ import 'package:fihirana/l10n/app_localizations.dart';
 class LanguageController extends GetxController {
   static const String _languageKey = 'selected_language';
 
-  final Rx<Locale> currentLocale = const Locale('mg').obs;
+  final Rx<Locale> currentLocale = const Locale('fr').obs;
 
   // Add a refresh counter to force app rebuilds
   final RxInt refreshCounter = 0.obs;
 
   // Supported locales (only ones we have translations for)
   final RxList<Locale> supportedLocales = <Locale>[
+    const Locale('fr'), // French
     const Locale('mg'), // Malagasy
     const Locale('en'), // English
-    const Locale('fr'), // French
   ].obs;
 
   Future<void> changeLanguage(Locale locale) async {

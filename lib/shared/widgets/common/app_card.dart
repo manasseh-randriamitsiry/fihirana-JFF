@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 
 enum AppCardType {
@@ -37,68 +35,36 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = useThemeColors ? Get.find<ColorController>() : null;
+    final colors = Theme.of(context).colorScheme;
+    final radius =
+        BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg);
+    final surfaceColor = backgroundColor ??
+        switch (type) {
+          AppCardType.elevated => colors.surface,
+          AppCardType.outlined => Colors.transparent,
+          AppCardType.filled => colors.surfaceContainerLow,
+        };
+    final side = borderColor != null
+        ? BorderSide(color: borderColor!)
+        : type == AppCardType.outlined
+            ? BorderSide(color: colors.outlineVariant)
+            : BorderSide.none;
 
-    final cardWidget = Card(
-      elevation: elevation ?? _getDefaultElevation(),
-      margin: margin ?? const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      color: backgroundColor ?? _getBackgroundColor(colorController),
-      shape: RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
-        side: _getBorder(colorController),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius:
-            BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg),
-        child: Padding(
-          padding: padding ?? const EdgeInsets.all(AppDimensions.lg),
-          child: child,
+    return Padding(
+      padding: margin ?? const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Material(
+        color: surfaceColor,
+        elevation: elevation ?? 0,
+        shape: RoundedRectangleBorder(borderRadius: radius, side: side),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(AppDimensions.md),
+            child: child,
+          ),
         ),
       ),
     );
-
-    return cardWidget;
-  }
-
-  double _getDefaultElevation() {
-    // No elevation for any card type
-    return 0.0;
-  }
-
-  Color? _getBackgroundColor(ColorController? colorController) {
-    if (backgroundColor != null) return backgroundColor;
-
-    switch (type) {
-      case AppCardType.elevated:
-        // Use primary color with low opacity to differentiate from background
-        return colorController?.primaryColor.value.withValues(alpha: 0.05) ??
-            Colors.grey.shade100;
-      case AppCardType.outlined:
-        return Colors.transparent;
-      case AppCardType.filled:
-        return colorController?.primaryColor.value.withValues(alpha: 0.5) ??
-            Colors.grey.shade50;
-    }
-  }
-
-  BorderSide _getBorder(ColorController? colorController) {
-    if (borderColor != null) {
-      return BorderSide(color: borderColor!, width: 1.0);
-    }
-
-    switch (type) {
-      case AppCardType.elevated:
-        return BorderSide.none;
-      case AppCardType.outlined:
-        return BorderSide(
-          color: colorController?.primaryColor.value.withValues(alpha: 0.3) ??
-              Colors.grey.shade300,
-          width: 1.0,
-        );
-      case AppCardType.filled:
-        return BorderSide.none;
-    }
   }
 }

@@ -1183,5 +1183,32 @@
   "tryCopyingPassage": "Try copying the passage text instead.",
   "shareFailed": "Share failed",
   "chooseTextColor": "Choose text color",
-  "apply": "Apply"
+  "apply": "Apply",
+  "languageSelectionDescription": "Select your preferred language to get started.",
+  "reviewOnboardingEssentials": "Review the essentials, then choose how you want to continue.",
+  "acceptTermsToContinue": "Accept the terms to continue",
+  "enterAtLeastCharacters": "Enter at least 4 characters",
+  "appPermissions": "App permissions",
+  "permissionRequestDescription": "To provide the best experience, we need the following permissions:",
+  "notificationsPermissionDescription": "Receive daily verses, announcements, and update notifications",
+  "installPackages": "Install packages",
+  "installPackagesPermissionDescription": "Allow app updates to be installed automatically",
+  "errorRequestingPermissions": "Error requesting permissions: {error}",
+  "@errorRequestingPermissions": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "audioSection": "Audio",
+  "moreActions": "More actions",
+  "clearName": "Clear",
+  "enterNameHint": "Enter your name",
+  "unableToLoadFavorites": "Unable to load favorites",
+  "checkConnectionAndTryAgain": "Check your connection and try again.",
+  "savedHymnsWillAppear": "Hymns you save will appear here.",
+  "unableToLoadAdditionalHymns": "Unable to load additional hymns",
+  "communityHymnsWillAppear": "New community hymns will appear here.",
+  "notificationsLabel": "Notifications"
 }

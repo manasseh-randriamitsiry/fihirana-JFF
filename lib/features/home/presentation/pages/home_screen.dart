@@ -1,5 +1,4 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +16,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final ColorController _colorController;
-  final zoomDrawerController = ZoomDrawerController();
 
   @override
   void initState() {
@@ -82,10 +80,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class HomeController extends GetxController {
   final RxInt selectedIndex = 0.obs;
-  final zoomDrawerController = ZoomDrawerController();
 
-  void toggleDrawer() {
-    zoomDrawerController.toggle?.call();
-    update();
-  }
+  void toggleDrawer() => Get.find<ShellController>().toggleDrawer();
 }

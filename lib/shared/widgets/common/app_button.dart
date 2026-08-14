@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/core/utils/screen_util.dart';
 
@@ -42,9 +40,7 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
-    final buttonStyle = _getButtonStyle(colorController);
+    final buttonStyle = _getButtonStyle(context);
     final buttonSize = _getButtonSize();
 
     Widget buttonChild = _buildButtonChild();
@@ -71,12 +67,12 @@ class AppButton extends StatelessWidget {
     );
   }
 
-  ButtonStyle _getButtonStyle(ColorController colorController) {
+  ButtonStyle _getButtonStyle(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final baseStyle = ElevatedButton.styleFrom(
-      elevation: 3,
-      shadowColor: Colors.black.withValues(alpha: 0.2),
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppDimensions.radiusLg),
+        borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
       ),
     );
 
@@ -84,7 +80,7 @@ class AppButton extends StatelessWidget {
       case AppButtonType.primary:
         return baseStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : colorController.primaryColor.value,
+            isDisabled ? Colors.grey : colors.primary,
           ),
           foregroundColor: WidgetStateProperty.all(Colors.white),
         );
@@ -95,10 +91,10 @@ class AppButton extends StatelessWidget {
             isDisabled ? Colors.grey : Colors.white,
           ),
           foregroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : colorController.primaryColor.value,
+            isDisabled ? Colors.grey : colors.primary,
           ),
           side: WidgetStateProperty.all(
-            BorderSide(color: colorController.primaryColor.value),
+            BorderSide(color: colors.outline),
           ),
         );
 
@@ -122,10 +118,10 @@ class AppButton extends StatelessWidget {
         return baseStyle.copyWith(
           backgroundColor: WidgetStateProperty.all(Colors.transparent),
           foregroundColor: WidgetStateProperty.all(
-            isDisabled ? Colors.grey : colorController.primaryColor.value,
+            isDisabled ? Colors.grey : colors.primary,
           ),
           side: WidgetStateProperty.all(
-            BorderSide(color: colorController.primaryColor.value),
+            BorderSide(color: colors.primary),
           ),
           elevation: WidgetStateProperty.all(0),
         );

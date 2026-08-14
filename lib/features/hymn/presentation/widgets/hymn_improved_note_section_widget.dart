@@ -778,7 +778,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Community Notes (${widget.publicNotes.length})',
+                  'Notes de la communauté (${widget.publicNotes.length})',
                   style: TextStyle(
                     fontSize: widget.fontSize * 0.9,
                     fontWeight: FontWeight.w600,
@@ -914,7 +914,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 Padding(
                   padding: const EdgeInsets.only(top: AppDimensions.xs),
                   child: Text(
-                    'Tap to see more...',
+                    'Appuyez pour voir plus...',
                     style: TextStyle(
                       fontSize: widget.fontSize * 0.75,
                       color: colorController.primaryColor.value,
@@ -1077,7 +1077,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                 Padding(
                   padding: const EdgeInsets.only(top: AppDimensions.xs),
                   child: Text(
-                    'Tap to read more...',
+                    'Appuyez pour lire la suite...',
                     style: TextStyle(
                       fontSize: widget.fontSize * 0.75,
                       color: colorController.primaryColor.value,
@@ -1132,7 +1132,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               ),
               const SizedBox(height: 16),
               Text(
-                'No notes yet',
+                'Aucune note pour le moment',
                 style: TextStyle(
                   fontSize: widget.fontSize,
                   color: colorController.textColor.value.withValues(alpha: 0.8),
@@ -1142,7 +1142,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
               ),
               const SizedBox(height: 8),
               Text(
-                'Add your first note to get started',
+                'Ajoutez votre première note pour commencer',
                 style: TextStyle(
                   fontSize: widget.fontSize * 0.85,
                   color: colorController.textColor.value.withValues(alpha: 0.6),
@@ -1167,7 +1167,7 @@ class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'Add Note',
+                      'Ajouter une note',
                       style: TextStyle(
                         color: colorController.backgroundColor.value,
                         fontSize: widget.fontSize * 0.85,

@@ -87,7 +87,7 @@ class RecordingCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Hira $hymnId',
+                      'Cantique $hymnId',
                       style: TextStyle(
                         fontSize: 12,
                         color: colorController.textColor.value

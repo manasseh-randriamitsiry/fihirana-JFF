@@ -107,7 +107,7 @@ class ContactListItemWidget extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.directions, color: Colors.blue),
                 onPressed: onDirections,
-                tooltip: 'Directions',
+                tooltip: 'Itinéraire',
               ),
             if (canEdit) ...[
               IconButton(
@@ -144,7 +144,7 @@ class ContactEmptyStateWidget extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'No contacts found',
+            'Aucun contact trouvé',
             style: TextStyle(
               color: colorController.textColor.value,
               fontSize: 18,

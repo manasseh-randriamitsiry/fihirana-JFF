@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 
 /// Controller for language selection during onboarding
 class LanguageSelectionController extends GetxController {
   final LanguageController _languageController = Get.find<LanguageController>();
-  late final LiquidController _liquidController;
+  late final PageController _pageController;
 
   final Rx<Locale?> selectedLocale = Rx<Locale?>(null);
   final RxInt currentPage = 0.obs;
@@ -16,7 +15,7 @@ class LanguageSelectionController extends GetxController {
   void onInit() {
     super.onInit();
     selectedLocale.value = _languageController.currentLocaleValue;
-    _liquidController = LiquidController();
+    _pageController = PageController();
   }
 
   /// Select language and proceed to next page
@@ -27,9 +26,6 @@ class LanguageSelectionController extends GetxController {
     // Save to preferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('selected_language', locale.languageCode);
-
-    // Animate to next page
-    await _liquidController.animateToPage(page: 1, duration: 600);
   }
 
   /// Update current page index
@@ -37,6 +33,20 @@ class LanguageSelectionController extends GetxController {
     currentPage.value = page;
   }
 
-  /// Get liquid controller for page animations
-  LiquidController get liquidController => _liquidController;
+  PageController get pageController => _pageController;
+
+  Future<void> goToPage(int page) async {
+    if (!_pageController.hasClients) return;
+    await _pageController.animateToPage(
+      page,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
+    );
+  }
+
+  @override
+  void onClose() {
+    _pageController.dispose();
+    super.onClose();
+  }
 }

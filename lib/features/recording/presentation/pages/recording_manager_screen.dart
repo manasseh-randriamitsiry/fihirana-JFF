@@ -112,7 +112,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             onPressed: () => Get.find<ShellController>().toggleDrawer(),
           ),
           title: Text(
-            'Recordings',
+            'Enregistrements',
             style: defaultTextStyle.copyWith(
               fontWeight: FontWeight.bold,
               fontSize: 26,
@@ -130,7 +130,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                 children: [
                   IconButton(
                     icon: Icon(Icons.checklist, color: iconColor),
-                    tooltip: 'Select all',
+                    tooltip: 'Tout sélectionner',
                     onPressed: () {
                       final filteredRecordings = _getFilteredRecordings();
                       _recordingController
@@ -140,30 +140,30 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                   if (_recordingController.selectedRecordingIds.isNotEmpty) ...[
                     IconButton(
                       icon: Icon(Icons.clear_all, color: iconColor),
-                      tooltip: 'Clear selection',
+                      tooltip: 'Effacer la sélection',
                       onPressed: () => _recordingController.clearSelection(),
                     ),
                     IconButton(
                       icon: const Icon(Icons.delete_forever, color: Colors.red),
-                      tooltip: 'Delete permanently',
+                      tooltip: 'Supprimer définitivement',
                       onPressed: () async {
                         final confirmed = await showDialog<bool>(
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: backgroundColor,
                             title: Text(
-                              'Delete Permanently',
+                              'Supprimer définitivement',
                               style: TextStyle(color: textColor),
                             ),
                             content: Text(
-                              'Are you sure you want to permanently delete ${_recordingController.selectedRecordingIds.length} recording${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'}? This action cannot be undone.',
+                              'Voulez-vous vraiment supprimer définitivement ${_recordingController.selectedRecordingIds.length} enregistrement${_recordingController.selectedRecordingIds.length == 1 ? '' : 's'} ? Cette action est irréversible.',
                               style: TextStyle(
                                   color: textColor.withValues(alpha: 0.8)),
                             ),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: Text('Cancel',
+                                child: Text('Annuler',
                                     style: TextStyle(color: textColor)),
                               ),
                               TextButton(
@@ -171,7 +171,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                                 style: TextButton.styleFrom(
                                   foregroundColor: Colors.red,
                                 ),
-                                child: const Text('Delete'),
+                                child: const Text('Supprimer'),
                               ),
                             ],
                           ),
@@ -186,7 +186,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                   ],
                   IconButton(
                     icon: Icon(Icons.cancel, color: iconColor),
-                    tooltip: 'Exit multi-select',
+                    tooltip: 'Quitter la sélection multiple',
                     onPressed: () =>
                         _recordingController.disableMultiSelectMode(),
                   ),
@@ -246,7 +246,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                 child: Obx(() {
                   final filteredRecordings = _getFilteredRecordings();
                   return Text(
-                    '${filteredRecordings.length} recording${filteredRecordings.length == 1 ? '' : 's'} found',
+                    '${filteredRecordings.length} enregistrement${filteredRecordings.length == 1 ? '' : 's'} trouvé${filteredRecordings.length == 1 ? '' : 's'}',
                     style: defaultTextStyle.copyWith(
                       color: textColor.withValues(alpha: 0.7),
                       fontSize: 12,
@@ -276,7 +276,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'Access Restricted',
+                          'Accès restreint',
                           style: TextStyle(
                             color: Colors.red,
                             fontSize: 24,
@@ -285,7 +285,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Your account has been restricted from recording features.',
+                          "Votre compte n'a pas accès aux fonctions d'enregistrement.",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.red.withValues(alpha: 0.7),

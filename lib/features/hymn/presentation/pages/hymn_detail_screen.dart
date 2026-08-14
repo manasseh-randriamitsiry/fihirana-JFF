@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
-import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:fihirana/features/bible/data/services/note_service.dart';
 import 'edit_hymn_screen.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
@@ -59,11 +58,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   bool _hasAudio = false;
   bool _audioChecked = false;
 
-  // Liquid swipe variables
-  late LiquidController _liquidController;
+  late final PageController _pageController;
   List<Hymn> _allHymns = [];
-  List<Hymn> _adjacentHymns = []; // Will contain [previous, current, next]
-  int _currentPageIndex = 1; // Start at middle page (current hymn)
+  int _currentPageIndex = 0;
   bool _isLoadingHymns = true;
 
   late AnimationController _heartAnimationController;
@@ -89,7 +86,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       historyController = HistoryDI.historyController;
     }
 
-    _liquidController = LiquidController();
+    _pageController = PageController();
     _loadFontSize();
     _loadAllHymnsAndSetupSwipe();
     _loadUserNote();
@@ -127,6 +124,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
   @override
   void dispose() {
+    _pageController.dispose();
     _heartAnimationController.dispose();
     // Hide overlay when leaving screen, unless recording is in progress
     if (!_recordingController.isRecording.value) {
@@ -196,7 +194,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         if (hymn != null) {
           setState(() {
             _hymn = hymn;
-            _adjacentHymns = [hymn]; // Only this hymn available
+            _allHymns = [hymn];
             _currentPageIndex = 0;
             _isLoadingHymns = false;
           });
@@ -227,28 +225,16 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
       return;
     }
 
-    final List<Hymn> adjacent = [];
-
-    // Add previous hymn if exists
-    if (currentIndex > 0) {
-      adjacent.add(_allHymns[currentIndex - 1]);
-    }
-
-    // Add current hymn
-    adjacent.add(_allHymns[currentIndex]);
-
-    // Add next hymn if exists
-    if (currentIndex < _allHymns.length - 1) {
-      adjacent.add(_allHymns[currentIndex + 1]);
-    }
-
     if (mounted) {
       setState(() {
-        _adjacentHymns = adjacent;
         _hymn = _allHymns[currentIndex];
-        // Set page index based on whether previous hymn exists
-        _currentPageIndex = currentIndex > 0 ? 1 : 0;
+        _currentPageIndex = currentIndex;
         _isLoadingHymns = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pageController.hasClients) {
+          _pageController.jumpToPage(currentIndex);
+        }
       });
 
       // Add to history and check audio
@@ -271,48 +257,16 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     }
   }
 
-  void _onPageChangeCallback(int activePageIndex) async {
-    if (_adjacentHymns.isEmpty || activePageIndex == _currentPageIndex) return;
-
-    final currentHymnIndex = _allHymns.indexWhere((h) => h.id == _hymn!.id);
-    if (currentHymnIndex == -1) return;
-
-    int newHymnIndex;
-
-    // Determine which direction we swiped
-    if (activePageIndex > _currentPageIndex) {
-      // Swiped to next hymn
-      newHymnIndex = currentHymnIndex + 1;
-    } else {
-      // Swiped to previous hymn
-      newHymnIndex = currentHymnIndex - 1;
+  void _onPageChangeCallback(int newHymnIndex) async {
+    if (newHymnIndex == _currentPageIndex || newHymnIndex >= _allHymns.length) {
+      return;
     }
-
-    // Validate index
-    if (newHymnIndex < 0 || newHymnIndex >= _allHymns.length) return;
-
     final newHymn = _allHymns[newHymnIndex];
-
-    // Update current hymn
     setState(() {
       _hymn = newHymn;
-      _currentPageIndex = activePageIndex;
-    });
-
-    // Reload adjacent hymns for the new current hymn
-    final List<Hymn> newAdjacent = [];
-
-    if (newHymnIndex > 0) {
-      newAdjacent.add(_allHymns[newHymnIndex - 1]);
-    }
-    newAdjacent.add(newHymn);
-    if (newHymnIndex < _allHymns.length - 1) {
-      newAdjacent.add(_allHymns[newHymnIndex + 1]);
-    }
-
-    setState(() {
-      _adjacentHymns = newAdjacent;
-      _currentPageIndex = newHymnIndex > 0 ? 1 : 0;
+      _currentPageIndex = newHymnIndex;
+      _audioChecked = false;
+      _hasAudio = false;
     });
 
     // Add to history and check audio for new hymn
@@ -357,7 +311,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     }
 
     try {
-      final note = await _noteService.getNote(widget.hymnId).timeout(
+      final hymnId = _hymn?.id ?? widget.hymnId;
+      final note = await _noteService.getNote(hymnId).timeout(
             const Duration(seconds: 5),
             onTimeout: () => null,
           );
@@ -515,13 +470,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         body: Stack(
           alignment: Alignment.center,
           children: [
-            // Main Content (Liquid Swipe)
+            // PageView lazily builds only the visible hymn and its neighbours.
             _isLoadingHymns
                 ? HymnDetailSkeleton(
                     fontSize: _fontSize,
                     countFontSize: _countFontSize,
                   )
-                : _adjacentHymns.isEmpty
+                : _allHymns.isEmpty
                     ? Center(
                         child: Text(
                           l10n.noHymnsAvailable,
@@ -530,19 +485,12 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                           ),
                         ),
                       )
-                    : LiquidSwipe(
-                        key: ValueKey(_hymn?.id),
-                        pages: _adjacentHymns
-                            .map((hymn) => _buildHymnPage(hymn, l10n))
-                            .toList(),
-                        initialPage: _currentPageIndex,
-                        liquidController: _liquidController,
-                        onPageChangeCallback: _onPageChangeCallback,
-                        waveType: WaveType.liquidReveal,
-                        enableLoop: false,
-                        enableSideReveal: false,
-                        ignoreUserGestureWhileAnimating: true,
-                        disableUserGesture: false,
+                    : PageView.builder(
+                        controller: _pageController,
+                        itemCount: _allHymns.length,
+                        onPageChanged: _onPageChangeCallback,
+                        itemBuilder: (context, index) =>
+                            _buildHymnPage(_allHymns[index], l10n),
                       ),
 
             // Heart Animation Overlay
@@ -722,9 +670,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           // Find the index of the new hymn
           final index = _allHymns.indexWhere((h) => h.id == hymn.id);
           if (index != -1) {
-            // Update the page controller to show the new hymn
-            _liquidController.jumpToPage(page: index > 0 ? 1 : 0);
-            _onPageChangeCallback(index > 0 ? 1 : 0);
+            _pageController.jumpToPage(index);
           }
         },
       ),
