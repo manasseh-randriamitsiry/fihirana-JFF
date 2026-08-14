@@ -26,7 +26,7 @@ class SaveDialogHeader extends StatelessWidget {
         const SizedBox(height: 20),
 
         const Text(
-          'Recording Complete!',
+          'Enregistrement terminé !',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,

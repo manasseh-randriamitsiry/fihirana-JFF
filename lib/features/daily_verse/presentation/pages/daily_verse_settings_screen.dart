@@ -2,33 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/daily_verse/di/daily_verse_di.dart';
 import 'package:fihirana/features/daily_verse/presentation/controllers/daily_verse_controller.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
-import 'package:fihirana/shared/widgets/common/app_card.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {
   DailyVerseSettingsScreen({super.key});
 
   final DailyVerseController controller = DailyVerseDI.dailyVerseController;
-  final ColorController colorController = Get.find<ColorController>();
 
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: controller.notificationTime.value,
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: colorController.primaryColor.value,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
 
     if (picked != null) {
@@ -39,353 +26,182 @@ class DailyVerseSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
-      appBar: AppBar(
-        backgroundColor: colorController.backgroundColor.value,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          onPressed: () => Get.back(),
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: colorController.iconColor.value,
-          ),
-        ),
-        title: Text(
-          l10n.dailyBibleVerse,
-          style: TextStyle(
-            color: colorController.textColor.value,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Card
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    colorController.primaryColor.value,
-                    colorController.primaryColor.value.withValues(alpha: 0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+    final colors = Theme.of(context).colorScheme;
+    return AppPageScaffold(
+      title: l10n.dailyBibleVerse,
+      body: ListView(
+        padding: const EdgeInsets.only(bottom: 24),
+        children: [
+          AppSection(
+            title: l10n.dailyInspiration,
+            child: AppGroupedSurface(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: colors.primaryContainer,
+                        foregroundColor: colors.onPrimaryContainer,
+                        child: const Icon(Icons.auto_stories_rounded),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(l10n.dailyInspiration,
+                                style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 2),
+                            Text(l10n.receiveVerseEveryDay,
+                                style: Theme.of(context).textTheme.bodySmall),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
+              ],
+            ),
+          ),
+          AppSection(
+            title: l10n.dailyBibleVerse,
+            child: AppGroupedSurface(
+              children: [
+                Obx(
+                  () => AppListRow(
+                    icon: controller.isEnabled.value
+                        ? Icons.notifications_active_outlined
+                        : Icons.notifications_off_outlined,
+                    title: l10n.enableDailyVerse,
+                    subtitle: controller.isEnabled.value
+                        ? l10n.youWillReceiveDailyNotifications
+                        : l10n.turnOnToReceiveDailyVerses,
+                    trailing: Switch(
+                      value: controller.isEnabled.value,
+                      onChanged: controller.toggleDailyVerse,
                     ),
-                    child: const Icon(
-                      Icons.auto_stories,
-                      color: Colors.white,
-                      size: 32,
+                    onTap: () => controller
+                        .toggleDailyVerse(!controller.isEnabled.value),
+                  ),
+                ),
+                const AppGroupDivider(),
+                Obx(
+                  () => AnimatedOpacity(
+                    opacity: controller.isEnabled.value ? 1 : .45,
+                    duration: const Duration(milliseconds: 200),
+                    child: AppListRow(
+                      icon: Icons.schedule_rounded,
+                      title: l10n.notificationTime,
+                      subtitle:
+                          controller.notificationTime.value.format(context),
+                      onTap: controller.isEnabled.value
+                          ? () => _selectTime(context)
+                          : null,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
+                ),
+                const AppGroupDivider(),
+                Obx(
+                  () => AppListRow(
+                    icon: Icons.send_outlined,
+                    title: l10n.sendTestNotification,
+                    subtitle: controller.isEnabled.value
+                        ? null
+                        : l10n.turnOnToReceiveDailyVerses,
+                    onTap: controller.isEnabled.value
+                        ? () async {
+                            await controller.sendTestNotification();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(l10n.testNotificationSent)),
+                              );
+                            }
+                          }
+                        : null,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          AppSection(
+            title: l10n.todaysVerse,
+            child: Obx(() {
+              if (controller.isLoading.value) {
+                return const AppGroupedSurface(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(28),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ],
+                );
+              }
+
+              final verse = controller.todaysVerse.value;
+              if (verse == null) {
+                return AppGroupedSurface(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        l10n.noVerseAvailable,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return AppGroupedSurface(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 14, 8, 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          l10n.dailyInspiration,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          children: [
+                            Icon(Icons.format_quote_rounded,
+                                color: colors.primary),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                verse.reference,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleSmall
+                                    ?.copyWith(color: colors.primary),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: l10n.viewTranslation,
+                              icon: const Icon(Icons.translate_rounded),
+                              onPressed: () =>
+                                  _showTranslationDialog(context, verse.text),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          l10n.receiveVerseEveryDay,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontSize: 14,
+                        const SizedBox(height: 8),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Text(
+                            verse.text,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge
+                                ?.copyWith(height: 1.55),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            // Enable/Disable Toggle
-            AppCard(
-              child: Obx(() => SwitchListTile(
-                    title: Text(
-                      l10n.enableDailyVerse,
-                      style: TextStyle(
-                        color: colorController.textColor.value,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    subtitle: Text(
-                      controller.isEnabled.value
-                          ? l10n.youWillReceiveDailyNotifications
-                          : l10n.turnOnToReceiveDailyVerses,
-                      style: TextStyle(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.6),
-                        fontSize: 14,
-                      ),
-                    ),
-                    value: controller.isEnabled.value,
-                    onChanged: (value) => controller.toggleDailyVerse(value),
-                    activeThumbColor: colorController.primaryColor.value,
-                    secondary: Icon(
-                      controller.isEnabled.value
-                          ? Icons.notifications_active
-                          : Icons.notifications_off,
-                      color: controller.isEnabled.value
-                          ? colorController.primaryColor.value
-                          : colorController.iconColor.value
-                              .withValues(alpha: 0.5),
-                    ),
-                  )),
-            ),
-            const SizedBox(height: 16),
-
-            // Notification Time
-            Obx(() => AnimatedOpacity(
-                  opacity: controller.isEnabled.value ? 1.0 : 0.5,
-                  duration: const Duration(milliseconds: 300),
-                  child: AppCard(
-                    onTap: controller.isEnabled.value
-                        ? () => _selectTime(context)
-                        : null,
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: controller.isEnabled.value
-                                ? colorController.primaryColor.value
-                                    .withValues(alpha: 0.15)
-                                : colorController.iconColor.value
-                                    .withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.access_time,
-                            color: controller.isEnabled.value
-                                ? colorController.primaryColor.value
-                                : colorController.iconColor.value
-                                    .withValues(alpha: 0.5),
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.notificationTime,
-                                style: TextStyle(
-                                  color: colorController.textColor.value,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              Text(
-                                controller.notificationTime.value
-                                    .format(context),
-                                style: TextStyle(
-                                  color: colorController.textColor.value
-                                      .withValues(alpha: 0.6),
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: colorController.iconColor.value,
-                        ),
-                      ],
-                    ),
-                  ),
-                )),
-            const SizedBox(height: 24),
-
-            // Today's Verse Preview
-            Text(
-              l10n.todaysVerse,
-              style: TextStyle(
-                color: colorController.textColor.value,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Obx(() {
-              if (controller.isLoading.value) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppDimensions.xl),
-                    child: CircularProgressIndicator(
-                      color: colorController.primaryColor.value,
-                    ),
-                  ),
-                );
-              }
-
-              final verse = controller.todaysVerse.value;
-              if (verse == null) {
-                return Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  color: colorController.backgroundColor.value,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Center(
-                      child: Text(
-                        l10n.noVerseAvailable,
-                        style: TextStyle(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              }
-
-              return Card(
-                elevation: 4,
-                shadowColor:
-                    colorController.primaryColor.value.withValues(alpha: 0.2),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: colorController.primaryColor.value
-                        .withValues(alpha: 0.2),
-                    width: 1,
-                  ),
-                ),
-                color: colorController.backgroundColor.value,
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.format_quote,
-                            color: colorController.primaryColor.value,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              verse.reference,
-                              style: TextStyle(
-                                color: colorController.primaryColor.value,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.translate,
-                                color: colorController.iconColor.value),
-                            onPressed: () =>
-                                _showTranslationDialog(context, verse.text),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        verse.text,
-                        style: TextStyle(
-                          color: colorController.textColor.value,
-                          fontSize: 16,
-                          height: 1.6,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               );
             }),
-            const SizedBox(height: 16),
-
-            // Test Notification Button
-            Obx(() => AnimatedOpacity(
-                  opacity: controller.isEnabled.value ? 1.0 : 0.5,
-                  duration: const Duration(milliseconds: 300),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: controller.isEnabled.value
-                          ? () async {
-                              await controller.sendTestNotification();
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(l10n.testNotificationSent),
-                                    backgroundColor:
-                                        colorController.primaryColor.value,
-                                  ),
-                                );
-                              }
-                            }
-                          : null,
-                      icon: Icon(
-                        Icons.send,
-                        color: controller.isEnabled.value
-                            ? colorController.primaryColor.value
-                            : colorController.iconColor.value
-                                .withValues(alpha: 0.5),
-                      ),
-                      label: Text(
-                        l10n.sendTestNotification,
-                        style: TextStyle(
-                          color: controller.isEnabled.value
-                              ? colorController.primaryColor.value
-                              : colorController.textColor.value
-                                  .withValues(alpha: 0.5),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: BorderSide(
-                          color: controller.isEnabled.value
-                              ? colorController.primaryColor.value
-                              : colorController.textColor.value
-                                  .withValues(alpha: 0.2),
-                          width: 2,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                    ),
-                  ),
-                )),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -474,6 +290,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
         showModalBottomSheet(
           context: context,
           isScrollControlled: true,
+          showDragHandle: true,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
@@ -485,7 +302,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
             builder: (context, scrollController) => Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Get.find<ColorController>().backgroundColor.value,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(20)),
               ),
@@ -496,11 +313,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                     children: [
                       Text(
                         l10n.viewTranslation,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Get.find<ColorController>().textColor.value,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                       IconButton(
                         icon: const Icon(Icons.close),
@@ -514,11 +327,10 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                       controller: scrollController,
                       child: Text(
                         translatedText,
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Get.find<ColorController>().textColor.value,
-                          height: 1.6,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(height: 1.6),
                       ),
                     ),
                   ),

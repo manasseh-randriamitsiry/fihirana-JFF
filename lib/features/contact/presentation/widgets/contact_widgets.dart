@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
+
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
+
+enum _ContactAction { directions, edit, delete }
 
 class ContactListItemWidget extends StatelessWidget {
   final Contact contact;
@@ -22,107 +25,164 @@ class ContactListItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final hasActions = onDirections != null || canEdit;
 
-    return Card(
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      color: colorController.backgroundColor.value,
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: CircleAvatar(
-          backgroundColor:
-              colorController.primaryColor.value.withValues(alpha: 0.15),
-          child: Text(
-            contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?',
-            style: TextStyle(
-              color: colorController.primaryColor.value,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        title: Text(
-          contact.name,
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: colorController.textColor.value,
-            fontSize: 16,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Row(
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: AppGroupedSurface(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.phone,
-                    size: 14,
-                    color:
-                        colorController.iconColor.value.withValues(alpha: 0.7)),
-                const SizedBox(width: 4),
-                Text(
-                  contact.phoneNumber,
-                  style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.7),
-                    fontSize: 14,
+                CircleAvatar(
+                  radius: 24,
+                  backgroundColor: colors.primaryContainer,
+                  child: Text(
+                    contact.name.isNotEmpty
+                        ? contact.name[0].toUpperCase()
+                        : '?',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: colors.onPrimaryContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                 ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        contact.name,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: colors.onSurface,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 6),
+                      _ContactDetail(
+                        icon: Icons.phone_outlined,
+                        text: contact.phoneNumber,
+                      ),
+                      if (contact.location != null &&
+                          contact.location!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        _ContactDetail(
+                          icon: Icons.location_on_outlined,
+                          text: contact.location!,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (hasActions)
+                  PopupMenuButton<_ContactAction>(
+                    tooltip: MaterialLocalizations.of(context).showMenuTooltip,
+                    icon: const Icon(Icons.more_horiz_rounded),
+                    onSelected: (action) {
+                      switch (action) {
+                        case _ContactAction.directions:
+                          onDirections?.call();
+                        case _ContactAction.edit:
+                          onEdit?.call();
+                        case _ContactAction.delete:
+                          onDelete?.call();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (onDirections != null)
+                        const PopupMenuItem(
+                          value: _ContactAction.directions,
+                          child: _ContactMenuItem(
+                            icon: Icons.directions_rounded,
+                            label: 'Itinéraire',
+                          ),
+                        ),
+                      if (canEdit)
+                        PopupMenuItem(
+                          value: _ContactAction.edit,
+                          child: _ContactMenuItem(
+                            icon: Icons.edit_outlined,
+                            label: l10n.edit,
+                          ),
+                        ),
+                      if (canEdit)
+                        PopupMenuItem(
+                          value: _ContactAction.delete,
+                          child: _ContactMenuItem(
+                            icon: Icons.delete_outline_rounded,
+                            label: l10n.delete,
+                            color: colors.error,
+                          ),
+                        ),
+                    ],
+                  ),
               ],
             ),
-            if (contact.location != null && contact.location!.isNotEmpty) ...[
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  Icon(Icons.location_on,
-                      size: 14,
-                      color: colorController.iconColor.value
-                          .withValues(alpha: 0.7)),
-                  const SizedBox(width: 4),
-                  Text(
-                    contact.location!,
-                    style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.7),
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (contact.latitude != null && contact.longitude != null)
-              IconButton(
-                icon: const Icon(Icons.directions, color: Colors.blue),
-                onPressed: onDirections,
-                tooltip: 'Directions',
-              ),
-            if (canEdit) ...[
-              IconButton(
-                icon: Icon(Icons.edit, color: colorController.iconColor.value),
-                onPressed: onEdit,
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: onDelete,
-              ),
-            ],
-          ],
-        ),
+          ),
+        ],
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0);
+    ).animate().fadeIn(duration: 260.ms).slideY(begin: .06, end: 0);
+  }
+}
+
+class _ContactDetail extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _ContactDetail({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: colors.onSurfaceVariant),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(
+            text,
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(color: colors.onSurfaceVariant),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ContactMenuItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color? color;
+
+  const _ContactMenuItem({
+    required this.icon,
+    required this.label,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = color ?? Theme.of(context).colorScheme.onSurface;
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: foreground),
+        const SizedBox(width: 12),
+        Text(label, style: TextStyle(color: foreground)),
+      ],
+    );
   }
 }
 
@@ -131,28 +191,9 @@ class ContactEmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.perm_contact_calendar_rounded,
-            size: 80,
-            color: colorController.textColor.value.withValues(alpha: 0.3),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'No contacts found',
-            style: TextStyle(
-              color: colorController.textColor.value,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
+    return AppEmptyState(
+      icon: Icons.perm_contact_calendar_rounded,
+      title: AppLocalizations.of(context).noContactsFound,
     );
   }
 }
@@ -171,59 +212,14 @@ class ContactSearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(
-            color: colorController.iconColor.value.withValues(alpha: 0.5),
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: colorController.iconColor.value,
-          ),
-          suffixIcon: controller.text.isNotEmpty
-              ? IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: colorController.iconColor.value,
-                  ),
-                  onPressed: () {
-                    controller.clear();
-                    onChanged('');
-                  },
-                )
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        ),
-        style: TextStyle(
-          color: colorController.textColor.value,
-        ),
-      ),
+    return AppSearchField(
+      controller: controller,
+      hintText: hintText,
+      onChanged: onChanged,
+      onClear: () {
+        controller.clear();
+        onChanged('');
+      },
     );
   }
 }

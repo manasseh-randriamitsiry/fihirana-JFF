@@ -62,7 +62,7 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
               children: [
                 Icon(Icons.save, size: 20),
                 SizedBox(width: 8),
-                Text('Save & Close',
+                Text('Enregistrer et fermer',
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
@@ -85,7 +85,7 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
                   ),
                 ),
                 child: Text(
-                  'Discard',
+                  'Ignorer',
                   style: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                 ),
               ),
@@ -111,7 +111,7 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
                         size: 16, color: Colors.white.withValues(alpha: 0.8)),
                     const SizedBox(width: 4),
                     Text(
-                      'Save & New',
+                      'Enregistrer et créer',
                       style:
                           TextStyle(color: Colors.white.withValues(alpha: 0.8)),
                     ),

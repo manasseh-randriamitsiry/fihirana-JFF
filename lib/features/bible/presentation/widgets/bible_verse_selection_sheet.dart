@@ -2,8 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
 class BibleVerseSelectionSheet extends StatefulWidget {
@@ -100,18 +98,13 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colorController = Get.find<ColorController>();
-    final primaryColor = colorController.primaryColor.value;
-    final backgroundColor = colorController.backgroundColor.value;
-    final textColor = colorController.textColor.value;
+    final colors = Theme.of(context).colorScheme;
+    final primaryColor = colors.primary;
+    final backgroundColor = colors.surface;
+    final textColor = colors.onSurface;
 
-    // Use two distinct colors for start and end verses
     final startColor = primaryColor;
-    final isPrimaryWarm = HSLColor.fromColor(primaryColor).hue > 15 &&
-        HSLColor.fromColor(primaryColor).hue < 50;
-    final endColor = isPrimaryWarm
-        ? const Color(0xFF0284C7) // Sky Blue if primary is warm
-        : const Color(0xFFEA580C); // Deep Orange if primary is cool
+    final endColor = colors.secondary;
 
     final isSingleVerse =
         _startVerse != null && _endVerse != null && _startVerse == _endVerse;
@@ -348,10 +341,10 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
 
                       if (isStart) {
                         itemBg = startColor;
-                        itemFg = Colors.white;
+                        itemFg = colors.onPrimary;
                       } else if (isEnd) {
                         itemBg = endColor;
-                        itemFg = Colors.white;
+                        itemFg = colors.onSecondary;
                       } else if (inRange) {
                         itemBg = Color.lerp(startColor, endColor, 0.5)!
                             .withValues(alpha: 0.25);
@@ -400,17 +393,18 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
           // Bottom CTA Button
           ElevatedButton.icon(
             onPressed: _confirmSelection,
-            icon: const Icon(Icons.menu_book_rounded, color: Colors.white),
+            icon: Icon(Icons.menu_book_rounded, color: colors.onPrimary),
             label: Text(
               l10n.readPassage(rangeText),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: colors.onPrimary,
               ),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
+              foregroundColor: colors.onPrimary,
               padding: const EdgeInsets.symmetric(vertical: 16),
               elevation: 2,
               shape: RoundedRectangleBorder(

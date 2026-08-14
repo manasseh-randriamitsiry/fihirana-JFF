@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/core/utils/notification_service.dart';
 
@@ -32,11 +31,9 @@ class AppLifecycleManager extends WidgetsBindingObserver {
       // Stop playback immediately
       _audioService.stop();
 
-      // Hide notification with multiple approaches
+      // Only clear the audio controls. Scheduled daily verses and other app
+      // notifications must survive an audio-player shutdown.
       NotificationService.hideAudioPlayerNotification();
-
-      // Force clear all audio notifications
-      NotificationService.forceClearAudioNotification();
 
       if (kDebugMode) {
         print(
@@ -55,17 +52,8 @@ class AppLifecycleManager extends WidgetsBindingObserver {
       // Stop audio playback
       _audioService.stop();
 
-      // Hide audio notification with multiple approaches
+      // Hide only the player notification.
       NotificationService.hideAudioPlayerNotification();
-
-      // Force dismiss all notifications immediately
-      try {
-        AwesomeNotifications().cancelAll();
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error canceling all notifications: $e');
-        }
-      }
 
       // Dispose audio service
       _audioService.dispose();

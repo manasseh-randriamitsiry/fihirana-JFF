@@ -68,7 +68,7 @@ class RecordingUploadDialog extends StatelessWidget {
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Uploading to Drive',
+                        'Envoi vers Drive',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -93,7 +93,7 @@ class RecordingUploadDialog extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Uploading...',
+                          'Envoi en cours...',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.8),
                           ),
@@ -107,7 +107,7 @@ class RecordingUploadDialog extends StatelessWidget {
                             color: Colors.redAccent, size: 48),
                         const SizedBox(height: 16),
                         const Text(
-                          'Upload Failed',
+                          "Échec de l'envoi",
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -162,7 +162,7 @@ class RecordingUploadDialog extends StatelessWidget {
                             color: Colors.white, size: 48),
                         const SizedBox(height: 16),
                         const Text(
-                          'Upload Complete!',
+                          'Envoi terminé !',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

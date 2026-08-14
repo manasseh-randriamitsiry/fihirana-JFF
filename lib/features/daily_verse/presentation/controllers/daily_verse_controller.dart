@@ -32,7 +32,7 @@ class DailyVerseController extends GetxController {
         _sendTestNotificationUseCase = sendTestNotificationUseCase;
 
   // Observable state
-  final RxBool isEnabled = false.obs;
+  final RxBool isEnabled = true.obs;
   final Rx<TimeOfDay> notificationTime =
       const TimeOfDay(hour: 7, minute: 0).obs;
   final Rx<DailyVerse?> todaysVerse = Rx<DailyVerse?>(null);

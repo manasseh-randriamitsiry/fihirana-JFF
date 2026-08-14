@@ -97,7 +97,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                       const SizedBox(height: 20),
 
                       const Text(
-                        'Recording Complete!',
+                        'Enregistrement terminé !',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -115,7 +115,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                           fontSize: 16,
                         ),
                         decoration: InputDecoration(
-                          labelText: 'Recording Name',
+                          labelText: "Nom de l'enregistrement",
                           labelStyle: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8)),
                           border: OutlineInputBorder(
@@ -149,8 +149,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                         child: SwitchListTile(
                           title: Text(
                             _isPublic
-                                ? 'Public Recording'
-                                : 'Private Recording',
+                                ? 'Enregistrement public'
+                                : 'Enregistrement privé',
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
@@ -158,8 +158,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                           ),
                           subtitle: Text(
                             _isPublic
-                                ? 'Anyone can listen to this recording'
-                                : 'Only you can listen to this recording',
+                                ? 'Tout le monde peut écouter cet enregistrement'
+                                : 'Vous seul pouvez écouter cet enregistrement',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.7),
                               fontSize: 12,
@@ -187,19 +187,19 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                             ),
                             child: CheckboxListTile(
                               title: const Text(
-                                'Upload to Google Drive',
+                                'Envoyer vers Google Drive',
                                 style: TextStyle(color: Colors.white),
                               ),
                               subtitle: widget.controller.isDriveSignedIn.value
                                   ? Text(
-                                      'Signed in as ${widget.controller.userEmail.value}',
+                                      'Connecté en tant que ${widget.controller.userEmail.value}',
                                       style: TextStyle(
                                         color:
                                             Colors.white.withValues(alpha: 0.7),
                                       ),
                                     )
                                   : Text(
-                                      'You will be prompted to sign in',
+                                      'Une connexion vous sera demandée',
                                       style: TextStyle(
                                         color:
                                             Colors.white.withValues(alpha: 0.7),
@@ -231,7 +231,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                                     color: Colors.white.withValues(alpha: 0.5)),
                               ),
                               child: Text(
-                                'Discard',
+                                'Ignorer',
                                 style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.8)),
                               ),

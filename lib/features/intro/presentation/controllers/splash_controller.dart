@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:liquid_swipe/liquid_swipe.dart';
 import 'package:fihirana/features/home/presentation/pages/home_screen.dart';
 import 'language_selection_controller.dart';
 import 'user_agreement_controller.dart';
@@ -30,8 +29,8 @@ class SplashController extends GetxController {
   RxInt get usernameLength => _usernameInputController.usernameLength;
   TextEditingController get usernameController =>
       _usernameInputController.usernameController;
-  LiquidController get liquidController =>
-      _languageSelectionController.liquidController;
+  PageController get pageController =>
+      _languageSelectionController.pageController;
 
   @override
   void onInit() {
@@ -131,6 +130,9 @@ class SplashController extends GetxController {
   void updatePage(int page) {
     _languageSelectionController.updatePage(page);
   }
+
+  Future<void> goToPage(int page) =>
+      _languageSelectionController.goToPage(page);
 
   void toggleAgreement() {
     _userAgreementController.toggleAgreement();

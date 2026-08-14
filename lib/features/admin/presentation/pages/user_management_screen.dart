@@ -3,80 +3,44 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/admin/domain/entities/admin_user.dart';
 import 'package:fihirana/features/admin/presentation/controllers/admin_controller.dart';
 import 'package:fihirana/features/admin/di/admin_di.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_admin_list.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class UserManagementScreen extends StatelessWidget {
   const UserManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final ColorController colorController = Get.find<ColorController>();
     final AdminController adminController = AdminDI.adminController;
-
-    return Obx(() {
-      final l10n = AppLocalizations.of(context);
-      final backgroundColor = colorController.backgroundColor.value;
-      final textColor = colorController.textColor.value;
-      final primaryColor = colorController.primaryColor.value;
-
-      return Scaffold(
-        backgroundColor: backgroundColor,
-        body: Column(
-          children: [
-            // Search Section
-            Container(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                onChanged: adminController.searchUsers,
-                decoration: InputDecoration(
-                  hintText: l10n.searchUsersHint,
-                  prefixIcon: Icon(Icons.search,
-                      color: textColor.withValues(alpha: 0.6)),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        BorderSide(color: textColor.withValues(alpha: 0.2)),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide:
-                        BorderSide(color: textColor.withValues(alpha: 0.2)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: primaryColor),
-                  ),
-                ),
-                style: TextStyle(color: textColor),
-              ),
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+          child: TextField(
+            onChanged: adminController.searchUsers,
+            textInputAction: TextInputAction.search,
+            decoration: InputDecoration(
+              hintText: l10n.searchUsersHint,
+              prefixIcon: const Icon(Icons.search_rounded),
+              filled: true,
+              fillColor: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withValues(alpha: .6),
             ),
-
-            // Users List
-            Expanded(
-              child: _buildUsersList(
-                context,
-                adminController,
-                l10n,
-                textColor,
-                primaryColor,
-                backgroundColor,
-              ),
-            ),
-          ],
+          ),
         ),
-      );
-    });
+        Expanded(child: _buildUsersList(context, adminController, l10n)),
+      ],
+    );
   }
 
   Widget _buildUsersList(
     BuildContext context,
     AdminController adminController,
     AppLocalizations l10n,
-    Color textColor,
-    Color primaryColor,
-    Color backgroundColor,
   ) {
     return Obx(() {
       if (adminController.isLoadingUsers.value) {
@@ -84,27 +48,13 @@ class UserManagementScreen extends StatelessWidget {
       }
 
       if (adminController.errorMessage.value.isNotEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.error_outline,
-                size: 64,
-                color: textColor.withValues(alpha: 0.6),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                adminController.errorMessage.value,
-                style: TextStyle(color: textColor),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: adminController.refresh,
-                child: Text(l10n.retry),
-              ),
-            ],
+        return AppEmptyState(
+          icon: Icons.error_outline_rounded,
+          title: l10n.error,
+          message: adminController.errorMessage.value,
+          action: FilledButton(
+            onPressed: adminController.refresh,
+            child: Text(l10n.retry),
           ),
         );
       }
@@ -112,26 +62,9 @@ class UserManagementScreen extends StatelessWidget {
       final users = adminController.filteredUsers;
 
       if (users.isEmpty) {
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.people_outline,
-                size: 64,
-                color: textColor.withValues(alpha: 0.6),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l10n.noUsersFound,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+        return AppEmptyState(
+          icon: Icons.people_outline_rounded,
+          title: l10n.noUsersFound,
         );
       }
 
@@ -139,7 +72,7 @@ class UserManagementScreen extends StatelessWidget {
         onRefresh: adminController.refresh,
         child: ListView.builder(
           key: const PageStorageKey('users_list'),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
           itemCount: users.length,
           itemBuilder: (context, index) {
             final user = users[index];
@@ -155,9 +88,6 @@ class UserManagementScreen extends StatelessWidget {
               onToggleBlock: () =>
                   _toggleUserBlock(context, adminController, user),
               onDelete: () => _deleteUser(context, adminController, user),
-              textColor: textColor,
-              primaryColor: primaryColor,
-              backgroundColor: backgroundColor,
             );
           },
         ),
@@ -184,7 +114,7 @@ class UserManagementScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -197,12 +127,11 @@ class UserManagementScreen extends StatelessWidget {
                     content: Text(user.isAdmin
                         ? l10n.adminAccessRevoked
                         : l10n.adminAccessGranted),
-                    backgroundColor: Colors.green,
                   ),
                 );
               }
             },
-            child: const Text('Confirm'),
+            child: const Text('Confirmer'),
           ),
         ],
       ),
@@ -227,7 +156,7 @@ class UserManagementScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -239,12 +168,11 @@ class UserManagementScreen extends StatelessWidget {
                   SnackBar(
                     content: Text(
                         user.isBlocked ? l10n.userUnblocked : l10n.userBlocked),
-                    backgroundColor: Colors.green,
                   ),
                 );
               }
             },
-            child: const Text('Confirm'),
+            child: const Text('Confirmer'),
           ),
         ],
       ),
@@ -260,14 +188,14 @@ class UserManagementScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete User'),
+        title: const Text("Supprimer l'utilisateur"),
         content: Text(
           l10n.confirmDeleteUser(user.displayName),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Annuler'),
           ),
           TextButton(
             onPressed: () async {
@@ -277,15 +205,12 @@ class UserManagementScreen extends StatelessWidget {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(l10n.userDeletedSuccessfully),
-                    backgroundColor: Colors.green,
                   ),
                 );
               }
             },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+            child: Text('Supprimer',
+                style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ),
         ],
       ),
@@ -300,9 +225,6 @@ class _UserListItem extends StatelessWidget {
   final VoidCallback onToggleAdmin;
   final VoidCallback onToggleBlock;
   final VoidCallback onDelete;
-  final Color textColor;
-  final Color primaryColor;
-  final Color backgroundColor;
 
   const _UserListItem({
     super.key,
@@ -312,115 +234,111 @@ class _UserListItem extends StatelessWidget {
     required this.onToggleAdmin,
     required this.onToggleBlock,
     required this.onDelete,
-    required this.textColor,
-    required this.primaryColor,
-    required this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: Checkbox(
-          value: isSelected,
-          onChanged: onSelectionChanged,
-          activeColor: primaryColor,
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                user.displayName,
-                style: TextStyle(
-                  color: textColor,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: AppGroupedSurface(
+        children: [
+          ListTile(
+            leading: Checkbox(
+              value: isSelected,
+              onChanged: onSelectionChanged,
             ),
-            if (user.isAdmin)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Admin',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+            title: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    user.displayName,
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),
-              ),
-            if (user.isBlocked)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Text(
-                  'Blocked',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                if (user.isAdmin)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: colors.secondaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Administrateur',
+                      style: TextStyle(
+                        color: colors.onSecondaryContainer,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
+                if (user.isBlocked)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: colors.errorContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      'Bloqué',
+                      style: TextStyle(
+                        color: colors.onErrorContainer,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  user.email,
+                  style: Theme.of(context).textTheme.bodySmall,
                 ),
-              ),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              user.email,
-              style: TextStyle(
-                color: textColor.withValues(alpha: 0.7),
-              ),
+                const SizedBox(height: 4),
+                Text(
+                  "Dernière connexion : ${user.lastLogin != null ? _formatDate(user.lastLogin!, context) : 'Jamais'}",
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              'Last Login: ${user.lastLogin != null ? _formatDate(user.lastLogin!, context) : 'Never'}',
-              style: TextStyle(
-                color: textColor.withValues(alpha: 0.6),
-                fontSize: 12,
-              ),
+            trailing: PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert_rounded),
+              onSelected: (action) {
+                switch (action) {
+                  case 'toggle_admin':
+                    onToggleAdmin();
+                    break;
+                  case 'toggle_block':
+                    onToggleBlock();
+                    break;
+                  case 'delete':
+                    onDelete();
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'toggle_admin',
+                  child: Text('Gérer les droits administrateur'),
+                ),
+                PopupMenuItem(
+                  value: 'toggle_block',
+                  child: Text(user.isBlocked ? 'Débloquer' : 'Bloquer'),
+                ),
+                PopupMenuItem(
+                  value: 'delete',
+                  child:
+                      Text('Supprimer', style: TextStyle(color: colors.error)),
+                ),
+              ],
             ),
-          ],
-        ),
-        trailing: PopupMenuButton<String>(
-          icon: Icon(Icons.more_vert, color: textColor),
-          onSelected: (action) {
-            switch (action) {
-              case 'toggle_admin':
-                onToggleAdmin();
-                break;
-              case 'toggle_block':
-                onToggleBlock();
-                break;
-              case 'delete':
-                onDelete();
-                break;
-            }
-          },
-          itemBuilder: (context) => [
-            const PopupMenuItem(
-              value: 'delete',
-              child: Text('Delete', style: TextStyle(color: Colors.red)),
-            ),
-            PopupMenuItem(
-              value: 'toggle_block',
-              child: Text(user.isBlocked ? 'Unblock' : 'Block'),
-            ),
-            const PopupMenuItem(
-              value: 'delete',
-              child: Text('Delete', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

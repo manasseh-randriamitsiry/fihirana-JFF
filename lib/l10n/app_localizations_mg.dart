@@ -2358,7 +2358,7 @@ class AppLocalizationsMg extends AppLocalizations {
   String get orChooseVerseRange => 'na fidio ny andininy';
 
   @override
-  String get fromVerse => 'Sy andininy';
+  String get fromVerse => 'Andininy';
 
   @override
   String get toVerse => 'Hatramin\'ny';
@@ -2416,4 +2416,75 @@ class AppLocalizationsMg extends AppLocalizations {
 
   @override
   String get apply => 'Ekena';
+
+  @override
+  String get languageSelectionDescription =>
+      'Sélectionnez votre langue préférée pour commencer.';
+
+  @override
+  String get reviewOnboardingEssentials =>
+      'Consultez les informations essentielles, puis choisissez comment continuer.';
+
+  @override
+  String get acceptTermsToContinue => 'Acceptez les conditions pour continuer';
+
+  @override
+  String get enterAtLeastCharacters => 'Saisissez au moins 4 caractères';
+
+  @override
+  String get appPermissions => 'Autorisations de l\'application';
+
+  @override
+  String get permissionRequestDescription =>
+      'Pour une meilleure expérience, nous avons besoin des autorisations suivantes :';
+
+  @override
+  String get notificationsPermissionDescription =>
+      'Recevez les versets du jour, les annonces et les notifications de mise à jour';
+
+  @override
+  String get installPackages => 'Installer des paquets';
+
+  @override
+  String get installPackagesPermissionDescription =>
+      'Autorisez l\'installation automatique des mises à jour de l\'application';
+
+  @override
+  String errorRequestingPermissions(String error) {
+    return 'Erreur lors de la demande d\'autorisations : $error';
+  }
+
+  @override
+  String get audioSection => 'Audio';
+
+  @override
+  String get moreActions => 'Plus d\'actions';
+
+  @override
+  String get clearName => 'Effacer';
+
+  @override
+  String get enterNameHint => 'Saisissez votre nom';
+
+  @override
+  String get unableToLoadFavorites => 'Impossible de charger les favoris';
+
+  @override
+  String get checkConnectionAndTryAgain =>
+      'Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get savedHymnsWillAppear =>
+      'Les cantiques que vous enregistrez apparaîtront ici.';
+
+  @override
+  String get unableToLoadAdditionalHymns =>
+      'Impossible de charger les cantiques supplémentaires';
+
+  @override
+  String get communityHymnsWillAppear =>
+      'Les nouveaux cantiques de la communauté apparaîtront ici.';
+
+  @override
+  String get notificationsLabel => 'Notifications';
 }

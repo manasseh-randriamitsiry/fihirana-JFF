@@ -83,10 +83,9 @@ class BibleController extends GetxController {
   void onInit() {
     super.onInit();
 
-    // Set up callback for search controller to set highlighted verse
-    searchController.onSetHighlightedVerse = (verse) {
-      highlightedVerse.value = verse;
-    };
+    // Every entry point uses the same book/chapter/verse transition so the
+    // reader state, remote highlights, and indexed scroll stay synchronized.
+    searchController.onNavigateToVerse = navigateToVerse;
 
     _initializeBibleService();
     _loadLastViewedPassage();
@@ -130,8 +129,9 @@ class BibleController extends GetxController {
 
   // Delegate methods to sub-controllers
   void selectBook(String bookName) {
+    highlightedVerse.value = 0;
     bookController.selectBook(bookName);
-    highlightController.loadHighlights(bookName, selectedChapter);
+    highlightController.clearChapterHighlights();
   }
 
   void selectChapter(int chapter) {
@@ -144,6 +144,26 @@ class BibleController extends GetxController {
     highlightedVerse.value = 0;
     bookController.selectChapterWithVerseRange(chapter, startVerse, endVerse);
     highlightController.loadHighlights(selectedBook, chapter);
+
+    // The reader listens to this value and scrolls to the first verse of the
+    // requested range once the chapter is rendered.
+    if (startVerse > 0) {
+      highlightedVerse.value = startVerse;
+    }
+  }
+
+  /// Opens a specific verse without leaving stale book, chapter, or Firestore
+  /// highlight state behind. Used by search results and saved highlights.
+  void navigateToVerse(String bookName, int chapter, int verse) {
+    if (bookName.isEmpty || chapter <= 0) {
+      return;
+    }
+
+    selectBook(bookName);
+    selectChapter(chapter);
+    if (verse > 0) {
+      highlightedVerse.value = verse;
+    }
   }
 
   int getVerseCountForChapter(String bookName, int chapterNumber) =>

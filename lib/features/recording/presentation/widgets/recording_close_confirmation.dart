@@ -35,7 +35,7 @@ class RecordingCloseConfirmation extends StatelessWidget {
           const Icon(Icons.stop_circle, color: Colors.red, size: 24),
           const SizedBox(width: 12),
           Text(
-            'Stop Recording?',
+            "Arrêter l'enregistrement ?",
             style: TextStyle(
               color: colorController.textColor.value,
               fontWeight: FontWeight.bold,
@@ -48,7 +48,7 @@ class RecordingCloseConfirmation extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'What would you like to do with this recording?',
+            'Que souhaitez-vous faire de cet enregistrement ?',
             style: TextStyle(
               color: colorController.textColor.value,
               fontSize: 14,
@@ -89,7 +89,7 @@ class RecordingCloseConfirmation extends StatelessWidget {
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: Text(
-            'Cancel',
+            'Annuler',
             style: TextStyle(color: colorController.textColor.value),
           ),
         ),

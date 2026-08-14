@@ -24,7 +24,7 @@ class SaveDialogNameInput extends StatelessWidget {
       smartDashesType: SmartDashesType.disabled,
       smartQuotesType: SmartQuotesType.disabled,
       decoration: InputDecoration(
-        labelText: 'Recording Name',
+        labelText: "Nom de l'enregistrement",
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),

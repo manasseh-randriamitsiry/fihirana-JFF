@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class BibleSettingsBottomSheetWidget extends StatefulWidget {
   final double fontSize;
@@ -34,16 +35,19 @@ class _BibleSettingsBottomSheetWidgetState
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
     final fontController = Get.find<FontController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: colorController.backgroundColor.value,
+        color: colors.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        border: Border(
+          top: BorderSide(color: colors.outlineVariant.withValues(alpha: .7)),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: colors.shadow.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),
@@ -59,79 +63,91 @@ class _BibleSettingsBottomSheetWidgetState
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.withValues(alpha: 0.3),
+                color: colors.onSurfaceVariant.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
           const SizedBox(height: 24),
           Text(
-            'Appearance',
+            'Apparence',
             style: TextStyle(
               fontFamily: 'Roboto',
-              color: colorController.textColor.value,
+              color: colors.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 24),
-          // Font Size
-          Row(
+          AppGroupedSurface(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             children: [
-              Icon(Icons.text_fields,
-                  size: 20, color: colorController.textColor.value),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Slider(
-                  value: _currentFontSize,
-                  min: 12,
-                  max: 32,
-                  activeColor: colorController.primaryColor.value,
-                  onChanged: (value) {
-                    setState(() => _currentFontSize = value);
-                    widget.onSettingsChanged(value, _currentFontFamily);
+              Row(
+                children: [
+                  Icon(Icons.text_fields, size: 20, color: colors.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Slider(
+                      value: _currentFontSize,
+                      min: 12,
+                      max: 32,
+                      activeColor: colors.primary,
+                      onChanged: (value) {
+                        setState(() => _currentFontSize = value);
+                        widget.onSettingsChanged(value, _currentFontFamily);
+                      },
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: colors.primaryContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${_currentFontSize.toInt()}',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: colors.onPrimaryContainer,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(height: 24),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Police (${fontController.availableFonts.length} polices)',
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 50,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: fontController.availableFonts.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final fontName = fontController.availableFonts[index];
+                    return _buildHorizontalFontOption(fontName, fontName);
                   },
                 ),
               ),
-              Text(
-                '${_currentFontSize.toInt()}',
-                style: TextStyle(color: colorController.textColor.value),
+              const Divider(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildThemeOption(
+                      ThemeMode.light, Icons.light_mode_rounded, 'Clair'),
+                  _buildThemeOption(
+                      ThemeMode.dark, Icons.dark_mode_rounded, 'Sombre'),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          // Font Family Selector
-          Text(
-            'Font Family (${fontController.availableFonts.length} fonts)',
-            style: TextStyle(
-              fontFamily: 'Roboto',
-              color: colorController.textColor.value,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 50,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: fontController.availableFonts.length,
-              separatorBuilder: (context, index) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                final fontName = fontController.availableFonts[index];
-                return _buildHorizontalFontOption(fontName, fontName);
-              },
-            ),
-          ),
-          const SizedBox(height: 24),
-          // Theme
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildThemeOption(
-                  ThemeMode.light, Icons.light_mode_rounded, 'Light'),
-              _buildThemeOption(
-                  ThemeMode.dark, Icons.dark_mode_rounded, 'Dark'),
             ],
           ),
           const SizedBox(height: 16),
@@ -142,7 +158,7 @@ class _BibleSettingsBottomSheetWidgetState
 
   Widget _buildHorizontalFontOption(String family, String fontName) {
     final isSelected = _currentFontFamily == family;
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return GestureDetector(
       onTap: () {
@@ -152,14 +168,10 @@ class _BibleSettingsBottomSheetWidgetState
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? colorController.primaryColor.value
-              : colorController.primaryColor.value.withValues(alpha: 0.1),
+          color: isSelected ? colors.primary : colors.primaryContainer,
           borderRadius: BorderRadius.circular(25),
           border: Border.all(
-            color: isSelected
-                ? colorController.primaryColor.value
-                : colorController.textColor.value.withValues(alpha: 0.2),
+            color: isSelected ? colors.primary : colors.outlineVariant,
             width: 1.5,
           ),
         ),
@@ -168,8 +180,7 @@ class _BibleSettingsBottomSheetWidgetState
           style: Get.find<FontController>().getFontStyle(
             fontName,
             TextStyle(
-              color:
-                  isSelected ? Colors.white : colorController.textColor.value,
+              color: isSelected ? colors.onPrimary : colors.onPrimaryContainer,
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
@@ -181,6 +192,7 @@ class _BibleSettingsBottomSheetWidgetState
 
   Widget _buildThemeOption(ThemeMode mode, IconData icon, String label) {
     final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Obx(() {
       final isSelected = colorController.themeMode == mode;
@@ -197,20 +209,19 @@ class _BibleSettingsBottomSheetWidgetState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
-                    ? colorController.primaryColor.value
-                    : colorController.textColor.value.withValues(alpha: 0.1),
+                    ? colors.primary
+                    : colors.surfaceContainerHighest,
               ),
               child: Icon(
                 icon,
-                color:
-                    isSelected ? Colors.white : colorController.textColor.value,
+                color: isSelected ? colors.onPrimary : colors.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               label,
               style: TextStyle(
-                color: colorController.textColor.value,
+                color: colors.onSurface,
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),

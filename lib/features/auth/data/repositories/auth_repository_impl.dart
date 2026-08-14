@@ -112,7 +112,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Only show snackbar if it's NOT the ignored error
       if (!isPigeonError) {
         SnackbarUtility.showError(
-          title: 'Error signing in',
+          title: 'Erreur de connexion',
           message: errorMessage,
         );
       }
@@ -155,7 +155,7 @@ class AuthRepositoryImpl implements AuthRepository {
           .setPersistence(firebase_auth.Persistence.NONE);
     } catch (e) {
       SnackbarUtility.showError(
-        title: 'Error signing out',
+        title: 'Erreur de déconnexion',
         message: e.toString(),
       );
     }
@@ -183,7 +183,7 @@ class AuthRepositoryImpl implements AuthRepository {
         print('AuthRepository: Error creating/updating user document: $e');
       }
       SnackbarUtility.showError(
-        title: 'Error updating user document',
+        title: "Erreur lors de la mise à jour du profil",
         message: e.toString(),
       );
     }
@@ -234,7 +234,7 @@ class AuthRepositoryImpl implements AuthRepository {
       });
     } catch (e) {
       SnackbarUtility.showError(
-        title: 'Error updating user permission',
+        title: "Erreur lors de la mise à jour des autorisations",
         message: e.toString(),
       );
       rethrow;

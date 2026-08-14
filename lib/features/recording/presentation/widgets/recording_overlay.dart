@@ -231,8 +231,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     } catch (e) {
       // Show error and stay in uploading state or go back to saving
       Get.snackbar(
-        'Upload Failed',
-        'Failed to upload recording: $e',
+        "Échec de l'envoi",
+        "Échec de l'envoi de l'enregistrement : $e",
         backgroundColor: Colors.red,
         colorText: Colors.white,
         duration: const Duration(seconds: 3),

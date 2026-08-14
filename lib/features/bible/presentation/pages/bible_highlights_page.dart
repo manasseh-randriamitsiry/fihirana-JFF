@@ -201,7 +201,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Text(
-                      'Loading...',
+                      'Chargement...',
                       style: TextStyle(
                         fontFamily: 'Roboto',
                         color: colorController.textColor.value
@@ -277,15 +277,14 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
   }
 
   void _navigateToHighlight(BuildContext context, BibleHighlight highlight) {
-    // Navigate to the Bible reader and scroll to the highlight
-    bibleController.selectBook(highlight.bookName);
-    bibleController.selectChapter(highlight.chapter);
-    bibleController.highlightedVerse.value = highlight.startVerse;
+    bibleController.navigateToVerse(
+      highlight.bookName,
+      highlight.chapter,
+      highlight.startVerse,
+    );
 
     // Close the highlights page
     Navigator.of(context).pop();
-
-    // The BibleReaderScreen will handle scrolling to the highlighted verse
   }
 
   void _showDeleteDialog(BuildContext context, BibleHighlight highlight) {

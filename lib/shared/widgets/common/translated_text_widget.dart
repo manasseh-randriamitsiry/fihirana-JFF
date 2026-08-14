@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fihirana/core/localization/translation_controller.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class TranslatedTextWidget extends StatefulWidget {
   final String text;
@@ -199,7 +200,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Translated',
+                    AppLocalizations.of(context).translated,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.w500,

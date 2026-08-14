@@ -217,13 +217,13 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
     if (_hasError) {
       widget.onError?.call();
       return widget.errorWidget ??
-          const Center(
+          Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.error_outline, size: 48, color: Colors.red),
-                SizedBox(height: 16),
-                Text('Something went wrong'),
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(AppLocalizations.of(context).somethingWentWrong),
               ],
             ),
           );

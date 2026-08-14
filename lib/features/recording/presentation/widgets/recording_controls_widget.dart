@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 
 class RecordingControlsWidget extends StatefulWidget {
   final bool isRecording;
@@ -47,7 +45,7 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     if (!widget.isRecording && !widget.isPaused) {
       // Start recording button
@@ -57,20 +55,20 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: Colors.red,
+            color: colors.error,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.red.withValues(alpha: 0.4),
+                color: colors.error.withValues(alpha: 0.35),
                 blurRadius: 12,
                 offset: const Offset(0, 6),
               ),
             ],
           ),
-          child: const Icon(
+          child: Icon(
             Icons.mic,
             size: 40,
-            color: Colors.white,
+            color: colors.onError,
           ),
         ).animate().scale(duration: 300.ms, curve: Curves.easeOutBack),
       );
@@ -88,15 +86,12 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: widget.isPaused
-                  ? colorController.primaryColor.value
-                  : colorController.primaryColor.value.withValues(alpha: 0.1),
+              color: widget.isPaused ? colors.primary : colors.primaryContainer,
               borderRadius: BorderRadius.circular(20),
               boxShadow: widget.isPaused
                   ? [
                       BoxShadow(
-                        color: colorController.primaryColor.value
-                            .withValues(alpha: 0.4),
+                        color: colors.primary.withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -106,8 +101,8 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
             child: Icon(
               widget.isPaused ? Icons.play_arrow : Icons.pause,
               color: widget.isPaused
-                  ? Colors.white
-                  : colorController.primaryColor.value,
+                  ? colors.onPrimary
+                  : colors.onPrimaryContainer,
               size: 32,
             ),
           ),
@@ -127,11 +122,11 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: colors.error,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withValues(alpha: 0.4),
+                        color: colors.error.withValues(alpha: 0.35),
                         blurRadius: 16,
                         offset: const Offset(0, 8),
                       ),
@@ -147,16 +142,16 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.3),
+                            color: colors.onError.withValues(alpha: 0.35),
                             width: 2,
                           ),
                         ),
                       ),
                       // Stop icon
-                      const Icon(
+                      Icon(
                         Icons.stop,
                         size: 36,
-                        color: Colors.white,
+                        color: colors.onError,
                       ),
                     ],
                   ),

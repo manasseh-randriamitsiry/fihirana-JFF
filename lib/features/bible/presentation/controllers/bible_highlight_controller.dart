@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
@@ -18,14 +20,33 @@ class BibleHighlightController extends GetxController {
   // Highlighted verse for UI feedback
   var highlightedVerse = Rx<BibleHighlight?>(null);
 
+  StreamSubscription<List<BibleHighlight>>? _userHighlightsSubscription;
+  StreamSubscription<List<BibleHighlight>>? _publicHighlightsSubscription;
+  StreamSubscription<List<BibleHighlight>>? _allHighlightsSubscription;
+  int _chapterRequest = 0;
+
   void loadHighlights(String bookName, int chapter) {
-    _loadUserHighlights(bookName, chapter);
-    _loadPublicHighlights(bookName, chapter);
+    final request = ++_chapterRequest;
+    unawaited(_userHighlightsSubscription?.cancel());
+    unawaited(_publicHighlightsSubscription?.cancel());
+    _userHighlightsSubscription = null;
+    _publicHighlightsSubscription = null;
+    highlights.clear();
+    publicHighlights.clear();
+
+    if (bookName.isEmpty || chapter <= 0) {
+      return;
+    }
+
+    _loadUserHighlights(bookName, chapter, request);
+    _loadPublicHighlights(bookName, chapter, request);
   }
 
   void loadAllUserHighlights() {
     try {
-      _highlightService.getAllUserHighlightsStream().listen(
+      unawaited(_allHighlightsSubscription?.cancel());
+      _allHighlightsSubscription =
+          _highlightService.getAllUserHighlightsStream().listen(
         (userHighlights) {
           allUserHighlights.value = userHighlights;
         },
@@ -38,11 +59,14 @@ class BibleHighlightController extends GetxController {
     }
   }
 
-  void _loadUserHighlights(String bookName, int chapter) {
+  void _loadUserHighlights(String bookName, int chapter, int request) {
     try {
-      _highlightService.getHighlightsStream(bookName, chapter).listen(
+      _userHighlightsSubscription =
+          _highlightService.getHighlightsStream(bookName, chapter).listen(
         (userHighlights) {
-          highlights.value = userHighlights;
+          if (request == _chapterRequest) {
+            highlights.value = userHighlights;
+          }
         },
         onError: (error) {
           ErrorHandler.handleError(error, message: 'errorLoadingHighlights'.tr);
@@ -53,12 +77,15 @@ class BibleHighlightController extends GetxController {
     }
   }
 
-  void _loadPublicHighlights(String bookName, int chapter) {
+  void _loadPublicHighlights(String bookName, int chapter, int request) {
     if (FirebaseAuth.instance.currentUser == null) return;
     try {
-      _highlightService.getPublicHighlightsStream(bookName, chapter).listen(
+      _publicHighlightsSubscription =
+          _highlightService.getPublicHighlightsStream(bookName, chapter).listen(
         (pubHighlights) {
-          publicHighlights.value = pubHighlights;
+          if (request == _chapterRequest) {
+            publicHighlights.value = pubHighlights;
+          }
         },
         onError: (error) {
           ErrorHandler.handleError(error,
@@ -141,11 +168,28 @@ class BibleHighlightController extends GetxController {
         publicHighlights.firstWhereOrNull((h) => h.containsVerse(verseNumber));
   }
 
-  void clearHighlights() {
+  void clearChapterHighlights() {
+    _chapterRequest++;
+    unawaited(_userHighlightsSubscription?.cancel());
+    unawaited(_publicHighlightsSubscription?.cancel());
+    _userHighlightsSubscription = null;
+    _publicHighlightsSubscription = null;
     highlights.clear();
     publicHighlights.clear();
+  }
+
+  void clearHighlights() {
+    clearChapterHighlights();
     highlightedVerse.value = null;
   }
 
   bool isVerseHighlighted(int verse) => getHighlightForVerse(verse) != null;
+
+  @override
+  void onClose() {
+    unawaited(_userHighlightsSubscription?.cancel());
+    unawaited(_publicHighlightsSubscription?.cancel());
+    unawaited(_allHighlightsSubscription?.cancel());
+    super.onClose();
+  }
 }

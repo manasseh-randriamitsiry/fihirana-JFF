@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
-import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
-import 'package:fihirana/features/playlist/di/playlist_di.dart';
+
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/presentation/pages/hymn_detail_screen.dart';
+import 'package:fihirana/features/playlist/di/playlist_di.dart';
+import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/playlist_detail_widgets.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final String playlistId;
@@ -24,11 +25,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   @override
   void initState() {
     super.initState();
-
-    // Synchronous initialization for instant loading
     try {
       _playlistController = PlaylistDI.playlistController;
-    } catch (e) {
+    } catch (_) {
       PlaylistDI.initialize();
       _playlistController = PlaylistDI.playlistController;
     }
@@ -36,98 +35,72 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ColorController colorController = Get.find();
-    final HymnService hymnService = Get.find();
+    final hymnService = Get.find<HymnService>();
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: Obx(() {
-          final playlist = _playlistController.playlists
-              .firstWhereOrNull((p) => p.id == widget.playlistId);
+    return Obx(() {
+      final playlist = _playlistController.playlists
+          .firstWhereOrNull((item) => item.id == widget.playlistId);
+      if (playlist == null) {
+        return AppPageScaffold(
+          title: l10n.playlistNotFound,
+          body: AppEmptyState(
+            icon: Icons.playlist_remove_rounded,
+            title: l10n.playlistNotFound,
+          ),
+        );
+      }
 
-          return AppBar(
-            title: Text(
-              playlist?.title ?? l10n.playlistNotFound,
-              style: TextStyle(color: colorController.textColor.value),
-            ),
-            backgroundColor: colorController.backgroundColor.value,
-            elevation: 0,
-            iconTheme: IconThemeData(color: colorController.iconColor.value),
-            actions: playlist != null
-                ? [
-                    IconButton(
-                      icon: const Icon(Icons.share),
-                      onPressed: () =>
-                          _playlistController.sharePlaylist(playlist.id),
-                    ),
-                  ]
-                : [],
-          );
-        }),
-      ),
-      body: Obx(() {
-        final playlist = _playlistController.playlists
-            .firstWhereOrNull((p) => p.id == widget.playlistId);
-
-        if (playlist == null) {
-          return Center(child: Text(l10n.playlistNotFound));
-        }
-
-        return Column(
+      return AppPageScaffold(
+        title: playlist.title,
+        actions: [
+          IconButton(
+            tooltip: l10n.share,
+            icon: const Icon(Icons.share_outlined),
+            onPressed: () => _playlistController.sharePlaylist(playlist.id),
+          ),
+        ],
+        body: Column(
           children: [
-            // Header Info
-            PlaylistHeaderInfo(
-              date: playlist.date,
-              hymnCount: playlist.hymnIds.length,
-              onDateChanged: (date) {
-                _playlistController.updatePlaylistDate(playlist.id, date);
-              },
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              child: AppGroupedSurface(
+                children: [
+                  PlaylistHeaderInfo(
+                    date: playlist.date,
+                    hymnCount: playlist.hymnIds.length,
+                    onDateChanged: (date) => _playlistController
+                        .updatePlaylistDate(playlist.id, date),
+                  ),
+                ],
+              ),
             ),
-
-            // Hymn List
             Expanded(
               child: playlist.hymnIds.isEmpty
-                  ? Center(
-                      child: Text(
-                        l10n.noHymnsAddedYet,
-                        style: TextStyle(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.5),
-                          fontSize: 16,
-                        ),
-                      ),
+                  ? AppEmptyState(
+                      icon: Icons.queue_music_rounded,
+                      title: l10n.noHymnsAddedYet,
                     )
                   : FutureBuilder<List<Hymn>>(
-                      key: ValueKey(playlist
-                          .hymnIds.length), // Force rebuild when count changes
+                      key: ValueKey(playlist.hymnIds.length),
                       future: hymnService.getHymnsByIds(playlist.hymnIds),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(
-                              color: colorController.primaryColor.value,
-                            ),
-                          );
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }
-
                         if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                              l10n.errorLoadingHymns,
-                              style: const TextStyle(color: Colors.red),
-                            ),
+                          return AppEmptyState(
+                            icon: Icons.error_outline_rounded,
+                            title: l10n.errorLoadingHymns,
                           );
                         }
 
                         final hymns = snapshot.data ?? [];
-
                         return ListView.builder(
                           key: const PageStorageKey('playlist_hymns_list'),
-                          padding: const EdgeInsets.all(16),
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
                           itemCount: hymns.length,
                           itemBuilder: (context, index) {
                             final hymn = hymns[index];
@@ -135,13 +108,11 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                               key: ValueKey(hymn.id),
                               hymn: hymn,
                               index: index,
-                              onTap: () {
-                                Get.to(() => HymnDetailScreen(hymnId: hymn.id));
-                              },
-                              onRemove: () {
-                                _playlistController.removeHymnFromPlaylist(
-                                    playlist.id, hymn.id);
-                              },
+                              onTap: () => Get.to(
+                                () => HymnDetailScreen(hymnId: hymn.id),
+                              ),
+                              onRemove: () => _playlistController
+                                  .removeHymnFromPlaylist(playlist.id, hymn.id),
                             );
                           },
                         );
@@ -149,8 +120,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                     ),
             ),
           ],
-        );
-      }),
-    );
+        ),
+      );
+    });
   }
 }

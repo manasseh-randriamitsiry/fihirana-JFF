@@ -24,37 +24,20 @@ class AudioService implements IAudioService {
   }
 
   factory AudioService() => instance;
-  // Initialize player immediately to prevent LateInitializationError
-  AudioPlayer _player = AudioPlayer();
+  // Keep one player instance for the whole app lifetime. Replacing it after
+  // observers subscribe breaks player controls and notification updates.
+  final AudioPlayer _player = AudioPlayer();
 
   AudioService._internal() {
-    _initializePlayer();
-    // Listeners will be initialized inside _initializePlayer after the correct player is ready
+    _initializePlayerStateListener();
+    unawaited(_logPlayerConfiguration());
   }
 
   final RxBool _isPlayingRx = false.obs;
+  StreamSubscription<PlayerState>? _playerStateSubscription;
 
-  Future<void> _initializePlayer() async {
+  Future<void> _logPlayerConfiguration() async {
     final config = await AudioConfig.getAudioPlayerConfig();
-    final effects = config['androidAudioEffects'] as List<dynamic>?;
-    final androidEffects = effects?.cast<AndroidAudioEffect>() ?? [];
-
-    // Dispose old player and create new one with config
-    // Note: We are replacing the instance that might have been created by default
-    try {
-      await _player.dispose();
-    } catch (e) {
-      if (kDebugMode) print('AudioService: Error disposing initial player: $e');
-    }
-
-    _player = AudioPlayer(
-      audioPipeline: AudioPipeline(
-        androidAudioEffects: androidEffects,
-      ),
-    );
-
-    // Re-initialize listeners for the NEW player instance
-    _initializePlayerStateListener();
 
     if (kDebugMode) {
       print('AudioService: Initialized player with config: $config');
@@ -67,7 +50,7 @@ class AudioService implements IAudioService {
   void _initializePlayerStateListener() {
     // Listen to player state changes: manage reactive playing state, handle
     // completion, and recover from error/idle states.
-    _player.playerStateStream.listen((state) {
+    _playerStateSubscription = _player.playerStateStream.listen((state) {
       if (kDebugMode) {
         print(
             'AudioService: Player state changed - playing: ${state.playing}, processingState: ${state.processingState}');
@@ -101,6 +84,12 @@ class AudioService implements IAudioService {
             _isPlayingRx.value = false;
           }
         });
+      }
+    }, onError: (Object error, StackTrace stackTrace) {
+      _isPlayingRx.value = false;
+      _currentPlayingHymnId.value = '';
+      if (kDebugMode) {
+        print('AudioService: Player state stream error: $error');
       }
     });
   }
@@ -278,14 +267,9 @@ class AudioService implements IAudioService {
       }
       // Just ensure we are playing
       if (!_player.playing) {
-        try {
-          await _player.play();
-        } catch (e) {
-          // If play fails, might need full reload, so fall through
-          if (kDebugMode) {
-            print('AudioService: Resume failed, falling back to reload: $e');
-          }
-        }
+        unawaited(_startPlayback(hymn));
+      } else {
+        return;
       }
       return;
     }
@@ -425,23 +409,10 @@ class AudioService implements IAudioService {
           print('AudioService: Audio source set, playing hymn ${hymn.id}');
         }
 
-        await _player.play().timeout(
-          const Duration(seconds: 30), // Increased from 10s
-          onTimeout: () {
-            // Even if timeout happens, check if player actually started playing
-            if (_player.playing) {
-              if (kDebugMode) {
-                print(
-                    'AudioService: Play timeout fired but player IS playing. Ignoring timeout.');
-              }
-              return; // It's fine, it started.
-            }
-            if (kDebugMode) {
-              print('AudioService: Timeout starting playback for ${hymn.id}');
-            }
-            throw Exception('Timeout starting audio playback.');
-          },
-        );
+        // [AudioPlayer.play] completes only when playback stops. Start it in
+        // the background so UI and Android media-session commands return
+        // immediately instead of waiting for the hymn to finish.
+        unawaited(_startPlayback(hymn));
       } on TimeoutException catch (e) {
         // Only clear state if we are truly not playing
         if (!_player.playing) {
@@ -516,6 +487,20 @@ class AudioService implements IAudioService {
     }
   }
 
+  Future<void> _startPlayback(Hymn hymn) async {
+    try {
+      await _player.play();
+    } catch (e) {
+      if (_currentPlayingHymnId.value == hymn.id) {
+        _currentPlayingHymnId.value = '';
+        _isPlayingRx.value = false;
+      }
+      if (kDebugMode) {
+        print('AudioService: Playback failed for ${hymn.id}: $e');
+      }
+    }
+  }
+
   @override
   Future<void> pause() async {
     try {
@@ -529,12 +514,9 @@ class AudioService implements IAudioService {
 
   @override
   Future<void> resume() async {
-    try {
-      await _player.play();
-    } catch (e) {
-      if (kDebugMode) {
-        print('AudioService: Error resuming player: $e');
-      }
+    final hymn = _currentHymn;
+    if (hymn != null && !_player.playing) {
+      unawaited(_startPlayback(hymn));
     }
   }
 
@@ -633,7 +615,8 @@ class AudioService implements IAudioService {
 
   @override
   void dispose() {
-    _player.dispose();
+    unawaited(_playerStateSubscription?.cancel());
+    unawaited(_player.dispose());
     _currentPlayingHymnId.value = '';
     _cacheService.close();
   }

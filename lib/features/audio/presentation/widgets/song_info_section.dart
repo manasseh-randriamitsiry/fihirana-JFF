@@ -39,7 +39,7 @@ class SongInfoSection extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                'Hymn $hymnNumber',
+                'Cantique $hymnNumber',
                 style: const TextStyle(
                   color: secondaryTextColor,
                   fontSize: 16,

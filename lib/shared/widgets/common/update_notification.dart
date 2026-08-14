@@ -19,7 +19,6 @@ class UpdateNotificationBuilder {
       channelKey: 'basic_channel',
       title: title,
       body: body,
-      color: NotificationStyles.primaryColor,
       payload: downloadUrl,
       additionalPayload: {'type': 'update_available', 'version': version},
     );
@@ -45,7 +44,6 @@ class UpdateNotificationBuilder {
       channelKey: 'basic_channel',
       title: title,
       body: body,
-      color: NotificationStyles.primaryColor,
       payload: 'in_app_update',
     );
 
@@ -69,7 +67,6 @@ class UpdateNotificationBuilder {
       channelKey: 'basic_channel',
       title: title,
       body: body,
-      color: NotificationStyles.primaryColor,
       payload: 'flexible_update_complete',
     );
 
