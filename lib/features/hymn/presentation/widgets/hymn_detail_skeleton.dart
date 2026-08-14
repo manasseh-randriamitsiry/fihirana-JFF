@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 
 /// Skeleton loader for hymn detail screen
@@ -18,151 +16,141 @@ class HymnDetailSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(
-      builder: (controller) {
-        final isDark = ThemeData.estimateBrightnessForColor(
-                controller.backgroundColor.value) ==
-            Brightness.dark;
-        final baseColor = isDark ? Colors.grey[800]! : Colors.grey[300]!;
-        final highlightColor = isDark ? Colors.grey[700]! : Colors.grey[100]!;
+    final colors = Theme.of(context).colorScheme;
+    final baseColor = colors.surfaceContainerHighest;
+    final highlightColor = colors.surfaceContainerLow;
 
-        return Shimmer.fromColors(
-          baseColor: baseColor,
-          highlightColor: highlightColor,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppDimensions.fontMd),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Hymn number badge skeleton
-                Center(
-                  child: Container(
-                    width: 80,
-                    height: 40,
+    return Shimmer.fromColors(
+      baseColor: baseColor,
+      highlightColor: highlightColor,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppDimensions.fontMd),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hymn number badge skeleton
+            Center(
+              child: Container(
+                width: 80,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: baseColor,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Hymn title skeleton
+            Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.7,
+                height: fontSize * 1.5,
+                decoration: BoxDecoration(
+                  color: baseColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+
+            // Second line of title (for long titles)
+            Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.5,
+                height: fontSize * 1.5,
+                decoration: BoxDecoration(
+                  color: baseColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Bridge section skeleton
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: baseColor.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: fontSize,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-
-                // Hymn title skeleton
-                Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
-                    height: fontSize * 1.5,
+                  const SizedBox(height: 8),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    height: fontSize,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
+                      color: baseColor,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                ),
-                const SizedBox(height: 8),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
 
-                // Second line of title (for long titles)
-                Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    height: fontSize * 1.5,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Bridge section skeleton
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.4,
-                        height: fontSize,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: fontSize,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Verse content skeleton
-                ...List.generate(
-                    3,
-                    (verseIndex) => Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+            // Verse content skeleton
+            ...List.generate(
+                3,
+                (verseIndex) => Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Verse number
+                          Row(
                             children: [
-                              // Verse number
-                              Row(
-                                children: [
-                                  Container(
-                                    width: countFontSize,
-                                    height: countFontSize,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  // Verse lines
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: List.generate(
-                                          4,
-                                          (lineIndex) => Padding(
-                                                padding: const EdgeInsets.only(
-                                                    bottom: 8),
-                                                child: Container(
-                                                  width: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      (0.6 +
-                                                          (lineIndex % 3) *
-                                                              0.1),
-                                                  height: fontSize,
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                  ),
-                                                ),
-                                              )),
-                                    ),
-                                  ),
-                                ],
+                              Container(
+                                width: countFontSize,
+                                height: countFontSize,
+                                decoration: BoxDecoration(
+                                  color: baseColor,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Verse lines
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: List.generate(
+                                      4,
+                                      (lineIndex) => Padding(
+                                            padding: const EdgeInsets.only(
+                                                bottom: 8),
+                                            child: Container(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  (0.6 + (lineIndex % 3) * 0.1),
+                                              height: fontSize,
+                                              decoration: BoxDecoration(
+                                                color: baseColor,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                              ),
+                                            ),
+                                          )),
+                                ),
                               ),
                             ],
                           ),
-                        )),
-              ],
-            ),
-          ),
-        );
-      },
+                        ],
+                      ),
+                    )),
+          ],
+        ),
+      ),
     );
   }
 }

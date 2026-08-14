@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class AdminStatTileWidget extends StatelessWidget {
   final String title;
   final String value;
   final String subtitle;
   final IconData icon;
-  final Color color;
+  final Color backgroundColor;
+  final Color foregroundColor;
 
   const AdminStatTileWidget({
     super.key,
@@ -16,54 +16,41 @@ class AdminStatTileWidget extends StatelessWidget {
     required this.value,
     required this.subtitle,
     required this.icon,
-    required this.color,
+    required this.backgroundColor,
+    required this.foregroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final textColor = colorController.textColor.value;
-
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(icon, size: 16, color: color),
-                const SizedBox(width: 4),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: color,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: backgroundColor,
+              foregroundColor: foregroundColor,
+              child: Icon(icon, size: 17),
             ),
             const SizedBox(height: 8),
             Text(
               value,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.labelSmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             Text(
               subtitle,
-              style: TextStyle(
-                color: textColor.withValues(alpha: 0.6),
-                fontSize: 10,
-              ),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -84,33 +71,39 @@ class AdminStatsRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Row(
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 6),
+      child: AppGroupedSurface(
         children: [
-          AdminStatTileWidget(
-            title: AppLocalizations.of(context).users,
-            value: '${stats['totalUsers']}',
-            subtitle: AppLocalizations.of(context)
-                .activeUsersCount(stats['activeUsers']),
-            icon: Icons.people,
-            color: Colors.blue,
-          ),
-          const SizedBox(width: 12),
-          AdminStatTileWidget(
-            title: AppLocalizations.of(context).hymns,
-            value: '${stats['totalHymns']}',
-            subtitle: AppLocalizations.of(context).totalAdded,
-            icon: Icons.library_music,
-            color: Colors.orange,
-          ),
-          const SizedBox(width: 12),
-          AdminStatTileWidget(
-            title: AppLocalizations.of(context).installs,
-            value: '${stats['installations']}',
-            subtitle: AppLocalizations.of(context).allTime,
-            icon: Icons.download,
-            color: Colors.green,
+          Row(
+            children: [
+              AdminStatTileWidget(
+                title: AppLocalizations.of(context).users,
+                value: '${stats['totalUsers']}',
+                subtitle: AppLocalizations.of(context)
+                    .activeUsersCount(stats['activeUsers']),
+                icon: Icons.people_outline_rounded,
+                backgroundColor: colors.primaryContainer,
+                foregroundColor: colors.onPrimaryContainer,
+              ),
+              AdminStatTileWidget(
+                title: AppLocalizations.of(context).hymns,
+                value: '${stats['totalHymns']}',
+                subtitle: AppLocalizations.of(context).totalAdded,
+                icon: Icons.library_music_outlined,
+                backgroundColor: colors.secondaryContainer,
+                foregroundColor: colors.onSecondaryContainer,
+              ),
+              AdminStatTileWidget(
+                title: AppLocalizations.of(context).installs,
+                value: '${stats['installations']}',
+                subtitle: AppLocalizations.of(context).allTime,
+                icon: Icons.download_outlined,
+                backgroundColor: colors.tertiaryContainer,
+                foregroundColor: colors.onTertiaryContainer,
+              ),
+            ],
           ),
         ],
       ),

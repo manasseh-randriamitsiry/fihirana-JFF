@@ -5,7 +5,6 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import './user_management_screen.dart';
 import './super_admin_dashboard.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
@@ -26,7 +25,6 @@ class AdminPanelScreen extends StatefulWidget {
 class _AdminPanelScreenState extends State<AdminPanelScreen>
     with SingleTickerProviderStateMixin {
   final HymnService _hymnService = HymnService();
-  final ColorController _colorController = Get.find<ColorController>();
   late TabController _tabController;
   List<String> selectedHymns = [];
   bool isLoading = false;
@@ -58,7 +56,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.noAdminPermission),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -79,7 +77,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.selectedHymnsDeleted),
-          backgroundColor: Colors.green,
         ),
       );
     } catch (e) {
@@ -88,7 +85,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('${l10n.error}: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
     }
@@ -120,64 +117,53 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Obx(() {
-      final backgroundColor = _colorController.backgroundColor.value;
-      final textColor = _colorController.textColor.value;
-      final iconColor = _colorController.iconColor.value;
-      final primaryColor = _colorController.primaryColor.value;
-
-      return Scaffold(
-        backgroundColor: backgroundColor,
-        appBar: AppBar(
-          backgroundColor: backgroundColor,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.menu, color: iconColor),
+    final colors = Theme.of(context).colorScheme;
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+          icon: const Icon(Icons.menu_rounded),
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            Get.find<ShellController>().toggleDrawer();
+          },
+        ),
+        title: Text(
+          l10n.adminPanel,
+        ),
+        actions: [
+          IconButton(
+            icon:
+                Icon(Icons.admin_panel_settings_outlined, color: colors.error),
             onPressed: () {
               HapticFeedback.lightImpact();
-              Get.find<ShellController>().toggleDrawer();
+              Get.to(() => const SuperAdminDashboard());
             },
+            tooltip: l10n.superAdminDashboard,
           ),
-          title: Text(
-            l10n.adminPanel,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          actions: [
+          if (_tabController.index == 1 && selectedHymns.isNotEmpty)
             IconButton(
-              icon: const Icon(Icons.admin_panel_settings, color: Colors.red),
+              tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+              icon: Icon(Icons.delete_outline_rounded, color: colors.error),
               onPressed: () {
                 HapticFeedback.lightImpact();
-                Get.to(() => const SuperAdminDashboard());
+                _deleteSelectedHymns();
               },
-              tooltip: l10n.superAdminDashboard,
             ),
-            if (_tabController.index == 1 && selectedHymns.isNotEmpty)
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () {
-                  HapticFeedback.lightImpact();
-                  _deleteSelectedHymns();
-                },
-              ),
+        ],
+        bottom: TabBar(
+          controller: _tabController,
+          onTap: (index) => setState(() {}), // Rebuild to show/hide actions
+          tabs: [
+            Tab(text: l10n.userManagement), // Reuse string or add "Users"
+            Tab(text: l10n.hymns), // Reuse string or add "Hymns"
+            Tab(text: l10n.deletedRecordings),
           ],
-          bottom: TabBar(
-            controller: _tabController,
-            labelColor: primaryColor,
-            unselectedLabelColor: textColor.withValues(alpha: 0.5),
-            indicatorColor: primaryColor,
-            onTap: (index) => setState(() {}), // Rebuild to show/hide actions
-            tabs: [
-              Tab(text: l10n.userManagement), // Reuse string or add "Users"
-              Tab(text: l10n.hymns), // Reuse string or add "Hymns"
-              Tab(text: l10n.deletedRecordings),
-            ],
-          ),
         ),
-        body: Column(
+      ),
+      body: SafeArea(
+        top: false,
+        child: Column(
           children: [
             // Stats Section
             StreamBuilder<Map<String, dynamic>>(
@@ -204,8 +190,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
                   const UserManagementScreen(),
 
                   // Hymns Tab
-                  _buildHymnsList(
-                      l10n, textColor, primaryColor, backgroundColor),
+                  _buildHymnsList(l10n),
 
                   // Deleted Recordings Tab
                   const DeletedRecordingsWidget(),
@@ -214,19 +199,16 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
             ),
           ],
         ),
-      );
-    });
+      ),
+    );
   }
 
-  Widget _buildHymnsList(AppLocalizations l10n, Color textColor,
-      Color primaryColor, Color backgroundColor) {
+  Widget _buildHymnsList(AppLocalizations l10n) {
     return StreamBuilder<List<Hymn>>(
       stream: _hymnService.getFirebaseHymnsStream(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(
-              child: Text('${l10n.error}: ${snapshot.error}',
-                  style: TextStyle(color: textColor)));
+          return Center(child: Text('${l10n.error}: ${snapshot.error}'));
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -252,7 +234,6 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
               key: ValueKey(hymn.id),
               hymn: hymn,
               isSelected: isSelected,
-              primaryColor: primaryColor,
               onSelectionChanged: (bool? value) {
                 setState(() {
                   if (value == true) {

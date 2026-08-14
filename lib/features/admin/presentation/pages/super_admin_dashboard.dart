@@ -1,14 +1,18 @@
 import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fihirana/features/admin/data/services/admin_control_service.dart';
-import 'package:fihirana/core/utils/version_check_service.dart';
+
 import 'package:fihirana/core/utils/pubspec_service.dart';
+import 'package:fihirana/core/utils/version_check_service.dart';
+import 'package:fihirana/features/admin/data/services/admin_control_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
+
 import 'update_management_screen.dart';
 
 class SuperAdminDashboard extends StatefulWidget {
@@ -34,35 +38,32 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     try {
       final config = await AdminControlService.fetchAdminConfig();
       final stats = await _getAppStats();
-
+      if (!mounted) return;
       setState(() {
         _adminConfig = config;
         _appStats = stats;
         _isLoading = false;
       });
-    } catch (e) {
-      setState(() => _isLoading = false);
+    } catch (error) {
       if (mounted) {
-        Get.snackbar(AppLocalizations.of(context).error,
-            AppLocalizations.of(context).failedToLoadDashboard(e.toString()));
+        setState(() => _isLoading = false);
+        Get.snackbar(
+          AppLocalizations.of(context).error,
+          AppLocalizations.of(context).failedToLoadDashboard(error.toString()),
+        );
       }
     }
   }
 
   Future<Map<String, dynamic>> _getAppStats() async {
     try {
-      // Get current version
       final currentVersion = await PubspecService.getAppVersion();
-
-      // Get latest available version from GitHub
       String? latestVersion;
       try {
         latestVersion = await _getLatestVersionFromGitHub();
-      } catch (e) {
+      } catch (_) {
         latestVersion = null;
       }
-
-      // Get user count from Firestore
       final userCount = await _getUserCount();
 
       return {
@@ -71,7 +72,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
         'userCount': userCount,
         'lastConfigUpdate': _adminConfig?.configTimestamp,
       };
-    } catch (e) {
+    } catch (_) {
       return {};
     }
   }
@@ -81,10 +82,8 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
       final snapshot =
           await FirebaseFirestore.instance.collection('users').count().get();
       return snapshot.count ?? 0;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error getting user count: $e');
-      }
+    } catch (error) {
+      if (kDebugMode) debugPrint('Error getting user count: $error');
       return 0;
     }
   }
@@ -93,596 +92,531 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     try {
       final response = await http.get(
         Uri.parse(
-            'https://api.github.com/repos/manasseh-randriamitsiry/fihirana-JFF/releases/latest'),
-        headers: {
+          'https://api.github.com/repos/manasseh-randriamitsiry/fihirana-JFF/releases/latest',
+        ),
+        headers: const {
           'Accept': 'application/vnd.github.v3+json',
           'User-Agent': 'Fihirana-JFF-App/1.0',
         },
       ).timeout(const Duration(seconds: 10));
-
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        String latestVersion = data['tag_name'].toString().replaceAll('v', '');
-        return latestVersion;
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        return data['tag_name'].toString().replaceAll('v', '');
       }
-      return null;
-    } catch (e) {
-      if (kDebugMode) {
-        print('Error fetching latest version: $e');
-      }
-      return null;
+    } catch (error) {
+      if (kDebugMode) debugPrint('Error fetching latest version: $error');
     }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    // Check if user has super admin access from Firestore
+    final l10n = AppLocalizations.of(context);
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text(AppLocalizations.of(context).accessDenied)),
-        body: Center(
-          child: Text(AppLocalizations.of(context).notLoggedInMessage),
+      return AppPageScaffold(
+        title: l10n.accessDenied,
+        body: AppEmptyState(
+          icon: Icons.lock_outline_rounded,
+          title: l10n.accessDenied,
+          message: l10n.notLoggedInMessage,
         ),
       );
     }
 
     return FutureBuilder<DocumentSnapshot>(
-        future:
-            FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+      future:
+          FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return AppPageScaffold(
+            title: l10n.adminPanel,
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
 
-          // Check isSuperAdmin from Firestore safely
-          final data = snapshot.data?.data() as Map<String, dynamic>?;
-          final isSuperAdmin = data?['isSuperAdmin'] == true;
-
-          // Fallback to email check for migration
-          // HARDCODED DOUBLE CHECK: Allows access even if Firestore fails or field is missing
-          final isSuperAdminFallback =
-              user.email == 'manassehrandriamitsiry@gmail.com';
-
-          if (!isSuperAdmin && !isSuperAdminFallback) {
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(AppLocalizations.of(context).accessDenied),
-                backgroundColor: Colors.red.shade900,
-                foregroundColor: Colors.white,
+        final data = snapshot.data?.data() as Map<String, dynamic>?;
+        final isSuperAdmin = data?['isSuperAdmin'] == true;
+        final isSuperAdminFallback =
+            user.email == 'manassehrandriamitsiry@gmail.com';
+        if (!isSuperAdmin && !isSuperAdminFallback) {
+          return AppPageScaffold(
+            title: l10n.accessDenied,
+            body: AppEmptyState(
+              icon: Icons.block_rounded,
+              title: l10n.accessDenied,
+              message: l10n.noPermissionAdmin,
+              action: OutlinedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.back),
               ),
-              body: Center(
+            ),
+          );
+        }
+
+        if (_isLoading) {
+          return AppPageScaffold(
+            title: l10n.adminPanel,
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return AppPageScaffold(
+          title: l10n.adminPanel,
+          actions: [
+            IconButton(
+              tooltip: l10n.refreshDashboard,
+              onPressed: _loadDashboardData,
+              icon: const Icon(Icons.refresh_rounded),
+            ),
+          ],
+          body: ListView(
+            padding: const EdgeInsets.only(bottom: 24),
+            children: [
+              if (_adminConfig?.emergencyMode == true) _buildEmergencyBanner(),
+              AppSection(
+                title: l10n.appStatistics,
+                child: _buildQuickStats(),
+              ),
+              AppSection(
+                title: l10n.updateControl,
+                child: _buildUpdateControlPanel(),
+              ),
+              AppSection(
+                title: l10n.quickActions,
+                child: _buildQuickActionsGrid(),
+              ),
+              AppSection(
+                title: l10n.recentActivity,
+                child: _buildRecentActivity(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmergencyBanner() {
+    final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.errorContainer,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: colors.error.withValues(alpha: .45)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.warning_amber_rounded, color: colors.error, size: 28),
+              const SizedBox(width: 14),
+              Expanded(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.block, size: 64, color: Colors.red.shade900),
-                    const SizedBox(height: 16),
                     Text(
-                      AppLocalizations.of(context).accessDenied,
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+                      l10n.emergencyModeActive,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: colors.onErrorContainer,
+                            fontWeight: FontWeight.bold,
+                          ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
-                      AppLocalizations.of(context).noPermissionAdmin,
-                      style: const TextStyle(fontSize: 16),
+                      l10n.allUpdatesDisabled,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: colors.onErrorContainer,
+                          ),
                     ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(AppLocalizations.of(context).back),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: () async {
+                        await AdminControlService.clearEmergencyMode();
+                        await _loadDashboardData();
+                        if (mounted) {
+                          Get.snackbar(l10n.success, l10n.emergencyModeCleared);
+                        }
+                      },
+                      icon: const Icon(Icons.restart_alt_rounded),
+                      label: Text(l10n.clearCache),
+                      style: TextButton.styleFrom(
+                        foregroundColor: colors.onErrorContainer,
+                      ),
                     ),
                   ],
                 ),
               ),
-            );
-          }
-
-          // User has super admin access, show the dashboard
-          if (_isLoading) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(AppLocalizations.of(context).adminPanel),
-              backgroundColor: Colors.red.shade900,
-              foregroundColor: Colors.white,
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: _loadDashboardData,
-                  tooltip: AppLocalizations.of(context).refreshDashboard,
-                ),
-              ],
-            ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Emergency Status Banner
-                  if (_adminConfig?.emergencyMode == true)
-                    _buildEmergencyBanner(),
-
-                  // Quick Stats
-                  _buildQuickStats(),
-                  const SizedBox(height: 20),
-
-                  // Update Control Panel
-                  _buildUpdateControlPanel(),
-                  const SizedBox(height: 20),
-
-                  // Quick Actions Grid
-                  _buildQuickActionsGrid(),
-                  const SizedBox(height: 20),
-
-                  // Recent Activity
-                  _buildRecentActivity(),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  Widget _buildEmergencyBanner() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.red.shade600,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.red.withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.warning, color: Colors.white, size: 32),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context).emergencyModeActive,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  AppLocalizations.of(context).allUpdatesDisabled,
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final successText = AppLocalizations.of(context).success;
-              final clearedText =
-                  AppLocalizations.of(context).emergencyModeCleared;
-              await AdminControlService.clearEmergencyMode();
-              await _loadDashboardData();
-              if (!mounted) return;
-              Get.snackbar(successText, clearedText);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.red.shade600,
-            ),
-            child: Text(AppLocalizations.of(context).clearCache),
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildQuickStats() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final updatesEnabled = _adminConfig?.updatesEnabled == true;
+    final stats = [
+      _DashboardStat(
+        title: l10n.currentVersion,
+        value: _appStats['currentVersion'] ?? '—',
+        icon: Icons.info_outline_rounded,
+        foreground: colors.primary,
+        background: colors.primaryContainer,
+      ),
+      _DashboardStat(
+        title: l10n.latestVersion,
+        value: _appStats['latestVersion'] ?? '—',
+        icon: Icons.new_releases_outlined,
+        foreground: colors.secondary,
+        background: colors.secondaryContainer,
+      ),
+      _DashboardStat(
+        title: l10n.activeUsers,
+        value: '${_appStats['userCount'] ?? 0}',
+        icon: Icons.people_outline_rounded,
+        foreground: colors.tertiary,
+        background: colors.tertiaryContainer,
+      ),
+      _DashboardStat(
+        title: l10n.updateStatus,
+        value: updatesEnabled ? l10n.enabled : l10n.disabled,
+        icon: updatesEnabled
+            ? Icons.check_circle_outline_rounded
+            : Icons.block_outlined,
+        foreground: updatesEnabled ? colors.primary : colors.error,
+        background:
+            updatesEnabled ? colors.primaryContainer : colors.errorContainer,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth >= 520 ? 2 : 1;
+        final itemWidth =
+            (constraints.maxWidth - (columns == 2 ? 10 : 0)) / columns;
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
           children: [
-            Text(
-              AppLocalizations.of(context).appStatistics,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    AppLocalizations.of(context).currentVersion,
-                    _appStats['currentVersion'] ?? 'Unknown',
-                    Icons.info,
-                    Colors.blue,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildStatCard(
-                    AppLocalizations.of(context).latestVersion,
-                    _appStats['latestVersion'] ?? 'Unknown',
-                    Icons.new_releases,
-                    Colors.green,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    AppLocalizations.of(context).activeUsers,
-                    '${_appStats['userCount'] ?? 0}',
-                    Icons.people,
-                    Colors.purple,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildStatCard(
-                    AppLocalizations.of(context).updateStatus,
-                    _adminConfig?.updatesEnabled == true
-                        ? AppLocalizations.of(context).enabled
-                        : AppLocalizations.of(context).disabled,
-                    _adminConfig?.updatesEnabled == true
-                        ? Icons.check_circle
-                        : Icons.block,
-                    _adminConfig?.updatesEnabled == true
-                        ? Colors.green
-                        : Colors.red,
-                  ),
-                ),
-              ],
-            ),
+            for (final stat in stats)
+              SizedBox(width: itemWidth, child: _buildStatCard(stat)),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget _buildStatCard(
-      String title, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+  Widget _buildStatCard(_DashboardStat stat) {
+    return AppGroupedSurface(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
             children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: color.withValues(alpha: 0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUpdateControlPanel() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  AppLocalizations.of(context).updateControl,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Get.to(() => const UpdateManagementScreen());
-                  },
-                  icon: const Icon(Icons.settings),
-                  label: Text(AppLocalizations.of(context).manage),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // Update Status
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: (_adminConfig?.updatesEnabled == true)
-                    ? Colors.green.withValues(alpha: 0.1)
-                    : Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: (_adminConfig?.updatesEnabled == true)
-                      ? Colors.green.withValues(alpha: 0.3)
-                      : Colors.red.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _adminConfig?.updatesEnabled == true
-                        ? Icons.check_circle
-                        : Icons.block,
-                    color: _adminConfig?.updatesEnabled == true
-                        ? Colors.green
-                        : Colors.red,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _adminConfig?.updatesEnabled == true
-                              ? AppLocalizations.of(context).updatesEnabled
-                              : AppLocalizations.of(context).updatesDisabled,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: _adminConfig?.updatesEnabled == true
-                                ? Colors.green
-                                : Colors.red,
-                          ),
-                        ),
-                        if (_adminConfig?.adminMessage != null)
-                          Text(
-                            _adminConfig!.adminMessage!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            if (_adminConfig?.blockedVersion != null) ...[
-              const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.all(12),
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border:
-                      Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                  color: stat.background,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Row(
+                child: Icon(stat.icon, color: stat.foreground, size: 21),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.warning, color: Colors.orange),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .versionBlocked(_adminConfig!.blockedVersion!),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
-                      ),
+                    Text(
+                      stat.title,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      stat.value,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: stat.foreground,
+                            fontWeight: FontWeight.bold,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
             ],
-          ],
+          ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildUpdateControlPanel() {
+    final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final updatesEnabled = _adminConfig?.updatesEnabled == true;
+    final statusColor = updatesEnabled ? colors.primary : colors.error;
+
+    return AppGroupedSurface(
+      children: [
+        AppListRow(
+          icon: updatesEnabled
+              ? Icons.check_circle_outline_rounded
+              : Icons.block_outlined,
+          iconColor: statusColor,
+          title: updatesEnabled ? l10n.updatesEnabled : l10n.updatesDisabled,
+          subtitle: _adminConfig?.adminMessage,
+          onTap: () => Get.to(() => const UpdateManagementScreen()),
+        ),
+        const AppGroupDivider(),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton.tonalIcon(
+              onPressed: () => Get.to(() => const UpdateManagementScreen()),
+              icon: const Icon(Icons.tune_rounded),
+              label: Text(l10n.manage),
+            ),
+          ),
+        ),
+        if (_adminConfig?.blockedVersion != null) ...[
+          const AppGroupDivider(),
+          Container(
+            width: double.infinity,
+            margin: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colors.tertiaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.warning_amber_rounded,
+                    color: colors.onTertiaryContainer),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.versionBlocked(_adminConfig!.blockedVersion!),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colors.onTertiaryContainer,
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 
   Widget _buildQuickActionsGrid() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context).quickActions,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.2,
-              children: [
-                _buildActionButton(
-                  AppLocalizations.of(context).emergencyStop,
-                  Icons.emergency,
-                  Colors.red,
-                  () async {
-                    final emergencyTitle =
-                        AppLocalizations.of(context).emergencyStop;
-                    final emergencyConfirm =
-                        AppLocalizations.of(context).emergencyStopConfirm;
-                    final cancelText = AppLocalizations.of(context).cancel;
-                    final stopText = AppLocalizations.of(context).stop;
-                    final successText = AppLocalizations.of(context).success;
+    final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final actions = [
+      _DashboardAction(
+        title: l10n.emergencyStop,
+        icon: Icons.emergency_outlined,
+        foreground: colors.error,
+        background: colors.errorContainer,
+        onPressed: _confirmEmergencyStop,
+      ),
+      _DashboardAction(
+        title: l10n.forceUpdateCheck,
+        icon: Icons.refresh_rounded,
+        foreground: colors.primary,
+        background: colors.primaryContainer,
+        onPressed: _forceUpdateCheck,
+      ),
+      _DashboardAction(
+        title: l10n.clearCache,
+        icon: Icons.delete_sweep_outlined,
+        foreground: colors.tertiary,
+        background: colors.tertiaryContainer,
+        onPressed: _clearCache,
+      ),
+    ];
 
-                    final confirmed = await Get.dialog(
-                      AlertDialog(
-                        title: Text(emergencyTitle),
-                        content: Text(emergencyConfirm),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            child: Text(cancelText),
-                          ),
-                          TextButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            style: TextButton.styleFrom(
-                                foregroundColor: Colors.red),
-                            child: Text(stopText),
-                          ),
-                        ],
+    return AppGroupedSurface(
+      padding: const EdgeInsets.all(12),
+      children: [
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final columns = constraints.maxWidth >= 560
+                ? 3
+                : constraints.maxWidth >= 360
+                    ? 2
+                    : 1;
+            final width = (constraints.maxWidth - (columns - 1) * 10) / columns;
+            return Wrap(
+              spacing: 10,
+              runSpacing: 10,
+              children: [
+                for (final action in actions)
+                  SizedBox(
+                    width: width,
+                    child: _buildActionButton(action),
+                  ),
+              ],
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(_DashboardAction action) {
+    return Material(
+      color: action.background,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: action.onPressed,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 96),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(action.icon, color: action.foreground, size: 26),
+                const SizedBox(height: 8),
+                Text(
+                  action.title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: action.foreground,
+                        fontWeight: FontWeight.w600,
                       ),
-                    );
-                    if (confirmed == true) {
-                      final stoppedText = emergencyTitle;
-                      await AdminControlService.emergencyStop();
-                      await _loadDashboardData();
-                      if (!mounted) return;
-                      Get.snackbar(successText, stoppedText);
-                    }
-                  },
-                ),
-                _buildActionButton(
-                  AppLocalizations.of(context).forceUpdateCheck,
-                  Icons.refresh,
-                  Colors.blue,
-                  () async {
-                    final successText = AppLocalizations.of(context).success;
-                    final checkText =
-                        AppLocalizations.of(context).checkForUpdates;
-                    await VersionCheckService.checkForUpdateManually();
-                    if (!mounted) return;
-                    Get.snackbar(successText, checkText);
-                  },
-                ),
-                _buildActionButton(
-                  AppLocalizations.of(context).clearCache,
-                  Icons.clear,
-                  Colors.orange,
-                  () async {
-                    final successText = AppLocalizations.of(context).success;
-                    final clearedText =
-                        AppLocalizations.of(context).allCacheCleared;
-                    await AdminControlService.clearCache();
-                    await _loadDashboardData();
-                    if (!mounted) return;
-                    Get.snackbar(successText, clearedText);
-                  },
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildActionButton(
-    String title,
-    IconData icon,
-    Color color,
-    VoidCallback onPressed,
-  ) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color.withValues(alpha: 0.1),
-        foregroundColor: color,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: color.withValues(alpha: 0.3)),
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 32),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+  Future<void> _confirmEmergencyStop() async {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final confirmed = await Get.dialog<bool>(
+      AlertDialog(
+        title: Text(l10n.emergencyStop),
+        content: Text(l10n.emergencyStopConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: colors.error),
+            child: Text(l10n.stop),
           ),
         ],
       ),
     );
+    if (confirmed != true) return;
+
+    await AdminControlService.emergencyStop();
+    await _loadDashboardData();
+    if (mounted) Get.snackbar(l10n.success, l10n.emergencyStop);
+  }
+
+  Future<void> _forceUpdateCheck() async {
+    final l10n = AppLocalizations.of(context);
+    await VersionCheckService.checkForUpdateManually();
+    if (mounted) Get.snackbar(l10n.success, l10n.checkForUpdates);
+  }
+
+  Future<void> _clearCache() async {
+    final l10n = AppLocalizations.of(context);
+    await AdminControlService.clearCache();
+    await _loadDashboardData();
+    if (mounted) Get.snackbar(l10n.success, l10n.allCacheCleared);
   }
 
   Widget _buildRecentActivity() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context).recentActivity,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            if (_adminConfig?.configTimestamp != null)
-              ListTile(
-                leading: const Icon(Icons.settings, color: Colors.blue),
-                title: Text(AppLocalizations.of(context).configurationUpdated),
-                subtitle: Text(
-                  '${AppLocalizations.of(context).lastUpdated}: ${_adminConfig!.configTimestamp!.toString().substring(0, 19)}',
-                ),
-              ),
-            ListTile(
-              leading: const Icon(Icons.download, color: Colors.green),
-              title: Text(AppLocalizations.of(context).updateCheckPerformed),
-              subtitle: Text(AppLocalizations.of(context).systemCheckCompleted),
-            ),
-            ListTile(
-              leading: const Icon(Icons.info, color: Colors.grey),
-              title: Text(AppLocalizations.of(context).dashboardLoaded),
-              subtitle:
-                  Text(AppLocalizations.of(context).adminDashboardInitialized),
-            ),
-          ],
+    final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    return AppGroupedSurface(
+      children: [
+        if (_adminConfig?.configTimestamp != null) ...[
+          AppListRow(
+            icon: Icons.settings_outlined,
+            iconColor: colors.primary,
+            title: l10n.configurationUpdated,
+            subtitle:
+                '${l10n.lastUpdated}: ${_adminConfig!.configTimestamp!.toString().substring(0, 19)}',
+            trailing: const SizedBox.shrink(),
+          ),
+          const AppGroupDivider(),
+        ],
+        AppListRow(
+          icon: Icons.download_outlined,
+          iconColor: colors.secondary,
+          title: l10n.updateCheckPerformed,
+          subtitle: l10n.systemCheckCompleted,
+          trailing: const SizedBox.shrink(),
         ),
-      ),
+        const AppGroupDivider(),
+        AppListRow(
+          icon: Icons.info_outline_rounded,
+          iconColor: colors.onSurfaceVariant,
+          title: l10n.dashboardLoaded,
+          subtitle: l10n.adminDashboardInitialized,
+          trailing: const SizedBox.shrink(),
+        ),
+      ],
     );
   }
+}
+
+class _DashboardStat {
+  final String title;
+  final String value;
+  final IconData icon;
+  final Color foreground;
+  final Color background;
+
+  const _DashboardStat({
+    required this.title,
+    required this.value,
+    required this.icon,
+    required this.foreground,
+    required this.background,
+  });
+}
+
+class _DashboardAction {
+  final String title;
+  final IconData icon;
+  final Color foreground;
+  final Color background;
+  final Future<void> Function() onPressed;
+
+  const _DashboardAction({
+    required this.title,
+    required this.icon,
+    required this.foreground,
+    required this.background,
+    required this.onPressed,
+  });
 }

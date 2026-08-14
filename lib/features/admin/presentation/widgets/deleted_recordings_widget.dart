@@ -7,6 +7,7 @@ import 'package:fihirana/features/recording/domain/entities/user_recording.dart'
 import 'package:fihirana/shared/widgets/common/loading_widget.dart';
 import 'package:fihirana/features/recording/presentation/widgets/recording_tile_widget.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class DeletedRecordingsWidget extends StatefulWidget {
   const DeletedRecordingsWidget({super.key});
@@ -43,8 +44,8 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
           AppLocalizations.of(context).error,
           AppLocalizations.of(context)
               .failedToLoadDeletedRecordings(e.toString()),
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+          colorText: Theme.of(context).colorScheme.onErrorContainer,
         );
       }
     }
@@ -138,42 +139,20 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.delete_outline,
-            size: 64,
-            color: Colors.grey[400],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            searchQuery.isNotEmpty
-                ? AppLocalizations.of(context).noDeletedRecordingsFound
-                : AppLocalizations.of(context).noDeletedRecordings,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.grey[600],
-                ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            searchQuery.isNotEmpty
-                ? AppLocalizations.of(context).tryAdjustingSearchTerms
-                : AppLocalizations.of(context).deletedRecordingsWillAppearHere,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey[500],
-                ),
-          ),
-          if (searchQuery.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            ElevatedButton(
+    return AppEmptyState(
+      icon: Icons.delete_outline_rounded,
+      title: searchQuery.isNotEmpty
+          ? AppLocalizations.of(context).noDeletedRecordingsFound
+          : AppLocalizations.of(context).noDeletedRecordings,
+      message: searchQuery.isNotEmpty
+          ? AppLocalizations.of(context).tryAdjustingSearchTerms
+          : AppLocalizations.of(context).deletedRecordingsWillAppearHere,
+      action: searchQuery.isNotEmpty
+          ? FilledButton.tonal(
               onPressed: () => setState(() => searchQuery = ''),
               child: Text(AppLocalizations.of(context).clearSearch),
-            ),
-          ],
-        ],
-      ),
+            )
+          : null,
     );
   }
 

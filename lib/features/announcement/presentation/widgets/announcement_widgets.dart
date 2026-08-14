@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'package:fihirana/features/announcement/domain/entities/announcement.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class AnnouncementCardWidget extends StatelessWidget {
   final Announcement announcement;
@@ -17,221 +19,207 @@ class AnnouncementCardWidget extends StatelessWidget {
     this.onDelete,
   });
 
-  String _getRelativeTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
+  String _relativeTime(DateTime dateTime) {
+    final difference = DateTime.now().difference(dateTime);
     if (difference.inDays > 365) {
-      final years = (difference.inDays / 365).floor();
-      return years == 1 ? '1 year ago' : '$years years ago';
-    } else if (difference.inDays > 30) {
-      final months = (difference.inDays / 30).floor();
-      return months == 1 ? '1 month ago' : '$months months ago';
-    } else if (difference.inDays > 0) {
-      return difference.inDays == 1
-          ? 'Yesterday'
-          : '${difference.inDays} days ago';
-    } else if (difference.inHours > 0) {
-      return difference.inHours == 1
-          ? '1 hour ago'
-          : '${difference.inHours} hours ago';
-    } else if (difference.inMinutes > 0) {
-      return difference.inMinutes == 1
-          ? '1 minute ago'
-          : '${difference.inMinutes} minutes ago';
-    } else {
-      return 'Just now';
+      final years = difference.inDays ~/ 365;
+      return 'il y a $years an${years > 1 ? 's' : ''}';
     }
+    if (difference.inDays > 30) {
+      final months = difference.inDays ~/ 30;
+      return 'il y a $months mois';
+    }
+    if (difference.inDays > 0) {
+      return 'il y a ${difference.inDays} jour${difference.inDays > 1 ? 's' : ''}';
+    }
+    if (difference.inHours > 0) {
+      return 'il y a ${difference.inHours} h';
+    }
+    if (difference.inMinutes > 0) {
+      return 'il y a ${difference.inMinutes} min';
+    }
+    return 'À l’instant';
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
+    final expired = announcement.isExpired();
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colors.primary.withValues(alpha: 0.15),
-            colors.primary.withValues(alpha: 0.05),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colors.primary.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            // Could expand to show full details
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
+    return AppGroupedSurface(
+      children: [
+        Material(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.campaign_outlined,
+                        color: colors.primary,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          announcement.title,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      if (isAdmin)
+                        PopupMenuButton<String>(
+                          icon: Icon(
+                            Icons.more_vert_rounded,
+                            color: colors.onSurfaceVariant,
+                          ),
+                          onSelected: (value) {
+                            if (value == 'edit') onEdit?.call();
+                            if (value == 'delete') onDelete?.call();
+                          },
+                          itemBuilder: (_) => [
+                            PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.edit_outlined,
+                                    size: 20,
+                                    color: colors.onSurfaceVariant,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(l10n.edit),
+                                ],
+                              ),
+                            ),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.delete_outline_rounded,
+                                    size: 20,
+                                    color: colors.error,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    l10n.delete,
+                                    style: TextStyle(color: colors.error),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    announcement.message,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          height: 1.45,
+                        ),
+                  ),
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 6,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      _Metadata(
+                        icon: Icons.access_time_rounded,
+                        label: _relativeTime(announcement.createdAt),
+                      ),
+                      _Metadata(
+                        icon: Icons.calendar_today_outlined,
+                        label: DateFormat('dd/MM/yyyy HH:mm')
+                            .format(announcement.createdAt),
+                      ),
+                    ],
+                  ),
+                  if (announcement.expiresAt != null) ...[
+                    const SizedBox(height: 12),
+                    DecoratedBox(
                       decoration: BoxDecoration(
-                        color: colors.primaryContainer,
+                        color: expired
+                            ? colors.errorContainer
+                            : colors.primaryContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Icon(
-                        Icons.campaign_rounded,
-                        color: colors.primary,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        announcement.title,
-                        style: TextStyle(
-                          color: colors.onSurface,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
                         ),
-                      ),
-                    ),
-                    if (isAdmin)
-                      PopupMenuButton<String>(
-                        icon: Icon(
-                          Icons.more_vert,
-                          color: colors.onSurfaceVariant,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.event_busy_outlined,
+                              size: 16,
+                              color: expired
+                                  ? colors.onErrorContainer
+                                  : colors.onPrimaryContainer,
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                'Expire le ${DateFormat('dd/MM/yyyy').format(announcement.expiresAt!)}',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .labelMedium
+                                    ?.copyWith(
+                                      color: expired
+                                          ? colors.onErrorContainer
+                                          : colors.onPrimaryContainer,
+                                    ),
+                              ),
+                            ),
+                          ],
                         ),
-                        color: colors.surfaceContainerHigh,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
-                        onSelected: (value) {
-                          if (value == 'edit' && onEdit != null) {
-                            onEdit!();
-                          } else if (value == 'delete' && onDelete != null) {
-                            onDelete!();
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit,
-                                    size: 20, color: colors.onSurfaceVariant),
-                                const SizedBox(width: 12),
-                                Text(l10n.edit,
-                                    style: TextStyle(color: colors.onSurface)),
-                              ],
-                            ),
-                          ),
-                          PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                const Icon(Icons.delete,
-                                    size: 20, color: Colors.red),
-                                const SizedBox(width: 12),
-                                Text(l10n.delete,
-                                    style: TextStyle(color: colors.onSurface)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  announcement.message,
-                  style: TextStyle(
-                    color: colors.onSurface,
-                    fontSize: 15,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.access_time_rounded,
-                      size: 14,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      _getRelativeTime(announcement.createdAt),
-                      style: TextStyle(
-                        color: colors.onSurfaceVariant,
-                        fontSize: 12,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '•',
-                      style: TextStyle(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      DateFormat('dd/MM/yyyy HH:mm')
-                          .format(announcement.createdAt),
-                      style: TextStyle(
-                        color: colors.onSurfaceVariant,
-                        fontSize: 12,
                       ),
                     ),
                   ],
-                ),
-                if (announcement.expiresAt != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: announcement.isExpired()
-                          ? Colors.red.withValues(alpha: 0.1)
-                          : colors.primaryContainer,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.event_busy_rounded,
-                          size: 14,
-                          color: announcement.isExpired()
-                              ? Colors.red
-                              : colors.primary,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Mifarana ny: ${DateFormat('dd/MM/yyyy').format(announcement.expiresAt!)}',
-                          style: TextStyle(
-                            color: announcement.isExpired()
-                                ? Colors.red
-                                : colors.onSurfaceVariant,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
-              ],
+              ),
             ),
           ),
         ),
-      ),
+      ],
+    );
+  }
+}
+
+class _Metadata extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _Metadata({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: color),
+        const SizedBox(width: 5),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),
+        ),
+      ],
     );
   }
 }
@@ -241,36 +229,10 @@ class AnnouncementEmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.notifications_none_rounded,
-            size: 80,
-            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Tsy misy filazana',
-            style: TextStyle(
-              color: colors.onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Hiverina rehefa misy vaovao',
-            style: TextStyle(
-              color: colors.onSurfaceVariant,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
+    return const AppEmptyState(
+      icon: Icons.notifications_none_rounded,
+      title: 'Aucune annonce',
+      message: 'Revenez plus tard pour les nouveautés.',
     );
   }
 }
@@ -285,34 +247,10 @@ class AnnouncementErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline,
-              size: 64, color: Colors.red.withValues(alpha: 0.5)),
-          const SizedBox(height: 16),
-          Text(
-            'Nisy hadisoana',
-            style: TextStyle(
-              color: colors.onSurface,
-              fontSize: 18,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            error,
-            style: TextStyle(
-              color: colors.onSurfaceVariant,
-              fontSize: 14,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
+    return AppEmptyState(
+      icon: Icons.error_outline_rounded,
+      title: 'Impossible de charger les annonces',
+      message: error,
     );
   }
 }

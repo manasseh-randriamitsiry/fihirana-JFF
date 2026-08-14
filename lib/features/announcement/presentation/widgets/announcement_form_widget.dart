@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
 class AnnouncementFormWidget extends StatefulWidget {
@@ -47,32 +45,11 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
   }
 
   Future<void> _selectExpirationDate(StateSetter setState) async {
-    final colorController = Get.find<ColorController>();
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedExpirationDate ?? DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: colorController.primaryColor.value,
-              brightness: Theme.of(context).brightness,
-            ).copyWith(
-              surface: colorController.backgroundColor.value,
-              onSurface: colorController.textColor.value,
-              primary: colorController.primaryColor.value,
-              onPrimary: colorController.primaryColor.value,
-            ),
-            dialogTheme: DialogThemeData(
-              backgroundColor: colorController.backgroundColor.value,
-              surfaceTintColor: Colors.transparent,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
 
     if (picked != null && mounted) {
@@ -84,19 +61,14 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
     final l10n = AppLocalizations.of(context);
 
     return StatefulBuilder(
       builder: (context, setState) => AlertDialog(
-        backgroundColor: colorController.backgroundColor.value,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           widget.title,
-          style: TextStyle(
-            color: colorController.textColor.value,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -106,44 +78,18 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: l10n.title,
-                  labelStyle: TextStyle(color: colorController.textColor.value),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.3)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                        color: colorController.primaryColor.value, width: 2),
-                  ),
                 ),
-                style: TextStyle(color: colorController.textColor.value),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: _messageController,
                 decoration: InputDecoration(
                   labelText: l10n.message,
-                  labelStyle: TextStyle(color: colorController.textColor.value),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.3)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(
-                        color: colorController.primaryColor.value, width: 2),
-                  ),
                 ),
-                style: TextStyle(color: colorController.textColor.value),
                 maxLines: 4,
               ),
               const SizedBox(height: 16),
@@ -154,14 +100,14 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     border: Border.all(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.3)),
+                        color: Theme.of(context).colorScheme.outlineVariant),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.calendar_today,
-                          color: colorController.iconColor.value, size: 20),
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
@@ -170,8 +116,9 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                             Text(
                               l10n.expirationDate,
                               style: TextStyle(
-                                color: colorController.textColor.value
-                                    .withValues(alpha: 0.7),
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                                 fontSize: 12,
                               ),
                             ),
@@ -183,8 +130,7 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                                   : widget.initialTitle != null
                                       ? l10n.noExpirationDate
                                       : l10n.noDate,
-                              style: TextStyle(
-                                color: colorController.textColor.value,
+                              style: const TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -202,10 +148,9 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel2,
-                style: TextStyle(color: colorController.textColor.value)),
+            child: Text(l10n.cancel2),
           ),
-          ElevatedButton(
+          FilledButton(
             onPressed: () {
               if (_titleController.text.trim().isEmpty ||
                   _messageController.text.trim().isEmpty) {
@@ -217,12 +162,6 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
               widget.onSubmit();
               Navigator.pop(context);
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: colorController.primaryColor.value,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
-            ),
             child: Text(widget.submitButtonText),
           ),
         ],

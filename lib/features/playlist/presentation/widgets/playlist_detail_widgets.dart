@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
+
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class PlaylistHymnItem extends StatelessWidget {
   final Hymn hymn;
@@ -21,43 +21,64 @@ class PlaylistHymnItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
-    return Card(
-      color: colorController.backgroundColor.value,
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
-        ),
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        onTap: onTap,
-        leading: CircleAvatar(
-          backgroundColor: colorController.primaryColor.value,
-          child: Text(
-            hymn.number.toString(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: AppGroupedSurface(
+        children: [
+          Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: onTap,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: colors.primaryContainer,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        hymn.number.toString(),
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: colors.onPrimaryContainer,
+                              fontWeight: FontWeight.bold,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Text(
+                        hymn.title,
+                        style:
+                            Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  color: colors.onSurface,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: AppLocalizations.of(context).delete,
+                      icon: Icon(
+                        Icons.remove_circle_outline_rounded,
+                        color: colors.error,
+                      ),
+                      onPressed: onRemove,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-        title: Text(
-          hymn.title,
-          style: TextStyle(
-            color: colorController.textColor.value,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.remove_circle_outline),
-          color: Colors.red.withValues(alpha: 0.7),
-          onPressed: onRemove,
-        ),
+        ],
       ),
     );
   }
@@ -77,75 +98,68 @@ class PlaylistHeaderInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final dateFormat = DateFormat.yMMMMEEEEd(locale);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      color: colorController.primaryColor.value.withValues(alpha: 0.05),
-      child: Row(
-        children: [
-          Icon(Icons.calendar_today,
-              size: 16, color: colorController.primaryColor.value),
-          const SizedBox(width: 8),
-          InkWell(
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: date,
-                firstDate: DateTime(2000),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
-                builder: (context, child) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
-                        primary: colorController.primaryColor.value,
-                        onPrimary: Colors.white,
-                        surface: colorController.backgroundColor.value,
-                        onSurface: colorController.textColor.value,
-                      ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
-              if (picked != null) {
-                onDateChanged(picked);
-              }
-            },
-            borderRadius: BorderRadius.circular(4),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-              child: Row(
-                children: [
-                  Text(
-                    DateFormat('EEEE, MMMM d, yyyy').format(date),
-                    style: TextStyle(
-                      color: colorController.textColor.value,
-                      fontWeight: FontWeight.w500,
-                      decoration: TextDecoration.underline,
-                      decorationStyle: TextDecorationStyle.dotted,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.edit,
-                    size: 14,
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.5),
-                  ),
-                ],
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: () async {
+          final picked = await showDatePicker(
+            context: context,
+            initialDate: date,
+            firstDate: DateTime(2000),
+            lastDate: DateTime.now().add(const Duration(days: 365)),
+          );
+          if (picked != null) onDateChanged(picked);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: colors.secondaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.calendar_today_outlined,
+                  color: colors.onSecondaryContainer,
+                  size: 20,
+                ),
               ),
-            ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      dateFormat.format(date),
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: colors.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      l10n.hymnsCount(hymnCount),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.edit_outlined, color: colors.onSurfaceVariant),
+            ],
           ),
-          const Spacer(),
-          Text(
-            l10n.hymnsCount(hymnCount),
-            style: TextStyle(
-              color: colorController.textColor.value.withValues(alpha: 0.6),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

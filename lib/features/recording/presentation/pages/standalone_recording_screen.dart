@@ -12,6 +12,7 @@ import 'package:fihirana/shared/widgets/common/empty_state_widget.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class StandaloneRecordingScreen extends StatefulWidget {
   const StandaloneRecordingScreen({super.key});
@@ -53,7 +54,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     final now = DateTime.now();
     final timestamp =
         '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year} ${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-    _recordingTitle = 'Recording - $timestamp';
+    _recordingTitle = 'Enregistrement - $timestamp';
     _nameController.text = _recordingTitle;
   }
 
@@ -68,7 +69,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   void _startRecording() async {
     // Ensure we're not already recording and overlay is hidden
     if (_controller.isRecording.value) {
-      Get.snackbar('Info', 'Recording already in progress');
+      Get.snackbar('Information', 'Un enregistrement est déjà en cours.');
       return;
     }
 
@@ -79,7 +80,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
       await _controller.startRecording('standalone');
     } catch (e) {
       if (mounted) {
-        Get.snackbar('Error', 'Failed to start recording: $e');
+        Get.snackbar('Erreur', 'Impossible de démarrer l’enregistrement : $e');
       }
     }
   }
@@ -109,15 +110,14 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
       if (recording != null && mounted) {
         _showSaveDialog();
       } else if (mounted && recording == null) {
-        Get.snackbar(
-            'Error', 'Failed to save recording - no recording returned');
+        Get.snackbar('Erreur', 'Impossible d’enregistrer le fichier.');
       }
     } catch (e) {
       if (kDebugMode) {
         print('StandaloneRecording: Error stopping recording: $e');
       }
       if (mounted) {
-        Get.snackbar('Error', 'Failed to stop recording: $e');
+        Get.snackbar('Erreur', 'Impossible d’arrêter l’enregistrement : $e');
       }
     }
   }
@@ -125,7 +125,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   void _saveRecording() async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      Get.snackbar('Error', 'Please enter a name for the recording');
+      Get.snackbar(
+          'Erreur', 'Veuillez renseigner un nom pour l’enregistrement.');
       return;
     }
 
@@ -171,147 +172,49 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   }
 
   void _showSaveDialog() {
-    final colors = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.1,
-            vertical: MediaQuery.of(context).size.height * 0.1,
-          ),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [colors.primary, colors.primary.withValues(alpha: 0.8)],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: colors.shadow.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Enregistrement terminé'),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.check_circle_outline_rounded,
+                size: 42,
+                color: Theme.of(dialogContext).colorScheme.primary,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _nameController,
+                autocorrect: false,
+                enableSuggestions: false,
+                autofillHints: const [],
+                textInputAction: TextInputAction.done,
+                keyboardType: TextInputType.text,
+                smartDashesType: SmartDashesType.disabled,
+                smartQuotesType: SmartQuotesType.disabled,
+                decoration: const InputDecoration(
+                  labelText: 'Nom de l’enregistrement',
+                  prefixIcon: Icon(Icons.edit_outlined),
+                ),
               ),
             ],
           ),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.7,
-              maxWidth: MediaQuery.of(context).size.width * 0.8,
-            ),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Success icon
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.green.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: const Icon(
-                      Icons.check_circle,
-                      size: 32,
-                      color: Colors.green,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Text(
-                    'Enregistrement terminé !',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: colors.onPrimary,
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Name input
-                  TextField(
-                    controller: _nameController,
-                    style: TextStyle(
-                      color: colors.onPrimary,
-                      fontSize: 16,
-                    ),
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    autofillHints: const [],
-                    textInputAction: TextInputAction.done,
-                    keyboardType: TextInputType.text,
-                    smartDashesType: SmartDashesType.disabled,
-                    smartQuotesType: SmartQuotesType.disabled,
-                    decoration: InputDecoration(
-                      labelText: "Nom de l'enregistrement",
-                      labelStyle: TextStyle(
-                          color: colors.onPrimary.withValues(alpha: 0.8)),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                            color: colors.onPrimary.withValues(alpha: 0.3)),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                            color: colors.onPrimary.withValues(alpha: 0.3)),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide:
-                            BorderSide(color: colors.onPrimary, width: 2),
-                      ),
-                      prefixIcon: Icon(Icons.edit,
-                          color: colors.onPrimary.withValues(alpha: 0.8)),
-                    ),
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: _discardRecording,
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            side: BorderSide(
-                                color: colors.onPrimary.withValues(alpha: 0.5)),
-                          ),
-                          child: Text(
-                            'Ignorer',
-                            style: TextStyle(
-                                color: colors.onPrimary.withValues(alpha: 0.8)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: _saveRecording,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            backgroundColor: colors.surface,
-                            foregroundColor: colors.primary,
-                          ),
-                          child: Text(AppLocalizations.of(context).save),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
         ),
+        actions: [
+          TextButton(
+            onPressed: _discardRecording,
+            child: const Text('Ignorer'),
+          ),
+          FilledButton(
+            onPressed: _saveRecording,
+            child: Text(AppLocalizations.of(dialogContext).save),
+          ),
+        ],
       ),
     );
   }
@@ -335,13 +238,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
             icon: Icon(Icons.close, color: iconColor),
             onPressed: () => Get.back(),
           ),
-          title: Text(
-            'Enregistrement',
-            style: defaultTextStyle.copyWith(
-              fontWeight: FontWeight.bold,
-              fontSize: 26,
-            ),
-          ),
+          title: const Text('Enregistrement'),
           actions: [
             IconButton(
               icon: Icon(
@@ -380,51 +277,33 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
             // Recording title input
             if (!_showHymnList)
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: TextField(
-                  controller: _nameController,
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  autofillHints: const [],
-                  textInputAction: TextInputAction.done,
-                  keyboardType: TextInputType.text,
-                  smartDashesType: SmartDashesType.disabled,
-                  smartQuotesType: SmartQuotesType.disabled,
-                  decoration: InputDecoration(
-                    labelText: "Nom de l'enregistrement",
-                    labelStyle: TextStyle(
-                      color: textColor.withValues(alpha: 0.7),
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: colors.outlineVariant,
+              AppSection(
+                title: 'Détails',
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: AppGroupedSurface(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  children: [
+                    TextField(
+                      controller: _nameController,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      autofillHints: const [],
+                      textInputAction: TextInputAction.done,
+                      keyboardType: TextInputType.text,
+                      smartDashesType: SmartDashesType.disabled,
+                      smartQuotesType: SmartQuotesType.disabled,
+                      decoration: const InputDecoration(
+                        labelText: 'Nom de l’enregistrement',
+                        prefixIcon: Icon(Icons.edit_outlined),
+                        border: InputBorder.none,
                       ),
                     ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: colors.outlineVariant,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: colors.primary,
-                        width: 2,
-                      ),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.edit,
-                      color: colors.primary.withValues(alpha: 0.7),
-                    ),
-                  ),
+                  ],
                 ),
               ),
 
@@ -443,21 +322,26 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
   Widget _buildRecordingControls() {
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: Obx(() {
-            // Don't update if widget is not mounted
-            if (!mounted) return const SizedBox.shrink();
-            return RecordingControlsWidget(
-              isRecording: _controller.isRecording.value,
-              isPaused: _controller.isPaused.value,
-              onStart: _startRecording,
-              onStop: _stopRecording,
-              onPause: () => _controller.pauseRecording(),
-              onResume: () => _controller.resumeRecording(),
-            );
-          }),
+      child: AppSection(
+        title: 'Commandes',
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+        child: AppGroupedSurface(
+          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+          children: [
+            Center(
+              child: Obx(() {
+                if (!mounted) return const SizedBox.shrink();
+                return RecordingControlsWidget(
+                  isRecording: _controller.isRecording.value,
+                  isPaused: _controller.isPaused.value,
+                  onStart: _startRecording,
+                  onStop: _stopRecording,
+                  onPause: () => _controller.pauseRecording(),
+                  onResume: () => _controller.resumeRecording(),
+                );
+              }),
+            ),
+          ],
         ),
       ),
     );

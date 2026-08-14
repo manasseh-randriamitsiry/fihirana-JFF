@@ -80,8 +80,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+          AppSection(
+            title: context.translate((l) => l.favoriteHymns),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
             child: AppSearchField(
               controller: _searchController,
               hintText: context.translate((l) => l.searchHymnsHint),
@@ -134,9 +135,9 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 }
                 return ListView.separated(
                   key: const PageStorageKey('favorites_list'),
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   itemCount: matching.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  separatorBuilder: (_, __) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final hymn = matching[index];
                     return Obx(

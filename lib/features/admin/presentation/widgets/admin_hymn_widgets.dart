@@ -1,77 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class AdminHymnListItemWidget extends StatelessWidget {
   final Hymn hymn;
   final bool isSelected;
   final ValueChanged<bool?> onSelectionChanged;
-  final Color primaryColor;
 
   const AdminHymnListItemWidget({
     super.key,
     required this.hymn,
     required this.isSelected,
     required this.onSelectionChanged,
-    required this.primaryColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final textColor = colorController.textColor.value;
-    final backgroundColor = colorController.backgroundColor.value;
     final l10n = AppLocalizations.of(context);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppDimensions.sm),
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        color: backgroundColor,
-        child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          leading: Checkbox(
-            value: isSelected,
-            activeColor: primaryColor,
-            side: BorderSide(color: textColor.withValues(alpha: 0.5)),
-            onChanged: onSelectionChanged,
-          ),
-          title: Text(
-            '${hymn.hymnNumber} - ${hymn.title}',
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.bold,
+      child: AppGroupedSurface(
+        children: [
+          ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            leading: Checkbox(
+              value: isSelected,
+              onChanged: onSelectionChanged,
+            ),
+            title: Text(
+              '${hymn.hymnNumber} - ${hymn.title}',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text(
+                  '${l10n.createdBy}: ${hymn.createdBy}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (hymn.createdByEmail != null)
+                  Text(
+                    l10n.emailLabel(hymn.createdByEmail!),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                Text(
+                  '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
             ),
           ),
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Text(
-                '${l10n.createdBy}: ${hymn.createdBy}',
-                style: TextStyle(color: textColor.withValues(alpha: 0.7)),
-              ),
-              if (hymn.createdByEmail != null)
-                Text(
-                  l10n.emailLabel(hymn.createdByEmail!),
-                  style: TextStyle(
-                      color: textColor.withValues(alpha: 0.6), fontSize: 12),
-                ),
-              Text(
-                '${l10n.date}: ${DateFormat('dd/MM/yyyy HH:mm').format(hymn.createdAt)}',
-                style: TextStyle(
-                    color: textColor.withValues(alpha: 0.5), fontSize: 12),
-              ),
-            ],
-          ),
-        ),
+        ],
       ).animate().fadeIn(duration: const Duration(milliseconds: 300)).slideY(
           begin: 0.1,
           end: 0,
@@ -86,8 +72,6 @@ class AdminEmptyHymnsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final textColor = colorController.textColor.value;
     final l10n = AppLocalizations.of(context);
 
     return Center(
@@ -95,7 +79,8 @@ class AdminEmptyHymnsWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.library_books_outlined,
-                  size: 64, color: textColor.withValues(alpha: 0.3))
+                  size: 64,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant)
               .animate(onPlay: (controller) => controller.repeat(reverse: true))
               .scale(
                   duration: const Duration(seconds: 2),
@@ -105,8 +90,7 @@ class AdminEmptyHymnsWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             l10n.noHymns,
-            style: TextStyle(
-                color: textColor.withValues(alpha: 0.7), fontSize: 16),
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ],
       ),

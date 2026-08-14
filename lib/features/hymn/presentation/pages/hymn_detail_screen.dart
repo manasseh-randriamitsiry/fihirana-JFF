@@ -10,7 +10,6 @@ import 'edit_hymn_screen.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/bible/domain/entities/note.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -51,7 +50,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
   final HymnService _hymnService = HymnService();
   final NoteService _noteService = NoteService();
-  final ColorController colorController = Get.find<ColorController>();
   final AudioService _audioService = AudioService.instance;
   late final HistoryController historyController;
   Hymn? _hymn;
@@ -343,11 +341,10 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
     );
   }
 
-  void _showSearchDialog(ColorController colorController) {
+  void _showSearchDialog() {
     showDialog(
       context: context,
       builder: (context) => HymnSearchPopup(
-        colorController: colorController,
         onHymnSelected: (hymn) {
           Navigator.pop(context); // Close dialog
           _navigateToHymn(hymn);
@@ -403,7 +400,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         title: GestureDetector(
           onTap: () {
             HapticFeedback.lightImpact();
-            _showSearchDialog(colorController);
+            _showSearchDialog();
           },
           child: Text(
             _hymn?.hymnNumber ?? '',
@@ -505,7 +502,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                     scale: _heartScaleAnimation.value,
                     child: Icon(
                       Icons.favorite,
-                      color: Colors.red.withValues(alpha: 0.8),
+                      color: colorScheme.error.withValues(alpha: 0.8),
                       size: 100,
                     ),
                   ),
@@ -522,12 +519,13 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
               right: 20,
               child: Card(
                 elevation: 0,
-                color: colorScheme.primary.withValues(alpha: 0.08),
-                shadowColor: colorScheme.shadow.withValues(alpha: 0.2),
+                color: colorScheme.surface,
+                shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(14),
                     side: BorderSide(
-                        color: colorScheme.primary.withValues(alpha: 0.1),
+                        color:
+                            colorScheme.outlineVariant.withValues(alpha: .65),
                         width: 1)),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
