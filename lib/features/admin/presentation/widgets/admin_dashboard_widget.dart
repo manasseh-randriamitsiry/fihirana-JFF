@@ -26,7 +26,7 @@ class AdminDashboardWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Admin Dashboard',
+              "Tableau de bord d'administration",
               style: TextStyle(
                 color: textColor,
                 fontSize: 24,
@@ -45,7 +45,7 @@ class AdminDashboardWidget extends StatelessWidget {
                 children: [
                   _buildStatCard(
                     context,
-                    title: 'Total Users',
+                    title: "Nombre d'utilisateurs",
                     value: adminController.adminStats.value?.totalUsers
                             .toString() ??
                         '0',
@@ -56,7 +56,7 @@ class AdminDashboardWidget extends StatelessWidget {
                   ),
                   _buildStatCard(
                     context,
-                    title: 'Active Users',
+                    title: 'Utilisateurs actifs',
                     value: adminController.adminStats.value?.activeUsers
                             .toString() ??
                         '0',
@@ -67,7 +67,7 @@ class AdminDashboardWidget extends StatelessWidget {
                   ),
                   _buildStatCard(
                     context,
-                    title: 'Total Hymns',
+                    title: 'Nombre de cantiques',
                     value: adminController.adminStats.value?.totalHymns
                             .toString() ??
                         '0',
@@ -191,7 +191,7 @@ class AdminDashboardWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Quick Actions',
+          'Actions rapides',
           style: TextStyle(
             color: textColor,
             fontSize: 18,
@@ -204,7 +204,7 @@ class AdminDashboardWidget extends StatelessWidget {
             Expanded(
               child: _buildActionButton(
                 context,
-                title: 'Refresh Data',
+                title: 'Actualiser les données',
                 icon: Icons.refresh,
                 color: Colors.blue,
                 onPressed: adminController.refresh,
@@ -216,7 +216,7 @@ class AdminDashboardWidget extends StatelessWidget {
             Expanded(
               child: _buildActionButton(
                 context,
-                title: 'Export Users',
+                title: 'Exporter les utilisateurs',
                 icon: Icons.download,
                 color: Colors.green,
                 onPressed: () => _exportUsers(context, adminController, l10n),
@@ -264,7 +264,7 @@ class AdminDashboardWidget extends StatelessWidget {
   ) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Feature coming soon'),
+        content: Text('Fonctionnalité bientôt disponible'),
         backgroundColor: Colors.orange,
       ),
     );

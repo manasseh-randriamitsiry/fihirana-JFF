@@ -81,7 +81,7 @@ class LanguageSelectorWidget extends StatelessWidget {
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
-                      'Please wait while translation models load...',
+                      AppLocalizations.of(context).translationModelsLoading,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),
@@ -117,7 +117,7 @@ class LanguageSelectorDialog extends StatelessWidget {
         child: LanguageSelectorWidget(
           selectedLanguage: currentLanguage,
           onLanguageSelected: onLanguageSelected,
-          title: 'Select Translation Language',
+          title: AppLocalizations.of(context).selectTranslationLanguage,
         ),
       ),
     );

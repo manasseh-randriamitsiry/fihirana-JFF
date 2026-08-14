@@ -1,12 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
+
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
+import 'package:fihirana/features/hymn/presentation/widgets/hymn_form_widgets.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class EditHymnScreen extends StatefulWidget {
   final Hymn hymn;
@@ -14,26 +13,25 @@ class EditHymnScreen extends StatefulWidget {
   const EditHymnScreen({super.key, required this.hymn});
 
   @override
-  EditHymnScreenState createState() => EditHymnScreenState();
+  State<EditHymnScreen> createState() => _EditHymnScreenState();
 }
 
-class EditHymnScreenState extends State<EditHymnScreen> {
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _hymnNumberController = TextEditingController();
-  final TextEditingController _bridgeController = TextEditingController();
-  final TextEditingController _hymnHintController = TextEditingController();
-  List<TextEditingController> _verseControllers = [];
-  final ColorController colorController = Get.find<ColorController>();
+class _EditHymnScreenState extends State<EditHymnScreen> {
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _hymnNumberController = TextEditingController();
+  final _bridgeController = TextEditingController();
+  final _hymnHintController = TextEditingController();
+  late final List<TextEditingController> _verseControllers;
   final HymnService _hymnService = HymnService();
 
   @override
   void initState() {
     super.initState();
-    _hymnNumberController.text = widget.hymn.hymnNumber.toString();
+    _hymnNumberController.text = widget.hymn.hymnNumber;
     _titleController.text = widget.hymn.title;
-    _hymnHintController.text = widget.hymn.hymnHint ?? "";
-    _bridgeController.text = widget.hymn.bridge ?? "";
-
+    _hymnHintController.text = widget.hymn.hymnHint ?? '';
+    _bridgeController.text = widget.hymn.bridge ?? '';
     _verseControllers = widget.hymn.verses
         .map((verse) => TextEditingController(text: verse))
         .toList();
@@ -45,37 +43,36 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     _titleController.dispose();
     _bridgeController.dispose();
     _hymnHintController.dispose();
-    for (var controller in _verseControllers) {
+    for (final controller in _verseControllers) {
       controller.dispose();
     }
     super.dispose();
   }
 
-  bool isUserAuthenticated() {
-    return FirebaseAuth.instance.currentUser != null;
-  }
+  bool get _isUserAuthenticated => FirebaseAuth.instance.currentUser != null;
 
   Future<void> _saveChanges() async {
     final l10n = AppLocalizations.of(context);
-    if (!isUserAuthenticated()) {
+    final colors = Theme.of(context).colorScheme;
+    if (!_isUserAuthenticated) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(l10n.loginRequired),
-          backgroundColor: colorController.backgroundColor.value,
-        ),
+            content: Text(l10n.loginRequired), backgroundColor: colors.error),
       );
       return;
     }
+    if (!_formKey.currentState!.validate()) return;
 
-    final hymnNumber = _hymnNumberController.text.trim();
-
-    Hymn updatedHymn = Hymn(
+    final updatedHymn = Hymn(
       id: widget.hymn.id,
-      hymnNumber: hymnNumber,
-      title: _titleController.text,
-      verses: _verseControllers.map((controller) => controller.text).toList(),
-      bridge: _bridgeController.text,
-      hymnHint: _hymnHintController.text,
+      hymnNumber: _hymnNumberController.text.trim(),
+      title: _titleController.text.trim(),
+      verses: _verseControllers
+          .map((controller) => controller.text.trim())
+          .where((verse) => verse.isNotEmpty)
+          .toList(),
+      bridge: _bridgeController.text.trim(),
+      hymnHint: _hymnHintController.text.trim(),
       createdAt: widget.hymn.createdAt,
       createdBy: widget.hymn.createdBy,
       createdByEmail: widget.hymn.createdByEmail,
@@ -84,22 +81,19 @@ class EditHymnScreenState extends State<EditHymnScreen> {
     try {
       await _hymnService.updateHymn(updatedHymn.id, updatedHymn);
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.hymnUpdatedSuccessfully),
-          backgroundColor: colorController.backgroundColor.value,
+          backgroundColor: colors.primary,
         ),
       );
       Navigator.pop(context);
     } catch (error) {
-      if (kDebugMode) {}
       if (!mounted) return;
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(l10n.errorUpdating(error.toString())),
-          backgroundColor: colorController.backgroundColor.value,
+          backgroundColor: colors.error,
         ),
       );
     }
@@ -108,218 +102,137 @@ class EditHymnScreenState extends State<EditHymnScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return GetBuilder<ColorController>(
-      builder: (colorController) => Scaffold(
-        backgroundColor: colorController.backgroundColor.value,
-        appBar: AppBar(
-          backgroundColor: colorController.backgroundColor.value,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          title: Text(
-            '${l10n.edit} ${widget.hymn.hymnNumber}',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: colorController.textColor.value,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${l10n.edit} ${widget.hymn.hymnNumber}'),
+        actions: [
+          if (_isUserAuthenticated)
+            IconButton(
+              tooltip: l10n.save,
+              onPressed: _saveChanges,
+              icon: const Icon(Icons.save_outlined),
             ),
-          ),
-          actions: [
-            if (isUserAuthenticated())
-              IconButton(
-                icon: Icon(Icons.save, color: colorController.iconColor.value),
-                onPressed: _saveChanges,
-              ),
-          ],
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(AppDimensions.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextField(
-                  controller: _hymnNumberController,
-                  label: l10n.number,
-                  icon: Icons.onetwothree_outlined,
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return l10n.enterHymnNumber;
-                    }
-                    try {
-                      int? number = int.tryParse(value);
-                      if (number == null || number <= 0) {
-                        return l10n.invalidNumber;
+        ],
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 28),
+          children: [
+            AppSection(
+              title: 'Informations',
+              child: Column(
+                children: [
+                  FormTextFieldWidget(
+                    controller: _hymnNumberController,
+                    label: l10n.number,
+                    icon: Icons.tag_outlined,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return l10n.enterHymnNumber;
                       }
-                    } catch (e) {
-                      return l10n.invalidNumber;
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppDimensions.md),
-                _buildTextField(
-                  controller: _titleController,
-                  label: l10n.title,
-                  icon: Icons.title,
-                ),
-                const SizedBox(height: AppDimensions.md),
-                Text(
-                  l10n.verses,
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.bold,
-                    color: colorController.textColor.value,
+                      final number = int.tryParse(value);
+                      return number == null || number <= 0
+                          ? l10n.invalidNumber
+                          : null;
+                    },
                   ),
-                ),
-                const SizedBox(height: 10),
-                _buildVersesList(),
-                const SizedBox(height: AppDimensions.md),
-                _buildTextField(
-                  controller: _bridgeController,
-                  label: l10n.bridge,
-                  icon: Icons.repeat,
-                  maxLines: 3,
-                ),
-                const SizedBox(height: AppDimensions.md),
-                _buildTextField(
-                  controller: _hymnHintController,
-                  label: l10n.notes,
-                  icon: Icons.info_outline,
-                ),
-                const SizedBox(height: AppDimensions.md),
-                if (isUserAuthenticated())
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _saveChanges,
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: colorController.textColor.value,
-                        backgroundColor: colorController.backgroundColor.value,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                            left: 40.0, right: 40, top: 20, bottom: 20),
-                        child: Text(
-                          l10n.submit,
-                          style: const TextStyle(fontSize: 20),
+                  const SizedBox(height: 12),
+                  FormTextFieldWidget(
+                    controller: _titleController,
+                    label: l10n.title,
+                    icon: Icons.title_rounded,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? l10n.enterTitle
+                        : null,
+                  ),
+                ],
+              ),
+            ),
+            AppSection(
+              title: l10n.verses,
+              child: Column(
+                children: [
+                  ReorderableListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    onReorderItem: _reorderVerses,
+                    children: [
+                      for (var index = 0;
+                          index < _verseControllers.length;
+                          index++)
+                        Padding(
+                          key: ValueKey('verse_$index'),
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: VerseFieldWidget(
+                            index: index,
+                            controller: _verseControllers[index],
+                            onDelete: () => _deleteVerse(index),
+                          ),
                         ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => setState(
+                        () => _verseControllers.add(TextEditingController()),
                       ),
+                      icon: const Icon(Icons.add_rounded),
+                      label: Text(l10n.addVerse),
                     ),
                   ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    int maxLines = 1,
-    TextInputType? keyboardType,
-    String? Function(String?)? validator,
-  }) {
-    return TextFormField(
-      controller: controller,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-      style: TextStyle(color: colorController.textColor.value),
-      validator: validator,
-      decoration: InputDecoration(
-        labelText: label,
-        labelStyle: TextStyle(color: colorController.textColor.value),
-        prefixIcon: Icon(icon, color: colorController.iconColor.value),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: colorController.textColor.value),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: colorController.textColor.value),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10.0),
-          borderSide: BorderSide(color: colorController.primaryColor.value),
-        ),
-        fillColor: colorController.backgroundColor.value.withValues(alpha: 0.1),
-        filled: true,
-      ),
-    );
-  }
-
-  Widget _buildVersesList() {
-    return ReorderableListView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      onReorder: (oldIndex, newIndex) {
-        setState(() {
-          if (newIndex > oldIndex) {
-            newIndex -= 1;
-          }
-          final item = _verseControllers.removeAt(oldIndex);
-          _verseControllers.insert(newIndex, item);
-        });
-      },
-      children: List.generate(_verseControllers.length, (index) {
-        return _buildVerseField(index);
-      }),
-    );
-  }
-
-  Widget _buildVerseField(int index) {
-    final l10n = AppLocalizations.of(context);
-    return Card(
-      key: ValueKey(index),
-      color: colorController.backgroundColor.value,
-      child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.sm),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _verseControllers[index],
-                maxLines: null,
-                style: TextStyle(color: colorController.textColor.value),
-                decoration: InputDecoration(
-                  labelText: '${l10n.verse} ${index + 1}',
-                  labelStyle: TextStyle(color: colorController.textColor.value),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide:
-                        BorderSide(color: colorController.textColor.value),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide:
-                        BorderSide(color: colorController.textColor.value),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide:
-                        BorderSide(color: colorController.primaryColor.value),
-                  ),
-                ),
+                ],
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.delete, color: colorController.iconColor.value),
-              onPressed: () {
-                setState(() {
-                  _verseControllers[index].dispose();
-                  _verseControllers.removeAt(index);
-                });
-              },
+            AppSection(
+              title: 'Compléments',
+              child: Column(
+                children: [
+                  FormTextFieldWidget(
+                    controller: _bridgeController,
+                    label: l10n.bridge,
+                    icon: Icons.repeat_rounded,
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 12),
+                  FormTextFieldWidget(
+                    controller: _hymnHintController,
+                    label: l10n.notes,
+                    icon: Icons.info_outline_rounded,
+                    maxLines: 2,
+                  ),
+                ],
+              ),
             ),
-            ReorderableDragStartListener(
-              index: index,
-              child: Icon(Icons.drag_handle,
-                  color: colorController.iconColor.value),
-            ),
+            if (_isUserAuthenticated)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                child: FilledButton.icon(
+                  onPressed: _saveChanges,
+                  icon: const Icon(Icons.save_outlined),
+                  label: Text(l10n.save),
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  void _reorderVerses(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _verseControllers.removeAt(oldIndex);
+      _verseControllers.insert(newIndex, item);
+    });
+  }
+
+  void _deleteVerse(int index) {
+    if (_verseControllers.length == 1) return;
+    setState(() {
+      _verseControllers[index].dispose();
+      _verseControllers.removeAt(index);
+    });
   }
 }

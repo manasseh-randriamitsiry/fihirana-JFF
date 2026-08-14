@@ -27,8 +27,9 @@ class BibleSearchController extends GetxController {
   String _lastExecutedQuery = '';
   BibleSearchContext? _lastExecutedContext;
 
-  // Callback to set highlighted verse (set by parent controller)
-  Function(int)? onSetHighlightedVerse;
+  // Delegates verse navigation to the parent controller, which owns the
+  // active chapter, highlight streams, and reader scroll state.
+  void Function(String bookName, int chapter, int verse)? onNavigateToVerse;
 
   @override
   void onInit() {
@@ -177,15 +178,13 @@ class BibleSearchController extends GetxController {
     if (result.type == BibleSearchResultType.book) {
       bookController.selectBook(result.bookName);
     } else if (result.type == BibleSearchResultType.verse) {
-      bookController.selectBook(result.bookName);
-      bookController.selectChapter(result.chapter);
-
-      // Set the highlighted verse using the callback
-      if (onSetHighlightedVerse != null) {
-        // Increase delay to ensure chapter loads first
-        Future.delayed(const Duration(milliseconds: 400), () {
-          onSetHighlightedVerse!(result.verse);
-        });
+      final navigateToVerse = onNavigateToVerse;
+      if (navigateToVerse != null) {
+        navigateToVerse(result.bookName, result.chapter, result.verse);
+      } else {
+        // Retain a safe fallback for isolated controller tests.
+        bookController.selectBook(result.bookName);
+        bookController.selectChapter(result.chapter);
       }
     }
   }

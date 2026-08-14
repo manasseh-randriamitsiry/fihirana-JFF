@@ -62,7 +62,7 @@ class BootstrapLoadingWidget extends StatelessWidget {
 
             // Current task text
             Text(
-              'Initializing...',
+              'Initialisation...',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: isTablet ? 14 : 16,

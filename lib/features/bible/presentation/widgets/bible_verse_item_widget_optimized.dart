@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 
 class BibleVerseItemWidget extends StatelessWidget {
@@ -17,7 +16,7 @@ class BibleVerseItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return GetBuilder<BibleController>(
       id: 'verse_$verseNumber', // Unique ID for this specific verse
@@ -30,11 +29,11 @@ class BibleVerseItemWidget extends StatelessWidget {
 
         Color backgroundColor = Colors.transparent;
         if (isTargetVerse) {
-          backgroundColor = Colors.orange.withValues(alpha: 0.4);
+          backgroundColor = colors.secondaryContainer;
         } else if (isSearchHighlighted) {
-          backgroundColor = Colors.yellow.withValues(alpha: 0.3);
+          backgroundColor = colors.tertiaryContainer;
         } else if (isHighlighted) {
-          backgroundColor = Colors.blue.withValues(alpha: 0.2);
+          backgroundColor = colors.primaryContainer;
         }
 
         return GestureDetector(
@@ -42,9 +41,7 @@ class BibleVerseItemWidget extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: backgroundColor,
-              border: isSelected
-                  ? Border.all(color: colorController.primaryColor.value)
-                  : null,
+              border: isSelected ? Border.all(color: colors.primary) : null,
               borderRadius: BorderRadius.circular(4),
             ),
             padding: const EdgeInsets.symmetric(
@@ -62,9 +59,7 @@ class BibleVerseItemWidget extends StatelessWidget {
                         : isSelected
                             ? FontWeight.bold
                             : FontWeight.normal,
-                    color: isTargetVerse
-                        ? Colors.orange
-                        : colorController.primaryColor.value,
+                    color: isTargetVerse ? colors.secondary : colors.primary,
                     fontSize: 14,
                   ),
                 ),
@@ -81,10 +76,10 @@ class BibleVerseItemWidget extends StatelessWidget {
                               ? FontWeight.w500
                               : FontWeight.normal,
                       color: isTargetVerse
-                          ? Colors.orange.shade800
+                          ? colors.onSecondaryContainer
                           : isSelected
-                              ? colorController.primaryColor.value
-                              : colorController.textColor.value,
+                              ? colors.primary
+                              : colors.onSurface,
                     ),
                   ),
                 ),

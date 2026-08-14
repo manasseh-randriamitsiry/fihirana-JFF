@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 
 class FontSizeSliderWidget extends StatelessWidget {
@@ -18,13 +16,13 @@ class FontSizeSliderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Row(
       children: [
         Icon(
           Icons.text_decrease,
-          color: colorController.textColor.value.withValues(alpha: 0.6),
+          color: colors.onSurfaceVariant,
           size: 20,
         ),
         Expanded(
@@ -36,15 +34,14 @@ class FontSizeSliderWidget extends StatelessWidget {
             label: fontSize.toStringAsFixed(1),
             onChanged: onChanged,
             onChangeEnd: onChangeEnd,
-            activeColor: colorController.primaryColor.value,
-            inactiveColor:
-                colorController.primaryColor.value.withValues(alpha: 0.2),
-            thumbColor: colorController.primaryColor.value,
+            activeColor: colors.primary,
+            inactiveColor: colors.primary.withValues(alpha: 0.2),
+            thumbColor: colors.primary,
           ),
         ),
         Icon(
           Icons.text_increase,
-          color: colorController.textColor.value.withValues(alpha: 0.6),
+          color: colors.onSurfaceVariant,
           size: 20,
         ),
       ],
@@ -82,31 +79,29 @@ class HymnPopupMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final backgroundColor = colorController.backgroundColor.value;
-    final primaryColor = colorController.primaryColor.value;
-    final textColor = colorController.textColor.value;
+    final colors = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.only(right: 4),
       decoration: BoxDecoration(
-        color: primaryColor.withValues(alpha: 0.08),
+        color: colors.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: .65)),
       ),
       child: PopupMenuButton<String>(
-        color: backgroundColor,
+        color: colors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: primaryColor.withValues(alpha: 0.2),
+            color: colors.outlineVariant.withValues(alpha: .8),
             width: 1,
           ),
         ),
         offset: const Offset(0, 48),
         icon: Icon(
           Icons.more_vert_rounded,
-          color: primaryColor,
+          color: colors.onSurface,
           size: 22,
         ),
         onSelected: (String item) {
@@ -139,8 +134,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
                 value: 'edit',
                 icon: Icons.edit_rounded,
                 label: context.translate((l) => l.edit),
-                textColor: textColor,
-                primaryColor: primaryColor,
+                colors: colors,
               ),
             if (isUserAuthenticated)
               _buildMenuItem(
@@ -151,29 +145,25 @@ class HymnPopupMenuWidget extends StatelessWidget {
                 label: hasUserNote
                     ? context.translate((l) => l.editNote)
                     : context.translate((l) => l.add),
-                textColor: textColor,
-                primaryColor: primaryColor,
+                colors: colors,
               ),
             _buildMenuItem(
               value: 'font_size',
               icon: Icons.format_size_rounded,
               label: context.translate((l) => l.font),
-              textColor: textColor,
-              primaryColor: primaryColor,
+              colors: colors,
             ),
             _buildMenuItem(
               value: 'color_picker',
               icon: Icons.palette_rounded,
               label: context.translate((l) => l.color),
-              textColor: textColor,
-              primaryColor: primaryColor,
+              colors: colors,
             ),
             _buildMenuItem(
               value: 'add_to_playlist',
               icon: Icons.playlist_add_rounded,
               label: context.translate((l) => l.addToPlaylist),
-              textColor: textColor,
-              primaryColor: primaryColor,
+              colors: colors,
             ),
           ];
         },
@@ -185,8 +175,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
     required String value,
     required IconData icon,
     required String label,
-    required Color textColor,
-    required Color primaryColor,
+    required ColorScheme colors,
   }) {
     return PopupMenuItem<String>(
       value: value,
@@ -197,12 +186,12 @@ class HymnPopupMenuWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.1),
+                color: colors.primaryContainer,
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(
                 icon,
-                color: primaryColor,
+                color: colors.onPrimaryContainer,
                 size: 20,
               ),
             ),
@@ -210,7 +199,7 @@ class HymnPopupMenuWidget extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: textColor,
+                color: colors.onSurface,
                 fontSize: 15,
                 fontWeight: FontWeight.w500,
               ),
@@ -269,8 +258,8 @@ class _FavoriteButtonWidgetState extends State<FavoriteButtonWidget>
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final primaryColor = colorController.primaryColor.value;
+    final colors = Theme.of(context).colorScheme;
+    final favoriteColor = colors.error;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -281,9 +270,14 @@ class _FavoriteButtonWidgetState extends State<FavoriteButtonWidget>
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: widget.isFavorite
-                ? Colors.red.withValues(alpha: 0.12)
-                : primaryColor.withValues(alpha: 0.08),
+                ? favoriteColor.withValues(alpha: 0.12)
+                : colors.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: widget.isFavorite
+                  ? favoriteColor.withValues(alpha: 0.35)
+                  : colors.outlineVariant.withValues(alpha: .65),
+            ),
           ),
           child: ScaleTransition(
             scale: _scaleAnimation,
@@ -291,7 +285,7 @@ class _FavoriteButtonWidgetState extends State<FavoriteButtonWidget>
               widget.isFavorite
                   ? Icons.favorite_rounded
                   : Icons.favorite_border_rounded,
-              color: widget.isFavorite ? Colors.red : primaryColor,
+              color: widget.isFavorite ? favoriteColor : colors.onSurface,
               size: 22,
             ),
           ),
@@ -319,8 +313,7 @@ class AudioButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!hasAudio) return const SizedBox.shrink();
 
-    final colorController = Get.find<ColorController>();
-    final primaryColor = colorController.primaryColor.value;
+    final colors = Theme.of(context).colorScheme;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -334,13 +327,15 @@ class AudioButtonWidget extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isPlaying
-                ? primaryColor.withValues(alpha: 0.15)
-                : primaryColor.withValues(alpha: 0.08),
+                ? colors.primaryContainer
+                : colors.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(12),
-            border: isPlaying
-                ? Border.all(
-                    color: primaryColor.withValues(alpha: 0.3), width: 1.5)
-                : null,
+            border: Border.all(
+              color: isPlaying
+                  ? colors.primary.withValues(alpha: .5)
+                  : colors.outlineVariant.withValues(alpha: .65),
+              width: isPlaying ? 1.5 : 1,
+            ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -355,7 +350,8 @@ class AudioButtonWidget extends StatelessWidget {
                       ? Icons.graphic_eq_rounded
                       : Icons.music_note_rounded,
                   key: ValueKey(isPlaying),
-                  color: primaryColor,
+                  color:
+                      isPlaying ? colors.onPrimaryContainer : colors.onSurface,
                   size: 22,
                 ),
               ),
@@ -365,11 +361,11 @@ class AudioButtonWidget extends StatelessWidget {
                   width: 6,
                   height: 6,
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: colors.error,
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.red.withValues(alpha: 0.5),
+                        color: colors.error.withValues(alpha: 0.5),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),
@@ -404,8 +400,8 @@ class HymnActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final primaryColor = colorController.primaryColor.value;
+    final colors = Theme.of(context).colorScheme;
+    final primaryColor = colors.primary;
     final effectiveActiveColor = activeColor ?? primaryColor;
 
     return GestureDetector(
@@ -422,13 +418,15 @@ class HymnActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive
               ? effectiveActiveColor.withValues(alpha: 0.15)
-              : primaryColor.withValues(alpha: 0.08),
+              : colors.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(12),
           border: isActive
               ? Border.all(
                   color: effectiveActiveColor.withValues(alpha: 0.3),
                   width: 1.5)
-              : null,
+              : Border.all(
+                  color: colors.outlineVariant.withValues(alpha: .65),
+                ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

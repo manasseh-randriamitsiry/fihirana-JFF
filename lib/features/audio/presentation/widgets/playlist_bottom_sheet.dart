@@ -37,7 +37,7 @@ class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Playlist',
+                  'Liste de lecture',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -56,7 +56,7 @@ class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
             child: widget.playlist == null || widget.playlist!.isEmpty
                 ? const Center(
                     child: Text(
-                      'No hymns in playlist',
+                      'Aucun cantique dans la liste de lecture',
                       style: TextStyle(color: Colors.white54),
                     ),
                   )
@@ -107,7 +107,7 @@ class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
-                          'Hymn ${hymn.hymnNumber}',
+                          'Cantique ${hymn.hymnNumber}',
                           style: const TextStyle(
                             color: Colors.white54,
                             fontSize: 12,

@@ -4515,6 +4515,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Apply'**
   String get apply;
+
+  /// No description provided for @languageSelectionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Select your preferred language to get started.'**
+  String get languageSelectionDescription;
+
+  /// No description provided for @reviewOnboardingEssentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Review the essentials, then choose how you want to continue.'**
+  String get reviewOnboardingEssentials;
+
+  /// No description provided for @acceptTermsToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept the terms to continue'**
+  String get acceptTermsToContinue;
+
+  /// No description provided for @enterAtLeastCharacters.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 4 characters'**
+  String get enterAtLeastCharacters;
+
+  /// No description provided for @appPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'App permissions'**
+  String get appPermissions;
+
+  /// No description provided for @permissionRequestDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'To provide the best experience, we need the following permissions:'**
+  String get permissionRequestDescription;
+
+  /// No description provided for @notificationsPermissionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive daily verses, announcements, and update notifications'**
+  String get notificationsPermissionDescription;
+
+  /// No description provided for @installPackages.
+  ///
+  /// In en, this message translates to:
+  /// **'Install packages'**
+  String get installPackages;
+
+  /// No description provided for @installPackagesPermissionDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow app updates to be installed automatically'**
+  String get installPackagesPermissionDescription;
+
+  /// No description provided for @errorRequestingPermissions.
+  ///
+  /// In en, this message translates to:
+  /// **'Error requesting permissions: {error}'**
+  String errorRequestingPermissions(String error);
+
+  /// No description provided for @audioSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get audioSection;
+
+  /// No description provided for @moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
+  /// No description provided for @clearName.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearName;
+
+  /// No description provided for @enterNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name'**
+  String get enterNameHint;
+
+  /// No description provided for @unableToLoadFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load favorites'**
+  String get unableToLoadFavorites;
+
+  /// No description provided for @checkConnectionAndTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Check your connection and try again.'**
+  String get checkConnectionAndTryAgain;
+
+  /// No description provided for @savedHymnsWillAppear.
+  ///
+  /// In en, this message translates to:
+  /// **'Hymns you save will appear here.'**
+  String get savedHymnsWillAppear;
+
+  /// No description provided for @unableToLoadAdditionalHymns.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to load additional hymns'**
+  String get unableToLoadAdditionalHymns;
+
+  /// No description provided for @communityHymnsWillAppear.
+  ///
+  /// In en, this message translates to:
+  /// **'New community hymns will appear here.'**
+  String get communityHymnsWillAppear;
+
+  /// No description provided for @notificationsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsLabel;
 }
 
 class _AppLocalizationsDelegate

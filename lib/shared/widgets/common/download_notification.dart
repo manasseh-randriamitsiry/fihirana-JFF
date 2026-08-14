@@ -29,7 +29,6 @@ class DownloadNotificationBuilder {
       title: 'Fangalana fanavaozana',
       body: body,
       progress: progress.toDouble(),
-      color: NotificationStyles.primaryColor,
       locked: true,
       autoDismissible: false,
       actionButtons: actionButtons,
@@ -56,7 +55,6 @@ class DownloadNotificationBuilder {
       title: title,
       body: body,
       progress: progress.toDouble(),
-      color: NotificationStyles.primaryColor,
       locked: true,
       autoDismissible: false,
       actionButtons: NotificationButtons.createDownloadButtons(
@@ -148,7 +146,6 @@ class DownloadNotificationBuilder {
       channelKey: 'hymn_download_channel',
       title: title,
       body: body,
-      color: NotificationStyles.primaryColor,
     );
 
     await AwesomeNotifications().createNotification(content: content);

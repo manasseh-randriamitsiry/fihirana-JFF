@@ -14,6 +14,7 @@ import 'recording_playback_manager.dart';
 import 'recording_publishing_manager.dart';
 import 'recording_file_manager.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fihirana/features/audio/data/services/audio_service.dart';
 
 // Export enums for backward compatibility
 export 'recording_publishing_manager.dart' show PublishRecordingResult;
@@ -182,6 +183,7 @@ class RecordingController extends GetxController {
   // Multi-select state
   final RxBool isMultiSelectMode = false.obs;
   final RxSet<String> selectedRecordingIds = <String>{}.obs;
+  bool _isStartingRecording = false;
 
   @override
   void onInit() {
@@ -316,40 +318,57 @@ class RecordingController extends GetxController {
   // Delegated methods for backward compatibility
 // Recording Actions (using use cases)
   Future<void> startRecording(String hymnId) async {
+    if (_isStartingRecording || stateManager.isRecording.value) {
+      return;
+    }
+
+    _isStartingRecording = true;
     try {
+      // Recording must own the microphone/audio focus. Stop a recording
+      // preview and pause the hymn player before opening the microphone.
+      if (playbackManager.hasActivePlayback) {
+        await playbackManager.stopPlayback();
+      }
+      if (AudioService.instance.isPlaying) {
+        await AudioService.instance.pause();
+      }
+
       await startRecordingUseCase();
-      // Update state manager for backward compatibility
       stateManager.isRecording.value = true;
+      stateManager.isPaused.value = false;
+      stateManager.resetTimer();
       stateManager.showOverlay(hymnId, '');
       stateManager.startTimer();
     } catch (e) {
       stateManager.lastError.value = 'Failed to start recording: $e';
+      stateManager.resetRecordingState();
+      rethrow;
+    } finally {
+      _isStartingRecording = false;
     }
   }
 
   Future<UserRecording?> stopRecording(String hymnId, String title) async {
+    final duration = stateManager.recordDuration.value;
     try {
       final recording = await stopRecordingUseCase();
       if (recording != null) {
-        // Set the duration from the timer
-        final duration = stateManager.recordDuration.value;
         final updatedRecording = recording.copyWith(
           hymnId: hymnId,
           title: title,
           durationSeconds: duration,
         );
         await saveRecordingUseCase(updatedRecording);
-        // Update state manager for backward compatibility
-        stateManager.isRecording.value = false;
-        // Don't hide overlay here - let the UI handle it after save dialog
-        stateManager.stopTimer();
-        stateManager.resetTimer();
         return updatedRecording;
       }
       return null;
     } catch (e) {
       stateManager.lastError.value = 'Failed to stop recording: $e';
       return null;
+    } finally {
+      // A stopped or failed native recorder must never leave the UI timer and
+      // record buttons in an active state.
+      stateManager.resetRecordingState();
     }
   }
 

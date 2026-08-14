@@ -18,7 +18,7 @@ class AudioPlayerNotificationBuilder {
 
     // Check if this is a recording
     if (hymn.id.startsWith('recording_')) {
-      body = 'Recording by ${hymn.createdBy.replaceAll('User: ', '')}';
+      body = 'Enregistré par ${hymn.createdBy.replaceAll('User: ', '')}';
     } else {
       body = 'Hira faha ${hymn.hymnNumber}';
     }
@@ -94,8 +94,7 @@ class AudioPlayerNotificationBuilder {
 
   static Future<void> hideNotification() async {
     try {
-      await AwesomeNotifications().dismiss(notificationId);
-      await AwesomeNotifications().cancelAll();
+      await AwesomeNotifications().cancel(notificationId);
     } catch (e) {
       // Silently handle errors
     }
@@ -103,7 +102,7 @@ class AudioPlayerNotificationBuilder {
 
   static Future<void> forceClearAllNotifications() async {
     try {
-      await AwesomeNotifications().cancelAll();
+      await AwesomeNotifications().cancel(notificationId);
     } catch (e) {
       // Silently handle errors
     }

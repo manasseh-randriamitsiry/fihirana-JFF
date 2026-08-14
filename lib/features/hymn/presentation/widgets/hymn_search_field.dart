@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
-import 'package:fihirana/shared/widgets/common/app_card.dart';
 
 class HymnSearchField extends StatelessWidget {
   final TextEditingController controller;
@@ -23,39 +22,15 @@ class HymnSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      backgroundColor: backgroundColor,
-      borderColor: iconColor.withValues(alpha: 0.3),
-      borderRadius: 30.0,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: TextField(
-        controller: controller,
-        style: defaultTextStyle,
-        decoration: InputDecoration(
-          labelText: context.translate((l) => l.searchHymnsHint),
-          labelStyle: defaultTextStyle.copyWith(
-            color: textColor.withValues(alpha: 0.7),
-          ),
-          prefixIcon: Icon(
-            Icons.search,
-            color: iconColor,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: iconColor.withValues(alpha: 0)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide: BorderSide(color: iconColor.withValues(alpha: 0)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(30),
-            borderSide:
-                BorderSide(color: iconColor.withValues(alpha: 0), width: 2),
-          ),
-        ),
-        onChanged: (_) => onChanged(),
+    return TextField(
+      controller: controller,
+      style: defaultTextStyle,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        hintText: context.translate((l) => l.searchHymnsHint),
+        prefixIcon: Icon(Icons.search_rounded, color: iconColor),
       ),
+      onChanged: (_) => onChanged(),
     );
   }
 }

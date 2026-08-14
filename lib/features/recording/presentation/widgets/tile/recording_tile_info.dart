@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 
 class RecordingTileInfo extends StatelessWidget {
   final UserRecording recording;
   final bool isPublic;
-  final ColorController colorController = Get.find<ColorController>();
 
-  RecordingTileInfo({
+  const RecordingTileInfo({
     super.key,
     required this.recording,
     required this.isPublic,
@@ -17,7 +14,7 @@ class RecordingTileInfo extends StatelessWidget {
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
-    return '${minutes}m ${remainingSeconds.toString().padLeft(2, '0')}s';
+    return '$minutes min ${remainingSeconds.toString().padLeft(2, '0')} s';
   }
 
   String _formatDate(DateTime date) {
@@ -31,25 +28,26 @@ class RecordingTileInfo extends StatelessWidget {
 
     // Fallback for recordings without titles
     if (recording.hymnId != 'standalone' && recording.hymnId.isNotEmpty) {
-      return 'Hymn ${recording.hymnId}';
+      return 'Cantique ${recording.hymnId}';
     }
 
     // For standalone recordings or unknown hymns
     final date = recording.createdAt;
     final timeString =
         '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
-    return 'Recording ${date.day}/${date.month}/${date.year} $timeString';
+    return 'Enregistrement ${date.day}/${date.month}/${date.year} $timeString';
   }
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           _getDisplayTitle(),
           style: TextStyle(
-            color: colorController.textColor.value,
+            color: colors.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 16,
           ),
@@ -62,13 +60,13 @@ class RecordingTileInfo extends StatelessWidget {
             Icon(
               Icons.access_time,
               size: 12,
-              color: colorController.textColor.value.withValues(alpha: 0.5),
+              color: colors.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
             Text(
               _formatDuration(recording.durationSeconds),
               style: TextStyle(
-                color: colorController.textColor.value.withValues(alpha: 0.5),
+                color: colors.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -76,13 +74,13 @@ class RecordingTileInfo extends StatelessWidget {
             Icon(
               Icons.calendar_today,
               size: 12,
-              color: colorController.textColor.value.withValues(alpha: 0.5),
+              color: colors.onSurfaceVariant,
             ),
             const SizedBox(width: 4),
             Text(
               _formatDate(recording.createdAt),
               style: TextStyle(
-                color: colorController.textColor.value.withValues(alpha: 0.5),
+                color: colors.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -91,15 +89,14 @@ class RecordingTileInfo extends StatelessWidget {
               Icon(
                 Icons.person_outline,
                 size: 12,
-                color: colorController.textColor.value.withValues(alpha: 0.5),
+                color: colors.onSurfaceVariant,
               ),
               const SizedBox(width: 4),
               Expanded(
                 child: Text(
                   recording.userName!,
                   style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.5),
+                    color: colors.onSurfaceVariant,
                     fontSize: 12,
                   ),
                   maxLines: 1,

@@ -31,8 +31,9 @@ class TranslationToggleWidget extends StatelessWidget {
                         _showSnackBar(
                           context,
                           value
-                              ? 'Auto-translate enabled'
-                              : 'Auto-translate disabled',
+                              ? AppLocalizations.of(context).translationEnabled
+                              : AppLocalizations.of(context)
+                                  .translationDisabled,
                         );
                       },
                     ),
@@ -40,7 +41,7 @@ class TranslationToggleWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Automatically translate hymn content to your preferred language',
+                  AppLocalizations.of(context).automaticTranslationDescription,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context)
                             .textTheme
@@ -54,7 +55,7 @@ class TranslationToggleWidget extends StatelessWidget {
                   const LinearProgressIndicator(),
                   const SizedBox(height: 4),
                   Text(
-                    'Translating...',
+                    AppLocalizations.of(context).translating,
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

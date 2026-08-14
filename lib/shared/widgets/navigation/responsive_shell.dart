@@ -1,7 +1,5 @@
 import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
-import 'package:fihirana/features/recording/presentation/widgets/recording_overlay_manager.dart';
 import 'drawer_widget.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 
@@ -19,143 +17,121 @@ class ResponsiveShell extends StatefulWidget {
 
 class _ResponsiveShellState extends State<ResponsiveShell> {
   bool _isDrawerOpen = true;
-  final ColorController _colorController = Get.find<ColorController>();
 
   @override
   Widget build(BuildContext context) {
     final shellController = Get.find<ShellController>();
+    final colorScheme = Theme.of(context).colorScheme;
+    final width = MediaQuery.of(context).size.width;
 
-    return Obx(() {
-      final width = MediaQuery.of(context).size.width;
-      final isMobile = width < 800;
+    if (width < 800) {
+      // Phone Layout: Use ZoomDrawer globally. This branch does not depend on
+      // any reactive state, so it must not be wrapped in Obx.
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
 
-      Widget mainContent;
-
-      if (isMobile) {
-        // Phone Layout: Use ZoomDrawer globally
-        mainContent = PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) async {
-            if (didPop) return;
-
-            final navigator = Get.key.currentState;
-            if (navigator != null && navigator.canPop()) {
-              navigator.pop();
+          final navigator = Get.key.currentState;
+          if (navigator != null && navigator.canPop()) {
+            navigator.pop();
+          } else {
+            if (shellController.zoomDrawerController.isOpen?.call() ?? false) {
+              shellController.toggleDrawer();
             } else {
-              if (shellController.zoomDrawerController.isOpen?.call() ??
-                  false) {
-                shellController.toggleDrawer();
-              } else {
-                shellController.toggleDrawer();
-              }
+              shellController.toggleDrawer();
             }
-          },
-          child: ZoomDrawer(
-            controller: shellController.zoomDrawerController,
-            style: DrawerStyle.defaultStyle,
-            menuScreen: DrawerWidget(
-              key: const ValueKey('zoom_drawer'),
-              openDrawer: shellController.toggleDrawer,
-            ),
-            mainScreen: widget.child,
-            borderRadius: AppDimensions.radiusXxl,
-            showShadow: true,
-            angle: -12.0,
-            menuBackgroundColor: _colorController.drawerColor.value,
-            slideWidth: width * 0.85,
-            mainScreenTapClose: true,
-            openCurve: Curves.fastOutSlowIn,
-            closeCurve: Curves.bounceIn,
+          }
+        },
+        child: ZoomDrawer(
+          controller: shellController.zoomDrawerController,
+          style: DrawerStyle.defaultStyle,
+          menuScreen: DrawerWidget(
+            key: const ValueKey('zoom_drawer'),
+            openDrawer: shellController.toggleDrawer,
           ),
-        );
-      } else {
-        // Tablet/Desktop Layout: Use Row with Side Drawer
-        final shouldShowDrawer = shellController.isDrawerEnabled.value;
+          mainScreen: widget.child,
+          borderRadius: AppDimensions.radiusXxl,
+          showShadow: true,
+          angle: -12.0,
+          menuBackgroundColor: colorScheme.surface,
+          slideWidth: width * 0.85,
+          mainScreenTapClose: true,
+          openCurve: Curves.fastOutSlowIn,
+          closeCurve: Curves.bounceIn,
+        ),
+      );
+    }
 
-        mainContent = Scaffold(
-          backgroundColor: _colorController.drawerColor.value,
-          body: Row(
-            children: [
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                child: SizedBox(
-                  width: (shouldShowDrawer && _isDrawerOpen) ? 300 : 0,
-                  child: OverflowBox(
-                    minWidth: 300,
-                    maxWidth: 300,
-                    child: DrawerWidget(
-                      key: const ValueKey('shell_drawer'),
-                      openDrawer: () {},
-                    ),
+    // Tablet/Desktop Layout: only the drawer-enabled flag needs to rebuild.
+    return Obx(() {
+      final shouldShowDrawer = shellController.isDrawerEnabled.value;
+
+      final mainContent = Scaffold(
+        backgroundColor: colorScheme.surface,
+        body: Row(
+          children: [
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: SizedBox(
+                width: (shouldShowDrawer && _isDrawerOpen) ? 300 : 0,
+                child: OverflowBox(
+                  minWidth: 300,
+                  maxWidth: 300,
+                  child: DrawerWidget(
+                    key: const ValueKey('shell_drawer'),
+                    openDrawer: () {},
                   ),
                 ),
               ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      child: widget.child,
-                    ),
-                    if (shouldShowDrawer)
-                      Positioned(
-                        left: 0,
-                        top: 250,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isDrawerOpen = !_isDrawerOpen;
-                            });
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 4, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: _colorController.drawerColor.value,
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(12),
-                                bottomRight: Radius.circular(12),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 4,
-                                  offset: const Offset(2, 0),
-                                ),
-                              ],
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    child: widget.child,
+                  ),
+                  if (shouldShowDrawer)
+                    Positioned(
+                      left: 0,
+                      top: 250,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isDrawerOpen = !_isDrawerOpen;
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest,
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(12),
+                              bottomRight: Radius.circular(12),
                             ),
-                            child: Icon(
-                              _isDrawerOpen
-                                  ? Icons.chevron_left_rounded
-                                  : Icons.chevron_right_rounded,
-                              color: _colorController.iconColor.value,
-                              size: 24,
+                            border: Border.all(
+                              color: colorScheme.outlineVariant,
                             ),
+                          ),
+                          child: Icon(
+                            _isDrawerOpen
+                                ? Icons.chevron_left_rounded
+                                : Icons.chevron_right_rounded,
+                            color: colorScheme.onSurfaceVariant,
+                            size: 24,
                           ),
                         ),
                       ),
-                  ],
-                ),
+                    ),
+                ],
               ),
-            ],
-          ),
-        );
-      }
-
-      // Keep the recording overlay in the same render tree as the app shell.
-      // Creating a fresh Overlay widget here would allocate a new overlay
-      // stack on every rebuild, which is unnecessary on low-end devices.
-      return Stack(
-        children: [
-          mainContent,
-          const Positioned.fill(
-            child: IgnorePointer(
-              ignoring: false,
-              child: RecordingOverlayManager(),
             ),
-          ),
-        ],
+          ],
+        ),
       );
+      return mainContent;
     });
   }
 }

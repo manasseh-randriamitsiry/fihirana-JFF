@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/admin/data/services/admin_control_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 class UpdateManagementScreen extends StatefulWidget {
   const UpdateManagementScreen({super.key});
@@ -126,7 +127,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error),
             child: Text(stopText),
           ),
         ],
@@ -173,12 +175,11 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context).updateControl),
-        backgroundColor: Colors.red.shade700,
-        foregroundColor: Colors.white,
         actions: [
           if (_currentConfig?.emergencyMode == true)
             IconButton(
-              icon: const Icon(Icons.warning, color: Colors.yellow),
+              icon: Icon(Icons.warning_amber_rounded,
+                  color: Theme.of(context).colorScheme.error),
               onPressed: _clearEmergencyMode,
               tooltip: AppLocalizations.of(context).clearCache,
             ),
@@ -189,51 +190,46 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.only(bottom: 24),
           children: [
-            // Status Card
-            _buildStatusCard(),
-            const SizedBox(height: 20),
-
-            // Quick Actions
-            _buildQuickActions(),
-            const SizedBox(height: 20),
-
-            // Configuration Form
-            _buildConfigurationForm(),
-            const SizedBox(height: 20),
-
-            // Save Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _saveConfig,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isSaving
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+            AppSection(
+              title: AppLocalizations.of(context).updateControl,
+              child: _buildStatusCard(),
+            ),
+            AppSection(
+              title: AppLocalizations.of(context).quickActions,
+              child: _buildQuickActions(),
+            ),
+            AppSection(
+              title: AppLocalizations.of(context).configuration,
+              child: _buildConfigurationForm(),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              child: SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: _isSaving ? null : _saveConfig,
+                  style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16)),
+                  child: _isSaving
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(AppLocalizations.of(context).saving),
-                        ],
-                      )
-                    : Text(AppLocalizations.of(context).saveConfiguration),
+                            const SizedBox(width: 8),
+                            Text(AppLocalizations.of(context).saving),
+                          ],
+                        )
+                      : Text(AppLocalizations.of(context).saveConfiguration),
+                ),
               ),
             ),
           ],
@@ -244,265 +240,256 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
 
   Widget _buildStatusCard() {
     final config = _currentConfig!;
-    final statusColor = config.emergencyMode
-        ? Colors.red
-        : config.updatesEnabled
-            ? Colors.green
-            : Colors.orange;
+    final colors = Theme.of(context).colorScheme;
+    final statusColor = config.emergencyMode || !config.updatesEnabled
+        ? colors.error
+        : colors.primary;
 
-    return Card(
-      color: statusColor.withValues(alpha: 0.1),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  config.emergencyMode
-                      ? Icons.warning
-                      : config.updatesEnabled
-                          ? Icons.check_circle
-                          : Icons.error,
-                  color: statusColor,
-                  size: 24,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  config.emergencyMode
-                      ? AppLocalizations.of(context).emergencyModeActive
-                      : config.updatesEnabled
-                          ? AppLocalizations.of(context).updatesEnabled
-                          : AppLocalizations.of(context).updatesDisabled,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (config.adminMessage != null)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.message, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .adminMessageLabel(config.adminMessage!),
-                        style: const TextStyle(color: Colors.blue),
-                      ),
-                    ),
-                  ],
-                ),
+    return AppGroupedSurface(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    config.emergencyMode
+                        ? Icons.warning
+                        : config.updatesEnabled
+                            ? Icons.check_circle
+                            : Icons.error,
+                    color: statusColor,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    config.emergencyMode
+                        ? AppLocalizations.of(context).emergencyModeActive
+                        : config.updatesEnabled
+                            ? AppLocalizations.of(context).updatesEnabled
+                            : AppLocalizations.of(context).updatesDisabled,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ],
               ),
-            if (config.blockedVersion != null)
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.block, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        AppLocalizations.of(context)
-                            .blockedVersionLabel(config.blockedVersion!),
-                        style: const TextStyle(color: Colors.red),
+              const SizedBox(height: 12),
+              if (config.adminMessage != null)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.secondaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.message_outlined,
+                          color: colors.onSecondaryContainer),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)
+                              .adminMessageLabel(config.adminMessage!),
+                          style: TextStyle(color: colors.onSecondaryContainer),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-          ],
+              if (config.blockedVersion != null)
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.errorContainer,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.block_outlined,
+                          color: colors.onErrorContainer),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          AppLocalizations.of(context)
+                              .blockedVersionLabel(config.blockedVersion!),
+                          style: TextStyle(color: colors.onErrorContainer),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildQuickActions() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context).quickActions,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _emergencyStop,
-                    icon: const Icon(Icons.emergency),
-                    label: Text(AppLocalizations.of(context).emergencyStop),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
+    final colors = Theme.of(context).colorScheme;
+    return AppGroupedSurface(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonalIcon(
+                      onPressed: _emergencyStop,
+                      icon: Icon(Icons.emergency_outlined, color: colors.error),
+                      label: Text(AppLocalizations.of(context).emergencyStop),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: colors.errorContainer,
+                        foregroundColor: colors.onErrorContainer,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () async {
-                      final successText = AppLocalizations.of(context).success;
-                      final clearedText =
-                          AppLocalizations.of(context).allCacheCleared;
-                      await AdminControlService.clearCache();
-                      if (!mounted) return;
-                      Get.snackbar(successText, clearedText);
-                    },
-                    icon: const Icon(Icons.clear),
-                    label: Text(AppLocalizations.of(context).clearCache),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton.tonalIcon(
+                      onPressed: () async {
+                        final successText =
+                            AppLocalizations.of(context).success;
+                        final clearedText =
+                            AppLocalizations.of(context).allCacheCleared;
+                        await AdminControlService.clearCache();
+                        if (!mounted) return;
+                        Get.snackbar(successText, clearedText);
+                      },
+                      icon: const Icon(Icons.cleaning_services_outlined),
+                      label: Text(AppLocalizations.of(context).clearCache),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildConfigurationForm() {
     final config = _currentConfig!;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              AppLocalizations.of(context).configuration,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-
-            // Toggle Switches
-            SwitchListTile(
-              title: Text(AppLocalizations.of(context).enableUpdates),
-              subtitle: Text(
-                  AppLocalizations.of(context).allowUsersToDownloadUpdates),
-              value: config.updatesEnabled,
-              onChanged: (value) {
-                setState(() {
-                  _currentConfig = AdminConfig(
-                    updatesEnabled: value,
-                    forceUpdate: config.forceUpdate,
-                    emergencyMode: config.emergencyMode,
-                    blockedVersion: config.blockedVersion,
-                    minSupportedVersion: config.minSupportedVersion,
-                    recommendedVersion: config.recommendedVersion,
-                    adminMessage: config.adminMessage,
-                    allowedVersions: config.allowedVersions,
-                  );
-                });
-              },
-            ),
-            SwitchListTile(
-              title: Text(AppLocalizations.of(context).forceUpdate),
-              subtitle: Text(AppLocalizations.of(context).forceUsersToUpdate),
-              value: config.forceUpdate,
-              onChanged: (value) {
-                setState(() {
-                  _currentConfig = AdminConfig(
-                    updatesEnabled: config.updatesEnabled,
-                    forceUpdate: value,
-                    emergencyMode: config.emergencyMode,
-                    blockedVersion: config.blockedVersion,
-                    minSupportedVersion: config.minSupportedVersion,
-                    recommendedVersion: config.recommendedVersion,
-                    adminMessage: config.adminMessage,
-                    allowedVersions: config.allowedVersions,
-                  );
-                });
-              },
-            ),
-
-            const SizedBox(height: 16),
-            const Divider(),
-            const SizedBox(height: 16),
-
-            // Text Fields
-            TextFormField(
-              controller: _blockedVersionController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context).blockedVersion,
-                hintText: AppLocalizations.of(context).versionEG,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.block),
+    return AppGroupedSurface(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Toggle Switches
+              SwitchListTile(
+                title: Text(AppLocalizations.of(context).enableUpdates),
+                subtitle: Text(
+                    AppLocalizations.of(context).allowUsersToDownloadUpdates),
+                value: config.updatesEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _currentConfig = AdminConfig(
+                      updatesEnabled: value,
+                      forceUpdate: config.forceUpdate,
+                      emergencyMode: config.emergencyMode,
+                      blockedVersion: config.blockedVersion,
+                      minSupportedVersion: config.minSupportedVersion,
+                      recommendedVersion: config.recommendedVersion,
+                      adminMessage: config.adminMessage,
+                      allowedVersions: config.allowedVersions,
+                    );
+                  });
+                },
               ),
-            ),
-            const SizedBox(height: 12),
-
-            TextFormField(
-              controller: _minVersionController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context).minimumSupportedVersion,
-                hintText: AppLocalizations.of(context).versionEG,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.verified),
+              SwitchListTile(
+                title: Text(AppLocalizations.of(context).forceUpdate),
+                subtitle: Text(AppLocalizations.of(context).forceUsersToUpdate),
+                value: config.forceUpdate,
+                onChanged: (value) {
+                  setState(() {
+                    _currentConfig = AdminConfig(
+                      updatesEnabled: config.updatesEnabled,
+                      forceUpdate: value,
+                      emergencyMode: config.emergencyMode,
+                      blockedVersion: config.blockedVersion,
+                      minSupportedVersion: config.minSupportedVersion,
+                      recommendedVersion: config.recommendedVersion,
+                      adminMessage: config.adminMessage,
+                      allowedVersions: config.allowedVersions,
+                    );
+                  });
+                },
               ),
-            ),
-            const SizedBox(height: 12),
 
-            TextFormField(
-              controller: _recommendedVersionController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context).recommendedVersion,
-                hintText: AppLocalizations.of(context).versionEG,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.thumb_up),
-              ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 16),
 
-            TextFormField(
-              controller: _allowedVersionsController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context).allowedVersions,
-                hintText: AppLocalizations.of(context).versionsEG,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.list),
+              // Text Fields
+              TextFormField(
+                controller: _blockedVersionController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).blockedVersion,
+                  hintText: AppLocalizations.of(context).versionEG,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.block),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            TextFormField(
-              controller: _adminMessageController,
-              decoration: InputDecoration(
-                labelText: AppLocalizations.of(context).adminMessage,
-                hintText:
-                    AppLocalizations.of(context).messageToDisplayToAllUsers,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.message),
+              TextFormField(
+                controller: _minVersionController,
+                decoration: InputDecoration(
+                  labelText:
+                      AppLocalizations.of(context).minimumSupportedVersion,
+                  hintText: AppLocalizations.of(context).versionEG,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.verified),
+                ),
               ),
-              maxLines: 3,
-            ),
-          ],
+              const SizedBox(height: 12),
+
+              TextFormField(
+                controller: _recommendedVersionController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).recommendedVersion,
+                  hintText: AppLocalizations.of(context).versionEG,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.thumb_up),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              TextFormField(
+                controller: _allowedVersionsController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).allowedVersions,
+                  hintText: AppLocalizations.of(context).versionsEG,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.list),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              TextFormField(
+                controller: _adminMessageController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).adminMessage,
+                  hintText:
+                      AppLocalizations.of(context).messageToDisplayToAllUsers,
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.message),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
         ),
-      ),
+      ],
     );
   }
 

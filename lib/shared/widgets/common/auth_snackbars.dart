@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 class AuthSnackBar {
   static void showEmailAlreadyInUse() {
     Get.snackbar(
-      'The email address is already in use.',
-      'Try another email address.',
+      "Cette adresse e-mail est déjà utilisée.",
+      'Essayez une autre adresse e-mail.',
       backgroundColor: Colors.red.withValues(alpha: 0.2),
       colorText: Colors.black,
       icon: const Icon(Icons.warning_amber, color: Colors.black),
@@ -14,8 +14,8 @@ class AuthSnackBar {
 
   static void showInvalidCredentials() {
     Get.snackbar(
-      'Invalid credentials',
-      'The email address is already in use.',
+      'Identifiants invalides',
+      "Cette adresse e-mail est déjà utilisée.",
       backgroundColor: Colors.red.withValues(alpha: 0.2),
       colorText: Colors.black,
       icon: const Icon(Icons.warning_amber, color: Colors.black),

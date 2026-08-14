@@ -8,25 +8,24 @@ import 'package:flutter/scheduler.dart';
 class ColorController extends GetxController {
   static ColorController get to => Get.find();
 
-  final Rx<Color> primaryColor = const Color(0xFF9C27B0).obs; // Colors.purple
-  final Rx<Color> accentColor =
-      const Color(0xFFFF5722).obs; // Colors.deepOrange
-  final Rx<Color> textColor = const Color(0xFF000000).obs; // Colors.black
-  final Rx<Color> backgroundColor = const Color(0xFFFFFFFF).obs; // Colors.white
-  final Rx<Color> drawerColor = const Color(0xFF9C27B0).obs; // Colors.purple
-  final Rx<Color> iconColor = const Color(0xFF000000).obs; // Colors.black
+  final Rx<Color> primaryColor = const Color(0xFF2F6FED).obs;
+  final Rx<Color> accentColor = const Color(0xFF2F6FED).obs;
+  final Rx<Color> textColor = const Color(0xFF111113).obs;
+  final Rx<Color> backgroundColor = const Color(0xFFF2F2F7).obs;
+  final Rx<Color> drawerColor = const Color(0xFFFFFFFF).obs;
+  final Rx<Color> iconColor = const Color(0xFF111113).obs;
 
   final RxInt currentSchemeIndex = 0.obs;
 
   final List<Map<String, dynamic>> colorSchemes = [
     {
       'name': 'Default',
-      'primary': const Color(0xFF2196F3), // Colors.blue
-      'accent': const Color(0xFF40C4FF), // Colors.blueAccent
-      'text': const Color(0xDD000000), // Colors.black87
-      'background': const Color(0xFFFFFFFF), // Colors.white
-      'drawer': const Color(0xFF6A1B9A), // Colors.purple.shade900
-      'icon': const Color(0xFFFF5722), // Colors.deepOrange
+      'primary': const Color(0xFF2F6FED),
+      'accent': const Color(0xFF2F6FED),
+      'text': const Color(0xFF111113),
+      'background': const Color(0xFFF2F2F7),
+      'drawer': const Color(0xFFFFFFFF),
+      'icon': const Color(0xFF111113),
     },
     {
       'name': 'Ocean Blue',
@@ -170,13 +169,13 @@ class ColorController extends GetxController {
       currentSchemeIndex.value = prefs.getInt('currentSchemeIndex') ?? 0;
 
       // Load colors with defaults if null
-      primaryColor.value = Color(prefs.getInt('primaryColor') ?? 0xFF2196F3);
-      accentColor.value = Color(prefs.getInt('accentColor') ?? 0xFFFF5722);
-      textColor.value = Color(prefs.getInt('textColor') ?? 0xFF000000);
+      primaryColor.value = Color(prefs.getInt('primaryColor') ?? 0xFF2F6FED);
+      accentColor.value = Color(prefs.getInt('accentColor') ?? 0xFF2F6FED);
+      textColor.value = Color(prefs.getInt('textColor') ?? 0xFF111113);
       backgroundColor.value =
-          Color(prefs.getInt('backgroundColor') ?? 0xFFFFFFFF);
-      drawerColor.value = Color(prefs.getInt('drawerColor') ?? 0xFF9C27B0);
-      iconColor.value = Color(prefs.getInt('iconColor') ?? 0xFF000000);
+          Color(prefs.getInt('backgroundColor') ?? 0xFFF2F2F7);
+      drawerColor.value = Color(prefs.getInt('drawerColor') ?? 0xFFFFFFFF);
+      iconColor.value = Color(prefs.getInt('iconColor') ?? 0xFF111113);
 
       // Apply system UI overlay style after loading colors
       SystemChrome.setSystemUIOverlayStyle(
@@ -246,6 +245,40 @@ class ColorController extends GetxController {
 
   bool _isDark(Color color) {
     return ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+  }
+
+  ColorScheme _colorSchemeFor(Brightness brightness) {
+    final generated = ColorScheme.fromSeed(
+      seedColor: primaryColor.value,
+      brightness: brightness,
+    );
+    final isDarkTheme = brightness == Brightness.dark;
+    final configuredBackground = backgroundColor.value;
+    final surface = _isDark(configuredBackground) == isDarkTheme
+        ? configuredBackground
+        : generated.surface;
+    final configuredText = textColor.value;
+    final onSurface = _isDark(configuredText) != _isDark(surface)
+        ? configuredText
+        : generated.onSurface;
+
+    return generated.copyWith(
+      primary: primaryColor.value,
+      secondary: accentColor.value,
+      surface: surface,
+      surfaceContainerLow: Color.alphaBlend(
+        primaryColor.value.withValues(alpha: 0.04),
+        surface,
+      ),
+      surfaceContainerHighest: Color.alphaBlend(
+        primaryColor.value.withValues(alpha: 0.10),
+        surface,
+      ),
+      onSurface: onSurface,
+      onSurfaceVariant: Color.lerp(onSurface, surface, 0.35)!,
+      outline: Color.lerp(onSurface, surface, 0.70)!,
+      outlineVariant: Color.lerp(onSurface, surface, 0.82)!,
+    );
   }
 
   String get currentSchemeName =>
@@ -340,42 +373,6 @@ class ColorController extends GetxController {
 
     update();
     Get.forceAppUpdate();
-
-    if (accent != null) {
-      accentColor.value = accent;
-      await prefs.setInt('accentColor', accentColor.value.toARGB32());
-    }
-    if (text != null) {
-      textColor.value = text;
-      await prefs.setInt('textColor', textColor.value.toARGB32());
-    }
-    if (background != null) {
-      backgroundColor.value = background;
-      await prefs.setInt('backgroundColor', backgroundColor.value.toARGB32());
-    }
-    if (drawer != null) {
-      drawerColor.value = drawer;
-      await prefs.setInt('drawerColor', drawerColor.value.toARGB32());
-    }
-    if (icon != null) {
-      iconColor.value = icon;
-      await prefs.setInt('iconColor', iconColor.value.toARGB32());
-    }
-
-    // Apply system UI overlay style after color changes
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness:
-            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: backgroundColor.value,
-        systemNavigationBarIconBrightness:
-            _isDark(backgroundColor.value) ? Brightness.light : Brightness.dark,
-      ),
-    );
-
-    update();
-    Get.forceAppUpdate();
   }
 
   Future<void> saveAllColors() async {
@@ -407,59 +404,187 @@ class ColorController extends GetxController {
   }
 
   ThemeData getLightTheme() {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: primaryColor.value,
-      brightness: Brightness.light,
-    );
+    final colorScheme = _colorSchemeFor(Brightness.light);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: backgroundColor.value,
-      canvasColor: backgroundColor.value,
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       iconTheme: IconThemeData(
         color: colorScheme.onSurface,
       ),
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(color: colorScheme.onSurface),
-        bodyMedium: TextStyle(color: colorScheme.onSurface),
-        titleLarge: TextStyle(color: colorScheme.onSurface),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
+        thickness: .5,
+        space: 1,
+      ),
+      textTheme: const TextTheme(
+        displaySmall: TextStyle(
+            fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.8),
+        headlineMedium: TextStyle(
+            fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(fontSize: 16),
+        bodyMedium: TextStyle(fontSize: 15),
+        bodySmall: TextStyle(fontSize: 13),
+        labelLarge: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       ).apply(
         bodyColor: colorScheme.onSurface,
         displayColor: colorScheme.onSurface,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        isDense: true,
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: .65),
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: BorderSide(color: colorScheme.outline),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 68,
+        elevation: 0,
+        backgroundColor: colorScheme.surface,
+        indicatorColor: colorScheme.primary.withValues(alpha: .14),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
+              fontSize: 11,
+              fontWeight: states.contains(WidgetState.selected)
+                  ? FontWeight.w700
+                  : FontWeight.w500,
+            )),
       ),
     );
   }
 
   ThemeData getDarkTheme() {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: primaryColor.value,
-      brightness: Brightness.dark,
-    );
+    final colorScheme = _colorSchemeFor(Brightness.dark);
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: backgroundColor.value,
-      canvasColor: backgroundColor.value,
+      scaffoldBackgroundColor: colorScheme.surface,
+      canvasColor: colorScheme.surface,
       appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        titleTextStyle: TextStyle(
+          color: colorScheme.onSurface,
+          fontSize: 20,
+          fontWeight: FontWeight.w700,
+        ),
       ),
       iconTheme: IconThemeData(
         color: colorScheme.onSurface,
       ),
-      textTheme: TextTheme(
-        bodyLarge: TextStyle(color: colorScheme.onSurface),
-        bodyMedium: TextStyle(color: colorScheme.onSurface),
-        titleLarge: TextStyle(color: colorScheme.onSurface),
+      dividerTheme: DividerThemeData(
+        color: colorScheme.outlineVariant,
+        thickness: .5,
+        space: 1,
+      ),
+      textTheme: const TextTheme(
+        displaySmall: TextStyle(
+            fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.8),
+        headlineMedium: TextStyle(
+            fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5),
+        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+        titleMedium: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(fontSize: 16),
+        bodyMedium: TextStyle(fontSize: 15),
+        bodySmall: TextStyle(fontSize: 13),
+        labelLarge: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
       ).apply(
         bodyColor: colorScheme.onSurface,
         displayColor: colorScheme.onSurface,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        isDense: true,
+        filled: true,
+        fillColor: colorScheme.surfaceContainerHighest,
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          side: BorderSide(color: colorScheme.outline),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 68,
+        elevation: 0,
+        backgroundColor: colorScheme.surface,
+        indicatorColor: colorScheme.primary.withValues(alpha: .25),
       ),
     );
   }

@@ -36,18 +36,18 @@ class _SaveDialogDriveUploadState extends State<SaveDialogDriveUpload> {
           ),
           child: CheckboxListTile(
             title: const Text(
-              'Upload to Google Drive',
+              'Envoyer vers Google Drive',
               style: TextStyle(color: Colors.white),
             ),
             subtitle: recordingController.isDriveSignedIn.value
                 ? Text(
-                    'Signed in as ${recordingController.userEmail.value}',
+                    'Connecté en tant que ${recordingController.userEmail.value}',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
                     ),
                   )
                 : Text(
-                    'You will be prompted to sign in',
+                    'Une connexion vous sera demandée',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
                     ),

@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'dart:async';
 
 class HymnSearchPopup extends StatefulWidget {
-  final ColorController colorController;
   final Function(Hymn) onHymnSelected;
 
   const HymnSearchPopup({
     super.key,
-    required this.colorController,
     required this.onHymnSelected,
   });
 
@@ -99,30 +96,25 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Use dynamic colors or fallback to controller values if needed
-    final surfaceColor = widget.colorController.backgroundColor.value;
-    final onSurfaceColor = widget.colorController.textColor.value;
-
-    // M3 Search Bar Colors
-    // We want a "soft elevated container".
-    // Using Surface Container High (or similar) from M3.
-    // If not available, mix primary with surface.
-    final searchBarColor = Color.alphaBlend(
-      theme.colorScheme.primary.withValues(alpha: 0.08),
-      surfaceColor,
-    );
+    final surfaceColor = colorScheme.surface;
+    final onSurfaceColor = colorScheme.onSurface;
+    final searchBarColor = colorScheme.surfaceContainerHighest;
 
     return Dialog(
       backgroundColor: surfaceColor,
       elevation: 0, // We handle internal elevation
       insetPadding: const EdgeInsets.all(16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side:
+            BorderSide(color: colorScheme.outlineVariant.withValues(alpha: .7)),
+      ),
       child: Container(
         constraints: const BoxConstraints(maxHeight: 600, maxWidth: 500),
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
         decoration: BoxDecoration(
           color: surfaceColor,
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -136,8 +128,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                     ? searchBarColor
                     : searchBarColor.withValues(
                         alpha: 0.8), // Slightly transparent when unfocused
-                borderRadius:
-                    BorderRadius.circular(28), // Fully rounded pill shape
+                borderRadius: BorderRadius.circular(14),
                 boxShadow: _isFocused
                     ? [
                         BoxShadow(
@@ -229,12 +220,14 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                           ),
                         )
                       : ClipRRect(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded list corners
-                          child: ListView.builder(
+                          borderRadius: BorderRadius.circular(14),
+                          child: ListView.separated(
                             key: const PageStorageKey('hymn_search_list'),
                             itemCount: _hymns.length,
                             physics: const BouncingScrollPhysics(),
+                            padding: EdgeInsets.zero,
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 8),
                             itemBuilder: (context, index) {
                               final hymn = _hymns[index];
                               return Material(
@@ -250,12 +243,11 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 12, horizontal: 16),
                                     decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(
-                                          color: onSurfaceColor.withValues(
-                                              alpha: 0.05),
-                                          width: 1,
-                                        ),
+                                      color: colorScheme.surface,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: colorScheme.outlineVariant
+                                            .withValues(alpha: .6),
                                       ),
                                     ),
                                     child: Row(

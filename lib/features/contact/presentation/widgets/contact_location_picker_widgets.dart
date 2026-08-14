@@ -149,7 +149,7 @@ class LocationConfirmButtonWidget extends StatelessWidget {
           ),
         ),
         child: const Text(
-          'Confirm Location',
+          "Confirmer l'emplacement",
           style: TextStyle(
             color: Colors.white,
             fontSize: 16,

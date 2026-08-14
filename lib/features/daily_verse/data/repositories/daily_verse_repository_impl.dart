@@ -36,7 +36,7 @@ class DailyVerseRepositoryImpl implements DailyVerseRepository {
   @override
   Future<Map<String, dynamic>> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final isEnabled = prefs.getBool(_enabledKey) ?? false;
+    final isEnabled = prefs.getBool(_enabledKey) ?? true;
     final hour = prefs.getInt(_hourKey) ?? 7;
     final minute = prefs.getInt(_minuteKey) ?? 0;
 

@@ -134,7 +134,7 @@ class RecordingTileDialogs {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              'Annuler',
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
@@ -205,7 +205,7 @@ class RecordingTileDialogs {
             ),
             const SizedBox(width: 12),
             Text(
-              'Delete Permanently',
+              'Supprimer définitivement',
               style: TextStyle(
                 color: colorController.textColor.value,
                 fontWeight: FontWeight.bold,
@@ -219,7 +219,7 @@ class RecordingTileDialogs {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Are you sure you want to permanently delete "${recording.title}"?',
+              'Voulez-vous vraiment supprimer définitivement "${recording.title}" ?',
               style: TextStyle(
                   color: colorController.textColor.value, fontSize: 14),
             ),
@@ -231,7 +231,7 @@ class RecordingTileDialogs {
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(color: Colors.red.withValues(alpha: 0.3))),
               child: Text(
-                'This will permanently delete recording from Google Drive, Firebase, and local storage. This action cannot be undone.',
+                "Cet enregistrement sera définitivement supprimé de Google Drive, Firebase et du stockage local. Cette action est irréversible.",
                 style: TextStyle(
                   color: Colors.red.withValues(alpha: 0.8),
                   fontSize: 12,
@@ -244,7 +244,7 @@ class RecordingTileDialogs {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              'Annuler',
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),
@@ -289,7 +289,7 @@ class RecordingTileDialogs {
               ),
               const SizedBox(width: 12),
               Text(
-                'Make Recording Public',
+                "Rendre l'enregistrement public",
                 style: TextStyle(
                   color: colorController.textColor.value,
                   fontWeight: FontWeight.bold,
@@ -302,7 +302,7 @@ class RecordingTileDialogs {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'This will upload the recording to Google Drive (if not already uploaded) and make it visible to everyone using the app.',
+                "L'enregistrement sera envoyé vers Google Drive, s'il ne l'est pas déjà, puis rendu visible par tous les utilisateurs de l'application.",
                 style: TextStyle(
                     color:
                         colorController.textColor.value.withValues(alpha: 0.7),
@@ -310,7 +310,7 @@ class RecordingTileDialogs {
               ),
               const SizedBox(height: 16),
               Text(
-                'Recording Title:',
+                "Titre de l'enregistrement :",
                 style: TextStyle(
                   color: colorController.textColor.value,
                   fontWeight: FontWeight.w500,
@@ -328,7 +328,7 @@ class RecordingTileDialogs {
                 smartDashesType: SmartDashesType.disabled,
                 smartQuotesType: SmartQuotesType.disabled,
                 decoration: InputDecoration(
-                  hintText: 'Enter recording title',
+                  hintText: "Saisissez le titre de l'enregistrement",
                   hintStyle: TextStyle(
                       color: colorController.textColor.value
                           .withValues(alpha: 0.5)),
@@ -474,7 +474,7 @@ class RecordingTileDialogs {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Cancel',
+              'Annuler',
               style: TextStyle(color: colorController.textColor.value),
             ),
           ),

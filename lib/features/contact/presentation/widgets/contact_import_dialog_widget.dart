@@ -98,7 +98,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Select Contact',
+              'Sélectionner un contact',
               style: TextStyle(
                 color: widget.colorController.textColor.value,
                 fontSize: 20,
@@ -203,7 +203,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No contacts found',
+              'Aucun contact trouvé',
               style: TextStyle(
                 color: widget.colorController.textColor.value,
                 fontSize: 16,

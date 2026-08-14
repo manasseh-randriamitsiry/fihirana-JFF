@@ -1,22 +1,8 @@
-import 'dart:ui';
-import 'package:awesome_notifications/awesome_notifications.dart';
+import 'notification_service.dart';
 
 class DownloadManager {
   Future<void> initNotifications() async {
-    await AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-          channelKey: 'hymn_download_channel',
-          channelName: 'Maka Hira',
-          channelDescription: 'Notifications for hymn downloads and updates',
-          defaultColor: const Color(0xFF9D50DD),
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-        ),
-      ],
-      debug: true,
-    );
+    await NotificationService.initializeNotificationChannels();
   }
 
   Future<void> downloadHymns({
