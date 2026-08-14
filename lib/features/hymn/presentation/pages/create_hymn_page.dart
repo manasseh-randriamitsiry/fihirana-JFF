@@ -324,8 +324,13 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                 ReorderableListView(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  onReorderItem: (oldIndex, newIndex) {
+                  // Kept for compatibility with the Flutter SDK used in CI.
+                  // ignore: deprecated_member_use
+                  onReorder: (oldIndex, newIndex) {
                     setState(() {
+                      if (oldIndex < newIndex) {
+                        newIndex -= 1;
+                      }
                       final item = _verseControllers.removeAt(oldIndex);
                       _verseControllers.insert(newIndex, item);
                     });
