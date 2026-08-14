@@ -157,7 +157,9 @@ class _EditHymnScreenState extends State<EditHymnScreen> {
                   ReorderableListView(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    onReorderItem: _reorderVerses,
+                    // Kept for compatibility with the Flutter SDK used in CI.
+                    // ignore: deprecated_member_use
+                    onReorder: _reorderVerses,
                     children: [
                       for (var index = 0;
                           index < _verseControllers.length;
@@ -223,6 +225,9 @@ class _EditHymnScreenState extends State<EditHymnScreen> {
 
   void _reorderVerses(int oldIndex, int newIndex) {
     setState(() {
+      if (oldIndex < newIndex) {
+        newIndex -= 1;
+      }
       final item = _verseControllers.removeAt(oldIndex);
       _verseControllers.insert(newIndex, item);
     });
