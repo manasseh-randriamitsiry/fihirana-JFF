@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -206,7 +205,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return ListView.builder(
       key: const PageStorageKey('bible_books_list'),
-      scrollCacheExtent: const ScrollCacheExtent.pixels(600),
       padding: const EdgeInsets.only(bottom: 24),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
