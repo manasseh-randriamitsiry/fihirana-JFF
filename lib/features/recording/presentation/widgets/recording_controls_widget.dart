@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 
 class RecordingControlsWidget extends StatefulWidget {
   final bool isRecording;
@@ -47,7 +45,7 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     if (!widget.isRecording && !widget.isPaused) {
       // Start recording button
@@ -88,15 +86,12 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: widget.isPaused
-                  ? colorController.primaryColor.value
-                  : colorController.primaryColor.value.withValues(alpha: 0.1),
+              color: widget.isPaused ? colors.primary : colors.primaryContainer,
               borderRadius: BorderRadius.circular(20),
               boxShadow: widget.isPaused
                   ? [
                       BoxShadow(
-                        color: colorController.primaryColor.value
-                            .withValues(alpha: 0.4),
+                        color: colors.primary.withValues(alpha: 0.4),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -105,9 +100,7 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
             ),
             child: Icon(
               widget.isPaused ? Icons.play_arrow : Icons.pause,
-              color: widget.isPaused
-                  ? Colors.white
-                  : colorController.primaryColor.value,
+              color: widget.isPaused ? Colors.white : colors.onPrimaryContainer,
               size: 32,
             ),
           ),

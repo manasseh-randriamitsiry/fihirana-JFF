@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'tile/recording_tile_icon.dart';
 import 'tile/recording_tile_info.dart';
 import 'tile/recording_tile_menu.dart';
@@ -18,7 +17,6 @@ class RecordingTileWidget extends StatelessWidget {
   final VoidCallback? onRestore;
   final VoidCallback? onPermanentDelete;
   final RecordingController controller = Get.find<RecordingController>();
-  final ColorController colorController = Get.find<ColorController>();
 
   RecordingTileWidget({
     super.key,
@@ -32,6 +30,7 @@ class RecordingTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     if (isDeleted) {
       return RecordingTileDeleted(
         recording: recording,
@@ -79,18 +78,16 @@ class RecordingTileWidget extends StatelessWidget {
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: isSelected
-                  ? colorController.primaryColor.value.withValues(alpha: 0.1)
-                  : colorController.backgroundColor.value,
+                  ? colors.primaryContainer
+                  : colors.surfaceContainerLow,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected
-                    ? colorController.primaryColor.value
-                    : colorController.textColor.value.withValues(alpha: 0.1),
+                color: isSelected ? colors.primary : colors.outlineVariant,
                 width: isSelected ? 2 : 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: colors.shadow.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -107,7 +104,7 @@ class RecordingTileWidget extends StatelessWidget {
                       onChanged: (value) {
                         controller.toggleRecordingSelection(recording.id);
                       },
-                      activeColor: colorController.primaryColor.value,
+                      activeColor: colors.primary,
                     ),
                   ),
 
@@ -135,8 +132,7 @@ class RecordingTileWidget extends StatelessWidget {
                 // Temporary: always show menu for debugging
                 if (isMultiSelect)
                   IconButton(
-                    icon: Icon(Icons.more_vert,
-                        color: colorController.textColor.value),
+                    icon: Icon(Icons.more_vert, color: colors.onSurface),
                     onPressed: () {
                       if (kDebugMode) {
                         print(

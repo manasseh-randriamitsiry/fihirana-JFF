@@ -95,22 +95,22 @@ class _ContactListScreenState extends State<ContactListScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
+      backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colorController.backgroundColor.value,
+        backgroundColor: colors.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon:
-              Icon(Icons.menu_rounded, color: colorController.iconColor.value),
+          icon: Icon(Icons.menu_rounded, color: colors.onSurface),
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
         title: Text(
           l10n.contacts,
           style: TextStyle(
-            color: colorController.textColor.value,
+            color: colors.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -152,7 +152,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
                   return Center(
                     child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        colorController.primaryColor.value,
+                        colors.primary,
                       ),
                     ),
                   );
@@ -162,7 +162,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
                   return Center(
                     child: Text(
                       '${l10n.error}: ${snapshot.error}',
-                      style: TextStyle(color: colorController.textColor.value),
+                      style: TextStyle(color: colors.onSurface),
                     ),
                   );
                 }

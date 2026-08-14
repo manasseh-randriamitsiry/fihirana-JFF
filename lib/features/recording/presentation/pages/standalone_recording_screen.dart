@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/presentation/controllers/hymn_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/recording/presentation/widgets/recording_controls_widget.dart';
@@ -24,7 +23,6 @@ class StandaloneRecordingScreen extends StatefulWidget {
 
 class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   final RecordingController _controller = Get.find<RecordingController>();
-  final ColorController _colorController = Get.find<ColorController>();
   final HymnController _hymnController = Get.find<HymnController>();
   final TextEditingController _nameController = TextEditingController();
 
@@ -173,6 +171,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
   }
 
   void _showSaveDialog() {
+    final colors = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -187,15 +186,12 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                _colorController.primaryColor.value,
-                _colorController.primaryColor.value.withValues(alpha: 0.8),
-              ],
+              colors: [colors.primary, colors.primary.withValues(alpha: 0.8)],
             ),
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
+                color: colors.shadow.withValues(alpha: 0.3),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -228,12 +224,12 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
                   const SizedBox(height: 20),
 
-                  const Text(
+                  Text(
                     'Enregistrement terminé !',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: colors.onPrimary,
                     ),
                   ),
 
@@ -242,8 +238,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                   // Name input
                   TextField(
                     controller: _nameController,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: colors.onPrimary,
                       fontSize: 16,
                     ),
                     autocorrect: false,
@@ -255,25 +251,25 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                     smartQuotesType: SmartQuotesType.disabled,
                     decoration: InputDecoration(
                       labelText: "Nom de l'enregistrement",
-                      labelStyle:
-                          TextStyle(color: Colors.white.withValues(alpha: 0.8)),
+                      labelStyle: TextStyle(
+                          color: colors.onPrimary.withValues(alpha: 0.8)),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.3)),
+                            color: colors.onPrimary.withValues(alpha: 0.3)),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(
-                            color: Colors.white.withValues(alpha: 0.3)),
+                            color: colors.onPrimary.withValues(alpha: 0.3)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide:
-                            const BorderSide(color: Colors.white, width: 2),
+                            BorderSide(color: colors.onPrimary, width: 2),
                       ),
                       prefixIcon: Icon(Icons.edit,
-                          color: Colors.white.withValues(alpha: 0.8)),
+                          color: colors.onPrimary.withValues(alpha: 0.8)),
                     ),
                   ),
 
@@ -288,12 +284,12 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             side: BorderSide(
-                                color: Colors.white.withValues(alpha: 0.5)),
+                                color: colors.onPrimary.withValues(alpha: 0.5)),
                           ),
                           child: Text(
                             'Ignorer',
                             style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.8)),
+                                color: colors.onPrimary.withValues(alpha: 0.8)),
                           ),
                         ),
                       ),
@@ -303,9 +299,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                           onPressed: _saveRecording,
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            backgroundColor: Colors.white,
-                            foregroundColor:
-                                _colorController.primaryColor.value,
+                            backgroundColor: colors.surface,
+                            foregroundColor: colors.primary,
                           ),
                           child: Text(AppLocalizations.of(context).save),
                         ),
@@ -323,131 +318,127 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(
-      builder: (colorController) => Obx(() {
-        final textColor = colorController.textColor.value;
-        final backgroundColor = colorController.backgroundColor.value;
-        final iconColor = colorController.iconColor.value;
-        final defaultTextStyle = TextStyle(color: textColor, inherit: true);
+    final colors = Theme.of(context).colorScheme;
+    final textColor = colors.onSurface;
+    final backgroundColor = colors.surface;
+    final iconColor = colors.onSurface;
+    final defaultTextStyle = TextStyle(color: textColor, inherit: true);
 
-        return Scaffold(
+    return Obx(() {
+      return Scaffold(
+        backgroundColor: backgroundColor,
+        appBar: AppBar(
           backgroundColor: backgroundColor,
-          appBar: AppBar(
-            backgroundColor: backgroundColor,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            leading: IconButton(
-              icon: Icon(Icons.close, color: iconColor),
-              onPressed: () => Get.back(),
-            ),
-            title: Text(
-              'Enregistrement',
-              style: defaultTextStyle.copyWith(
-                fontWeight: FontWeight.bold,
-                fontSize: 26,
-              ),
-            ),
-            actions: [
-              IconButton(
-                icon: Icon(
-                  _showHymnList
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  color: iconColor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _showHymnList = !_showHymnList;
-                  });
-                },
-              ),
-            ],
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.close, color: iconColor),
+            onPressed: () => Get.back(),
           ),
-          body: Column(
-            children: [
-              // Search bar for hymns
-              if (_showHymnList)
-                Padding(
-                  padding: const EdgeInsets.all(AppDimensions.md),
-                  child: HymnSearchField(
-                    controller: _hymnController.safeSearchController,
-                    defaultTextStyle: defaultTextStyle,
-                    textColor: textColor,
-                    iconColor: iconColor,
-                    backgroundColor: backgroundColor,
-                    onChanged: () {
-                      if (mounted && !_hymnController.isDisposed) {
-                        setState(() {});
-                      }
-                    },
-                  ),
+          title: Text(
+            'Enregistrement',
+            style: defaultTextStyle.copyWith(
+              fontWeight: FontWeight.bold,
+              fontSize: 26,
+            ),
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                _showHymnList
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
+                color: iconColor,
+              ),
+              onPressed: () {
+                setState(() {
+                  _showHymnList = !_showHymnList;
+                });
+              },
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            // Search bar for hymns
+            if (_showHymnList)
+              Padding(
+                padding: const EdgeInsets.all(AppDimensions.md),
+                child: HymnSearchField(
+                  controller: _hymnController.safeSearchController,
+                  defaultTextStyle: defaultTextStyle,
+                  textColor: textColor,
+                  iconColor: iconColor,
+                  backgroundColor: backgroundColor,
+                  onChanged: () {
+                    if (mounted && !_hymnController.isDisposed) {
+                      setState(() {});
+                    }
+                  },
                 ),
+              ),
 
-              // Recording title input
-              if (!_showHymnList)
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: TextField(
-                    controller: _nameController,
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+            // Recording title input
+            if (!_showHymnList)
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: TextField(
+                  controller: _nameController,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  autofillHints: const [],
+                  textInputAction: TextInputAction.done,
+                  keyboardType: TextInputType.text,
+                  smartDashesType: SmartDashesType.disabled,
+                  smartQuotesType: SmartQuotesType.disabled,
+                  decoration: InputDecoration(
+                    labelText: "Nom de l'enregistrement",
+                    labelStyle: TextStyle(
+                      color: textColor.withValues(alpha: 0.7),
                     ),
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    autofillHints: const [],
-                    textInputAction: TextInputAction.done,
-                    keyboardType: TextInputType.text,
-                    smartDashesType: SmartDashesType.disabled,
-                    smartQuotesType: SmartQuotesType.disabled,
-                    decoration: InputDecoration(
-                      labelText: "Nom de l'enregistrement",
-                      labelStyle: TextStyle(
-                        color: textColor.withValues(alpha: 0.7),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: colors.outlineVariant,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.3),
-                        ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: colors.outlineVariant,
                       ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: colorController.primaryColor.value
-                              .withValues(alpha: 0.3),
-                        ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: colors.primary,
+                        width: 2,
                       ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(
-                          color: colorController.primaryColor.value,
-                          width: 2,
-                        ),
-                      ),
-                      prefixIcon: Icon(
-                        Icons.edit,
-                        color: colorController.primaryColor.value
-                            .withValues(alpha: 0.7),
-                      ),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.edit,
+                      color: colors.primary.withValues(alpha: 0.7),
                     ),
                   ),
                 ),
-
-              // Content area - either hymn list or recording controls
-              Expanded(
-                child: _showHymnList
-                    ? _buildHymnList(
-                        defaultTextStyle, textColor, backgroundColor)
-                    : _buildRecordingControls(),
               ),
-            ],
-          ),
-        );
-      }),
-    );
+
+            // Content area - either hymn list or recording controls
+            Expanded(
+              child: _showHymnList
+                  ? _buildHymnList(defaultTextStyle, textColor, backgroundColor,
+                      colors.primary)
+                  : _buildRecordingControls(),
+            ),
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildRecordingControls() {
@@ -472,8 +463,8 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     );
   }
 
-  Widget _buildHymnList(
-      TextStyle defaultTextStyle, Color textColor, Color backgroundColor) {
+  Widget _buildHymnList(TextStyle defaultTextStyle, Color textColor,
+      Color backgroundColor, Color primaryColor) {
     return StreamBuilder<List<Hymn>>(
       stream: _hymnController.hymnsStream,
       builder: (context, snapshot) {
@@ -519,7 +510,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
               hymn: hymn,
               textColor: textColor,
               backgroundColor: backgroundColor,
-              primaryColor: _colorController.primaryColor.value,
+              primaryColor: primaryColor,
               onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
               onMusicPressed: () {
                 // Set the recording name to the selected hymn title

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 
 class ContactListItemWidget extends StatelessWidget {
   final Contact contact;
@@ -22,29 +20,28 @@ class ContactListItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Card(
       elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shadowColor: colors.shadow.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
+          color: colors.outlineVariant,
           width: 1,
         ),
       ),
-      color: colorController.backgroundColor.value,
+      color: colors.surfaceContainerLow,
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
-          backgroundColor:
-              colorController.primaryColor.value.withValues(alpha: 0.15),
+          backgroundColor: colors.primaryContainer,
           child: Text(
             contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?',
             style: TextStyle(
-              color: colorController.primaryColor.value,
+              color: colors.onPrimaryContainer,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -53,7 +50,7 @@ class ContactListItemWidget extends StatelessWidget {
           contact.name,
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: colorController.textColor.value,
+            color: colors.onSurface,
             fontSize: 16,
           ),
         ),
@@ -63,16 +60,12 @@ class ContactListItemWidget extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.phone,
-                    size: 14,
-                    color:
-                        colorController.iconColor.value.withValues(alpha: 0.7)),
+                Icon(Icons.phone, size: 14, color: colors.onSurfaceVariant),
                 const SizedBox(width: 4),
                 Text(
                   contact.phoneNumber,
                   style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.7),
+                    color: colors.onSurfaceVariant,
                     fontSize: 14,
                   ),
                 ),
@@ -83,15 +76,12 @@ class ContactListItemWidget extends StatelessWidget {
               Row(
                 children: [
                   Icon(Icons.location_on,
-                      size: 14,
-                      color: colorController.iconColor.value
-                          .withValues(alpha: 0.7)),
+                      size: 14, color: colors.onSurfaceVariant),
                   const SizedBox(width: 4),
                   Text(
                     contact.location!,
                     style: TextStyle(
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.7),
+                      color: colors.onSurfaceVariant,
                       fontSize: 14,
                     ),
                   ),
@@ -111,7 +101,7 @@ class ContactListItemWidget extends StatelessWidget {
               ),
             if (canEdit) ...[
               IconButton(
-                icon: Icon(Icons.edit, color: colorController.iconColor.value),
+                icon: Icon(Icons.edit, color: colors.onSurfaceVariant),
                 onPressed: onEdit,
               ),
               IconButton(
@@ -131,7 +121,7 @@ class ContactEmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Center(
       child: Column(
@@ -140,13 +130,13 @@ class ContactEmptyStateWidget extends StatelessWidget {
           Icon(
             Icons.perm_contact_calendar_rounded,
             size: 80,
-            color: colorController.textColor.value.withValues(alpha: 0.3),
+            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
             'Aucun contact trouvé',
             style: TextStyle(
-              color: colorController.textColor.value,
+              color: colors.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -171,19 +161,19 @@ class ContactSearchWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: colorController.backgroundColor.value,
+        color: colors.surfaceContainerLow,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: colorController.textColor.value.withValues(alpha: 0.1),
+          color: colors.outlineVariant,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colors.shadow.withValues(alpha: 0.05),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -195,17 +185,17 @@ class ContactSearchWidget extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(
-            color: colorController.iconColor.value.withValues(alpha: 0.5),
+            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
           ),
           prefixIcon: Icon(
             Icons.search,
-            color: colorController.iconColor.value,
+            color: colors.onSurfaceVariant,
           ),
           suffixIcon: controller.text.isNotEmpty
               ? IconButton(
                   icon: Icon(
                     Icons.clear,
-                    color: colorController.iconColor.value,
+                    color: colors.onSurfaceVariant,
                   ),
                   onPressed: () {
                     controller.clear();
@@ -221,7 +211,7 @@ class ContactSearchWidget extends StatelessWidget {
               const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         ),
         style: TextStyle(
-          color: colorController.textColor.value,
+          color: colors.onSurface,
         ),
       ),
     );

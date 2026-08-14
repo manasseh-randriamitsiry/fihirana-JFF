@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
 import 'package:fihirana/features/history/di/history_di.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/features/hymn/presentation/pages/hymn_detail_screen.dart';
 import 'package:fihirana/features/history/presentation/widgets/history_item_card.dart';
@@ -18,7 +17,6 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   HistoryController? historyController;
-  final ColorController colorController = Get.find<ColorController>();
   bool _isLoading = true;
 
   @override
@@ -47,15 +45,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
 
     if (_isLoading || historyController == null) {
       return Scaffold(
-        backgroundColor: colorController.backgroundColor.value,
+        backgroundColor: colors.surface,
         appBar: AppBar(
-          backgroundColor: colorController.backgroundColor.value,
+          backgroundColor: colors.surface,
           title: Text(
             l10n.history,
-            style: TextStyle(color: colorController.textColor.value),
+            style: TextStyle(color: colors.onSurface),
           ),
         ),
         body: const Center(child: CircularProgressIndicator()),
@@ -68,9 +67,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return const Scaffold(body: Center(child: CircularProgressIndicator()));
       }
 
-      final backgroundColor = colorController.backgroundColor.value;
-      final textColor = colorController.textColor.value;
-      final iconColor = colorController.iconColor.value;
+      final backgroundColor = colors.surface;
+      final textColor = colors.onSurface;
+      final iconColor = colors.onSurface;
 
       return Scaffold(
         backgroundColor: backgroundColor,
@@ -177,21 +176,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _showClearHistoryDialog(BuildContext context) {
-    final textColor = colorController.textColor.value;
-    final backgroundColor = colorController.backgroundColor.value;
+    final colors = Theme.of(context).colorScheme;
 
     Get.dialog(
       AlertDialog(
-        backgroundColor: backgroundColor,
+        backgroundColor: colors.surfaceContainerHigh,
         title: Text(context.translate((l) => l.clearAllHistoryQuestion),
-            style: TextStyle(color: textColor)),
+            style: TextStyle(color: colors.onSurface)),
         content: Text(context.translate((l) => l.historyCannotBeUndone),
-            style: TextStyle(color: textColor)),
+            style: TextStyle(color: colors.onSurface)),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text(context.translate((l) => l.no),
-                style: TextStyle(color: textColor)),
+                style: TextStyle(color: colors.primary)),
           ),
           TextButton(
             onPressed: () {
@@ -207,21 +205,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   void _showDeleteSelectedDialog(BuildContext context) {
-    final textColor = colorController.textColor.value;
-    final backgroundColor = colorController.backgroundColor.value;
+    final colors = Theme.of(context).colorScheme;
 
     Get.dialog(
       AlertDialog(
-        backgroundColor: backgroundColor,
+        backgroundColor: colors.surfaceContainerHigh,
         title: Text(context.translate((l) => l.deleteSelectedHistoryQuestion),
-            style: TextStyle(color: textColor)),
+            style: TextStyle(color: colors.onSurface)),
         content: Text(context.translate((l) => l.historyCannotBeUndone),
-            style: TextStyle(color: textColor)),
+            style: TextStyle(color: colors.onSurface)),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
             child: Text(context.translate((l) => l.no),
-                style: TextStyle(color: textColor)),
+                style: TextStyle(color: colors.primary)),
           ),
           TextButton(
             onPressed: () {

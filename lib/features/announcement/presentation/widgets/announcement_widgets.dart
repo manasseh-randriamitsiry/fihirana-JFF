@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:fihirana/features/announcement/domain/entities/announcement.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
 class AnnouncementCardWidget extends StatelessWidget {
@@ -48,7 +46,7 @@ class AnnouncementCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
 
     return Container(
@@ -56,15 +54,15 @@ class AnnouncementCardWidget extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            colorController.primaryColor.value.withValues(alpha: 0.15),
-            colorController.primaryColor.value.withValues(alpha: 0.05),
+            colors.primary.withValues(alpha: 0.15),
+            colors.primary.withValues(alpha: 0.05),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: colorController.primaryColor.value.withValues(alpha: 0.2),
+          color: colors.primary.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -85,13 +83,12 @@ class AnnouncementCardWidget extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: colorController.primaryColor.value
-                            .withValues(alpha: 0.2),
+                        color: colors.primaryContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
                         Icons.campaign_rounded,
-                        color: colorController.primaryColor.value,
+                        color: colors.primary,
                         size: 20,
                       ),
                     ),
@@ -100,7 +97,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                       child: Text(
                         announcement.title,
                         style: TextStyle(
-                          color: colorController.textColor.value,
+                          color: colors.onSurface,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -110,9 +107,9 @@ class AnnouncementCardWidget extends StatelessWidget {
                       PopupMenuButton<String>(
                         icon: Icon(
                           Icons.more_vert,
-                          color: colorController.iconColor.value,
+                          color: colors.onSurfaceVariant,
                         ),
-                        color: colorController.backgroundColor.value,
+                        color: colors.surfaceContainerHigh,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                         onSelected: (value) {
@@ -128,13 +125,10 @@ class AnnouncementCardWidget extends StatelessWidget {
                             child: Row(
                               children: [
                                 Icon(Icons.edit,
-                                    size: 20,
-                                    color: colorController.iconColor.value),
+                                    size: 20, color: colors.onSurfaceVariant),
                                 const SizedBox(width: 12),
                                 Text(l10n.edit,
-                                    style: TextStyle(
-                                        color:
-                                            colorController.textColor.value)),
+                                    style: TextStyle(color: colors.onSurface)),
                               ],
                             ),
                           ),
@@ -146,9 +140,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                                     size: 20, color: Colors.red),
                                 const SizedBox(width: 12),
                                 Text(l10n.delete,
-                                    style: TextStyle(
-                                        color:
-                                            colorController.textColor.value)),
+                                    style: TextStyle(color: colors.onSurface)),
                               ],
                             ),
                           ),
@@ -160,8 +152,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                 Text(
                   announcement.message,
                   style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.9),
+                    color: colors.onSurface,
                     fontSize: 15,
                     height: 1.5,
                   ),
@@ -172,15 +163,13 @@ class AnnouncementCardWidget extends StatelessWidget {
                     Icon(
                       Icons.access_time_rounded,
                       size: 14,
-                      color: colorController.textColor.value
-                          .withValues(alpha: 0.6),
+                      color: colors.onSurfaceVariant,
                     ),
                     const SizedBox(width: 6),
                     Text(
                       _getRelativeTime(announcement.createdAt),
                       style: TextStyle(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.6),
+                        color: colors.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
@@ -188,8 +177,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                     Text(
                       '•',
                       style: TextStyle(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.6),
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -197,8 +185,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                       DateFormat('dd/MM/yyyy HH:mm')
                           .format(announcement.createdAt),
                       style: TextStyle(
-                        color: colorController.textColor.value
-                            .withValues(alpha: 0.6),
+                        color: colors.onSurfaceVariant,
                         fontSize: 12,
                       ),
                     ),
@@ -212,8 +199,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: announcement.isExpired()
                           ? Colors.red.withValues(alpha: 0.1)
-                          : colorController.primaryColor.value
-                              .withValues(alpha: 0.1),
+                          : colors.primaryContainer,
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Row(
@@ -224,7 +210,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                           size: 14,
                           color: announcement.isExpired()
                               ? Colors.red
-                              : colorController.primaryColor.value,
+                              : colors.primary,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -232,8 +218,7 @@ class AnnouncementCardWidget extends StatelessWidget {
                           style: TextStyle(
                             color: announcement.isExpired()
                                 ? Colors.red
-                                : colorController.textColor.value
-                                    .withValues(alpha: 0.8),
+                                : colors.onSurfaceVariant,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -256,7 +241,7 @@ class AnnouncementEmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Center(
       child: Column(
@@ -265,13 +250,13 @@ class AnnouncementEmptyStateWidget extends StatelessWidget {
           Icon(
             Icons.notifications_none_rounded,
             size: 80,
-            color: colorController.textColor.value.withValues(alpha: 0.3),
+            color: colors.onSurfaceVariant.withValues(alpha: 0.5),
           ),
           const SizedBox(height: 16),
           Text(
             'Tsy misy filazana',
             style: TextStyle(
-              color: colorController.textColor.value,
+              color: colors.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -280,7 +265,7 @@ class AnnouncementEmptyStateWidget extends StatelessWidget {
           Text(
             'Hiverina rehefa misy vaovao',
             style: TextStyle(
-              color: colorController.textColor.value.withValues(alpha: 0.6),
+              color: colors.onSurfaceVariant,
               fontSize: 14,
             ),
           ),
@@ -300,7 +285,7 @@ class AnnouncementErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Center(
       child: Column(
@@ -312,7 +297,7 @@ class AnnouncementErrorWidget extends StatelessWidget {
           Text(
             'Nisy hadisoana',
             style: TextStyle(
-              color: colorController.textColor.value,
+              color: colors.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
@@ -321,7 +306,7 @@ class AnnouncementErrorWidget extends StatelessWidget {
           Text(
             error,
             style: TextStyle(
-              color: colorController.textColor.value.withValues(alpha: 0.7),
+              color: colors.onSurfaceVariant,
               fontSize: 14,
             ),
             textAlign: TextAlign.center,

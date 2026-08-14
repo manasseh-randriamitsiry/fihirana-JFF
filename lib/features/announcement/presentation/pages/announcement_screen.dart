@@ -406,16 +406,17 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
+      backgroundColor: colors.surface,
       appBar: AppBar(
-        backgroundColor: colorController.backgroundColor.value,
+        backgroundColor: colors.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         title: Text(
           'Filazana',
           style: TextStyle(
-            color: colorController.textColor.value,
+            color: colors.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -423,7 +424,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
         leading: IconButton(
           icon: Icon(
             Icons.menu_rounded,
-            color: colorController.iconColor.value,
+            color: colors.onSurface,
           ),
           onPressed: () => Get.find<ShellController>().toggleDrawer(),
         ),
@@ -438,7 +439,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
         onRefresh: () async {
           await _announcementController.refresh();
         },
-        color: colorController.primaryColor.value,
+        color: colors.primary,
         child: Obx(() {
           if (_announcementController.errorMessage.isNotEmpty) {
             return AnnouncementErrorWidget(
@@ -449,7 +450,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
               _announcementController.activeAnnouncements.isEmpty) {
             return Center(
               child: CircularProgressIndicator(
-                color: colorController.primaryColor.value,
+                color: colors.primary,
               ),
             );
           }
