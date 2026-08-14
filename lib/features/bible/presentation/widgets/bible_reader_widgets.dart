@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
 class BibleBookItemWidget extends StatelessWidget {
@@ -17,12 +15,12 @@ class BibleBookItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       decoration: BoxDecoration(
-        color: colorController.primaryColor.value.withValues(alpha: 0.05),
+        color: colors.primaryContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -31,7 +29,7 @@ class BibleBookItemWidget extends StatelessWidget {
           bookName,
           style: TextStyle(
             fontFamily: 'Roboto',
-            color: colorController.textColor.value,
+            color: colors.onSurface,
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
@@ -39,13 +37,13 @@ class BibleBookItemWidget extends StatelessWidget {
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: colorController.primaryColor.value.withValues(alpha: 0.1),
+            color: colors.primaryContainer,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
             '$chapterCount',
             style: TextStyle(
-              color: colorController.primaryColor.value,
+              color: colors.onPrimaryContainer,
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
@@ -69,7 +67,7 @@ class BibleChapterGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return GridView.builder(
       padding: const EdgeInsets.all(16),
@@ -86,11 +84,10 @@ class BibleChapterGridWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           child: Container(
             decoration: BoxDecoration(
-              color: colorController.primaryColor.value.withValues(alpha: 0.1),
+              color: colors.primaryContainer,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color:
-                    colorController.primaryColor.value.withValues(alpha: 0.2),
+                color: colors.outlineVariant,
               ),
             ),
             child: Center(
@@ -98,7 +95,7 @@ class BibleChapterGridWidget extends StatelessWidget {
                 '$chapter',
                 style: TextStyle(
                   fontFamily: 'Roboto',
-                  color: colorController.primaryColor.value,
+                  color: colors.onPrimaryContainer,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -137,20 +134,18 @@ class BibleVerseItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
     final isTargetVerse = verseNumber == highlightedVerse;
 
     Color backgroundColor = Colors.transparent;
     if (isTargetVerse) {
-      backgroundColor = Colors.orange.withValues(alpha: 0.4);
+      backgroundColor = colors.secondaryContainer;
     } else if (isSearchHighlighted) {
-      backgroundColor = Colors.yellow.withValues(alpha: 0.3);
+      backgroundColor = colors.tertiaryContainer;
     } else if (isSelected) {
-      backgroundColor =
-          colorController.primaryColor.value.withValues(alpha: 0.15);
+      backgroundColor = colors.primaryContainer;
     } else if (isHighlighted) {
-      // Use yellow for saved highlights
-      backgroundColor = Colors.yellow.withValues(alpha: 0.3);
+      backgroundColor = colors.secondaryContainer;
     }
 
     return GestureDetector(
@@ -163,9 +158,7 @@ class BibleVerseItemWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           border: isSelected
               ? Border.all(
-                  color: colorController.primaryColor.value.withValues(
-                    alpha: 0.35,
-                  ),
+                  color: colors.primary,
                   width: 1.2,
                 )
               : Border.all(
@@ -179,9 +172,7 @@ class BibleVerseItemWidget extends StatelessWidget {
                 text: '$verseNumber ',
                 style: TextStyle(
                   fontFamily: 'Roboto',
-                  color: isTargetVerse
-                      ? Colors.orange
-                      : colorController.primaryColor.value,
+                  color: isTargetVerse ? colors.secondary : colors.primary,
                   fontSize: fontSize * 0.7,
                   fontWeight: FontWeight.bold,
                   fontFeatures: const [FontFeature.superscripts()],
@@ -191,7 +182,7 @@ class BibleVerseItemWidget extends StatelessWidget {
                 text: verseText,
                 style: isTargetVerse
                     ? verseStyle.copyWith(
-                        color: Colors.orange.shade800,
+                        color: colors.onSecondaryContainer,
                         fontWeight: FontWeight.w600,
                       )
                     : verseStyle,
@@ -217,7 +208,7 @@ class BibleChapterNavigationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colorController = Get.find<ColorController>();
+    final colors = Theme.of(context).colorScheme;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
@@ -229,7 +220,7 @@ class BibleChapterNavigationWidget extends StatelessWidget {
             icon: const Icon(Icons.arrow_back_rounded),
             label: Text(l10n.previous),
             style: TextButton.styleFrom(
-              foregroundColor: colorController.textColor.value,
+              foregroundColor: colors.onSurface,
             ),
           ),
           TextButton.icon(
@@ -237,7 +228,7 @@ class BibleChapterNavigationWidget extends StatelessWidget {
             icon: const Icon(Icons.arrow_forward_rounded),
             label: Text(l10n.next),
             style: TextButton.styleFrom(
-              foregroundColor: colorController.textColor.value,
+              foregroundColor: colors.onSurface,
             ),
             iconAlignment: IconAlignment.end,
           ),

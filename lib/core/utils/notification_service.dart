@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:get/get.dart';
@@ -11,6 +13,8 @@ import 'version_check_service.dart';
 
 class NotificationService {
   static const int audioPlayerNotificationId = 1001;
+  static bool _channelsInitialized = false;
+  static bool _listenersInitialized = false;
 
   static void showSuccessNotification(String title, String body) {
     NotificationLayouts.createSuccessNotification(
@@ -74,14 +78,18 @@ class NotificationService {
   }
 
   static Future<void> initializeNotificationChannels() async {
+    if (_channelsInitialized) return;
     await NotificationChannelBuilder.initializeAllChannels();
+    _channelsInitialized = true;
   }
 
   /// Setup notification action listeners for audio player controls
   static void setupNotificationListeners() {
+    if (_listenersInitialized) return;
     AwesomeNotifications().setListeners(
       onActionReceivedMethod: onNotificationActionReceived,
     );
+    _listenersInitialized = true;
   }
 
   /// Handle notification action button clicks
@@ -135,7 +143,7 @@ class NotificationService {
       if (Get.isRegistered<RecordingController>()) {
         recordingController = Get.find<RecordingController>();
         isRecordingPlaying =
-            recordingController.playbackManager.currentRecording.value != null;
+            recordingController.playbackManager.hasActivePlayback;
       }
     } catch (e) {
       // RecordingController not initialized, fall back to AudioService
@@ -160,26 +168,29 @@ class NotificationService {
     switch (receivedAction.buttonKeyPressed) {
       case 'play':
         if (kDebugMode) print('Resuming recording playback');
-        await playbackManager.resumePlayback();
+        unawaited(playbackManager.resumePlayback());
         break;
 
       case 'pause':
         if (kDebugMode) print('Pausing recording playback');
-        await playbackManager.pausePlayback();
+        unawaited(playbackManager.pausePlayback());
         break;
 
       case 'stop':
         if (kDebugMode) print('Stopping recording playback');
-        await playbackManager.stopPlayback();
-        hideAudioPlayerNotification();
+        unawaited(playbackManager.stopPlayback());
+        unawaited(AudioPlayerNotificationBuilder.hideNotification());
         break;
 
       case 'rewind':
         if (kDebugMode) print('Rewinding recording 10 seconds');
         final currentPos = playbackManager.position;
         final newPos = currentPos - const Duration(seconds: 10);
-        await playbackManager
-            .seekPlayback(newPos.isNegative ? Duration.zero : newPos);
+        unawaited(
+          playbackManager.seekPlayback(
+            newPos.isNegative ? Duration.zero : newPos,
+          ),
+        );
         break;
 
       case 'forward':
@@ -188,8 +199,11 @@ class NotificationService {
         final duration = playbackManager.duration;
         if (duration != null) {
           final newPos = currentPos + const Duration(seconds: 10);
-          await playbackManager
-              .seekPlayback(newPos > duration ? duration : newPos);
+          unawaited(
+            playbackManager.seekPlayback(
+              newPos > duration ? duration : newPos,
+            ),
+          );
         }
         break;
 
@@ -210,7 +224,7 @@ class NotificationService {
       case 'prev':
         if (audioService.canGoPrevious) {
           if (kDebugMode) print('Playing previous track');
-          await audioService.playPrevious();
+          unawaited(audioService.playPrevious());
         } else {
           if (kDebugMode) print('Previous track not available');
         }
@@ -218,18 +232,18 @@ class NotificationService {
 
       case 'play':
         if (kDebugMode) print('Resuming playback');
-        await audioService.resume();
+        unawaited(audioService.resume());
         break;
 
       case 'pause':
         if (kDebugMode) print('Pausing playback');
-        await audioService.pause();
+        unawaited(audioService.pause());
         break;
 
       case 'next':
         if (audioService.canGoNext) {
           if (kDebugMode) print('Playing next track');
-          await audioService.playNext();
+          unawaited(audioService.playNext());
         } else {
           if (kDebugMode) print('Next track not available');
         }
@@ -259,8 +273,8 @@ class NotificationService {
 
       case 'stop':
         if (kDebugMode) print('Stopping playback');
-        await audioService.stop();
-        hideAudioPlayerNotification();
+        unawaited(audioService.stop());
+        unawaited(AudioPlayerNotificationBuilder.hideNotification());
         break;
     }
   }

@@ -1,19 +1,29 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'notification_styles.dart';
 
 class NotificationChannelBuilder {
+  static bool _isInitialized = false;
+
   static Future<void> initializeAllChannels() async {
-    await AwesomeNotifications().initialize(
-      'resource://mipmap/ic_launcher',
-      [
-        _createBasicChannel(),
-        _createAudioPlayerChannel(),
-        _createAnnouncementChannel(),
-        _createHymnDownloadChannel(),
-        _createDailyVerseChannel(),
-      ],
-      debug: true,
-    );
+    if (_isInitialized) return;
+
+    try {
+      await AwesomeNotifications().initialize(
+        'resource://mipmap/ic_launcher',
+        [
+          _createBasicChannel(),
+          _createAudioPlayerChannel(),
+          _createAnnouncementChannel(),
+          _createHymnDownloadChannel(),
+          _createDailyVerseChannel(),
+        ],
+        debug: true,
+      );
+      _isInitialized = true;
+    } catch (_) {
+      // Leave initialization retryable if the platform call fails.
+      _isInitialized = false;
+      rethrow;
+    }
 
     // Note: Permission request is now handled in the welcome page during onboarding
   }
@@ -21,9 +31,8 @@ class NotificationChannelBuilder {
   static NotificationChannel _createBasicChannel() {
     return NotificationChannel(
       channelKey: 'basic_channel',
-      channelName: 'Basic notifications',
-      channelDescription: 'Notification channel for basic notifications',
-      defaultColor: NotificationStyles.primaryColor,
+      channelName: 'Notifications générales',
+      channelDescription: 'Canal pour les notifications générales',
       importance: NotificationImportance.High,
       channelShowBadge: true,
     );
@@ -32,10 +41,8 @@ class NotificationChannelBuilder {
   static NotificationChannel _createAudioPlayerChannel() {
     return NotificationChannel(
       channelKey: 'audio_player_channel',
-      channelName: 'Fihirana Music Player',
-      channelDescription:
-          'Fihirana music player controls and playback information',
-      defaultColor: NotificationStyles.audioPlayerColor,
+      channelName: 'Lecteur de musique Fihirana',
+      channelDescription: 'Commandes et informations de lecture de Fihirana',
       importance: NotificationImportance.Low,
       channelShowBadge: false,
       playSound: false,
@@ -52,7 +59,6 @@ class NotificationChannelBuilder {
       channelKey: 'announcement_channel',
       channelName: 'Filazana',
       channelDescription: 'Notifications for announcements',
-      defaultColor: NotificationStyles.primaryColor,
       importance: NotificationImportance.High,
       channelShowBadge: true,
       enableVibration: true,
@@ -68,7 +74,6 @@ class NotificationChannelBuilder {
       channelKey: 'hymn_download_channel',
       channelName: 'Maka Hira',
       channelDescription: 'Notifications for hymn downloads and updates',
-      defaultColor: NotificationStyles.primaryColor,
       importance: NotificationImportance.High,
       channelShowBadge: true,
       icon: 'resource://mipmap/ic_launcher',
@@ -78,9 +83,8 @@ class NotificationChannelBuilder {
   static NotificationChannel _createDailyVerseChannel() {
     return NotificationChannel(
       channelKey: 'daily_verse_channel',
-      channelName: 'Daily Bible Verse',
-      channelDescription: 'Daily inspirational Bible verses',
-      defaultColor: NotificationStyles.dailyVerseColor,
+      channelName: 'Verset biblique du jour',
+      channelDescription: 'Versets bibliques quotidiens',
       importance: NotificationImportance.High,
       channelShowBadge: true,
       enableVibration: true,
@@ -89,7 +93,6 @@ class NotificationChannelBuilder {
       icon: 'resource://mipmap/ic_launcher',
       locked: false,
       defaultPrivacy: NotificationPrivacy.Public,
-      ledColor: NotificationStyles.dailyVerseColor,
       ledOnMs: 1000,
       ledOffMs: 500,
     );

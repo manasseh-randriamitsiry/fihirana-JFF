@@ -18,7 +18,6 @@ class DailyVerseNotificationBuilder {
       channelKey: 'daily_verse_channel',
       title: '📖 $reference',
       body: text,
-      color: NotificationStyles.dailyVerseColor,
       additionalPayload: {
         'book': book,
         'chapter': chapter.toString(),
@@ -55,7 +54,6 @@ class DailyVerseNotificationBuilder {
       channelKey: 'daily_verse_channel',
       title: '📖 $reference',
       body: text,
-      color: NotificationStyles.dailyVerseColor,
       additionalPayload: {
         'book': book,
         'chapter': chapter.toString(),

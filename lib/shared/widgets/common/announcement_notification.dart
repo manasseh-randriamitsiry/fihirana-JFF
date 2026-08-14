@@ -15,7 +15,6 @@ class AnnouncementNotificationBuilder {
       channelKey: 'announcement_channel',
       title: 'Filazana vaovao: $title',
       body: message,
-      color: NotificationStyles.primaryColor,
       payload: id,
     );
 

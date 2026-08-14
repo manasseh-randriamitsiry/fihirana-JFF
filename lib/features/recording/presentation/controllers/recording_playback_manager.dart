@@ -18,6 +18,8 @@ import 'recording_state_manager.dart';
 
 /// Manages playback functionality
 class RecordingPlaybackManager extends GetxController {
+  static const _progressNotificationInterval = Duration(seconds: 15);
+
   final RecordingStateManager _stateManager;
   final RecordingService _recordingService;
   final Rxn<UserRecording> currentRecording = Rxn<UserRecording>();
@@ -25,6 +27,9 @@ class RecordingPlaybackManager extends GetxController {
   // Dedicated player for recordings to avoid affecting the main AudioService state
   final AudioPlayer _player = AudioPlayer();
   final LocalAudioService _localAudioService = LocalAudioService();
+  StreamSubscription<PlayerState>? _playerStateSubscription;
+  StreamSubscription<Duration>? _positionSubscription;
+  Duration? _lastNotifiedPosition;
 
   RecordingPlaybackManager({
     required RecordingStateManager stateManager,
@@ -40,16 +45,18 @@ class RecordingPlaybackManager extends GetxController {
 
   @override
   void onClose() {
-    _player.dispose();
+    unawaited(_playerStateSubscription?.cancel());
+    unawaited(_positionSubscription?.cancel());
+    unawaited(_player.dispose());
     super.onClose();
   }
 
   void _initializePlayerListeners() {
     // Listen to player state to update UI and notifications
-    _player.playerStateStream.listen((state) {
+    _playerStateSubscription = _player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
-        // Handle completion - hide notification
-        NotificationService.hideAudioPlayerNotification();
+        _clearPlaybackSession();
+        return;
       }
 
       // Update notification when play/pause state changes
@@ -59,8 +66,17 @@ class RecordingPlaybackManager extends GetxController {
       }
     });
 
-    // Listen to position changes to update notification progress
-    _player.positionStream.listen((position) {
+    // Keep the action buttons stable. An Android notification recreated every
+    // second can be replaced between touch-down and touch-up.
+    _positionSubscription = _player.positionStream.listen((position) {
+      final lastPosition = _lastNotifiedPosition;
+      final hasMovedBackwards = lastPosition != null && position < lastPosition;
+      final isProgressUpdateDue = lastPosition == null ||
+          position - lastPosition >= _progressNotificationInterval;
+
+      if (!hasMovedBackwards && !isProgressUpdateDue) return;
+      _lastNotifiedPosition = position;
+
       final recording = currentRecording.value;
       if (recording != null) {
         _updateNotification(recording, _player.playing);
@@ -70,6 +86,8 @@ class RecordingPlaybackManager extends GetxController {
 
   /// Update or create notification for recording playback
   void _updateNotification(UserRecording recording, bool isPlaying) {
+    if (currentRecording.value?.id != recording.id) return;
+
     // Create a Hymn object to use with the notification system
     final hymn = Hymn(
       id: 'recording_${recording.id}',
@@ -98,6 +116,7 @@ class RecordingPlaybackManager extends GetxController {
       }
 
       currentRecording.value = recording;
+      _lastNotifiedPosition = null;
 
       final audioUrl = await _resolveAudioUrl(recording);
       if (audioUrl == null) {
@@ -113,6 +132,7 @@ class RecordingPlaybackManager extends GetxController {
 
       await _player.play();
     } catch (e) {
+      _clearPlaybackSession();
       if (kDebugMode) print('Error playing recording: $e');
       Get.snackbar('Error', 'Failed to play recording: $e');
     }
@@ -201,10 +221,13 @@ class RecordingPlaybackManager extends GetxController {
   }
 
   Future<void> resumePlayback() async {
+    if (!hasActivePlayback) return;
     await _player.play();
   }
 
   Future<void> stopPlayback() async {
+    currentRecording.value = null;
+    _lastNotifiedPosition = null;
     await _player.stop();
     NotificationService.hideAudioPlayerNotification();
   }
@@ -244,9 +267,7 @@ class RecordingPlaybackManager extends GetxController {
 
   void hidePlayer() {
     _stateManager.hidePlayerOverlay();
-    currentRecording.value = null;
     stopPlayback();
-    NotificationService.hideAudioPlayerNotification();
   }
 
   void minimizePlayer() {
@@ -306,6 +327,19 @@ class RecordingPlaybackManager extends GetxController {
   Stream<Duration> get positionStream => _player.positionStream;
   Stream<Duration?> get durationStream => _player.durationStream;
   bool get isPlaying => _player.playing;
+  bool get hasActivePlayback {
+    final state = _player.processingState;
+    return currentRecording.value != null &&
+        state != ProcessingState.idle &&
+        state != ProcessingState.completed;
+  }
+
   Duration get position => _player.position;
   Duration? get duration => _player.duration;
+
+  void _clearPlaybackSession() {
+    currentRecording.value = null;
+    _lastNotifiedPosition = null;
+    NotificationService.hideAudioPlayerNotification();
+  }
 }
