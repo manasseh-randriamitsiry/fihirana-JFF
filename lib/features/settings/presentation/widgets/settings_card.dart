@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/shared/widgets/common/app_card.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SettingsCard extends StatelessWidget {
   final IconData icon;
@@ -33,7 +34,7 @@ class SettingsCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppScale.space12),
             decoration: BoxDecoration(
               color: (iconColor ?? colorController.primaryColor.value)
                   .withValues(alpha: 0.15),
@@ -45,7 +46,7 @@ class SettingsCard extends StatelessWidget {
               size: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppScale.space16),
           Expanded(
             child: Text(
               label,

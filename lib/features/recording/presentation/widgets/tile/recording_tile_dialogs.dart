@@ -7,6 +7,7 @@ import 'package:fihirana/features/recording/presentation/controllers/recording_c
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingTileDialogs {
   static final ColorController colorController = Get.find<ColorController>();
@@ -68,7 +69,8 @@ class RecordingTileDialogs {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
         title: Row(
           children: [
             Icon(
@@ -76,7 +78,7 @@ class RecordingTileDialogs {
               color: owner ? Colors.red : Colors.orange,
               size: 24,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppScale.space12),
             Text(
               adminAndOwner
                   ? l10n.deleteRecording
@@ -100,14 +102,14 @@ class RecordingTileDialogs {
               style: TextStyle(
                   color: colorController.textColor.value, fontSize: 14),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppScale.space8),
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppScale.space8),
               decoration: BoxDecoration(
                 color: owner
                     ? Colors.red.withValues(alpha: 0.1)
                     : Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppScale.radiusControl),
                 border: Border.all(
                   color: owner
                       ? Colors.red.withValues(alpha: 0.3)
@@ -148,7 +150,8 @@ class RecordingTileDialogs {
                 backgroundColor: Colors.orange,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                    borderRadius:
+                        BorderRadius.circular(AppScale.radiusControl)),
               ),
               child: Text(l10n.moveToTrash),
             ),
@@ -161,7 +164,8 @@ class RecordingTileDialogs {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                    borderRadius:
+                        BorderRadius.circular(AppScale.radiusControl)),
               ),
               child: Text(l10n.deletePermanently),
             ),
@@ -179,7 +183,8 @@ class RecordingTileDialogs {
                 backgroundColor: owner ? Colors.red : Colors.orange,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                    borderRadius:
+                        BorderRadius.circular(AppScale.radiusControl)),
               ),
               child: Text(owner ? l10n.deletePermanently : l10n.moveToTrash),
             ),
@@ -195,7 +200,8 @@ class RecordingTileDialogs {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
         title: Row(
           children: [
             const Icon(
@@ -203,7 +209,7 @@ class RecordingTileDialogs {
               color: Colors.red,
               size: 24,
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppScale.space12),
             Text(
               'Supprimer définitivement',
               style: TextStyle(
@@ -223,12 +229,12 @@ class RecordingTileDialogs {
               style: TextStyle(
                   color: colorController.textColor.value, fontSize: 14),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppScale.space8),
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppScale.space8),
               decoration: BoxDecoration(
                   color: Colors.red.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppScale.radiusControl),
                   border: Border.all(color: Colors.red.withValues(alpha: 0.3))),
               child: Text(
                 "Cet enregistrement sera définitivement supprimé de Google Drive, Firebase et du stockage local. Cette action est irréversible.",
@@ -257,7 +263,7 @@ class RecordingTileDialogs {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(AppScale.radiusControl)),
             ),
             child: Text(l10n.deletePermanently),
           ),
@@ -278,8 +284,8 @@ class RecordingTileDialogs {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
           backgroundColor: colorController.backgroundColor.value,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
           title: Row(
             children: [
               const Icon(
@@ -287,7 +293,7 @@ class RecordingTileDialogs {
                 color: Colors.blue,
                 size: 24,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppScale.space12),
               Text(
                 "Rendre l'enregistrement public",
                 style: TextStyle(
@@ -308,7 +314,7 @@ class RecordingTileDialogs {
                         colorController.textColor.value.withValues(alpha: 0.7),
                     fontSize: 12),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               Text(
                 "Titre de l'enregistrement :",
                 style: TextStyle(
@@ -316,7 +322,7 @@ class RecordingTileDialogs {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppScale.space8),
               TextField(
                 controller: titleController,
                 style: TextStyle(color: colorController.textColor.value),
@@ -333,22 +339,22 @@ class RecordingTileDialogs {
                       color: colorController.textColor.value
                           .withValues(alpha: 0.5)),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                     borderSide: BorderSide(
                         color: colorController.textColor.value
                             .withValues(alpha: 0.3)),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                     borderSide:
                         const BorderSide(color: Colors.orange, width: 2),
                   ),
                   errorText: errorMessage,
                   errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                     borderSide: const BorderSide(color: Colors.red, width: 2),
                   ),
                 ),
@@ -373,9 +379,9 @@ class RecordingTileDialogs {
             ),
             Obx(() => controller.isUploading.value
                 ? const Padding(
-                    padding: EdgeInsets.all(16),
+                    padding: EdgeInsets.all(AppScale.space16),
                     child: SizedBox(
-                      width: 20,
+                      width: AppScale.gutter,
                       height: 20,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
@@ -413,7 +419,8 @@ class RecordingTileDialogs {
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusControl)),
                     ),
                     child: Text(l10n.makePublic),
                   )),
@@ -433,7 +440,8 @@ class RecordingTileDialogs {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorController.backgroundColor.value,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
         title: Text(
           l10n.renameRecording,
           style: TextStyle(
@@ -456,16 +464,16 @@ class RecordingTileDialogs {
             hintStyle: TextStyle(
                 color: colorController.textColor.value.withValues(alpha: 0.5)),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppScale.radiusControl),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppScale.radiusControl),
               borderSide: BorderSide(
                   color:
                       colorController.textColor.value.withValues(alpha: 0.3)),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppScale.radiusControl),
               borderSide: const BorderSide(color: Colors.orange, width: 2),
             ),
           ),
@@ -490,7 +498,7 @@ class RecordingTileDialogs {
               backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(AppScale.radiusControl)),
             ),
             child: Text(l10n.rename),
           ),

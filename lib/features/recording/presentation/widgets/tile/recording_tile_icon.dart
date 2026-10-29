@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingTileIcon extends StatelessWidget {
   final UserRecording recording;
@@ -26,13 +27,13 @@ class RecordingTileIcon extends StatelessWidget {
         color: hasPhotoUrl
             ? null
             : (isPublic ? colors.secondaryContainer : colors.primaryContainer),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         gradient: hasPhotoUrl ? null : null,
       ),
       child: Center(
         child: hasPhotoUrl
             ? ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppScale.radiusRow),
                 child: CachedNetworkImage(
                   imageUrl: recording.userPhotoUrl!,
                   width: 50,

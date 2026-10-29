@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final String message;
@@ -29,7 +30,7 @@ class EmptyStateWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppScale.space24),
               decoration: BoxDecoration(
                 color:
                     colorController.primaryColor.value.withValues(alpha: 0.1),
@@ -45,7 +46,7 @@ class EmptyStateWidget extends StatelessWidget {
                 .animate()
                 .scale(duration: 600.ms, curve: Curves.easeOutBack)
                 .fadeIn(duration: 600.ms),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppScale.space24),
             Text(
               message,
               textAlign: TextAlign.center,
@@ -59,16 +60,16 @@ class EmptyStateWidget extends StatelessWidget {
                 .fadeIn(delay: 200.ms, duration: 600.ms)
                 .slideY(begin: 0.2, end: 0),
             if (onActionPressed != null && actionLabel != null) ...[
-              const SizedBox(height: 32),
+              const SizedBox(height: AppScale.space40),
               ElevatedButton(
                 onPressed: onActionPressed,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colorController.primaryColor.value,
                   foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppScale.space24, vertical: AppScale.space12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(AppScale.radiusFloat),
                   ),
                   elevation: 0,
                 ),

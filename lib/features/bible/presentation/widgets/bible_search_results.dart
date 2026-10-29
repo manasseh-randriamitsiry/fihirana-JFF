@@ -4,6 +4,7 @@ import 'package:fihirana/features/bible/presentation/controllers/bible_controlle
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'bible_search_result_item.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSearchResults extends StatelessWidget {
   final double fontSize;
@@ -19,7 +20,7 @@ class BibleSearchResults extends StatelessWidget {
     final bibleController = Get.find<BibleController>();
 
     return Container(
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(AppScale.gutter),
       child: Obx(() {
         if (bibleController.isSearching.value) {
           return _buildLoadingWidget(context, colorController);
@@ -49,7 +50,7 @@ class BibleSearchResults extends StatelessWidget {
             color: colorController.primaryColor.value,
             strokeWidth: 3,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppScale.gutter),
           Text(
             l10n.search,
             style: TextStyle(
@@ -75,7 +76,7 @@ class BibleSearchResults extends StatelessWidget {
             size: 64,
             color: colorController.textColor.value.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
           Text(
             l10n.enterWordToSearch,
             style: TextStyle(
@@ -101,7 +102,7 @@ class BibleSearchResults extends StatelessWidget {
             size: 64,
             color: colorController.textColor.value.withValues(alpha: 0.5),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
           Text(
             l10n.noSearchResults,
             style: TextStyle(
@@ -110,7 +111,7 @@ class BibleSearchResults extends StatelessWidget {
               fontSize: fontSize,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppScale.space8),
           Text(
             l10n.changeWordToSearch,
             style: TextStyle(

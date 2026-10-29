@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AddToPlaylistSheet extends StatefulWidget {
   final String hymnId;
@@ -86,8 +87,8 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
           return Container(
             decoration: BoxDecoration(
               color: _colorController.backgroundColor.value,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppScale.radiusSheet)),
             ),
             child: Center(
               child: CircularProgressIndicator(
@@ -105,8 +106,8 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
           return Container(
             decoration: BoxDecoration(
               color: backgroundColor,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(AppScale.radiusSheet)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.2),
@@ -120,20 +121,21 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                 // Handle bar
                 Center(
                   child: Container(
-                    margin: const EdgeInsets.only(top: 12, bottom: 8),
+                    margin: const EdgeInsets.only(
+                        top: AppScale.space12, bottom: AppScale.space8),
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
                       color: textColor.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(AppScale.radiusMark),
                     ),
                   ),
                 ),
 
                 // Title
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppScale.gutter, vertical: AppScale.space12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -157,7 +159,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
 
                 // Create New Playlist Section
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppScale.space16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -173,15 +175,16 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                             });
                           }
                         },
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
+                            horizontal: AppScale.space16,
+                            vertical: AppScale.space12,
                           ),
                           decoration: BoxDecoration(
                             color: primaryColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusRow),
                             border: Border.all(
                               color: primaryColor.withValues(alpha: 0.3),
                             ),
@@ -192,7 +195,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                 _isCreating.value ? Icons.remove : Icons.add,
                                 color: primaryColor,
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: AppScale.space12),
                               Text(
                                 l10n.createNewPlaylist,
                                 style: TextStyle(
@@ -211,7 +214,8 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                         duration: const Duration(milliseconds: 300),
                         child: _isCreating.value
                             ? Padding(
-                                padding: const EdgeInsets.only(top: 16),
+                                padding: const EdgeInsets.only(
+                                    top: AppScale.space16),
                                 child: Column(
                                   children: [
                                     Row(
@@ -231,19 +235,20 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                                   alpha: 0.05),
                                               border: OutlineInputBorder(
                                                 borderRadius:
-                                                    BorderRadius.circular(12),
+                                                    BorderRadius.circular(
+                                                        AppScale.radiusRow),
                                                 borderSide: BorderSide.none,
                                               ),
                                               contentPadding:
                                                   const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                                vertical: 12,
+                                                horizontal: AppScale.space16,
+                                                vertical: AppScale.space12,
                                               ),
                                             ),
                                             onSubmitted: (_) => _createAndAdd(),
                                           ),
                                         ),
-                                        const SizedBox(width: 8),
+                                        const SizedBox(width: AppScale.space8),
                                         InkWell(
                                           onTap: () async {
                                             final picked = await showDatePicker(
@@ -272,15 +277,17 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                               _selectedDate.value = picked;
                                             }
                                           },
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                              AppScale.radiusRow),
                                           child: Container(
-                                            padding: const EdgeInsets.all(12),
+                                            padding: const EdgeInsets.all(
+                                                AppScale.space12),
                                             decoration: BoxDecoration(
                                               color: textColor.withValues(
                                                   alpha: 0.05),
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  BorderRadius.circular(
+                                                      AppScale.radiusRow),
                                             ),
                                             child: Obx(() => Icon(
                                                   Icons.calendar_today,
@@ -298,7 +305,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 12),
+                                    const SizedBox(height: AppScale.space12),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -311,7 +318,7 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                                 fontSize: 14,
                                               ),
                                             )),
-                                        const SizedBox(width: 12),
+                                        const SizedBox(width: AppScale.space12),
                                         ElevatedButton(
                                           onPressed: _createAndAdd,
                                           style: ElevatedButton.styleFrom(
@@ -319,11 +326,12 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                             foregroundColor: Colors.white,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
-                                                  BorderRadius.circular(12),
+                                                  BorderRadius.circular(
+                                                      AppScale.radiusRow),
                                             ),
                                             padding: const EdgeInsets.symmetric(
-                                              horizontal: 20,
-                                              vertical: 12,
+                                              horizontal: AppScale.gutter,
+                                              vertical: AppScale.space12,
                                             ),
                                           ),
                                           child: Text(l10n.create),
@@ -353,7 +361,8 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                       : ListView.builder(
                           key: const PageStorageKey('add_to_playlist_list'),
                           controller: scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppScale.space16),
                           itemCount: _playlistController!.playlists.length,
                           itemBuilder: (context, index) {
                             final playlist =
@@ -363,10 +372,12 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
 
                             return Container(
                               key: ValueKey(playlist.id),
-                              margin: const EdgeInsets.only(bottom: 8),
+                              margin: const EdgeInsets.only(
+                                  bottom: AppScale.space8),
                               decoration: BoxDecoration(
                                 color: textColor.withValues(alpha: 0.05),
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius:
+                                    BorderRadius.circular(AppScale.radiusRow),
                               ),
                               child: ListTile(
                                 onTap: () async {
@@ -381,7 +392,8 @@ class _AddToPlaylistSheetState extends State<AddToPlaylistSheet> {
                                   }
                                 },
                                 leading: Container(
-                                  padding: const EdgeInsets.all(8),
+                                  padding:
+                                      const EdgeInsets.all(AppScale.space8),
                                   decoration: BoxDecoration(
                                     color: isAdded
                                         ? Colors.green.withValues(alpha: 0.1)

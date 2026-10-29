@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingMiniPlayer extends StatelessWidget {
   const RecordingMiniPlayer({super.key});
@@ -23,7 +24,7 @@ class RecordingMiniPlayer extends StatelessWidget {
 
         return Material(
           elevation: 8,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppScale.radiusSurface),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -34,7 +35,7 @@ class RecordingMiniPlayer extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppScale.radiusSurface),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.3),
@@ -44,11 +45,11 @@ class RecordingMiniPlayer extends StatelessWidget {
               ],
             ),
             child: InkWell(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppScale.radiusSurface),
               onTap: () => controller.restoreOverlay(),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppScale.space16, vertical: AppScale.space12),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -69,7 +70,7 @@ class RecordingMiniPlayer extends StatelessWidget {
                           curve: Curves.easeInOut,
                         ),
 
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppScale.space12),
 
                     // Recording info
                     Column(
@@ -96,15 +97,17 @@ class RecordingMiniPlayer extends StatelessWidget {
                       ],
                     ),
 
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppScale.space12),
 
                     // Timer
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: AppScale.space8,
+                          vertical: AppScale.space4),
                       decoration: BoxDecoration(
                         color: Colors.black.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius:
+                            BorderRadius.circular(AppScale.radiusControl),
                       ),
                       child: Obx(() => Text(
                             _formatDuration(controller.recordDuration.value),
@@ -117,7 +120,7 @@ class RecordingMiniPlayer extends StatelessWidget {
                           )),
                     ),
 
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppScale.space8),
 
                     // Expand icon
                     const Icon(

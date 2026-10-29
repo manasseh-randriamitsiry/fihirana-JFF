@@ -5,6 +5,7 @@ import 'package:fihirana/features/auth/presentation/controllers/auth_controller.
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/features/bible/presentation/pages/bible_share_composer_screen.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSelectionActionBarWidget extends StatelessWidget {
   const BibleSelectionActionBarWidget({super.key});
@@ -32,10 +33,11 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
         left: 24,
         right: 24,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.gutter, vertical: AppScale.space12),
           decoration: BoxDecoration(
             color: colors.surfaceContainerLow,
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(AppScale.radiusFloat),
             boxShadow: [
               BoxShadow(
                 color: colors.shadow.withValues(alpha: 0.2),
@@ -58,14 +60,14 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
                 icon: Icon(Icons.close, color: colors.onSurface),
                 tooltip: l10n.clear,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: AppScale.space12),
               Expanded(
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppScale.space16, vertical: AppScale.space12),
                   decoration: BoxDecoration(
                     color: colors.primaryContainer,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(AppScale.radiusSheet),
                   ),
                   child: Text(
                     selectedReference,
@@ -80,7 +82,7 @@ class BibleSelectionActionBarWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: AppScale.space12),
               if (isLoggedIn)
                 IconButton(
                   onPressed: () {

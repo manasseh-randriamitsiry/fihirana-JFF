@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSettingsBottomSheetWidget extends StatefulWidget {
   final double fontSize;
@@ -41,7 +42,8 @@ class _BibleSettingsBottomSheetWidgetState
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppScale.radiusFloat)),
         border: Border(
           top: BorderSide(color: colors.outlineVariant.withValues(alpha: .7)),
         ),
@@ -53,7 +55,7 @@ class _BibleSettingsBottomSheetWidgetState
           ),
         ],
       ),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppScale.space24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -64,11 +66,11 @@ class _BibleSettingsBottomSheetWidgetState
               height: 4,
               decoration: BoxDecoration(
                 color: colors.onSurfaceVariant.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppScale.radiusMark),
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppScale.space24),
           Text(
             'Apparence',
             style: TextStyle(
@@ -78,14 +80,15 @@ class _BibleSettingsBottomSheetWidgetState
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppScale.space24),
           AppGroupedSurface(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+            padding: const EdgeInsets.fromLTRB(AppScale.space16,
+                AppScale.space12, AppScale.space16, AppScale.space16),
             children: [
               Row(
                 children: [
                   Icon(Icons.text_fields, size: 20, color: colors.primary),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Expanded(
                     child: Slider(
                       value: _currentFontSize,
@@ -99,11 +102,12 @@ class _BibleSettingsBottomSheetWidgetState
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 9, vertical: AppScale.space4),
                     decoration: BoxDecoration(
                       color: colors.primaryContainer,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius:
+                          BorderRadius.circular(AppScale.radiusControl),
                     ),
                     child: Text(
                       '${_currentFontSize.toInt()}',
@@ -124,14 +128,14 @@ class _BibleSettingsBottomSheetWidgetState
                       ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: AppScale.space12),
               SizedBox(
                 height: 50,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: fontController.availableFonts.length,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppScale.space8),
                   itemBuilder: (context, index) {
                     final fontName = fontController.availableFonts[index];
                     return _buildHorizontalFontOption(fontName, fontName);
@@ -150,7 +154,7 @@ class _BibleSettingsBottomSheetWidgetState
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
         ],
       ),
     );
@@ -166,10 +170,11 @@ class _BibleSettingsBottomSheetWidgetState
         widget.onSettingsChanged(_currentFontSize, family);
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppScale.gutter, vertical: AppScale.space12),
         decoration: BoxDecoration(
           color: isSelected ? colors.primary : colors.primaryContainer,
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(AppScale.radiusFloat),
           border: Border.all(
             color: isSelected ? colors.primary : colors.outlineVariant,
             width: 1.5,
@@ -205,7 +210,7 @@ class _BibleSettingsBottomSheetWidgetState
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppScale.space12),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected
@@ -217,7 +222,7 @@ class _BibleSettingsBottomSheetWidgetState
                 color: isSelected ? colors.onPrimary : colors.onSurface,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppScale.space8),
             Text(
               label,
               style: TextStyle(

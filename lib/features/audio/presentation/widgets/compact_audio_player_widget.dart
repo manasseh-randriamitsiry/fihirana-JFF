@@ -4,6 +4,12 @@ import 'package:just_audio/just_audio.dart';
 
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
+import 'package:fihirana/core/design_system/components/app_sheet.dart';
+import 'progress_slider.dart';
 
 class CompactAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;
@@ -273,192 +279,157 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     super.dispose();
   }
 
-  String _formatDuration(Duration duration) {
-    String twoDigits(int n) => n.toString().padLeft(2, '0');
-    final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return '$minutes:$seconds';
-  }
-
   @override
   Widget build(BuildContext context) {
-    // Dark theme colors
-    const backgroundColor = Color(0xFF1C1B1F);
-    const primaryTextColor = Colors.white;
-    const secondaryTextColor = Colors.white70;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
+    final l10n = AppLocalizations.of(context);
+
+    final String title = _audioService.currentDisplayTitle.isNotEmpty
+        ? _audioService.currentDisplayTitle
+        : widget.hymn.title;
+    final String number =
+        _currentDisplayedHymn?.hymnNumber ?? widget.hymn.hymnNumber;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      // A modal sheet with a transparent barrier: this widget is the sheet, so
+      // it carries the rounded top and the rule that closes it.
+      decoration: BoxDecoration(
+        color: s.sheet,
+        borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppScale.radiusSheet)),
+        border: Border.all(color: s.ruleFirm, width: AppScale.ruleHair),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Drag Handle
-          Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
+      clipBehavior: Clip.hardEdge,
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppScale.space12),
+                child: Container(
+                    width: 40, height: AppScale.ruleBar, color: s.ruleFirm),
               ),
             ),
-          ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header: Title, Number, Favorite
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _audioService.currentDisplayTitle.isNotEmpty
-                                ? _audioService.currentDisplayTitle
-                                : widget.hymn.title,
-                            style: const TextStyle(
-                              color: primaryTextColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _audioService.currentDisplaySubtitle.isNotEmpty
-                                ? _audioService.currentDisplaySubtitle
-                                : 'Hymn ${widget.hymn.hymnNumber}',
-                            style: const TextStyle(
-                              color: secondaryTextColor,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                  AppScale.gutter, 0, AppScale.space4, AppScale.space12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: type.titleLarge?.copyWith(
+                              color: s.ink, fontWeight: FontWeight.w700),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: AppScale.space4),
+                        Text(
+                          number,
+                          style: AppTypography.figure(s,
+                              size: AppScale.figureSm,
+                              weight: FontWeight.w700,
+                              color: s.muted),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    tooltip:
+                        MaterialLocalizations.of(context).closeButtonTooltip,
+                    onPressed: () => Navigator.pop(context),
+                    icon:
+                        const Icon(Icons.close_rounded, size: AppScale.iconLg),
+                    color: s.ink,
+                    constraints: const BoxConstraints(
+                        minWidth: AppScale.hitTarget,
+                        minHeight: AppScale.hitTarget),
+                  ),
+                ],
+              ),
+            ),
+            const AppRule(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                  AppScale.space16, AppScale.gutter, AppScale.space24),
+              child: Column(
+                children: [
+                  ProgressSlider(
+                    duration: _duration,
+                    position: _position,
+                    isDragging: _isDraggingSlider,
+                    dragValue: _dragValue,
+                    onChanged: (value) {
+                      setState(() {
+                        _isDraggingSlider = true;
+                        _dragValue = value;
+                      });
+                    },
+                    onChangeEnd: _seekTo,
+                  ),
+                  const SizedBox(height: AppScale.space8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        tooltip: l10n.previous,
+                        onPressed: _playPrevious,
+                        icon: const Icon(Icons.skip_previous_rounded,
+                            size: AppScale.iconLg),
+                        color: s.ink,
+                        constraints: const BoxConstraints(
+                            minWidth: AppScale.hitTarget,
+                            minHeight: AppScale.hitTarget),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Controls Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.skip_previous_rounded,
-                          color: Colors.white, size: 36),
-                      onPressed: _playPrevious,
-                    ),
-                    GestureDetector(
-                      onTap: _togglePlayPause,
-                      child: Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
+                      const SizedBox(width: AppScale.space16),
+                      FilledButton(
+                        onPressed: _togglePlayPause,
+                        style: FilledButton.styleFrom(
+                          minimumSize:
+                              const Size(AppScale.space64, AppScale.space64),
+                          shape: const CircleBorder(),
+                          padding: EdgeInsets.zero,
                         ),
                         child: _isLoading
-                            ? const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
-                                  strokeWidth: 3,
-                                ),
+                            ? const SizedBox(
+                                width: AppScale.iconLg,
+                                height: AppScale.iconLg,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Icon(
-                                _isPlaying ? Icons.pause : Icons.play_arrow,
-                                color: Colors.black,
-                                size: 32,
+                                _isPlaying
+                                    ? Icons.pause_rounded
+                                    : Icons.play_arrow_rounded,
+                                size: AppScale.space24,
                               ),
                       ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.skip_next_rounded,
-                          color: Colors.white, size: 36),
-                      onPressed: _playNext,
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 24),
-
-                // Slider and Time
-                Column(
-                  children: [
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: Colors.white,
-                        inactiveTrackColor: Colors.white24,
-                        thumbColor: Colors.white,
-                        trackHeight: 2,
-                        thumbShape:
-                            const RoundSliderThumbShape(enabledThumbRadius: 6),
-                        overlayShape:
-                            const RoundSliderOverlayShape(overlayRadius: 14),
+                      const SizedBox(width: AppScale.space16),
+                      IconButton(
+                        tooltip: l10n.next,
+                        onPressed: _playNext,
+                        icon: const Icon(Icons.skip_next_rounded,
+                            size: AppScale.iconLg),
+                        color: s.ink,
+                        constraints: const BoxConstraints(
+                            minWidth: AppScale.hitTarget,
+                            minHeight: AppScale.hitTarget),
                       ),
-                      child: Slider(
-                        value: _isDraggingSlider
-                            ? _dragValue
-                            : (_duration != null &&
-                                    _position != null &&
-                                    _duration!.inMilliseconds > 0)
-                                ? (_position!.inMilliseconds.toDouble() /
-                                        _duration!.inMilliseconds.toDouble())
-                                    .clamp(0.0, 1.0)
-                                : 0.0,
-                        onChanged: (value) {
-                          setState(() {
-                            _isDraggingSlider = true;
-                            _dragValue = value;
-                          });
-                        },
-                        onChangeEnd: _seekTo,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _formatDuration(_isDraggingSlider
-                                ? Duration(
-                                    milliseconds: (_dragValue *
-                                            (_duration?.inMilliseconds ?? 0))
-                                        .round())
-                                : _position ?? Duration.zero),
-                            style: const TextStyle(
-                                color: secondaryTextColor, fontSize: 12),
-                          ),
-                          Text(
-                            _formatDuration(_duration ?? Duration.zero),
-                            style: const TextStyle(
-                                color: secondaryTextColor, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

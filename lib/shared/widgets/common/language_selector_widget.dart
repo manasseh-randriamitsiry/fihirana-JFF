@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/localization/translation_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LanguageSelectorWidget extends StatelessWidget {
   final String? selectedLanguage;
@@ -20,9 +21,10 @@ class LanguageSelectorWidget extends StatelessWidget {
     return Consumer<TranslationController>(
       builder: (context, translationController, child) {
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin: const EdgeInsets.symmetric(
+              horizontal: AppScale.space16, vertical: AppScale.space8),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppScale.space16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -30,7 +32,7 @@ class LanguageSelectorWidget extends StatelessWidget {
                   title ?? AppLocalizations.of(context).chooseLanguage,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
                 ...translationController.getSupportedLanguages().map(
                       (languageCode) => RadioMenuButton<String>(
                         value: languageCode,
@@ -73,12 +75,12 @@ class LanguageSelectorWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppScale.space8),
                 if (translationController.isTranslating) ...[
                   const Center(
                     child: CircularProgressIndicator(),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppScale.space8),
                   Center(
                     child: Text(
                       AppLocalizations.of(context).translationModelsLoading,
@@ -110,7 +112,7 @@ class LanguageSelectorDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
       ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxHeight: 400),
@@ -145,7 +147,8 @@ class LanguageSelectorBottomSheet extends StatelessWidget {
         return Container(
           decoration: const BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(
+                top: Radius.circular(AppScale.radiusSheet)),
           ),
           child: SingleChildScrollView(
             controller: scrollController,
@@ -184,7 +187,8 @@ class LanguageSelectorButton extends StatelessWidget {
                 context: context,
                 isScrollControlled: true,
                 shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(AppScale.radiusSheet)),
                 ),
                 builder: (context) => LanguageSelectorBottomSheet(
                   currentLanguage: currentLanguage,
@@ -208,7 +212,8 @@ class LanguageSelectorButton extends StatelessWidget {
             ),
           ),
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppScale.space16, vertical: AppScale.space12),
           ),
         );
       },

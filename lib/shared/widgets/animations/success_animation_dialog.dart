@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'success_check_animation.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SuccessAnimationDialog extends StatelessWidget {
   final String message;
@@ -35,10 +36,10 @@ class SuccessAnimationDialog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppScale.gutter),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.2),
@@ -58,7 +59,7 @@ class SuccessAnimationDialog extends StatelessWidget {
                 color: Colors.green,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppScale.space16),
             Text(
               message,
               style: const TextStyle(

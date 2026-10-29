@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/core/utils/screen_util.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 enum AppButtonType {
   primary,
@@ -155,7 +156,7 @@ class AppButton extends StatelessWidget {
   Widget _buildButtonChild(Color foregroundColor) {
     if (isLoading) {
       return SizedBox(
-        width: 20,
+        width: AppScale.gutter,
         height: 20,
         child: CircularProgressIndicator(
           strokeWidth: 2,
@@ -169,7 +170,7 @@ class AppButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 18),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppScale.space8),
           Text(text),
         ],
       );

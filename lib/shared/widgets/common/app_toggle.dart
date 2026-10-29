@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AppToggle extends StatefulWidget {
   final bool value;
@@ -116,7 +117,8 @@ class _AppToggleState extends State<AppToggle>
                               ),
                             if (widget.subtitle != null)
                               Padding(
-                                padding: const EdgeInsets.only(top: 4),
+                                padding:
+                                    const EdgeInsets.only(top: AppScale.space4),
                                 child: Text(
                                   widget.subtitle!,
                                   style: TextStyle(
@@ -132,14 +134,15 @@ class _AppToggleState extends State<AppToggle>
                     Container(
                       width: 52,
                       height: 32,
-                      padding: const EdgeInsets.all(2),
+                      padding: const EdgeInsets.all(AppScale.space2),
                       decoration: BoxDecoration(
                         color: widget.value
                             ? (widget.activeColor ??
                                     colorController.primaryColor.value)
                                 .withValues(alpha: 0.2)
                             : Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius:
+                            BorderRadius.circular(AppScale.radiusSurface),
                       ),
                       child: AnimatedAlign(
                         duration: AppDimensions.normal,

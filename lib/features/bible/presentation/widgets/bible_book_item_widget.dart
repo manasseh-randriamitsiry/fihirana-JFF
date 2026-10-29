@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleBookItemWidget extends StatelessWidget {
   final String bookName;
@@ -20,10 +21,10 @@ class BibleBookItemWidget extends StatelessWidget {
     final chapterCount = bibleController.getChapterCountForBook(bookName);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppScale.space8),
       decoration: BoxDecoration(
         color: colorController.primaryColor.value.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
       ),
       child: ListTile(
         onTap: onTap,
@@ -37,10 +38,11 @@ class BibleBookItemWidget extends StatelessWidget {
           ),
         ),
         trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space12, vertical: AppScale.space4),
           decoration: BoxDecoration(
             color: colorController.primaryColor.value.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           ),
           child: Text(
             '$chapterCount',
@@ -51,7 +53,8 @@ class BibleBookItemWidget extends StatelessWidget {
             ),
           ),
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppScale.radiusRow)),
       ),
     );
   }

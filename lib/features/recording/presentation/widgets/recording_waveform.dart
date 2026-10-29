@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingWaveform extends StatelessWidget {
   final RecordingController controller;
@@ -23,12 +24,12 @@ class RecordingWaveform extends StatelessWidget {
           duration: Duration(milliseconds: 300 + (index * 30)),
           width: 4,
           height: controller.isRecording.value ? 10 + (index % 4) * 8.0 : 10,
-          margin: const EdgeInsets.symmetric(horizontal: 2),
+          margin: const EdgeInsets.symmetric(horizontal: AppScale.space2),
           decoration: BoxDecoration(
             color: controller.isRecording.value
                 ? colorController.primaryColor.value
                 : colorController.primaryColor.value.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(AppScale.radiusMark),
           ),
         )
             .animate(

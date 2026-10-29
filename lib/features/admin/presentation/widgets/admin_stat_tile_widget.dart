@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AdminStatTileWidget extends StatelessWidget {
   final String title;
@@ -24,10 +25,10 @@ class AdminStatTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppScale.space12),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppScale.radiusSurface),
           border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Column(
@@ -36,7 +37,7 @@ class AdminStatTileWidget extends StatelessWidget {
             Row(
               children: [
                 Icon(icon, size: 16, color: color),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppScale.space4),
                 Text(
                   title,
                   style: TextStyle(
@@ -47,7 +48,7 @@ class AdminStatTileWidget extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppScale.space8),
             Text(
               value,
               style: TextStyle(

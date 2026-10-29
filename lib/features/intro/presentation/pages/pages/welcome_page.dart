@@ -5,6 +5,7 @@ import 'package:fihirana/features/intro/presentation/controllers/splash_controll
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
 import 'package:fihirana/features/intro/presentation/widgets/permission_request_dialog.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -17,7 +18,8 @@ class WelcomePage extends StatelessWidget {
 
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+        padding: const EdgeInsets.fromLTRB(AppScale.space24, AppScale.space24,
+            AppScale.space24, AppScale.space16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -35,7 +37,7 @@ class WelcomePage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppScale.space40),
             Center(
               child: Text(
                 'Jesosy Famonjena Fahamarinantsika',
@@ -43,7 +45,7 @@ class WelcomePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppScale.space12),
             Center(
               child: Text(
                 l10n.splashScreenSubtitle,
@@ -67,7 +69,7 @@ class WelcomePage extends StatelessWidget {
               icon: const Icon(Icons.arrow_forward_rounded),
               label: Text(l10n.getStarted),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppScale.space16),
             Obx(
               () => PageIndicatorWidget(
                 currentPage: splashController.currentPage.value,

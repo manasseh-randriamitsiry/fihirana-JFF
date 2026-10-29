@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/components/app_register_row.dart';
+import 'package:fihirana/core/design_system/components/app_sheet.dart';
+import 'package:fihirana/core/design_system/components/app_state_view.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class PlaylistBottomSheet extends StatefulWidget {
   final List<Hymn>? playlist;
@@ -26,131 +32,97 @@ class PlaylistBottomSheet extends StatefulWidget {
 class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Liste de lecture',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-          ),
-          const Divider(color: Colors.white24),
-          Expanded(
-            child: widget.playlist == null || widget.playlist!.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Aucun cantique dans la liste de lecture',
-                      style: TextStyle(color: Colors.white54),
-                    ),
-                  )
-                : ListView.builder(
-                    key: const PageStorageKey('playlist_bottom_sheet_list'),
-                    itemCount: widget.playlist!.length,
-                    itemBuilder: (context, index) {
-                      final hymn = widget.playlist![index];
-                      final isCurrent = hymn.id == widget.currentHymn?.id &&
-                          !hymn.id.startsWith('recording_');
-                      final isDownloaded =
-                          widget.isDownloaded?.call(hymn) ?? false;
-                      final downloadProgress =
-                          widget.getDownloadProgress?.call(hymn);
+    final l10n = AppLocalizations.of(context);
+    final AppSurfaces s = AppSurfaces.of(context);
+    final playlist = widget.playlist ?? const <Hymn>[];
 
-                      return ListTile(
-                        key: ValueKey(hymn.id),
-                        selected: isCurrent,
-                        selectedTileColor: Colors.white10,
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: isCurrent ? Colors.white : Colors.white10,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: isCurrent
-                                ? const Icon(Icons.bar_chart,
-                                    color: Colors.black, size: 20)
-                                : Text(
-                                    hymn.hymnNumber,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        title: Text(
-                          hymn.title,
-                          style: TextStyle(
-                            color: isCurrent ? Colors.white : Colors.white70,
-                            fontWeight:
-                                isCurrent ? FontWeight.bold : FontWeight.normal,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          'Cantique ${hymn.hymnNumber}',
-                          style: const TextStyle(
-                            color: Colors.white54,
-                            fontSize: 12,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (downloadProgress != null)
-                              SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  value: downloadProgress,
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            else if (isDownloaded)
-                              const Icon(Icons.check_circle,
-                                  color: Colors.green, size: 20)
-                            else
-                              IconButton(
-                                icon: const Icon(Icons.download_rounded,
-                                    color: Colors.white54),
-                                onPressed: () {
-                                  widget.onDownload?.call(hymn);
-                                  setState(
-                                      () {}); // Refresh to show progress if immediate
-                                },
-                              ),
-                          ],
-                        ),
-                        onTap: () {
-                          widget.onHymnChange?.call(hymn);
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space12,
+              AppScale.space12, AppScale.space8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.playlists,
+                  style: Theme.of(context).textTheme.titleLarge,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                icon: const Icon(Icons.close_rounded, size: AppScale.iconLg),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        const AppRule(firm: true),
+        Flexible(
+          child: playlist.isEmpty
+              ? AppNotice(
+                  title: l10n.noHymns,
+                  action: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text(l10n.close),
+                  ),
+                )
+              : ListView.separated(
+                  key: const PageStorageKey('playlist_bottom_sheet_list'),
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                      AppScale.space8, AppScale.gutter, AppScale.space12),
+                  itemCount: playlist.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: AppScale.buttonGap),
+                  itemBuilder: (context, index) {
+                    final hymn = playlist[index];
+                    final isCurrent = hymn.id == widget.currentHymn?.id &&
+                        !hymn.id.startsWith('recording_');
+                    final isDownloaded =
+                        widget.isDownloaded?.call(hymn) ?? false;
+                    final downloadProgress =
+                        widget.getDownloadProgress?.call(hymn);
+
+                    return AppRegisterRow(
+                      key: ValueKey(hymn.id),
+                      figure: hymn.hymnNumber,
+                      title: hymn.title,
+                      selected: isCurrent,
+                      onTap: () {
+                        widget.onHymnChange?.call(hymn);
+                        Navigator.pop(context);
+                      },
+                      trailing: downloadProgress != null
+                          ? SizedBox(
+                              width: AppScale.iconLg,
+                              height: AppScale.iconLg,
+                              child: CircularProgressIndicator(
+                                value: downloadProgress,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : isDownloaded
+                              ? Icon(Icons.check_circle_rounded,
+                                  size: AppScale.iconMd, color: s.accent)
+                              : IconButton(
+                                  tooltip: l10n.download,
+                                  icon: const Icon(Icons.download_rounded,
+                                      size: AppScale.iconMd),
+                                  onPressed: () {
+                                    widget.onDownload?.call(hymn);
+                                    setState(() {});
+                                  },
+                                ),
+                    );
+                  },
+                ),
+        ),
+      ],
     );
   }
 }

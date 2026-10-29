@@ -7,6 +7,7 @@ import 'package:fihirana/features/playlist/di/playlist_di.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/playlist/domain/entities/playlist.dart';
 import 'package:fihirana/features/playlist/presentation/pages/playlist_detail_screen.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class PlaylistItemWidget extends StatelessWidget {
   final Playlist playlist;
@@ -26,10 +27,10 @@ class PlaylistItemWidget extends StatelessWidget {
     final dateFormat = DateFormat('EEE, MMM d, yyyy');
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppScale.space12),
       decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         boxShadow: [
           BoxShadow(
             color: colorController.textColor.value.withValues(alpha: 0.05),
@@ -42,7 +43,8 @@ class PlaylistItemWidget extends StatelessWidget {
         ),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppScale.space16, vertical: AppScale.space8),
         onTap: () {
           Get.to(
             () => PlaylistDetailScreen(playlistId: playlist.id),
@@ -55,7 +57,7 @@ class PlaylistItemWidget extends StatelessWidget {
           height: 50,
           decoration: BoxDecoration(
             color: colorController.primaryColor.value.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppScale.radiusControl),
           ),
           child: Icon(
             Icons.music_note,
@@ -73,7 +75,7 @@ class PlaylistItemWidget extends StatelessWidget {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 4),
+            const SizedBox(height: AppScale.space4),
             Text(
               dateFormat.format(playlist.date),
               style: TextStyle(
@@ -81,7 +83,7 @@ class PlaylistItemWidget extends StatelessWidget {
                 fontSize: 13,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: AppScale.space2),
             Text(
               '${playlist.hymnIds.length} cantiques',
               style: TextStyle(
@@ -109,7 +111,7 @@ class PlaylistItemWidget extends StatelessWidget {
               child: Row(
                 children: [
                   const Icon(Icons.share, size: 20),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(l10n.share),
                 ],
               ),
@@ -119,7 +121,7 @@ class PlaylistItemWidget extends StatelessWidget {
               child: Row(
                 children: [
                   const Icon(Icons.delete, color: Colors.red, size: 20),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(l10n.delete, style: const TextStyle(color: Colors.red)),
                 ],
               ),
@@ -187,7 +189,7 @@ class _CreatePlaylistDialogWidgetState
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppScale.gutter),
           InkWell(
             onTap: () async {
               final date = await showDatePicker(
@@ -217,7 +219,7 @@ class _CreatePlaylistDialogWidgetState
               children: [
                 Icon(Icons.calendar_today,
                     size: 20, color: colorController.primaryColor.value),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   DateFormat('MMM d, yyyy').format(selectedDate),
                   style: TextStyle(

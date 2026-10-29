@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 enum _ContactAction { directions, edit, delete }
 
@@ -30,11 +31,12 @@ class ContactListItemWidget extends StatelessWidget {
     final hasActions = onDirections != null || canEdit;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: AppScale.space12),
       child: AppGroupedSurface(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppScale.space16, vertical: AppScale.space16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -51,7 +53,7 @@ class ContactListItemWidget extends StatelessWidget {
                         ),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: AppScale.space16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,14 +68,14 @@ class ContactListItemWidget extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: AppScale.space8),
                       _ContactDetail(
                         icon: Icons.phone_outlined,
                         text: contact.phoneNumber,
                       ),
                       if (contact.location != null &&
                           contact.location!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: AppScale.space4),
                         _ContactDetail(
                           icon: Icons.location_on_outlined,
                           text: contact.location!,
@@ -145,7 +147,7 @@ class _ContactDetail extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 16, color: colors.onSurfaceVariant),
-        const SizedBox(width: 6),
+        const SizedBox(width: AppScale.space8),
         Expanded(
           child: Text(
             text,
@@ -179,7 +181,7 @@ class _ContactMenuItem extends StatelessWidget {
     return Row(
       children: [
         Icon(icon, size: 20, color: foreground),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppScale.space12),
         Text(label, style: TextStyle(color: foreground)),
       ],
     );

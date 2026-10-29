@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SaveDialogDriveUpload extends StatefulWidget {
   final bool initialValue;
@@ -32,7 +33,7 @@ class _SaveDialogDriveUploadState extends State<SaveDialogDriveUpload> {
     return Obx(() => Container(
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
           ),
           child: CheckboxListTile(
             title: const Text(

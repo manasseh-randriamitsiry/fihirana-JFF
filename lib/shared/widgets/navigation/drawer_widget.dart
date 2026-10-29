@@ -14,6 +14,9 @@ import 'package:fihirana/core/controllers/user_controller.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/components/app_register_row.dart';
 
 class DrawerWidget extends StatefulWidget {
   final Function() openDrawer;
@@ -159,21 +162,26 @@ class DrawerWidgetState extends State<DrawerWidget>
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          color: colorScheme.onSurfaceVariant,
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.1,
-        ),
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.gutter, AppScale.space24, AppScale.gutter, AppScale.space8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: type.bodySmall
+                  ?.copyWith(color: s.ink, fontWeight: FontWeight.w700)),
+          const SizedBox(height: AppScale.space8),
+          Container(height: AppScale.ruleBar, color: s.ruleFirm),
+        ],
       ),
     );
   }
 
+  /// The drawer's own navigation row: the register row, which is the object the
+  /// rest of the app already reads, so a drawer entry and a hymn entry agree.
   Widget _buildDrawerItem({
     required BuildContext context,
     required IconData icon,
@@ -182,92 +190,60 @@ class DrawerWidgetState extends State<DrawerWidget>
     bool isActive = false,
     bool isDestructive = false,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final background = isDestructive
-        ? colorScheme.errorContainer
+    final AppSurfaces s = AppSurfaces.of(context);
+    final Color ink = isDestructive
+        ? Theme.of(context).colorScheme.error
         : isActive
-            ? colorScheme.secondaryContainer
-            : colorScheme.surface;
-    final foreground = isDestructive
-        ? colorScheme.onErrorContainer
-        : isActive
-            ? colorScheme.onSecondaryContainer
-            : colorScheme.onSurface;
-    final iconBackground = isDestructive
-        ? colorScheme.error.withValues(alpha: .12)
-        : isActive
-            ? colorScheme.primary.withValues(alpha: .14)
-            : colorScheme.surfaceContainerHighest;
-    final iconColor = isDestructive
-        ? colorScheme.error
-        : isActive
-            ? colorScheme.primary
-            : colorScheme.onSurfaceVariant;
+            ? s.accent
+            : s.ink;
 
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppScale.gutter, vertical: AppScale.space4),
+      child: AppRegisterRow(
+        title: title,
+        selected: isActive,
+        destructive: isDestructive,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        // A navigation entry does not lead somewhere deeper: no chevron.
+        trailing: const SizedBox.shrink(),
+        leadingWidget: Icon(icon, size: AppScale.iconLg, color: ink),
+      ),
+    );
+  }
+
+  /// The drawer is mounted in MaterialApp's `builder`, which sits outside the
+  /// Navigator's Overlay, so an IconButton here must not carry a tooltip: a
+  /// RawTooltip without an Overlay ancestor throws the moment it is shown.
+  Widget _buildCloseButton(BuildContext context, Color onBand) {
     return Semantics(
       button: true,
-      selected: isActive,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
-        child: Material(
-          color: background,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: isActive || isDestructive
-                  ? foreground.withValues(alpha: .12)
-                  : colorScheme.outlineVariant.withValues(alpha: .45),
-            ),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onTap();
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Row(
-                children: [
-                  Container(
-                    width: 38,
-                    height: 38,
-                    decoration: BoxDecoration(
-                      color: iconBackground,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(icon, color: iconColor, size: 21),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: foreground,
-                            fontWeight:
-                                isActive ? FontWeight.w700 : FontWeight.w500,
-                          ),
-                    ),
-                  ),
-                  if (isActive)
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: colorScheme.primary,
-                      size: 18,
-                    ),
-                ],
-              ),
-            ),
-          ),
+      label: MaterialLocalizations.of(context).closeButtonTooltip,
+      child: Ink(
+        width: AppScale.hitTarget,
+        height: AppScale.hitTarget,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(AppScale.radiusControl),
+        ),
+        child: InkWell(
+          onTap: widget.openDrawer,
+          customBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppScale.radiusControl)),
+          child:
+              Icon(Icons.close_rounded, color: onBand, size: AppScale.iconLg),
         ),
       ),
     );
   }
 
   Widget _buildProfileHeader(BuildContext context, AppLocalizations l10n) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
+    final Color onBand = s.ink;
+    final Color onBandQuiet = s.muted;
     final userName = _isAuthenticated
         ? (_currentUser?.displayName ??
             _firebaseAuth.currentUser?.displayName ??
@@ -284,119 +260,89 @@ class DrawerWidgetState extends State<DrawerWidget>
     final isMobile = MediaQuery.sizeOf(context).width < 800;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: colorScheme.outlineVariant),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.gutter, AppScale.space16, AppScale.gutter, AppScale.space16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorScheme.surface,
-                      border: Border.all(
-                        color: colorScheme.primary.withValues(alpha: .32),
-                        width: 2,
-                      ),
-                    ),
-                    child: ClipOval(
-                      child: _isAuthenticated && photoUrl != null
-                          ? CachedNetworkImage(
-                              imageUrl: photoUrl,
-                              fit: BoxFit.cover,
-                              placeholder: (_, __) => Center(
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    color: colorScheme.primary,
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (_, __, ___) => Icon(
-                                Icons.person_rounded,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            )
-                          : Icon(
-                              Icons.person_rounded,
-                              color: colorScheme.onPrimaryContainer,
-                              size: 28,
-                            ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          userName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: colorScheme.onPrimaryContainer,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _isAuthenticated && (email?.isNotEmpty ?? false)
-                              ? email!
-                              : l10n.guest,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: colorScheme.onPrimaryContainer
-                                        .withValues(alpha: .72),
-                                  ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (isMobile)
-                    IconButton(
-                      onPressed: widget.openDrawer,
-                      icon: Icon(
-                        Icons.menu_open_rounded,
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                    ),
-                ],
-              ),
-              if (!_isAuthenticated) ...[
-                const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  child: FilledButton.tonalIcon(
-                    onPressed: _signInWithGoogle,
-                    icon: const Icon(Icons.login_rounded, size: 18),
-                    label: Text(l10n.signIn),
-                  ),
+              Container(
+                width: AppScale.hitTarget,
+                height: AppScale.hitTarget,
+                decoration: BoxDecoration(
+                  color: s.paper3,
+                  border: Border.all(color: s.rule, width: AppScale.ruleHair),
+                  borderRadius: BorderRadius.circular(AppScale.radiusControl),
                 ),
-              ],
+                clipBehavior: Clip.hardEdge,
+                child: _isAuthenticated && photoUrl != null
+                    ? CachedNetworkImage(
+                        imageUrl: photoUrl,
+                        fit: BoxFit.cover,
+                        placeholder: (_, __) => Center(
+                          child: SizedBox(
+                            width: AppScale.iconLg,
+                            height: AppScale.iconLg,
+                            child: CircularProgressIndicator(
+                              color: onBand,
+                              strokeWidth: AppScale.ruleBar,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (_, __, ___) => Icon(
+                          Icons.person_rounded,
+                          color: onBand,
+                          size: AppScale.iconLg,
+                        ),
+                      )
+                    : Icon(Icons.person_rounded,
+                        color: onBand, size: AppScale.iconLg),
+              ),
+              const SizedBox(width: AppScale.space16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      userName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: type.titleMedium?.copyWith(color: onBand),
+                    ),
+                    const SizedBox(height: AppScale.space2),
+                    Text(
+                      _isAuthenticated && (email?.isNotEmpty ?? false)
+                          ? email!
+                          : l10n.guest,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: type.bodySmall?.copyWith(color: onBandQuiet),
+                    ),
+                  ],
+                ),
+              ),
+              if (isMobile) _buildCloseButton(context, onBand),
             ],
           ),
-        ),
+          if (!_isAuthenticated) ...[
+            const SizedBox(height: AppScale.space16),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _signInWithGoogle,
+                icon: const Icon(Icons.login_rounded, size: AppScale.iconMd),
+                label: Text(l10n.signIn),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final viewportWidth = MediaQuery.sizeOf(context).width;
     final drawerWidth = math.min(viewportWidth * .85, 420.0);
 
@@ -412,7 +358,9 @@ class DrawerWidgetState extends State<DrawerWidget>
         return SizedBox(
           width: constrainedWidth,
           child: Material(
-            color: colorScheme.surface,
+            // The drawer has no stock of its own: it is the page it opens on,
+            // and only the things inside it are drawn.
+            type: MaterialType.transparency,
             child: SafeArea(
               bottom: false,
               child: Obx(() {
@@ -423,7 +371,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                   // A single scrollable owns the vertical layout. ZoomDrawer can
                   // briefly provide loose height constraints while animating; an
                   // Expanded inside a Column then overflows on some devices.
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(bottom: AppScale.space16),
                   children: [
                     _buildProfileHeader(context, l10n),
                     _buildSectionHeader(context, l10n.library),
@@ -437,14 +385,14 @@ class DrawerWidgetState extends State<DrawerWidget>
                     if (_isAuthenticated)
                       _buildDrawerItem(
                         context: context,
-                        icon: Icons.add_circle_outline,
+                        icon: Icons.add_circle_rounded,
                         title: l10n.createHymn,
                         isActive: currentRoute == '/create_hymn',
                         onTap: () => Get.toNamed('/create_hymn'),
                       ),
                     _buildDrawerItem(
                       context: context,
-                      icon: Icons.library_music_outlined,
+                      icon: Icons.library_music_rounded,
                       title: l10n.additionalHymns,
                       isActive: currentRoute == '/firebase_hymns',
                       onTap: () => Get.toNamed('/firebase_hymns'),
@@ -503,21 +451,21 @@ class DrawerWidgetState extends State<DrawerWidget>
                     if (Get.find<AuthController>().isAdmin)
                       _buildDrawerItem(
                         context: context,
-                        icon: Icons.admin_panel_settings_outlined,
+                        icon: Icons.admin_panel_settings_rounded,
                         title: l10n.adminPanel,
                         isActive: currentRoute == '/admin',
                         onTap: () => Get.toNamed('/admin'),
                       ),
                     _buildDrawerItem(
                       context: context,
-                      icon: Icons.settings_outlined,
+                      icon: Icons.settings_rounded,
                       title: l10n.settings,
                       isActive: currentRoute == '/settings',
                       onTap: () => Get.toNamed('/settings'),
                     ),
                     _buildDrawerItem(
                       context: context,
-                      icon: Icons.info_outline_rounded,
+                      icon: Icons.info_rounded,
                       title: l10n.aboutUs,
                       isActive: currentRoute == '/about',
                       onTap: () => Get.toNamed('/about'),

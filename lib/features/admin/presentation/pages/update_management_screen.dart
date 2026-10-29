@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/admin/data/services/admin_control_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class UpdateManagementScreen extends StatefulWidget {
   const UpdateManagementScreen({super.key});
@@ -193,7 +194,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
       body: SafeArea(
         top: false,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(bottom: AppScale.space24),
           children: [
             AppSection(
               title: AppLocalizations.of(context).updateControl,
@@ -208,23 +209,26 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
               child: _buildConfigurationForm(),
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+              padding: const EdgeInsets.fromLTRB(
+                  AppScale.gutter, AppScale.space24, AppScale.gutter, 0),
               child: SizedBox(
                 width: double.infinity,
                 child: FilledButton(
                   onPressed: _isSaving ? null : _saveConfig,
                   style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16)),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppScale.space24,
+                          vertical: AppScale.space12)),
                   child: _isSaving
                       ? Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             const SizedBox(
-                              width: 20,
+                              width: AppScale.gutter,
                               height: 20,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppScale.space8),
                             Text(AppLocalizations.of(context).saving),
                           ],
                         )
@@ -248,7 +252,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     return AppGroupedSurface(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppScale.space16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -263,7 +267,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                     color: statusColor,
                     size: 24,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   Text(
                     config.emergencyMode
                         ? AppLocalizations.of(context).emergencyModeActive
@@ -274,19 +278,19 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppScale.space12),
               if (config.adminMessage != null)
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(AppScale.space12),
                   decoration: BoxDecoration(
                     color: colors.secondaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.message_outlined,
                           color: colors.onSecondaryContainer),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppScale.space8),
                       Expanded(
                         child: Text(
                           AppLocalizations.of(context)
@@ -299,17 +303,17 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                 ),
               if (config.blockedVersion != null)
                 Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.only(top: AppScale.space8),
+                  padding: const EdgeInsets.all(AppScale.space12),
                   decoration: BoxDecoration(
                     color: colors.errorContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.block_outlined,
                           color: colors.onErrorContainer),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppScale.space8),
                       Expanded(
                         child: Text(
                           AppLocalizations.of(context)
@@ -332,7 +336,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     return AppGroupedSurface(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppScale.space16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -349,7 +353,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Expanded(
                     child: FilledButton.tonalIcon(
                       onPressed: () async {
@@ -380,7 +384,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     return AppGroupedSurface(
       children: [
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppScale.space16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -425,9 +429,9 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                 },
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               const Divider(),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
 
               // Text Fields
               TextFormField(
@@ -439,7 +443,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   prefixIcon: const Icon(Icons.block),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppScale.space12),
 
               TextFormField(
                 controller: _minVersionController,
@@ -451,7 +455,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   prefixIcon: const Icon(Icons.verified),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppScale.space12),
 
               TextFormField(
                 controller: _recommendedVersionController,
@@ -462,7 +466,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   prefixIcon: const Icon(Icons.thumb_up),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppScale.space12),
 
               TextFormField(
                 controller: _allowedVersionsController,
@@ -473,7 +477,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
                   prefixIcon: const Icon(Icons.list),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppScale.space12),
 
               TextFormField(
                 controller: _adminMessageController,

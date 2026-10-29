@@ -6,6 +6,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/utils/translation_service.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class DailyVerseSettingsScreen extends StatelessWidget {
   DailyVerseSettingsScreen({super.key});
@@ -30,14 +31,14 @@ class DailyVerseSettingsScreen extends StatelessWidget {
     return AppPageScaffold(
       title: l10n.dailyBibleVerse,
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: AppScale.space24),
         children: [
           AppSection(
             title: l10n.dailyInspiration,
             child: AppGroupedSurface(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppScale.space16),
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -45,14 +46,14 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                         foregroundColor: colors.onPrimaryContainer,
                         child: const Icon(Icons.auto_stories_rounded),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: AppScale.space16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(l10n.dailyInspiration,
                                 style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 2),
+                            const SizedBox(height: AppScale.space2),
                             Text(l10n.receiveVerseEveryDay,
                                 style: Theme.of(context).textTheme.bodySmall),
                           ],
@@ -132,7 +133,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                 return const AppGroupedSurface(
                   children: [
                     Padding(
-                      padding: EdgeInsets.all(28),
+                      padding: EdgeInsets.all(AppScale.space24),
                       child: Center(child: CircularProgressIndicator()),
                     ),
                   ],
@@ -144,7 +145,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                 return AppGroupedSurface(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(AppScale.gutter),
                       child: Text(
                         l10n.noVerseAvailable,
                         style: Theme.of(context).textTheme.bodyMedium,
@@ -157,7 +158,8 @@ class DailyVerseSettingsScreen extends StatelessWidget {
               return AppGroupedSurface(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 14, 8, 16),
+                    padding: const EdgeInsets.fromLTRB(AppScale.space16,
+                        AppScale.space16, AppScale.space8, AppScale.space16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -165,7 +167,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                           children: [
                             Icon(Icons.format_quote_rounded,
                                 color: colors.primary),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: AppScale.space12),
                             Expanded(
                               child: Text(
                                 verse.reference,
@@ -183,9 +185,10 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppScale.space8),
                         Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding:
+                              const EdgeInsets.only(right: AppScale.space8),
                           child: Text(
                             verse.text,
                             style: Theme.of(context)
@@ -292,7 +295,8 @@ class DailyVerseSettingsScreen extends StatelessWidget {
           isScrollControlled: true,
           showDragHandle: true,
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+            borderRadius: BorderRadius.vertical(
+                top: Radius.circular(AppScale.radiusSheet)),
           ),
           builder: (context) => DraggableScrollableSheet(
             initialChildSize: 0.5,
@@ -300,11 +304,11 @@ class DailyVerseSettingsScreen extends StatelessWidget {
             maxChildSize: 0.9,
             expand: false,
             builder: (context, scrollController) => Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppScale.space16),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AppScale.radiusSheet)),
               ),
               child: Column(
                 children: [
@@ -325,6 +329,7 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                   Expanded(
                     child: SingleChildScrollView(
                       controller: scrollController,
+                      padding: const EdgeInsets.all(AppScale.gutter),
                       child: Text(
                         translatedText,
                         style: Theme.of(context)

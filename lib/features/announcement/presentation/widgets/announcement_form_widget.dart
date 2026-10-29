@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AnnouncementFormWidget extends StatefulWidget {
   final String title;
@@ -65,7 +66,8 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
 
     return StatefulBuilder(
       builder: (context, setState) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
         title: Text(
           widget.title,
           style: const TextStyle(fontWeight: FontWeight.bold),
@@ -79,36 +81,36 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                 decoration: InputDecoration(
                   labelText: l10n.title,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppScale.radiusRow)),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               TextField(
                 controller: _messageController,
                 decoration: InputDecoration(
                   labelText: l10n.message,
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppScale.radiusRow)),
                 ),
                 maxLines: 4,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               InkWell(
                 onTap: () => _selectExpirationDate(setState),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppScale.radiusRow),
                 child: Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppScale.space16),
                   decoration: BoxDecoration(
                     border: Border.all(
                         color: Theme.of(context).colorScheme.outlineVariant),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppScale.radiusRow),
                   ),
                   child: Row(
                     children: [
                       Icon(Icons.calendar_today,
                           color: Theme.of(context).colorScheme.primary,
                           size: 20),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppScale.space12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +124,7 @@ class _AnnouncementFormWidgetState extends State<AnnouncementFormWidget> {
                                 fontSize: 12,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppScale.space4),
                             Text(
                               _selectedExpirationDate != null
                                   ? DateFormat('dd/MM/yyyy')

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AgreementCheckboxWidget extends StatelessWidget {
   final bool isAccepted;
@@ -20,13 +21,13 @@ class AgreementCheckboxWidget extends StatelessWidget {
         HapticFeedback.selectionClick();
         onTap();
       },
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppScale.radiusRow),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(AppScale.space12),
         decoration: BoxDecoration(
           color: isAccepted ? Colors.green.shade50 : Colors.grey.shade100,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           border: Border.all(
             color: isAccepted ? Colors.green : Colors.grey.shade300,
             width: 2,
@@ -54,7 +55,7 @@ class AgreementCheckboxWidget extends StatelessWidget {
                     )
                   : null,
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppScale.space12),
             Expanded(
               child: Text(
                 text,

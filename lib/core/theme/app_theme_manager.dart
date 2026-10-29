@@ -1,49 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
 
-/// Manages application theming and theme generation
+/// Resolves the font the user picked in Settings into the theme's body family.
+///
+/// The picked face runs the app; the display and figure families keep their own
+/// roles, which a blanket `TextTheme.apply(fontFamily:)` would have erased.
 class AppThemeManager {
   ColorController? _colorController;
   FontController? _fontController;
 
-  ColorController get _getColorController {
-    _colorController ??= Get.find<ColorController>();
-    return _colorController!;
+  ColorController get _getColorController =>
+      _colorController ??= Get.find<ColorController>();
+
+  FontController get _getFontController =>
+      _fontController ??= Get.find<FontController>();
+
+  String _bodyFamily(String fontName) {
+    if (_getFontController.customFonts.contains(fontName)) return fontName;
+    return _getFontController.fontMap[fontName] ??
+        AppTypography.fallbackBodyFamily;
   }
 
-  FontController get _getFontController {
-    _fontController ??= Get.find<FontController>();
-    return _fontController!;
-  }
+  ThemeData getLightTheme(String fontName) =>
+      _getColorController.getLightTheme(bodyFamily: _bodyFamily(fontName));
 
-  /// Get the appropriate theme with font applied
-  ThemeData getThemeWithFont(ThemeData baseTheme, String fontName) {
-    // Check if it's a custom font first
-    String fontFamily;
-    if (_getFontController.customFonts.contains(fontName)) {
-      // For custom fonts, use the font name directly as the family name
-      fontFamily = fontName;
-    } else {
-      // For predefined fonts, get from the map or default to 'Lato'
-      fontFamily = _getFontController.fontMap[fontName] ?? 'Lato';
-    }
-
-    return baseTheme.copyWith(
-      textTheme: baseTheme.textTheme.apply(fontFamily: fontFamily),
-      primaryTextTheme:
-          baseTheme.primaryTextTheme.apply(fontFamily: fontFamily),
-    );
-  }
-
-  /// Get light theme
-  ThemeData getLightTheme(String fontName) {
-    return getThemeWithFont(_getColorController.getLightTheme(), fontName);
-  }
-
-  /// Get dark theme
-  ThemeData getDarkTheme(String fontName) {
-    return getThemeWithFont(_getColorController.getDarkTheme(), fontName);
-  }
+  ThemeData getDarkTheme(String fontName) =>
+      _getColorController.getDarkTheme(bodyFamily: _bodyFamily(fontName));
 }

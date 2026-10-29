@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSearchContextSelector extends StatefulWidget {
   final BibleSearchContext currentContext;
@@ -28,7 +29,7 @@ class _BibleSearchContextSelectorState
     final l10n = AppLocalizations.of(context);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.symmetric(horizontal: AppScale.gutter),
       child: Row(
         children: [
           Expanded(
@@ -38,7 +39,7 @@ class _BibleSearchContextSelectorState
               label: l10n.searchBooks,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppScale.space12),
           Expanded(
             child: _buildContextButton(
               searchContext: BibleSearchContext.allBible,
@@ -66,10 +67,11 @@ class _BibleSearchContextSelectorState
         // The search will be performed by the parent widget
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        padding: const EdgeInsets.symmetric(
+            vertical: AppScale.space12, horizontal: AppScale.space16),
         decoration: BoxDecoration(
           color: isSelected ? colors.primary : colors.primaryContainer,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           border: Border.all(
             color: isSelected ? colors.primary : colors.outlineVariant,
           ),
@@ -82,7 +84,7 @@ class _BibleSearchContextSelectorState
               color: isSelected ? colors.onPrimary : colors.onPrimaryContainer,
               size: 18,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppScale.space8),
             Flexible(
               child: Text(
                 label,

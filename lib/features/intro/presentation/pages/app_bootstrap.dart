@@ -17,6 +17,7 @@ import 'dart:async';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AppBootstrap extends StatefulWidget {
   const AppBootstrap({super.key});
@@ -226,7 +227,8 @@ class _AppBootstrapState extends State<AppBootstrap>
                 maxWidth: isTablet ? 400 : double.infinity,
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppScale.space40),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -236,9 +238,10 @@ class _AppBootstrapState extends State<AppBootstrap>
                     ),
                     SizedBox(height: isTablet ? 30 : 40),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius:
+                          BorderRadius.circular(AppScale.radiusControl),
                       child: SizedBox(
-                        height: 8,
+                        height: AppScale.space8,
                         width: double.infinity,
                         child: LinearProgressIndicator(
                           value: _animatedProgress,
@@ -258,7 +261,7 @@ class _AppBootstrapState extends State<AppBootstrap>
                         color: colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: AppScale.space12),
                     Text(
                       _currentTask,
                       textAlign: TextAlign.center,
@@ -289,7 +292,7 @@ class _AppBootstrapState extends State<AppBootstrap>
               maxWidth: isTablet ? 400 : double.infinity,
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              padding: const EdgeInsets.symmetric(horizontal: AppScale.space40),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -303,9 +306,9 @@ class _AppBootstrapState extends State<AppBootstrap>
 
                   // Progress bar
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                     child: SizedBox(
-                      height: 8,
+                      height: AppScale.space8,
                       width: double.infinity,
                       child: LinearProgressIndicator(
                         value: _animatedProgress,
@@ -329,7 +332,7 @@ class _AppBootstrapState extends State<AppBootstrap>
                     ),
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: AppScale.space12),
 
                   // Current task text
                   Text(

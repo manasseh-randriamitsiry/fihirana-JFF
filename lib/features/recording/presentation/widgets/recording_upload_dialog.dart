@@ -4,6 +4,7 @@ import 'package:fihirana/features/recording/presentation/controllers/recording_c
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingUploadDialog extends StatelessWidget {
   final RecordingController controller;
@@ -39,7 +40,7 @@ class RecordingUploadDialog extends StatelessWidget {
               colorController.primaryColor.value.withValues(alpha: 0.8),
             ],
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.3),
@@ -54,7 +55,7 @@ class RecordingUploadDialog extends StatelessWidget {
             maxWidth: MediaQuery.of(Get.context!).size.width * 0.7,
           ),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(AppScale.space24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -65,7 +66,7 @@ class RecordingUploadDialog extends StatelessWidget {
                       color: Colors.white,
                       size: 24,
                     ),
-                    SizedBox(width: 12),
+                    SizedBox(width: AppScale.space12),
                     Expanded(
                       child: Text(
                         'Envoi vers Drive',
@@ -78,7 +79,7 @@ class RecordingUploadDialog extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppScale.gutter),
                 Obx(() {
                   final isUploading =
                       controller.isUploadingRecording(recording.id);
@@ -91,7 +92,7 @@ class RecordingUploadDialog extends StatelessWidget {
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppScale.space16),
                         Text(
                           'Envoi en cours...',
                           style: TextStyle(
@@ -105,7 +106,7 @@ class RecordingUploadDialog extends StatelessWidget {
                       children: [
                         const Icon(Icons.error_outline,
                             color: Colors.redAccent, size: 48),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppScale.space16),
                         const Text(
                           "Échec de l'envoi",
                           style: TextStyle(
@@ -113,7 +114,7 @@ class RecordingUploadDialog extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppScale.space8),
                         Text(
                           uploadError,
                           style: TextStyle(
@@ -122,7 +123,7 @@ class RecordingUploadDialog extends StatelessWidget {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppScale.gutter),
                         Row(
                           children: [
                             Expanded(
@@ -138,7 +139,7 @@ class RecordingUploadDialog extends StatelessWidget {
                                 child: Text(l10n.retry),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppScale.space12),
                             Expanded(
                               child: ElevatedButton(
                                 onPressed: onDone,
@@ -160,7 +161,7 @@ class RecordingUploadDialog extends StatelessWidget {
                       children: [
                         const Icon(Icons.check_circle_outline,
                             color: Colors.white, size: 48),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppScale.space16),
                         const Text(
                           'Envoi terminé !',
                           style: TextStyle(
@@ -168,7 +169,7 @@ class RecordingUploadDialog extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppScale.gutter),
                         ElevatedButton(
                           onPressed: onDone,
                           style: ElevatedButton.styleFrom(

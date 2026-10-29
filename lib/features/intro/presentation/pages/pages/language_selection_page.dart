@@ -6,6 +6,7 @@ import 'package:fihirana/features/intro/presentation/controllers/splash_controll
 import 'package:fihirana/features/intro/presentation/widgets/page_indicator_widget.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LanguageSelectionPage extends StatelessWidget {
   const LanguageSelectionPage({super.key});
@@ -19,13 +20,14 @@ class LanguageSelectionPage extends StatelessWidget {
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
+          padding: const EdgeInsets.fromLTRB(AppScale.space24, AppScale.space24,
+              AppScale.space24, AppScale.space16),
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight - 40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 24),
+                const SizedBox(height: AppScale.space24),
                 Center(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
@@ -42,19 +44,19 @@ class LanguageSelectionPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: AppScale.space24),
                 Center(
                   child: Text(l10n.chooseLanguage,
                       style: Theme.of(context).textTheme.headlineMedium),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppScale.space8),
                 Center(
                   child: Text(
                     l10n.languageSelectionDescription,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: AppScale.space24),
                 Obx(
                   () => AppGroupedSurface(
                     children: List.generate(
@@ -71,14 +73,15 @@ class LanguageSelectionPage extends StatelessWidget {
                                 splashController.selectLanguage(locale),
                             child: Padding(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 14),
+                                  horizontal: AppScale.space16,
+                                  vertical: AppScale.space16),
                               child: Row(
                                 children: [
                                   Text(
                                       languageController
                                           .getLanguageFlag(locale),
                                       style: const TextStyle(fontSize: 24)),
-                                  const SizedBox(width: 14),
+                                  const SizedBox(width: AppScale.space16),
                                   Expanded(
                                     child: Text(
                                       languageController
@@ -110,7 +113,7 @@ class LanguageSelectionPage extends StatelessWidget {
                     }),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppScale.gutter),
                 Obx(
                   () => FilledButton(
                     onPressed: splashController.selectedLocale.value == null
@@ -119,7 +122,7 @@ class LanguageSelectionPage extends StatelessWidget {
                     child: Text(l10n.continueText),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
                 Obx(
                   () => PageIndicatorWidget(
                     currentPage: splashController.currentPage.value,

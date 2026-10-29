@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSearchInput extends StatefulWidget {
   final TextEditingController controller;
@@ -38,10 +39,10 @@ class _BibleSearchInputState extends State<BibleSearchInput> {
     final bibleController = Get.find<BibleController>();
 
     return Container(
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.all(AppScale.gutter),
       decoration: BoxDecoration(
         color: colorController.primaryColor.value.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
         border: Border.all(
           color: colorController.primaryColor.value.withValues(alpha: 0.1),
         ),
@@ -82,7 +83,7 @@ class _BibleSearchInputState extends State<BibleSearchInput> {
             return const SizedBox.shrink();
           }),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
+          contentPadding: const EdgeInsets.all(AppScale.space16),
         ),
         onChanged: (value) {
           _debounceTimer?.cancel();

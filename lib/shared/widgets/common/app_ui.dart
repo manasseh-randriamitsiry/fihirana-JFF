@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 
-/// Shared, low-cost building blocks for the grouped app interface.
-///
-/// These widgets intentionally lean on [ThemeData] so screens do not need to
-/// duplicate colours, spacing, shadows, or text styles.
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
+import 'package:fihirana/core/design_system/components/app_register_row.dart';
+import 'package:fihirana/core/design_system/components/app_sheet.dart';
+import 'package:fihirana/core/design_system/components/app_state_view.dart';
+
+/// Shared building blocks for the app's screens, all of them read from the
+/// design system: a screen passes content and labels, never colours or lengths.
 class AppPageScaffold extends StatelessWidget {
   final String title;
   final Widget body;
   final Widget? leading;
   final List<Widget> actions;
   final bool largeTitle;
+  final Widget? bottomBar;
 
   const AppPageScaffold({
     super.key,
@@ -18,25 +24,32 @@ class AppPageScaffold extends StatelessWidget {
     this.leading,
     this.actions = const [],
     this.largeTitle = false,
+    this.bottomBar,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
+    final AppSurfaces s = AppSurfaces.of(context);
     return Scaffold(
+      backgroundColor: s.paper,
       appBar: AppBar(
         leading: leading,
         title: Text(
           title,
-          style: largeTitle ? theme.textTheme.headlineMedium : null,
+          style: largeTitle ? type.displaySmall : type.titleLarge,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         actions: actions,
       ),
       body: SafeArea(top: false, child: body),
+      bottomNavigationBar: bottomBar,
     );
   }
 }
 
+/// A titled group of content: the label, a firm rule, then what it heads.
 class AppSection extends StatelessWidget {
   final String title;
   final Widget child;
@@ -46,26 +59,26 @@ class AppSection extends StatelessWidget {
     super.key,
     required this.title,
     required this.child,
-    this.padding = const EdgeInsets.fromLTRB(20, 24, 20, 0),
+    this.padding = const EdgeInsets.fromLTRB(
+        AppScale.gutter, AppScale.space24, AppScale.gutter, 0),
   });
 
   @override
   Widget build(BuildContext context) {
+    final TextTheme type = Theme.of(context).textTheme;
+    final AppSurfaces s = AppSurfaces.of(context);
     return Padding(
       padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 4, bottom: 8),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    letterSpacing: 0.2,
-                  ),
-            ),
-          ),
+          Text(title,
+              style: type.bodySmall
+                  ?.copyWith(color: s.ink, fontWeight: FontWeight.w700)),
+          const SizedBox(height: AppScale.space8),
+          const AppRule(firm: true),
+          // The rule heads the group; it is not the group's top border.
+          const SizedBox(height: AppScale.space12),
           child,
         ],
       ),
@@ -73,6 +86,7 @@ class AppSection extends StatelessWidget {
   }
 }
 
+/// A set of rows that belong together: a rounded, ruled sheet of paper.
 class AppGroupedSurface extends StatelessWidget {
   final List<Widget> children;
   final EdgeInsetsGeometry padding;
@@ -85,30 +99,77 @@ class AppGroupedSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return DecoratedBox(
+    final AppSurfaces s = AppSurfaces.of(context);
+    return Container(
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: colors.outlineVariant.withValues(alpha: .65)),
+        color: s.sheet,
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
+        border: Border.all(color: s.ruleFirm, width: AppScale.ruleHair),
       ),
-      child: Padding(
-        padding: padding,
-        child: Column(mainAxisSize: MainAxisSize.min, children: children),
+      // Flush rows splash square; the group clips them to its own corner.
+      clipBehavior: Clip.antiAlias,
+      padding: padding,
+      // The group is the card, so the rows inside it stay flush.
+      child: GroupedRows(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: children,
+        ),
       ),
     );
   }
 }
 
-class AppGroupDivider extends StatelessWidget {
-  const AppGroupDivider({super.key});
+/// One tappable card.
+///
+/// A card that holds a single action is not a group of rows: it carries its own
+/// paper, rule and corner, and the ripple fills that same box. Nothing inside it
+/// gets a second surface.
+class AppTapCard extends StatelessWidget {
+  final Widget child;
+  final VoidCallback? onTap;
+  final EdgeInsetsGeometry padding;
+
+  const AppTapCard({
+    super.key,
+    required this.child,
+    this.onTap,
+    this.padding = const EdgeInsets.all(AppScale.space16),
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 56),
-      child: Divider(height: 1, color: Theme.of(context).dividerColor),
+    final AppSurfaces s = AppSurfaces.of(context);
+    final BorderRadius corner = BorderRadius.circular(AppScale.radiusRow);
+    final bool enabled = onTap != null;
+    return Ink(
+      decoration: BoxDecoration(
+        color: s.paper2,
+        borderRadius: corner,
+        border: Border.all(color: s.rule, width: AppScale.ruleHair),
+      ),
+      child: Semantics(
+        button: enabled,
+        child: InkWell(
+          onTap: onTap,
+          customBorder: RoundedRectangleBorder(borderRadius: corner),
+          hoverColor: s.pressed,
+          focusColor: s.focus.withValues(alpha: 0.18),
+          splashColor: s.accent.withValues(alpha: 0.10),
+          highlightColor: s.pressed,
+          child: Padding(padding: padding, child: child),
+        ),
+      ),
     );
+  }
+}
+
+class AppGroupDivider extends StatelessWidget {  const AppGroupDivider({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const AppRule(indent: AppScale.gutter + AppScale.iconLg + 14);
   }
 }
 
@@ -134,46 +195,25 @@ class AppListRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final foreground = destructive ? colors.error : colors.onSurface;
-    return Semantics(
-      button: onTap != null,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            children: [
-              Icon(icon, color: iconColor ?? foreground, size: 22),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(color: foreground)),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(subtitle!,
-                          style: Theme.of(context).textTheme.bodySmall),
-                    ],
-                  ],
-                ),
-              ),
-              trailing ??
-                  Icon(Icons.chevron_right_rounded,
-                      color: colors.onSurfaceVariant),
-            ],
-          ),
-        ),
-      ),
+    final AppSurfaces s = AppSurfaces.of(context);
+    return AppRegisterRow(
+      title: title,
+      subtitle: subtitle,
+      trailing: trailing,
+      onTap: onTap,
+      destructive: destructive,
+      leadingWidget: Builder(builder: (context) {
+        final Color ink = destructive
+            ? Theme.of(context).colorScheme.error
+            : (iconColor ?? s.ink);
+        return Icon(icon, color: ink, size: AppScale.iconLg);
+      }),
     );
   }
 }
 
+/// The search field. Its trailing slot is always reserved, so a clear button
+/// arriving never moves the field.
 class AppSearchField extends StatelessWidget {
   final TextEditingController controller;
   final String hintText;
@@ -190,28 +230,25 @@ class AppSearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return TextField(
       controller: controller,
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
+      style: Theme.of(context).textTheme.bodyLarge,
       decoration: InputDecoration(
         hintText: hintText,
-        prefixIcon: const Icon(Icons.search_rounded),
-        suffixIcon: controller.text.isEmpty || onClear == null
-            ? null
-            : IconButton(
-                tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                onPressed: onClear,
-                icon: const Icon(Icons.clear_rounded),
-              ),
-        filled: true,
-        fillColor: colors.surfaceContainerHighest.withValues(alpha: .6),
+        prefixIcon: const Icon(Icons.search_rounded, size: AppScale.iconLg),
+        suffixIcon: IconButton(
+          onPressed: onClear,
+          tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+          icon: const Icon(Icons.close_rounded, size: AppScale.iconLg),
+        ),
       ),
     );
   }
 }
 
+/// What an empty region says: the fact, why it matters, one action.
 class AppEmptyState extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -228,28 +265,38 @@ class AppEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 40, color: colors.onSurfaceVariant),
-            const SizedBox(height: 16),
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            if (message != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                message!,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-            if (action != null) ...[const SizedBox(height: 16), action!],
-          ],
-        ),
-      ),
+    return AppStateView(
+      state: AppState.empty,
+      emptyTitle: title,
+      emptyMessage: message,
+      emptyAction: action,
+      emptyIcon: icon,
+      child: const SizedBox.shrink(),
+    );
+  }
+}
+
+/// A numeral that belongs to a row: a hymn number, a count, a duration.
+class AppFigure extends StatelessWidget {
+  final String value;
+  final double size;
+  final TextAlign align;
+
+  const AppFigure(
+    this.value, {
+    super.key,
+    this.size = AppScale.figureMd,
+    this.align = TextAlign.right,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      value,
+      textAlign: align,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: AppTypography.figure(AppSurfaces.of(context), size: size),
     );
   }
 }

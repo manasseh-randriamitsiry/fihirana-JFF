@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SettingsSectionHeader extends StatelessWidget {
   final String title;
@@ -18,7 +19,8 @@ class SettingsSectionHeader extends StatelessWidget {
     final colorController = Get.find<ColorController>();
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+      padding: const EdgeInsets.symmetric(
+          vertical: AppScale.space16, horizontal: AppScale.space4),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(

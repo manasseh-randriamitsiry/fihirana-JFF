@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 enum AppCardType {
   elevated,
@@ -51,7 +52,9 @@ class AppCard extends StatelessWidget {
             : BorderSide.none;
 
     return Padding(
-      padding: margin ?? const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      padding: margin ??
+          const EdgeInsets.symmetric(
+              vertical: AppScale.space4, horizontal: AppScale.space8),
       child: Material(
         color: surfaceColor,
         elevation: elevation ?? 0,

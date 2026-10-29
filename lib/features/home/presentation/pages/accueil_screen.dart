@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/utils/navigation_utility.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
@@ -78,9 +79,10 @@ class _AccueilScreenState extends State<AccueilScreen> {
         _scrollController.position.extentAfter > 840) {
       return;
     }
-    final startIndex = (_scrollController.offset / 82)
-        .floor()
-        .clamp(0, _hymnController.filteredHymns.length);
+    final startIndex =
+        (_scrollController.offset / (AppScale.listItemMin + AppScale.ruleHair))
+            .floor()
+            .clamp(0, _hymnController.filteredHymns.length);
     _checkAudioForHymns(
         _hymnController.filteredHymns.skip(startIndex).take(20));
   }
@@ -140,7 +142,6 @@ class _AccueilScreenState extends State<AccueilScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return AppPageScaffold(
       title: context.translate((l) => l.appTitleShort),
       largeTitle: true,
@@ -181,7 +182,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
               child: Row(
                 children: [
                   const Icon(Icons.language_rounded),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(context.translate((l) => l.language)),
                 ],
               ),
@@ -191,7 +192,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
               child: Row(
                 children: [
                   const Icon(Icons.favorite_border_rounded),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(context.translate((l) => l.favorites)),
                 ],
               ),
@@ -202,13 +203,11 @@ class _AccueilScreenState extends State<AccueilScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+            padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space4,
+                AppScale.gutter, AppScale.space12),
             child: HymnSearchField(
               controller: _hymnController.searchController,
-              defaultTextStyle: Theme.of(context).textTheme.bodyLarge!,
-              textColor: colors.onSurface,
-              iconColor: colors.onSurfaceVariant,
-              backgroundColor: colors.surfaceContainerHighest,
+              onClear: _hymnController.searchController.clear,
               onChanged: () {},
             ),
           ),
@@ -222,7 +221,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
                 return AppEmptyState(
                   icon: Icons.music_off_rounded,
                   title: context.translate((l) => l.noHymnsFound),
-                  message: 'Try a hymn number, title, or lyric.',
+                  message: context.translate((l) => l.tryAdjustingSearchTerms),
                   action: TextButton(
                     onPressed: _hymnController.searchController.clear,
                     child: Text(context.translate((l) => l.clearSearch)),
@@ -232,18 +231,17 @@ class _AccueilScreenState extends State<AccueilScreen> {
               return ListView.separated(
                 key: const PageStorageKey('home_hymns_list'),
                 controller: _scrollController,
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                padding: const EdgeInsets.fromLTRB(
+                    AppScale.gutter, 0, AppScale.gutter, AppScale.space24),
                 itemCount: hymns.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppScale.buttonGap),
                 itemBuilder: (context, index) {
                   final hymn = hymns[index];
                   return Obx(
                     () => HymnListItem(
                       key: ValueKey(hymn.id),
                       hymn: hymn,
-                      textColor: colors.onSurface,
-                      backgroundColor: colors.surface,
-                      primaryColor: colors.primary,
                       isFavorite: _hymnController
                               .favoriteStatuses[hymn.id]?.isNotEmpty ??
                           false,

@@ -7,6 +7,7 @@ import 'package:fihirana/features/intro/presentation/widgets/splash_widgets.dart
 import 'package:fihirana/features/intro/presentation/widgets/username_input_widget.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class TermsPage extends StatelessWidget {
   const TermsPage({super.key});
@@ -20,7 +21,10 @@ class TermsPage extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) => SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
-              24, 24, 24, 24 + MediaQuery.viewInsetsOf(context).bottom),
+              AppScale.space24,
+              AppScale.space24,
+              AppScale.space24,
+              AppScale.space24 + MediaQuery.viewInsetsOf(context).bottom),
           child: ConstrainedBox(
             constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
             child: Column(
@@ -28,38 +32,38 @@ class TermsPage extends StatelessWidget {
               children: [
                 const Center(
                     child: Icon(Icons.verified_user_outlined, size: 42)),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppScale.gutter),
                 Center(
                   child: Text(l10n.termsAndConditions,
                       style: Theme.of(context).textTheme.headlineMedium),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppScale.space8),
                 Center(
                   child: Text(
                     l10n.reviewOnboardingEssentials,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppScale.space24),
                 AppGroupedSurface(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppScale.space16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(l10n.agreement,
                               style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(height: 14),
+                          const SizedBox(height: AppScale.space16),
                           AgreementItemWidget(text: l10n.term1),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppScale.space12),
                           AgreementItemWidget(text: l10n.term2),
                         ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
                 Obx(
                   () => CheckboxListTile(
                     value: splashController.agreementAccepted.value,
@@ -69,7 +73,7 @@ class TermsPage extends StatelessWidget {
                     onChanged: (_) => splashController.toggleAgreement(),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
                 _AccountActions(
                   l10n: l10n,
                   splashController: splashController,
@@ -112,20 +116,20 @@ class _AccountActions extends StatelessWidget {
               controller: splashController.usernameController,
               labelText: l10n.enterYourName,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppScale.space12),
             OutlinedButton.icon(
               onPressed:
                   isSigningIn ? null : splashController.handleGoogleSignIn,
               icon: isSigningIn
                   ? const SizedBox(
-                      width: 18,
+                      width: AppScale.space16,
                       height: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
                   : const Icon(Icons.login_rounded),
               label: Text(isSigningIn ? l10n.signingIn : l10n.signInWithGoogle),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppScale.space12),
           ],
           FilledButton(
             onPressed: signedIn || hasUsername

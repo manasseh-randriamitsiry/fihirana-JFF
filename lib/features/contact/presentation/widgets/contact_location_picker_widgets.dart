@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LocationSearchWidget extends StatefulWidget {
   final TextEditingController controller;
@@ -34,7 +35,7 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
           decoration: BoxDecoration(
             color:
                 colorController.backgroundColor.value.withValues(alpha: 0.95),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppScale.radiusSurface),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.2),
@@ -59,11 +60,11 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
               filled: true,
               fillColor: Colors.transparent,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(AppScale.radiusSurface),
                 borderSide: BorderSide.none,
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppScale.space16, vertical: AppScale.space12),
             ),
             style: TextStyle(color: colorController.textColor.value),
             onChanged: widget.onChanged,
@@ -71,12 +72,13 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
         ),
         if (widget.searchResults.isNotEmpty)
           Container(
-            margin: const EdgeInsets.only(top: 8),
+            margin: const EdgeInsets.only(top: AppScale.space8),
             constraints: const BoxConstraints(maxHeight: 200),
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               color:
                   colorController.backgroundColor.value.withValues(alpha: 0.95),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppScale.radiusSurface),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.2),
@@ -88,6 +90,7 @@ class _LocationSearchWidgetState extends State<LocationSearchWidget> {
             child: ListView.builder(
               key: const PageStorageKey('location_search_results_list'),
               shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(vertical: AppScale.space4),
               itemCount: widget.searchResults.length,
               itemBuilder: (context, index) {
                 final result = widget.searchResults[index];
@@ -129,7 +132,7 @@ class LocationConfirmButtonWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.3),
@@ -142,10 +145,11 @@ class LocationConfirmButtonWidget extends StatelessWidget {
         onPressed: isEnabled ? onPressed : null,
         style: ElevatedButton.styleFrom(
           backgroundColor: colorController.primaryColor.value,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space24, vertical: AppScale.space12),
           minimumSize: const Size(double.infinity, 50),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppScale.radiusSurface),
           ),
         ),
         child: const Text(

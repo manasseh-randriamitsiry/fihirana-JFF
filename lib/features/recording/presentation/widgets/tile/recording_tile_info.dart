@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingTileInfo extends StatelessWidget {
   final UserRecording recording;
@@ -54,7 +55,7 @@ class RecordingTileInfo extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppScale.space4),
         Row(
           children: [
             Icon(
@@ -62,7 +63,7 @@ class RecordingTileInfo extends StatelessWidget {
               size: 12,
               color: colors.onSurfaceVariant,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppScale.space4),
             Text(
               _formatDuration(recording.durationSeconds),
               style: TextStyle(
@@ -70,13 +71,13 @@ class RecordingTileInfo extends StatelessWidget {
                 fontSize: 12,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppScale.space12),
             Icon(
               Icons.calendar_today,
               size: 12,
               color: colors.onSurfaceVariant,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppScale.space4),
             Text(
               _formatDate(recording.createdAt),
               style: TextStyle(
@@ -85,13 +86,13 @@ class RecordingTileInfo extends StatelessWidget {
               ),
             ),
             if (isPublic && recording.userName != null) ...[
-              const SizedBox(width: 12),
+              const SizedBox(width: AppScale.space12),
               Icon(
                 Icons.person_outline,
                 size: 12,
                 color: colors.onSurfaceVariant,
               ),
-              const SizedBox(width: 4),
+              const SizedBox(width: AppScale.space4),
               Expanded(
                 child: Text(
                   recording.userName!,

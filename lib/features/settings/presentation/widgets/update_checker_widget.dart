@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class UpdateCheckerWidget extends StatefulWidget {
   final Widget child;
@@ -113,7 +114,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
                       top: 0,
                       right: 0,
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(AppScale.space4),
                         decoration: const BoxDecoration(
                           color: Colors.red,
                           shape: BoxShape.circle,
@@ -129,7 +130,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
                       top: 0,
                       right: 0,
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(AppScale.space4),
                         decoration: const BoxDecoration(
                           color: Colors.green,
                           shape: BoxShape.circle,
@@ -154,7 +155,7 @@ class _UpdateCheckerWidgetState extends State<UpdateCheckerWidget> {
             top: 16,
             right: 16,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppScale.space8),
               decoration: const BoxDecoration(
                 color: Colors.orange,
                 shape: BoxShape.circle,

@@ -14,6 +14,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
 
 import 'update_management_screen.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SuperAdminDashboard extends StatefulWidget {
   const SuperAdminDashboard({super.key});
@@ -171,7 +172,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
             ),
           ],
           body: ListView(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.only(bottom: AppScale.space24),
             children: [
               if (_adminConfig?.emergencyMode == true) _buildEmergencyBanner(),
               AppSection(
@@ -201,20 +202,21 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.gutter, AppScale.space16, AppScale.gutter, 0),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colors.errorContainer,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           border: Border.all(color: colors.error.withValues(alpha: .45)),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppScale.space16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(Icons.warning_amber_rounded, color: colors.error, size: 28),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppScale.space16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,14 +228,14 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                             fontWeight: FontWeight.bold,
                           ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppScale.space4),
                     Text(
                       l10n.allUpdatesDisabled,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: colors.onErrorContainer,
                           ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppScale.space12),
                     TextButton.icon(
                       onPressed: () async {
                         await AdminControlService.clearEmergencyMode();
@@ -317,7 +319,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     return AppGroupedSurface(
       children: [
         Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(AppScale.space16),
           child: Row(
             children: [
               Container(
@@ -325,11 +327,11 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                 height: 40,
                 decoration: BoxDecoration(
                   color: stat.background,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppScale.radiusRow),
                 ),
                 child: Icon(stat.icon, color: stat.foreground, size: 21),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppScale.space12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -382,7 +384,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
         ),
         const AppGroupDivider(),
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppScale.space12),
           child: Align(
             alignment: Alignment.centerRight,
             child: FilledButton.tonalIcon(
@@ -396,17 +398,17 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
           const AppGroupDivider(),
           Container(
             width: double.infinity,
-            margin: const EdgeInsets.all(12),
-            padding: const EdgeInsets.all(12),
+            margin: const EdgeInsets.all(AppScale.space12),
+            padding: const EdgeInsets.all(AppScale.space12),
             decoration: BoxDecoration(
               color: colors.tertiaryContainer,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(AppScale.radiusControl),
             ),
             child: Row(
               children: [
                 Icon(Icons.warning_amber_rounded,
                     color: colors.onTertiaryContainer),
-                const SizedBox(width: 10),
+                const SizedBox(width: AppScale.space12),
                 Expanded(
                   child: Text(
                     l10n.versionBlocked(_adminConfig!.blockedVersion!),
@@ -452,7 +454,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
     ];
 
     return AppGroupedSurface(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppScale.space12),
       children: [
         LayoutBuilder(
           builder: (context, constraints) {
@@ -482,19 +484,19 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
   Widget _buildActionButton(_DashboardAction action) {
     return Material(
       color: action.background,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppScale.radiusRow),
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         onTap: action.onPressed,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 96),
           child: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppScale.space12),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(action.icon, color: action.foreground, size: 26),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppScale.space8),
                 Text(
                   action.title,
                   textAlign: TextAlign.center,

@@ -8,6 +8,7 @@ import 'package:fihirana/shared/widgets/common/loading_widget.dart';
 import 'package:fihirana/features/recording/presentation/widgets/recording_tile_widget.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class DeletedRecordingsWidget extends StatefulWidget {
   const DeletedRecordingsWidget({super.key});
@@ -72,7 +73,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
               hintText: AppLocalizations.of(context).searchDeletedRecordings,
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppScale.radiusRow),
               ),
               suffixIcon: searchQuery.isNotEmpty
                   ? IconButton(
@@ -95,7 +96,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
                 icon: const Icon(Icons.refresh),
                 label: Text(AppLocalizations.of(context).refresh),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppScale.space8),
               Text(
                 AppLocalizations.of(context)
                     .deletedRecordingsCount(filteredRecordings.length),
@@ -105,7 +106,7 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
           ),
         ),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: AppScale.space16),
 
         // Recordings list
         Expanded(
@@ -115,13 +116,14 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
                   ? _buildEmptyState()
                   : ListView.builder(
                       key: const PageStorageKey('deleted_recordings_list'),
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppScale.space16),
                       itemCount: filteredRecordings.length,
                       itemBuilder: (context, index) {
                         final recording = filteredRecordings[index];
                         return Padding(
                           key: ValueKey(recording.id),
-                          padding: const EdgeInsets.only(bottom: 12.0),
+                          padding:
+                              const EdgeInsets.only(bottom: AppScale.space12),
                           child: RecordingTileWidget(
                             recording: recording,
                             index: 0,

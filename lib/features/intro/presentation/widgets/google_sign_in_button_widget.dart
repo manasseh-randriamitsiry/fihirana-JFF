@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class GoogleSignInButtonWidget extends StatelessWidget {
   final bool isLoading;
@@ -20,7 +21,7 @@ class GoogleSignInButtonWidget extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         icon: isLoading
             ? const SizedBox(
-                width: 20,
+                width: AppScale.gutter,
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
@@ -43,9 +44,10 @@ class GoogleSignInButtonWidget extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
           foregroundColor: Colors.black87,
-          padding: const EdgeInsets.symmetric(vertical: 16),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space24, vertical: AppScale.space12),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppScale.radiusSurface),
           ),
           elevation: 8,
         ),

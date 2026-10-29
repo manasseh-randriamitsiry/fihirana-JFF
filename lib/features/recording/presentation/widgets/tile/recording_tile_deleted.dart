@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingTileDeleted extends StatelessWidget {
   final UserRecording recording;
@@ -29,10 +30,10 @@ class RecordingTileDeleted extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppScale.space12),
       decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
         border: Border.all(
           color: Colors.red.withValues(alpha: 0.2),
           width: 1,
@@ -46,7 +47,8 @@ class RecordingTileDeleted extends StatelessWidget {
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppScale.space12, vertical: AppScale.space4),
         dense: true,
         leading: Container(
           width: 40,
@@ -60,7 +62,7 @@ class RecordingTileDeleted extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
           ),
           child: const Center(
             child: Icon(
@@ -84,12 +86,13 @@ class RecordingTileDeleted extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppScale.space8),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppScale.space8, vertical: AppScale.space2),
               decoration: BoxDecoration(
                 color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppScale.radiusControl),
               ),
               child: const Text(
                 'SUPPRIMÉ',
@@ -111,7 +114,7 @@ class RecordingTileDeleted extends StatelessWidget {
               size: 10,
               color: colorController.textColor.value.withValues(alpha: 0.3),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppScale.space4),
             Text(
               _formatDuration(recording.durationSeconds),
               style: TextStyle(
@@ -119,7 +122,7 @@ class RecordingTileDeleted extends StatelessWidget {
                 fontSize: 11,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppScale.space8),
             Text(
               '•',
               style: TextStyle(
@@ -127,7 +130,7 @@ class RecordingTileDeleted extends StatelessWidget {
                 fontSize: 11,
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppScale.space8),
             Expanded(
               child: Text(
                 DateFormat.yMMMd().format(recording.createdAt),
@@ -146,11 +149,9 @@ class RecordingTileDeleted extends StatelessWidget {
             color: colorController.iconColor.value.withValues(alpha: 0.7),
             size: 20,
           ),
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(),
           color: colorController.backgroundColor.value,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
           ),
           onSelected: (value) {
             switch (value) {
@@ -165,7 +166,7 @@ class RecordingTileDeleted extends StatelessWidget {
           itemBuilder: (context) => [
             PopupMenuItem(
               value: 'restore',
-              height: 40,
+              height: AppScale.hitTarget,
               child: Row(
                 children: [
                   const Icon(
@@ -173,7 +174,7 @@ class RecordingTileDeleted extends StatelessWidget {
                     color: Colors.green,
                     size: 18,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(
                     'Restaurer',
                     style: TextStyle(
@@ -184,7 +185,7 @@ class RecordingTileDeleted extends StatelessWidget {
             ),
             const PopupMenuItem(
               value: 'permanent_delete',
-              height: 40,
+              height: AppScale.hitTarget,
               child: Row(
                 children: [
                   Icon(
@@ -192,7 +193,7 @@ class RecordingTileDeleted extends StatelessWidget {
                     color: Colors.red,
                     size: 18,
                   ),
-                  SizedBox(width: 12),
+                  SizedBox(width: AppScale.space12),
                   Text(
                     'Supprimer définitivement',
                     style: TextStyle(color: Colors.red, fontSize: 13),

@@ -9,6 +9,7 @@ import 'package:fihirana/shared/widgets/common/color_picker_widget.dart';
 import 'package:fihirana/shared/widgets/common/font_picker_widget.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/shared/widgets/common/simple_language_picker.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -24,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
         icon: const Icon(Icons.menu_rounded),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: AppScale.space24),
         children: [
           AppSection(
             title: context.translate((l) => l.theme),

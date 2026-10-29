@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
 import 'package:fihirana/features/bible/data/services/note_service.dart';
 import 'edit_hymn_screen.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
@@ -17,6 +20,7 @@ import 'package:fihirana/features/history/presentation/controllers/history_contr
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/recording/presentation/widgets/recording_overlay_manager.dart';
+import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/shared/widgets/common/color_picker_widget.dart';
 import 'package:fihirana/shared/widgets/animations/success_animation_dialog.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_detail_widgets.dart';
@@ -45,7 +49,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   final double _baseCountFontSize = 50.0;
   double _fontSize = 16.0;
   double _countFontSize = 50.0;
-  final bool _show = true;
   bool _showSlider = false;
 
   final HymnService _hymnService = HymnService();
@@ -63,7 +66,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   bool _isLoadingHymns = true;
 
   late AnimationController _heartAnimationController;
-  late Animation<double> _heartScaleAnimation;
   late Animation<double> _heartOpacityAnimation;
 
   // Recording overlay state
@@ -97,28 +99,20 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
 
     _heartAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: AppScale.durShort,
+      // The animation runs full opacity to none, so the rest position of the
+      // controller is its end: a heart that is not being acknowledged stays
+      // hidden instead of floating over the page.
+      value: 1.0,
     );
 
-    _heartScaleAnimation = Tween<double>(begin: 0.0, end: 1.2).animate(
-      CurvedAnimation(
-        parent: _heartAnimationController,
-        curve: const Interval(0.0, 0.5, curve: Curves.elasticOut),
-      ),
-    );
-
+    // The double-tap only needs to be acknowledged, not celebrated.
     _heartOpacityAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
       CurvedAnimation(
         parent: _heartAnimationController,
-        curve: const Interval(0.5, 1.0, curve: Curves.easeOut),
+        curve: Curves.easeOut,
       ),
     );
-
-    _heartAnimationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        _heartAnimationController.reset();
-      }
-    });
   }
 
   @override
@@ -332,9 +326,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         hymn: hymn,
         fontSize: _fontSize,
         countFontSize: _countFontSize,
-        showHint: _show,
         isUserAuthenticated: FirebaseAuth.instance.currentUser != null,
-        publicNotes: const [],
         userNote: _userNote,
         onNoteEdit: (note) => _showNoteEditor(note: note),
       ),
@@ -369,7 +361,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
+    final AppSurfaces s = AppSurfaces.of(context);
     final authController = Get.find<AuthController>();
     final currentUser = FirebaseAuth.instance.currentUser;
     final isAuthenticated = currentUser != null;
@@ -382,20 +374,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
             _hymn!.createdByEmail == currentUser.email);
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: s.sheet,
       appBar: AppBar(
         leading: IconButton(
             onPressed: () {
               HapticFeedback.lightImpact();
               Get.back();
             },
-            icon: Icon(
-              Icons.arrow_back_ios_outlined,
-              color: colorScheme.onSurface,
-            )),
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
+            icon: const Icon(Icons.arrow_back_ios_rounded)),
         centerTitle: true,
         title: GestureDetector(
           onTap: () {
@@ -404,10 +390,8 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
           },
           child: Text(
             _hymn?.hymnNumber ?? '',
-            style: TextStyle(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTypography.figure(s,
+                size: AppScale.figureLg, weight: FontWeight.w700),
           ),
         ),
         actions: [
@@ -430,7 +414,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 children: [
                   FavoriteButtonWidget(
                     isFavorite: isFavorite,
-                    favoriteStatus: favoriteStatus,
                     onPressed: () {
                       if (_hymn != null) {
                         _hymnService.toggleFavorite(_hymn!);
@@ -438,15 +421,9 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                     },
                   ),
                   HymnPopupMenuWidget(
-                    isFavorite: isFavorite,
                     canEditHymn: canEditCurrentHymn,
                     isUserAuthenticated: isAuthenticated,
                     hasUserNote: _userNote != null,
-                    onToggleFavorite: () {
-                      if (_hymn != null) {
-                        _hymnService.toggleFavorite(_hymn!);
-                      }
-                    },
                     onEditHymn: () => _navigateToEditScreen(context),
                     onShowNoteEditor: () => _showNoteEditor(),
                     onShowFontSizeSlider: () {
@@ -470,18 +447,11 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         children: [
           // PageView lazily builds only the visible hymn and its neighbours.
           _isLoadingHymns
-              ? HymnDetailSkeleton(
-                  fontSize: _fontSize,
-                  countFontSize: _countFontSize,
-                )
+              ? const HymnDetailSkeleton()
               : _allHymns.isEmpty
-                  ? Center(
-                      child: Text(
-                        l10n.noHymnsAvailable,
-                        style: TextStyle(
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
+                  ? AppEmptyState(
+                      icon: Icons.music_off_rounded,
+                      title: l10n.noHymnsAvailable,
                     )
                   : PageView.builder(
                       controller: _pageController,
@@ -491,44 +461,33 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                           _buildHymnPage(_allHymns[index], l10n),
                     ),
 
-          // Heart Animation Overlay
+          // Acknowledges the double-tap that bookmarks a hymn.
           IgnorePointer(
-            child: AnimatedBuilder(
-              animation: _heartAnimationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _heartOpacityAnimation.value,
-                  child: Transform.scale(
-                    scale: _heartScaleAnimation.value,
-                    child: Icon(
-                      Icons.favorite,
-                      color: colorScheme.error.withValues(alpha: 0.8),
-                      size: 100,
-                    ),
-                  ),
-                );
-              },
+            child: FadeTransition(
+              opacity: _heartOpacityAnimation,
+              child: Icon(
+                Icons.favorite_rounded,
+                color: s.accent,
+                size: AppScale.iconLg * 3,
+              ),
             ),
           ),
 
           // Font Size Slider Overlay
           if (_showSlider)
             Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: Card(
-                elevation: 0,
-                color: colorScheme.surface,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    side: BorderSide(
-                        color:
-                            colorScheme.outlineVariant.withValues(alpha: .65),
-                        width: 1)),
+              bottom: AppScale.gutter,
+              left: AppScale.gutter,
+              right: AppScale.gutter,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: s.paper2,
+                  borderRadius: BorderRadius.circular(AppScale.radiusRow),
+                  border:
+                      Border.all(color: s.ruleFirm, width: AppScale.ruleHair),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(AppScale.space12),
                   child: FontSizeSliderWidget(
                     fontSize: _fontSize,
                     onChanged: (double value) {
@@ -622,7 +581,6 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(AppLocalizations.of(context).noteDeleted),
-                    backgroundColor: Colors.red,
                   ),
                 );
               }

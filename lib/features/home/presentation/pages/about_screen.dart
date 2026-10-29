@@ -7,6 +7,7 @@ import 'package:fihirana/core/utils/pubspec_service.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -148,15 +149,16 @@ class _AboutScreenState extends State<AboutScreen> {
         icon: const Icon(Icons.menu_rounded),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: AppScale.space24),
         children: [
           AppSection(
             title: 'Application',
             child: AppGroupedSurface(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppScale.gutter),
               children: [
-                Icon(Icons.music_note_rounded, size: 42, color: colors.primary),
-                const SizedBox(height: 12),
+                Icon(Icons.music_note_rounded,
+                    size: AppScale.tile, color: colors.primary),
+                const SizedBox(height: AppScale.space12),
                 Text(
                   '$_appName ${l10n.appNameSuffix}',
                   textAlign: TextAlign.center,
@@ -164,7 +166,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         fontWeight: FontWeight.w700,
                       ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppScale.space4),
                 Text(
                   l10n.appVersion(_appVersion),
                   textAlign: TextAlign.center,
@@ -172,7 +174,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         color: colors.onSurfaceVariant,
                       ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppScale.space8),
                 Text(
                   '${l10n.headquarters} ${l10n.headquartersAddress}',
                   textAlign: TextAlign.center,
@@ -231,13 +233,9 @@ class _AboutScreenState extends State<AboutScreen> {
                           ? l10n.checkingForUpdates
                           : l10n.checkForUpdates,
                   trailing: busy
-                      ? SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: colors.primary,
-                          ),
+                      ? const SizedBox.square(
+                          dimension: AppScale.iconMd,
+                          child: CircularProgressIndicator(),
                         )
                       : null,
                   onTap: busy ? null : _checkForUpdates,
@@ -267,7 +265,8 @@ class _AboutScreenState extends State<AboutScreen> {
                   if (_releaseNotes?.isNotEmpty == true) ...[
                     const AppGroupDivider(),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
+                      padding: const EdgeInsets.fromLTRB(AppScale.space16,
+                          AppScale.space12, AppScale.space16, AppScale.space16),
                       child: Text(
                         _releaseNotes!.length > 200
                             ? '${_releaseNotes!.substring(0, 200)}…'
@@ -295,7 +294,7 @@ class _AboutScreenState extends State<AboutScreen> {
           AppSection(
             title: 'Développement',
             child: AppGroupedSurface(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppScale.space16),
               children: [
                 Text(
                   l10n.developedBy,
@@ -304,7 +303,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         color: colors.onSurfaceVariant,
                       ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: AppScale.space8),
                 Text(
                   'Randriamitsiry Valimbavaka Nandrasana Manassé',
                   textAlign: TextAlign.center,
@@ -312,7 +311,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         fontWeight: FontWeight.w600,
                       ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppScale.space4),
                 Text(
                   '${l10n.addressLabel} Ambalavao Tsienimparihy',
                   textAlign: TextAlign.center,

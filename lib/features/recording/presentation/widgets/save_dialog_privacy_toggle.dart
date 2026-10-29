@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SaveDialogPrivacyToggle extends StatefulWidget {
   final bool initialValue;
@@ -29,7 +30,7 @@ class _SaveDialogPrivacyToggleState extends State<SaveDialogPrivacyToggle> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
       ),
       child: SwitchListTile(
         title: Text(

@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/contact/presentation/widgets/contact_location_picker_widgets.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LocationPickerScreen extends StatefulWidget {
   final double? initialLat;
@@ -144,10 +145,10 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: Container(
-          margin: const EdgeInsets.all(8),
+          margin: const EdgeInsets.all(AppScale.space8),
           decoration: BoxDecoration(
             color: colorController.backgroundColor.value.withValues(alpha: 0.9),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
           ),
           child: IconButton(
             icon:
@@ -157,11 +158,11 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         ),
         actions: [
           Container(
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(AppScale.space8),
             decoration: BoxDecoration(
               color:
                   colorController.backgroundColor.value.withValues(alpha: 0.9),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppScale.radiusRow),
             ),
             child: IconButton(
               icon: Icon(

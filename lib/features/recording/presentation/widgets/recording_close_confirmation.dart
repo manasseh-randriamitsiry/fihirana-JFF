@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingCloseConfirmation extends StatelessWidget {
   final RecordingController controller;
@@ -29,11 +30,12 @@ class RecordingCloseConfirmation extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: colorController.backgroundColor.value,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
       title: Row(
         children: [
           const Icon(Icons.stop_circle, color: Colors.red, size: 24),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppScale.space12),
           Text(
             "Arrêter l'enregistrement ?",
             style: TextStyle(
@@ -54,12 +56,12 @@ class RecordingCloseConfirmation extends StatelessWidget {
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppScale.space12),
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(AppScale.space8),
             decoration: BoxDecoration(
               color: colorController.primaryColor.value.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppScale.radiusControl),
               border: Border.all(
                 color:
                     colorController.primaryColor.value.withValues(alpha: 0.3),
@@ -72,7 +74,7 @@ class RecordingCloseConfirmation extends StatelessWidget {
                   color: colorController.primaryColor.value,
                   size: 16,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppScale.space8),
                 Text(
                   _formatDuration(controller.recordDuration.value),
                   style: TextStyle(

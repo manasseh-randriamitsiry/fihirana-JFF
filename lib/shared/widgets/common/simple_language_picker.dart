@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'localization_extension.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SimpleLanguagePicker extends StatelessWidget {
   const SimpleLanguagePicker({super.key});
@@ -28,7 +29,8 @@ class SimpleLanguagePicker extends StatelessWidget {
         height: MediaQuery.of(context).size.height * 0.6,
         decoration: BoxDecoration(
           color: colorController.backgroundColor.value,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppScale.radiusFloat)),
           border: Border(
             top: BorderSide(
               color: colorController.primaryColor.value,
@@ -51,19 +53,21 @@ class SimpleLanguagePicker extends StatelessWidget {
             // Drag handle
             Center(
               child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                margin: const EdgeInsets.only(
+                    top: AppScale.space12, bottom: AppScale.space8),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
                   color:
                       colorController.primaryColor.value.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(AppScale.radiusMark),
                 ),
               ),
             ),
             // Title
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                  AppScale.space8, AppScale.gutter, AppScale.space16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -72,7 +76,7 @@ class SimpleLanguagePicker extends StatelessWidget {
                     size: 28,
                     color: colorController.primaryColor.value,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(
                     context.translate((l) => l.language),
                     style: TextStyle(
@@ -89,7 +93,13 @@ class SimpleLanguagePicker extends StatelessWidget {
               child: Obx(() {
                 return ListView(
                   key: const PageStorageKey('language_picker_list'),
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  // The sheet stops at the physical edge of the phone: the last
+                  // option has to clear the home indicator.
+                  padding: EdgeInsets.fromLTRB(
+                      AppScale.gutter,
+                      0,
+                      AppScale.gutter,
+                      AppScale.space16 + MediaQuery.paddingOf(context).bottom),
                   children: languageController.supportedLocales.map((locale) {
                     final isSelected =
                         languageController.isCurrentLocale(locale);
@@ -99,13 +109,13 @@ class SimpleLanguagePicker extends StatelessWidget {
                         languageController.getLanguageFlag(locale);
 
                     return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
+                      margin: const EdgeInsets.only(bottom: AppScale.space12),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? colorController.primaryColor.value
                                 .withValues(alpha: 0.1)
                             : colorController.backgroundColor.value,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                         border: Border.all(
                           color: isSelected
                               ? colorController.primaryColor.value
@@ -117,18 +127,19 @@ class SimpleLanguagePicker extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusRow),
                           onTap: () =>
                               languageController.changeLanguage(locale),
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(AppScale.space16),
                             child: Row(
                               children: [
                                 Text(
                                   languageFlag,
                                   style: const TextStyle(fontSize: 24),
                                 ),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: AppScale.space16),
                                 Expanded(
                                   child: Text(
                                     languageName,

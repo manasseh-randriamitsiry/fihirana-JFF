@@ -11,6 +11,8 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_list_item.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/components/app_state_view.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -44,7 +46,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   void _onSearchChanged(String value) {
     _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 220), () {
+    _searchDebounce = Timer(AppScale.durShort, () {
       if (mounted) setState(() => _query = value.trim().toLowerCase());
     });
   }
@@ -70,7 +72,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return AppPageScaffold(
       title: context.translate((l) => l.favorites),
       leading: IconButton(
@@ -82,7 +83,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
         children: [
           AppSection(
             title: context.translate((l) => l.favoriteHymns),
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                AppScale.space16, AppScale.gutter, AppScale.space12),
             child: AppSearchField(
               controller: _searchController,
               hintText: context.translate((l) => l.searchHymnsHint),
@@ -97,20 +99,12 @@ class _FavoritesPageState extends State<FavoritesPage> {
             child: StreamBuilder<List<Hymn>>(
               stream: _hymnService.getFavoriteHymnsStream(),
               builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return AppEmptyState(
-                    icon: Icons.cloud_off_rounded,
-                    title: context.translate((l) => l.unableToLoadFavorites),
-                    message:
-                        context.translate((l) => l.checkConnectionAndTryAgain),
-                  );
+                final bool hasData = snapshot.hasData;
+                final favorites = hasData ? snapshot.data! : const <Hymn>[];
+                if (hasData) {
+                  WidgetsBinding.instance.addPostFrameCallback(
+                      (_) => _checkAudioFor(favorites.take(20)));
                 }
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                final favorites = snapshot.data!;
-                WidgetsBinding.instance.addPostFrameCallback(
-                    (_) => _checkAudioFor(favorites.take(20)));
                 final matching = _query.isEmpty
                     ? favorites
                     : favorites
@@ -120,41 +114,52 @@ class _FavoritesPageState extends State<FavoritesPage> {
                               hymn.title.toLowerCase().contains(_query),
                         )
                         .toList(growable: false);
-                if (favorites.isEmpty) {
-                  return AppEmptyState(
-                    icon: Icons.favorite_border_rounded,
-                    title: context.translate((l) => l.noHymnsAddedYet),
-                    message: context.translate((l) => l.savedHymnsWillAppear),
-                  );
-                }
-                if (matching.isEmpty) {
-                  return AppEmptyState(
-                    icon: Icons.search_off_rounded,
-                    title: context.translate((l) => l.noResults),
-                  );
-                }
-                return ListView.separated(
-                  key: const PageStorageKey('favorites_list'),
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
-                  itemCount: matching.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final hymn = matching[index];
-                    return Obx(
-                      () => HymnListItem(
-                        key: ValueKey(hymn.id),
-                        hymn: hymn,
-                        textColor: colors.onSurface,
-                        backgroundColor: colors.surface,
-                        primaryColor: colors.primary,
-                        isFavorite: true,
-                        hasAudio: _audioAvailability[hymn.id] ?? false,
-                        onFavoritePressed: () =>
-                            _hymnService.toggleFavorite(hymn),
-                        onMusicPressed: () => _openPlayer(hymn),
-                      ),
-                    );
-                  },
+                final bool noFavorites = favorites.isEmpty;
+                final AppState state = snapshot.hasError
+                    ? AppState.error
+                    : !hasData
+                        ? AppState.loading
+                        : (noFavorites || matching.isEmpty)
+                            ? AppState.empty
+                            : AppState.full;
+
+                return AppStateView(
+                  state: state,
+                  errorTitle: context.translate((l) => l.unableToLoadFavorites),
+                  errorMessage:
+                      context.translate((l) => l.checkConnectionAndTryAgain),
+                  onRetry: () => _hymnService.refreshFavorites(),
+                  emptyTitle: noFavorites
+                      ? context.translate((l) => l.noHymnsAddedYet)
+                      : context.translate((l) => l.noResults),
+                  emptyMessage: noFavorites
+                      ? context.translate((l) => l.savedHymnsWillAppear)
+                      : null,
+                  emptyIcon: noFavorites
+                      ? Icons.favorite_border_rounded
+                      : Icons.search_off_rounded,
+                  child: ListView.separated(
+                    key: const PageStorageKey('favorites_list'),
+                    padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                        AppScale.space8, AppScale.gutter, AppScale.space24),
+                    itemCount: matching.length,
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(height: AppScale.buttonGap),
+                    itemBuilder: (context, index) {
+                      final hymn = matching[index];
+                      return Obx(
+                        () => HymnListItem(
+                          key: ValueKey(hymn.id),
+                          hymn: hymn,
+                          isFavorite: true,
+                          hasAudio: _audioAvailability[hymn.id] ?? false,
+                          onFavoritePressed: () =>
+                              _hymnService.toggleFavorite(hymn),
+                          onMusicPressed: () => _openPlayer(hymn),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             ),

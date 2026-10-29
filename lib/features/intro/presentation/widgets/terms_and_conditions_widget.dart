@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'splash_widgets.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class TermsAndConditionsWidget extends StatefulWidget {
   final bool isExpanded;
@@ -26,7 +27,7 @@ class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
     final l10n = AppLocalizations.of(context);
 
     return IntroCardWidget(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppScale.gutter),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -60,7 +61,7 @@ class _TermsAndConditionsWidgetState extends State<TermsAndConditionsWidget> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppScale.space12),
 
           // Collapsible terms content
           AnimatedCrossFade(

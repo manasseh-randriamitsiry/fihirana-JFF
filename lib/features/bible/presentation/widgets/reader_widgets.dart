@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleVerseItemWidget extends StatelessWidget {
   final int verseNumber;
@@ -44,11 +45,12 @@ class BibleVerseItemWidget extends StatelessWidget {
       return GestureDetector(
         onTap: () => bibleController.toggleVerseSelection(verseNumber),
         child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          margin: const EdgeInsets.only(bottom: AppScale.space12),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space12, vertical: AppScale.space8),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppScale.radiusControl),
           ),
           child: RichText(
             text: TextSpan(
@@ -92,7 +94,7 @@ class ChapterNavigationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.symmetric(vertical: AppScale.space40),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

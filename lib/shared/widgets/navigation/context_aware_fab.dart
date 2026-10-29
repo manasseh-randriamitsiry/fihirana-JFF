@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 /// Action model for FAB actions
 class FABAction {
@@ -111,14 +112,17 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                             ),
                           ),
                           Container(
-                            margin: const EdgeInsets.only(left: 12, bottom: 12),
+                            margin: const EdgeInsets.only(
+                                left: AppScale.space12,
+                                bottom: AppScale.space12),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
+                              horizontal: AppScale.space12,
+                              vertical: AppScale.space8,
                             ),
                             decoration: BoxDecoration(
                               color: colorController.backgroundColor.value,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius:
+                                  BorderRadius.circular(AppScale.radiusControl),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.2),
@@ -140,15 +144,17 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                       : [
                           // Original order when on left
                           Container(
-                            margin:
-                                const EdgeInsets.only(right: 12, bottom: 12),
+                            margin: const EdgeInsets.only(
+                                right: AppScale.space12,
+                                bottom: AppScale.space12),
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
+                              horizontal: AppScale.space12,
+                              vertical: AppScale.space8,
                             ),
                             decoration: BoxDecoration(
                               color: colorController.backgroundColor.value,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius:
+                                  BorderRadius.circular(AppScale.radiusControl),
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withValues(alpha: 0.2),
@@ -193,7 +199,7 @@ class _ContextAwareFABState extends State<ContextAwareFAB> {
                     duration: 200.ms,
                     delay: delay.ms);
               }),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppScale.space4),
             ],
 
 // Main FAB

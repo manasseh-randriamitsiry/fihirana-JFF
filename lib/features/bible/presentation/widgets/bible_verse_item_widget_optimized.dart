@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleVerseItemWidget extends StatelessWidget {
   final int verseNumber;
@@ -42,11 +43,11 @@ class BibleVerseItemWidget extends StatelessWidget {
             decoration: BoxDecoration(
               color: backgroundColor,
               border: isSelected ? Border.all(color: colors.primary) : null,
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(AppScale.radiusMark),
             ),
             padding: const EdgeInsets.symmetric(
-              vertical: 8.0,
-              horizontal: 12.0,
+              vertical: AppScale.space8,
+              horizontal: AppScale.space12,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,7 +64,7 @@ class BibleVerseItemWidget extends StatelessWidget {
                     fontSize: 14,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppScale.space8),
                 Expanded(
                   child: Text(
                     verseText,

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleVerseSelectionSheet extends StatefulWidget {
   final String bookName;
@@ -121,9 +122,11 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
       ),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppScale.radiusFloat)),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.gutter, AppScale.space12, AppScale.gutter, AppScale.gutter),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -133,10 +136,10 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             child: Container(
               width: 40,
               height: 4,
-              margin: const EdgeInsets.only(bottom: 16),
+              margin: const EdgeInsets.only(bottom: AppScale.space16),
               decoration: BoxDecoration(
                 color: textColor.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(2),
+                borderRadius: BorderRadius.circular(AppScale.radiusMark),
               ),
             ),
           ),
@@ -145,10 +148,10 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(AppScale.space12),
                 decoration: BoxDecoration(
                   color: primaryColor.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppScale.radiusRow),
                 ),
                 child: Icon(
                   Icons.menu_book_rounded,
@@ -156,7 +159,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppScale.space16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,7 +192,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
 
           // Button: Read Full Chapter
           OutlinedButton.icon(
@@ -204,15 +207,16 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
               ),
             ),
             style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppScale.space24, vertical: AppScale.space12),
               side: BorderSide(color: primaryColor.withValues(alpha: 0.4)),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppScale.radiusRow),
               ),
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
 
           // Divider with label
           Row(
@@ -220,7 +224,8 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
               Expanded(
                   child: Divider(color: textColor.withValues(alpha: 0.15))),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppScale.space12),
                 child: Text(
                   l10n.orChooseVerseRange,
                   style: TextStyle(
@@ -235,7 +240,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             ],
           ),
 
-          const SizedBox(height: 12),
+          const SizedBox(height: AppScale.space12),
 
           // Range adjustment counters
           Row(
@@ -303,7 +308,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
 
           // Grid of verse numbers for quick tap selection
           Expanded(
@@ -315,7 +320,8 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                     ),
                   )
                 : GridView.builder(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppScale.space4),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 6,
@@ -363,11 +369,13 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
 
                       return InkWell(
                         onTap: () => _onVerseTap(verse),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius:
+                            BorderRadius.circular(AppScale.radiusControl),
                         child: Container(
                           decoration: BoxDecoration(
                             color: itemBg,
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusControl),
                             border: border,
                           ),
                           child: Center(
@@ -388,7 +396,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                   ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
 
           // Bottom CTA Button
           ElevatedButton.icon(
@@ -405,10 +413,11 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               foregroundColor: colors.onPrimary,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppScale.space24, vertical: AppScale.space12),
               elevation: 2,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppScale.radiusRow),
               ),
             ),
           ),
@@ -435,11 +444,11 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
             color: accentColor,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppScale.space4),
         Container(
           decoration: BoxDecoration(
             color: accentColor.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
             border: Border.all(
               color: accentColor.withValues(alpha: 0.3),
             ),

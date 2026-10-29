@@ -13,6 +13,7 @@ import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class StandaloneRecordingScreen extends StatefulWidget {
   const StandaloneRecordingScreen({super.key});
@@ -187,7 +188,7 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                 size: 42,
                 color: Theme.of(dialogContext).colorScheme.primary,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               TextField(
                 controller: _nameController,
                 autocorrect: false,
@@ -229,7 +230,6 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
 
     return Obx(() {
       return Scaffold(
-        backgroundColor: backgroundColor,
         appBar: AppBar(
           backgroundColor: backgroundColor,
           elevation: 0,
@@ -263,10 +263,6 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
                 padding: const EdgeInsets.all(AppDimensions.md),
                 child: HymnSearchField(
                   controller: _hymnController.safeSearchController,
-                  defaultTextStyle: defaultTextStyle,
-                  textColor: textColor,
-                  iconColor: iconColor,
-                  backgroundColor: backgroundColor,
                   onChanged: () {
                     if (mounted && !_hymnController.isDisposed) {
                       setState(() {});
@@ -279,9 +275,11 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
             if (!_showHymnList)
               AppSection(
                 title: 'Détails',
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                padding: const EdgeInsets.fromLTRB(
+                    AppScale.gutter, AppScale.space16, AppScale.gutter, 0),
                 child: AppGroupedSurface(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppScale.space16),
                   children: [
                     TextField(
                       controller: _nameController,
@@ -324,9 +322,11 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
     return SafeArea(
       child: AppSection(
         title: 'Commandes',
-        padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+        padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space24,
+            AppScale.gutter, AppScale.gutter),
         child: AppGroupedSurface(
-          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 16),
+          padding: const EdgeInsets.symmetric(
+              vertical: AppScale.space24, horizontal: AppScale.space16),
           children: [
             Center(
               child: Obx(() {
@@ -392,9 +392,6 @@ class _StandaloneRecordingScreenState extends State<StandaloneRecordingScreen> {
             return HymnListItem(
               key: ValueKey(hymn.id),
               hymn: hymn,
-              textColor: textColor,
-              backgroundColor: backgroundColor,
-              primaryColor: primaryColor,
               onFavoritePressed: () => _hymnController.toggleFavorite(hymn),
               onMusicPressed: () {
                 // Set the recording name to the selected hymn title

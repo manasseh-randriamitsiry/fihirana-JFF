@@ -4,6 +4,7 @@ import 'package:fihirana/features/admin/presentation/controllers/admin_controlle
 import 'package:fihirana/features/admin/di/admin_di.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 /// Simplified admin dashboard widget using clean architecture
 class AdminDashboardWidget extends StatelessWidget {
@@ -21,7 +22,7 @@ class AdminDashboardWidget extends StatelessWidget {
       final primaryColor = colorController.primaryColor.value;
 
       return Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppScale.space16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -33,14 +34,16 @@ class AdminDashboardWidget extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppScale.gutter),
 
             // Stats Grid
             Expanded(
               child: GridView.count(
+                padding: const EdgeInsets.fromLTRB(
+                    AppScale.gutter, 0, AppScale.gutter, AppScale.gutter),
                 crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                crossAxisSpacing: AppScale.space16,
+                mainAxisSpacing: AppScale.space16,
                 childAspectRatio: 1.5,
                 children: [
                   _buildStatCard(
@@ -91,7 +94,7 @@ class AdminDashboardWidget extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: AppScale.gutter),
 
             // Quick Actions
             _buildQuickActionsSection(
@@ -120,7 +123,7 @@ class AdminDashboardWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
         border: Border.all(
           color: color.withValues(alpha: 0.3),
           width: 2,
@@ -134,7 +137,7 @@ class AdminDashboardWidget extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppScale.space16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -165,7 +168,7 @@ class AdminDashboardWidget extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppScale.space4),
             Text(
               title,
               style: TextStyle(
@@ -198,7 +201,7 @@ class AdminDashboardWidget extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppScale.space12),
         Row(
           children: [
             Expanded(
@@ -212,7 +215,7 @@ class AdminDashboardWidget extends StatelessWidget {
                 backgroundColor: backgroundColor,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppScale.space12),
             Expanded(
               child: _buildActionButton(
                 context,
@@ -249,9 +252,9 @@ class AdminDashboardWidget extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppScale.space12),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
         ),
       ),
     );

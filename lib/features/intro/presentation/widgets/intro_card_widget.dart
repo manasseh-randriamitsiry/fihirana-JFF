@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class IntroCardWidget extends StatelessWidget {
   final Widget child;
@@ -15,10 +16,10 @@ class IntroCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? const EdgeInsets.all(24),
+      padding: padding ?? const EdgeInsets.all(AppScale.space24),
       decoration: BoxDecoration(
         color: color ?? Colors.white.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),

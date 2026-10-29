@@ -9,6 +9,7 @@ import 'package:fihirana/features/playlist/presentation/controllers/playlist_con
 import 'package:fihirana/features/playlist/presentation/widgets/playlist_detail_widgets.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   final String playlistId;
@@ -63,7 +64,8 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              padding: const EdgeInsets.fromLTRB(
+                  AppScale.gutter, AppScale.space16, AppScale.gutter, 0),
               child: AppGroupedSurface(
                 children: [
                   PlaylistHeaderInfo(
@@ -100,7 +102,11 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                         final hymns = snapshot.data ?? [];
                         return ListView.builder(
                           key: const PageStorageKey('playlist_hymns_list'),
-                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                          padding: const EdgeInsets.fromLTRB(
+                              AppScale.gutter,
+                              AppScale.space8,
+                              AppScale.gutter,
+                              AppScale.space24),
                           itemCount: hymns.length,
                           itemBuilder: (context, index) {
                             final hymn = hymns[index];

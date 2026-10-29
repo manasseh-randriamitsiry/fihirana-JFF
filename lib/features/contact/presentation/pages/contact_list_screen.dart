@@ -17,6 +17,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/shared/widgets/common/confirm_delete_dialog.dart';
 import 'package:fihirana/shared/widgets/navigation/context_aware_fab.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class ContactListScreen extends StatefulWidget {
   const ContactListScreen({super.key});
@@ -112,7 +113,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                    AppScale.space8, AppScale.gutter, AppScale.space12),
                 child: AppSearchField(
                   controller: _searchController,
                   hintText: l10n.searchContacts,
@@ -160,7 +162,8 @@ class _ContactListScreenState extends State<ContactListScreen> {
 
                     return ListView.builder(
                       key: const PageStorageKey('contacts_list'),
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 100),
+                      padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                          AppScale.space4, AppScale.gutter, 100),
                       itemCount: filteredContacts.length,
                       itemBuilder: (context, index) {
                         final contact = filteredContacts[index];

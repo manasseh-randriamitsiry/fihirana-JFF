@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleVerseItemWidget extends StatelessWidget {
   final int verseNumber;
@@ -65,11 +66,12 @@ class BibleVerseItemWidget extends StatelessWidget {
       return GestureDetector(
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          margin: const EdgeInsets.only(bottom: AppScale.space12),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space12, vertical: AppScale.space8),
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppScale.radiusControl),
           ),
           child: RichText(
             text: TextSpan(

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class CreatePlaylistDialog extends StatefulWidget {
   final String title;
@@ -61,45 +62,54 @@ class _CreatePlaylistDialogState extends State<CreatePlaylistDialog> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
-          InkWell(
-            onTap: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: selectedDate,
-                firstDate: DateTime.now().subtract(const Duration(days: 365)),
-                lastDate: DateTime.now().add(const Duration(days: 365)),
-                builder: (context, child) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
-                        primary: colorController.primaryColor.value,
-                        onPrimary: Colors.white,
-                        surface: colorController.backgroundColor.value,
-                        onSurface: colorController.textColor.value,
+          const SizedBox(height: AppScale.space16),
+          Material(
+            color: colorController.textColor.value.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppScale.radiusRow),
+              onTap: () async {
+                final date = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate,
+                  firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: ColorScheme.light(
+                          primary: colorController.primaryColor.value,
+                          onPrimary: Colors.white,
+                          surface: colorController.backgroundColor.value,
+                          onSurface: colorController.textColor.value,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (date != null) {
+                  setState(() => selectedDate = date);
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(AppScale.space16),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today,
+                        size: AppScale.iconMd,
+                        color: colorController.primaryColor.value),
+                    const SizedBox(width: AppScale.space12),
+                    Text(
+                      DateFormat('MMM d, yyyy').format(selectedDate),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: colorController.textColor.value,
                       ),
                     ),
-                    child: child!,
-                  );
-                },
-              );
-              if (date != null) {
-                setState(() => selectedDate = date);
-              }
-            },
-            child: Row(
-              children: [
-                Icon(Icons.calendar_today,
-                    size: 20, color: colorController.primaryColor.value),
-                const SizedBox(width: 12),
-                Text(
-                  DateFormat('MMM d, yyyy').format(selectedDate),
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: colorController.textColor.value,
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -110,14 +120,14 @@ class _CreatePlaylistDialogState extends State<CreatePlaylistDialog> {
           child: Text(l10n.cancel,
               style: TextStyle(color: colorController.textColor.value)),
         ),
-        ElevatedButton(
+        FilledButton(
           onPressed: () {
             if (titleController.text.isNotEmpty) {
               widget.onCreate(titleController.text, selectedDate);
               Navigator.pop(context);
             }
           },
-          style: ElevatedButton.styleFrom(
+          style: FilledButton.styleFrom(
             backgroundColor: colorController.primaryColor.value,
             foregroundColor: Colors.white,
           ),

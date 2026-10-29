@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SaveDialogActions extends StatefulWidget {
   final VoidCallback onSave;
@@ -50,18 +51,19 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
               }
             },
             style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppScale.space16, vertical: AppScale.space12),
               backgroundColor: Colors.white,
               foregroundColor: colorController.primaryColor.value,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppScale.radiusRow),
               ),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.save, size: 20),
-                SizedBox(width: 8),
+                Icon(Icons.save, size: AppScale.iconMd),
+                SizedBox(width: AppScale.space8),
                 Text('Enregistrer et fermer',
                     style: TextStyle(fontWeight: FontWeight.bold)),
               ],
@@ -69,7 +71,7 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
           ),
         ),
 
-        const SizedBox(height: 12),
+        const SizedBox(height: AppScale.buttonGap),
 
         // Secondary options
         Row(
@@ -78,10 +80,11 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
               child: OutlinedButton(
                 onPressed: widget.onDiscard,
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppScale.space16, vertical: AppScale.space12),
                   side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppScale.radiusRow),
                   ),
                 ),
                 child: Text(
@@ -90,7 +93,7 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppScale.buttonGap),
             Expanded(
               child: OutlinedButton(
                 onPressed: () {
@@ -98,18 +101,20 @@ class _SaveDialogActionsState extends State<SaveDialogActions> {
                   widget.onSave();
                 },
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppScale.space16, vertical: AppScale.space12),
                   side: BorderSide(color: Colors.white.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppScale.radiusRow),
                   ),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.add,
-                        size: 16, color: Colors.white.withValues(alpha: 0.8)),
-                    const SizedBox(width: 4),
+                        size: AppScale.iconSm,
+                        color: Colors.white.withValues(alpha: 0.8)),
+                    const SizedBox(width: AppScale.space4),
                     Text(
                       'Enregistrer et créer',
                       style:

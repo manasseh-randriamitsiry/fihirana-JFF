@@ -10,6 +10,7 @@ import 'package:fihirana/features/playlist/presentation/widgets/playlist_item_ca
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class PlaylistListScreen extends StatelessWidget {
   const PlaylistListScreen({super.key});
@@ -48,9 +49,10 @@ class PlaylistListScreen extends StatelessWidget {
         }
         return ListView.separated(
           key: const PageStorageKey('playlists_list'),
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space16,
+              AppScale.gutter, AppScale.space24),
           itemCount: playlistController.playlists.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 10),
+          separatorBuilder: (_, __) => const SizedBox(height: AppScale.buttonGap),
           itemBuilder: (context, index) {
             final playlist = playlistController.playlists[index];
             return PlaylistItemCard(

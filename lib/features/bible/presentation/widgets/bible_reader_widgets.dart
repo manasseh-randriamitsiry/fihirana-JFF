@@ -1,61 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
 
 class BibleBookItemWidget extends StatelessWidget {
   final String bookName;
   final int chapterCount;
   final VoidCallback onTap;
-  final bool showDivider;
 
   const BibleBookItemWidget({
     super.key,
     required this.bookName,
     required this.chapterCount,
     required this.onTap,
-    this.showDivider = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final AppSurfaces s = AppSurfaces.of(context);
     final l10n = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        AppListRow(
-          icon: Icons.menu_book_outlined,
-          iconColor: colors.primary,
-          title: bookName,
-          subtitle: l10n.chaptersCount(chapterCount),
-          onTap: onTap,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colors.primaryContainer,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '$chapterCount',
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: colors.onPrimaryContainer,
-                      ),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: colors.onSurfaceVariant,
-              ),
-            ],
+    return AppListRow(
+      icon: Icons.menu_book_outlined,
+      iconColor: s.accent,
+      title: bookName,
+      subtitle: l10n.chaptersCount(chapterCount),
+      onTap: onTap,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppScale.space8, vertical: AppScale.space4),
+            decoration: BoxDecoration(
+              color: s.accentSoft,
+              borderRadius: BorderRadius.circular(AppScale.radiusControl),
+            ),
+            child: Text(
+              '$chapterCount',
+              style: AppTypography.figure(s,
+                  size: 13, weight: FontWeight.w700, color: s.accent),
+            ),
           ),
-        ),
-        if (showDivider) const AppGroupDivider(),
-      ],
+          const SizedBox(width: AppScale.space4),
+          Icon(Icons.chevron_right_rounded, color: s.muted),
+        ],
+      ),
     );
   }
 }
@@ -72,43 +64,40 @@ class BibleChapterGridWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final AppSurfaces s = AppSurfaces.of(context);
     final l10n = AppLocalizations.of(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final crossAxisCount = constraints.maxWidth < 360 ? 4 : 5;
         return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+          padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.gutter,
+              AppScale.gutter, AppScale.space24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 4, bottom: 8),
+                padding: const EdgeInsets.only(
+                    left: AppScale.space4, bottom: AppScale.space8),
                 child: Text(
                   l10n.chaptersCount(chapters.length),
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: colors.onSurfaceVariant,
-                        letterSpacing: .2,
-                      ),
+                  style: AppTypography.figure(s, size: 13, color: s.muted),
                 ),
               ),
               Expanded(
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: colors.outlineVariant.withValues(alpha: .65),
-                    ),
+                    color: s.paper,
+                    borderRadius: BorderRadius.circular(AppScale.radiusSurface),
+                    border: Border.all(color: s.rule, width: AppScale.ruleHair),
                   ),
                   child: GridView.builder(
                     key: const PageStorageKey('bible_chapter_grid'),
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(AppScale.space12),
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
+                      crossAxisSpacing: AppScale.space8,
+                      mainAxisSpacing: AppScale.space8,
                       childAspectRatio: 1.08,
                     ),
                     itemCount: chapters.length,
@@ -116,27 +105,24 @@ class BibleChapterGridWidget extends StatelessWidget {
                       final chapter = chapters[index];
                       return Material(
                         color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius:
+                            BorderRadius.circular(AppScale.radiusControl),
                         child: InkWell(
                           onTap: () => onChapterSelected(chapter),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusControl),
                           child: Ink(
                             decoration: BoxDecoration(
-                              color: colors.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(12),
+                              color: s.sheet,
+                              borderRadius:
+                                  BorderRadius.circular(AppScale.radiusControl),
                               border: Border.all(
-                                color:
-                                    colors.outlineVariant.withValues(alpha: .7),
-                              ),
+                                  color: s.rule, width: AppScale.ruleHair),
                             ),
                             child: Center(
-                              child: Text(
-                                '$chapter',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(color: colors.onSurface),
-                              ),
+                              child: Text('$chapter',
+                                  style: AppTypography.figure(s,
+                                      size: AppTypography.headSize(16))),
                             ),
                           ),
                         ),
@@ -179,80 +165,81 @@ class BibleVerseItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final isTargetVerse = verseNumber == highlightedVerse;
-    final hasEmphasis =
-        isTargetVerse || isSearchHighlighted || isSelected || isHighlighted;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final bool isTargetVerse = verseNumber == highlightedVerse;
 
-    Color backgroundColor = colors.surface;
-    Color foregroundColor = colors.onSurface;
-    Color verseNumberColor = colors.primary;
-    if (isTargetVerse) {
-      backgroundColor = colors.secondaryContainer;
-      foregroundColor = colors.onSecondaryContainer;
-      verseNumberColor = colors.onSecondaryContainer;
-    } else if (isSearchHighlighted) {
-      backgroundColor = colors.tertiaryContainer;
-      foregroundColor = colors.onTertiaryContainer;
-      verseNumberColor = colors.onTertiaryContainer;
-    } else if (isSelected) {
-      backgroundColor = colors.primaryContainer;
-      foregroundColor = colors.onPrimaryContainer;
-      verseNumberColor = colors.onPrimaryContainer;
-    } else if (isHighlighted) {
-      backgroundColor = colors.secondaryContainer;
-      foregroundColor = colors.onSecondaryContainer;
-      verseNumberColor = colors.onSecondaryContainer;
-    }
+    // A plain verse is running text: no box around every line of a chapter.
+    // Only a marked verse earns a surface, and each mark reads differently.
+    final Color fill = isSelected
+        ? s.accentSoft
+        : isHighlighted
+            ? s.paper2
+            : isSearchHighlighted
+                ? s.paper3
+                : Colors.transparent;
+    final Color? bar =
+        isSelected ? s.accent : (isHighlighted ? s.ruleFirm : null);
+    final Color numberColor = isSelected || isTargetVerse ? s.accent : s.muted;
 
     return Semantics(
       button: true,
       label: AppLocalizations.of(context).verseWithNumber(verseNumber),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 13),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: isSelected
-                    ? colors.primary
-                    : colors.outlineVariant.withValues(
-                        alpha: hasEmphasis ? .8 : .55,
-                      ),
-                width: isSelected ? 1.4 : 1,
-              ),
-            ),
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: '$verseNumber ',
-                    style: TextStyle(
-                      fontFamily: 'Roboto',
-                      color: verseNumberColor,
-                      fontSize: fontSize * .72,
-                      fontWeight: FontWeight.bold,
-                      fontFeatures: const [FontFeature.superscripts()],
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppScale.space8),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: fill,
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
+            border: isTargetVerse
+                ? Border.all(color: s.accent, width: AppScale.ruleHair)
+                : null,
+          ),
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
+            child: Stack(
+              children: [
+                if (bar != null)
+                  Positioned(
+                    left: 0,
+                    top: AppScale.space12,
+                    bottom: AppScale.space12,
+                    child: SizedBox(
+                      width: AppScale.ruleBar,
+                      child: ColoredBox(color: bar),
                     ),
                   ),
-                  TextSpan(
-                    text: verseText,
-                    style: verseStyle.copyWith(
-                      color: foregroundColor,
-                      fontWeight:
-                          isTargetVerse ? FontWeight.w600 : FontWeight.normal,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(AppScale.space16,
+                      AppScale.space12, AppScale.space16, AppScale.space12),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '$verseNumber ',
+                          style: AppTypography.figure(
+                            s,
+                            size: fontSize * .7,
+                            weight: FontWeight.w700,
+                            color: numberColor,
+                          ).copyWith(
+                            fontFeatures: const [FontFeature.superscripts()],
+                          ),
+                        ),
+                        TextSpan(
+                          text: verseText,
+                          style: verseStyle.copyWith(
+                            color: isSelected ? s.ink : s.ink2,
+                            fontWeight: isTargetVerse
+                                ? FontWeight.w600
+                                : FontWeight.normal,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -277,7 +264,8 @@ class BibleChapterNavigationWidget extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.only(top: 14, bottom: 32),
+      padding: const EdgeInsets.only(
+          top: AppScale.space16, bottom: AppScale.space40),
       child: Row(
         children: [
           Expanded(
@@ -290,7 +278,7 @@ class BibleChapterNavigationWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppScale.space12),
           Expanded(
             child: OutlinedButton.icon(
               onPressed: onNext,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingControls extends StatelessWidget {
   final RecordingController controller;
@@ -66,7 +67,7 @@ class RecordingControls extends StatelessWidget {
             height: 48,
             decoration: BoxDecoration(
               color: colorController.primaryColor.value.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppScale.radiusSurface),
             ),
             child: Icon(
               controller.isPaused.value ? Icons.play_arrow : Icons.pause,
@@ -76,7 +77,7 @@ class RecordingControls extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(width: 24),
+        const SizedBox(width: AppScale.space24),
 
         // Stop
         GestureDetector(

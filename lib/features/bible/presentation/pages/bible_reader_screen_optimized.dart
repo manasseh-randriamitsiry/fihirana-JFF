@@ -11,6 +11,7 @@ import 'package:fihirana/features/bible/presentation/pages/bible_share_composer_
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_search_dialog.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_settings_bottom_sheet_widget.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleReaderScreenOptimized extends StatefulWidget {
   const BibleReaderScreenOptimized({super.key});
@@ -190,7 +191,7 @@ class _BibleReaderScreenOptimizedState
     return GetBuilder<BibleController>(
       id: 'book_chapter_selector',
       builder: (controller) => Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppScale.space16),
         decoration: BoxDecoration(
           color: colorController.cardColor.value,
           boxShadow: [
@@ -235,7 +236,7 @@ class _BibleReaderScreenOptimizedState
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppScale.space16),
             Expanded(
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<int>(
@@ -288,7 +289,7 @@ class _BibleReaderScreenOptimizedState
                         colorController.primaryColor.value,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppScale.space16),
                     Text(
                       controller.loadingMessage.value,
                       style: TextStyle(
@@ -310,7 +311,7 @@ class _BibleReaderScreenOptimizedState
                   )
                 : SingleChildScrollView(
                     controller: _verseScrollController,
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppScale.space16),
                     child: SelectableText(
                       controller.passageText.value,
                       style: _verseStyle,
@@ -325,7 +326,7 @@ class _BibleReaderScreenOptimizedState
       id: 'floating_actions',
       builder: (controller) => controller.selectedBook.isNotEmpty
           ? Padding(
-              padding: const EdgeInsets.only(left: 32),
+              padding: const EdgeInsets.only(left: AppScale.space40),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -388,7 +389,7 @@ class _BibleReaderScreenOptimizedState
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppScale.space16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -400,7 +401,7 @@ class _BibleReaderScreenOptimizedState
                 fontWeight: FontWeight.w600,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppScale.space16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

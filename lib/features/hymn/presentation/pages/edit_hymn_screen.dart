@@ -6,6 +6,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_form_widgets.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class EditHymnScreen extends StatefulWidget {
   final Hymn hymn;
@@ -117,7 +118,7 @@ class _EditHymnScreenState extends State<EditHymnScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.only(bottom: 28),
+          padding: const EdgeInsets.only(bottom: AppScale.space24),
           children: [
             AppSection(
               title: 'Informations',
@@ -138,7 +139,7 @@ class _EditHymnScreenState extends State<EditHymnScreen> {
                           : null;
                     },
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppScale.space12),
                   FormTextFieldWidget(
                     controller: _titleController,
                     label: l10n.title,
@@ -166,7 +167,8 @@ class _EditHymnScreenState extends State<EditHymnScreen> {
                           index++)
                         Padding(
                           key: ValueKey('verse_$index'),
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding:
+                              const EdgeInsets.only(bottom: AppScale.space12),
                           child: VerseFieldWidget(
                             index: index,
                             controller: _verseControllers[index],
@@ -198,7 +200,7 @@ class _EditHymnScreenState extends State<EditHymnScreen> {
                     icon: Icons.repeat_rounded,
                     maxLines: 3,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppScale.space12),
                   FormTextFieldWidget(
                     controller: _hymnHintController,
                     label: l10n.notes,
@@ -210,7 +212,8 @@ class _EditHymnScreenState extends State<EditHymnScreen> {
             ),
             if (_isUserAuthenticated)
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+                padding: const EdgeInsets.fromLTRB(
+                    AppScale.gutter, AppScale.space24, AppScale.gutter, 0),
                 child: FilledButton.icon(
                   onPressed: _saveChanges,
                   icon: const Icon(Icons.save_outlined),

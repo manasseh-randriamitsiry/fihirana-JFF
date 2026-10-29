@@ -5,6 +5,7 @@ import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LightweightAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;
@@ -244,14 +245,14 @@ class _LightweightAudioPlayerWidgetState
     }
 
     return Container(
-      padding: const EdgeInsets.all(12), // Reduced padding
+      padding: const EdgeInsets.all(AppScale.space12), // Reduced padding
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(),
-          const SizedBox(height: 8), // Reduced spacing
+          const SizedBox(height: AppScale.space8), // Reduced spacing
           _buildProgressBar(),
-          const SizedBox(height: 8), // Reduced spacing
+          const SizedBox(height: AppScale.space8), // Reduced spacing
           _buildMainControls(),
         ],
       ),
@@ -260,12 +261,12 @@ class _LightweightAudioPlayerWidgetState
 
   Widget _buildCompactPlayer() {
     return Container(
-      padding: const EdgeInsets.all(8), // Reduced padding
+      padding: const EdgeInsets.all(AppScale.space8), // Reduced padding
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildPlayButton(_colorController),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppScale.space8),
           Expanded(
             child: _buildMinimalSlider(_colorController),
           ),
@@ -278,12 +279,12 @@ class _LightweightAudioPlayerWidgetState
     return TextButton(
       onPressed: _isLoading ? null : _togglePlayPause,
       child: SizedBox(
-        width: 32,
+        width: AppScale.space40,
         height: 32,
         child: _isLoading
             ? Center(
                 child: SizedBox(
-                  width: 16,
+                  width: AppScale.space16,
                   height: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 1.5, // Thinner stroke
@@ -343,7 +344,7 @@ class _LightweightAudioPlayerWidgetState
                 maxLines: 1, // Limit to 1 line for performance
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: AppScale.space2),
               Text(
                 'Cantique ${widget.hymn.hymnNumber}',
                 style: TextStyle(
@@ -356,9 +357,9 @@ class _LightweightAudioPlayerWidgetState
           ),
         ),
         if (widget.playlist != null && widget.playlist!.length > 1) ...[
-          const SizedBox(width: 8),
+          const SizedBox(width: AppScale.space8),
           _buildNavigationButton(Icons.skip_previous, _playPrevious),
-          const SizedBox(width: 4),
+          const SizedBox(width: AppScale.space4),
           _buildNavigationButton(Icons.skip_next, _playNext),
         ],
       ],
@@ -400,7 +401,7 @@ class _LightweightAudioPlayerWidgetState
             onChanged: _isLoading ? null : _seekToPosition,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: AppScale.space2),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -431,12 +432,12 @@ class _LightweightAudioPlayerWidgetState
         TextButton(
           onPressed: _isLoading ? null : _togglePlayPause,
           child: SizedBox(
-            width: 48, // Smaller button
+            width: AppScale.space40, // Smaller button
             height: 48,
             child: _isLoading
                 ? Center(
                     child: SizedBox(
-                      width: 20,
+                      width: AppScale.gutter,
                       height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,

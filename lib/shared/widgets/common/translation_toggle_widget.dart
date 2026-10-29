@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/localization/translation_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class TranslationToggleWidget extends StatelessWidget {
   const TranslationToggleWidget({super.key});
@@ -11,9 +12,10 @@ class TranslationToggleWidget extends StatelessWidget {
     return Consumer<TranslationController>(
       builder: (context, translationController, child) {
         return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          margin: const EdgeInsets.symmetric(
+              horizontal: AppScale.space16, vertical: AppScale.space8),
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppScale.space16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -39,7 +41,7 @@ class TranslationToggleWidget extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppScale.space8),
                 Text(
                   AppLocalizations.of(context).automaticTranslationDescription,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -51,9 +53,9 @@ class TranslationToggleWidget extends StatelessWidget {
                       ),
                 ),
                 if (translationController.isTranslating) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppScale.space12),
                   const LinearProgressIndicator(),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppScale.space4),
                   Text(
                     AppLocalizations.of(context).translating,
                     style: Theme.of(context).textTheme.bodySmall,

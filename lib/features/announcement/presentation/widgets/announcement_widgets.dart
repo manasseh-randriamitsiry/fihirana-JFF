@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:fihirana/features/announcement/domain/entities/announcement.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AnnouncementCardWidget extends StatelessWidget {
   final Announcement announcement;
@@ -47,156 +48,139 @@ class AnnouncementCardWidget extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final expired = announcement.isExpired();
 
-    return AppGroupedSurface(
-      children: [
-        Material(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(14),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: () {},
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.campaign_outlined,
-                        color: colors.primary,
-                        size: 24,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          announcement.title,
-                          style: Theme.of(context)
-                              .textTheme
-                              .titleMedium
-                              ?.copyWith(fontWeight: FontWeight.w700),
-                        ),
-                      ),
-                      if (isAdmin)
-                        PopupMenuButton<String>(
-                          icon: Icon(
-                            Icons.more_vert_rounded,
+    return AppTapCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.campaign_outlined,
+                color: colors.primary,
+                size: AppScale.iconLg,
+              ),
+              const SizedBox(width: AppScale.space12),
+              Expanded(
+                child: Text(
+                  announcement.title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium
+                      ?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              if (isAdmin)
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert_rounded,
+                    color: colors.onSurfaceVariant,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'edit') onEdit?.call();
+                    if (value == 'delete') onDelete?.call();
+                  },
+                  itemBuilder: (_) => [
+                    PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.edit_outlined,
+                            size: AppScale.iconMd,
                             color: colors.onSurfaceVariant,
                           ),
-                          onSelected: (value) {
-                            if (value == 'edit') onEdit?.call();
-                            if (value == 'delete') onDelete?.call();
-                          },
-                          itemBuilder: (_) => [
-                            PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.edit_outlined,
-                                    size: 20,
-                                    color: colors.onSurfaceVariant,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(l10n.edit),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.delete_outline_rounded,
-                                    size: 20,
-                                    color: colors.error,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    l10n.delete,
-                                    style: TextStyle(color: colors.error),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    announcement.message,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          height: 1.45,
-                        ),
-                  ),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 6,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      _Metadata(
-                        icon: Icons.access_time_rounded,
-                        label: _relativeTime(announcement.createdAt),
+                          const SizedBox(width: AppScale.space12),
+                          Text(l10n.edit),
+                        ],
                       ),
-                      _Metadata(
-                        icon: Icons.calendar_today_outlined,
-                        label: DateFormat('dd/MM/yyyy HH:mm')
-                            .format(announcement.createdAt),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.delete_outline_rounded,
+                            size: AppScale.iconMd,
+                            color: colors.error,
+                          ),
+                          const SizedBox(width: AppScale.space12),
+                          Text(
+                            l10n.delete,
+                            style: TextStyle(color: colors.error),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  if (announcement.expiresAt != null) ...[
-                    const SizedBox(height: 12),
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: expired
-                            ? colors.errorContainer
-                            : colors.primaryContainer,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.event_busy_outlined,
-                              size: 16,
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: AppScale.space12),
+          Text(
+            announcement.message,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 1.45,
+                ),
+          ),
+          const SizedBox(height: AppScale.space16),
+          Wrap(
+            spacing: AppScale.space12,
+            runSpacing: AppScale.space8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              _Metadata(
+                icon: Icons.access_time_rounded,
+                label: _relativeTime(announcement.createdAt),
+              ),
+              _Metadata(
+                icon: Icons.calendar_today_outlined,
+                label: DateFormat('dd/MM/yyyy HH:mm')
+                    .format(announcement.createdAt),
+              ),
+            ],
+          ),
+          if (announcement.expiresAt != null) ...[
+            const SizedBox(height: AppScale.space12),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color:
+                    expired ? colors.errorContainer : colors.primaryContainer,
+                borderRadius: BorderRadius.circular(AppScale.radiusControl),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppScale.space12,
+                  vertical: AppScale.space8,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.event_busy_outlined,
+                      size: AppScale.iconSm,
+                      color: expired
+                          ? colors.onErrorContainer
+                          : colors.onPrimaryContainer,
+                    ),
+                    const SizedBox(width: AppScale.space8),
+                    Flexible(
+                      child: Text(
+                        'Expire le ${DateFormat('dd/MM/yyyy').format(announcement.expiresAt!)}',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
                               color: expired
                                   ? colors.onErrorContainer
                                   : colors.onPrimaryContainer,
                             ),
-                            const SizedBox(width: 6),
-                            Flexible(
-                              child: Text(
-                                'Expire le ${DateFormat('dd/MM/yyyy').format(announcement.expiresAt!)}',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .labelMedium
-                                    ?.copyWith(
-                                      color: expired
-                                          ? colors.onErrorContainer
-                                          : colors.onPrimaryContainer,
-                                    ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ),
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ],
+          ],
+        ],
+      ),
     );
   }
 }
@@ -213,8 +197,8 @@ class _Metadata extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 14, color: color),
-        const SizedBox(width: 5),
+        Icon(icon, size: AppScale.iconSm, color: color),
+        const SizedBox(width: AppScale.space4),
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),

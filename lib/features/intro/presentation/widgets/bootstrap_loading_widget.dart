@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BootstrapLoadingWidget extends StatelessWidget {
   final double progress;
@@ -19,7 +20,7 @@ class BootstrapLoadingWidget extends StatelessWidget {
         maxWidth: isTablet ? 400 : double.infinity,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40.0),
+        padding: const EdgeInsets.symmetric(horizontal: AppScale.space40),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -33,9 +34,9 @@ class BootstrapLoadingWidget extends StatelessWidget {
 
             // Progress bar
             ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(AppScale.radiusControl),
               child: SizedBox(
-                height: 8,
+                height: AppScale.space8,
                 width: double.infinity,
                 child: LinearProgressIndicator(
                   value: progress,
@@ -58,7 +59,7 @@ class BootstrapLoadingWidget extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: AppScale.space12),
 
             // Current task text
             Text(

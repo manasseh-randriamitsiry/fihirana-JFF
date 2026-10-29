@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class FeatureItemWidget extends StatelessWidget {
   final IconData icon;
@@ -15,10 +16,10 @@ class FeatureItemWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(AppScale.space12),
           decoration: BoxDecoration(
             color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
           ),
           child: Icon(
             icon,
@@ -26,7 +27,7 @@ class FeatureItemWidget extends StatelessWidget {
             size: 24,
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: AppScale.space16),
         Expanded(
           child: Text(
             text,

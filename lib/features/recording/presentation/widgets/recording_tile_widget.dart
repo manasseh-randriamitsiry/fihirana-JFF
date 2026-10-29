@@ -8,6 +8,7 @@ import 'tile/recording_tile_icon.dart';
 import 'tile/recording_tile_info.dart';
 import 'tile/recording_tile_menu.dart';
 import 'tile/recording_tile_deleted.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingTileWidget extends StatelessWidget {
   final UserRecording recording;
@@ -41,7 +42,7 @@ class RecordingTileWidget extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: AppScale.space12),
       child: Obx(() {
         final isMultiSelect = controller.isMultiSelectMode.value;
         final isSelected =
@@ -52,7 +53,7 @@ class RecordingTileWidget extends StatelessWidget {
         }
 
         return InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppScale.radiusSurface),
           onTap: () {
             if (isMultiSelect) {
               if (kDebugMode) {
@@ -75,12 +76,12 @@ class RecordingTileWidget extends StatelessWidget {
             }
           },
           child: Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppScale.space12),
             decoration: BoxDecoration(
               color: isSelected
                   ? colors.primaryContainer
                   : colors.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppScale.radiusSurface),
               border: Border.all(
                 color: isSelected ? colors.primary : colors.outlineVariant,
                 width: isSelected ? 2 : 1,
@@ -98,7 +99,7 @@ class RecordingTileWidget extends StatelessWidget {
                 // Checkbox for multi-select mode
                 if (isMultiSelect)
                   Padding(
-                    padding: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsets.only(right: AppScale.space12),
                     child: Checkbox(
                       value: isSelected,
                       onChanged: (value) {
@@ -113,7 +114,7 @@ class RecordingTileWidget extends StatelessWidget {
                   recording: recording,
                   isPublic: isPublic,
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppScale.space16),
 
                 // Info
                 Expanded(
