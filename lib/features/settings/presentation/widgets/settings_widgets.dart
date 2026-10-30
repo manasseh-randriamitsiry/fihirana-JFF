@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SettingsSectionHeaderWidget extends StatelessWidget {
   final String title;
@@ -16,7 +17,8 @@ class SettingsSectionHeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+      padding: const EdgeInsets.symmetric(
+          vertical: AppScale.space16, horizontal: AppScale.space4),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
@@ -53,7 +55,7 @@ class SettingsCardWidget extends StatelessWidget {
       elevation: 2,
       shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
         side: BorderSide(
           color: colorController.textColor.value.withValues(alpha: 0.1),
           width: 1,
@@ -62,13 +64,14 @@ class SettingsCardWidget extends StatelessWidget {
       color: colorController.backgroundColor.value,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.gutter, vertical: AppScale.space16),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppScale.space12),
                 decoration: BoxDecoration(
                   color: (iconColor ?? colorController.primaryColor.value)
                       .withValues(alpha: 0.15),
@@ -80,7 +83,7 @@ class SettingsCardWidget extends StatelessWidget {
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppScale.space16),
               Expanded(
                 child: Text(
                   label,

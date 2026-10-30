@@ -5,6 +5,8 @@ import 'package:just_audio/just_audio.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
 import 'player_top_bar.dart';
 import 'album_art_card.dart';
 import 'song_info_section.dart';
@@ -261,103 +263,75 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // Dark theme colors based on the image
-    const backgroundColor = Color(0xFF1C1B1F); // Dark background
+    final AppSurfaces s = AppSurfaces.of(context);
 
-    return Container(
-      color: backgroundColor,
-      child: Stack(
-        children: [
-          // Background Gradient (Subtle)
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF2E2B33),
-                  Color(0xFF121212),
+    return ColoredBox(
+      color: s.paper,
+      child: SafeArea(
+        child: Column(
+          children: [
+            PlayerTopBar(onClose: widget.onClose),
+
+            const SizedBox(height: AppScale.space16),
+
+            // The plate takes whatever the controls leave, so a short screen
+            // shrinks the number instead of overflowing the page.
+            Expanded(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppScale.gutter),
+                child: HymnPlate(
+                  hymnNumber: _currentDisplayedHymn?.hymnNumber ??
+                      widget.hymn.hymnNumber,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: AppScale.space40),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppScale.gutter),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SongInfoSection(
+                    title: _currentDisplayedHymn?.title ?? widget.hymn.title,
+                    hymnNumber: _currentDisplayedHymn?.hymnNumber ??
+                        widget.hymn.hymnNumber,
+                    isFavorite: widget.isFavorite,
+                    onToggleFavorite: widget.onToggleFavorite,
+                  ),
+                  const SizedBox(height: AppScale.space24),
+                  ProgressSlider(
+                    duration: _duration,
+                    position: _position,
+                    isDragging: _isDraggingSlider,
+                    dragValue: _dragValue,
+                    onChanged: (value) {
+                      setState(() {
+                        _isDraggingSlider = true;
+                        _dragValue = value;
+                      });
+                    },
+                    onChangeEnd: _seekTo,
+                  ),
+                  const SizedBox(height: AppScale.space16),
+                  PlayerControls(
+                    isPlaying: _isPlaying,
+                    isLoading: _isLoading,
+                    autoPlayNext: widget.autoPlayNext,
+                    onAutoPlayNextChange: widget.onAutoPlayNextChange,
+                    onPlayPrevious: _playPrevious,
+                    onTogglePlayPause: _togglePlayPause,
+                    onPlayNext: _playNext,
+                    onShowPlaylist: () => _showPlaylist(context),
+                  ),
+                  const SizedBox(height: AppScale.space24),
                 ],
               ),
             ),
-          ),
-
-          // Main Content
-          SafeArea(
-            child: Column(
-              children: [
-                // Top Bar
-                PlayerTopBar(onClose: widget.onClose),
-
-                const SizedBox(height: 20),
-
-                // Album Art Card
-                Expanded(
-                  flex: 5,
-                  child: AlbumArtCard(
-                    hymnNumber: _currentDisplayedHymn?.hymnNumber ??
-                        widget.hymn.hymnNumber,
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                // Song Info & Controls
-                Expanded(
-                  flex: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title and Heart
-                        SongInfoSection(
-                          title:
-                              _currentDisplayedHymn?.title ?? widget.hymn.title,
-                          hymnNumber: _currentDisplayedHymn?.hymnNumber ??
-                              widget.hymn.hymnNumber,
-                          isFavorite: widget.isFavorite,
-                          onToggleFavorite: widget.onToggleFavorite,
-                        ),
-
-                        const SizedBox(height: 30),
-
-                        // Progress Slider
-                        ProgressSlider(
-                          duration: _duration,
-                          position: _position,
-                          isDragging: _isDraggingSlider,
-                          dragValue: _dragValue,
-                          onChanged: (value) {
-                            setState(() {
-                              _isDraggingSlider = true;
-                              _dragValue = value;
-                            });
-                          },
-                          onChangeEnd: _seekTo,
-                        ),
-
-                        const SizedBox(height: 20),
-
-                        // Main Controls
-                        PlayerControls(
-                          isPlaying: _isPlaying,
-                          isLoading: _isLoading,
-                          autoPlayNext: widget.autoPlayNext,
-                          onAutoPlayNextChange: widget.onAutoPlayNextChange,
-                          onPlayPrevious: _playPrevious,
-                          onTogglePlayPause: _togglePlayPause,
-                          onPlayNext: _playNext,
-                          onShowPlaylist: () => _showPlaylist(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -365,10 +339,7 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   void _showPlaylist(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF1C1B1F),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: true,
       builder: (context) {
         return PlaylistBottomSheet(
           playlist: widget.playlist,

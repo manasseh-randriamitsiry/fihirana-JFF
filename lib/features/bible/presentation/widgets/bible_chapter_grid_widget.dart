@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleChapterGridWidget extends StatelessWidget {
   final List<int> chapters;
@@ -17,7 +18,7 @@ class BibleChapterGridWidget extends StatelessWidget {
     final colorController = Get.find<ColorController>();
 
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppScale.space16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 5,
         crossAxisSpacing: 12,
@@ -28,11 +29,11 @@ class BibleChapterGridWidget extends StatelessWidget {
         final chapter = chapters[index];
         return InkWell(
           onTap: () => onChapterSelected(chapter),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           child: Container(
             decoration: BoxDecoration(
               color: colorController.primaryColor.value.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppScale.radiusRow),
               border: Border.all(
                 color:
                     colorController.primaryColor.value.withValues(alpha: 0.2),

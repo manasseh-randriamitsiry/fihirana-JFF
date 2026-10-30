@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class ColorValidation {
   static String? validateColorChange(
@@ -139,8 +140,8 @@ class ColorPickerWidget extends StatelessWidget {
         final isCompact = size.width < 360 || size.height < 640;
 
         return Dialog(
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+          insetPadding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space12, vertical: AppScale.space24),
           backgroundColor: Colors.transparent,
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -150,11 +151,12 @@ class ColorPickerWidget extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: colorScheme.surface,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppScale.radiusSheet),
                 border: Border.all(color: colorScheme.outlineVariant),
               ),
               child: SingleChildScrollView(
-                padding: EdgeInsets.all(isCompact ? 14 : 20),
+                padding: EdgeInsets.all(
+                    isCompact ? AppScale.space16 : AppScale.gutter),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,7 +171,7 @@ class ColorPickerWidget extends StatelessWidget {
                       pickerColor: pickerColor,
                       onColorChanged: onColorChanged,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppScale.space12),
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -276,10 +278,10 @@ class ColorPickerWidget extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppScale.radiusRow),
       child: Padding(
         padding: EdgeInsets.symmetric(
-          vertical: compact ? 8 : 12,
+          vertical: compact ? AppScale.space8 : AppScale.space12,
           horizontal: AppDimensions.md,
         ),
         child: Row(
@@ -292,7 +294,7 @@ class ColorPickerWidget extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppScale.space12),
             Container(
               width: compact ? 34 : 40,
               height: compact ? 34 : 40,
@@ -330,7 +332,7 @@ class ColorPickerWidget extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: AppDimensions.md,
-            vertical: compact ? 8 : 12,
+            vertical: compact ? AppScale.space8 : AppScale.space12,
           ),
           child: Text(
             l10n.presetColors,
@@ -362,7 +364,7 @@ class ColorPickerWidget extends StatelessWidget {
                       const EdgeInsets.symmetric(horizontal: AppDimensions.xs),
                   decoration: BoxDecoration(
                     color: colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(AppScale.radiusSurface),
                     border: Border.all(
                       color: isSelected
                           ? colorScheme.primary
@@ -394,7 +396,8 @@ class ColorPickerWidget extends StatelessWidget {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusRow),
                           boxShadow: [
                             BoxShadow(
                               color: (scheme['primary'] as Color)
@@ -448,7 +451,8 @@ class ColorPickerWidget extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(AppScale.radiusFloat)),
             border: Border(
               top: BorderSide(
                 color: colorScheme.outlineVariant,
@@ -471,19 +475,24 @@ class ColorPickerWidget extends StatelessWidget {
               // Drag handle
               Center(
                 child: Container(
-                  margin: EdgeInsets.only(top: isCompact ? 8 : 12, bottom: 8),
+                  margin: EdgeInsets.only(
+                      top: isCompact ? AppScale.space8 : AppScale.space12,
+                      bottom: AppScale.space8),
                   width: isCompact ? 32 : 40,
                   height: 4,
                   decoration: BoxDecoration(
                     color: colorScheme.onSurfaceVariant.withValues(alpha: 0.35),
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppScale.radiusMark),
                   ),
                 ),
               ),
               // Title
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                    AppDimensions.md, 8, AppDimensions.md, isCompact ? 8 : 16),
+                    AppDimensions.md,
+                    AppScale.space8,
+                    AppDimensions.md,
+                    isCompact ? AppScale.space8 : AppScale.space16),
                 child: Row(
                   children: [
                     Icon(
@@ -491,7 +500,7 @@ class ColorPickerWidget extends StatelessWidget {
                       size: 28,
                       color: colorScheme.primary,
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppScale.space12),
                     Expanded(
                       child: Text(
                         l10n.chooseColor,
@@ -524,7 +533,8 @@ class ColorPickerWidget extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.symmetric(
                           horizontal: AppDimensions.md,
-                          vertical: isCompact ? 8 : 12,
+                          vertical:
+                              isCompact ? AppScale.space8 : AppScale.space12,
                         ),
                         child: Text(
                           l10n.customColors,

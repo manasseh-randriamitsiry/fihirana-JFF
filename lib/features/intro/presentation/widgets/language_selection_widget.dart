@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'package:fihirana/core/localization/language_controller.dart';
 import 'splash_widgets.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LanguageSelectionWidget extends StatefulWidget {
   final LanguageController languageController;
@@ -30,7 +31,7 @@ class _LanguageSelectionWidgetState extends State<LanguageSelectionWidget> {
         children: [
           for (final locale in widget.languageController.supportedLocales)
             Padding(
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.only(bottom: AppScale.space12),
               child: InkWell(
                 onTap: () async {
                   HapticFeedback.selectionClick();
@@ -38,16 +39,16 @@ class _LanguageSelectionWidgetState extends State<LanguageSelectionWidget> {
                   widget.languageController.changeLanguage(locale);
                   await Future.delayed(const Duration(milliseconds: 300));
                 },
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppScale.radiusSheet),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(AppScale.space16),
                   decoration: BoxDecoration(
                     color: widget.selectedLocale?.languageCode ==
                             locale.languageCode
                         ? Colors.orange.shade100
                         : Colors.grey.shade50,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(AppScale.radiusSheet),
                     border: Border.all(
                       color: widget.selectedLocale?.languageCode ==
                               locale.languageCode
@@ -62,7 +63,7 @@ class _LanguageSelectionWidgetState extends State<LanguageSelectionWidget> {
                         widget.languageController.getLanguageFlag(locale),
                         style: const TextStyle(fontSize: 32),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: AppScale.space16),
                       Expanded(
                         child: Text(
                           widget.languageController.getLanguageName(locale),
@@ -82,7 +83,7 @@ class _LanguageSelectionWidgetState extends State<LanguageSelectionWidget> {
                       if (widget.selectedLocale?.languageCode ==
                           locale.languageCode)
                         Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(AppScale.space4),
                           decoration: const BoxDecoration(
                             color: Colors.orange,
                             shape: BoxShape.circle,

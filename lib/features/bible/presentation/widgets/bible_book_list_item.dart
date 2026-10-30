@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleBookListItem extends StatelessWidget {
   final String bookName;
@@ -22,7 +23,8 @@ class BibleBookListItem extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Card(
       elevation: 2,
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      margin: const EdgeInsets.symmetric(
+          vertical: AppScale.space4, horizontal: AppScale.space8),
       color: backgroundColor,
       child: ListTile(
         title: Text(

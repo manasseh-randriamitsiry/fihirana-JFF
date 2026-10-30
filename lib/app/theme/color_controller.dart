@@ -5,6 +5,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
+import 'package:fihirana/core/design_system/app_theme.dart';
+
 class ColorController extends GetxController {
   static ColorController get to => Get.find();
 
@@ -403,189 +405,11 @@ class ColorController extends GetxController {
     }
   }
 
-  ThemeData getLightTheme() {
-    final colorScheme = _colorSchemeFor(Brightness.light);
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
-      canvasColor: colorScheme.surface,
-      appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        titleTextStyle: TextStyle(
-          color: colorScheme.onSurface,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      iconTheme: IconThemeData(
-        color: colorScheme.onSurface,
-      ),
-      dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant,
-        thickness: .5,
-        space: 1,
-      ),
-      textTheme: const TextTheme(
-        displaySmall: TextStyle(
-            fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.8),
-        headlineMedium: TextStyle(
-            fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5),
-        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        titleMedium: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-        bodyLarge: TextStyle(fontSize: 16),
-        bodyMedium: TextStyle(fontSize: 15),
-        bodySmall: TextStyle(fontSize: 13),
-        labelLarge: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-      ).apply(
-        bodyColor: colorScheme.onSurface,
-        displayColor: colorScheme.onSurface,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        isDense: true,
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: .65),
-        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-        ),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          elevation: 0,
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          side: BorderSide(color: colorScheme.outline),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        height: 68,
-        elevation: 0,
-        backgroundColor: colorScheme.surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: .14),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) => TextStyle(
-              fontSize: 11,
-              fontWeight: states.contains(WidgetState.selected)
-                  ? FontWeight.w700
-                  : FontWeight.w500,
-            )),
-      ),
-    );
-  }
+  ThemeData getLightTheme({String? bodyFamily}) =>
+      buildFihiranaTheme(_colorSchemeFor(Brightness.light),
+          bodyFamily: bodyFamily);
 
-  ThemeData getDarkTheme() {
-    final colorScheme = _colorSchemeFor(Brightness.dark);
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: colorScheme,
-      scaffoldBackgroundColor: colorScheme.surface,
-      canvasColor: colorScheme.surface,
-      appBarTheme: AppBarTheme(
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        titleTextStyle: TextStyle(
-          color: colorScheme.onSurface,
-          fontSize: 20,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-      iconTheme: IconThemeData(
-        color: colorScheme.onSurface,
-      ),
-      dividerTheme: DividerThemeData(
-        color: colorScheme.outlineVariant,
-        thickness: .5,
-        space: 1,
-      ),
-      textTheme: const TextTheme(
-        displaySmall: TextStyle(
-            fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -0.8),
-        headlineMedium: TextStyle(
-            fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -0.5),
-        titleLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-        titleMedium: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-        bodyLarge: TextStyle(fontSize: 16),
-        bodyMedium: TextStyle(fontSize: 15),
-        bodySmall: TextStyle(fontSize: 13),
-        labelLarge: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-      ).apply(
-        bodyColor: colorScheme.onSurface,
-        displayColor: colorScheme.onSurface,
-      ),
-      inputDecorationTheme: InputDecorationTheme(
-        isDense: true,
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
-        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-        ),
-      ),
-      filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          elevation: 0,
-        ),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          side: BorderSide(color: colorScheme.outline),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-        ),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        height: 68,
-        elevation: 0,
-        backgroundColor: colorScheme.surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: .25),
-      ),
-    );
-  }
+  ThemeData getDarkTheme({String? bodyFamily}) =>
+      buildFihiranaTheme(_colorSchemeFor(Brightness.dark),
+          bodyFamily: bodyFamily);
 }

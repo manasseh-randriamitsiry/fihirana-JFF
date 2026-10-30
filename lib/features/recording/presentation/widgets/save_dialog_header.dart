@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SaveDialogHeader extends StatelessWidget {
   const SaveDialogHeader({super.key});
@@ -14,7 +15,7 @@ class SaveDialogHeader extends StatelessWidget {
           height: 60,
           decoration: BoxDecoration(
             color: Colors.green.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(AppScale.radiusFloat),
           ),
           child: const Icon(
             Icons.check_circle,
@@ -23,7 +24,7 @@ class SaveDialogHeader extends StatelessWidget {
           ),
         ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
 
-        const SizedBox(height: 20),
+        const SizedBox(height: AppScale.gutter),
 
         const Text(
           'Enregistrement terminé !',
@@ -34,7 +35,7 @@ class SaveDialogHeader extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(height: 24),
+        const SizedBox(height: AppScale.space24),
       ],
     );
   }

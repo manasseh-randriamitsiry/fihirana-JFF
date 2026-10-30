@@ -6,6 +6,7 @@ import 'save_dialog_name_input.dart';
 import 'save_dialog_privacy_toggle.dart';
 import 'save_dialog_drive_upload.dart';
 import 'save_dialog_actions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingSaveDialogWidget extends StatefulWidget {
   final TextEditingController nameController;
@@ -49,7 +50,7 @@ class _RecordingSaveDialogWidgetState extends State<RecordingSaveDialogWidget> {
               colorController.primaryColor.value.withValues(alpha: 0.8),
             ],
           ),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.3),
@@ -64,7 +65,7 @@ class _RecordingSaveDialogWidgetState extends State<RecordingSaveDialogWidget> {
             maxWidth: MediaQuery.of(context).size.width * 0.8,
           ),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(AppScale.space24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -74,7 +75,7 @@ class _RecordingSaveDialogWidgetState extends State<RecordingSaveDialogWidget> {
                 // Name input
                 SaveDialogNameInput(nameController: widget.nameController),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: AppScale.gutter),
 
                 // Privacy toggle
                 SaveDialogPrivacyToggle(
@@ -82,7 +83,7 @@ class _RecordingSaveDialogWidgetState extends State<RecordingSaveDialogWidget> {
                   onChanged: (value) => setState(() => isPublic = value),
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
 
                 // Upload to Drive checkbox
                 SaveDialogDriveUpload(
@@ -90,7 +91,7 @@ class _RecordingSaveDialogWidgetState extends State<RecordingSaveDialogWidget> {
                   onChanged: (value) => setState(() => uploadToDrive = value),
                 ),
 
-                const SizedBox(height: 24),
+                const SizedBox(height: AppScale.space24),
 
                 // Action buttons
                 SaveDialogActions(

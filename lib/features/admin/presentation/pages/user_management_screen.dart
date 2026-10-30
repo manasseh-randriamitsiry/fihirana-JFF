@@ -6,6 +6,7 @@ import 'package:fihirana/features/admin/di/admin_di.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_admin_list.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class UserManagementScreen extends StatelessWidget {
   const UserManagementScreen({super.key});
@@ -17,7 +18,8 @@ class UserManagementScreen extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+          padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space12,
+              AppScale.gutter, AppScale.space8),
           child: TextField(
             onChanged: adminController.searchUsers,
             textInputAction: TextInputAction.search,
@@ -72,7 +74,8 @@ class UserManagementScreen extends StatelessWidget {
         onRefresh: adminController.refresh,
         child: ListView.builder(
           key: const PageStorageKey('users_list'),
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+          padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space8,
+              AppScale.gutter, AppScale.gutter),
           itemCount: users.length,
           itemBuilder: (context, index) {
             final user = users[index];
@@ -240,7 +243,7 @@ class _UserListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: AppScale.space8),
       child: AppGroupedSurface(
         children: [
           ListTile(
@@ -258,11 +261,11 @@ class _UserListItem extends StatelessWidget {
                 ),
                 if (user.isAdmin)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppScale.space8, vertical: AppScale.space2),
                     decoration: BoxDecoration(
                       color: colors.secondaryContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppScale.radiusRow),
                     ),
                     child: Text(
                       'Administrateur',
@@ -275,11 +278,11 @@ class _UserListItem extends StatelessWidget {
                   ),
                 if (user.isBlocked)
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppScale.space8, vertical: AppScale.space2),
                     decoration: BoxDecoration(
                       color: colors.errorContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppScale.radiusRow),
                     ),
                     child: Text(
                       'Bloqué',
@@ -299,7 +302,7 @@ class _UserListItem extends StatelessWidget {
                   user.email,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppScale.space4),
                 Text(
                   "Dernière connexion : ${user.lastLogin != null ? _formatDate(user.lastLogin!, context) : 'Jamais'}",
                   style: Theme.of(context).textTheme.bodySmall,

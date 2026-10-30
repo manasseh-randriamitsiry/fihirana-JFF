@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSearchHeader extends StatelessWidget {
   const BibleSearchHeader({super.key});
@@ -12,12 +13,12 @@ class BibleSearchHeader extends StatelessWidget {
     final colorController = Get.find<ColorController>();
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppScale.gutter),
       decoration: BoxDecoration(
         color: colorController.primaryColor.value.withValues(alpha: 0.05),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
+          topLeft: Radius.circular(AppScale.radiusFloat),
+          topRight: Radius.circular(AppScale.radiusFloat),
         ),
       ),
       child: Row(
@@ -27,7 +28,7 @@ class BibleSearchHeader extends StatelessWidget {
             color: colorController.primaryColor.value,
             size: 28,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppScale.space12),
           Expanded(
             child: Text(
               l10n.searchBible,

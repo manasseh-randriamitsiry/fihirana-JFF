@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AdminStatTileWidget extends StatelessWidget {
   final String title;
@@ -24,7 +25,7 @@ class AdminStatTileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(AppScale.space12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -34,12 +35,12 @@ class AdminStatTileWidget extends StatelessWidget {
               foregroundColor: foregroundColor,
               child: Icon(icon, size: 17),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppScale.space8),
             Text(
               value,
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: AppScale.space2),
             Text(
               title,
               style: Theme.of(context).textTheme.labelSmall,
@@ -73,7 +74,8 @@ class AdminStatsRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 6),
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.gutter, AppScale.space16, AppScale.gutter, AppScale.space8),
       child: AppGroupedSurface(
         children: [
           Row(

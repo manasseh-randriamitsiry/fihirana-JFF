@@ -13,6 +13,7 @@ import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class CreateHymnPage extends StatefulWidget {
   const CreateHymnPage({super.key});
@@ -149,7 +150,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
         return Dialog(
           child: Container(
             width: MediaQuery.of(context).size.width * 0.9,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppScale.gutter),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -235,12 +236,13 @@ class CreateHymnPageState extends State<CreateHymnPage> {
               children: [
                 if (!authController.isAdmin)
                   Container(
-                    margin: const EdgeInsets.only(bottom: 24),
+                    margin: const EdgeInsets.only(bottom: AppScale.space24),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
+                        horizontal: AppScale.space16,
+                        vertical: AppScale.space12),
                     decoration: BoxDecoration(
                       color: colors.primaryContainer,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppScale.radiusRow),
                       border: Border.all(
                         color: colors.outlineVariant,
                       ),
@@ -252,7 +254,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                           color: colors.primary,
                           size: 20,
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: AppScale.space12),
                         Expanded(
                           child: Text(
                             'Cantiques restants ce mois-ci : ${authController.remainingHymnsThisMonth}',
@@ -294,11 +296,11 @@ class CreateHymnPageState extends State<CreateHymnPage> {
 
                 // Verses Section Header
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: AppScale.space12, horizontal: AppScale.space16),
                   decoration: BoxDecoration(
                     color: colors.primaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppScale.radiusControl),
                   ),
                   child: Row(
                     children: [
@@ -307,7 +309,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                         color: colors.primary,
                         size: 20,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppScale.space12),
                       Text(
                         l10n.verses,
                         style: TextStyle(
@@ -319,7 +321,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
 
                 ReorderableListView(
                   shrinkWrap: true,
@@ -377,13 +379,15 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                       ),
                     ),
                     style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppScale.space24,
+                          vertical: AppScale.space12),
                       side: BorderSide(
                         color: colors.primary,
                         width: 2,
                       ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                       ),
                     ),
                   ),
@@ -411,12 +415,12 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     padding:
                         const EdgeInsets.symmetric(vertical: AppDimensions.md),
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppScale.space16),
                       decoration: BoxDecoration(
                         color: _hasAudio
                             ? colors.primaryContainer
                             : colors.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                         border: Border.all(
                           color: _hasAudio ? colors.primary : colors.outline,
                           width: 1,
@@ -429,7 +433,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                             color: _hasAudio ? colors.primary : colors.outline,
                             size: 24,
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: AppScale.space12),
                           Expanded(
                             child: Text(
                               _hasAudio
@@ -468,7 +472,9 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     }
                   },
                   style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppScale.space24,
+                        vertical: AppScale.space12),
                   ),
                   child: Text(
                     l10n.submit,
@@ -478,7 +484,7 @@ class CreateHymnPageState extends State<CreateHymnPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
               ],
             ),
           ),

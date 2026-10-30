@@ -6,6 +6,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'recording_countdown.dart';
 import 'recording_waveform.dart';
 import 'recording_controls.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingCard extends StatelessWidget {
   final RecordingController controller;
@@ -49,10 +50,10 @@ class RecordingCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 300,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppScale.space16),
       decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppScale.radiusSheet),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -102,21 +103,16 @@ class RecordingCard extends StatelessWidget {
                   icon:
                       Icon(Icons.close, color: colorController.textColor.value),
                   onPressed: onClose,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
                 ),
-              const SizedBox(width: 8),
               IconButton(
                 icon: Icon(Icons.keyboard_arrow_down,
                     color: colorController.textColor.value),
                 onPressed: onMinimize,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
               ),
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
 
           // Content
           if (isCountingDown)
@@ -133,14 +129,14 @@ class RecordingCard extends StatelessWidget {
               children: [
                 // Waveform placeholder or visualizer
                 SizedBox(
-                  height: 40,
+                  height: AppScale.space40,
                   child: RecordingWaveform(
                     controller: controller,
                     colorController: colorController,
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: AppScale.space12),
 
                 // Timer
                 Obx(() => Text(
@@ -153,7 +149,7 @@ class RecordingCard extends StatelessWidget {
                       ),
                     )),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
 
                 // Controls
                 RecordingControls(

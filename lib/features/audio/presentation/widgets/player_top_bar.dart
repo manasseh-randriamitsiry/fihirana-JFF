@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class PlayerTopBar extends StatelessWidget {
   final VoidCallback? onClose;
@@ -10,23 +13,28 @@ class PlayerTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppScale.gutter, vertical: AppScale.space8),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.keyboard_arrow_down,
-                color: Colors.white, size: 30),
+            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+            icon: const Icon(Icons.keyboard_arrow_down_rounded,
+                size: AppScale.iconLg),
             onPressed: onClose ?? () => Navigator.of(context).pop(),
           ),
-          Text(
-            'Lecture en cours',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1,
+          Expanded(
+            child: Text(
+              l10n.nowPlaying,
+              style: type.bodySmall
+                  ?.copyWith(color: s.muted, fontWeight: FontWeight.w700),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

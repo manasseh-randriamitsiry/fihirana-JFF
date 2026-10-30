@@ -9,6 +9,7 @@ import 'package:fihirana/features/recording/data/services/recording_service.dart
 import 'recording_auth_manager.dart';
 import 'recording_state_manager.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 enum PublishRecordingResult {
   success,
@@ -342,7 +343,7 @@ class RecordingPublishingManager extends GetxController {
             children: [
               const Text(
                   "Un enregistrement porte déjà ce titre. Saisissez un autre titre."),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               TextField(
                 controller: controller,
                 autocorrect: false,

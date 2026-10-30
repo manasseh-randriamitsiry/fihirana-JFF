@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LoadingWidget extends StatelessWidget {
   final String? message;
@@ -27,7 +28,7 @@ class LoadingWidget extends StatelessWidget {
             ),
           ),
           if (message != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: AppScale.space16),
             Text(
               message!,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(

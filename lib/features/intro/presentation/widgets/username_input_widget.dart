@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class UsernameInputWidget extends StatefulWidget {
   final TextEditingController controller;
@@ -97,7 +98,7 @@ class UsernameHelperTextWidget extends StatelessWidget {
     final currentLength = controller.text.trim().length;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
+      padding: const EdgeInsets.symmetric(horizontal: AppScale.space4),
       child: Text(
         '$currentLength/15 caractères (minimum $minLength)',
         style: TextStyle(

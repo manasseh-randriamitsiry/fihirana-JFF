@@ -26,10 +26,10 @@ dependencies:
   curved_navigation_bar: ^1.0.6
   liquid_swipe: ^3.1.0
   flutter_zoom_drawer: ^3.2.0
-  firebase_core: ^2.24.2
-  cloud_firestore: ^4.13.6
-  firebase_auth: ^4.16.0
-  firebase_crashlytics: ^3.4.9
+  firebase_core: ^3.0.0
+  cloud_firestore: ^5.0.0
+  firebase_auth: ^5.0.0
+  firebase_crashlytics: ^4.0.0
   flutter_launcher_icons: ^0.13.1
   cached_network_image: ^3.3.0
   local_auth: ^2.1.7

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as flutter_contacts;
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class ContactSearchResultWidget extends StatelessWidget {
   final flutter_contacts.Contact contact;
@@ -23,9 +24,9 @@ class ContactSearchResultWidget extends StatelessWidget {
 
     return Card(
       elevation: 0,
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppScale.space8),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         side: BorderSide(
           color: colorController.textColor.value.withValues(alpha: 0.1),
           width: 1,
@@ -33,10 +34,10 @@ class ContactSearchResultWidget extends StatelessWidget {
       ),
       color: colorController.backgroundColor.value,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(AppScale.space12),
           child: Row(
             children: [
               CircleAvatar(
@@ -52,7 +53,7 @@ class ContactSearchResultWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppScale.space12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +67,7 @@ class ContactSearchResultWidget extends StatelessWidget {
                       ),
                     ),
                     if (phoneNumber.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppScale.space4),
                       Row(
                         children: [
                           Icon(
@@ -75,7 +76,7 @@ class ContactSearchResultWidget extends StatelessWidget {
                             color: colorController.iconColor.value
                                 .withValues(alpha: 0.7),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: AppScale.space4),
                           Text(
                             phoneNumber,
                             style: TextStyle(

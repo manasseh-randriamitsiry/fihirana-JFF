@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class PermissionRequestDialog extends StatefulWidget {
   final VoidCallback onPermissionsGranted;
@@ -86,10 +87,10 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
     return Dialog(
       backgroundColor: colorController.backgroundColor.value,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppScale.radiusSheet),
       ),
       child: Padding(
-        padding: EdgeInsets.all(isTablet ? 32.0 : 24.0),
+        padding: EdgeInsets.all(isTablet ? AppScale.space40 : AppScale.space24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -124,7 +125,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
 
             SizedBox(height: isTablet ? 16 : 12),
             // Permission items
-            const SizedBox(height: 8),
+            const SizedBox(height: AppScale.space8),
             _buildPermissionItem(
               context,
               icon: Icons.notifications_none_rounded,
@@ -154,10 +155,11 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                   child: TextButton(
                     onPressed: widget.onPermissionsGranted,
                     style: TextButton.styleFrom(
-                      padding:
-                          EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
+                      padding: EdgeInsets.symmetric(
+                          vertical:
+                              isTablet ? AppScale.space16 : AppScale.space12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                       ),
                     ),
                     child: Text(
@@ -182,10 +184,11 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                           },
                     style: FilledButton.styleFrom(
                       backgroundColor: colorController.primaryColor.value,
-                      padding:
-                          EdgeInsets.symmetric(vertical: isTablet ? 16 : 12),
+                      padding: EdgeInsets.symmetric(
+                          vertical:
+                              isTablet ? AppScale.space16 : AppScale.space12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                       ),
                     ),
                     child: _isRequesting
@@ -226,10 +229,10 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
     final colorController = Get.find<ColorController>();
 
     return Container(
-      padding: EdgeInsets.all(isTablet ? 20 : 16),
+      padding: EdgeInsets.all(isTablet ? AppScale.gutter : AppScale.space16),
       decoration: BoxDecoration(
         color: colorController.backgroundColor.value,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         border: Border.all(
           color: isGranted
               ? colorController.primaryColor.value.withValues(alpha: 0.3)
@@ -240,7 +243,8 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(isTablet ? 12 : 8),
+            padding:
+                EdgeInsets.all(isTablet ? AppScale.space12 : AppScale.space8),
             decoration: BoxDecoration(
               color: isGranted
                   ? colorController.primaryColor.value.withValues(alpha: 0.1)
@@ -271,7 +275,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                       ),
                     ),
                     if (isGranted) ...[
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppScale.space8),
                       Icon(
                         Icons.check_circle_rounded,
                         size: isTablet ? 18 : 16,
@@ -280,7 +284,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
                     ],
                   ],
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppScale.space4),
                 Text(
                   description,
                   style: TextStyle(

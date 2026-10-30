@@ -3,6 +3,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'dart:async';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class HymnSearchPopup extends StatefulWidget {
   final Function(Hymn) onHymnSelected;
@@ -103,18 +104,19 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
     return Dialog(
       backgroundColor: surfaceColor,
       elevation: 0, // We handle internal elevation
-      insetPadding: const EdgeInsets.all(16),
+      insetPadding: const EdgeInsets.all(AppScale.space16),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppScale.radiusSheet),
         side:
             BorderSide(color: colorScheme.outlineVariant.withValues(alpha: .7)),
       ),
       child: Container(
         constraints: const BoxConstraints(maxHeight: 600, maxWidth: 500),
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        padding: const EdgeInsets.symmetric(
+            vertical: AppScale.space24, horizontal: AppScale.space16),
         decoration: BoxDecoration(
           color: surfaceColor,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -128,7 +130,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                     ? searchBarColor
                     : searchBarColor.withValues(
                         alpha: 0.8), // Slightly transparent when unfocused
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(AppScale.radiusRow),
                 boxShadow: _isFocused
                     ? [
                         BoxShadow(
@@ -139,14 +141,15 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                       ]
                     : [],
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppScale.space16, vertical: AppScale.space4),
               child: Row(
                 children: [
                   Icon(
                     Icons.search_rounded,
                     color: onSurfaceColor.withValues(alpha: 0.7),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Expanded(
                     child: TextField(
                       controller: _searchController,
@@ -158,8 +161,8 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                         ),
                         border: InputBorder.none,
                         isDense: true,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 12),
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: AppScale.space12),
                       ),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: onSurfaceColor,
@@ -177,7 +180,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                         _focusNode.requestFocus();
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(AppScale.space4),
                         decoration: BoxDecoration(
                           color: onSurfaceColor.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
@@ -193,7 +196,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
               ),
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: AppScale.space16),
 
             // --- List Results ---
             Expanded(
@@ -209,7 +212,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                               Icon(Icons.search_off_rounded,
                                   size: 48,
                                   color: onSurfaceColor.withValues(alpha: 0.2)),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppScale.space16),
                               Text(
                                 l10n.noHymnsFound,
                                 style: theme.textTheme.bodyLarge?.copyWith(
@@ -220,31 +223,35 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                           ),
                         )
                       : ClipRRect(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusRow),
                           child: ListView.separated(
                             key: const PageStorageKey('hymn_search_list'),
                             itemCount: _hymns.length,
                             physics: const BouncingScrollPhysics(),
                             padding: EdgeInsets.zero,
                             separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
+                                const SizedBox(height: AppScale.space8),
                             itemBuilder: (context, index) {
                               final hymn = _hymns[index];
                               return Material(
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () => widget.onHymnSelected(hymn),
-                                  borderRadius: BorderRadius.circular(12),
+                                  borderRadius:
+                                      BorderRadius.circular(AppScale.radiusRow),
                                   splashColor: colorScheme.primary
                                       .withValues(alpha: 0.1),
                                   highlightColor: colorScheme.primary
                                       .withValues(alpha: 0.05),
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 12, horizontal: 16),
+                                        vertical: AppScale.space12,
+                                        horizontal: AppScale.space16),
                                     decoration: BoxDecoration(
                                       color: colorScheme.surface,
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(
+                                          AppScale.radiusRow),
                                       border: Border.all(
                                         color: colorScheme.outlineVariant
                                             .withValues(alpha: .6),
@@ -272,7 +279,7 @@ class _HymnSearchPopupState extends State<HymnSearchPopup> {
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(width: 16),
+                                        const SizedBox(width: AppScale.space16),
                                         Expanded(
                                           child: Column(
                                             crossAxisAlignment:

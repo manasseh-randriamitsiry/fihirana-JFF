@@ -9,13 +9,14 @@ import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/components/app_register_row.dart';
 
+/// A line of the register: the number, the name, the first line, and whatever
+/// the row can do.
 class HymnListItem extends StatefulWidget {
   final Hymn hymn;
-  final Color textColor;
-  final Color backgroundColor;
-  final Color primaryColor;
   final VoidCallback onFavoritePressed;
   final VoidCallback? onMusicPressed;
   final bool isFirebaseHymn;
@@ -25,9 +26,6 @@ class HymnListItem extends StatefulWidget {
   const HymnListItem({
     super.key,
     required this.hymn,
-    required this.textColor,
-    required this.backgroundColor,
-    required this.primaryColor,
     required this.onFavoritePressed,
     this.onMusicPressed,
     this.isFirebaseHymn = false,
@@ -51,93 +49,55 @@ class _HymnListItemState extends State<HymnListItem> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        final colors = Theme.of(context).colorScheme;
         return StatefulBuilder(
           builder: (context, setState) {
+            void reject() {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content:
+                        Text(context.translate((l) => l.typeYesToConfirm))),
+              );
+            }
+
+            void accept(String value) {
+              if (value.toLowerCase() == 'eny' ||
+                  value.toLowerCase() == 'oui' ||
+                  value.toLowerCase() == 'yes') {
+                isConfirmed = true;
+                Navigator.of(context).pop();
+              } else {
+                reject();
+              }
+            }
+
             return AlertDialog(
-              backgroundColor: colors.surface,
-              title: Text(
-                context.translate((l) => l.deleteHymnQuestion),
-                style: TextStyle(color: colors.onSurface),
-              ),
+              title: Text(context.translate((l) => l.deleteHymnQuestion)),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    context.translate(
-                        (l) => l.confirmDeleteHymn(widget.hymn.title)),
-                    style: TextStyle(color: colors.onSurface),
-                  ),
-                  const SizedBox(height: 16),
+                  Text(context.translate(
+                      (l) => l.confirmDeleteHymn(widget.hymn.title))),
+                  const SizedBox(height: AppScale.space16),
                   TextField(
                     controller: confirmationController,
-                    style: TextStyle(color: colors.onSurface),
+                    onSubmitted: accept,
                     decoration: InputDecoration(
                       hintText: context.translate((l) => l.yesLowercase),
-                      hintStyle: TextStyle(color: colors.onSurfaceVariant),
-                      border: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radiusSm),
-                        borderSide: BorderSide(color: colors.outline),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radiusSm),
-                        borderSide: BorderSide(color: colors.outline),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius:
-                            BorderRadius.circular(AppDimensions.radiusSm),
-                        borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary),
-                      ),
                     ),
-                    onSubmitted: (value) {
-                      if (value.toLowerCase() == 'eny' ||
-                          value.toLowerCase() == 'oui' ||
-                          value.toLowerCase() == 'yes') {
-                        isConfirmed = true;
-                        Navigator.of(context).pop();
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              context.translate((l) => l.typeYesToConfirm),
-                              style: TextStyle(color: colors.onError),
-                            ),
-                            backgroundColor: colors.error,
-                          ),
-                        );
-                      }
-                    },
                   ),
                 ],
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text(context.translate((l) => l.cancel),
-                      style: TextStyle(color: colors.onSurface)),
+                  child: Text(context.translate((l) => l.cancel)),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
                 TextButton(
                   child: Text(context.translate((l) => l.delete),
-                      style: TextStyle(color: colors.error)),
-                  onPressed: () {
-                    if (confirmationController.text.toLowerCase() == 'eny') {
-                      isConfirmed = true;
-                      Navigator.of(context).pop();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            context.translate((l) => l.typeYesToConfirm),
-                            style: TextStyle(color: colors.onError),
-                          ),
-                          backgroundColor: colors.error,
-                        ),
-                      );
-                    }
-                  },
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.error)),
+                  onPressed: () => accept(confirmationController.text),
                 ),
               ],
             );
@@ -153,24 +113,19 @@ class _HymnListItemState extends State<HymnListItem> {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        final colors = Theme.of(context).colorScheme;
+        final Color error = Theme.of(context).colorScheme.error;
         return AlertDialog(
-          backgroundColor: colors.surface,
-          title: Text(context.translate((l) => l.deleteHymnQuestion),
-              style: TextStyle(color: colors.onSurface)),
+          title: Text(context.translate((l) => l.deleteHymnQuestion)),
           content: Text(
-            context.translate((l) => l.confirmDeleteHymn(widget.hymn.title)),
-            style: TextStyle(color: colors.onSurface),
-          ),
+              context.translate((l) => l.confirmDeleteHymn(widget.hymn.title))),
           actions: <Widget>[
             TextButton(
-              child: Text(context.translate((l) => l.no),
-                  style: TextStyle(color: colors.onSurface)),
+              child: Text(context.translate((l) => l.no)),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
               child: Text(context.translate((l) => l.yes),
-                  style: TextStyle(color: colors.error)),
+                  style: TextStyle(color: error)),
               onPressed: () async {
                 // Capture the context and localized messages before any async operations
                 final navigator = Navigator.of(context);
@@ -191,10 +146,7 @@ class _HymnListItemState extends State<HymnListItem> {
                 if (!confirmed) {
                   if (mounted) {
                     scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content: Text(deleteHymnFailedMessage),
-                        backgroundColor: colors.error,
-                      ),
+                      SnackBar(content: Text(deleteHymnFailedMessage)),
                     );
                   }
                   return;
@@ -208,10 +160,7 @@ class _HymnListItemState extends State<HymnListItem> {
 
                   if (mounted) {
                     scaffoldMessenger.showSnackBar(
-                      SnackBar(
-                        content: Text(hymnDeletedSuccessMessage),
-                        backgroundColor: colors.primary,
-                      ),
+                      SnackBar(content: Text(hymnDeletedSuccessMessage)),
                     );
                   }
                 } catch (e) {
@@ -219,10 +168,7 @@ class _HymnListItemState extends State<HymnListItem> {
                   if (!mounted) return;
 
                   scaffoldMessenger.showSnackBar(
-                    SnackBar(
-                      content: Text('$errorMessage: $e'),
-                      backgroundColor: colors.error,
-                    ),
+                    SnackBar(content: Text('$errorMessage: $e')),
                   );
                 }
               },
@@ -237,7 +183,6 @@ class _HymnListItemState extends State<HymnListItem> {
     // Capture scaffold messenger and localization function before async operations
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     final localizations = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
 
     try {
       if (kDebugMode) {
@@ -263,10 +208,7 @@ class _HymnListItemState extends State<HymnListItem> {
       if (mounted) {
         final errorMessage = localizations.errorPlayingAudio(e.toString());
         scaffoldMessenger.showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: colors.error,
-          ),
+          SnackBar(content: Text(errorMessage)),
         );
       }
     }
@@ -279,216 +221,120 @@ class _HymnListItemState extends State<HymnListItem> {
     final authController = Get.find<AuthController>();
     final isAdmin = authController.isAdmin || authController.isSuperAdmin;
 
-    final textTheme = Theme.of(context).textTheme;
-    final colors = Theme.of(context).colorScheme;
-    final primaryColor = colors.primary;
-    final backgroundColor = colors.surface;
-    final textColor = colors.onSurface;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final bool isPlaying = _audioService.isHymnPlaying(widget.hymn.id);
+
     return Semantics(
       button: true,
       label: '${widget.hymn.hymnNumber} ${widget.hymn.title}',
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: .65),
-          ),
-        ),
-        child: Material(
-          color: colors.surface,
-          borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            onTap: () =>
-                NavigationUtility.navigateToDetailScreen(context, widget.hymn),
-            child: Padding(
-              padding: const EdgeInsets.all(14),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Hymn Number Badge
-                  Hero(
-                    tag: 'hymn_number_${widget.hymn.id}',
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: primaryColor.withValues(
-                            alpha: 0.1), // Consistent accent/primary container
-                        shape: BoxShape.circle,
-                      ),
-                      child: Text(
-                        widget.hymn.hymnNumber,
-                        style: textTheme.titleMedium?.copyWith(
-                          color: primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  // Title and Preview
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+      child: AppRegisterRow(
+        figure: widget.hymn.hymnNumber,
+        selected: isPlaying,
+        onTap: () =>
+            NavigationUtility.navigateToDetailScreen(context, widget.hymn),
+        title: widget.hymn.title,
+        subtitle: widget.hymn.verses.isNotEmpty ? widget.hymn.verses[0] : null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.isFavorite)
+              _RowAction(
+                icon: Icons.favorite_rounded,
+                tooltip: AppLocalizations.of(context).favoriteHymns,
+                color: s.accent,
+                onPressed: widget.onFavoritePressed,
+              )
+            else
+              _RowAction(
+                icon: Icons.favorite_border_rounded,
+                tooltip: AppLocalizations.of(context).favoriteHymns,
+                onPressed: widget.onFavoritePressed,
+              ),
+            if (widget.hasAudio)
+              Obx(() {
+                final playing = _audioService.isHymnPlaying(widget.hymn.id);
+                return _RowAction(
+                  icon: playing
+                      ? Icons.graphic_eq_rounded
+                      : Icons.music_note_rounded,
+                  tooltip: AppLocalizations.of(context).playAudio,
+                  color: playing ? s.accent : null,
+                  onPressed:
+                      widget.onMusicPressed ?? () => _playHymnAudio(context),
+                );
+              }),
+            if (widget.isFirebaseHymn &&
+                isLoggedIn &&
+                (widget.hymn.createdByEmail == user.email || isAdmin))
+              PopupMenuButton<String>(
+                icon:
+                    const Icon(Icons.more_vert_rounded, size: AppScale.iconMd),
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    NavigationUtility.navigateToEditScreen(
+                        context, widget.hymn);
+                  } else if (value == 'delete') {
+                    _showDeleteConfirmation(context);
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
                       children: [
-                        Hero(
-                          tag: 'hymn_title_${widget.hymn.id}',
-                          child: Material(
-                            color: colors.surface,
-                            child: Text(
-                              widget.hymn.title,
-                              style: textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: textColor,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        if (widget.hymn.verses.isNotEmpty)
-                          Text(
-                            widget.hymn.verses[0],
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: colors.onSurfaceVariant,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        if (isAdmin && widget.isFirebaseHymn)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text(
-                              AppLocalizations.of(context).createdByLabel(
-                                  widget.hymn.createdBy,
-                                  widget.hymn.createdByEmail != null
-                                      ? ' (${widget.hymn.createdByEmail})'
-                                      : ''),
-                              style: textTheme.labelSmall?.copyWith(
-                                color: colors.onSurfaceVariant,
-                                fontStyle: FontStyle.italic,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
+                        const Icon(Icons.edit_rounded, size: AppScale.iconMd),
+                        const SizedBox(width: AppScale.space12),
+                        Text(AppLocalizations.of(context).edit),
                       ],
                     ),
                   ),
-
-                  // Actions
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Audio Indicator
-                      if (widget.hasAudio)
-                        Obx(() {
-                          final isPlaying =
-                              _audioService.isHymnPlaying(widget.hymn.id);
-                          return IconButton(
-                            onPressed: widget.onMusicPressed ??
-                                () => _playHymnAudio(context),
-                            icon: AnimatedContainer(
-                              duration: const Duration(milliseconds: 300),
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: isPlaying
-                                    ? primaryColor.withValues(alpha: 0.1)
-                                    : colors.surface,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                isPlaying
-                                    ? Icons.graphic_eq
-                                    : Icons.music_note_outlined,
-                                size: 20,
-                                color: isPlaying
-                                    ? primaryColor
-                                    : colors.onSurfaceVariant,
-                              ),
-                            ),
-                            style: IconButton.styleFrom(
-                              padding: EdgeInsets.zero,
-                              minimumSize: const Size(40, 40),
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          );
-                        }),
-
-                      // Favorite Button
-                      IconButton(
-                        onPressed: widget.onFavoritePressed,
-                        icon: Icon(
-                          widget.isFavorite
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          color: widget.isFavorite
-                              ? colors.error
-                              : colors.onSurfaceVariant,
-                          size: 22,
-                        ),
-                        style: IconButton.styleFrom(
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                      ),
-
-                      // Admin Actions Menu
-                      if (widget.isFirebaseHymn &&
-                          isLoggedIn &&
-                          (widget.hymn.createdByEmail == user.email || isAdmin))
-                        PopupMenuButton<String>(
-                          icon: Icon(Icons.more_vert_rounded,
-                              color: colors.onSurfaceVariant, size: 20),
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              NavigationUtility.navigateToEditScreen(
-                                  context, widget.hymn);
-                            } else if (value == 'delete') {
-                              _showDeleteConfirmation(context);
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.edit_rounded, size: 20),
-                                  const SizedBox(width: 12),
-                                  Text(AppLocalizations.of(context).edit),
-                                ],
-                              ),
-                            ),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete_rounded,
-                                      color: colors.error, size: 20),
-                                  const SizedBox(width: 12),
-                                  Text(AppLocalizations.of(context).delete,
-                                      style: TextStyle(color: colors.error)),
-                                ],
-                              ),
-                            ),
-                          ],
-                          color: backgroundColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16)),
-                        ),
-                    ],
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_rounded,
+                            color: Theme.of(context).colorScheme.error,
+                            size: AppScale.iconMd),
+                        const SizedBox(width: AppScale.space12),
+                        Text(AppLocalizations.of(context).delete,
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.error)),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ),
-          ),
+          ],
         ),
       ),
     );
+  }
+}
+
+/// A control in a register row: 44px to the finger, quiet to the eye.
+class _RowAction extends StatelessWidget {
+  const _RowAction({
+    required this.icon,
+    required this.onPressed,
+    this.tooltip,
+    this.color,
+  });
+
+  final IconData icon;
+  final VoidCallback? onPressed;
+  final String? tooltip;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget button = IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon, size: AppScale.iconMd, color: color),
+      style: IconButton.styleFrom(
+        minimumSize: const Size(AppScale.hitTarget, AppScale.hitTarget),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
+    return tooltip == null ? button : Tooltip(message: tooltip!, child: button);
   }
 }

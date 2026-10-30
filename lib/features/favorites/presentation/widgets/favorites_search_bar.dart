@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class FavoritesSearchBar extends StatefulWidget {
   final TextEditingController controller;
@@ -33,7 +34,7 @@ class _FavoritesSearchBarState extends State<FavoritesSearchBar> {
       child: Container(
         decoration: BoxDecoration(
           color: colorController.backgroundColor.value,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           border: Border.all(
             color: colorController.textColor.value.withValues(alpha: 0.1),
             width: 1,
@@ -80,11 +81,11 @@ class _FavoritesSearchBarState extends State<FavoritesSearchBar> {
                   )
                 : null,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppScale.radiusRow),
               borderSide: BorderSide.none,
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppScale.space16, vertical: AppScale.space16),
           ),
           style: TextStyle(
             color: colorController.textColor.value,

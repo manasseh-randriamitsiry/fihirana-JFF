@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingControlsWidget extends StatefulWidget {
   final bool isRecording;
@@ -87,7 +88,7 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
             height: 64,
             decoration: BoxDecoration(
               color: widget.isPaused ? colors.primary : colors.primaryContainer,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppScale.radiusSheet),
               boxShadow: widget.isPaused
                   ? [
                       BoxShadow(
@@ -108,7 +109,7 @@ class _RecordingControlsWidgetState extends State<RecordingControlsWidget>
           ),
         ),
 
-        const SizedBox(width: 32),
+        const SizedBox(width: AppScale.space40),
 
         // Stop button with enhanced visual feedback
         GestureDetector(

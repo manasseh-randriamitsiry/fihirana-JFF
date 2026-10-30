@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
@@ -9,6 +7,7 @@ import 'package:fihirana/features/audio/data/services/local_audio_service.dart';
 import 'package:fihirana/features/audio/presentation/widgets/modern_audio_player_widget.dart';
 
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AudioPlayerScreen extends StatefulWidget {
   final Hymn hymn;
@@ -209,21 +208,19 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ColorController>(
-      builder: (colorController) => Scaffold(
-        body: ModernAudioPlayerWidget(
-          hymn: _currentHymn,
-          playlist: _playlist,
-          onHymnChange: _onHymnChange,
-          isFavorite: _isFavorite,
-          onToggleFavorite: _toggleFavorite,
-          autoPlayNext: _autoPlayNext,
-          onAutoPlayNextChange: _onAutoPlayNextChange,
-          onClose: () => Navigator.of(context).pop(),
-          onDownload: _downloadAudioForHymn,
-          isDownloaded: _hasLocalAudio,
-          getDownloadProgress: _getDownloadProgress,
-        ),
+    return Scaffold(
+      body: ModernAudioPlayerWidget(
+        hymn: _currentHymn,
+        playlist: _playlist,
+        onHymnChange: _onHymnChange,
+        isFavorite: _isFavorite,
+        onToggleFavorite: _toggleFavorite,
+        autoPlayNext: _autoPlayNext,
+        onAutoPlayNextChange: _onAutoPlayNextChange,
+        onClose: () => Navigator.of(context).pop(),
+        onDownload: _downloadAudioForHymn,
+        isDownloaded: _hasLocalAudio,
+        getDownloadProgress: _getDownloadProgress,
       ),
     );
   }
@@ -246,20 +243,18 @@ class AudioPlayerNavigator {
           initialIndex: initialIndex,
         ),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(0.0, 1.0);
-          const end = Offset.zero;
-          const curve = Curves.easeInOut;
-
-          var tween = Tween(begin: begin, end: end).chain(
-            CurveTween(curve: curve),
-          );
-
           return SlideTransition(
-            position: animation.drive(tween),
+            position: Tween<Offset>(
+              begin: const Offset(0.0, 1.0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: animation,
+              curve: AppScale.easeOut,
+            )),
             child: child,
           );
         },
-        transitionDuration: const Duration(milliseconds: 300),
+        transitionDuration: AppScale.durLong,
       ),
     );
   }
@@ -274,7 +269,9 @@ class AudioPlayerNavigator {
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        child: Container(
+        insetPadding: const EdgeInsets.symmetric(
+            horizontal: AppScale.space8, vertical: AppScale.space24),
+        child: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.9,
             maxWidth: MediaQuery.of(context).size.width * 0.95,

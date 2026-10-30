@@ -4,11 +4,13 @@ import 'package:get/get.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/features/history/di/history_di.dart';
 import 'package:fihirana/features/history/presentation/controllers/history_controller.dart';
-import 'package:fihirana/features/history/presentation/widgets/history_item_card.dart';
+import 'package:fihirana/features/history/presentation/widgets/history_item_row.dart';
 import 'package:fihirana/features/hymn/presentation/pages/hymn_detail_screen.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/components/app_state_view.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -51,22 +53,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
           icon: const Icon(Icons.menu_rounded),
           onPressed: Get.find<ShellController>().toggleDrawer,
         ),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const AppRegisterSkeleton(),
       );
     }
 
     return Obx(() {
-      if (historyController == null) {
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      }
-
       final controller = historyController!;
-      final colors = Theme.of(context).colorScheme;
+      final ColorScheme colors = Theme.of(context).colorScheme;
       final isSelectionMode = controller.isSelectionMode.value;
       return AppPageScaffold(
         title: isSelectionMode
-            ? '${controller.selectedItems.length} ${context.translate((l) => l.selected)}'
-            : context.translate((l) => l.history),
+            ? context.translate(
+                (l) => l.selectedItems(controller.selectedItems.length))
+            : l10n.history,
         leading: IconButton(
           tooltip: isSelectionMode
               ? MaterialLocalizations.of(context).closeButtonTooltip
@@ -91,46 +90,49 @@ class _HistoryScreenState extends State<HistoryScreen> {
               onPressed: () => _showClearHistoryDialog(context),
             ),
         ],
-        body: controller.isLoading.value
-            ? const Center(child: CircularProgressIndicator())
-            : controller.userHistory.isEmpty
-                ? AppEmptyState(
-                    icon: Icons.history_rounded,
-                    title: l10n.noHistory,
-                  )
-                : ListView.builder(
-                    key: const PageStorageKey('history_list'),
-                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-                    itemCount: controller.userHistory.length,
-                    itemBuilder: (context, index) {
-                      final history = controller.userHistory[index];
-                      final isSelected =
-                          controller.selectedItems.contains(history['id']);
-                      return HistoryItemCard(
-                        key: ValueKey(history['id']),
-                        history: history,
-                        index: index,
-                        isSelected: isSelected,
-                        isSelectionMode: isSelectionMode,
-                        onTap: () {
-                          if (isSelectionMode) {
-                            controller.toggleItemSelection(history['id']);
-                          } else {
-                            Get.to(() =>
-                                HymnDetailScreen(hymnId: history['hymnId']));
-                          }
-                        },
-                        onLongPress: () {
-                          if (!isSelectionMode) {
-                            controller.toggleSelectionMode();
-                            controller.toggleItemSelection(history['id']);
-                          }
-                        },
-                        onSelectionChanged: (_) =>
-                            controller.toggleItemSelection(history['id']),
-                      );
-                    },
-                  ),
+        body: AppStateView(
+          state: controller.isLoading.value
+              ? AppState.loading
+              : controller.userHistory.isEmpty
+                  ? AppState.empty
+                  : AppState.full,
+          emptyTitle: l10n.noHistory,
+          emptyIcon: Icons.history_rounded,
+          child: ListView.separated(
+            key: const PageStorageKey('history_list'),
+            padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space8,
+                AppScale.gutter, AppScale.space24),
+            itemCount: controller.userHistory.length,
+            separatorBuilder: (_, __) =>
+                const SizedBox(height: AppScale.buttonGap),
+            itemBuilder: (context, index) {
+              final history = controller.userHistory[index];
+              final isSelected =
+                  controller.selectedItems.contains(history['id']);
+              return HistoryItemRow(
+                key: ValueKey(history['id']),
+                history: history,
+                isSelected: isSelected,
+                isSelectionMode: isSelectionMode,
+                onTap: () {
+                  if (isSelectionMode) {
+                    controller.toggleItemSelection(history['id']);
+                  } else {
+                    Get.to(() => HymnDetailScreen(hymnId: history['hymnId']));
+                  }
+                },
+                onLongPress: () {
+                  if (!isSelectionMode) {
+                    controller.toggleSelectionMode();
+                    controller.toggleItemSelection(history['id']);
+                  }
+                },
+                onSelectionChanged: (_) =>
+                    controller.toggleItemSelection(history['id']),
+              );
+            },
+          ),
+        ),
       );
     });
   }
@@ -139,7 +141,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final colors = Theme.of(context).colorScheme;
     Get.dialog(
       AlertDialog(
-        backgroundColor: colors.surfaceContainerHigh,
         title: Text(context.translate((l) => l.clearAllHistoryQuestion)),
         content: Text(context.translate((l) => l.historyCannotBeUndone)),
         actions: [
@@ -166,7 +167,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final colors = Theme.of(context).colorScheme;
     Get.dialog(
       AlertDialog(
-        backgroundColor: colors.surfaceContainerHigh,
         title: Text(context.translate((l) => l.deleteSelectedHistoryQuestion)),
         content: Text(context.translate((l) => l.historyCannotBeUndone)),
         actions: [

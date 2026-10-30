@@ -7,6 +7,7 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/contact/domain/entities/contact.dart';
 import 'package:fihirana/features/contact/domain/repositories/i_contact_service.dart';
 import 'package:fihirana/features/contact/presentation/pages/location_picker_screen.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class ContactPickerDialog extends StatefulWidget {
   final ColorController colorController;
@@ -92,7 +93,7 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
                 validator: (value) =>
                     value?.isEmpty ?? true ? l10n.enterNamePlease : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               TextFormField(
                 controller: _phoneController,
                 decoration: InputDecoration(
@@ -113,7 +114,7 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
                 validator: (value) =>
                     value?.isEmpty ?? true ? l10n.fillAllFields : null,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               TextFormField(
                 controller: _locationController,
                 decoration: InputDecoration(
@@ -131,7 +132,7 @@ class _ContactPickerDialogState extends State<ContactPickerDialog> {
                 ),
                 style: TextStyle(color: widget.colorController.textColor.value),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
               OutlinedButton.icon(
                 onPressed: () async {
                   final result = await Navigator.push<maplibre.LatLng>(

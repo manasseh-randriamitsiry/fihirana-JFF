@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SkeletonUserList extends StatelessWidget {
   const SkeletonUserList({super.key});
@@ -13,15 +14,16 @@ class SkeletonUserList extends StatelessWidget {
 
     return ListView.builder(
       key: const PageStorageKey('skeleton_users_list'),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      padding:
+          const EdgeInsets.symmetric(horizontal: AppScale.space16, vertical: 0),
       itemCount: 8, // Show enough items to fill the screen
       itemBuilder: (context, index) {
         return Card(
           key: ValueKey(index),
           elevation: 2,
-          margin: const EdgeInsets.only(bottom: 12),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          margin: const EdgeInsets.only(bottom: AppScale.space12),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
           color: colorController.backgroundColor.value,
           child: Padding(
             padding: const EdgeInsets.all(AppDimensions.md),
@@ -41,7 +43,7 @@ class SkeletonUserList extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppScale.space12),
                     // Name and Email Skeletons
                     Expanded(
                       child: Column(
@@ -54,10 +56,11 @@ class SkeletonUserList extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: colorController.textColor.value
                                   .withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius:
+                                  BorderRadius.circular(AppScale.radiusMark),
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: AppScale.space4),
                           // Email skeleton
                           Container(
                             width: 200,
@@ -65,7 +68,8 @@ class SkeletonUserList extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: colorController.textColor.value
                                   .withValues(alpha: 0.08),
-                              borderRadius: BorderRadius.circular(4),
+                              borderRadius:
+                                  BorderRadius.circular(AppScale.radiusMark),
                             ),
                           ),
                         ],
@@ -73,14 +77,14 @@ class SkeletonUserList extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppScale.space16),
                 // Divider skeleton
                 Container(
                   height: 1,
                   color:
                       colorController.textColor.value.withValues(alpha: 0.05),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppScale.space12),
 
                 // Stats Row Skeleton
                 Row(
@@ -95,17 +99,19 @@ class SkeletonUserList extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusMark),
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: AppScale.space8),
                         Container(
                           width: 60,
                           height: 13,
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusMark),
                           ),
                         ),
                       ],
@@ -119,31 +125,33 @@ class SkeletonUserList extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(2),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusMark),
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: AppScale.space8),
                         Container(
                           width: 80,
                           height: 13,
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusMark),
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppScale.space12),
                 // Divider skeleton
                 Container(
                   height: 1,
                   color:
                       colorController.textColor.value.withValues(alpha: 0.05),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppScale.space8),
 
                 // Controls Row Skeleton
                 Row(
@@ -158,17 +166,19 @@ class SkeletonUserList extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusMark),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppScale.space8),
                         Container(
                           width: 30,
                           height: 16,
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusControl),
                           ),
                         ),
                       ],
@@ -182,17 +192,19 @@ class SkeletonUserList extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusMark),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppScale.space8),
                         Container(
                           width: 30,
                           height: 16,
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusControl),
                           ),
                         ),
                       ],
@@ -206,17 +218,19 @@ class SkeletonUserList extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.06),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusMark),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppScale.space8),
                         Container(
                           width: 30,
                           height: 16,
                           decoration: BoxDecoration(
                             color: colorController.textColor.value
                                 .withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusControl),
                           ),
                         ),
                       ],

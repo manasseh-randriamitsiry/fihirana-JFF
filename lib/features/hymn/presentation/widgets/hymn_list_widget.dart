@@ -78,9 +78,6 @@ class HymnListWidget extends StatelessWidget {
                   return HymnListItem(
                     key: ValueKey(hymn.id),
                     hymn: hymn,
-                    textColor: textColor,
-                    backgroundColor: backgroundColor,
-                    primaryColor: Theme.of(context).colorScheme.primary,
                     isFavorite: isFavorite,
                     onFavoritePressed: () =>
                         hymnController.toggleFavorite(hymn),

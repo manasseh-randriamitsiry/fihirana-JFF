@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SaveDialogNameInput extends StatelessWidget {
   final TextEditingController nameController;
@@ -27,15 +28,15 @@ class SaveDialogNameInput extends StatelessWidget {
         labelText: "Nom de l'enregistrement",
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.8)),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           borderSide: const BorderSide(color: Colors.white, width: 2),
         ),
         prefixIcon:

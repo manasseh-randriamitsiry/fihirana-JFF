@@ -146,9 +146,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       final isDark = themeController.isDarkMode.value;
       final currentLocale = languageController.currentLocale.value;
 
-      final theme = isDark
-          ? _themeManager.getDarkTheme(currentFont)
-          : _themeManager.getLightTheme(currentFont);
+      final theme = _themeManager.getLightTheme(currentFont);
+      final darkTheme = _themeManager.getDarkTheme(currentFont);
 
       return ErrorHandler.withErrorBoundary(
         GetMaterialApp(
@@ -169,7 +168,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           supportedLocales: languageController.supportedLocales,
           themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
           theme: theme,
-          darkTheme: theme,
+          darkTheme: darkTheme,
           builder: (context, child) => ResponsiveShell(child: child!),
           initialRoute: initialRoute,
           routingCallback: _handleRoutingCallback,

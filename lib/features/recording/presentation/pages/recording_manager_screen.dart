@@ -10,7 +10,7 @@ import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/core/security/security_service.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'standalone_recording_screen.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingManagerScreen extends StatefulWidget {
   const RecordingManagerScreen({super.key});
@@ -192,10 +192,10 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
           // Search bar
           Padding(
             padding: const EdgeInsets.fromLTRB(
-              AppDimensions.md,
-              AppDimensions.md,
-              AppDimensions.md,
-              8,
+              AppScale.gutter,
+              AppScale.gutter,
+              AppScale.gutter,
+              AppScale.space8,
             ),
             child: AppSearchField(
               controller: _searchController,
@@ -216,31 +216,31 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
 
           // Filter chips
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+            padding: const EdgeInsets.symmetric(horizontal: AppScale.gutter),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
                   _buildFilterChip(context, 'Tous', 'all'),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   _buildFilterChip(context, 'Personnels', 'personal'),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   _buildFilterChip(context, 'Publics', 'public'),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   _buildFilterChip(context, 'Envoyés', 'uploaded'),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   _buildFilterChip(context, 'Non envoyés', 'not_uploaded'),
                 ],
               ),
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: AppScale.space12),
 
           // Results count
           if (_searchQuery.value.isNotEmpty || _filterOption.value != 'all')
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+              padding: const EdgeInsets.symmetric(horizontal: AppScale.gutter),
               child: Obx(() {
                 final filteredRecordings = _getFilteredRecordings();
                 return Text(
@@ -252,7 +252,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
               }),
             ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: AppScale.space8),
 
           // Recordings list
           Expanded(
@@ -270,7 +270,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                         size: 80,
                         color: colors.error.withValues(alpha: 0.6),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppScale.space16),
                       Text(
                         'Accès restreint',
                         style:
@@ -280,7 +280,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                                   fontWeight: FontWeight.bold,
                                 ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppScale.space8),
                       Text(
                         "Votre compte n'a pas accès aux fonctions d'enregistrement.",
                         textAlign: TextAlign.center,
@@ -289,12 +289,13 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppScale.space16),
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppScale.space16),
                         decoration: BoxDecoration(
                           color: colors.errorContainer,
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusRow),
                         ),
                         child: Column(
                           children: [
@@ -303,7 +304,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
                               color: colors.onErrorContainer,
                               size: 24,
                             ),
-                            const SizedBox(height: 8),
+                            const SizedBox(height: AppScale.space8),
                             Text(
                               securityService.blockReason.isNotEmpty
                                   ? securityService.blockReason
@@ -350,8 +351,8 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
 
                 return ListView.builder(
                   key: const PageStorageKey('recordings_list'),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppDimensions.md),
+                  padding: const EdgeInsets.fromLTRB(
+                      AppScale.gutter, 0, AppScale.gutter, AppScale.space24),
                   itemCount: filteredRecordings.length,
                   itemBuilder: (context, index) {
                     final recording = filteredRecordings[index];
@@ -412,7 +413,7 @@ class _RecordingManagerScreenState extends State<RecordingManagerScreen> {
             color: Theme.of(context).colorScheme.outlineVariant,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           ),
         ));
   }

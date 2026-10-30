@@ -8,6 +8,7 @@ import 'package:fihirana/features/announcement/presentation/controllers/announce
 import 'package:fihirana/features/announcement/presentation/widgets/announcement_widgets.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/navigation/context_aware_fab.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   const AnnouncementScreen({super.key});
@@ -49,20 +50,20 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                       textInputAction: TextInputAction.next,
                       decoration: InputDecoration(labelText: l10n.title),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppScale.space16),
                     TextField(
                       controller: messageController,
                       minLines: 3,
                       maxLines: 5,
                       decoration: InputDecoration(labelText: l10n.message),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppScale.space16),
                     Material(
                       color:
                           colors.surfaceContainerHighest.withValues(alpha: .45),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppScale.radiusRow),
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                         onTap: () async {
                           final date = await showDatePicker(
                             context: dialogContext,
@@ -77,11 +78,11 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                           }
                         },
                         child: Padding(
-                          padding: const EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(AppScale.space16),
                           child: Row(
                             children: [
                               Icon(Icons.event_outlined, color: colors.primary),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: AppScale.space12),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,7 +93,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                                           .textTheme
                                           .labelMedium,
                                     ),
-                                    const SizedBox(height: 2),
+                                    const SizedBox(height: AppScale.space2),
                                     Text(
                                       expiresAt == null
                                           ? l10n.noDate
@@ -258,9 +259,11 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
             }
             return ListView.separated(
               key: const PageStorageKey('announcements_list'),
-              padding: const EdgeInsets.fromLTRB(20, 24, 20, 100),
+              padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                  AppScale.space24, AppScale.gutter, AppScale.space96),
               itemCount: announcements.length + 1,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, __) =>
+                  const SizedBox(height: AppScale.buttonGap),
               itemBuilder: (context, index) {
                 if (index == 0) {
                   return Text(

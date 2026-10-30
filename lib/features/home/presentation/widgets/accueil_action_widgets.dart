@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class UpdateButtonWidget extends StatelessWidget {
   final bool isDownloading;
@@ -29,7 +30,7 @@ class UpdateButtonWidget extends StatelessWidget {
       key: const ValueKey('update_button'),
       icon: isDownloading
           ? SizedBox(
-              width: 20,
+              width: AppScale.gutter,
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/shared/widgets/common/app_card.dart';
 
 class FavoriteHymnCard extends StatelessWidget {
@@ -46,7 +47,7 @@ class FavoriteHymnCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: AppScale.space8),
       child: AppCard(
         backgroundColor: pastelColor,
         borderRadius: AppDimensions.radiusXxl,
@@ -75,7 +76,7 @@ class FavoriteHymnCard extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(width: 16),
+            const SizedBox(width: AppScale.space16),
 
             // Title and Preview
             Expanded(
@@ -91,7 +92,7 @@ class FavoriteHymnCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppScale.space4),
                   if (hymn.verses.isNotEmpty)
                     Text(
                       hymn.verses[0],
@@ -121,7 +122,7 @@ class FavoriteHymnCard extends StatelessWidget {
                       },
                       icon: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
-                        padding: const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(AppScale.space8),
                         decoration: BoxDecoration(
                           color: isCurrentlyPlaying
                               ? primaryColor.withValues(alpha: 0.1)
@@ -139,9 +140,9 @@ class FavoriteHymnCard extends StatelessWidget {
                         ),
                       ),
                       style: IconButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(40, 40),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        padding: const EdgeInsets.all(AppScale.space8),
+                        minimumSize:
+                            const Size(AppScale.hitTarget, AppScale.hitTarget),
                       ),
                     );
                   }),

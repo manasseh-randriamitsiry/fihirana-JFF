@@ -14,6 +14,7 @@ import 'package:fihirana/features/admin/presentation/widgets/admin_hymn_widgets.
 import 'package:fihirana/features/admin/presentation/widgets/deleted_recordings_widget.dart';
 import 'package:fihirana/features/admin/presentation/controllers/admin_controller.dart';
 import 'package:fihirana/features/admin/di/admin_di.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AdminPanelScreen extends StatefulWidget {
   const AdminPanelScreen({super.key});
@@ -224,7 +225,8 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
 
         return ListView.builder(
           key: const PageStorageKey('admin_panel_hymns_list'),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space16, vertical: AppScale.space12),
           itemCount: hymns.length,
           itemBuilder: (context, index) {
             final hymn = hymns[index];

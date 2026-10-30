@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class GoogleUserInfoWidget extends StatelessWidget {
   final String userName;
@@ -17,11 +18,11 @@ class GoogleUserInfoWidget extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(AppScale.space16),
+      margin: const EdgeInsets.only(bottom: AppScale.gutter),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -33,7 +34,7 @@ class GoogleUserInfoWidget extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(AppScale.space12),
             decoration: BoxDecoration(
               color: Colors.green.shade100,
               shape: BoxShape.circle,
@@ -44,7 +45,7 @@ class GoogleUserInfoWidget extends StatelessWidget {
               size: 24,
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppScale.space16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +58,7 @@ class GoogleUserInfoWidget extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppScale.space2),
                 Text(
                   userName,
                   style: const TextStyle(

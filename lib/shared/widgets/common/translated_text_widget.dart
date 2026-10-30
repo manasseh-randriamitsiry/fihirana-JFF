@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fihirana/core/localization/translation_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class TranslatedTextWidget extends StatefulWidget {
   final String text;
@@ -110,7 +111,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    width: 16,
+                    width: AppScale.space16,
                     height: 16,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
@@ -121,7 +122,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   Expanded(
                     child: Text(
                       widget.text,
@@ -150,7 +151,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                     size: 16,
                     color: Theme.of(context).colorScheme.error,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   Expanded(
                     child: Text(
                       widget.text,
@@ -189,7 +190,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
               overflow: widget.overflow,
             ),
             if (isTranslated && widget.showTranslationIndicator) ...[
-              const SizedBox(height: 4),
+              const SizedBox(height: AppScale.space4),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -198,7 +199,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                     size: 12,
                     color: Theme.of(context).primaryColor,
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppScale.space4),
                   Text(
                     AppLocalizations.of(context).translated,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -206,7 +207,7 @@ class _TranslatedTextWidgetState extends State<TranslatedTextWidget> {
                           fontWeight: FontWeight.w500,
                         ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   GestureDetector(
                     onTap: () {
                       setState(() {

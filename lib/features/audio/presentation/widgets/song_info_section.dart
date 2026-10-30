@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 
 class SongInfoSection extends StatelessWidget {
   final String title;
@@ -16,11 +21,11 @@ class SongInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const primaryTextColor = Colors.white;
-    const secondaryTextColor = Colors.white70;
+    final l10n = AppLocalizations.of(context);
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
@@ -29,20 +34,18 @@ class SongInfoSection extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: primaryTextColor,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 1,
+                style: type.titleLarge?.copyWith(color: s.ink),
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppScale.space4),
               Text(
-                'Cantique $hymnNumber',
-                style: const TextStyle(
-                  color: secondaryTextColor,
-                  fontSize: 16,
+                hymnNumber,
+                style: AppTypography.figure(
+                  s,
+                  size: AppScale.figureSm,
+                  weight: FontWeight.w700,
+                  color: s.muted,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -50,17 +53,19 @@ class SongInfoSection extends StatelessWidget {
             ],
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white24, width: 1),
-          ),
-          child: IconButton(
-            icon: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: isFavorite ? Colors.red : Colors.white,
-            ),
-            onPressed: onToggleFavorite,
+        const SizedBox(width: AppScale.space12),
+        IconButton(
+          tooltip: l10n.favorites,
+          onPressed: onToggleFavorite == null
+              ? null
+              : () {
+                  HapticFeedback.lightImpact();
+                  onToggleFavorite!();
+                },
+          icon: Icon(
+            isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            size: AppScale.iconLg,
+            color: isFavorite ? s.accent : s.ink,
           ),
         ),
       ],

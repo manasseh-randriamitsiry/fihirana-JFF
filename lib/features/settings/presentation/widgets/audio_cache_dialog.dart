@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AudioCacheDialog extends StatelessWidget {
   const AudioCacheDialog({super.key});
@@ -29,7 +30,8 @@ class AudioCacheDialog extends StatelessWidget {
         constraints: const BoxConstraints(maxHeight: 300),
         decoration: BoxDecoration(
           color: colorController.backgroundColor.value,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppScale.radiusFloat)),
           border: Border(
             top: BorderSide(
               color: colorController.primaryColor.value,
@@ -52,28 +54,30 @@ class AudioCacheDialog extends StatelessWidget {
             // Drag handle
             Center(
               child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                margin: const EdgeInsets.only(
+                    top: AppScale.space12, bottom: AppScale.space8),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
                   color:
                       colorController.primaryColor.value.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(AppScale.radiusMark),
                 ),
               ),
             ),
             // Title
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                  AppScale.space8, AppScale.gutter, AppScale.space16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.storage,
-                    size: 28,
+                    size: AppScale.iconLg,
                     color: colorController.primaryColor.value,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(
                     l10n.audioCacheManagement,
                     style: TextStyle(
@@ -88,7 +92,8 @@ class AudioCacheDialog extends StatelessWidget {
             // Content
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppScale.gutter),
                 child: FutureBuilder<Map<String, dynamic>>(
                   future: audioService.getCacheStats(),
                   builder: (context, snapshot) {
@@ -111,7 +116,7 @@ class AudioCacheDialog extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppScale.space12),
                         Text(
                           l10n.withAudio(withAudio),
                           style: TextStyle(
@@ -120,7 +125,7 @@ class AudioCacheDialog extends StatelessWidget {
                             fontSize: 14,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppScale.space8),
                         Text(
                           l10n.withoutAudio(withoutAudio),
                           style: TextStyle(
@@ -137,8 +142,8 @@ class AudioCacheDialog extends StatelessWidget {
                               child: TextButton(
                                 onPressed: () => Navigator.pop(context),
                                 style: TextButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: AppScale.space12),
                                 ),
                                 child: Text(
                                   l10n.cancel,
@@ -149,7 +154,7 @@ class AudioCacheDialog extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppScale.space12),
                             Expanded(
                               child: TextButton(
                                 onPressed: () async {
@@ -164,8 +169,8 @@ class AudioCacheDialog extends StatelessWidget {
                                   }
                                 },
                                 style: TextButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: AppScale.space12),
                                 ),
                                 child: Text(
                                   l10n.clearExpired,
@@ -177,7 +182,7 @@ class AudioCacheDialog extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppScale.space12),
                             Expanded(
                               child: TextButton(
                                 onPressed: () async {
@@ -191,8 +196,8 @@ class AudioCacheDialog extends StatelessWidget {
                                   }
                                 },
                                 style: TextButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: AppScale.space12),
                                 ),
                                 child: Text(
                                   l10n.clearAll,
@@ -206,7 +211,12 @@ class AudioCacheDialog extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 20),
+                        // The sheet stops at the physical edge of the phone, so
+                        // its last control clears the home indicator.
+                        SizedBox(
+                          height: AppScale.gutter +
+                              MediaQuery.paddingOf(context).bottom,
+                        ),
                       ],
                     );
                   },

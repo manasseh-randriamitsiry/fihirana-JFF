@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
+import 'package:fihirana/core/design_system/components/app_sheet.dart';
 import 'package:fihirana/features/bible/domain/entities/note.dart';
-import 'package:fihirana/features/bible/data/services/note_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
 
+/// Writes or edits the reader's own note on a hymn. It comes up as a sheet of
+/// the same stock as the page underneath it.
 class NoteEditorWidget extends StatefulWidget {
   final Note? note;
   final String? userNoteContent;
@@ -41,200 +43,93 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
     super.dispose();
   }
 
+  bool get _hasSavedNote =>
+      widget.note != null || widget.userNoteContent != null;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colorController = Get.find<ColorController>();
-    final primaryColor = colorController.primaryColor.value;
-    final backgroundColor = colorController.backgroundColor.value;
-    final textColor = colorController.textColor.value;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
+    final colors = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        border: Border(
-          top: BorderSide(color: primaryColor, width: 2),
-          left: BorderSide(color: primaryColor, width: 2),
-          right: BorderSide(color: primaryColor, width: 2),
-        ),
+        color: s.sheet,
+        borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(AppScale.radiusSheet)),
+        border: Border.all(color: s.ruleFirm, width: AppScale.ruleHair),
       ),
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      clipBehavior: Clip.hardEdge,
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Drag handle
           Center(
-            child: Container(
-              margin: const EdgeInsets.only(top: 12, bottom: 8),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: primaryColor.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(2),
-              ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppScale.space12),
+              child: Container(
+                  width: 40, height: AppScale.ruleBar, color: s.ruleFirm),
             ),
           ),
-
-          // Title with icon
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    widget.note != null
-                        ? Icons.edit_note_rounded
-                        : Icons.note_add_rounded,
-                    size: 24,
-                    color: primaryColor,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  widget.note != null ? l10n.editNote : l10n.myPersonalNote,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-              ],
+            padding: const EdgeInsets.fromLTRB(
+                AppScale.gutter, 0, AppScale.gutter, AppScale.space12),
+            child: Text(
+              widget.note != null ? l10n.editNote : l10n.myPersonalNote,
+              style: type.headlineSmall?.copyWith(color: s.ink),
             ),
           ),
-
-          // Divider
-          Divider(
-            color: primaryColor.withValues(alpha: 0.2),
-            thickness: 1,
-            height: 1,
-          ),
-
-          // Content
+          const AppRule(),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppScale.gutter),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Instructions
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: primaryColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: primaryColor.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline_rounded,
-                        color: primaryColor,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          l10n.noteInstructions,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: textColor.withValues(alpha: 0.8),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                Text(
+                  l10n.noteInstructions,
+                  style: type.bodySmall?.copyWith(color: s.muted),
                 ),
-                const SizedBox(height: 20),
-
-                // Text field
+                const SizedBox(height: AppScale.space16),
                 TextField(
                   controller: _noteController,
                   maxLines: 6,
-                  decoration: InputDecoration(
-                    hintText: l10n.enterYourNote,
-                    hintStyle: TextStyle(
-                      color: textColor.withValues(alpha: 0.4),
-                    ),
-                    filled: true,
-                    fillColor: primaryColor.withValues(alpha: 0.05),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: primaryColor.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: primaryColor.withValues(alpha: 0.2),
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(
-                        color: primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.all(16),
-                  ),
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 15,
-                    height: 1.5,
-                  ),
+                  minLines: 3,
+                  decoration: InputDecoration(hintText: l10n.enterYourNote),
+                  style: type.bodyLarge?.copyWith(height: 1.5),
                 ),
-                const SizedBox(height: 24),
-
-                // Action buttons
+                const SizedBox(height: AppScale.space24),
                 Row(
                   children: [
-                    // Delete button
-                    if (widget.note != null || widget.userNoteContent != null)
+                    if (_hasSavedNote) ...[
                       Expanded(
-                        child: _buildActionButton(
-                          icon: Icons.delete_outline_rounded,
-                          label: l10n.delete,
-                          color: Colors.red,
-                          backgroundColor: Colors.red.withValues(alpha: 0.1),
-                          onPressed: () => _showDeleteConfirmation(
-                              context, l10n, colorController),
+                        child: TextButton.icon(
+                          onPressed: () =>
+                              _showDeleteConfirmation(context, l10n, colors, s),
+                          icon: const Icon(Icons.delete_rounded,
+                              size: AppScale.iconMd),
+                          label: Text(l10n.delete,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.w700)),
+                          style: TextButton.styleFrom(
+                              foregroundColor: colors.error),
                         ),
                       ),
-                    if (widget.note != null || widget.userNoteContent != null)
-                      const SizedBox(width: 12),
-
-                    // Cancel button
+                      const SizedBox(width: AppScale.space8),
+                    ],
                     Expanded(
-                      child: _buildActionButton(
-                        icon: Icons.close_rounded,
-                        label: l10n.cancel,
-                        color: textColor.withValues(alpha: 0.7),
-                        backgroundColor: textColor.withValues(alpha: 0.08),
+                      child: TextButton(
                         onPressed: () => Navigator.pop(context),
+                        child: Text(l10n.cancel,
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w700)),
                       ),
                     ),
-                    const SizedBox(width: 12),
-
-                    // Save button
+                    const SizedBox(width: AppScale.space8),
                     Expanded(
                       flex: 2,
-                      child: _buildActionButton(
-                        icon: Icons.check_rounded,
-                        label: l10n.save,
-                        color: backgroundColor,
-                        backgroundColor: primaryColor,
+                      child: FilledButton(
                         onPressed: () {
                           final content = _noteController.text.trim();
                           widget.onSave(content);
@@ -242,6 +137,7 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
                             Navigator.pop(context);
                           }
                         },
+                        child: Text(l10n.save),
                       ),
                     ),
                   ],
@@ -254,144 +150,24 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
     );
   }
 
-  Widget _buildActionButton({
-    required IconData icon,
-    required String label,
-    required Color color,
-    required Color backgroundColor,
-    required VoidCallback onPressed,
-  }) {
-    return Material(
-      color: backgroundColor,
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 20),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _showDeleteConfirmation(
-    BuildContext context,
-    AppLocalizations l10n,
-    ColorController colorController,
-  ) async {
+  Future<void> _showDeleteConfirmation(BuildContext context,
+      AppLocalizations l10n, ColorScheme colors, AppSurfaces s) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Container(
-          decoration: BoxDecoration(
-            color: colorController.backgroundColor.value,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.red.withValues(alpha: 0.5),
-              width: 2,
-            ),
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteNoteConfirm),
+        content: Text(l10n.deleteNoteMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.no),
           ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.red.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.red,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l10n.deleteNoteConfirm,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorController.textColor.value,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.deleteNoteMessage,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorController.textColor.value.withValues(alpha: 0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color: colorController.textColor.value
-                                .withValues(alpha: 0.2),
-                          ),
-                        ),
-                      ),
-                      child: Text(
-                        l10n.no,
-                        style: TextStyle(
-                          color: colorController.textColor.value,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        l10n.yes,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: colors.error),
+            child: Text(l10n.yes),
           ),
-        ),
+        ],
       ),
     );
 
@@ -404,86 +180,9 @@ class _NoteEditorWidgetState extends State<NoteEditorWidget> {
   }
 }
 
-class HymnTitleWidget extends StatelessWidget {
-  final String title;
-  final String hymnNumber;
-  final double fontSize;
-  final String hymnId;
-
-  const HymnTitleWidget({
-    super.key,
-    required this.title,
-    required this.hymnNumber,
-    required this.fontSize,
-    required this.hymnId,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
-    return Hero(
-      tag: 'hymn_title_$hymnId',
-      child: Material(
-        color: Colors.transparent,
-        child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: fontSize * 1.2,
-            fontWeight: FontWeight.bold,
-            color: colorController.textColor.value,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class HymnNumberWidget extends StatelessWidget {
-  final String hymnNumber;
-  final double fontSize;
-  final String hymnId;
-  final VoidCallback? onTap;
-
-  const HymnNumberWidget({
-    super.key,
-    required this.hymnNumber,
-    required this.fontSize,
-    required this.hymnId,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Hero(
-        tag: 'hymn_number_$hymnId',
-        child: Material(
-          color: Colors.transparent,
-          child: Text(
-            hymnNumber,
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: TextStyle(
-              color: colorController.iconColor.value,
-              fontWeight: FontWeight.bold,
-              fontSize: fontSize,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+/// The reader's note, kept on the page it belongs to. Collapsed it is one ruled
+/// line; open it is the note itself.
 class ImprovedNoteSectionWidget extends StatefulWidget {
-  final bool isUserAuthenticated;
-  final List<Note> publicNotes;
   final Note? userNote;
   final Function(Note) onNoteEdit;
   final Function() onAddNote;
@@ -491,9 +190,7 @@ class ImprovedNoteSectionWidget extends StatefulWidget {
 
   const ImprovedNoteSectionWidget({
     super.key,
-    required this.isUserAuthenticated,
-    required this.publicNotes,
-    this.userNote,
+    required this.userNote,
     required this.onNoteEdit,
     required this.onAddNote,
     required this.fontSize,
@@ -504,704 +201,132 @@ class ImprovedNoteSectionWidget extends StatefulWidget {
       _ImprovedNoteSectionWidgetState();
 }
 
-class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
+class _ImprovedNoteSectionWidgetState extends State<ImprovedNoteSectionWidget> {
   bool _isExpanded = false;
-  bool _showCommunityNotes = false;
-  final NoteService _noteService = NoteService();
-  final Map<String, bool> _editPermissionCache = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 600),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeOutCubic,
-    ));
-
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colorController = Get.find<ColorController>();
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
+    final note = widget.userNote;
 
-    if (!widget.isUserAuthenticated && widget.publicNotes.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final totalNotes =
-        (widget.userNote != null ? 1 : 0) + widget.publicNotes.length;
-
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, child) {
-        return FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: Container(
-              margin: const EdgeInsets.all(AppDimensions.md),
-              decoration: BoxDecoration(
-                color:
-                    colorController.primaryColor.value.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: _isExpanded
-                      ? colorController.primaryColor.value
-                          .withValues(alpha: 0.15)
-                      : Colors.transparent,
-                  width: 1.5,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Enhanced header section
-                  _buildHeader(colorController, l10n, totalNotes),
-
-                  // Notes content with animation
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    child: _isExpanded
-                        ? _buildNotesContent(colorController, l10n)
-                        : const SizedBox.shrink(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHeader(
-      ColorController colorController, AppLocalizations l10n, int totalNotes) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() => _isExpanded = !_isExpanded),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(AppDimensions.md),
-          decoration: const BoxDecoration(
+    return Container(
+      decoration: BoxDecoration(
+        color: s.sheet,
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
+        border: Border.all(color: s.rule, width: AppScale.ruleHair),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-          ),
-          child: Row(
-            children: [
-              // Animated icon
-              AnimatedRotation(
-                turns: _isExpanded ? 0.5 : 0,
-                duration: const Duration(milliseconds: 300),
-                child: Icon(
-                  Icons.note_alt_outlined,
-                  color:
-                      colorController.primaryColor.value.withValues(alpha: 0.5),
-                  size: widget.fontSize * 1.2,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: InkWell(
+              onTap: () => setState(() => _isExpanded = !_isExpanded),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppScale.space16, vertical: AppScale.space12),
+                child: Row(
                   children: [
-                    Text(
-                      l10n.notes,
-                      style: TextStyle(
-                        fontSize: widget.fontSize * 1.1,
-                        fontWeight: FontWeight.bold,
-                        color: colorController.textColor.value,
+                    Icon(Icons.note_rounded,
+                        color: s.ink2, size: AppScale.iconMd),
+                    const SizedBox(width: AppScale.space12),
+                    Expanded(
+                      child: Text(
+                        l10n.notes,
+                        style: type.bodyMedium?.copyWith(
+                            color: s.ink, fontWeight: FontWeight.w700),
                       ),
                     ),
-                    if (totalNotes > 0)
-                      Text(
-                        '$totalNotes ${totalNotes == 1 ? 'note' : 'notes'}',
-                        style: TextStyle(
-                          fontSize: widget.fontSize * 0.8,
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.6),
-                        ),
-                      ),
+                    if (note != null)
+                      Text(_formatDate(note.createdAt, l10n),
+                          style: type.bodySmall?.copyWith(color: s.muted)),
+                    Icon(
+                      _isExpanded
+                          ? Icons.expand_less_rounded
+                          : Icons.expand_more_rounded,
+                      color: s.muted,
+                      size: AppScale.iconLg,
+                    ),
                   ],
                 ),
               ),
-              // Add note button with animation
-              if (widget.isUserAuthenticated)
-                _buildAddNoteButton(colorController, l10n),
-              // Expand/collapse icon
-              AnimatedRotation(
-                turns: _isExpanded ? 0.5 : 0,
-                duration: const Duration(milliseconds: 300),
-                child: Icon(
-                  _isExpanded ? Icons.expand_less : Icons.expand_more,
-                  color: colorController.iconColor.value,
-                  size: widget.fontSize,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAddNoteButton(
-      ColorController colorController, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        decoration: BoxDecoration(
-          color: colorController.primaryColor.value,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () {
-              // Add haptic feedback
-              // HapticFeedback.lightImpact();
-              widget.onAddNote();
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(AppDimensions.sm),
-              child: Icon(
-                widget.userNote != null ? Icons.edit : Icons.add,
-                color: colorController.backgroundColor.value,
-                size: widget.fontSize * 0.9,
-              ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNotesContent(
-      ColorController colorController, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.all(AppDimensions.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // User note
-          if (widget.isUserAuthenticated && widget.userNote != null) ...[
-            _buildUserNote(context, widget.userNote!, colorController, l10n),
-            if (widget.publicNotes.isNotEmpty) const SizedBox(height: 16),
-          ],
-
-          // Public notes section with toggle
-          if (widget.publicNotes.isNotEmpty) ...[
-            _buildCommunityNotesHeader(colorController, l10n),
-            const SizedBox(height: 12),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              child: _showCommunityNotes
-                  ? ListView.separated(
-                      key: const PageStorageKey('community_notes_list'),
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: widget.publicNotes.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        final note = widget.publicNotes[index];
-                        return _buildPublicNote(
-                            context, note, colorController, l10n);
-                      },
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ],
-
-          // Empty state for authenticated users
-          if (widget.isUserAuthenticated &&
-              widget.userNote == null &&
-              widget.publicNotes.isEmpty)
-            _buildEmptyState(context, colorController, l10n),
+          AnimatedSize(
+            duration: AppScale.durShort,
+            curve: AppScale.easeOut,
+            alignment: Alignment.topCenter,
+            child: _isExpanded
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(AppScale.space16, 0,
+                        AppScale.space16, AppScale.space16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const AppRule(),
+                        const SizedBox(height: AppScale.space16),
+                        if (note == null) ...[
+                          Text(l10n.none,
+                              style: type.titleSmall?.copyWith(color: s.ink)),
+                          const SizedBox(height: AppScale.space4),
+                          Text(l10n.noteInstructions,
+                              style: type.bodySmall?.copyWith(color: s.muted)),
+                          const SizedBox(height: AppScale.space16),
+                          FilledButton.tonalIcon(
+                            onPressed: widget.onAddNote,
+                            icon: const Icon(Icons.add_rounded,
+                                size: AppScale.iconMd),
+                            label: Text(l10n.myPersonalNote),
+                          ),
+                        ] else ...[
+                          Text(
+                            note.content,
+                            style: type.bodyMedium?.copyWith(
+                                fontSize: widget.fontSize,
+                                height: AppTypography.lyricLead,
+                                color: s.ink),
+                          ),
+                          if (note.content.length > 140) ...[
+                            const SizedBox(height: AppScale.space8),
+                            Text(l10n.readMore,
+                                style:
+                                    type.bodySmall?.copyWith(color: s.muted)),
+                          ],
+                          const SizedBox(height: AppScale.space16),
+                          TextButton.icon(
+                            onPressed: () => widget.onNoteEdit(note),
+                            icon: const Icon(Icons.edit_rounded,
+                                size: AppScale.iconMd),
+                            label: Text(l10n.editNote,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w700)),
+                          ),
+                        ],
+                      ],
+                    ),
+                  )
+                : const SizedBox(width: double.infinity),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildCommunityNotesHeader(
-      ColorController colorController, AppLocalizations l10n) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => setState(() => _showCommunityNotes = !_showCommunityNotes),
-        borderRadius: BorderRadius.circular(8),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: AppDimensions.xs),
-          child: Row(
-            children: [
-              Icon(
-                Icons.public,
-                color: colorController.textColor.value.withValues(alpha: 0.7),
-                size: widget.fontSize * 0.9,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  'Notes de la communauté (${widget.publicNotes.length})',
-                  style: TextStyle(
-                    fontSize: widget.fontSize * 0.9,
-                    fontWeight: FontWeight.w600,
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.7),
-                  ),
-                ),
-              ),
-              AnimatedRotation(
-                turns: _showCommunityNotes ? 0.5 : 0,
-                duration: const Duration(milliseconds: 300),
-                child: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: colorController.textColor.value.withValues(alpha: 0.5),
-                  size: widget.fontSize * 0.8,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUserNote(
-    BuildContext context,
-    Note note,
-    ColorController colorController,
-    AppLocalizations l10n,
-  ) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => widget.onNoteEdit(note),
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(AppDimensions.md),
-          decoration: BoxDecoration(
-            color: colorController.primaryColor.value.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: colorController.primaryColor.value.withValues(alpha: 0.3),
-              width: 1.5,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: colorController.primaryColor.value,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      color: colorController.backgroundColor.value,
-                      size: widget.fontSize * 0.8,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          l10n.myPersonalNote,
-                          style: TextStyle(
-                            fontSize: widget.fontSize * 0.95,
-                            fontWeight: FontWeight.bold,
-                            color: colorController.primaryColor.value,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.schedule,
-                              size: widget.fontSize * 0.6,
-                              color: colorController.textColor.value
-                                  .withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatDate(note.createdAt),
-                              style: TextStyle(
-                                fontSize: widget.fontSize * 0.75,
-                                color: colorController.textColor.value
-                                    .withValues(alpha: 0.6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: colorController.backgroundColor.value,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: colorController.primaryColor.value
-                            .withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: IconButton(
-                      icon: Icon(
-                        Icons.edit,
-                        size: widget.fontSize * 0.8,
-                        color: colorController.primaryColor.value,
-                      ),
-                      onPressed: () => widget.onNoteEdit(note),
-                      tooltip: l10n.editNote,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                note.content,
-                style: TextStyle(
-                  fontSize: widget.fontSize * 0.9,
-                  color: colorController.textColor.value,
-                  height: 1.4,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (note.content.length > 100)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppDimensions.xs),
-                  child: Text(
-                    'Appuyez pour voir plus...',
-                    style: TextStyle(
-                      fontSize: widget.fontSize * 0.75,
-                      color: colorController.primaryColor.value,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Helper method to check if current user can edit a note
-  Future<bool> _canEditNote(Note note) async {
-    final cached = _editPermissionCache[note.id];
-    if (cached != null) return cached;
-
-    final canEdit = await _noteService.canEditNote(note);
-    _editPermissionCache[note.id] = canEdit;
-    return canEdit;
-  }
-
-  Widget _buildPublicNote(
-    BuildContext context,
-    Note note,
-    ColorController colorController,
-    AppLocalizations l10n,
-  ) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () async {
-          final canEdit = await _canEditNote(note);
-          if (canEdit) {
-            widget.onNoteEdit(note);
-          }
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(AppDimensions.md),
-          decoration: BoxDecoration(
-            color: colorController.backgroundColor.value,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: colorController.textColor.value.withValues(alpha: 0.15),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: widget.fontSize * 0.4,
-                    backgroundColor: colorController.primaryColor.value
-                        .withValues(alpha: 0.2),
-                    child: Text(
-                      note.userName.isNotEmpty
-                          ? note.userName[0].toUpperCase()
-                          : '?',
-                      style: TextStyle(
-                        fontSize: widget.fontSize * 0.5,
-                        fontWeight: FontWeight.bold,
-                        color: colorController.primaryColor.value,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          note.userName,
-                          style: TextStyle(
-                            fontSize: widget.fontSize * 0.9,
-                            fontWeight: FontWeight.w600,
-                            color: colorController.textColor.value,
-                          ),
-                        ),
-                        if (note.userEmail.isNotEmpty &&
-                            note.userEmail != note.userName)
-                          Text(
-                            note.userEmail,
-                            style: TextStyle(
-                              fontSize: widget.fontSize * 0.75,
-                              color: colorController.textColor.value
-                                  .withValues(alpha: 0.6),
-                            ),
-                          ),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.schedule,
-                              size: widget.fontSize * 0.6,
-                              color: colorController.textColor.value
-                                  .withValues(alpha: 0.5),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatDate(note.createdAt),
-                              style: TextStyle(
-                                fontSize: widget.fontSize * 0.75,
-                                color: colorController.textColor.value
-                                    .withValues(alpha: 0.6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  FutureBuilder<bool>(
-                    future: _canEditNote(note),
-                    builder: (context, snapshot) {
-                      final canEdit = snapshot.data ?? false;
-                      if (!canEdit) {
-                        return const SizedBox.shrink();
-                      }
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: colorController.textColor.value
-                              .withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: colorController.textColor.value
-                                .withValues(alpha: 0.2),
-                          ),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            size: widget.fontSize * 0.8,
-                            color: colorController.primaryColor.value,
-                          ),
-                          onPressed: () => widget.onNoteEdit(note),
-                          tooltip: l10n.editNote,
-                        ),
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                note.content,
-                style: TextStyle(
-                  fontSize: widget.fontSize * 0.9,
-                  color: colorController.textColor.value,
-                  height: 1.4,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (note.content.length > 80)
-                Padding(
-                  padding: const EdgeInsets.only(top: AppDimensions.xs),
-                  child: Text(
-                    'Appuyez pour lire la suite...',
-                    style: TextStyle(
-                      fontSize: widget.fontSize * 0.75,
-                      color: colorController.primaryColor.value,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(
-    BuildContext context,
-    ColorController colorController,
-    AppLocalizations l10n,
-  ) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: widget.onAddNote,
-        borderRadius: BorderRadius.circular(12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.all(AppDimensions.lg),
-          decoration: BoxDecoration(
-            color: colorController.backgroundColor.value,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: colorController.primaryColor.value.withValues(alpha: 0.2),
-              width: 2,
-              style: BorderStyle.solid,
-            ),
-          ),
-          child: Column(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color:
-                      colorController.primaryColor.value.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.note_add_outlined,
-                  size: widget.fontSize * 2,
-                  color: colorController.primaryColor.value,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Aucune note pour le moment',
-                style: TextStyle(
-                  fontSize: widget.fontSize,
-                  color: colorController.textColor.value.withValues(alpha: 0.8),
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Ajoutez votre première note pour commencer',
-                style: TextStyle(
-                  fontSize: widget.fontSize * 0.85,
-                  color: colorController.textColor.value.withValues(alpha: 0.6),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: colorController.primaryColor.value,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.add,
-                      color: colorController.backgroundColor.value,
-                      size: widget.fontSize * 0.8,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Ajouter une note',
-                      style: TextStyle(
-                        color: colorController.backgroundColor.value,
-                        fontSize: widget.fontSize * 0.85,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  String _formatDate(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
+  String _formatDate(DateTime dateTime, AppLocalizations l10n) {
+    final difference = DateTime.now().difference(dateTime);
 
     if (difference.inDays == 0) {
       if (difference.inHours == 0) {
-        if (difference.inMinutes == 0) {
-          return 'just now';
-        }
-        return '${difference.inMinutes}m ago';
+        if (difference.inMinutes == 0) return l10n.justNow;
+        return l10n.minutesAgo(difference.inMinutes);
       }
-      return '${difference.inHours}h ago';
-    } else if (difference.inDays == 1) {
-      return 'yesterday';
+      return l10n.hoursAgo(difference.inHours);
     } else if (difference.inDays < 7) {
-      return '${difference.inDays}d ago';
-    } else {
-      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+      return l10n.daysAgo(difference.inDays);
     }
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
   }
 }

@@ -1,62 +1,39 @@
 import 'package:flutter/material.dart';
 
-class AlbumArtCard extends StatelessWidget {
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
+
+/// The player has no artwork, so it shows the thing the app does have: the
+/// hymn's number, set as large as the space allows on a ruled, rounded plate.
+class HymnPlate extends StatelessWidget {
   final String hymnNumber;
 
-  const AlbumArtCard({
+  const HymnPlate({
     super.key,
     required this.hymnNumber,
   });
 
   @override
   Widget build(BuildContext context) {
-    const cardColor = Color(0xFFE0C09C); // Beige/Gold card color from image
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Container(
-        decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Placeholder for Hymn Image (or just the color/gradient)
-            Center(
-              child: Icon(
-                Icons.music_note,
-                size: 120,
-                color: Colors.brown.withValues(alpha: 0.3),
-              ),
-            ),
-            // Hymn Number Overlay
-            Positioned(
-              top: 20,
-              right: 20,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  '#$hymnNumber',
-                  style: TextStyle(
-                    color: Colors.brown.shade900,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ],
+    final AppSurfaces s = AppSurfaces.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: s.sheet,
+        borderRadius: BorderRadius.circular(AppScale.radiusSurface),
+        border: Border.all(color: s.ruleFirm, width: AppScale.ruleHair),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppScale.space40),
+        child: FittedBox(
+          fit: BoxFit.contain,
+          child: Text(
+            hymnNumber,
+            maxLines: 1,
+            softWrap: false,
+            style: AppTypography.figure(s,
+                size: AppTypography.displayL, weight: FontWeight.w700),
+          ),
         ),
       ),
     );

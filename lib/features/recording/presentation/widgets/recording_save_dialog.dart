@@ -5,6 +5,7 @@ import 'package:fihirana/features/recording/presentation/controllers/recording_c
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingSaveDialog extends StatefulWidget {
   final RecordingController controller;
@@ -58,7 +59,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                         .withValues(alpha: 0.8),
                   ],
                 ),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppScale.radiusSheet),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.3),
@@ -73,7 +74,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                   maxWidth: MediaQuery.of(context).size.width * 0.8,
                 ),
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(AppScale.space24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -83,7 +84,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                         height: 60,
                         decoration: BoxDecoration(
                           color: Colors.green.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(30),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusFloat),
                         ),
                         child: const Icon(
                           Icons.check_circle,
@@ -94,7 +96,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                           .animate()
                           .scale(duration: 400.ms, curve: Curves.elasticOut),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppScale.gutter),
 
                       const Text(
                         'Enregistrement terminé !',
@@ -105,7 +107,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                         ),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppScale.space24),
 
                       // Name input
                       TextField(
@@ -119,17 +121,20 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                           labelStyle: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8)),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusRow),
                             borderSide: BorderSide(
                                 color: Colors.white.withValues(alpha: 0.3)),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusRow),
                             borderSide: BorderSide(
                                 color: Colors.white.withValues(alpha: 0.3)),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(AppScale.radiusRow),
                             borderSide:
                                 const BorderSide(color: Colors.white, width: 2),
                           ),
@@ -138,13 +143,14 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: AppScale.gutter),
 
                       // Privacy toggle
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusRow),
                         ),
                         child: SwitchListTile(
                           title: Text(
@@ -177,13 +183,14 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                         ),
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppScale.space16),
 
                       // Upload to Drive checkbox
                       Obx(() => Container(
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                                  BorderRadius.circular(AppScale.radiusRow),
                             ),
                             child: CheckboxListTile(
                               title: const Text(
@@ -216,7 +223,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                             ),
                           )),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppScale.space24),
 
                       // Action buttons
                       Row(
@@ -225,8 +232,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                             child: OutlinedButton(
                               onPressed: widget.onDiscard,
                               style: OutlinedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: AppScale.space16),
                                 side: BorderSide(
                                     color: Colors.white.withValues(alpha: 0.5)),
                               ),
@@ -237,7 +244,7 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: AppScale.space16),
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
@@ -245,8 +252,8 @@ class _RecordingSaveDialogState extends State<RecordingSaveDialog> {
                                 widget.onSave(_uploadToDrive, _isPublic);
                               },
                               style: ElevatedButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: AppScale.space16),
                                 backgroundColor: Colors.white,
                                 foregroundColor:
                                     widget.colorController.primaryColor.value,

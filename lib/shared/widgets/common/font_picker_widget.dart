@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class FontPickerWidget extends StatelessWidget {
   final FontController _fontController = Get.find<FontController>();
@@ -30,7 +31,8 @@ class FontPickerWidget extends StatelessWidget {
         height: MediaQuery.of(context).size.height * 0.7,
         decoration: BoxDecoration(
           color: colorController.backgroundColor.value,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppScale.radiusFloat)),
           border: Border(
             top: BorderSide(
               color: colorController.primaryColor.value,
@@ -53,19 +55,21 @@ class FontPickerWidget extends StatelessWidget {
             // Drag handle
             Center(
               child: Container(
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                margin: const EdgeInsets.only(
+                    top: AppScale.space12, bottom: AppScale.space8),
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
                   color:
                       colorController.primaryColor.value.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
+                  borderRadius: BorderRadius.circular(AppScale.radiusMark),
                 ),
               ),
             ),
             // Title and Action Buttons
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+              padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                  AppScale.space8, AppScale.gutter, AppScale.space16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -76,7 +80,7 @@ class FontPickerWidget extends StatelessWidget {
                         size: 28,
                         color: colorController.primaryColor.value,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppScale.space12),
                       Text(
                         l10n.chooseFontStyle,
                         style: TextStyle(
@@ -115,7 +119,7 @@ class FontPickerWidget extends StatelessWidget {
                         ),
                         tooltip: 'Télécharger des polices sur Google Fonts',
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppScale.space8),
                       IconButton(
                         onPressed: () async {
                           await _fontController.importFont();
@@ -141,7 +145,11 @@ class FontPickerWidget extends StatelessWidget {
             Expanded(
               child: ListView.builder(
                 key: const PageStorageKey('fonts_list'),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.fromLTRB(
+                    AppScale.gutter,
+                    0,
+                    AppScale.gutter,
+                    AppScale.space16 + MediaQuery.paddingOf(context).bottom),
                 itemCount: _fontController.availableFonts.length,
                 itemBuilder: (context, index) {
                   final fontName = _fontController.availableFonts[index];
@@ -150,13 +158,13 @@ class FontPickerWidget extends StatelessWidget {
                         _fontController.currentFont.value == fontName;
                     return Container(
                       key: ValueKey(fontName),
-                      margin: const EdgeInsets.only(bottom: 12),
+                      margin: const EdgeInsets.only(bottom: AppScale.space12),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? colorController.primaryColor.value
                                 .withValues(alpha: 0.1)
                             : colorController.backgroundColor.value,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                         border: Border.all(
                           color: isSelected
                               ? colorController.primaryColor.value
@@ -177,12 +185,13 @@ class FontPickerWidget extends StatelessWidget {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusRow),
                           onTap: () {
                             _fontController.changeFont(fontName);
                           },
                           child: Padding(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.all(AppScale.space16),
                             child: Row(
                               children: [
                                 // Radio indicator
@@ -210,7 +219,7 @@ class FontPickerWidget extends StatelessWidget {
                                         )
                                       : null,
                                 ),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: AppScale.space16),
                                 // Font info
                                 Expanded(
                                   child: Column(
@@ -226,7 +235,7 @@ class FontPickerWidget extends StatelessWidget {
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
+                                      const SizedBox(height: AppScale.space4),
                                       Text(
                                         l10n.sampleText,
                                         style: _fontController.getFontStyle(

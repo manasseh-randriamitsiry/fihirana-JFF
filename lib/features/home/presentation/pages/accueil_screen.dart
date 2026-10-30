@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/utils/navigation_utility.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
@@ -20,6 +24,25 @@ import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/shared/widgets/common/simple_language_picker.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
+
+/// The rows whose audio badge is worth resolving: what is on screen, plus a
+/// screenful ahead so the badge is already there when the row scrolls in.
+/// Row heights vary with the title, so this is a prefetch window, not a layout.
+@visibleForTesting
+List<int> audioWindowIndices({
+  required double offset,
+  required double viewport,
+  required int itemCount,
+}) {
+  const double rowExtent = AppScale.listItemMin + AppScale.buttonGap;
+  final int first =
+      math.min(itemCount, math.max(0, (offset / rowExtent).floor()));
+  final int last = math.min(
+    itemCount,
+    math.max(first, ((offset + viewport * 2) / rowExtent).ceil()),
+  );
+  return [for (var i = first; i < last; i++) i];
+}
 
 class AccueilScreen extends StatefulWidget {
   final VoidCallback openDrawer;
@@ -42,6 +65,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
   final Set<String> _checkedHymnIds = <String>{};
   final RxMap<String, bool> _audioAvailability = <String, bool>{}.obs;
   Worker? _hymnListWorker;
+  Timer? _audioWindowTimer;
   bool _updateAvailable = false;
   bool _isDownloading = false;
 
@@ -51,9 +75,9 @@ class _AccueilScreenState extends State<AccueilScreen> {
     _hymnController = _getHymnController();
     _hymnListWorker = ever<List<Hymn>>(
       _hymnController.filteredHymns,
-      (hymns) => _checkAudioForHymns(hymns.take(16)),
+      (_) => _scheduleAudioWindowCheck(),
     );
-    _scrollController.addListener(_loadAudioNearViewport);
+    _scrollController.addListener(_scheduleAudioWindowCheck);
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) setState(() => _updateAvailable = true);
     });
@@ -73,16 +97,27 @@ class _AccueilScreenState extends State<AccueilScreen> {
     );
   }
 
-  void _loadAudioNearViewport() {
-    if (!_scrollController.hasClients ||
-        _scrollController.position.extentAfter > 840) {
+  /// A scroll fires dozens of times a second; only the position the list
+  /// settles on is worth a network round trip.
+  void _scheduleAudioWindowCheck() {
+    _audioWindowTimer?.cancel();
+    _audioWindowTimer = Timer(AppScale.durShort, _checkVisibleAudio);
+  }
+
+  void _checkVisibleAudio() {
+    final List<Hymn> hymns = _hymnController.filteredHymns;
+    if (hymns.isEmpty) return;
+    if (!_scrollController.hasClients) {
+      _checkAudioForHymns(hymns.take(16));
       return;
     }
-    final startIndex = (_scrollController.offset / 82)
-        .floor()
-        .clamp(0, _hymnController.filteredHymns.length);
-    _checkAudioForHymns(
-        _hymnController.filteredHymns.skip(startIndex).take(20));
+    final position = _scrollController.position;
+    final indices = audioWindowIndices(
+      offset: position.pixels,
+      viewport: position.viewportDimension,
+      itemCount: hymns.length,
+    );
+    _checkAudioForHymns(indices.map((index) => hymns[index]));
   }
 
   Future<void> _checkAudioForHymns(Iterable<Hymn> hymns) async {
@@ -133,6 +168,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
 
   @override
   void dispose() {
+    _audioWindowTimer?.cancel();
     _hymnListWorker?.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -140,7 +176,6 @@ class _AccueilScreenState extends State<AccueilScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return AppPageScaffold(
       title: context.translate((l) => l.appTitleShort),
       largeTitle: true,
@@ -181,7 +216,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
               child: Row(
                 children: [
                   const Icon(Icons.language_rounded),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(context.translate((l) => l.language)),
                 ],
               ),
@@ -191,7 +226,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
               child: Row(
                 children: [
                   const Icon(Icons.favorite_border_rounded),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Text(context.translate((l) => l.favorites)),
                 ],
               ),
@@ -202,13 +237,11 @@ class _AccueilScreenState extends State<AccueilScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+            padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space4,
+                AppScale.gutter, AppScale.space12),
             child: HymnSearchField(
               controller: _hymnController.searchController,
-              defaultTextStyle: Theme.of(context).textTheme.bodyLarge!,
-              textColor: colors.onSurface,
-              iconColor: colors.onSurfaceVariant,
-              backgroundColor: colors.surfaceContainerHighest,
+              onClear: _hymnController.searchController.clear,
               onChanged: () {},
             ),
           ),
@@ -222,7 +255,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
                 return AppEmptyState(
                   icon: Icons.music_off_rounded,
                   title: context.translate((l) => l.noHymnsFound),
-                  message: 'Try a hymn number, title, or lyric.',
+                  message: context.translate((l) => l.tryAdjustingSearchTerms),
                   action: TextButton(
                     onPressed: _hymnController.searchController.clear,
                     child: Text(context.translate((l) => l.clearSearch)),
@@ -232,18 +265,17 @@ class _AccueilScreenState extends State<AccueilScreen> {
               return ListView.separated(
                 key: const PageStorageKey('home_hymns_list'),
                 controller: _scrollController,
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                padding: const EdgeInsets.fromLTRB(
+                    AppScale.gutter, 0, AppScale.gutter, AppScale.space24),
                 itemCount: hymns.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppScale.buttonGap),
                 itemBuilder: (context, index) {
                   final hymn = hymns[index];
                   return Obx(
                     () => HymnListItem(
                       key: ValueKey(hymn.id),
                       hymn: hymn,
-                      textColor: colors.onSurface,
-                      backgroundColor: colors.surface,
-                      primaryColor: colors.primary,
                       isFavorite: _hymnController
                               .favoriteStatuses[hymn.id]?.isNotEmpty ??
                           false,

@@ -3,6 +3,7 @@ import 'package:fihirana/core/security/security_service.dart';
 
 import 'localization_extension.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BannedPage extends StatelessWidget {
   const BannedPage({super.key});
@@ -47,7 +48,7 @@ class BannedPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: AppScale.space40),
 
                   // Title
                   Builder(builder: (context) {
@@ -64,7 +65,7 @@ class BannedPage extends StatelessWidget {
                     );
                   }),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppScale.gutter),
 
                   // Message
                   Builder(builder: (context) {
@@ -86,10 +87,10 @@ class BannedPage extends StatelessWidget {
                   // Reason
                   if (securityService.blockReason.isNotEmpty)
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppScale.space16),
                       decoration: BoxDecoration(
                         color: Colors.red.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppScale.radiusRow),
                         border: Border.all(
                             color: Colors.red.withValues(alpha: 0.3)),
                       ),
@@ -105,7 +106,7 @@ class BannedPage extends StatelessWidget {
                               ),
                             );
                           }),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppScale.space8),
                           Text(
                             securityService.blockReason,
                             textAlign: TextAlign.center,
@@ -118,21 +119,21 @@ class BannedPage extends StatelessWidget {
                       ),
                     ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: AppScale.space40),
 
                   // Warning
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppScale.space16),
                     decoration: BoxDecoration(
                       color: Colors.orange.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppScale.radiusRow),
                       border: Border.all(
                           color: Colors.orange.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
                         Icon(Icons.warning, color: Colors.orange.shade300),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: AppScale.space12),
                         Expanded(
                           child: Builder(builder: (context) {
                             return Text(
@@ -151,7 +152,7 @@ class BannedPage extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(height: AppScale.space40),
 
                   // Contact Info
                   Text(

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
 
 class ProgressSlider extends StatefulWidget {
   final Duration? duration;
@@ -30,56 +33,44 @@ class _ProgressSliderState extends State<ProgressSlider> {
     return '$minutes:$seconds';
   }
 
+  double get _value {
+    if (widget.isDragging) return widget.dragValue;
+    final duration = widget.duration;
+    final position = widget.position;
+    if (duration == null || position == null || duration.inMilliseconds <= 0) {
+      return 0.0;
+    }
+    return (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
+  }
+
   @override
   Widget build(BuildContext context) {
-    const secondaryTextColor = Colors.white70;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final shown = widget.isDragging
+        ? Duration(
+            milliseconds:
+                (widget.dragValue * (widget.duration?.inMilliseconds ?? 0))
+                    .round())
+        : widget.position ?? Duration.zero;
 
     return Column(
       children: [
-        // Progress Slider
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: Colors.white,
-            inactiveTrackColor: Colors.white24,
-            thumbColor: Colors.white,
-            trackHeight: 2,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-          ),
-          child: Slider(
-            value: widget.isDragging
-                ? widget.dragValue
-                : (widget.duration != null &&
-                        widget.position != null &&
-                        widget.duration!.inMilliseconds > 0)
-                    ? (widget.position!.inMilliseconds.toDouble() /
-                            widget.duration!.inMilliseconds.toDouble())
-                        .clamp(0.0, 1.0)
-                    : 0.0,
-            onChanged: widget.onChanged,
-            onChangeEnd: widget.onChangeEnd,
-          ),
+        Slider(
+          value: _value,
+          onChanged: widget.onChanged,
+          onChangeEnd: widget.onChangeEnd,
         ),
-
-        // Time Indicators
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
+          padding: const EdgeInsets.symmetric(horizontal: AppScale.space8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                _formatDuration(widget.isDragging
-                    ? Duration(
-                        milliseconds: (widget.dragValue *
-                                (widget.duration?.inMilliseconds ?? 0))
-                            .round())
-                    : widget.position ?? Duration.zero),
-                style: const TextStyle(color: secondaryTextColor, fontSize: 12),
-              ),
-              Text(
-                _formatDuration(widget.duration ?? Duration.zero),
-                style: const TextStyle(color: secondaryTextColor, fontSize: 12),
-              ),
+              Text(_formatDuration(shown),
+                  style: AppTypography.figure(s,
+                      size: AppScale.figureSm, color: s.muted)),
+              Text(_formatDuration(widget.duration ?? Duration.zero),
+                  style: AppTypography.figure(s,
+                      size: AppScale.figureSm, color: s.muted)),
             ],
           ),
         ),

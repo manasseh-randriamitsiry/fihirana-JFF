@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class FormTextFieldWidget extends StatelessWidget {
   final TextEditingController controller;
@@ -29,7 +30,7 @@ class FormTextFieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return AppGroupedSurface(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppScale.space16),
       children: [
         TextFormField(
           controller: controller,
@@ -47,8 +48,8 @@ class FormTextFieldWidget extends StatelessWidget {
             focusedErrorBorder: UnderlineInputBorder(
               borderSide: BorderSide(color: colors.error, width: 2),
             ),
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: 0, vertical: AppScale.space16),
           ),
         ),
       ],
@@ -76,10 +77,11 @@ class VerseFieldWidget extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return AppGroupedSurface(
       key: ValueKey(index),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppScale.space12, vertical: AppScale.space4),
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: AppScale.space8),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -90,8 +92,8 @@ class VerseFieldWidget extends StatelessWidget {
                   decoration: InputDecoration(
                     labelText: l10n.verseWithNumber(index + 1),
                     border: InputBorder.none,
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppScale.space8, vertical: AppScale.space8),
                   ),
                   onChanged: (value) {
                     onChanged?.call();
@@ -104,7 +106,7 @@ class VerseFieldWidget extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppScale.space8),
               IconButton(
                 icon: Icon(Icons.delete_outline, color: colors.error, size: 22),
                 onPressed: onDelete,

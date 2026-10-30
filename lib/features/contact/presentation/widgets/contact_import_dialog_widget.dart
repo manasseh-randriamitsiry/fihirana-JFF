@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_contacts/flutter_contacts.dart' as flutter_contacts;
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class ContactImportDialogWidget extends StatefulWidget {
   final List<flutter_contacts.Contact> contacts;
@@ -52,11 +53,12 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      insetPadding: const EdgeInsets.symmetric(
+          horizontal: AppScale.space16, vertical: AppScale.space24),
       child: Container(
         decoration: BoxDecoration(
           color: widget.colorController.backgroundColor.value,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.3),
@@ -71,7 +73,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
             _buildHeader(),
             _buildSearchBar(),
             _buildContactList(),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppScale.space16),
           ],
         ),
       ),
@@ -80,12 +82,12 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
 
   Widget _buildHeader() {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppScale.gutter),
       decoration: BoxDecoration(
         color: widget.colorController.primaryColor.value.withValues(alpha: 0.1),
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(20),
-          topRight: Radius.circular(20),
+          topLeft: Radius.circular(AppScale.radiusSheet),
+          topRight: Radius.circular(AppScale.radiusSheet),
         ),
       ),
       child: Row(
@@ -95,7 +97,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
             color: widget.colorController.primaryColor.value,
             size: 28,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppScale.space12),
           Expanded(
             child: Text(
               'Sélectionner un contact',
@@ -120,11 +122,11 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppScale.space16),
       child: Container(
         decoration: BoxDecoration(
           color: widget.colorController.backgroundColor.value,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
           border: Border.all(
             color:
                 widget.colorController.textColor.value.withValues(alpha: 0.1),
@@ -164,12 +166,12 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
                   )
                 : null,
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppScale.radiusRow),
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 16,
+              horizontal: AppScale.space16,
+              vertical: AppScale.space16,
             ),
           ),
           style: TextStyle(
@@ -191,7 +193,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(40),
+        padding: const EdgeInsets.all(AppScale.space40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -201,7 +203,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
               color:
                   widget.colorController.textColor.value.withValues(alpha: 0.3),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppScale.space16),
             Text(
               'Aucun contact trouvé',
               style: TextStyle(
@@ -220,7 +222,8 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
     return ListView.builder(
       key: const PageStorageKey('import_contacts_list'),
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppScale.space16, vertical: AppScale.space8),
       itemCount: _filteredContacts.length,
       itemBuilder: (context, index) {
         final contact = _filteredContacts[index];
@@ -231,9 +234,9 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
         return Card(
           key: ValueKey(displayName + phoneNumber),
           elevation: 0,
-          margin: const EdgeInsets.only(bottom: 8),
+          margin: const EdgeInsets.only(bottom: AppScale.space8),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
             side: BorderSide(
               color:
                   widget.colorController.textColor.value.withValues(alpha: 0.1),
@@ -242,7 +245,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
           ),
           color: widget.colorController.backgroundColor.value,
           child: InkWell(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
             onTap: () {
               Navigator.pop(context);
               widget.onContactSelected({
@@ -251,7 +254,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
               });
             },
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(AppScale.space12),
               child: Row(
                 children: [
                   CircleAvatar(
@@ -269,7 +272,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppScale.space12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,7 +286,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
                           ),
                         ),
                         if (phoneNumber.isNotEmpty) ...[
-                          const SizedBox(height: 4),
+                          const SizedBox(height: AppScale.space4),
                           Row(
                             children: [
                               Icon(
@@ -292,7 +295,7 @@ class _ContactImportDialogWidgetState extends State<ContactImportDialogWidget> {
                                 color: widget.colorController.iconColor.value
                                     .withValues(alpha: 0.7),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: AppScale.space4),
                               Text(
                                 phoneNumber,
                                 style: TextStyle(

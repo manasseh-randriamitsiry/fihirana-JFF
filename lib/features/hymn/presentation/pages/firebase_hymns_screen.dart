@@ -7,6 +7,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_list_item.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class FirebaseHymnsScreen extends StatefulWidget {
   const FirebaseHymnsScreen({super.key});
@@ -21,7 +22,6 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
     return AppPageScaffold(
       title: l10n.additionalHymns,
       leading: IconButton(
@@ -60,17 +60,16 @@ class _FirebaseHymnsScreenState extends State<FirebaseHymnsScreen> {
                   favoriteSnapshot.data ?? const <String, String>{};
               return ListView.separated(
                 key: const PageStorageKey('firebase_hymns_list'),
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                    AppScale.space12, AppScale.gutter, AppScale.gutter),
                 itemCount: hymns.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) =>
+                    const SizedBox(height: AppScale.space8),
                 itemBuilder: (context, index) {
                   final hymn = hymns[index];
                   return HymnListItem(
                     key: ValueKey(hymn.id),
                     hymn: hymn,
-                    textColor: colors.onSurface,
-                    backgroundColor: colors.surface,
-                    primaryColor: colors.primary,
                     onFavoritePressed: () => _hymnService.toggleFavorite(hymn),
                     isFirebaseHymn: true,
                     isFavorite: favorites[hymn.id]?.isNotEmpty ?? false,

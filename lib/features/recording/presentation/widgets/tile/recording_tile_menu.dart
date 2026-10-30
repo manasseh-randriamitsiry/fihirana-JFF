@@ -6,6 +6,7 @@ import 'package:fihirana/features/recording/domain/entities/user_recording.dart'
 import 'package:fihirana/features/recording/presentation/controllers/recording_controller.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'recording_tile_dialogs.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class RecordingTileMenu extends StatelessWidget {
   final UserRecording recording;
@@ -61,7 +62,8 @@ class RecordingTileMenu extends StatelessWidget {
         color: colors.onSurface,
       ),
       color: colors.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppScale.radiusRow)),
       onSelected: (value) {
         if (kDebugMode) {
           print(
@@ -114,7 +116,7 @@ class RecordingTileMenu extends StatelessWidget {
         final items = <PopupMenuItem<String>>[
           PopupMenuItem(
             value: 'play',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -122,7 +124,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.onSurfaceVariant,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   'Lire',
                   style: TextStyle(color: colors.onSurface, fontSize: 13),
@@ -135,7 +137,7 @@ class RecordingTileMenu extends StatelessWidget {
         if (!isPublic) {
           items.add(PopupMenuItem(
             value: 'rename',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -143,7 +145,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.onSurfaceVariant,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   'Renommer',
                   style: TextStyle(color: colors.onSurface, fontSize: 13),
@@ -155,7 +157,7 @@ class RecordingTileMenu extends StatelessWidget {
 
         items.add(PopupMenuItem(
           value: 'share',
-          height: 40,
+          height: AppScale.hitTarget,
           child: Row(
             children: [
               Icon(
@@ -163,7 +165,7 @@ class RecordingTileMenu extends StatelessWidget {
                 color: colors.onSurfaceVariant,
                 size: 18,
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppScale.space12),
               Text(
                 'Partager',
                 style: TextStyle(color: colors.onSurface, fontSize: 13),
@@ -175,7 +177,7 @@ class RecordingTileMenu extends StatelessWidget {
         if (!isPublic && !recording.isPublic) {
           items.add(PopupMenuItem(
             value: 'public',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -183,7 +185,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.secondary,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   'Rendre public',
                   style: TextStyle(color: colors.onSurface, fontSize: 13),
@@ -196,7 +198,7 @@ class RecordingTileMenu extends StatelessWidget {
         if (isPublic && recording.driveFileId != null) {
           items.add(PopupMenuItem(
             value: 'download',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -204,7 +206,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.onSurfaceVariant,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   'Télécharger',
                   style: TextStyle(color: colors.onSurface, fontSize: 13),
@@ -217,7 +219,7 @@ class RecordingTileMenu extends StatelessWidget {
         if (!isPublic && recording.driveFileId != null) {
           items.add(PopupMenuItem(
             value: 'reupload',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -225,7 +227,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.primary,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   "Réparer l'envoi",
                   style: TextStyle(color: colors.onSurface, fontSize: 13),
@@ -238,7 +240,7 @@ class RecordingTileMenu extends StatelessWidget {
         if (!isPublic) {
           items.add(PopupMenuItem(
             value: 'export',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -246,7 +248,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.onSurfaceVariant,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   'Exporter vers...',
                   style: TextStyle(color: colors.onSurface, fontSize: 13),
@@ -262,7 +264,7 @@ class RecordingTileMenu extends StatelessWidget {
           }
           items.add(PopupMenuItem(
             value: 'delete',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -270,7 +272,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.error,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   isPublic ? 'Retirer de la liste publique' : 'Supprimer',
                   style: TextStyle(
@@ -290,7 +292,7 @@ class RecordingTileMenu extends StatelessWidget {
         if (RecordingTileDialogs.isAdmin(recording)) {
           items.add(PopupMenuItem(
             value: 'delete_permanently',
-            height: 40,
+            height: AppScale.hitTarget,
             child: Row(
               children: [
                 Icon(
@@ -298,7 +300,7 @@ class RecordingTileMenu extends StatelessWidget {
                   color: colors.error,
                   size: 18,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppScale.space12),
                 Text(
                   'Supprimer définitivement',
                   style: TextStyle(

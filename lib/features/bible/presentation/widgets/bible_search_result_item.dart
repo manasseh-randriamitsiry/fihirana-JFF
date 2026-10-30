@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSearchResultItem extends StatelessWidget {
   final BibleSearchResult result;
@@ -20,10 +21,10 @@ class BibleSearchResultItem extends StatelessWidget {
     final bibleController = Get.find<BibleController>();
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: AppScale.space12),
       decoration: BoxDecoration(
         color: colorController.primaryColor.value.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         border: Border.all(
           color: colorController.primaryColor.value.withValues(alpha: 0.1),
         ),
@@ -33,9 +34,9 @@ class BibleSearchResultItem extends StatelessWidget {
           Navigator.of(context).pop();
           bibleController.navigateToSearchResult(result);
         },
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppScale.space16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -48,7 +49,7 @@ class BibleSearchResultItem extends StatelessWidget {
                     color: colorController.primaryColor.value,
                     size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   Expanded(
                     child: Text(
                       result.displayText,
@@ -64,7 +65,7 @@ class BibleSearchResultItem extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppScale.space8),
               if (result.type == BibleSearchResultType.verse)
                 _buildHighlightedVerseText(bibleController, colorController)
               else

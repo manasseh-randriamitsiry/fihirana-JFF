@@ -5,6 +5,7 @@ import 'package:fihirana/features/bible/presentation/controllers/bible_highlight
 import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_highlight.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleHighlightsPage extends StatefulWidget {
   const BibleHighlightsPage({super.key});
@@ -76,7 +77,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
             size: 64,
             color: colorController.textColor.value.withValues(alpha: 0.3),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
           Text(
             l10n.noSavedVerses,
             style: TextStyle(
@@ -86,7 +87,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppScale.space8),
           Text(
             l10n.saveVersesByHighlighting,
             style: TextStyle(
@@ -113,7 +114,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppScale.space16),
       itemCount: groupedHighlights.length,
       itemBuilder: (context, index) {
         final bookName = groupedHighlights.keys.elementAt(index);
@@ -123,7 +124,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: AppScale.space12),
               child: Text(
                 bookName,
                 style: TextStyle(
@@ -137,7 +138,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
             ...bookHighlights
                 .map((highlight) => _buildHighlightItem(context, highlight)),
             if (index < groupedHighlights.length - 1)
-              const SizedBox(height: 16),
+              const SizedBox(height: AppScale.space16),
           ],
         );
       },
@@ -146,19 +147,19 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
 
   Widget _buildHighlightItem(BuildContext context, BibleHighlight highlight) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: AppScale.space8),
       decoration: BoxDecoration(
         color: colorController.primaryColor.value.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         border: Border.all(
           color: colorController.primaryColor.value.withValues(alpha: 0.1),
         ),
       ),
       child: InkWell(
         onTap: () => _navigateToHighlight(context, highlight),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppScale.radiusRow),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppScale.space16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -172,7 +173,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppScale.space8),
                   Expanded(
                     child: Text(
                       '${highlight.bookName} ${highlight.chapter}:${highlight.startVerse}${highlight.endVerse != highlight.startVerse ? '-$highlight.endVerse' : ''}',
@@ -195,7 +196,7 @@ class _BibleHighlightsPageState extends State<BibleHighlightsPage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppScale.space8),
               FutureBuilder<String>(
                 future: _getVerseText(highlight),
                 builder: (context, snapshot) {

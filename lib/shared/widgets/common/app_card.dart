@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 enum AppCardType {
   elevated,
@@ -37,7 +37,7 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final radius =
-        BorderRadius.circular(borderRadius ?? AppDimensions.radiusLg);
+        BorderRadius.circular(borderRadius ?? AppScale.radiusSurface);
     final surfaceColor = backgroundColor ??
         switch (type) {
           AppCardType.elevated => colors.surface,
@@ -51,7 +51,9 @@ class AppCard extends StatelessWidget {
             : BorderSide.none;
 
     return Padding(
-      padding: margin ?? const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      padding: margin ??
+          const EdgeInsets.symmetric(
+              vertical: AppScale.space4, horizontal: AppScale.space8),
       child: Material(
         color: surfaceColor,
         elevation: elevation ?? 0,
@@ -60,7 +62,7 @@ class AppCard extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: padding ?? const EdgeInsets.all(AppDimensions.md),
+            padding: padding ?? const EdgeInsets.all(AppScale.space16),
             child: child,
           ),
         ),

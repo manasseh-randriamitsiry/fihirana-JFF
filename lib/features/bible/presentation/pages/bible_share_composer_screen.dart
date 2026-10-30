@@ -16,6 +16,7 @@ import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/features/bible/presentation/models/bible_share_data.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleShareComposerScreen extends StatefulWidget {
   final BibleShareData data;
@@ -85,7 +86,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   // ─── Shared panel decoration ──────────────────────────────────────────────
   BoxDecoration get _panelDecoration => BoxDecoration(
         color: colorController.backgroundColor.value.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
         border: Border.all(
           color: colorController.primaryColor.value.withValues(alpha: 0.10),
         ),
@@ -123,28 +124,29 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                 _buildHeader(context, l10n),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
+                    padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                        AppScale.space12, AppScale.gutter, AppScale.gutter),
                     children: [
                       // ── Preview ──────────────────────────────────────────
                       RepaintBoundary(
                         key: _previewKey,
                         child: _buildPreviewCard(),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppScale.space24),
 
                       // ── Background picker ─────────────────────────────────
                       _buildSectionLabel(
                         l10n.background,
                         Icons.wallpaper_rounded,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: AppScale.space12),
                       SizedBox(
                         height: 116,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: _backgrounds.length + 1,
                           separatorBuilder: (_, __) =>
-                              const SizedBox(width: 10),
+                              const SizedBox(width: AppScale.space12),
                           itemBuilder: (context, index) {
                             if (index == 0) return _buildCustomImageCard();
                             final preset = _backgrounds[index - 1];
@@ -154,14 +156,14 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppScale.space24),
 
                       // ── Style panel (all controls unified) ───────────────
                       _buildSectionLabel(
                         'Style',
                         Icons.tune_rounded,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: AppScale.space12),
                       _buildStylePanel(context, l10n),
                     ],
                   ),
@@ -178,14 +180,15 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   // ─── Header ────────────────────────────────────────────────────────────────
   Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.space16, AppScale.space4, AppScale.space16, 0),
       child: Row(
         children: [
           _buildIconButton(
             icon: Icons.close_rounded,
             onTap: () => Navigator.of(context).pop(),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppScale.space12),
           Expanded(
             child: Text(
               l10n.verseStudio,
@@ -200,10 +203,11 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           // Reference pill — the ONE place we show it in the header
           Container(
             constraints: const BoxConstraints(maxWidth: 160),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppScale.space12, vertical: AppScale.space8),
             decoration: BoxDecoration(
               color: colorController.primaryColor.value.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppScale.radiusSheet),
               border: Border.all(
                 color:
                     colorController.primaryColor.value.withValues(alpha: 0.18),
@@ -295,7 +299,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.18),
@@ -305,7 +309,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
         child: Stack(
           children: [
             Positioned.fill(
@@ -359,15 +363,16 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppScale.space12),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
+                          horizontal: AppScale.space12,
+                          vertical: AppScale.space8,
                         ),
                         decoration: BoxDecoration(
                           color: _panelColor,
-                          borderRadius: BorderRadius.circular(18),
+                          borderRadius:
+                              BorderRadius.circular(AppScale.radiusSurface),
                           border: Border.all(
                             color: _textColor.withValues(alpha: 0.12),
                           ),
@@ -385,13 +390,13 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 18),
+                  const SizedBox(height: AppScale.space16),
                   Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(18),
+                    padding: const EdgeInsets.all(AppScale.space16),
                     decoration: BoxDecoration(
                       color: _panelColor,
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(AppScale.radiusFloat),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.14),
                       ),
@@ -403,7 +408,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                           .toList(growable: false),
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: AppScale.space16),
                   Align(
                     alignment: Alignment.centerRight,
                     child: Text(
@@ -428,7 +433,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
 
   Widget _buildVerseLine(BibleShareVerseLine verse) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: AppScale.space16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -452,7 +457,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppScale.space12),
           Expanded(
             child: Text(
               verse.text,
@@ -481,7 +486,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         duration: AppDimensions.normal,
         width: 88,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           color: colorController.primaryColor.value.withValues(alpha: 0.08),
           boxShadow: [
             BoxShadow(
@@ -498,7 +503,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           ),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           child: Stack(
             children: [
               if (_customImagePath != null)
@@ -581,7 +586,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         duration: AppDimensions.normal,
         width: 88,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.06),
@@ -597,7 +602,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           ),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
           child: Stack(
             children: [
               Positioned.fill(
@@ -638,7 +643,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                       height: 3,
                       decoration: BoxDecoration(
                         color: preset.accent,
-                        borderRadius: BorderRadius.circular(999),
+                        borderRadius:
+                            BorderRadius.circular(AppScale.radiusPill),
                       ),
                     ),
                   ],
@@ -737,7 +743,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     required ValueChanged<double> onChanged,
   }) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 4),
+      padding: const EdgeInsets.fromLTRB(AppScale.space16, AppScale.space16,
+          AppScale.space16, AppScale.space4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -785,7 +792,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
 
   Widget _buildInlineColorRow(BuildContext context, AppLocalizations l10n) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
+      padding: const EdgeInsets.fromLTRB(AppScale.space16, AppScale.space16,
+          AppScale.space16, AppScale.space16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -804,7 +812,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppScale.space12),
           Wrap(
             spacing: 10,
             runSpacing: 10,
@@ -820,7 +828,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
 
   Widget _buildInlineFontRow() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(18, 14, 0, 14),
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.space16, AppScale.space16, 0, AppScale.space16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -841,14 +850,15 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppScale.space12),
           SizedBox(
             height: 44,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(right: 18),
+              padding: const EdgeInsets.only(right: AppScale.space16),
               itemCount: fontController.availableFonts.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              separatorBuilder: (_, __) =>
+                  const SizedBox(width: AppScale.space8),
               itemBuilder: (_, i) {
                 final font = fontController.availableFonts[i];
                 return _buildFontChip(font, font == _fontFamily);
@@ -866,12 +876,13 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
       onTap: () => setState(() => _fontFamily = font),
       child: AnimatedContainer(
         duration: AppDimensions.normal,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppScale.space16, vertical: AppScale.space12),
         decoration: BoxDecoration(
           color: isSelected
               ? colorController.primaryColor.value
               : colorController.primaryColor.value.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(999),
+          borderRadius: BorderRadius.circular(AppScale.radiusPill),
           border: Border.all(
             color: isSelected
                 ? colorController.primaryColor.value
@@ -959,7 +970,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         customBorder: const CircleBorder(),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(AppScale.space12),
           child: Icon(
             icon,
             color: colorController.textColor.value,
@@ -975,7 +986,8 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+        padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space8,
+            AppScale.gutter, AppScale.space16),
         child: Row(
           children: [
             Expanded(
@@ -989,21 +1001,22 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                     color: colorController.primaryColor.value
                         .withValues(alpha: 0.20),
                   ),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppScale.space24, vertical: AppScale.space12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(AppScale.radiusSurface),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppScale.space16),
             Expanded(
               flex: 2,
               child: FilledButton.icon(
                 onPressed: _isSharing ? null : _shareAsImage,
                 icon: _isSharing
                     ? const SizedBox(
-                        width: 18,
+                        width: AppScale.space16,
                         height: 18,
                         child: CircularProgressIndicator(
                           strokeWidth: 2.2,
@@ -1015,9 +1028,10 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                 style: FilledButton.styleFrom(
                   backgroundColor: colorController.primaryColor.value,
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppScale.space24, vertical: AppScale.space12),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(AppScale.radiusSurface),
                   ),
                 ),
               ),
@@ -1040,7 +1054,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
       snackPosition: SnackPosition.BOTTOM,
       backgroundColor: colorController.primaryColor.value,
       colorText: Colors.white,
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(AppScale.space16),
       borderRadius: 14,
     );
   }
@@ -1084,7 +1098,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
-          margin: const EdgeInsets.all(16),
+          margin: const EdgeInsets.all(AppScale.space16),
           borderRadius: 14,
         );
       }
@@ -1097,7 +1111,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: Colors.red,
           colorText: Colors.white,
-          margin: const EdgeInsets.all(16),
+          margin: const EdgeInsets.all(AppScale.space16),
           borderRadius: 14,
         );
       }
@@ -1113,19 +1127,19 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         var tempColor = _textColor;
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+          insetPadding: const EdgeInsets.symmetric(
+              horizontal: AppScale.gutter, vertical: AppScale.space40),
           child: Container(
             decoration: BoxDecoration(
               color: colorController.backgroundColor.value,
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(AppScale.radiusFloat),
               border: Border.all(
                 color:
                     colorController.primaryColor.value.withValues(alpha: 0.18),
               ),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppScale.gutter),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1138,7 +1152,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppScale.space16),
                   SingleChildScrollView(
                     child: MaterialPicker(
                       pickerColor: tempColor,
@@ -1146,7 +1160,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                       enableLabel: true,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppScale.space12),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(

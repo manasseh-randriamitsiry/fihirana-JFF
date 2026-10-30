@@ -9,6 +9,7 @@ import 'bible_search_input.dart';
 import 'bible_search_context_selector.dart';
 import 'bible_search_results.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSearchDialog extends StatefulWidget {
   const BibleSearchDialog({super.key});
@@ -66,11 +67,12 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+      insetPadding: const EdgeInsets.symmetric(
+          horizontal: AppScale.space16, vertical: AppScale.space40),
       child: Container(
         decoration: BoxDecoration(
           color: colorController.backgroundColor.value,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(AppScale.radiusFloat),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.1),

@@ -1,11 +1,15 @@
+import 'dart:math' as math;
+
 import 'package:get/get.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'drawer_widget.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_zoom_drawer/flutter_zoom_drawer.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
 
+/// The two shells: a zoom drawer on a phone, a pinned panel from 800px up.
 class ResponsiveShell extends StatefulWidget {
   final Widget child;
 
@@ -21,8 +25,8 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   @override
   Widget build(BuildContext context) {
     final shellController = Get.find<ShellController>();
-    final colorScheme = Theme.of(context).colorScheme;
-    final width = MediaQuery.of(context).size.width;
+    final AppSurfaces s = AppSurfaces.of(context);
+    final width = MediaQuery.sizeOf(context).width;
 
     if (width < 800) {
       // Phone Layout: Use ZoomDrawer globally. This branch does not depend on
@@ -36,11 +40,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
           if (navigator != null && navigator.canPop()) {
             navigator.pop();
           } else {
-            if (shellController.zoomDrawerController.isOpen?.call() ?? false) {
-              shellController.toggleDrawer();
-            } else {
-              shellController.toggleDrawer();
-            }
+            shellController.toggleDrawer();
           }
         },
         child: ZoomDrawer(
@@ -51,14 +51,14 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
             openDrawer: shellController.toggleDrawer,
           ),
           mainScreen: widget.child,
-          borderRadius: AppDimensions.radiusXxl,
+          borderRadius: AppScale.radiusSurface,
           showShadow: true,
           angle: -12.0,
-          menuBackgroundColor: colorScheme.surface,
-          slideWidth: width * 0.85,
+          menuBackgroundColor: s.paper,
+          slideWidth: math.min(width * 0.85, AppScale.drawerWidth + 40),
           mainScreenTapClose: true,
-          openCurve: Curves.fastOutSlowIn,
-          closeCurve: Curves.bounceIn,
+          openCurve: AppScale.easeOut,
+          closeCurve: AppScale.easeInOut,
         ),
       );
     }
@@ -67,18 +67,20 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
     return Obx(() {
       final shouldShowDrawer = shellController.isDrawerEnabled.value;
 
-      final mainContent = Scaffold(
-        backgroundColor: colorScheme.surface,
+      return Scaffold(
+        backgroundColor: s.paper,
         body: Row(
           children: [
             AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
+              duration: AppScale.durLong,
+              curve: AppScale.easeOut,
               child: SizedBox(
-                width: (shouldShowDrawer && _isDrawerOpen) ? 300 : 0,
+                width: (shouldShowDrawer && _isDrawerOpen)
+                    ? AppScale.drawerWidth
+                    : 0,
                 child: OverflowBox(
-                  minWidth: 300,
-                  maxWidth: 300,
+                  minWidth: AppScale.drawerWidth,
+                  maxWidth: AppScale.drawerWidth,
                   child: DrawerWidget(
                     key: const ValueKey('shell_drawer'),
                     openDrawer: () {},
@@ -89,13 +91,13 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
             Expanded(
               child: Stack(
                 children: [
-                  ClipRRect(
-                    child: widget.child,
-                  ),
+                  ClipRRect(child: widget.child),
                   if (shouldShowDrawer)
                     Positioned(
                       left: 0,
-                      top: 250,
+                      top: AppScale.space96 +
+                          AppScale.space40 +
+                          AppScale.space12,
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
@@ -104,23 +106,23 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
                         },
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 4, vertical: 12),
+                              horizontal: AppScale.space4,
+                              vertical: AppScale.space12),
                           decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest,
+                            color: s.sheet,
                             borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(12),
-                              bottomRight: Radius.circular(12),
+                              topRight: Radius.circular(AppScale.radiusRow),
+                              bottomRight: Radius.circular(AppScale.radiusRow),
                             ),
                             border: Border.all(
-                              color: colorScheme.outlineVariant,
-                            ),
+                                color: s.ruleFirm, width: AppScale.ruleHair),
                           ),
                           child: Icon(
                             _isDrawerOpen
                                 ? Icons.chevron_left_rounded
                                 : Icons.chevron_right_rounded,
-                            color: colorScheme.onSurfaceVariant,
-                            size: 24,
+                            color: s.ink,
+                            size: AppScale.iconLg,
                           ),
                         ),
                       ),
@@ -131,7 +133,6 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
           ],
         ),
       );
-      return mainContent;
     });
   }
 }

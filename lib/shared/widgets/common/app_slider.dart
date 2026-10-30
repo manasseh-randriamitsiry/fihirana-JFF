@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AppSlider extends StatefulWidget {
   final double value;
@@ -133,7 +134,8 @@ class _AppSliderState extends State<AppSlider>
                                   ),
                                 if (widget.subtitle != null)
                                   Padding(
-                                    padding: const EdgeInsets.only(top: 2),
+                                    padding: const EdgeInsets.only(
+                                        top: AppScale.space2),
                                     child: Text(
                                       widget.subtitle!,
                                       style: TextStyle(

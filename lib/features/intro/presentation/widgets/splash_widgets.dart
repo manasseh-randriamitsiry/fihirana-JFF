@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class SplashCardWidget extends StatelessWidget {
   final Widget child;
@@ -18,11 +19,11 @@ class SplashCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorController = Get.find<ColorController>();
     return Container(
-      padding: padding ?? const EdgeInsets.all(24),
+      padding: padding ?? const EdgeInsets.all(AppScale.space24),
       decoration: BoxDecoration(
         color: color ??
             colorController.backgroundColor.value.withValues(alpha: 0.95),
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -76,10 +77,10 @@ class FeatureItemWidget extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(AppScale.space12),
           decoration: BoxDecoration(
             color: colorController.primaryColor.value.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppScale.radiusRow),
           ),
           child: Icon(
             icon,
@@ -87,7 +88,7 @@ class FeatureItemWidget extends StatelessWidget {
             size: 24,
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: AppScale.space16),
         Expanded(
           child: Text(
             text,
@@ -120,13 +121,13 @@ class AgreementItemWidget extends StatelessWidget {
         Container(
           width: 8,
           height: 8,
-          margin: const EdgeInsets.only(top: 6),
+          margin: const EdgeInsets.only(top: AppScale.space8),
           decoration: BoxDecoration(
             color: colorController.primaryColor.value,
             shape: BoxShape.circle,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppScale.space12),
         Expanded(
           child: Text(
             text,

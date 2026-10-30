@@ -9,6 +9,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:fihirana/features/home/presentation/pages/home_screen.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -137,7 +138,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppScale.space40),
           child: Obx(() {
             final colorScheme = Theme.of(context).colorScheme;
             final primaryColor = colorScheme.primary;
@@ -153,13 +154,13 @@ class _LoadingScreenState extends State<LoadingScreen> {
                   size: 100,
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: AppScale.space40),
 
                 // Progress bar
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AppScale.radiusControl),
                   child: SizedBox(
-                    height: 8,
+                    height: AppScale.space8,
                     width: double.infinity,
                     child: LinearProgressIndicator(
                       value: _progress.value,
@@ -169,7 +170,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
                   ),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: AppScale.gutter),
 
                 // Percentage text
                 Text(
@@ -179,7 +180,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
                       ),
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: AppScale.space12),
 
                 // Current task text
                 Text(
@@ -190,7 +191,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
                       ),
                 ),
 
-                const SizedBox(height: 40),
+                const SizedBox(height: AppScale.space40),
 
                 Text(
                   'Jesosy famonjena Fahamarinantsika',

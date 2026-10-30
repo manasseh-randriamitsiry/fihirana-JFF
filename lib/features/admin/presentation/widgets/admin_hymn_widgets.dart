@@ -5,6 +5,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/constants/app_dimensions.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AdminHymnListItemWidget extends StatelessWidget {
   final Hymn hymn;
@@ -27,8 +28,8 @@ class AdminHymnListItemWidget extends StatelessWidget {
       child: AppGroupedSurface(
         children: [
           ListTile(
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppScale.space16, vertical: AppScale.space8),
             leading: Checkbox(
               value: isSelected,
               onChanged: onSelectionChanged,
@@ -40,7 +41,7 @@ class AdminHymnListItemWidget extends StatelessWidget {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 4),
+                const SizedBox(height: AppScale.space4),
                 Text(
                   '${l10n.createdBy}: ${hymn.createdBy}',
                   style: Theme.of(context).textTheme.bodySmall,
@@ -87,7 +88,7 @@ class AdminEmptyHymnsWidget extends StatelessWidget {
                   begin: const Offset(1, 1),
                   end: const Offset(1.1, 1.1),
                   curve: Curves.easeInOut),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppScale.space16),
           Text(
             l10n.noHymns,
             style: Theme.of(context).textTheme.bodyLarge,

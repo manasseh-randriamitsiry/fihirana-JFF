@@ -19,6 +19,7 @@ import 'package:fihirana/features/bible/presentation/widgets/bible_verse_selecti
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/shared/widgets/common/app_ui.dart';
 import 'package:fihirana/core/navigation/shell_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleReaderScreen extends StatefulWidget {
   const BibleReaderScreen({super.key});
@@ -123,7 +124,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             label:
                 hasSelectedBook ? 'Choisir un autre livre de la Bible' : null,
             child: InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppScale.radiusRow),
               onTap: hasSelectedBook
                   ? () {
                       HapticFeedback.lightImpact();
@@ -131,7 +132,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     }
                   : null,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppScale.space8, vertical: AppScale.space8),
                 child: Text(
                   _getAppBarTitle(context),
                   style: TextStyle(
@@ -205,7 +207,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
     return ListView.builder(
       key: const PageStorageKey('bible_books_list'),
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: AppScale.space24),
       itemCount: booksByTestament.length,
       itemBuilder: (context, index) {
         final testamentName = booksByTestament.keys.elementAt(index);
@@ -214,15 +216,20 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         return AppSection(
           key: ValueKey(testamentName),
           title: testamentName.toUpperCase(),
-          child: AppGroupedSurface(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               for (var bookIndex = 0; bookIndex < books.length; bookIndex++)
-                BibleBookItemWidget(
-                  bookName: books[bookIndex],
-                  chapterCount:
-                      bibleController.getChapterCountForBook(books[bookIndex]),
-                  onTap: () => bibleController.selectBook(books[bookIndex]),
-                  showDivider: bookIndex != books.length - 1,
+                Padding(
+                  padding: EdgeInsets.only(
+                      bottom:
+                          bookIndex == books.length - 1 ? 0 : AppScale.buttonGap),
+                  child: BibleBookItemWidget(
+                    bookName: books[bookIndex],
+                    chapterCount: bibleController
+                        .getChapterCountForBook(books[bookIndex]),
+                    onTap: () => bibleController.selectBook(books[bookIndex]),
+                  ),
                 ),
             ],
           ),
@@ -296,7 +303,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   itemScrollController: _verseScrollController,
                   minCacheExtent: 600,
                   padding: const EdgeInsets.fromLTRB(
-                      20, 20, 20, 100), // Add bottom padding for FAB
+                      AppScale.gutter,
+                      AppScale.gutter,
+                      AppScale.gutter,
+                      100), // Add bottom padding for FAB
                   itemCount:
                       verses.length + 1, // +1 for bottom spacing/navigation
                   itemBuilder: (context, index) {

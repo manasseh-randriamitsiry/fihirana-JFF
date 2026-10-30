@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
 
 class AudioCacheDialogWidget extends StatelessWidget {
   const AudioCacheDialogWidget({super.key});
@@ -15,7 +16,8 @@ class AudioCacheDialogWidget extends StatelessWidget {
 
     return AlertDialog(
       backgroundColor: colorController.backgroundColor.value,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppScale.radiusSurface)),
       title: Text(
         l10n.audioCacheManagement,
         style: TextStyle(
@@ -43,14 +45,14 @@ class AudioCacheDialogWidget extends StatelessWidget {
                 l10n.totalCachedHymns(totalHymns),
                 style: TextStyle(color: colorController.textColor.value),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppScale.space8),
               Text(
                 l10n.withAudio(withAudio),
                 style: TextStyle(
                     color:
                         colorController.textColor.value.withValues(alpha: 0.8)),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppScale.space4),
               Text(
                 l10n.withoutAudio(withoutAudio),
                 style: TextStyle(
