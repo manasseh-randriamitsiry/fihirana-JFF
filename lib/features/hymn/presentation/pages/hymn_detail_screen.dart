@@ -379,7 +379,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         leading: IconButton(
             onPressed: () {
               HapticFeedback.lightImpact();
-              Get.back();
+              Navigator.of(context).maybePop();
             },
             icon: const Icon(Icons.arrow_back_ios_rounded)),
         centerTitle: true,

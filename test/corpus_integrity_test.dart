@@ -14,7 +14,7 @@ void main() {
     final combined = readJson('assets/hymns_combined.json');
     final hymns = combined['hymns'] as List;
 
-    expect(hymns, hasLength(829));
+    expect(hymns, hasLength(828));
     expect(combined['total'], hymns.length,
         reason: 'the corpus header disagrees with the list it ships');
 
@@ -32,7 +32,8 @@ void main() {
       expect(verses, isA<Map<String, dynamic>>(),
           reason: 'hymn $number must key its verses by number');
       final keys = (verses as Map<String, dynamic>).keys.toList();
-      expect(keys, unorderedEquals([for (var i = 1; i <= keys.length; i++) '$i']),
+      expect(
+          keys, unorderedEquals([for (var i = 1; i <= keys.length; i++) '$i']),
           reason: 'hymn $number skips a verse number');
       for (final entry in verses.entries) {
         expect((entry.value as String).trim(), isNotEmpty,
@@ -63,19 +64,17 @@ void main() {
     }
 
     final manifest = readJson('assets/hymn_manifest.json');
-    expect(manifest, hasLength(829));
+    expect(manifest, hasLength(828));
 
     final broken = manifest.entries
         .where((entry) => !File(entry.value as String).existsSync())
         .map((entry) => entry.key)
         .toSet();
 
-    // Known and unfixed: 257 was renamed on disk without updating the manifest,
-    // and A-AMORONNY-MANDRAKIZAY has no file at all (its text only survives in
-    // hymns_combined.json). Neither grows.
+    // Known and unfixed: 257 was renamed on disk without updating the manifest.
     expect(
       broken,
-      {'257-AKAIKINAO-NY-VARAVARANA', 'A-AMORONNY-MANDRAKIZAY'},
+      {'257-AKAIKINAO-NY-VARAVARANA'},
       reason: 'new dangling manifest entries: $broken',
     );
   });
@@ -93,16 +92,19 @@ void main() {
 
       for (var c = 0; c < chapters.length; c++) {
         final chapter = chapters[c] as Map<String, dynamic>;
-        expect(chapter['chapter'], c + 1, reason: '${book['name']} chapter order');
+        expect(chapter['chapter'], c + 1,
+            reason: '${book['name']} chapter order');
         final rows = chapter['verses'] as List;
-        expect(rows, isNotEmpty, reason: '${book['name']} ${c + 1} has no verses');
+        expect(rows, isNotEmpty,
+            reason: '${book['name']} ${c + 1} has no verses');
 
         for (var v = 0; v < rows.length; v++) {
           final verse = rows[v] as Map<String, dynamic>;
           expect(verse['verse'], v + 1,
               reason: '${book['name']} ${c + 1} verse order');
           if ((verse['text'] as String? ?? '').trim().isEmpty) {
-            blank.add('${book['name']} ${chapter['chapter']}:${verse['verse']}');
+            blank
+                .add('${book['name']} ${chapter['chapter']}:${verse['verse']}');
           }
           verseCount++;
         }

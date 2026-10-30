@@ -41,6 +41,7 @@ class _AppBootstrapState extends State<AppBootstrap>
     super.initState();
     // Initialize ColorController early for loading screen colors
     Get.put(ColorController());
+    Get.put(ShellController());
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -92,10 +93,12 @@ class _AppBootstrapState extends State<AppBootstrap>
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Initialize Firebase Crashlytics
-      FlutterError.onError =
-          FirebaseCrashlytics.instance.recordFlutterFatalError;
-      FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+      if (!kIsWeb) {
+        FlutterError.onError =
+            FirebaseCrashlytics.instance.recordFlutterFatalError;
+        FirebaseCrashlytics.instance
+            .setCrashlyticsCollectionEnabled(!kDebugMode);
+      }
 
       setState(() {
         _progress = 0.2;
@@ -105,7 +108,6 @@ class _AppBootstrapState extends State<AppBootstrap>
 
       // Initialize critical services first as they're needed by other services
       Get.put(SecurityService());
-      Get.put(ShellController());
 
       setState(() {
         _progress = 0.3;
