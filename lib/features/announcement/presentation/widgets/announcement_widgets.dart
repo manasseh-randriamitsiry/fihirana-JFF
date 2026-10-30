@@ -12,16 +12,21 @@ class AnnouncementCardWidget extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
+  /// Pins "il y a N jours" to a fixed moment; the card reads the wall clock
+  /// when null, so only tests pass one.
+  final DateTime? now;
+
   const AnnouncementCardWidget({
     super.key,
     required this.announcement,
     required this.isAdmin,
     this.onEdit,
     this.onDelete,
+    this.now,
   });
 
   String _relativeTime(DateTime dateTime) {
-    final difference = DateTime.now().difference(dateTime);
+    final difference = (now ?? DateTime.now()).difference(dateTime);
     if (difference.inDays > 365) {
       final years = difference.inDays ~/ 365;
       return 'il y a $years an${years > 1 ? 's' : ''}';

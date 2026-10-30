@@ -54,9 +54,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
           borderRadius: AppScale.radiusSurface,
           showShadow: true,
           angle: -12.0,
-          // The drawer carries no stock of its own: it sits on the page behind
-          // it, and only its rows are drawn as surfaces.
-          menuBackgroundColor: Colors.transparent,
+          menuBackgroundColor: s.paper,
           slideWidth: math.min(width * 0.85, AppScale.drawerWidth + 40),
           mainScreenTapClose: true,
           openCurve: AppScale.easeOut,

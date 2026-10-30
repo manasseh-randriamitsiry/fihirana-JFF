@@ -388,10 +388,11 @@ void main() {
                       'Ny taratasy fanambaran’ny fihaonana dia azo jerena ao '
                       'amin’ny fandrindrana.',
                   createdAt: DateTime(2026, 10, 24, 9, 30),
-                  expiresAt: DateTime(2026, 11, 20),
+                  expiresAt: DateTime(2027, 11, 20),
                   createdBy: 'Fanjanahary R',
                   createdByEmail: 'fihirana@example.mg',
                 ),
+                now: DateTime(2026, 10, 29, 9, 30),
                 isAdmin: true,
               ),
               const SizedBox(height: AppScale.buttonGap),

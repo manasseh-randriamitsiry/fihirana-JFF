@@ -78,7 +78,6 @@ class AppSheet extends StatelessWidget {
       decoration: BoxDecoration(
         color: s.sheet,
         borderRadius: BorderRadius.circular(AppScale.radiusSurface),
-        border: Border.all(color: s.rule, width: AppScale.ruleHair),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -100,7 +99,7 @@ class AppSheet extends StatelessWidget {
                 ],
               ),
             ),
-            const AppRule(firm: true),
+            const AppRule(),
           ],
           Padding(padding: padding, child: child),
         ],
@@ -122,8 +121,8 @@ class AppGroupHead extends StatelessWidget {
     final AppSurfaces s = AppSurfaces.of(context);
     final TextTheme type = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space24,
-          AppScale.gutter, AppScale.space8),
+      padding: const EdgeInsets.fromLTRB(
+          AppScale.gutter, AppScale.space24, AppScale.gutter, AppScale.space8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -133,15 +132,13 @@ class AppGroupHead extends StatelessWidget {
             children: [
               Expanded(
                   child: Text(title,
-                      style: type.bodySmall?.copyWith(
-                          color: s.ink, fontWeight: FontWeight.w700))),
+                      style: type.labelLarge?.copyWith(
+                          color: s.muted, fontWeight: FontWeight.w600))),
               if (count != null)
                 Text('$count',
                     style: AppTypography.figure(s, size: AppScale.figureSm)),
             ],
           ),
-          const SizedBox(height: AppScale.space8),
-          const AppRule(firm: true),
         ],
       ),
     );

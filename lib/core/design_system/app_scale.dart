@@ -27,17 +27,17 @@ class AppScale {
   // Radii: one corner per nesting level, smallest sits inside the largest.
   // A control rounds first, the surface that collects controls rounds wider,
   // and a sheet that lifts off the edge is wider still.
-  static const double radiusControl = 10;
-  static const double radiusRow = 12;
-  static const double radiusSurface = 16;
-  static const double radiusSheet = 20;
+  static const double radiusControl = 14;
+  static const double radiusRow = 16;
+  static const double radiusSurface = 22;
+  static const double radiusSheet = 28;
 
   // A checkbox is too small for the control radius; it would read as a circle.
-  static const double radiusMark = 5;
+  static const double radiusMark = 6;
 
   // Floating touch chrome: a mini player or a grab tab that lifts off the edge
   // behaves like phone chrome, not like the printed sheet underneath it.
-  static const double radiusFloat = 22;
+  static const double radiusFloat = 28;
 
   // A pill is not a corner at all: it is the two ends of a capsule.
   static const double radiusPill = 999;

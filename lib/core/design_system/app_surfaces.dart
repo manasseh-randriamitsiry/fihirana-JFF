@@ -65,8 +65,8 @@ class AppSurfaces extends ThemeExtension<AppSurfaces> {
     final Color sheet = _shiftLightness(paper, dark ? 0.045 : -0.035);
     final Color ink2 = _mix(ink, paper, 0.12);
     final Color muted = _contrastPair(ink, paper, ink, 7);
-    final Color rule = _mix(paper, ink, dark ? 0.16 : 0.12);
-    final Color ruleFirm = _mix(paper, ink, 0.42);
+    final Color rule = _mix(paper, ink, dark ? 0.14 : 0.08);
+    final Color ruleFirm = _mix(paper, ink, dark ? 0.32 : 0.26);
     final Color accentSoft = _mix(paper, scheme.primary, dark ? 0.22 : 0.14);
 
     return AppSurfaces(

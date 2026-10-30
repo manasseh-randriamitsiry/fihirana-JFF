@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -22,6 +25,25 @@ import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/shared/widgets/common/simple_language_picker.dart';
 import 'package:fihirana/shared/widgets/common/skeleton_hymn_list.dart';
 
+/// The rows whose audio badge is worth resolving: what is on screen, plus a
+/// screenful ahead so the badge is already there when the row scrolls in.
+/// Row heights vary with the title, so this is a prefetch window, not a layout.
+@visibleForTesting
+List<int> audioWindowIndices({
+  required double offset,
+  required double viewport,
+  required int itemCount,
+}) {
+  const double rowExtent = AppScale.listItemMin + AppScale.buttonGap;
+  final int first =
+      math.min(itemCount, math.max(0, (offset / rowExtent).floor()));
+  final int last = math.min(
+    itemCount,
+    math.max(first, ((offset + viewport * 2) / rowExtent).ceil()),
+  );
+  return [for (var i = first; i < last; i++) i];
+}
+
 class AccueilScreen extends StatefulWidget {
   final VoidCallback openDrawer;
   final bool showMenuButton;
@@ -43,6 +65,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
   final Set<String> _checkedHymnIds = <String>{};
   final RxMap<String, bool> _audioAvailability = <String, bool>{}.obs;
   Worker? _hymnListWorker;
+  Timer? _audioWindowTimer;
   bool _updateAvailable = false;
   bool _isDownloading = false;
 
@@ -52,9 +75,9 @@ class _AccueilScreenState extends State<AccueilScreen> {
     _hymnController = _getHymnController();
     _hymnListWorker = ever<List<Hymn>>(
       _hymnController.filteredHymns,
-      (hymns) => _checkAudioForHymns(hymns.take(16)),
+      (_) => _scheduleAudioWindowCheck(),
     );
-    _scrollController.addListener(_loadAudioNearViewport);
+    _scrollController.addListener(_scheduleAudioWindowCheck);
     VersionCheckService.setOnUpdateAvailableCallback(() {
       if (mounted) setState(() => _updateAvailable = true);
     });
@@ -74,17 +97,27 @@ class _AccueilScreenState extends State<AccueilScreen> {
     );
   }
 
-  void _loadAudioNearViewport() {
-    if (!_scrollController.hasClients ||
-        _scrollController.position.extentAfter > 840) {
+  /// A scroll fires dozens of times a second; only the position the list
+  /// settles on is worth a network round trip.
+  void _scheduleAudioWindowCheck() {
+    _audioWindowTimer?.cancel();
+    _audioWindowTimer = Timer(AppScale.durShort, _checkVisibleAudio);
+  }
+
+  void _checkVisibleAudio() {
+    final List<Hymn> hymns = _hymnController.filteredHymns;
+    if (hymns.isEmpty) return;
+    if (!_scrollController.hasClients) {
+      _checkAudioForHymns(hymns.take(16));
       return;
     }
-    final startIndex =
-        (_scrollController.offset / (AppScale.listItemMin + AppScale.ruleHair))
-            .floor()
-            .clamp(0, _hymnController.filteredHymns.length);
-    _checkAudioForHymns(
-        _hymnController.filteredHymns.skip(startIndex).take(20));
+    final position = _scrollController.position;
+    final indices = audioWindowIndices(
+      offset: position.pixels,
+      viewport: position.viewportDimension,
+      itemCount: hymns.length,
+    );
+    _checkAudioForHymns(indices.map((index) => hymns[index]));
   }
 
   Future<void> _checkAudioForHymns(Iterable<Hymn> hymns) async {
@@ -135,6 +168,7 @@ class _AccueilScreenState extends State<AccueilScreen> {
 
   @override
   void dispose() {
+    _audioWindowTimer?.cancel();
     _hymnListWorker?.dispose();
     _scrollController.dispose();
     super.dispose();

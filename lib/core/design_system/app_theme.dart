@@ -85,15 +85,13 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
       indicatorColor: s.accentSoft,
       indicatorShape: const RoundedRectangleBorder(borderRadius: _control),
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-      labelTextStyle: WidgetStateProperty.resolveWith((states) => type
-          .labelMedium
-          ?.copyWith(
+      labelTextStyle: WidgetStateProperty.resolveWith((states) =>
+          type.labelMedium?.copyWith(
               fontWeight: states.contains(WidgetState.selected)
                   ? FontWeight.w700
                   : FontWeight.w400,
-              color: states.contains(WidgetState.selected)
-                  ? s.accent
-                  : s.muted)),
+              color:
+                  states.contains(WidgetState.selected) ? s.accent : s.muted)),
       iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
           size: AppScale.iconLg,
           color: states.contains(WidgetState.selected) ? s.accent : s.ink)),
@@ -116,12 +114,11 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
 
     // ---- Surfaces ---------------------------------------------------------
     cardTheme: CardThemeData(
-      color: s.paper,
+      color: s.paper2,
       elevation: 0,
       margin: EdgeInsets.zero,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-          borderRadius: _surface, side: BorderSide(color: s.rule)),
+      shape: const RoundedRectangleBorder(borderRadius: _surface),
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: s.paper,
@@ -131,8 +128,7 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
       contentTextStyle: type.bodyMedium,
       actionsPadding: const EdgeInsets.fromLTRB(
           AppScale.gutter, 0, AppScale.gutter, AppScale.space12),
-      shape: RoundedRectangleBorder(
-          side: BorderSide(color: s.ruleFirm), borderRadius: _surface),
+      shape: const RoundedRectangleBorder(borderRadius: _surface),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: s.paper,
@@ -149,7 +145,7 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
       textStyle: type.bodyMedium,
       menuPadding: const EdgeInsets.symmetric(vertical: AppScale.space8),
       shape: RoundedRectangleBorder(
-          side: BorderSide(color: s.ruleFirm), borderRadius: _surface),
+          side: BorderSide(color: s.rule), borderRadius: _surface),
     ),
     menuTheme: MenuThemeData(
       style: MenuStyle(
@@ -157,7 +153,7 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
         surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
         elevation: const WidgetStatePropertyAll(0),
         shape: WidgetStatePropertyAll(RoundedRectangleBorder(
-            side: BorderSide(color: s.ruleFirm), borderRadius: _surface)),
+            side: BorderSide(color: s.rule), borderRadius: _surface)),
       ),
     ),
     drawerTheme: DrawerThemeData(
@@ -176,8 +172,8 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
       shape: const RoundedRectangleBorder(borderRadius: _control),
     ),
     tooltipTheme: TooltipThemeData(
-      decoration: BoxDecoration(
-          color: s.paper3, border: Border.all(color: s.ruleFirm)),
+      decoration:
+          BoxDecoration(color: s.paper3, border: Border.all(color: s.rule)),
       padding: const EdgeInsets.symmetric(
           horizontal: AppScale.space8, vertical: AppScale.space4),
       textStyle: type.bodySmall?.copyWith(color: s.ink),
@@ -232,7 +228,7 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
             horizontal: AppScale.space24, vertical: AppScale.space12),
         alignment: Alignment.center,
         foregroundColor: s.ink,
-        side: BorderSide(color: s.ruleFirm),
+        side: BorderSide(color: s.rule),
         disabledForegroundColor: s.muted,
         elevation: 0,
         textStyle: type.labelLarge,
@@ -273,7 +269,7 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
     ),
     segmentedButtonTheme: SegmentedButtonThemeData(
       style: ButtonStyle(
-        side: WidgetStatePropertyAll(BorderSide(color: s.ruleFirm)),
+        side: WidgetStatePropertyAll(BorderSide(color: s.rule)),
         shape: const WidgetStatePropertyAll(
             RoundedRectangleBorder(borderRadius: _control)),
         textStyle: WidgetStatePropertyAll(type.labelMedium),
@@ -309,30 +305,30 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
           ?.copyWith(color: scheme.error, fontWeight: FontWeight.w700),
       prefixIconColor: s.muted,
       suffixIconColor: s.muted,
-      enabledBorder: fieldEdge(s.ruleFirm),
-      border: fieldEdge(s.ruleFirm),
+      enabledBorder: fieldEdge(s.rule),
+      border: fieldEdge(s.rule),
       focusedBorder: fieldEdge(s.focus),
       errorBorder: fieldEdge(scheme.error),
       focusedErrorBorder: fieldEdge(scheme.error),
       disabledBorder: fieldEdge(s.rule),
     ),
     switchTheme: SwitchThemeData(
-      thumbColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? s.accent : s.ink2),
-      trackColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? s.accentSoft : s.paper3),
-      trackOutlineColor: WidgetStatePropertyAll(s.ruleFirm),
+      thumbColor: WidgetStateProperty.resolveWith((states) =>
+          states.contains(WidgetState.selected) ? s.accent : s.ink2),
+      trackColor: WidgetStateProperty.resolveWith((states) =>
+          states.contains(WidgetState.selected) ? s.accentSoft : s.paper3),
+      trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
     ),
     checkboxTheme: CheckboxThemeData(
-      fillColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? s.accent : s.sheet),
+      fillColor: WidgetStateProperty.resolveWith((states) =>
+          states.contains(WidgetState.selected) ? s.accent : s.sheet),
       checkColor: WidgetStatePropertyAll(s.onAccent),
-      side: BorderSide(color: s.ruleFirm),
+      side: BorderSide(color: s.rule),
       shape: const RoundedRectangleBorder(borderRadius: _mark),
     ),
     radioTheme: RadioThemeData(
-      fillColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected) ? s.accent : s.muted),
+      fillColor: WidgetStateProperty.resolveWith((states) =>
+          states.contains(WidgetState.selected) ? s.accent : s.muted),
     ),
     sliderTheme: SliderThemeData(
       activeTrackColor: s.accent,
@@ -361,7 +357,7 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
     chipTheme: ChipThemeData(
       backgroundColor: s.paper2,
       selectedColor: s.accentSoft,
-      side: BorderSide(color: s.rule),
+      side: BorderSide.none,
       labelStyle: type.labelMedium?.copyWith(color: s.ink),
       shape: const RoundedRectangleBorder(borderRadius: _control),
       showCheckmark: false,
@@ -375,6 +371,5 @@ ThemeData buildFihiranaTheme(ColorScheme scheme, {String? bodyFamily}) {
       collapsedTextColor: s.ink,
       shape: const RoundedRectangleBorder(borderRadius: _row),
     ),
-
   );
 }

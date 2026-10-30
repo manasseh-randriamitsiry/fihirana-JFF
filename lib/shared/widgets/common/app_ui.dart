@@ -72,12 +72,11 @@ class AppSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: type.bodySmall
-                  ?.copyWith(color: s.ink, fontWeight: FontWeight.w700)),
-          const SizedBox(height: AppScale.space8),
-          const AppRule(firm: true),
-          // The rule heads the group; it is not the group's top border.
+          Text(
+            title,
+            style: type.labelLarge
+                ?.copyWith(color: s.muted, fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: AppScale.space12),
           child,
         ],
@@ -104,7 +103,6 @@ class AppGroupedSurface extends StatelessWidget {
       decoration: BoxDecoration(
         color: s.sheet,
         borderRadius: BorderRadius.circular(AppScale.radiusSurface),
-        border: Border.all(color: s.ruleFirm, width: AppScale.ruleHair),
       ),
       // Flush rows splash square; the group clips them to its own corner.
       clipBehavior: Clip.antiAlias,
@@ -147,7 +145,6 @@ class AppTapCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: s.paper2,
         borderRadius: corner,
-        border: Border.all(color: s.rule, width: AppScale.ruleHair),
       ),
       child: Semantics(
         button: enabled,
@@ -165,7 +162,8 @@ class AppTapCard extends StatelessWidget {
   }
 }
 
-class AppGroupDivider extends StatelessWidget {  const AppGroupDivider({super.key});
+class AppGroupDivider extends StatelessWidget {
+  const AppGroupDivider({super.key});
 
   @override
   Widget build(BuildContext context) {
