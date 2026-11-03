@@ -151,8 +151,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       await _googleSignIn.signOut();
       await firebase_auth.FirebaseAuth.instance.signOut();
-      await firebase_auth.FirebaseAuth.instance
-          .setPersistence(firebase_auth.Persistence.NONE);
+      if (kIsWeb) {
+        await firebase_auth.FirebaseAuth.instance
+            .setPersistence(firebase_auth.Persistence.NONE);
+      }
     } catch (e) {
       SnackbarUtility.showError(
         title: 'Erreur de déconnexion',

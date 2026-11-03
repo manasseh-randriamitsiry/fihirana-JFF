@@ -16,6 +16,7 @@ class AuthDI {
     // Service
     Get.lazyPut<FirebaseAuthService>(
       () => FirebaseAuthService(),
+      fenix: true,
     );
 
     // Repository
@@ -26,27 +27,33 @@ class AuthDI {
         Get.find(),
         Get.find(),
       ),
+      fenix: true,
     );
 
     // Use cases
     Get.lazyPut<SignInWithGoogleUseCase>(
       () => SignInWithGoogleUseCase(Get.find<AuthRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<SignUpUseCase>(
       () => SignUpUseCase(Get.find<AuthRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<SignInUseCase>(
       () => SignInUseCase(Get.find<AuthRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<SignOutUseCase>(
       () => SignOutUseCase(Get.find<AuthRepository>()),
+      fenix: true,
     );
 
     Get.lazyPut<EnsureUserDocumentExistsUseCase>(
       () => EnsureUserDocumentExistsUseCase(Get.find<AuthRepository>()),
+      fenix: true,
     );
 
     // Controller
@@ -57,6 +64,7 @@ class AuthDI {
         ensureUserDocumentExistsUseCase:
             Get.find<EnsureUserDocumentExistsUseCase>(),
       ),
+      fenix: true,
     );
   }
 }
