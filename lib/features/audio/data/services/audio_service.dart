@@ -68,6 +68,7 @@ class AudioService implements IAudioService {
         _isPlayingRx.value = false;
         // Keep _currentHymn and _currentRecording for potential replay
         // They will be cleared when playing something different
+        unawaited(continueAfterCurrent());
       }
 
       // More robust check: only clear if idle AND not playing AND we thought we were playing
@@ -104,6 +105,7 @@ class AudioService implements IAudioService {
   int _currentPlaylistIndex = -1;
   bool _isShuffled = false;
   bool _isRepeatEnabled = false;
+  bool _autoPlayNext = false;
 
   /// Hymns the user chose to play after the current one. Deliberately separate
   /// from `_playlist`, which is the list the player was opened from.
@@ -278,6 +280,26 @@ class AudioService implements IAudioService {
     }
   }
 
+  /// What starts when a track ends on its own. This is the player's job, not
+  /// whichever sheet happens to be open: the queue is read during a service,
+  /// when the player sheet has long been dismissed.
+  @override
+  Future<void> continueAfterCurrent() async {
+    if (!canContinue) return;
+
+    try {
+      await playNext();
+    } catch (e) {
+      if (kDebugMode) {
+        print('AudioService: Failed to continue playback: $e');
+      }
+    }
+  }
+
+  /// Whether a finished hymn has something to continue into: an explicit queue
+  /// always does, the list the player was opened from only when asked to.
+  bool get canContinue => hasCue || (_autoPlayNext && _playlist.isNotEmpty);
+
   @override
   Future<void> playPrevious() async {
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
@@ -345,6 +367,19 @@ class AudioService implements IAudioService {
   @override
   bool get isRepeatEnabled => _isRepeatEnabled;
 
+  /// Whether the list the player was opened from carries on by itself once a
+  /// hymn ends. The cue outranks it: an explicit queue always continues.
+  @override
+  bool get autoPlayNext => _autoPlayNext;
+  @override
+  void setAutoPlayNext(bool enabled) {
+    _autoPlayNext = enabled;
+
+    if (kDebugMode) {
+      print('AudioService: Auto play next ${enabled ? "enabled" : "disabled"}');
+    }
+  }
+
   @override
   Future<bool> checkAudioFileExists(String hymnId) async {
     // Playback starts from the downloaded file, so availability has to agree
@@ -363,8 +398,7 @@ class AudioService implements IAudioService {
     final localResults = <String, bool>{
       for (final id in hymnIds) id: _localAudioService.hasLocalAudio(id)
     };
-    final remoteNeeded =
-        hymnIds.where((id) => !localResults[id]!).toList();
+    final remoteNeeded = hymnIds.where((id) => !localResults[id]!).toList();
 
     // Use the new cache service for efficient batch checking
     final remote = await _cacheService.checkMultipleAudioExists(remoteNeeded);

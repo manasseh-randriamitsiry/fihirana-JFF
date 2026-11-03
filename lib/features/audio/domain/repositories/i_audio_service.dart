@@ -16,6 +16,12 @@ abstract class IAudioService {
   Future<void> shuffle();
   Future<void> setRepeat(bool enabled);
 
+  /// What starts when the current hymn ends on its own: the cued hymn, or the
+  /// next one in the list when auto play is on.
+  Future<void> continueAfterCurrent();
+  bool get autoPlayNext;
+  void setAutoPlayNext(bool enabled);
+
   // Playlist management
   void setPlaylist(List<Hymn> playlist, int initialIndex);
 

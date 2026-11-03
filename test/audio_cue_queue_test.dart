@@ -116,6 +116,31 @@ void main() {
     expect(service.cue, isEmpty);
   });
 
+  test('a finished hymn continues only into something it was given', () async {
+    final service = AudioService.instance;
+    await service.clearCue();
+    service.setAutoPlayNext(false);
+    service.currentPlayingHymnIdRx.value = '';
+
+    // Nothing queued and no list asked to carry on, so the handover leaves the
+    // player alone instead of starting a hymn nobody chose.
+    expect(service.canContinue, isFalse);
+    await service.continueAfterCurrent();
+    expect(service.currentPlayingHymnId, isEmpty);
+
+    await service.addToCue(_hymn('h13', '13'));
+    expect(service.canContinue, isTrue);
+    await service.clearCue();
+
+    // Auto play needs the list the player was opened from, not just the switch.
+    service.setAutoPlayNext(true);
+    expect(service.canContinue, isFalse);
+    service.setPlaylist([_hymn('h1', '1'), _hymn('h2', '2')], 0);
+    expect(service.canContinue, isTrue);
+
+    service.setAutoPlayNext(false);
+  });
+
   testWidgets('the queue sheet shows what is cued and lets it be dropped',
       (tester) async {
     final service = AudioService.instance;

@@ -68,7 +68,14 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    _currentDisplayedHymn = widget.hymn;
+    // This player is the window onto what the audio holds; the screen's hymn is
+    // only the starting point while nothing is loaded. A recording stays with
+    // the recording windows, as everywhere else in this widget.
+    final loaded = _audioService.currentHymn;
+    _currentDisplayedHymn =
+        loaded != null && !loaded.id.startsWith('recording_')
+            ? loaded
+            : widget.hymn;
     _initializePlayer();
   }
 
@@ -118,11 +125,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
           });
         }
 
-        if (state.processingState == ProcessingState.completed &&
-            (_audioService.hasCue ||
-                (widget.autoPlayNext && widget.playlist != null))) {
-          _playNext();
-        }
         if (state.processingState == ProcessingState.idle &&
             !currentHymn.id.startsWith('recording_') &&
             currentHymn.id == _currentDisplayedHymn?.id) {
