@@ -154,13 +154,18 @@ class _AppBootstrapState extends State<AppBootstrap>
       try {
         final isFirstRun = prefs.getBool('first_run') ?? true;
         if (isFirstRun) {
-          await FirebaseFirestore.instance
-              .collection('stats')
-              .doc('global')
-              .set({
-            'installations': FieldValue.increment(1),
-          }, SetOptions(merge: true));
-          await prefs.setBool('first_run', false);
+          // Fire and forget: a first-run counter is not worth holding the first
+          // frame behind a network round trip.
+          prefs.setBool('first_run', false);
+          unawaited(
+            FirebaseFirestore.instance.collection('stats').doc('global').set({
+              'installations': FieldValue.increment(1),
+            }, SetOptions(merge: true)).catchError((Object e) {
+              if (kDebugMode) {
+                print('Error tracking installation: $e');
+              }
+            }),
+          );
         }
       } catch (e) {
         if (kDebugMode) {
@@ -168,19 +173,12 @@ class _AppBootstrapState extends State<AppBootstrap>
         }
       }
 
-      // Step 5: Final security check (95% -> 100%)
-      // Allow security service to complete its checks
-      await Future.delayed(const Duration(milliseconds: 500));
-
       if (!mounted) return;
       setState(() {
         _progress = 1.0;
         _currentTask = 'Ready!';
         _animateProgress();
       });
-
-      // Small delay to show completion
-      await Future.delayed(const Duration(milliseconds: 300));
 
       if (mounted) {
         _launchApp(prefs);
