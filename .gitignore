@@ -45,3 +45,10 @@ app.*.map.json
 /android/app/release
 /android/app/google-services.json
 /android/app/src/google-services.json
+
+# Golden-test failure artifacts
+test/failures/
+
+# Agent tool state
+.hallmark/
+.opencode/
