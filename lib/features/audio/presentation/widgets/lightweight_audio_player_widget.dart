@@ -99,8 +99,8 @@ class _LightweightAudioPlayerWidgetState
 
         // Handle auto-play next when current track completes
         if (state.processingState == ProcessingState.completed &&
-            _autoPlayNext &&
-            widget.playlist != null) {
+            (_audioService.hasCue ||
+                (_autoPlayNext && widget.playlist != null))) {
           _updateCurrentPlaylistIndex();
           _playNext();
         }
@@ -182,6 +182,10 @@ class _LightweightAudioPlayerWidgetState
   }
 
   Future<void> _playNext() async {
+    if (_audioService.hasCue) {
+      await _audioService.playNext();
+      return;
+    }
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
 
     final nextIndex = (_currentPlaylistIndex + 1) % widget.playlist!.length;

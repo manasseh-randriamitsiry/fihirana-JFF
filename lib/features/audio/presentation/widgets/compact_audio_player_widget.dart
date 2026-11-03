@@ -130,8 +130,8 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
         }
 
         if (state.processingState == ProcessingState.completed &&
-            widget.autoPlayNext &&
-            widget.playlist != null) {
+            (_audioService.hasCue ||
+                (widget.autoPlayNext && widget.playlist != null))) {
           _playNext();
         }
       }
@@ -212,6 +212,10 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
   }
 
   Future<void> _playNext() async {
+    if (_audioService.hasCue) {
+      await _audioService.playNext();
+      return;
+    }
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
     final nextIndex = (_currentPlaylistIndex + 1) % widget.playlist!.length;
     final nextHymn = widget.playlist![nextIndex];

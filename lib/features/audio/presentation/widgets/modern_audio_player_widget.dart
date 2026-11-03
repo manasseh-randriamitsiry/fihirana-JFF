@@ -118,8 +118,8 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
         }
 
         if (state.processingState == ProcessingState.completed &&
-            widget.autoPlayNext &&
-            widget.playlist != null) {
+            (_audioService.hasCue ||
+                (widget.autoPlayNext && widget.playlist != null))) {
           _playNext();
         }
         if (state.processingState == ProcessingState.idle &&
