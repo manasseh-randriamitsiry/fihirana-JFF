@@ -236,14 +236,12 @@ class HymnService implements IHymnService {
   @override
   Future<void> refresh() async {
     // Refresh implemented by clearing cache and reloading
-    clearCache();
+    await clearCache();
     await initialize();
   }
 
   @override
-  void clearCache() {
-    _combinedHymnService.clearCache();
-  }
+  Future<void> clearCache() => _combinedHymnService.clearCache();
 
   @override
   Future<Map<String, dynamic>> exportData() async {

@@ -241,6 +241,11 @@ class AudioService implements IAudioService {
 
   @override
   Future<bool> checkAudioFileExists(String hymnId) async {
+    // Playback starts from the downloaded file, so availability has to agree
+    // with it: an offline hymn used to report "no audio" while still playing.
+    await _localAudioService.initialize();
+    if (_localAudioService.hasLocalAudio(hymnId)) return true;
+
     // Use the new cache service
     return await _cacheService.checkAudioExists(hymnId);
   }
@@ -248,8 +253,16 @@ class AudioService implements IAudioService {
   // Batch check for multiple hymns (much more efficient with cache)
   @override
   Future<Map<String, bool>> checkAudioFilesExist(List<String> hymnIds) async {
+    await _localAudioService.initialize();
+    final localResults = <String, bool>{
+      for (final id in hymnIds) id: _localAudioService.hasLocalAudio(id)
+    };
+    final remoteNeeded =
+        hymnIds.where((id) => !localResults[id]!).toList();
+
     // Use the new cache service for efficient batch checking
-    return await _cacheService.checkMultipleAudioExists(hymnIds);
+    final remote = await _cacheService.checkMultipleAudioExists(remoteNeeded);
+    return {...remote, ...localResults};
   }
 
   @override

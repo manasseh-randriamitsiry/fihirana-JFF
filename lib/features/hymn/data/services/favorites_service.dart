@@ -24,6 +24,7 @@ class FavoritesService {
 
   bool _isInitialized = false;
   StreamSubscription? _firestoreSubscription;
+  StreamSubscription<User?>? _authSubscription;
 
   static const String _localFavoritesKey = 'local_favorites';
 
@@ -45,10 +46,14 @@ class FavoritesService {
       await _loadLocalFavorites();
 
       // Listen to auth changes
-      auth.authStateChanges().listen((user) {
+      _authSubscription = auth.authStateChanges().listen((user) async {
         if (user != null) {
           _loadFirebaseFavorites();
         } else {
+          // Dropping the previous account's snapshot listener matters: it would
+          // keep merging its favorites into the next sign-in.
+          await _firestoreSubscription?.cancel();
+          _firestoreSubscription = null;
           _cachedFavorites.clear();
           _updateStreams();
         }
@@ -318,6 +323,7 @@ class FavoritesService {
 
   /// Dispose of the service
   void dispose() {
+    _authSubscription?.cancel();
     _firestoreSubscription?.cancel();
     _favoriteStatusController.close();
     _favoriteIdsController.close();

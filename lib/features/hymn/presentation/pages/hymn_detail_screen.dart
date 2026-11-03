@@ -561,13 +561,16 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                 await _noteService.deleteNote(note.id);
               } else if (_userNote != null) {
                 await _noteService.deleteNote(_userNote!.id);
+                if (!mounted) return;
                 setState(() {
                   _userNote = null;
                 });
               }
             } else {
-              final success =
-                  await _noteService.saveNote(widget.hymnId, content);
+              // Read and write must key off the hymn actually on screen: after
+              // swiping, _hymn is the visible one while widget.hymnId is stale.
+              final success = await _noteService
+                  .saveNote(_hymn?.id ?? widget.hymnId, content);
               if (success) {
                 await _loadUserNote();
               }
@@ -592,6 +595,7 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
                     await _noteService.deleteNote(note.id);
                   } else if (_userNote != null) {
                     await _noteService.deleteNote(_userNote!.id);
+                    if (!mounted) return;
                     setState(() {
                       _userNote = null;
                     });
