@@ -11,12 +11,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
-import 'package:fihirana/app/theme/color_controller.dart';
 import 'package:fihirana/app/theme/font_controller.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
+import 'package:fihirana/core/design_system/components/app_sheet.dart';
 import 'package:fihirana/features/bible/presentation/models/bible_share_data.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
-import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleShareComposerScreen extends StatefulWidget {
   final BibleShareData data;
@@ -34,7 +35,6 @@ class BibleShareComposerScreen extends StatefulWidget {
 class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   final GlobalKey _previewKey = GlobalKey();
 
-  final ColorController colorController = Get.find<ColorController>();
   final FontController fontController = Get.find<FontController>();
 
   late final List<BibleShareBackgroundPreset> _backgrounds =
@@ -43,7 +43,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   late String _selectedBackgroundId;
   late double _backgroundOpacity;
   late double _fontSize;
-  late Color _textColor;
+  Color? _textColor;
   late String _fontFamily;
   String? _customImagePath;
   bool _isSharing = false;
@@ -56,10 +56,21 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     super.initState();
     _selectedBackgroundId = _backgrounds.first.id;
     _backgroundOpacity = 0.92;
-    _fontSize = 22;
-    _textColor = colorController.textColor.value;
+    _fontSize = AppTypography.lyric;
     _fontFamily = _resolveDefaultFont();
   }
+
+  /// A picked photo the decoder cannot read falls back to the same flat
+  /// placeholder an empty custom slot shows, so the strip never goes blank.
+  Widget _customImage(File file, Color fill, Color icon) => Image.file(
+        file,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => ColoredBox(
+          color: fill,
+          child: Icon(Icons.broken_image_outlined,
+              size: AppScale.iconLg, color: icon),
+        ),
+      );
 
   String _resolveDefaultFont() {
     final fonts = fontController.availableFonts;
@@ -68,8 +79,14 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     return fonts.first;
   }
 
-  bool get _textIsLight => _textColor.computeLuminance() > 0.5;
+  /// The ink the passage is set in. It starts on the theme's own ink, so the
+  /// plate matches whichever scheme the user picked in Settings.
+  Color get _ink => _textColor ?? AppSurfaces.of(context).ink;
 
+  bool get _textIsLight => _ink.computeLuminance() > 0.5;
+
+  /// The panel and the shadows are part of the exported picture, not of the
+  /// app's chrome: they are what keeps the words legible over any photo.
   Color get _panelColor => _textIsLight
       ? Colors.black.withValues(alpha: 0.24)
       : Colors.white.withValues(alpha: 0.52);
@@ -78,19 +95,10 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
         Shadow(
           color: (_textIsLight ? Colors.black : Colors.white)
               .withValues(alpha: 0.30),
-          blurRadius: 12,
-          offset: const Offset(0, 2),
+          blurRadius: AppScale.blurFloat,
+          offset: const Offset(0, AppScale.space4),
         ),
       ];
-
-  // ─── Shared panel decoration ──────────────────────────────────────────────
-  BoxDecoration get _panelDecoration => BoxDecoration(
-        color: colorController.backgroundColor.value.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
-        border: Border.all(
-          color: colorController.primaryColor.value.withValues(alpha: 0.10),
-        ),
-      );
 
   // ─── Build ────────────────────────────────────────────────────────────────
   @override
@@ -98,225 +106,132 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: colorController.backgroundColor.value,
-      body: Stack(
-        children: [
-          Positioned.fill(child: _buildBackdrop()),
-          Positioned(
-            top: -70,
-            right: -40,
-            child: _buildGlowBlob(
-              _selectedBackground.gradient.last.withValues(alpha: 0.28),
-              220,
-            ),
-          ),
-          Positioned(
-            bottom: 120,
-            left: -50,
-            child: _buildGlowBlob(
-              _selectedBackground.accent.withValues(alpha: 0.20),
-              180,
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(context, l10n),
-                Expanded(
+      backgroundColor: AppSurfaces.of(context).paper,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildHeader(context, l10n),
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                      maxWidth: AppScale.workMeasure),
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(AppScale.gutter,
-                        AppScale.space12, AppScale.gutter, AppScale.gutter),
+                    padding: const EdgeInsets.only(bottom: AppScale.space24),
                     children: [
-                      // ── Preview ──────────────────────────────────────────
-                      RepaintBoundary(
-                        key: _previewKey,
-                        child: _buildPreviewCard(),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                            AppScale.space16, AppScale.gutter, 0),
+                        child: RepaintBoundary(
+                          key: _previewKey,
+                          child: _buildPlate(context),
+                        ),
                       ),
-                      const SizedBox(height: AppScale.space24),
-
-                      // ── Background picker ─────────────────────────────────
-                      _buildSectionLabel(
-                        l10n.background,
-                        Icons.wallpaper_rounded,
-                      ),
-                      const SizedBox(height: AppScale.space12),
+                      AppGroupHead(title: l10n.background),
                       SizedBox(
-                        height: 116,
+                        height: AppScale.swatchTall + AppScale.space24,
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: AppScale.gutter),
                           itemCount: _backgrounds.length + 1,
                           separatorBuilder: (_, __) =>
                               const SizedBox(width: AppScale.space12),
                           itemBuilder: (context, index) {
-                            if (index == 0) return _buildCustomImageCard();
+                            if (index == 0) return _buildCustomTile(l10n);
                             final preset = _backgrounds[index - 1];
-                            final isSelected = _customImagePath == null &&
-                                preset.id == _selectedBackgroundId;
-                            return _buildBackgroundCard(preset, isSelected);
+                            return _StudioTile(
+                              label: preset.label,
+                              selected: _customImagePath == null &&
+                                  preset.id == _selectedBackgroundId,
+                              onTap: () => setState(() {
+                                _customImagePath = null;
+                                _selectedBackgroundId = preset.id;
+                              }),
+                              preview:
+                                  SvgPicture.asset(preset.assetPath,
+                                      fit: BoxFit.cover),
+                            );
                           },
                         ),
                       ),
-                      const SizedBox(height: AppScale.space24),
-
-                      // ── Style panel (all controls unified) ───────────────
-                      _buildSectionLabel(
-                        'Style',
-                        Icons.tune_rounded,
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                            AppScale.gutter, AppScale.space24, AppScale.gutter,
+                            0),
+                        child: _buildControlGroup(l10n),
                       ),
-                      const SizedBox(height: AppScale.space12),
-                      _buildStylePanel(context, l10n),
                     ],
                   ),
                 ),
-                _buildFooter(context, l10n),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Header ────────────────────────────────────────────────────────────────
-  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          AppScale.space16, AppScale.space4, AppScale.space16, 0),
-      child: Row(
-        children: [
-          _buildIconButton(
-            icon: Icons.close_rounded,
-            onTap: () => Navigator.of(context).pop(),
-          ),
-          const SizedBox(width: AppScale.space12),
-          Expanded(
-            child: Text(
-              l10n.verseStudio,
-              style: TextStyle(
-                color: colorController.textColor.value,
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.4,
               ),
             ),
-          ),
-          // Reference pill — the ONE place we show it in the header
-          Container(
-            constraints: const BoxConstraints(maxWidth: 160),
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppScale.space12, vertical: AppScale.space8),
-            decoration: BoxDecoration(
-              color: colorController.primaryColor.value.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(AppScale.radiusSheet),
-              border: Border.all(
-                color:
-                    colorController.primaryColor.value.withValues(alpha: 0.18),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  widget.data.reference,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: colorController.textColor.value,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(
-                  widget.data.verseCountLabel,
-                  style: TextStyle(
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.60),
-                    fontSize: 10,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ─── Section label helper ─────────────────────────────────────────────────
-  Widget _buildSectionLabel(String label, IconData icon) {
-    return Row(
-      children: [
-        Icon(icon, size: 15, color: colorController.primaryColor.value),
-        const SizedBox(width: 7),
-        Text(
-          label.toUpperCase(),
-          style: TextStyle(
-            color: colorController.primaryColor.value,
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.1,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ─── Backdrop / blobs ─────────────────────────────────────────────────────
-  Widget _buildBackdrop() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            colorController.backgroundColor.value,
-            _selectedBackground.gradient.first.withValues(alpha: 0.14),
-            _selectedBackground.gradient.last.withValues(alpha: 0.08),
+            _buildFooter(context, l10n),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildGlowBlob(Color color, double size) {
-    return IgnorePointer(
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: RadialGradient(
-            colors: [color, color.withValues(alpha: 0.0)],
+  // ─── Header ────────────────────────────────────────────────────────────────
+  Widget _buildHeader(BuildContext context, AppLocalizations l10n) {
+    final TextTheme type = Theme.of(context).textTheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+              AppScale.space8, AppScale.space8, AppScale.gutter,
+              AppScale.space12),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close_rounded),
+                tooltip: l10n.close,
+              ),
+              const SizedBox(width: AppScale.space4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.verseStudio, style: type.titleLarge),
+                    const SizedBox(height: AppScale.space2),
+                    Text(l10n.shapeThePassageBeforeYouShareIt,
+                        style: type.bodySmall),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-      ),
+        const AppRule(firm: true),
+      ],
     );
   }
 
-  // ─── Preview card ─────────────────────────────────────────────────────────
-  Widget _buildPreviewCard() {
+  // ─── The plate ─────────────────────────────────────────────────────────────
+  Widget _buildPlate(BuildContext context) {
+    final Color ink = _ink;
+    final AppSurfaces s = AppSurfaces.of(context);
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 14),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(AppScale.radiusSheet),
+        border: Border.all(color: ink.withValues(alpha: 0.18)),
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(AppScale.radiusFloat),
+        borderRadius: BorderRadius.circular(AppScale.radiusSheet),
         child: Stack(
           children: [
             Positioned.fill(
               child: Opacity(
                 opacity: _backgroundOpacity,
                 child: _customImagePath != null
-                    ? Image.file(File(_customImagePath!), fit: BoxFit.cover)
+                    ? _customImage(File(_customImagePath!), s.paper2, s.muted)
                     : SvgPicture.asset(
                         _selectedBackground.assetPath,
                         fit: BoxFit.cover,
@@ -338,57 +253,25 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(22),
+              padding: const EdgeInsets.all(AppScale.space24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.data.reference,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: fontController.getFontStyle(
-                            'Montserrat',
-                            TextStyle(
-                              color: _textColor,
-                              fontSize: 24,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.3,
-                              shadows: _textShadows,
-                            ),
-                          ),
-                        ),
+                  Text(
+                    widget.data.reference,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: fontController.getFontStyle(
+                      'Montserrat',
+                      TextStyle(
+                        color: ink,
+                        fontSize: AppTypography.headline,
+                        fontWeight: FontWeight.w700,
+                        height: 1.15,
+                        shadows: _textShadows,
                       ),
-                      const SizedBox(width: AppScale.space12),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppScale.space12,
-                          vertical: AppScale.space8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _panelColor,
-                          borderRadius:
-                              BorderRadius.circular(AppScale.radiusSurface),
-                          border: Border.all(
-                            color: _textColor.withValues(alpha: 0.12),
-                          ),
-                        ),
-                        child: Text(
-                          widget.data.verseCountLabel.toUpperCase(),
-                          style: TextStyle(
-                            color: _textColor,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                            shadows: _textShadows,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                   const SizedBox(height: AppScale.space16),
                   Container(
@@ -396,31 +279,41 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
                     padding: const EdgeInsets.all(AppScale.space16),
                     decoration: BoxDecoration(
                       color: _panelColor,
-                      borderRadius: BorderRadius.circular(AppScale.radiusFloat),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.14),
-                      ),
+                      borderRadius:
+                          BorderRadius.circular(AppScale.radiusRow),
+                      border: Border.all(color: ink.withValues(alpha: 0.12)),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: widget.data.verses
-                          .map((verse) => _buildVerseLine(verse))
+                          .map((verse) => _buildVerseLine(verse, ink, s))
                           .toList(growable: false),
                     ),
                   ),
                   const SizedBox(height: AppScale.space16),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      DateFormat('dd/MM/yyyy').format(DateTime.now()),
-                      style: TextStyle(
-                        color: _textColor.withValues(alpha: 0.82),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.6,
-                        shadows: _textShadows,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.data.verseCountLabel,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                  color: ink.withValues(alpha: 0.82),
+                                  shadows: _textShadows),
+                        ),
                       ),
-                    ),
+                      const SizedBox(width: AppScale.space12),
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(DateTime.now()),
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: ink.withValues(alpha: 0.82),
+                              shadows: _textShadows,
+                            ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -431,28 +324,28 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     );
   }
 
-  Widget _buildVerseLine(BibleShareVerseLine verse) {
+  Widget _buildVerseLine(BibleShareVerseLine verse, Color ink, AppSurfaces s) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppScale.space16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 30,
-            height: 30,
+            width: AppScale.controlDense,
+            height: AppScale.controlDense,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _textColor.withValues(alpha: 0.12),
-              border: Border.all(color: _textColor.withValues(alpha: 0.16)),
+              color: ink.withValues(alpha: 0.12),
+              border: Border.all(color: ink.withValues(alpha: 0.16)),
             ),
             child: Center(
               child: Text(
                 verse.number.toString(),
-                style: TextStyle(
-                  color: _textColor,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  shadows: _textShadows,
+                style: AppTypography.figure(
+                  s,
+                  size: AppScale.figureSm,
+                  weight: FontWeight.w700,
+                  color: ink,
                 ),
               ),
             ),
@@ -464,9 +357,9 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
               style: fontController.getFontStyle(
                 _fontFamily,
                 TextStyle(
-                  color: _textColor,
+                  color: ink,
                   fontSize: _fontSize,
-                  height: 1.55,
+                  height: AppTypography.lyricLead,
                   shadows: _textShadows,
                 ),
               ),
@@ -477,201 +370,21 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     );
   }
 
-  // ─── Background cards ─────────────────────────────────────────────────────
-  Widget _buildCustomImageCard() {
-    final isSelected = _customImagePath != null;
-    return GestureDetector(
+  // ─── Background strip ──────────────────────────────────────────────────────
+  Widget _buildCustomTile(AppLocalizations l10n) {
+    final AppSurfaces s = AppSurfaces.of(context);
+
+    return _StudioTile(
+      label: l10n.customImage,
+      selected: _customImagePath != null,
       onTap: _pickCustomImage,
-      child: AnimatedContainer(
-        duration: AppDimensions.normal,
-        width: 88,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
-          color: colorController.primaryColor.value.withValues(alpha: 0.08),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.06),
-              blurRadius: isSelected ? 18 : 8,
-              offset: const Offset(0, 6),
+      preview: _customImagePath != null
+          ? _customImage(File(_customImagePath!), s.paper2, s.muted)
+          : ColoredBox(
+              color: s.paper2,
+              child: Icon(Icons.add_photo_alternate_rounded,
+                  size: AppScale.iconLg, color: s.muted),
             ),
-          ],
-          border: Border.all(
-            color: isSelected
-                ? colorController.primaryColor.value
-                : colorController.primaryColor.value.withValues(alpha: 0.15),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
-          child: Stack(
-            children: [
-              if (_customImagePath != null)
-                Positioned.fill(
-                  child: Image.file(File(_customImagePath!), fit: BoxFit.cover),
-                )
-              else
-                Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.add_photo_alternate_rounded,
-                        color: colorController.primaryColor.value,
-                        size: 26,
-                      ),
-                      const SizedBox(height: 5),
-                      Builder(
-                        builder: (ctx) => Text(
-                          AppLocalizations.of(ctx).customImage,
-                          style: TextStyle(
-                            color: colorController.textColor.value,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (_customImagePath != null)
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withValues(alpha: 0.10),
-                          Colors.black.withValues(alpha: 0.38),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              if (_customImagePath != null)
-                Positioned(
-                  left: 8,
-                  right: 8,
-                  bottom: 10,
-                  child: Builder(
-                    builder: (ctx) => Text(
-                      AppLocalizations.of(ctx).customImage,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              if (isSelected) _buildCheckBadge(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBackgroundCard(
-    BibleShareBackgroundPreset preset,
-    bool isSelected,
-  ) {
-    return GestureDetector(
-      onTap: () => setState(() {
-        _customImagePath = null;
-        _selectedBackgroundId = preset.id;
-      }),
-      child: AnimatedContainer(
-        duration: AppDimensions.normal,
-        width: 88,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.06),
-              blurRadius: isSelected ? 18 : 8,
-              offset: const Offset(0, 6),
-            ),
-          ],
-          border: Border.all(
-            color: isSelected
-                ? colorController.primaryColor.value
-                : colorController.primaryColor.value.withValues(alpha: 0.08),
-            width: isSelected ? 2 : 1,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppScale.radiusSheet),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: SvgPicture.asset(preset.assetPath, fit: BoxFit.cover),
-              ),
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.06),
-                        Colors.black.withValues(alpha: 0.36),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 8,
-                right: 8,
-                bottom: 10,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      preset.label,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Container(
-                      width: 22,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: preset.accent,
-                        borderRadius:
-                            BorderRadius.circular(AppScale.radiusPill),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isSelected) _buildCheckBadge(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Shared selection-check badge used on both card types.
-  Widget _buildCheckBadge() {
-    return Positioned(
-      top: 8,
-      right: 8,
-      child: Container(
-        width: 22,
-        height: 22,
-        decoration: BoxDecoration(
-          color: colorController.primaryColor.value,
-          shape: BoxShape.circle,
-        ),
-        child: const Icon(Icons.check_rounded, color: Colors.white, size: 14),
-      ),
     );
   }
 
@@ -685,56 +398,39 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     }
   }
 
-  // ─── Unified Style panel ──────────────────────────────────────────────────
-  /// All four customisation controls live in ONE card with thin dividers.
-  Widget _buildStylePanel(BuildContext context, AppLocalizations l10n) {
-    final divider = Divider(
-      height: 1,
-      thickness: 0.8,
-      color: colorController.primaryColor.value.withValues(alpha: 0.08),
-    );
-
-    return Container(
-      decoration: _panelDecoration,
-      child: Column(
-        children: [
-          // 1 ── Opacity slider
-          _buildInlineSlider(
-            context: context,
-            icon: Icons.opacity_rounded,
-            label: l10n.backgroundTransparency,
-            valueLabel: '${(_backgroundOpacity * 100).round()}%',
-            value: _backgroundOpacity,
-            min: 0.35,
-            max: 1.0,
-            onChanged: (v) => setState(() => _backgroundOpacity = v),
-          ),
-          divider,
-          // 2 ── Font size slider
-          _buildInlineSlider(
-            context: context,
-            icon: Icons.text_fields_rounded,
-            label: l10n.fontSize,
-            valueLabel: '${_fontSize.round()}',
-            value: _fontSize,
-            min: 16,
-            max: 32,
-            onChanged: (v) => setState(() => _fontSize = v),
-          ),
-          divider,
-          // 3 ── Text color
-          _buildInlineColorRow(context, l10n),
-          divider,
-          // 4 ── Font family
-          _buildInlineFontRow(),
-        ],
-      ),
+  // ─── Control group ─────────────────────────────────────────────────────────
+  Widget _buildControlGroup(AppLocalizations l10n) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const AppRule(firm: true),
+        _sliderRow(
+          label: l10n.backgroundTransparency,
+          // The slider holds the opacity; the read-out answers to its label.
+          valueLabel: '${((1 - _backgroundOpacity) * 100).round()}%',
+          value: _backgroundOpacity,
+          min: 0.35,
+          max: 1.0,
+          onChanged: (v) => setState(() => _backgroundOpacity = v),
+        ),
+        const AppRule(indent: AppScale.space16),
+        _sliderRow(
+          label: l10n.fontSize,
+          valueLabel: '${_fontSize.round()}',
+          value: _fontSize,
+          min: AppTypography.body,
+          max: AppTypography.display,
+          onChanged: (v) => setState(() => _fontSize = v),
+        ),
+        const AppRule(indent: AppScale.space16),
+        _colorRow(l10n),
+        const AppRule(indent: AppScale.space16),
+        _fontRow(l10n),
+      ],
     );
   }
 
-  Widget _buildInlineSlider({
-    required BuildContext context,
-    required IconData icon,
+  Widget _sliderRow({
     required String label,
     required String valueLabel,
     required double value,
@@ -742,83 +438,54 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     required double max,
     required ValueChanged<double> onChanged,
   }) {
+    final AppSurfaces s = AppSurfaces.of(context);
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppScale.space16, AppScale.space16,
+      padding: const EdgeInsets.fromLTRB(AppScale.space16, AppScale.space12,
           AppScale.space16, AppScale.space4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 16, color: colorController.primaryColor.value),
-              const SizedBox(width: 9),
               Expanded(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: colorController.textColor.value,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: Text(label,
+                    style: Theme.of(context).textTheme.titleSmall),
               ),
-              Text(
-                valueLabel,
-                style: TextStyle(
-                  color: colorController.primaryColor.value,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              Text(valueLabel,
+                  style: AppTypography.figure(s, size: AppScale.figureSm)),
             ],
           ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: colorController.primaryColor.value,
-              inactiveTrackColor:
-                  colorController.primaryColor.value.withValues(alpha: 0.15),
-              thumbColor: colorController.primaryColor.value,
-              overlayColor:
-                  colorController.primaryColor.value.withValues(alpha: 0.12),
-              trackHeight: 3,
-            ),
-            child:
-                Slider(value: value, min: min, max: max, onChanged: onChanged),
-          ),
+          Slider(
+              value: value.clamp(min, max),
+              min: min,
+              max: max,
+              onChanged: onChanged),
         ],
       ),
     );
   }
 
-  Widget _buildInlineColorRow(BuildContext context, AppLocalizations l10n) {
+  Widget _colorRow(AppLocalizations l10n) {
+    final AppSurfaces s = AppSurfaces.of(context);
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppScale.space16, AppScale.space16,
-          AppScale.space16, AppScale.space16),
+      padding: const EdgeInsets.fromLTRB(AppScale.space16, AppScale.space12,
+          AppScale.space16, AppScale.space12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.palette_rounded,
-                  size: 16, color: colorController.primaryColor.value),
-              const SizedBox(width: 9),
-              Text(
-                l10n.chooseTextColor,
-                style: TextStyle(
-                  color: colorController.textColor.value,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
+          Text(l10n.textColor, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: AppScale.space12),
           Wrap(
-            spacing: 10,
-            runSpacing: 10,
+            spacing: AppScale.buttonGap,
+            runSpacing: AppScale.space12,
             children: [
-              ..._textColorOptions.map(_buildColorOption),
-              _buildCustomColorButton(context),
+              // The theme's own ink leads, so the row has a selected swatch
+              // before the user has touched anything.
+              for (final color in [s.ink, ..._textColorOptions])
+                _swatch(color, s),
+              _colorPickerSwatch(l10n, s),
             ],
           ),
         ],
@@ -826,42 +493,93 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     );
   }
 
-  Widget _buildInlineFontRow() {
+  Widget _swatch(Color color, AppSurfaces s) {
+    final bool selected = color.toARGB32() == _ink.toARGB32();
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: () => setState(() => _textColor = color),
+        customBorder: const CircleBorder(),
+        child: AnimatedContainer(
+          duration: AppScale.durMicro,
+          curve: AppScale.easeOut,
+          width: AppScale.control,
+          height: AppScale.control,
+          padding: EdgeInsets.all(selected ? AppScale.ruleBar : AppScale.ruleHair),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: selected ? s.accent : s.rule,
+            ),
+          ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _colorPickerSwatch(AppLocalizations l10n, AppSurfaces s) {
+    return Semantics(
+      button: true,
+      label: l10n.chooseTextColor,
+      child: Tooltip(
+        message: l10n.chooseTextColor,
+        child: InkWell(
+          onTap: () => _showCustomColorPicker(context),
+          customBorder: const CircleBorder(),
+          child: Container(
+            width: AppScale.control,
+            height: AppScale.control,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: s.paper,
+              border: Border.all(color: s.ruleFirm),
+            ),
+            child: Icon(Icons.tune_rounded,
+                size: AppScale.iconMd, color: s.accent),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _fontRow(AppLocalizations l10n) {
+    final AppSurfaces s = AppSurfaces.of(context);
+    final TextTheme type = Theme.of(context).textTheme;
+    final List<String> fonts = fontController.availableFonts;
+
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-          AppScale.space16, AppScale.space16, 0, AppScale.space16),
+      padding: const EdgeInsets.fromLTRB(AppScale.space16, AppScale.space12,
+          AppScale.space16, AppScale.space12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.font_download_rounded,
-                  size: 16, color: colorController.primaryColor.value),
-              const SizedBox(width: 9),
-              Builder(
-                builder: (ctx) => Text(
-                  AppLocalizations.of(ctx).fontFamily,
-                  style: TextStyle(
-                    color: colorController.textColor.value,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          Text(l10n.fontFamily, style: type.titleSmall),
           const SizedBox(height: AppScale.space12),
           SizedBox(
-            height: 44,
+            height: AppScale.hitTarget,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.only(right: AppScale.space16),
-              itemCount: fontController.availableFonts.length,
+              itemCount: fonts.length,
               separatorBuilder: (_, __) =>
                   const SizedBox(width: AppScale.space8),
-              itemBuilder: (_, i) {
-                final font = fontController.availableFonts[i];
-                return _buildFontChip(font, font == _fontFamily);
+              itemBuilder: (context, i) {
+                final font = fonts[i];
+                final bool selected = font == _fontFamily;
+                return ChoiceChip(
+                  label: Text(font),
+                  selected: selected,
+                  onSelected: (_) => setState(() => _fontFamily = font),
+                  // Each choice shows itself in its own face.
+                  labelStyle: fontController.getFontStyle(
+                      font,
+                      type.labelMedium
+                          ?.copyWith(color: selected ? s.accent : s.ink)),
+                );
               },
             ),
           ),
@@ -870,192 +588,67 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     );
   }
 
-  // ─── Small reusable sub-widgets ───────────────────────────────────────────
-  Widget _buildFontChip(String font, bool isSelected) {
-    return GestureDetector(
-      onTap: () => setState(() => _fontFamily = font),
-      child: AnimatedContainer(
-        duration: AppDimensions.normal,
-        padding: const EdgeInsets.symmetric(
-            horizontal: AppScale.space16, vertical: AppScale.space12),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? colorController.primaryColor.value
-              : colorController.primaryColor.value.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(AppScale.radiusPill),
-          border: Border.all(
-            color: isSelected
-                ? colorController.primaryColor.value
-                : colorController.primaryColor.value.withValues(alpha: 0.10),
-          ),
-        ),
-        child: Text(
-          font,
-          style: fontController.getFontStyle(
-            font,
-            TextStyle(
-              color:
-                  isSelected ? Colors.white : colorController.textColor.value,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildColorOption(Color color) {
-    final isSelected = color.toARGB32() == _textColor.toARGB32();
-    return GestureDetector(
-      onTap: () => setState(() => _textColor = color),
-      child: AnimatedContainer(
-        duration: AppDimensions.normal,
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: color,
-          border: Border.all(
-            color: isSelected
-                ? colorController.primaryColor.value
-                : Colors.white.withValues(alpha: 0.25),
-            width: isSelected ? 3 : 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isSelected ? 0.16 : 0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: isSelected
-            ? const Icon(Icons.check_rounded, color: Colors.white, size: 16)
-            : const SizedBox.shrink(),
-      ),
-    );
-  }
-
-  Widget _buildCustomColorButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showCustomColorPicker(context),
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: colorController.primaryColor.value.withValues(alpha: 0.10),
-          border: Border.all(
-            color: colorController.primaryColor.value.withValues(alpha: 0.24),
-          ),
-        ),
-        child: Icon(
-          Icons.tune_rounded,
-          color: colorController.primaryColor.value,
-          size: 18,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildIconButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: colorController.primaryColor.value.withValues(alpha: 0.10),
-      shape: const CircleBorder(),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppScale.space12),
-          child: Icon(
-            icon,
-            color: colorController.textColor.value,
-            size: 20,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ─── Footer ───────────────────────────────────────────────────────────────
+  // ─── Footer ────────────────────────────────────────────────────────────────
   Widget _buildFooter(BuildContext context, AppLocalizations l10n) {
     return SafeArea(
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space8,
             AppScale.gutter, AppScale.space16),
-        child: Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: _isSharing ? null : _copyShareText,
-                icon: const Icon(Icons.copy_rounded),
-                label: Text(l10n.copy),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: colorController.textColor.value,
-                  side: BorderSide(
-                    color: colorController.primaryColor.value
-                        .withValues(alpha: 0.20),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppScale.space24, vertical: AppScale.space12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppScale.radiusSurface),
+        child: Center(
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: AppScale.workMeasure),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _isSharing ? null : _copyShareText,
+                    icon: const Icon(Icons.copy_rounded,
+                        size: AppScale.iconMd),
+                    label: Text(l10n.copy),
                   ),
                 ),
-              ),
-            ),
-            const SizedBox(width: AppScale.space16),
-            Expanded(
-              flex: 2,
-              child: FilledButton.icon(
-                onPressed: _isSharing ? null : _shareAsImage,
-                icon: _isSharing
-                    ? const SizedBox(
-                        width: AppScale.space16,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.share_rounded),
-                label: Text(_isSharing ? l10n.preparing : l10n.share),
-                style: FilledButton.styleFrom(
-                  backgroundColor: colorController.primaryColor.value,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppScale.space24, vertical: AppScale.space12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppScale.radiusSurface),
+                const SizedBox(width: AppScale.buttonGap),
+                Expanded(
+                  flex: 2,
+                  child: FilledButton.icon(
+                    onPressed: _isSharing ? null : _shareAsImage,
+                    icon: _isSharing
+                        ? const SizedBox(
+                            width: AppScale.iconMd,
+                            height: AppScale.iconMd,
+                            child: CircularProgressIndicator(
+                                strokeWidth: AppScale.ruleBar),
+                          )
+                        : const Icon(Icons.share_rounded,
+                            size: AppScale.iconMd),
+                    label: Text(_isSharing ? l10n.preparing : l10n.share),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  // ─── Actions ──────────────────────────────────────────────────────────────
+  // ─── Actions ───────────────────────────────────────────────────────────────
   Future<void> _copyShareText() async {
     await Clipboard.setData(ClipboardData(text: widget.data.shareText));
     if (!mounted) return;
 
     final l10n = AppLocalizations.of(context);
+    final AppSurfaces s = AppSurfaces.of(context);
     Get.snackbar(
       l10n.copied,
       l10n.passageTextCopied,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: colorController.primaryColor.value,
-      colorText: Colors.white,
+      backgroundColor: s.accent,
+      colorText: s.onAccent,
       margin: const EdgeInsets.all(AppScale.space16),
-      borderRadius: 14,
+      borderRadius: AppScale.radiusControl,
     );
   }
 
@@ -1099,7 +692,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           backgroundColor: Colors.red,
           colorText: Colors.white,
           margin: const EdgeInsets.all(AppScale.space16),
-          borderRadius: 14,
+          borderRadius: AppScale.radiusControl,
         );
       }
     } catch (error) {
@@ -1112,7 +705,7 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
           backgroundColor: Colors.red,
           colorText: Colors.white,
           margin: const EdgeInsets.all(AppScale.space16),
-          borderRadius: 14,
+          borderRadius: AppScale.radiusControl,
         );
       }
     } finally {
@@ -1123,61 +716,28 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
   Future<void> _showCustomColorPicker(BuildContext context) async {
     final pickedColor = await showDialog<Color>(
       context: context,
-      builder: (context) {
-        var tempColor = _textColor;
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(
-              horizontal: AppScale.gutter, vertical: AppScale.space40),
-          child: Container(
-            decoration: BoxDecoration(
-              color: colorController.backgroundColor.value,
-              borderRadius: BorderRadius.circular(AppScale.radiusFloat),
-              border: Border.all(
-                color:
-                    colorController.primaryColor.value.withValues(alpha: 0.18),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(AppScale.gutter),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context).chooseTextColor,
-                    style: TextStyle(
-                      color: colorController.textColor.value,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: AppScale.space16),
-                  SingleChildScrollView(
-                    child: MaterialPicker(
-                      pickerColor: tempColor,
-                      onColorChanged: (c) => tempColor = c,
-                      enableLabel: true,
-                    ),
-                  ),
-                  const SizedBox(height: AppScale.space12),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () => Navigator.of(context).pop(tempColor),
-                      child: Text(
-                        AppLocalizations.of(context).apply,
-                        style: TextStyle(
-                          color: colorController.primaryColor.value,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      builder: (dialogContext) {
+        var tempColor = _ink;
+        final l10n = AppLocalizations.of(dialogContext);
+        return AlertDialog(
+          title: Text(l10n.chooseTextColor),
+          content: SingleChildScrollView(
+            child: MaterialPicker(
+              pickerColor: tempColor,
+              onColorChanged: (c) => tempColor = c,
+              enableLabel: true,
             ),
           ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(l10n.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(tempColor),
+              child: Text(l10n.apply),
+            ),
+          ],
         );
       },
     );
@@ -1185,6 +745,73 @@ class _BibleShareComposerScreenState extends State<BibleShareComposerScreen> {
     if (pickedColor != null && mounted) {
       setState(() => _textColor = pickedColor);
     }
+  }
+}
+
+/// One choice in the background strip: a thumbnail of the art it applies, its
+/// name under it, and the accent ring when it is the one in use.
+class _StudioTile extends StatelessWidget {
+  const _StudioTile({
+    required this.label,
+    required this.preview,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final Widget preview;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppSurfaces s = AppSurfaces.of(context);
+
+    return SizedBox(
+      width: AppScale.swatch,
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(AppScale.radiusRow),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AnimatedContainer(
+                duration: AppScale.durMicro,
+                curve: AppScale.easeOut,
+                height: AppScale.swatchTall,
+                padding: EdgeInsets.all(
+                    selected ? AppScale.ruleBar : AppScale.ruleHair),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppScale.radiusRow),
+                  border: Border.all(
+                    color: selected ? s.accent : s.rule,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppScale.radiusControl),
+                  child: preview,
+                ),
+              ),
+              const SizedBox(height: AppScale.space4),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.copyWith(color: selected ? s.accent : s.muted),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

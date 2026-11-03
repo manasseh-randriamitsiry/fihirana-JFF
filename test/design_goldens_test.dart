@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/app/theme/font_controller.dart';
 import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/design_system/app_theme.dart';
 import 'package:fihirana/core/design_system/app_typography.dart';
@@ -12,6 +16,8 @@ import 'package:fihirana/features/announcement/domain/entities/announcement.dart
 import 'package:fihirana/features/announcement/presentation/widgets/announcement_widgets.dart';
 import 'package:fihirana/features/audio/presentation/widgets/album_art_card.dart';
 import 'package:fihirana/features/bible/data/services/bible_service.dart';
+import 'package:fihirana/features/bible/presentation/models/bible_share_data.dart';
+import 'package:fihirana/features/bible/presentation/pages/bible_share_composer_screen.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_reader_widgets.dart';
 import 'package:fihirana/features/audio/presentation/widgets/compact_audio_player_widget.dart';
 import 'package:fihirana/features/audio/presentation/widgets/modern_audio_player_widget.dart';
@@ -470,6 +476,34 @@ void main() {
                   const SizedBox(height: AppScale.space24),
                 ],
               ),
+            ),
+          ));
+    });
+
+    testWidgets('the verse studio', (tester) async {
+      SharedPreferences.setMockInitialValues({});
+      Get.put(ColorController());
+      Get.put(FontController());
+      addTearDown(Get.reset);
+
+      await frame(
+          tester,
+          'verse_studio',
+          BibleShareComposerScreen(
+            data: BibleShareData(
+              bookName: '1 Korintiana',
+              chapter: 13,
+              verses: const [
+                BibleShareVerseLine(
+                    number: 4,
+                    text:
+                        'Fitiavana maharioka, fitiavana eza fanina,'),
+                BibleShareVerseLine(
+                    number: 5,
+                    text: 'tsy mialahelitra, tsy mihevi-panambanianina,'),
+                BibleShareVerseLine(
+                    number: 6, text: 'tsy faly amin\'ny tsy fahamarinana'),
+              ],
             ),
           ));
     });
