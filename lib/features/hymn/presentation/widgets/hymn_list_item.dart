@@ -6,6 +6,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/navigation_utility.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -179,59 +180,6 @@ class _HymnListItemState extends State<HymnListItem> {
     );
   }
 
-  /// A hymn is already playing, so this tap has two possible meanings. The
-  /// existing translations have no word for a queue, so the dialog is made of
-  /// labels that do exist plus the two hymn names, which are data, not text.
-  Future<_PlayChoice> _askCueOrPlay(BuildContext context) async {
-    final current = _audioService.currentHymn;
-
-    final choice = await showDialog<_PlayChoice>(
-      context: context,
-      builder: (dialogContext) {
-        final l10n = AppLocalizations.of(dialogContext);
-        final body = <Widget>[
-          if (current != null) ...[
-            Text(
-              l10n.nowPlaying,
-              style: Theme.of(dialogContext).textTheme.labelMedium,
-            ),
-            Text('${current.hymnNumber} ${current.title}'),
-            const SizedBox(height: AppScale.space16),
-          ],
-          Text(
-            '${widget.hymn.hymnNumber} ${widget.hymn.title}',
-            style: Theme.of(dialogContext).textTheme.titleSmall,
-          ),
-        ];
-        return AlertDialog(
-          title: Text(l10n.playAudio),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: body,
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: Text(l10n.cancel),
-            ),
-            TextButton(
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(_PlayChoice.playNow),
-              child: Text(l10n.play),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(_PlayChoice.cue),
-              child: Text(l10n.next),
-            ),
-          ],
-        );
-      },
-    );
-
-    return choice ?? _PlayChoice.cancel;
-  }
-
   Future<void> _playHymnAudio(BuildContext context) async {
     // Capture scaffold messenger and localization function before async operations
     final scaffoldMessenger = ScaffoldMessenger.of(context);
@@ -250,22 +198,10 @@ class _HymnListItemState extends State<HymnListItem> {
           await _audioService.resume();
         }
       } else {
-        // Otherwise, stop current and play new
+        // Otherwise, ask whether this tap queues the hymn or replaces what is
+        // playing.
         if (_audioService.currentPlayingHymnId.isNotEmpty) {
-          final choice = await _askCueOrPlay(context);
-          if (choice == _PlayChoice.cue) {
-            await _audioService.addToCue(widget.hymn);
-            // Nothing else on screen changes, so confirm that the tap was taken.
-            if (mounted) {
-              scaffoldMessenger.showSnackBar(
-                SnackBar(
-                    content: Text(
-                        '${localizations.next}: ${widget.hymn.hymnNumber} ${widget.hymn.title}')),
-              );
-            }
-          } else if (choice == _PlayChoice.playNow) {
-            await _audioService.stopCurrentAndPlayNew(widget.hymn);
-          }
+          await playOrCueHymn(context, widget.hymn);
         } else {
           await _audioService.playHymn(widget.hymn);
         }
@@ -404,5 +340,3 @@ class _RowAction extends StatelessWidget {
     return tooltip == null ? button : Tooltip(message: tooltip!, child: button);
   }
 }
-
-enum _PlayChoice { cancel, cue, playNow }
