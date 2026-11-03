@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
-import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
+import 'package:fihirana/features/bible/presentation/controllers/bible_search_controller.dart';
+import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
 import 'bible_search_header.dart';
 import 'bible_search_input.dart';
 import 'bible_search_context_selector.dart';
 import 'bible_search_results.dart';
-import 'package:fihirana/core/constants/app_dimensions.dart';
-import 'package:fihirana/core/design_system/app_scale.dart';
 
 class BibleSearchDialog extends StatefulWidget {
   const BibleSearchDialog({super.key});
@@ -19,40 +17,19 @@ class BibleSearchDialog extends StatefulWidget {
 }
 
 class _BibleSearchDialogState extends State<BibleSearchDialog> {
-  final BibleController bibleController = Get.find<BibleController>();
-  final ColorController colorController = Get.find<ColorController>();
+  final BibleSearchController search = Get.find<BibleSearchController>();
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-
-  BibleSearchContext _currentSearchContext = BibleSearchContext.books;
-  final double _fontSize = AppDimensions.fontMd;
 
   @override
   void initState() {
     super.initState();
-    _initializeSearch();
-  }
-
-  void _initializeSearch() {
-    // Set initial search context based on current state
-    final selectedBook = bibleController.selectedBook;
-    final selectedChapter = bibleController.selectedChapter;
-
-    if (selectedBook.isEmpty) {
-      _currentSearchContext = BibleSearchContext.books;
-    } else if (selectedChapter == 0) {
-      _currentSearchContext = BibleSearchContext.books;
-    } else {
-      _currentSearchContext = BibleSearchContext.currentChapter;
-    }
-
-    bibleController.setSearchContext(_currentSearchContext);
-
-    // Request focus after dialog is fully shown
+    // The search state lives with the reader, which outlives this dialog.
+    // Without the reset a reopened dialog shows an empty field above the hits
+    // of the search that was closed.
+    search.resetSearch();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        _searchFocusNode.requestFocus();
-      });
+      if (mounted) _searchFocusNode.requestFocus();
     });
   }
 
@@ -65,44 +42,31 @@ class _BibleSearchDialogState extends State<BibleSearchDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final s = AppSurfaces.of(context);
+    // The keyboard has to move the sheet, or it covers the field being typed
+    // into and the results below it.
+    final keyboard = MediaQuery.viewInsetsOf(context).bottom;
+
     return Dialog(
-      backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(
-          horizontal: AppScale.space16, vertical: AppScale.space40),
-      child: Container(
-        decoration: BoxDecoration(
-          color: colorController.backgroundColor.value,
-          borderRadius: BorderRadius.circular(AppScale.radiusFloat),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
+      backgroundColor: s.sheet,
+      elevation: 0,
+      insetPadding: EdgeInsets.fromLTRB(AppScale.space16, AppScale.space16,
+          AppScale.space16, AppScale.space16 + keyboard),
+      shape: const RoundedRectangleBorder(
+          borderRadius:
+              BorderRadius.all(Radius.circular(AppScale.radiusSheet))),
+      child: SafeArea(
+        top: true,
+        bottom: false,
         child: Column(
           children: [
             const BibleSearchHeader(),
             BibleSearchInput(
               controller: _searchController,
               focusNode: _searchFocusNode,
-              fontSize: _fontSize,
             ),
-            BibleSearchContextSelector(
-              currentContext: _currentSearchContext,
-              onContextChanged: (context) {
-                setState(() {
-                  _currentSearchContext = context;
-                  bibleController.setSearchContext(context);
-                  bibleController.searchQuery.value = _searchController.text;
-                  bibleController.performSearch();
-                });
-              },
-            ),
-            Expanded(
-              child: BibleSearchResults(fontSize: _fontSize),
-            ),
+            const BibleSearchContextSelector(),
+            const Expanded(child: BibleSearchResults()),
           ],
         ),
       ),
