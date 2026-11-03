@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:fihirana/features/admin/domain/entities/admin_stats.dart';
@@ -52,6 +54,9 @@ class AdminController extends GetxController {
   // Selected users for bulk operations
   final RxSet<String> selectedUserIds = <String>{}.obs;
 
+  StreamSubscription<AdminStats>? _adminStatsSubscription;
+  StreamSubscription<List<AdminUser>>? _usersSubscription;
+
   @override
   void onInit() {
     super.onInit();
@@ -70,7 +75,7 @@ class AdminController extends GetxController {
   /// Setup real-time streams
   void _setupStreams() {
     // Stream admin stats
-    _streamAdminStatsUseCase.execute().listen(
+    _adminStatsSubscription = _streamAdminStatsUseCase.execute().listen(
       (stats) {
         adminStats.value = stats;
         if (kDebugMode) {
@@ -87,7 +92,7 @@ class AdminController extends GetxController {
     );
 
     // Stream users
-    _streamAllUsersUseCase.execute().listen(
+    _usersSubscription = _streamAllUsersUseCase.execute().listen(
       (userList) {
         users.assignAll(userList);
         _applyUserFilter();
@@ -338,7 +343,8 @@ class AdminController extends GetxController {
 
   @override
   void onClose() {
-    // Cleanup if needed
+    _adminStatsSubscription?.cancel();
+    _usersSubscription?.cancel();
     super.onClose();
   }
 }

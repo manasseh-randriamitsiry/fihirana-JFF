@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
 class NotificationChannelBuilder {
@@ -16,7 +17,7 @@ class NotificationChannelBuilder {
           _createHymnDownloadChannel(),
           _createDailyVerseChannel(),
         ],
-        debug: true,
+        debug: kDebugMode,
       );
       _isInitialized = true;
     } catch (_) {

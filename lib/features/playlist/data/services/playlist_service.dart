@@ -55,7 +55,7 @@ class PlaylistService implements IPlaylistService {
   // Create a new playlist (works offline)
   @override
   Future<String?> createPlaylist(String title, DateTime date,
-      {String? description}) async {
+      {String? description, List<String> hymnIds = const []}) async {
     try {
       final user = _auth.currentUser;
       final now = DateTime.now();
@@ -66,7 +66,7 @@ class PlaylistService implements IPlaylistService {
         id: localId,
         title: title,
         date: date,
-        hymnIds: [],
+        hymnIds: List<String>.from(hymnIds),
         createdBy: user?.uid ?? 'local',
         description: description,
         isPublic: false,
@@ -121,6 +121,11 @@ class PlaylistService implements IPlaylistService {
   // Stream controller for manual updates
   final _playlistsController = StreamController<List<Playlist>>.broadcast();
 
+  // One Firestore watcher at a time: every rebind has to drop the previous
+  // listener, otherwise each screen visit keeps emitting forever.
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>?
+      _firebasePlaylistsSubscription;
+
   // Get playlists for the current user (combines local + Firebase)
   @override
   Stream<List<Playlist>> getUserPlaylistsStream() {
@@ -170,9 +175,13 @@ class PlaylistService implements IPlaylistService {
     // Emit initial playlists
     emitPlaylists();
 
+    final previous = _firebasePlaylistsSubscription;
+    _firebasePlaylistsSubscription = null;
+    previous?.cancel();
+
     // Listen to Firebase changes if authenticated
     if (user != null) {
-      _firestore
+      _firebasePlaylistsSubscription = _firestore
           .collection('playlists')
           .where('createdBy', isEqualTo: user.uid)
           .orderBy('date', descending: true)
@@ -181,6 +190,13 @@ class PlaylistService implements IPlaylistService {
     }
 
     return _playlistsController.stream;
+  }
+
+  /// Stops the Firestore watcher and closes the manual-emit stream.
+  void dispose() {
+    _firebasePlaylistsSubscription?.cancel();
+    _firebasePlaylistsSubscription = null;
+    _playlistsController.close();
   }
 
   // Call this after any local playlist modification

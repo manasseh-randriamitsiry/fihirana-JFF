@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/features/recording/domain/entities/user_recording.dart';
 import 'package:fihirana/features/recording/domain/usecases/recording_usecases.dart';
 import 'package:fihirana/features/recording/domain/repositories/recording_repository.dart';
@@ -353,10 +352,15 @@ class RecordingController extends GetxController {
     try {
       final recording = await stopRecordingUseCase();
       if (recording != null) {
+        final owner = authManager.currentOwner();
         final updatedRecording = recording.copyWith(
           hymnId: hymnId,
           title: title,
           durationSeconds: duration,
+          userId: owner.id,
+          userEmail: owner.email,
+          userPhotoUrl: owner.photoUrl,
+          userName: owner.name,
         );
         await saveRecordingUseCase(updatedRecording);
         return updatedRecording;
@@ -411,80 +415,8 @@ class RecordingController extends GetxController {
     }
   }
 
-  Future<void> deleteRecording(UserRecording recording) async {
-    try {
-      if (kDebugMode) {
-        print(
-            'RecordingController: deleteRecording called for recording: ${recording.id} - ${recording.title}');
-      }
-
-      // Check if user is the owner of the recording
-      final currentUser = FirebaseAuth.instance.currentUser;
-      final isOwner = (currentUser != null &&
-              (recording.userId == currentUser.uid ||
-                  recording.userEmail == currentUser.email)) ||
-          (userEmail.value != null && recording.userEmail == userEmail.value);
-
-      if (kDebugMode) {
-        print(
-            'RecordingController: currentUser=${currentUser?.uid}, recording.userId=${recording.userId}, recording.userEmail=${recording.userEmail}, controller.userEmail=${userEmail.value}');
-      }
-      if (kDebugMode) {
-        print('RecordingController: isOwner=$isOwner');
-      }
-
-      // For debugging, if no owner info, assume owner
-      if (recording.userId == null || recording.userId!.isEmpty) {
-        if (kDebugMode) {
-          print(
-              'RecordingController: No userId found, assuming owner for debugging');
-        }
-        // isOwner = true; // Uncomment this line for debugging
-      }
-
-      // For debugging, just remove from the list directly
-      if (kDebugMode) {
-        print('RecordingController: Removing recording from list directly');
-      }
-      final initialLength = repository.recordings.length;
-      repository.recordings.removeWhere((r) => r.id == recording.id);
-      final finalLength = repository.recordings.length;
-      if (kDebugMode) {
-        print(
-            'RecordingController: Recording removed from list: $initialLength -> $finalLength');
-      }
-
-      // Also try to delete the file if owner
-      if (isOwner) {
-        if (kDebugMode) {
-          print(
-              'RecordingController: Owner detected, attempting file deletion');
-        }
-        try {
-          // This is a simplified approach - just remove from list for now
-          // File deletion can be handled separately
-        } catch (e) {
-          if (kDebugMode) {
-            print('RecordingController: Error deleting file: $e');
-          }
-        }
-      }
-
-      if (kDebugMode) {
-        print(
-            'RecordingController: Recordings list length after delete: ${repository.recordings.length}');
-      }
-
-      // Force UI refresh by triggering reactive update
-      repository.recordings.refresh();
-      update();
-    } catch (e) {
-      if (kDebugMode) {
-        print('RecordingController: Error deleting recording: $e');
-      }
-      stateManager.lastError.value = 'Failed to delete recording: $e';
-    }
-  }
+  Future<void> deleteRecording(UserRecording recording) =>
+      operationsManager.deleteRecording(recording);
 
   Future<void> deleteRecordingPermanentlyDirect(UserRecording recording) =>
       operationsManager.deleteRecordingPermanentlyDirect(recording);

@@ -40,7 +40,6 @@ class _LightweightAudioPlayerWidgetState
   Duration? _duration;
   Duration? _position;
   int _currentPlaylistIndex = 0;
-  bool _autoPlayNext = false;
 
   // Minimal subscriptions - only listen when absolutely necessary
   StreamSubscription? _playerStateSubscription;
@@ -49,7 +48,6 @@ class _LightweightAudioPlayerWidgetState
   @override
   void initState() {
     super.initState();
-    _autoPlayNext = widget.autoPlayNext;
 
     // Only initialize what we absolutely need
     _initializeMinimalPlayer();
@@ -64,11 +62,6 @@ class _LightweightAudioPlayerWidgetState
   @override
   void didUpdateWidget(LightweightAudioPlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.autoPlayNext != oldWidget.autoPlayNext) {
-      setState(() {
-        _autoPlayNext = widget.autoPlayNext;
-      });
-    }
     if (widget.playlist != oldWidget.playlist && widget.playlist != null) {
       _currentPlaylistIndex = widget.playlist!.indexWhere(
         (hymn) => hymn.id == widget.hymn.id,
@@ -95,14 +88,6 @@ class _LightweightAudioPlayerWidgetState
             _isPlaying = state.playing;
             _isLoading = isLoading;
           });
-        }
-
-        // Handle auto-play next when current track completes
-        if (state.processingState == ProcessingState.completed &&
-            _autoPlayNext &&
-            widget.playlist != null) {
-          _updateCurrentPlaylistIndex();
-          _playNext();
         }
       }
     });
@@ -170,18 +155,11 @@ class _LightweightAudioPlayerWidgetState
     }
   }
 
-  void _updateCurrentPlaylistIndex() {
-    if (widget.playlist == null) return;
-
-    final currentIndex = widget.playlist!.indexWhere(
-      (hymn) => hymn.id == widget.hymn.id,
-    );
-    if (currentIndex != -1) {
-      _currentPlaylistIndex = currentIndex;
-    }
-  }
-
   Future<void> _playNext() async {
+    if (_audioService.hasCue) {
+      await _audioService.playNext();
+      return;
+    }
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
 
     final nextIndex = (_currentPlaylistIndex + 1) % widget.playlist!.length;

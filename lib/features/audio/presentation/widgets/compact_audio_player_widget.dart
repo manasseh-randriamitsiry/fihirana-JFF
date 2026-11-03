@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/design_system/app_surfaces.dart';
@@ -15,8 +17,6 @@ class CompactAudioPlayerWidget extends StatefulWidget {
   final Hymn hymn;
   final List<Hymn>? playlist;
   final Function(Hymn)? onHymnChange;
-  final bool autoPlayNext;
-  final Function(bool)? onAutoPlayNextChange;
   final VoidCallback? onClose;
   final Function(Hymn)? onDownload;
   final bool Function(Hymn)? isDownloaded;
@@ -28,8 +28,6 @@ class CompactAudioPlayerWidget extends StatefulWidget {
     required this.hymn,
     this.playlist,
     this.onHymnChange,
-    this.autoPlayNext = false,
-    this.onAutoPlayNextChange,
     this.onClose,
     this.onDownload,
     this.isDownloaded,
@@ -62,11 +60,8 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    _currentDisplayedHymn = widget.hymn;
+    _syncToLoadedHymn();
     if (widget.playlist != null) {
-      _currentPlaylistIndex = widget.playlist!.indexWhere(
-        (hymn) => hymn.id == widget.hymn.id,
-      );
       _audioService.setPlaylist(widget.playlist!, _currentPlaylistIndex);
     }
     _initializePlayer();
@@ -77,14 +72,33 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     super.didUpdateWidget(oldWidget);
     if (widget.hymn.id != oldWidget.hymn.id ||
         widget.playlist != oldWidget.playlist) {
+      _syncToLoadedHymn();
       if (widget.playlist != null) {
-        _currentPlaylistIndex = widget.playlist!.indexWhere(
-          (hymn) => hymn.id == widget.hymn.id,
-        );
         _audioService.setPlaylist(widget.playlist!, _currentPlaylistIndex);
       }
     }
   }
+
+  /// This sheet is the now-playing window: it shows the hymn the player holds,
+  /// and the page's hymn only while nothing is loaded. Seeding it from the page
+  /// is what left the transport showing a play arrow over a running track.
+  void _syncToLoadedHymn() {
+    final loaded = _audioService.currentHymn;
+    _currentDisplayedHymn = loaded ?? widget.hymn;
+
+    _currentPlaylistIndex =
+        _indexOf(loaded?.id) ?? _indexOf(widget.hymn.id) ?? 0;
+  }
+
+  int? _indexOf(String? id) {
+    if (id == null) return null;
+    final index = widget.playlist?.indexWhere((hymn) => hymn.id == id) ?? -1;
+    return index < 0 ? null : index;
+  }
+
+  /// The hymn this sheet is the window onto: the one the player holds, or the
+  /// page's while nothing is loaded.
+  String get _displayedHymnId => _currentDisplayedHymn?.id ?? widget.hymn.id;
 
   void _initializePlayer() {
     _updateCurrentState();
@@ -97,7 +111,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
       final newCurrentHymn = _audioService.currentHymn;
       if (newCurrentHymn?.id != _currentDisplayedHymn?.id) {
         setState(() {
-          _currentDisplayedHymn = newCurrentHymn;
+          _currentDisplayedHymn = newCurrentHymn ?? widget.hymn;
         });
         if (newCurrentHymn != null) {
           widget.onHymnChange?.call(newCurrentHymn);
@@ -109,31 +123,20 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     _playerStateSubscription = _audioService.playerStateStream.listen((state) {
       if (!mounted) return;
 
-      // Always update state if this is the currently displayed hymn or if no hymn is displayed yet
-      final currentHymnId = _audioService.currentPlayingHymnId;
-      final displayedHymnId = _currentDisplayedHymn?.id;
-      final widgetHymnId = widget.hymn.id;
+      // The sheet is the window onto the hymn the player holds. The id is
+      // cleared the moment a track ends, so the loaded hymn - which is kept for
+      // replay - is what a state change has to be matched against here.
+      if (_audioService.currentHymn?.id != _displayedHymnId) return;
 
-      // Update state if current playing hymn matches our widget or displayed hymn
-      if (currentHymnId == displayedHymnId ||
-          currentHymnId == widgetHymnId ||
-          displayedHymnId == null) {
-        final wasPlaying = _isPlaying;
-        final isLoading = state.processingState == ProcessingState.loading ||
-            state.processingState == ProcessingState.buffering;
+      final wasPlaying = _isPlaying;
+      final isLoading = state.processingState == ProcessingState.loading ||
+          state.processingState == ProcessingState.buffering;
 
-        if (wasPlaying != state.playing || _isLoading != isLoading) {
-          setState(() {
-            _isPlaying = state.playing;
-            _isLoading = isLoading;
-          });
-        }
-
-        if (state.processingState == ProcessingState.completed &&
-            widget.autoPlayNext &&
-            widget.playlist != null) {
-          _playNext();
-        }
+      if (wasPlaying != state.playing || _isLoading != isLoading) {
+        setState(() {
+          _isPlaying = state.playing;
+          _isLoading = isLoading;
+        });
       }
     });
 
@@ -170,48 +173,45 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
 
   void _updateCurrentState() {
     if (!mounted) return;
-    final currentHymn = _audioService.currentHymn;
-    if (currentHymn?.id == _currentDisplayedHymn?.id ||
-        _currentDisplayedHymn == null) {
-      final nextDuration = _audioService.player.duration;
-      final nextPosition = _audioService.player.position;
-      if (_isPlaying != _audioService.isPlaying ||
-          _duration != nextDuration ||
-          _position != nextPosition ||
-          _isLoading) {
-        setState(() {
-          _isPlaying = _audioService.isPlaying;
-          _isLoading = false;
-          _duration = nextDuration;
-          _position = nextPosition;
-        });
-      }
+    if (_audioService.currentHymn?.id != _displayedHymnId) return;
+    final nextDuration = _audioService.player.duration;
+    final nextPosition = _audioService.player.position;
+    if (_isPlaying != _audioService.isPlaying ||
+        _duration != nextDuration ||
+        _position != nextPosition ||
+        _isLoading) {
+      setState(() {
+        _isPlaying = _audioService.isPlaying;
+        _isLoading = false;
+        _duration = nextDuration;
+        _position = nextPosition;
+      });
     }
   }
 
   void _updatePlayingState() {
     if (!mounted) return;
-    final currentHymnId = _audioService.currentPlayingHymnId;
-    final displayedHymnId = _currentDisplayedHymn?.id;
-    final widgetHymnId = widget.hymn.id;
+    // Nothing loaded means nothing plays, whatever the last track was doing.
+    final loaded = _audioService.currentHymn?.id == _displayedHymnId;
+    final processing = _audioService.player.playerState.processingState;
+    final nextIsPlaying = loaded && _audioService.isPlaying;
+    final nextIsLoading = loaded &&
+        (processing == ProcessingState.loading ||
+            processing == ProcessingState.buffering);
 
-    // Update playing state if this matches current playing hymn
-    if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
-      final nextIsLoading = _audioService.player.playerState.processingState ==
-              ProcessingState.loading ||
-          _audioService.player.playerState.processingState ==
-              ProcessingState.buffering;
-      if (_isPlaying != _audioService.isPlaying ||
-          _isLoading != nextIsLoading) {
-        setState(() {
-          _isPlaying = _audioService.isPlaying;
-          _isLoading = nextIsLoading;
-        });
-      }
+    if (_isPlaying != nextIsPlaying || _isLoading != nextIsLoading) {
+      setState(() {
+        _isPlaying = nextIsPlaying;
+        _isLoading = nextIsLoading;
+      });
     }
   }
 
   Future<void> _playNext() async {
+    if (_audioService.hasCue) {
+      await _audioService.playNext();
+      return;
+    }
     if (widget.playlist == null || widget.playlist!.isEmpty) return;
     final nextIndex = (_currentPlaylistIndex + 1) % widget.playlist!.length;
     final nextHymn = widget.playlist![nextIndex];
@@ -231,23 +231,19 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
 
   Future<void> _togglePlayPause() async {
     try {
-      final currentHymnId = _audioService.currentPlayingHymnId;
-      final displayedHymnId = _currentDisplayedHymn?.id;
-      final widgetHymnId = widget.hymn.id;
-
-      if (currentHymnId == displayedHymnId || currentHymnId == widgetHymnId) {
-        // Same hymn is playing, toggle play/pause
+      if (_audioService.currentHymn?.id == _displayedHymnId) {
+        // The player holds this hymn, so the button only pauses or resumes it.
         if (_isPlaying) {
           await _audioService.pause();
         } else {
           await _audioService.resume();
         }
       } else {
-        // Different hymn, start playing the current one
+        // Nothing is loaded, so this is the first play of the hymn on screen.
         setState(() {
           _isLoading = true;
         });
-        await _audioService.playHymn(_currentDisplayedHymn ?? widget.hymn);
+        await _audioService.playHymn(widget.hymn);
       }
     } catch (e) {
       if (mounted) {
@@ -428,9 +424,54 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                 ],
               ),
             ),
+            _buildCueBlock(l10n),
           ],
         ),
       ),
     );
+  }
+
+  /// The queue the player will sing after this one, plus the offer to add the
+  /// hymn on screen to it. The queue stays on screen as hymns are taken from it
+  /// - it is what tells the user the next one is coming. Taking one back is the
+  /// row's own work, so the offer only appears while the hymn on screen is not
+  /// yet waiting and the player holds a different one.
+  Widget _buildCueBlock(AppLocalizations l10n) {
+    return Obx(() {
+      final playingId = _audioService.currentPlayingHymnIdRx.value;
+      final isCued =
+          _audioService.cueRx.any((hymn) => hymn.id == widget.hymn.id);
+      final canAdd =
+          playingId.isNotEmpty && playingId != widget.hymn.id && !isCued;
+      if (!canAdd && _audioService.cueRx.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AppRule(),
+          ConstrainedBox(
+            // Only the screen caps the queue, so the list shows what is waiting
+            // rather than the first three hymns of it.
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.35),
+            child: AudioCueList(
+              actions: [
+                if (canAdd)
+                  TextButton(
+                    onPressed: () => cueHymn(context, widget.hymn),
+                    child: Text(l10n.add),
+                  ),
+              ],
+              onPlayNow: (hymn) {
+                widget.onHymnChange?.call(hymn);
+                _audioService.playHymn(hymn);
+              },
+            ),
+          ),
+        ],
+      );
+    });
   }
 }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/core/utils/snackbar_utility.dart';
+import 'package:fihirana/features/announcement/di/announcement_di.dart';
 import 'package:fihirana/features/announcement/domain/entities/announcement.dart';
 import 'package:fihirana/features/announcement/presentation/controllers/announcement_controller.dart';
 import 'package:fihirana/features/announcement/presentation/widgets/announcement_widgets.dart';
@@ -18,8 +19,16 @@ class AnnouncementScreen extends StatefulWidget {
 }
 
 class _AnnouncementScreenState extends State<AnnouncementScreen> {
-  final AnnouncementController _announcementController =
-      Get.find<AnnouncementController>();
+  late final AnnouncementController _announcementController;
+
+  @override
+  void initState() {
+    super.initState();
+    // The screen is reachable even when startup stopped early, so register the
+    // feature on demand instead of assuming the graph is complete.
+    if (!Get.isRegistered<AnnouncementController>()) AnnouncementDI.init();
+    _announcementController = Get.find<AnnouncementController>();
+  }
 
   Future<void> _showAnnouncementDialog({Announcement? announcement}) async {
     final l10n = AppLocalizations.of(context);

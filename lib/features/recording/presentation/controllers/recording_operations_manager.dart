@@ -88,27 +88,7 @@ class RecordingOperationsManager extends GetxController {
     }
 
     // Get user info for metadata
-    String? currentUserId;
-    String? currentUserEmail;
-    String? currentUserPhotoUrl;
-    String? currentUserName = _authManager.guestName.value;
-
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      currentUserId = currentUser.uid;
-      currentUserEmail = currentUser.email;
-      currentUserPhotoUrl = currentUser.photoURL;
-      currentUserName = currentUser.displayName ?? currentUserName;
-    } else if (_authManager.isDriveSignedIn.value &&
-        _authManager.userEmail.value != null) {
-      final driveUser = _authManager.currentUser;
-      if (driveUser != null) {
-        currentUserId = driveUser.id;
-        currentUserEmail = driveUser.email;
-        currentUserPhotoUrl = driveUser.photoUrl;
-        currentUserName = driveUser.displayName ?? currentUserName;
-      }
-    }
+    final owner = _authManager.currentOwner();
 
     // If recordedData is provided by service, use it; otherwise we need file path
     if (recordedData != null) {
@@ -121,10 +101,10 @@ class RecordingOperationsManager extends GetxController {
         hymnId: hymnId,
         title: title,
         durationSeconds: duration,
-        userId: currentUserId,
-        userEmail: currentUserEmail,
-        userPhotoUrl: currentUserPhotoUrl,
-        userName: currentUserName,
+        userId: owner.id,
+        userEmail: owner.email,
+        userPhotoUrl: owner.photoUrl,
+        userName: owner.name,
       );
 
       try {
@@ -177,39 +157,21 @@ class RecordingOperationsManager extends GetxController {
 
   Future<UserRecording?> stopStandaloneRecording(String title) async {
     final recordedData = await _recordingService.stopRecording();
+    // The duration has to be read before the reset zeroes the timer.
+    final duration = _stateManager.recordDuration.value;
     _stateManager.resetRecordingState();
 
-    String? currentUserId;
-    String? currentUserEmail;
-    String? currentUserPhotoUrl;
-    String? currentUserName = _authManager.guestName.value;
-
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
-      currentUserId = currentUser.uid;
-      currentUserEmail = currentUser.email;
-      currentUserPhotoUrl = currentUser.photoURL;
-      currentUserName = currentUser.displayName ?? currentUserName;
-    } else if (_authManager.isDriveSignedIn.value &&
-        _authManager.userEmail.value != null) {
-      final driveUser = _authManager.currentUser;
-      if (driveUser != null) {
-        currentUserId = driveUser.id;
-        currentUserEmail = driveUser.email;
-        currentUserPhotoUrl = driveUser.photoUrl;
-        currentUserName = driveUser.displayName ?? currentUserName;
-      }
-    }
+    final owner = _authManager.currentOwner();
 
     if (recordedData != null) {
       final recording = recordedData.copyWith(
         hymnId: 'unknown',
         title: title,
-        durationSeconds: _stateManager.recordDuration.value,
-        userId: currentUserId,
-        userEmail: currentUserEmail,
-        userPhotoUrl: currentUserPhotoUrl,
-        userName: currentUserName,
+        durationSeconds: duration,
+        userId: owner.id,
+        userEmail: owner.email,
+        userPhotoUrl: owner.photoUrl,
+        userName: owner.name,
       );
 
       await _recordingService.saveRecording(recording);

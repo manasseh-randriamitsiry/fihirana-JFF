@@ -24,6 +24,7 @@ class FavoritesService {
 
   bool _isInitialized = false;
   StreamSubscription? _firestoreSubscription;
+  StreamSubscription<User?>? _authSubscription;
 
   static const String _localFavoritesKey = 'local_favorites';
 
@@ -45,11 +46,16 @@ class FavoritesService {
       await _loadLocalFavorites();
 
       // Listen to auth changes
-      auth.authStateChanges().listen((user) {
+      _authSubscription = auth.authStateChanges().listen((user) async {
         if (user != null) {
           _loadFirebaseFavorites();
         } else {
+          // Dropping the previous account's snapshot listener matters: it would
+          // keep merging its favorites into the next sign-in.
+          await _firestoreSubscription?.cancel();
+          _firestoreSubscription = null;
           _cachedFavorites.clear();
+          await _clearLocalFavorites();
           _updateStreams();
         }
       });
@@ -137,7 +143,13 @@ class FavoritesService {
   }
 
   /// Save favorites to local storage
+  ///
+  /// Only a signed-out list belongs on the device: the key has one slot for the
+  /// whole phone, so persisting an account's set here is how the next person to
+  /// sign in inherits it. An authenticated list lives in the Firestore subtree
+  /// and the snapshot listener restores it on the next launch.
   Future<void> _saveLocalFavorites() async {
+    if (auth.currentUser != null) return;
     try {
       final prefs = await SharedPreferences.getInstance();
       final favoritesList = _cachedFavorites.toList();
@@ -145,6 +157,20 @@ class FavoritesService {
     } catch (e) {
       if (kDebugMode) {
         print('❌ Error saving local favorites: $e');
+      }
+    }
+  }
+
+  /// Forget the device copy, which sign-out must do along with the in-memory
+  /// cache - otherwise it is handed to the next account as its own.
+  Future<void> _clearLocalFavorites() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_localFavoritesKey);
+      await prefs.remove('favorites_synced');
+    } catch (e) {
+      if (kDebugMode) {
+        print('❌ Error clearing local favorites: $e');
       }
     }
   }
@@ -318,6 +344,7 @@ class FavoritesService {
 
   /// Dispose of the service
   void dispose() {
+    _authSubscription?.cancel();
     _firestoreSubscription?.cancel();
     _favoriteStatusController.close();
     _favoriteIdsController.close();

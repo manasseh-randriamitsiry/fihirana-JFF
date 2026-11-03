@@ -1,159 +1,150 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:fihirana/features/bible/presentation/controllers/bible_controller.dart';
-import 'package:fihirana/app/theme/color_controller.dart';
+import 'package:fihirana/features/bible/presentation/controllers/bible_search_controller.dart';
 import 'package:fihirana/features/bible/domain/entities/bible_search.dart';
+import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/design_system/app_scale.dart';
+import 'package:fihirana/core/design_system/app_surfaces.dart';
+import 'package:fihirana/core/design_system/app_typography.dart';
 
+/// A search hit set the way the register sets an entry: the figure in tabular
+/// numerals, the words beside it, the whole row a control. The matched phrase
+/// takes the accent, and nothing else in the row does.
 class BibleSearchResultItem extends StatelessWidget {
   final BibleSearchResult result;
-  final double fontSize;
 
-  const BibleSearchResultItem({
-    super.key,
-    required this.result,
-    required this.fontSize,
-  });
+  const BibleSearchResultItem({super.key, required this.result});
 
   @override
   Widget build(BuildContext context) {
-    final colorController = Get.find<ColorController>();
-    final bibleController = Get.find<BibleController>();
+    final l10n = AppLocalizations.of(context);
+    final s = AppSurfaces.of(context);
+    final type = Theme.of(context).textTheme;
+    final search = Get.find<BibleSearchController>();
+    final isVerse = result.type == BibleSearchResultType.verse;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppScale.space12),
+    return Ink(
       decoration: BoxDecoration(
-        color: colorController.primaryColor.value.withValues(alpha: 0.03),
+        color: s.paper2,
         borderRadius: BorderRadius.circular(AppScale.radiusRow),
-        border: Border.all(
-          color: colorController.primaryColor.value.withValues(alpha: 0.1),
-        ),
       ),
       child: InkWell(
         onTap: () {
           Navigator.of(context).pop();
-          bibleController.navigateToSearchResult(result);
+          search.navigateToSearchResult(result);
         },
         borderRadius: BorderRadius.circular(AppScale.radiusRow),
+        hoverColor: s.pressed,
+        focusColor: s.focus.withValues(alpha: 0.18),
+        splashColor: s.accent.withValues(alpha: 0.10),
+        highlightColor: s.pressed,
         child: Padding(
-          padding: const EdgeInsets.all(AppScale.space16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    result.type == BibleSearchResultType.book
-                        ? Icons.book_rounded
-                        : Icons.article_rounded,
-                    color: colorController.primaryColor.value,
-                    size: 18,
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppScale.space16, vertical: AppScale.space12),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: AppScale.hitTarget),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                if (isVerse) ...[
+                  SizedBox(
+                    width: AppScale.figureColumn,
+                    child: Text('${result.chapter}:${result.verse}',
+                        textAlign: TextAlign.right,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.figure(s,
+                            size: AppScale.figureSm, color: s.ink2)),
                   ),
-                  const SizedBox(width: AppScale.space8),
-                  Expanded(
-                    child: Text(
-                      result.displayText,
-                      style: TextStyle(
-                        fontFamily: 'Roboto',
-                        color: colorController.primaryColor.value,
-                        fontSize: fontSize,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
+                  const SizedBox(width: AppScale.space12),
                 ],
-              ),
-              const SizedBox(height: AppScale.space8),
-              if (result.type == BibleSearchResultType.verse)
-                _buildHighlightedVerseText(bibleController, colorController)
-              else
-                Text(
-                  result.subtitle,
-                  style: TextStyle(
-                    fontFamily: 'Roboto',
-                    color:
-                        colorController.textColor.value.withValues(alpha: 0.7),
-                    fontSize: fontSize * 0.9,
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isVerse)
+                        _VerseText(result: result, style: type.bodyMedium!)
+                      else
+                        Text(result.bookName,
+                            style: type.bodyMedium,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis),
+                      const SizedBox(height: AppScale.space4),
+                      Text(
+                        isVerse ? result.bookName : l10n.books,
+                        style: type.bodySmall?.copyWith(color: s.muted),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildHighlightedVerseText(
-      BibleController bibleController, ColorController colorController) {
-    final query = bibleController.searchQuery.value;
+/// The verse with every occurrence of the word put in the accent colour.
+class _VerseText extends StatelessWidget {
+  const _VerseText({required this.result, required this.style});
+
+  final BibleSearchResult result;
+  final TextStyle style;
+
+  /// A row sets three lines, so a hit late in a long verse would never reach
+  /// the screen. The snippet opens just before the word the search found.
+  static const int _leadChars = 24;
+
+  static String snippetAround(String text, String query) {
+    final index = text.toLowerCase().indexOf(query.toLowerCase());
+    if (index <= _leadChars) return text;
+    final from = index - _leadChars;
+    final space = text.indexOf(' ', from);
+    final cut = (space == -1 || space >= index) ? from : space + 1;
+    return '… ${text.substring(cut)}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final query = Get.find<BibleSearchController>().searchQuery.value.trim();
+    final text =
+        query.isEmpty ? result.text : snippetAround(result.text, query);
     if (query.isEmpty) {
-      return Text(
-        result.text,
-        style: TextStyle(
-          fontFamily: 'Roboto',
-          color: colorController.textColor.value.withValues(alpha: 0.7),
-          fontSize: fontSize * 0.9,
-        ),
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-      );
+      return Text(text,
+          style: style, maxLines: 3, overflow: TextOverflow.ellipsis);
     }
 
-    final List<TextSpan> spans = [];
-    final lowerText = result.text.toLowerCase();
-    final lowerQuery = query.toLowerCase();
-
-    int start = 0;
-    int index = lowerText.indexOf(lowerQuery);
-
+    final s = AppSurfaces.of(context);
+    final highlight = style.copyWith(
+      color: s.accent,
+      fontWeight: FontWeight.w700,
+      backgroundColor: s.accentSoft,
+    );
+    final spans = <TextSpan>[];
+    final haystack = text.toLowerCase();
+    final needle = query.toLowerCase();
+    var start = 0;
+    var index = haystack.indexOf(needle);
     while (index != -1) {
-      // Add text before match
       if (index > start) {
-        spans.add(TextSpan(
-          text: result.text.substring(start, index),
-          style: TextStyle(
-            fontFamily: 'Roboto',
-            color: colorController.textColor.value.withValues(alpha: 0.7),
-            fontSize: fontSize * 0.9,
-          ),
-        ));
+        spans.add(TextSpan(text: text.substring(start, index)));
       }
-
-      // Add highlighted match
       spans.add(TextSpan(
-        text: result.text.substring(index, index + query.length),
-        style: TextStyle(
-          fontFamily: 'Roboto',
-          backgroundColor:
-              colorController.primaryColor.value.withValues(alpha: 0.3),
-          color: colorController.primaryColor.value,
-          fontSize: fontSize * 0.9,
-          fontWeight: FontWeight.bold,
-        ),
-      ));
-
+          text: text.substring(index, index + query.length), style: highlight));
       start = index + query.length;
-      index = lowerText.indexOf(lowerQuery, start);
+      index = haystack.indexOf(needle, start);
     }
-
-    // Add remaining text
-    if (start < result.text.length) {
-      spans.add(TextSpan(
-        text: result.text.substring(start),
-        style: TextStyle(
-          fontFamily: 'Roboto',
-          color: colorController.textColor.value.withValues(alpha: 0.7),
-          fontSize: fontSize * 0.9,
-        ),
-      ));
+    if (start < text.length) {
+      spans.add(TextSpan(text: text.substring(start)));
     }
 
     return RichText(
-      text: TextSpan(children: spans),
+      text: TextSpan(style: style, children: spans),
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
     );

@@ -127,6 +127,8 @@ class AdminRepositoryImpl implements AdminRepository {
     try {
       await _firestore.collection(_usersCollection).doc(userId).update({
         'isBlocked': isBlocked,
+        // SecurityService enforces 'disabled'; keep both in sync or blocking is cosmetic.
+        'disabled': isBlocked,
         'updatedAt': FieldValue.serverTimestamp(),
       });
 

@@ -102,8 +102,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                 final bool hasData = snapshot.hasData;
                 final favorites = hasData ? snapshot.data! : const <Hymn>[];
                 if (hasData) {
+                  // Every favorite, not a leading slice: ids already probed are
+                  // skipped, so the cost is one batched query and hymns past the
+                  // cap used to render with no audio state at all.
                   WidgetsBinding.instance.addPostFrameCallback(
-                      (_) => _checkAudioFor(favorites.take(20)));
+                      (_) => _checkAudioFor(favorites));
                 }
                 final matching = _query.isEmpty
                     ? favorites

@@ -37,6 +37,7 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
     final installPackagesStatus =
         await Permission.requestInstallPackages.status;
 
+    if (!mounted) return;
     setState(() {
       _notificationGranted = notificationStatus;
       _installPackagesGranted = installPackagesStatus.isGranted;
@@ -51,12 +52,15 @@ class _PermissionRequestDialogState extends State<PermissionRequestDialog> {
       if (!_notificationGranted) {
         final notificationAllowed =
             await AwesomeNotifications().requestPermissionToSendNotifications();
+        // The system prompt stays up as long as the user takes to answer.
+        if (!mounted) return;
         setState(() => _notificationGranted = notificationAllowed);
       }
 
       // Request package installation permission
       if (!_installPackagesGranted) {
         final installStatus = await Permission.requestInstallPackages.request();
+        if (!mounted) return;
         setState(() => _installPackagesGranted = installStatus.isGranted);
       }
 

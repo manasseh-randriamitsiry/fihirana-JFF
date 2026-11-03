@@ -25,6 +25,7 @@ class AdminDI {
         firestore: FirebaseFirestore.instance,
       ),
       tag: _adminRepositoryTag,
+      fenix: true,
     );
 
     // Use cases
@@ -32,48 +33,56 @@ class AdminDI {
       () => GetAdminStatsUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     Get.lazyPut<StreamAdminStatsUseCase>(
       () => StreamAdminStatsUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     Get.lazyPut<GetAllUsersUseCase>(
       () => GetAllUsersUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     Get.lazyPut<StreamAllUsersUseCase>(
       () => StreamAllUsersUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     Get.lazyPut<UpdateUserAdminStatusUseCase>(
       () => UpdateUserAdminStatusUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     Get.lazyPut<BlockUserUseCase>(
       () => BlockUserUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     Get.lazyPut<DeleteUserUseCase>(
       () => DeleteUserUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     Get.lazyPut<GetUserDeletionStatsUseCase>(
       () => GetUserDeletionStatsUseCase(
         Get.find<AdminRepository>(tag: _adminRepositoryTag),
       ),
+      fenix: true,
     );
 
     // Controller
@@ -89,6 +98,7 @@ class AdminDI {
         getUserDeletionStatsUseCase: Get.find<GetUserDeletionStatsUseCase>(),
       ),
       tag: _adminControllerTag,
+      fenix: true,
     );
   }
 

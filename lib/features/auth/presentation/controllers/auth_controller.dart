@@ -26,6 +26,7 @@ class AuthController extends GetxController {
   final RxBool _canAddSongs = false.obs;
   final RxBool _isAdmin = false.obs;
   final RxBool _isSuperAdmin = false.obs;
+  final RxBool _permissionResolved = false.obs;
   final RxInt _addedHymnsCount = 0.obs;
   final RxInt _monthlyHymnCount = 0.obs;
   final RxString _lastHymnAdditionMonth = ''.obs;
@@ -46,6 +47,11 @@ class AuthController extends GetxController {
   bool get canAddSongs => _canAddSongs.value;
   bool get isAdmin => _isAdmin.value;
   bool get isSuperAdmin => _isSuperAdmin.value;
+
+  /// False until the first permission snapshot has been handled, so that
+  /// `isAdmin == false` can be told apart from "permission not read yet".
+  bool get isPermissionResolved => _permissionResolved.value;
+  RxBool get permissionResolved => _permissionResolved;
   int get addedHymnsCount => _addedHymnsCount.value;
   bool get isAuthenticated => _auth.currentUser != null;
 
@@ -109,6 +115,7 @@ class AuthController extends GetxController {
         _canAddSongs.value = false;
         _isAdmin.value = false;
         _isSuperAdmin.value = false;
+        _permissionResolved.value = false;
 
         // Sign out from Google Drive when Firebase signs out
         try {
@@ -159,6 +166,7 @@ class AuthController extends GetxController {
           _monthlyHymnCount.value = (data?['monthlyHymnCount'] ?? 0) as int;
           _lastHymnAdditionMonth.value =
               (data?['lastHymnAdditionMonth'] ?? '') as String;
+          _permissionResolved.value = true;
 
           if (kDebugMode) {
             print(
@@ -169,6 +177,7 @@ class AuthController extends GetxController {
           _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
           _isSuperAdmin.value =
               user.email == 'manassehrandriamitsiry@gmail.com';
+          _permissionResolved.value = true;
           if (kDebugMode) {
             print(
                 'User document does not exist for ${user.email}. Defaulting permissions to false (unless super admin).');
@@ -182,6 +191,7 @@ class AuthController extends GetxController {
         _canAddSongs.value = user.email == 'manassehrandriamitsiry@gmail.com';
         _isAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
         _isSuperAdmin.value = user.email == 'manassehrandriamitsiry@gmail.com';
+        _permissionResolved.value = true;
       },
     );
   }

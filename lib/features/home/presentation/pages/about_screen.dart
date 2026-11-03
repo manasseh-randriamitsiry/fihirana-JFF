@@ -174,12 +174,6 @@ class _AboutScreenState extends State<AboutScreen> {
                         color: colors.onSurfaceVariant,
                       ),
                 ),
-                const SizedBox(height: AppScale.space8),
-                Text(
-                  '${l10n.headquarters} ${l10n.headquartersAddress}',
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
               ],
             ),
           ),

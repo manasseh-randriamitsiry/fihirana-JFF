@@ -16,7 +16,6 @@ import 'package:fihirana/core/navigation/shell_controller.dart';
 import 'package:fihirana/shared/widgets/navigation/responsive_shell.dart';
 import 'package:fihirana/core/utils/version_check_service.dart';
 import 'package:fihirana/features/intro/di/intro_di.dart';
-import 'package:fihirana/core/error/error_handler.dart';
 import 'package:fihirana/core/localization/fallback_localization_delegate.dart';
 
 class MyApp extends StatefulWidget {
@@ -45,6 +44,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     // Initialize controllers
     _initializeControllers();
+
+    // Seed the shell from the route this launch opens on. This must be one-shot:
+    // recomputing it on every rebuild would read the prefs a sign-out just
+    // cleared and hide the drawer while the user is still on /home.
+    _initializeShellController(_getInitialRoute());
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await VersionCheckService.initializeNotifications();
@@ -75,7 +79,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _lifecycleManager.cleanupServices();
+    // Phoenix.rebirth disposes this state while singletons survive, so services
+    // must only be torn down from the detached lifecycle state.
     super.dispose();
   }
 
@@ -134,9 +139,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Determine initial route based on user state
     final initialRoute = _getInitialRoute();
 
-    // Set initial drawer state
-    _initializeShellController(initialRoute);
-
     return Obx(() {
       final fontController = Get.find<FontController>();
       final themeController = Get.find<ThemeController>();
@@ -149,31 +151,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       final theme = _themeManager.getLightTheme(currentFont);
       final darkTheme = _themeManager.getDarkTheme(currentFont);
 
-      return ErrorHandler.withErrorBoundary(
-        GetMaterialApp(
-          debugShowCheckedModeBanner: false,
-          locale: currentLocale,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            // Add fallback delegates for 'mg' support in Material/Cupertino widgets
-            FallbackMaterialLocalizationsDelegate(),
-            FallbackCupertinoLocalizationsDelegate(),
-          ],
-          localeResolutionCallback: (locale, supportedLocales) {
-            return languageController.currentLocale.value;
-          },
-          supportedLocales: languageController.supportedLocales,
-          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
-          theme: theme,
-          darkTheme: darkTheme,
-          builder: (context, child) => ResponsiveShell(child: child!),
-          initialRoute: initialRoute,
-          routingCallback: _handleRoutingCallback,
-          getPages: AppRouter.getPages(),
-        ),
+      return GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        locale: currentLocale,
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          // Add fallback delegates for 'mg' support in Material/Cupertino widgets
+          FallbackMaterialLocalizationsDelegate(),
+          FallbackCupertinoLocalizationsDelegate(),
+        ],
+        localeResolutionCallback: (locale, supportedLocales) {
+          return languageController.currentLocale.value;
+        },
+        supportedLocales: languageController.supportedLocales,
+        themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+        theme: theme,
+        darkTheme: darkTheme,
+        builder: (context, child) => ResponsiveShell(child: child!),
+        initialRoute: initialRoute,
+        routingCallback: _handleRoutingCallback,
+        getPages: AppRouter.getPages(),
       );
     });
   }

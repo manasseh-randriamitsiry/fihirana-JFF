@@ -56,13 +56,14 @@ class DrawerWidgetState extends State<DrawerWidget>
     try {
       _googleSignIn = Get.find<GoogleSignIn>();
     } catch (e) {
+      // Partial boot only: never displace the shared instance, Drive sign-in
+      // depends on the scopes it was built with.
       _googleSignIn = GoogleSignIn(
         scopes: [
           'email',
           'https://www.googleapis.com/auth/contacts.readonly',
         ],
       );
-      Get.put(_googleSignIn!);
     }
     _checkAuthStatus();
     _googleSignInSubscription = _googleSignIn?.onCurrentUserChanged
@@ -114,50 +115,58 @@ class DrawerWidgetState extends State<DrawerWidget>
 
   Future<void> _signInWithGoogle() async {
     try {
-      await _googleSignIn?.signOut();
-      await _firebaseAuth.signOut();
+      // Only the domain flow runs the banned-email check, so the drawer must
+      // not exchange credentials itself.
+      final user = await Get.find<AuthController>().signInWithGoogle();
+      if (user == null) return;
 
-      final GoogleSignInAccount? googleSignInAccount =
-          await _googleSignIn?.signIn();
+      final prefs = await SharedPreferences.getInstance();
+      final username = user.displayName ?? '';
+      await prefs.setString('username', username);
+      await prefs.setString('email', user.email);
 
-      if (googleSignInAccount != null) {
-        final GoogleSignInAuthentication googleSignInAuthentication =
-            await googleSignInAccount.authentication;
+      // Update the reactive user controller
+      await _userController.setUsername(username);
+      _userController.setAuthenticated(true);
 
-        final AuthCredential credential = GoogleAuthProvider.credential(
-          idToken: googleSignInAuthentication.idToken,
-          accessToken: googleSignInAuthentication.accessToken,
+      _updateCurrentUser();
+
+      if (mounted) {
+        final l10n = AppLocalizations.of(context);
+        Get.snackbar(
+          l10n.welcome,
+          l10n.signedInSuccessfully,
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+          colorText: Theme.of(context).colorScheme.onPrimaryContainer,
         );
 
-        await _firebaseAuth.signInWithCredential(credential);
-
-        final prefs = await SharedPreferences.getInstance();
-        final username = googleSignInAccount.displayName ?? '';
-        await prefs.setString('username', username);
-        await prefs.setString('email', googleSignInAccount.email);
-
-        // Update the reactive user controller
-        await _userController.setUsername(username);
-        _userController.setAuthenticated(true);
-
-        _updateCurrentUser();
-
-        if (mounted) {
-          final l10n = AppLocalizations.of(context);
-          Get.snackbar(
-            l10n.welcome,
-            l10n.signedInSuccessfully,
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            colorText: Theme.of(context).colorScheme.onPrimaryContainer,
-          );
-
-          Phoenix.rebirth(context);
-        }
+        Phoenix.rebirth(context);
       }
     } catch (e) {
       if (kDebugMode) {
         print(e);
       }
+    }
+  }
+
+  /// Sign-out belongs to the auth domain: it releases the Google account too,
+  /// which is what lets the next "Sign in" show the account chooser instead of
+  /// silently reusing this one. The name and email written at sign-in decide
+  /// the opening route, so they go with the session.
+  Future<void> _signOut() async {
+    await Get.find<AuthController>().signOut();
+
+    // setUsername('') is what clears the pref that decides the opening route.
+    await _userController.setUsername('');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('email');
+    _userController.setAuthenticated(false);
+
+    if (mounted) {
+      setState(() {
+        _isAuthenticated = false;
+        _currentUser = null;
+      });
     }
   }
 
@@ -448,7 +457,8 @@ class DrawerWidgetState extends State<DrawerWidget>
                       isActive: currentRoute == '/announcements',
                       onTap: () => Get.toNamed('/announcements'),
                     ),
-                    if (Get.find<AuthController>().isAdmin)
+                    if (Get.isRegistered<AuthController>() &&
+                        Get.find<AuthController>().isAdmin)
                       _buildDrawerItem(
                         context: context,
                         icon: Icons.admin_panel_settings_rounded,
@@ -476,14 +486,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                         icon: Icons.logout_rounded,
                         title: l10n.signOut,
                         isDestructive: true,
-                        onTap: () {
-                          FirebaseAuth.instance.signOut();
-                          _userController.setAuthenticated(false);
-                          setState(() {
-                            _isAuthenticated = false;
-                            _currentUser = null;
-                          });
-                        },
+                        onTap: () => unawaited(_signOut()),
                       ),
                   ],
                 );

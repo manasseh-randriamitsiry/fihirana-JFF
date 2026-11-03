@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/design_system/app_surfaces.dart';
@@ -67,7 +68,14 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    _currentDisplayedHymn = widget.hymn;
+    // This player is the window onto what the audio holds; the screen's hymn is
+    // only the starting point while nothing is loaded. A recording stays with
+    // the recording windows, as everywhere else in this widget.
+    final loaded = _audioService.currentHymn;
+    _currentDisplayedHymn =
+        loaded != null && !loaded.id.startsWith('recording_')
+            ? loaded
+            : widget.hymn;
     _initializePlayer();
   }
 
@@ -117,11 +125,6 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
           });
         }
 
-        if (state.processingState == ProcessingState.completed &&
-            widget.autoPlayNext &&
-            widget.playlist != null) {
-          _playNext();
-        }
         if (state.processingState == ProcessingState.idle &&
             !currentHymn.id.startsWith('recording_') &&
             currentHymn.id == _currentDisplayedHymn?.id) {
@@ -221,10 +224,17 @@ class _ModernAudioPlayerWidgetState extends State<ModernAudioPlayerWidget> {
           await _audioService.resume();
         }
       } else {
-        setState(() {
-          _isLoading = true;
-        });
-        await _audioService.playHymn(_currentDisplayedHymn ?? widget.hymn);
+        final hymn = _currentDisplayedHymn ?? widget.hymn;
+        if (_audioService.currentPlayingHymnId.isNotEmpty &&
+            _audioService.currentPlayingHymnId != hymn.id) {
+          // Another hymn is loaded, so this tap has two possible meanings.
+          await playOrCueHymn(context, hymn);
+        } else {
+          setState(() {
+            _isLoading = true;
+          });
+          await _audioService.playHymn(hymn);
+        }
       }
     } catch (e) {
       if (mounted) {

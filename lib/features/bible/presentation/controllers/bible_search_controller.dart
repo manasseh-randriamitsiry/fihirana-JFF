@@ -26,6 +26,10 @@ class BibleSearchController extends GetxController {
   final RxList<String> searchHistory = <String>[].obs;
   String _lastExecutedQuery = '';
   BibleSearchContext? _lastExecutedContext;
+  String _lastExecutedPassage = '';
+
+  Set<int> _highlightedVerses = {};
+  String? _highlightCacheKey;
 
   // Delegates verse navigation to the parent controller, which owns the
   // active chapter, highlight streams, and reader scroll state.
@@ -44,19 +48,60 @@ class BibleSearchController extends GetxController {
     }
   }
 
+  /// The scope a search actually runs in. The reader can open the dialog before
+  /// a chapter is on screen, and a scope that silently finds nothing reads as a
+  /// broken search, so both cases mean the whole Bible.
+  BibleSearchContext get activeSearchContext => _resolve(searchContext.value);
+
+  /// Whether the reader sits on a chapter, which is the only moment searching
+  /// that chapter can mean anything.
+  bool get hasOpenChapter => _openPassage.isNotEmpty;
+
+  BibleSearchContext _resolve(BibleSearchContext? context) {
+    final hasOpenChapter = _openPassage.isNotEmpty;
+    if (context == null) {
+      // Nothing picked yet: the chapter the reader is on, since that is the
+      // passage in front of them.
+      return hasOpenChapter
+          ? BibleSearchContext.currentChapter
+          : BibleSearchContext.allBible;
+    }
+    if (context == BibleSearchContext.currentChapter && !hasOpenChapter) {
+      return BibleSearchContext.allBible;
+    }
+    return context;
+  }
+
+  /// The chapter the reader sits on as '<book> <chapter>', or '' when no
+  /// chapter is open. A chapter change moves the results of a chapter search,
+  /// so it is part of what says whether a search already ran.
+  String get _openPassage {
+    final bookController = Get.find<BibleBookController>();
+    final book = bookController.selectedBook.value;
+    final chapter = bookController.selectedChapter.value;
+    return book.isEmpty || chapter <= 0 ? '' : '$book $chapter';
+  }
+
   Future<void> performSearch() async {
     final query = searchQuery.value.trim();
-    if (query.isEmpty) return;
-    final context = searchContext.value;
+    if (query.isEmpty) {
+      clearSearchResults();
+      return;
+    }
+    final context = activeSearchContext;
+    final passage =
+        context == BibleSearchContext.currentChapter ? _openPassage : '';
 
-    if (query == _lastExecutedQuery && context == _lastExecutedContext) {
+    if (query == _lastExecutedQuery &&
+        context == _lastExecutedContext &&
+        passage == _lastExecutedPassage) {
       return;
     }
 
     try {
       isSearching.value = true;
 
-      List<BibleSearchResult> results = [];
+      List<BibleSearchResult> results;
 
       // Search based on current context
       if (context == BibleSearchContext.books) {
@@ -72,31 +117,17 @@ class BibleSearchController extends GetxController {
                   relevance: 1.0,
                 ))
             .toList();
-      } else if (context == BibleSearchContext.allBible) {
-        // Search all verses
+      } else {
         final verses = _searchVersesUseCase(query);
-        results = _convertVerseSearchResults(verses);
-      } else if (context == BibleSearchContext.currentChapter) {
-        // Search only in current chapter
-        final bookController = Get.find<BibleBookController>();
-        final currentBook = bookController.selectedBook.value;
-        final currentChapter = bookController.selectedChapter.value;
-
-        if (currentBook.isNotEmpty && currentChapter > 0) {
-          final allVerses = _searchVersesUseCase(query);
-          // Filter to only current chapter
-          final filteredVerses = allVerses
-              .where((verse) =>
-                  verse.bookName == currentBook &&
-                  verse.chapter == currentChapter)
-              .toList();
-          results = _convertVerseSearchResults(filteredVerses);
-        }
+        results = context == BibleSearchContext.currentChapter
+            ? _convertVerseSearchResults(_inOpenChapter(verses, passage))
+            : _convertVerseSearchResults(verses);
       }
 
       searchResults.value = results;
       _lastExecutedQuery = query;
       _lastExecutedContext = context;
+      _lastExecutedPassage = passage;
 
       // Add to search history
       addToSearchHistory(query);
@@ -105,6 +136,13 @@ class BibleSearchController extends GetxController {
     } finally {
       isSearching.value = false;
     }
+  }
+
+  List<VerseSearchResult> _inOpenChapter(
+      List<VerseSearchResult> verses, String passage) {
+    return verses
+        .where((verse) => '${verse.bookName} ${verse.chapter}' == passage)
+        .toList();
   }
 
   /// Convert VerseSearchResult to BibleSearchResult
@@ -124,9 +162,21 @@ class BibleSearchController extends GetxController {
 
   void clearSearchResults() {
     searchResults.clear();
-    searchContext.value = null;
     _lastExecutedQuery = '';
     _lastExecutedContext = null;
+    _lastExecutedPassage = '';
+    _highlightCacheKey = null;
+    _highlightedVerses = {};
+  }
+
+  /// Empty the field, its results and the picked scope. The controller lives
+  /// with the reader, not with the dialog, so a dialog that reopens without
+  /// this shows the previous search's hits under an empty field - and stays on
+  /// a scope chosen during the search that has since been closed.
+  void resetSearch() {
+    searchQuery.value = '';
+    searchContext.value = null;
+    clearSearchResults();
   }
 
   void addToSearchHistory(String query) {
@@ -189,5 +239,25 @@ class BibleSearchController extends GetxController {
     }
   }
 
-  bool isVerseSearchHighlighted(int verse) => false; // placeholder
+  bool isVerseSearchHighlighted(int verse) {
+    if (searchResults.isEmpty) return false;
+
+    final bookController = Get.find<BibleBookController>();
+    // Rebuilt only when the visible chapter or the query changes: the reader
+    // asks per rendered verse, and a result list can run into the thousands.
+    final chapterKey =
+        '${bookController.selectedBook.value} ${bookController.selectedChapter.value}';
+    final cacheKey = '${searchQuery.value.trim()}|$chapterKey';
+    if (_highlightCacheKey != cacheKey) {
+      _highlightCacheKey = cacheKey;
+      _highlightedVerses = {
+        for (final result in searchResults)
+          if (result.type == BibleSearchResultType.verse &&
+              '${result.bookName} ${result.chapter}' == chapterKey)
+            result.verse,
+      };
+    }
+
+    return _highlightedVerses.contains(verse);
+  }
 }

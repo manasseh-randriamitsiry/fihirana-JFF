@@ -29,38 +29,44 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
     final width = MediaQuery.sizeOf(context).width;
 
     if (width < 800) {
-      // Phone Layout: Use ZoomDrawer globally. This branch does not depend on
-      // any reactive state, so it must not be wrapped in Obx.
-      return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) async {
-          if (didPop) return;
+      // Phone Layout: Use ZoomDrawer globally. The drawer itself stays mounted
+      // so the back gesture keeps a valid controller, but on splash, loading and
+      // consent screens it must not be swipeable.
+      return Obx(() {
+        final drawerLocked = !shellController.isDrawerEnabled.value;
 
-          final navigator = Get.key.currentState;
-          if (navigator != null && navigator.canPop()) {
-            navigator.pop();
-          } else {
-            shellController.toggleDrawer();
-          }
-        },
-        child: ZoomDrawer(
-          controller: shellController.zoomDrawerController,
-          style: DrawerStyle.defaultStyle,
-          menuScreen: DrawerWidget(
-            key: const ValueKey('zoom_drawer'),
-            openDrawer: shellController.toggleDrawer,
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) async {
+            if (didPop) return;
+
+            final navigator = Get.key.currentState;
+            if (navigator != null && navigator.canPop()) {
+              navigator.pop();
+            } else {
+              shellController.toggleDrawer();
+            }
+          },
+          child: ZoomDrawer(
+            controller: shellController.zoomDrawerController,
+            style: DrawerStyle.defaultStyle,
+            menuScreen: DrawerWidget(
+              key: const ValueKey('zoom_drawer'),
+              openDrawer: shellController.toggleDrawer,
+            ),
+            mainScreen: widget.child,
+            borderRadius: AppScale.radiusSurface,
+            showShadow: true,
+            angle: -12.0,
+            menuBackgroundColor: s.paper,
+            slideWidth: math.min(width * 0.85, AppScale.drawerWidth + 40),
+            disableDragGesture: drawerLocked,
+            mainScreenTapClose: true,
+            openCurve: AppScale.easeOut,
+            closeCurve: AppScale.easeInOut,
           ),
-          mainScreen: widget.child,
-          borderRadius: AppScale.radiusSurface,
-          showShadow: true,
-          angle: -12.0,
-          menuBackgroundColor: s.paper,
-          slideWidth: math.min(width * 0.85, AppScale.drawerWidth + 40),
-          mainScreenTapClose: true,
-          openCurve: AppScale.easeOut,
-          closeCurve: AppScale.easeInOut,
-        ),
-      );
+        );
+      });
     }
 
     // Tablet/Desktop Layout: only the drawer-enabled flag needs to rebuild.

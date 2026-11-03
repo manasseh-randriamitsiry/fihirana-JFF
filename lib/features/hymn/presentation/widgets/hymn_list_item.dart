@@ -6,6 +6,7 @@ import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/navigation_utility.dart';
 import 'package:fihirana/features/hymn/data/services/hymn_service.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:fihirana/shared/widgets/common/localization_extension.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -197,9 +198,10 @@ class _HymnListItemState extends State<HymnListItem> {
           await _audioService.resume();
         }
       } else {
-        // Otherwise, stop current and play new
+        // Otherwise, ask whether this tap queues the hymn or replaces what is
+        // playing.
         if (_audioService.currentPlayingHymnId.isNotEmpty) {
-          await _audioService.stopCurrentAndPlayNew(widget.hymn);
+          await playOrCueHymn(context, widget.hymn);
         } else {
           await _audioService.playHymn(widget.hymn);
         }

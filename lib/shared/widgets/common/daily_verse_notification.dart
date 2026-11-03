@@ -1,5 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'notification_styles.dart';
+import 'package:fihirana/shared/widgets/common/notification_styles.dart';
 
 class DailyVerseNotificationBuilder {
   static const int notificationId = 100;
@@ -18,6 +19,7 @@ class DailyVerseNotificationBuilder {
       channelKey: 'daily_verse_channel',
       title: '📖 $reference',
       body: text,
+      category: NotificationCategory.Reminder,
       additionalPayload: {
         'book': book,
         'chapter': chapter.toString(),
@@ -28,13 +30,27 @@ class DailyVerseNotificationBuilder {
 
     await AwesomeNotifications().createNotification(
       content: content,
-      schedule: NotificationCalendar(
-        hour: hour,
-        minute: minute,
-        second: 0,
-        repeats: true,
-        allowWhileIdle: true,
-      ),
+      schedule: dailySchedule(hour, minute),
+    );
+  }
+
+  /// The daily verse alarm, deliberately repeating instead of one-shot.
+  ///
+  /// A repeating schedule is the one that survives a week without a launch: a
+  /// one-shot would have to be re-created by the app itself, so the verse would
+  /// simply stop arriving. The plugin's own documentation warns that repeating
+  /// schedules can still be delayed by the system's battery savers, which is
+  /// what the exact-alarm and Doze checks in [NotificationReliability] exist
+  /// to surface to the user.
+  @visibleForTesting
+  static NotificationCalendar dailySchedule(int hour, int minute) {
+    return NotificationCalendar(
+      hour: hour,
+      minute: minute,
+      second: 0,
+      repeats: true,
+      allowWhileIdle: true,
+      preciseAlarm: true,
     );
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -58,6 +60,11 @@ class AnnouncementController extends GetxController {
   final RxString searchQuery = ''.obs;
   final RxList<Announcement> filteredAnnouncements = <Announcement>[].obs;
 
+  // One pair of Firestore listeners per controller: every rebind has to drop
+  // the previous pair or each screen visit keeps emitting forever.
+  StreamSubscription<List<Announcement>>? _announcementsSubscription;
+  StreamSubscription<List<Announcement>>? _activeAnnouncementsSubscription;
+
   @override
   void onInit() {
     super.onInit();
@@ -75,9 +82,14 @@ class AnnouncementController extends GetxController {
 
   /// Setup real-time streams
   void _setupStreams() {
+    _announcementsSubscription?.cancel();
+    _activeAnnouncementsSubscription?.cancel();
+
     // Stream all announcements
-    _streamAllAnnouncementsUseCase.execute().listen(
+    _announcementsSubscription =
+        _streamAllAnnouncementsUseCase.execute().listen(
       (announcementList) {
+        errorMessage.value = '';
         announcements.assignAll(announcementList);
         _applySearchFilter();
         if (kDebugMode) {
@@ -93,8 +105,10 @@ class AnnouncementController extends GetxController {
     );
 
     // Stream active announcements
-    _streamActiveAnnouncementsUseCase.execute().listen(
+    _activeAnnouncementsSubscription =
+        _streamActiveAnnouncementsUseCase.execute().listen(
       (activeList) {
+        errorMessage.value = '';
         activeAnnouncements.assignAll(activeList);
         if (kDebugMode) {
           print('✅ Active announcements updated: ${activeList.length} active');
@@ -347,7 +361,10 @@ class AnnouncementController extends GetxController {
 
   @override
   void onClose() {
-    // Cleanup if needed
+    _announcementsSubscription?.cancel();
+    _activeAnnouncementsSubscription?.cancel();
+    _announcementsSubscription = null;
+    _activeAnnouncementsSubscription = null;
     super.onClose();
   }
 }

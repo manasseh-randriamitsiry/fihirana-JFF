@@ -133,7 +133,7 @@ class AppGroupHead extends StatelessWidget {
               Expanded(
                   child: Text(title,
                       style: type.labelLarge?.copyWith(
-                          color: s.muted, fontWeight: FontWeight.w600))),
+                          color: s.muted, fontWeight: FontWeight.w700))),
               if (count != null)
                 Text('$count',
                     style: AppTypography.figure(s, size: AppScale.figureSm)),

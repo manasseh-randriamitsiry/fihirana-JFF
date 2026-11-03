@@ -17,12 +17,19 @@ class DailyVerseService implements IDailyVerseService {
   static const String _lastVerseKey = 'last_daily_verse';
   static const String _lastVerseDateKey = 'last_daily_verse_date';
 
+  /// The next notification time as minutes since midnight, or unset when the
+  /// user never scheduled one. Needed to tell "disabled" apart from the
+  /// settings default of enabled=true.
+  static const String _scheduledAtKey = 'daily_verse_scheduled_minutes';
+
   /// Get the verse of the day
   @override
   Future<DailyVerse> getVerseOfTheDay() async {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now();
-    final todayString = '${today.year}-${today.month}-${today.day}';
+    // Zero-padded, because DateTime.parse below reads this same string back and
+    // rejects the unpadded form a day like 2026-11-03 produces.
+    final todayString = today.toIso8601String().substring(0, 10);
 
     // Check if we already have a verse for today
     final lastVerseDate = prefs.getString(_lastVerseDateKey);
@@ -182,11 +189,13 @@ class DailyVerseService implements IDailyVerseService {
   /// Schedule daily notification at specified time
   @override
   Future<void> scheduleDailyNotification(int hour, int minute) async {
+    // Resolve the verse before the alarm is touched. This throws when the
+    // corpus is not ready yet, and a failed re-arm must not leave the user with
+    // no scheduled verse at all.
+    final verse = await getVerseOfTheDay();
+
     // Cancel existing notifications first
     await cancelDailyNotifications();
-
-    // Get today's verse
-    final verse = await getVerseOfTheDay();
 
     // Create notification
     await DailyVerseNotificationBuilder.scheduleDailyVerse(
@@ -199,15 +208,36 @@ class DailyVerseService implements IDailyVerseService {
       minute: minute,
     );
 
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_scheduledAtKey, hour * 60 + minute);
+
     if (kDebugMode) {
       print('Daily verse notification scheduled for $hour:$minute');
     }
+  }
+
+  /// Re-arm the stored schedule with today's verse.
+  ///
+  /// A scheduled notification keeps the body it was created with, so without
+  /// this the "daily" verse repeats whatever was current when the settings
+  /// screen was last opened. Launches that never scheduled anything are
+  /// ignored so the feature is not enabled by itself.
+  @override
+  Future<void> rearmScheduledNotification() async {
+    final prefs = await SharedPreferences.getInstance();
+    final minutesSinceMidnight = prefs.getInt(_scheduledAtKey);
+    if (minutesSinceMidnight == null) return;
+
+    await scheduleDailyNotification(
+        minutesSinceMidnight ~/ 60, minutesSinceMidnight % 60);
   }
 
   /// Cancel all daily verse notifications
   @override
   Future<void> cancelDailyNotifications() async {
     await DailyVerseNotificationBuilder.cancelDailyVerseNotifications();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_scheduledAtKey);
     if (kDebugMode) {
       print('Daily verse notifications cancelled');
     }

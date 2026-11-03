@@ -33,7 +33,6 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   late Hymn _currentHymn;
   List<Hymn> _playlist = [];
   int _currentIndex = 0;
-  bool _autoPlayNext = false;
   final Map<String, double> _downloadProgress = <String, double>{};
   bool _isFavorite = false;
 
@@ -143,9 +142,10 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
   }
 
   void _onAutoPlayNextChange(bool value) {
-    setState(() {
-      _autoPlayNext = value;
-    });
+    // The player, not this screen, decides what starts when a hymn ends, so the
+    // switch writes there and reads back from there.
+    _audioService.setAutoPlayNext(value);
+    setState(() {});
   }
 
   Future<void> _downloadAudioForHymn(Hymn hymn) async {
@@ -215,7 +215,7 @@ class _AudioPlayerScreenState extends State<AudioPlayerScreen> {
         onHymnChange: _onHymnChange,
         isFavorite: _isFavorite,
         onToggleFavorite: _toggleFavorite,
-        autoPlayNext: _autoPlayNext,
+        autoPlayNext: _audioService.autoPlayNext,
         onAutoPlayNextChange: _onAutoPlayNextChange,
         onClose: () => Navigator.of(context).pop(),
         onDownload: _downloadAudioForHymn,

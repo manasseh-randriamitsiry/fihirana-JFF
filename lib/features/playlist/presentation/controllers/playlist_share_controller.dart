@@ -52,6 +52,8 @@ class PlaylistShareController extends GetxController {
       await _playlistService.createPlaylist(
         '${playlist.title} (Imported)',
         playlist.date,
+        description: playlist.description,
+        hymnIds: playlist.hymnIds,
       );
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorImportingPlaylist'.tr);
@@ -73,6 +75,8 @@ class PlaylistShareController extends GetxController {
           await _playlistService.createPlaylist(
             '${playlist.title} (Imported)',
             playlist.date,
+            description: playlist.description,
+            hymnIds: playlist.hymnIds,
           );
         }
       }

@@ -151,6 +151,9 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     final recording =
         await _controller.stopRecording(widget.hymnId, widget.hymnTitle);
 
+    // Encoding and saving take seconds, during which the host screen can pop.
+    if (!mounted) return;
+
     if (recording != null) {
       // Store's current recording for later reference
       _currentRecording = recording;
@@ -188,6 +191,8 @@ class _RecordingOverlayState extends State<RecordingOverlay>
     if (_currentRecording != null) {
       // Update recording name
       await _controller.renameRecording(_currentRecording!, name);
+
+      if (!mounted) return;
 
       if (uploadToDrive || isPublic) {
         // Transition to uploading state

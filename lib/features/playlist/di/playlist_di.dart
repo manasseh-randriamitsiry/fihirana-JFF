@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/features/playlist/presentation/controllers/playlist_controller.dart';
 import 'package:fihirana/features/playlist/data/services/playlist_service.dart';
 
@@ -10,18 +9,17 @@ class PlaylistDI {
 
   /// Initialize playlist dependencies
   static void initialize() {
-    // Services
-    Get.lazyPut<SharedPreferences>(
-      () => throw UnimplementedError(
-          'SharedPreferences should be initialized globally'),
-    );
     Get.lazyPut<FirebaseAuth>(
       () => FirebaseAuth.instance,
+      fenix: true,
     );
 
     // Playlist Service
+    // fenix keeps one service alive across routes; its Firestore watcher is
+    // rebound per listener, so it must not be recreated on every screen visit.
     Get.lazyPut<PlaylistService>(
       () => PlaylistService(),
+      fenix: true,
     );
 
     // Controller
@@ -42,9 +40,10 @@ class PlaylistDI {
   /// Dispose playlist dependencies
   static void dispose() {
     Get.delete<PlaylistController>(tag: _playlistControllerTag);
+    if (Get.isRegistered<PlaylistService>()) {
+      Get.find<PlaylistService>().dispose();
+    }
     Get.delete<PlaylistService>();
-    Get.delete<FirebaseAuth>();
-    Get.delete<SharedPreferences>();
   }
 
   /// Reset playlist dependencies (for testing)

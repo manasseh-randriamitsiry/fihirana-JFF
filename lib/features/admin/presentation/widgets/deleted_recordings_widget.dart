@@ -34,11 +34,14 @@ class _DeletedRecordingsWidgetState extends State<DeletedRecordingsWidget> {
     try {
       setState(() => isLoading = true);
       final recordings = await _controller.getDeletedRecordings();
+      // The admin tabs swap this widget out while the fetch is in flight.
+      if (!mounted) return;
       setState(() {
         deletedRecordings = recordings;
         isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => isLoading = false);
       if (mounted) {
         Get.snackbar(

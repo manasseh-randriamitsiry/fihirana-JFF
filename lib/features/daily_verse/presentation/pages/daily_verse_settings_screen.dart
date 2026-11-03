@@ -87,6 +87,26 @@ class DailyVerseSettingsScreen extends StatelessWidget {
                   ),
                 ),
                 const AppGroupDivider(),
+                // Only when Android is free to delay the verse: a permission the
+                // user has not granted, or Doze still watching the app.
+                Obx(
+                  () => controller.deliveryAtRisk.value
+                      ? Column(
+                          children: [
+                            AppListRow(
+                              icon: Icons.notifications_off_outlined,
+                              title: l10n.appPermissions,
+                              subtitle: l10n.notificationsPermissionDescription,
+                              trailing: TextButton(
+                                onPressed: controller.resolveDeliveryRisk,
+                                child: Text(l10n.openSettings),
+                              ),
+                            ),
+                            const AppGroupDivider(),
+                          ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
                 Obx(
                   () => AnimatedOpacity(
                     opacity: controller.isEnabled.value ? 1 : .45,

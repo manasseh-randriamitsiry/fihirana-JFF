@@ -8,14 +8,17 @@ import 'package:fihirana/core/design_system/app_scale.dart';
 class BibleVerseSelectionSheet extends StatefulWidget {
   final String bookName;
   final int chapter;
-  final int totalVerses;
+
+  /// The chapter's real verse numbers, ascending. Gaps are normal: chapters
+  /// skip verses that have no text, so every picker works from this list.
+  final List<int> verseNumbers;
   final Function(int startVerse, int endVerse) onReadVerses;
 
   const BibleVerseSelectionSheet({
     super.key,
     required this.bookName,
     required this.chapter,
-    required this.totalVerses,
+    required this.verseNumbers,
     required this.onReadVerses,
   });
 
@@ -27,6 +30,47 @@ class BibleVerseSelectionSheet extends StatefulWidget {
 class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
   int? _startVerse;
   int? _endVerse;
+
+  List<int> get _verses => widget.verseNumbers;
+  int? get _firstVerse => _verses.isEmpty ? null : _verses.first;
+  int? get _lastVerse => _verses.isEmpty ? null : _verses.last;
+
+  /// The verse just before [verseNumber] in this chapter, or null at the top.
+  int? _verseBefore(int verseNumber) => _shift(verseNumber, -1);
+
+  /// The verse just after [verseNumber] in this chapter, or null at the bottom.
+  int? _verseAfter(int verseNumber) => _shift(verseNumber, 1);
+
+  int? _shift(int verseNumber, int delta) {
+    final index = _verses.indexOf(verseNumber);
+    if (index == -1) return null;
+    final target = index + delta;
+    if (target < 0 || target >= _verses.length) return null;
+    return _verses[target];
+  }
+
+  /// Moves the start boundary one real verse up (-1) or down (+1).
+  void _shiftStart(int delta) {
+    final current = _startVerse ?? _firstVerse;
+    if (current == null) return;
+    final next = _shift(current, delta);
+    if (next == null) return;
+    _startVerse = next;
+    _endVerse ??= _lastVerse;
+    if (_endVerse! < _startVerse!) _endVerse = _startVerse;
+  }
+
+  /// Moves the end boundary one real verse up (-1) or down (+1) without
+  /// crossing the start boundary.
+  void _shiftEnd(int delta) {
+    final current = _endVerse ?? _lastVerse;
+    if (current == null) return;
+    final next = _shift(current, delta);
+    if (next == null) return;
+    _startVerse ??= _firstVerse;
+    if (_startVerse != null && next < _startVerse!) return;
+    _endVerse = next;
+  }
 
   @override
   void initState() {
@@ -60,19 +104,21 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
         // Multi-verse range selected
         final minV = _startVerse!;
         final maxV = _endVerse!;
+        final outsideStart = _verseBefore(minV);
+        final outsideEnd = _verseAfter(maxV);
 
-        if (verseNumber == minV - 1) {
+        if (outsideStart != null && verseNumber == outsideStart) {
           // Tap top neighbor -> expand top
           _startVerse = verseNumber;
-        } else if (verseNumber == maxV + 1) {
+        } else if (outsideEnd != null && verseNumber == outsideEnd) {
           // Tap bottom neighbor -> expand bottom
           _endVerse = verseNumber;
         } else if (verseNumber == minV) {
           // Tap top boundary -> shrink top
-          _startVerse = minV + 1;
+          _startVerse = _verseAfter(minV) ?? minV;
         } else if (verseNumber == maxV) {
           // Tap bottom boundary -> shrink bottom
-          _endVerse = maxV - 1;
+          _endVerse = _verseBefore(maxV) ?? maxV;
         } else {
           // Tap inside range or far away -> deselect previous, select ONLY this 1 verse
           _startVerse = verseNumber;
@@ -83,16 +129,18 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
   }
 
   void _selectEntireChapter() {
+    if (_verses.isEmpty) return;
     HapticFeedback.lightImpact();
     Navigator.of(context).pop();
-    widget.onReadVerses(1, widget.totalVerses);
+    widget.onReadVerses(_firstVerse!, _lastVerse!);
   }
 
   void _confirmSelection() {
+    if (_verses.isEmpty) return;
     HapticFeedback.mediumImpact();
     Navigator.of(context).pop();
-    final start = _startVerse ?? 1;
-    final end = _endVerse ?? widget.totalVerses;
+    final start = _startVerse ?? _firstVerse!;
+    final end = _endVerse ?? _lastVerse!;
     widget.onReadVerses(start, end);
   }
 
@@ -173,7 +221,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                       ),
                     ),
                     Text(
-                      l10n.versesCount(widget.totalVerses),
+                      l10n.versesCount(_verses.length),
                       style: TextStyle(
                         fontSize: 13,
                         color: textColor.withValues(alpha: 0.6),
@@ -250,26 +298,8 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
               _buildVerseStepper(
                 label: l10n.fromVerse,
                 value: _startVerse,
-                onDecrement: () {
-                  setState(() {
-                    final current = _startVerse ?? 1;
-                    if (current > 1) {
-                      _startVerse = current - 1;
-                      _endVerse ??= widget.totalVerses;
-                      if (_endVerse! < _startVerse!) _endVerse = _startVerse;
-                    }
-                  });
-                },
-                onIncrement: () {
-                  setState(() {
-                    final current = _startVerse ?? 1;
-                    if (current < widget.totalVerses) {
-                      _startVerse = current + 1;
-                      _endVerse ??= widget.totalVerses;
-                      if (_endVerse! < _startVerse!) _endVerse = _startVerse;
-                    }
-                  });
-                },
+                onDecrement: () => setState(() => _shiftStart(-1)),
+                onIncrement: () => setState(() => _shiftStart(1)),
                 accentColor: startColor,
                 textColor: textColor,
               ),
@@ -284,24 +314,8 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
               _buildVerseStepper(
                 label: l10n.toVerse,
                 value: _endVerse,
-                onDecrement: () {
-                  setState(() {
-                    _startVerse ??= 1;
-                    final current = _endVerse ?? widget.totalVerses;
-                    if (current > _startVerse!) {
-                      _endVerse = current - 1;
-                    }
-                  });
-                },
-                onIncrement: () {
-                  setState(() {
-                    _startVerse ??= 1;
-                    final current = _endVerse ?? widget.totalVerses;
-                    if (current < widget.totalVerses) {
-                      _endVerse = current + 1;
-                    }
-                  });
-                },
+                onDecrement: () => setState(() => _shiftEnd(-1)),
+                onIncrement: () => setState(() => _shiftEnd(1)),
                 accentColor: endColor,
                 textColor: textColor,
               ),
@@ -312,7 +326,7 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
 
           // Grid of verse numbers for quick tap selection
           Expanded(
-            child: widget.totalVerses == 0
+            child: _verses.isEmpty
                 ? Center(
                     child: Text(
                       l10n.noVersesFound,
@@ -328,9 +342,9 @@ class _BibleVerseSelectionSheetState extends State<BibleVerseSelectionSheet> {
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
                     ),
-                    itemCount: widget.totalVerses,
+                    itemCount: _verses.length,
                     itemBuilder: (context, index) {
-                      final verse = index + 1;
+                      final verse = _verses[index];
                       final isStart =
                           _startVerse != null && verse == _startVerse;
                       final isEnd = _endVerse != null &&

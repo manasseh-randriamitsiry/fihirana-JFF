@@ -32,6 +32,7 @@ class _AppBootstrapState extends State<AppBootstrap>
   String _currentTask = 'Initializing app...';
   StreamSubscription<InitProgressEvent>? _progressSubscription;
   bool _servicesInitialized = false;
+  String? _bootError;
   late AnimationController _animationController;
   late Animation<double> _progressAnimation;
   double _animatedProgress = 0.0;
@@ -117,11 +118,13 @@ class _AppBootstrapState extends State<AppBootstrap>
 
       await serviceLocator.initialize();
 
+      if (!mounted) return;
       setState(() => _servicesInitialized = true);
 
       // Step 3: Initialize App with Comprehensive Progress Tracking (30% -> 90%)
       await InitService.initializeApp();
 
+      if (!mounted) return;
       setState(() {
         _progress = 0.9;
         _currentTask = 'App initialized';
@@ -140,6 +143,7 @@ class _AppBootstrapState extends State<AppBootstrap>
       // Initialize Playlist DI after SharedPreferences is ready
       PlaylistDI.initialize();
 
+      if (!mounted) return;
       setState(() {
         _progress = 0.95;
         _currentTask = 'Preferences loaded';
@@ -150,13 +154,18 @@ class _AppBootstrapState extends State<AppBootstrap>
       try {
         final isFirstRun = prefs.getBool('first_run') ?? true;
         if (isFirstRun) {
-          await FirebaseFirestore.instance
-              .collection('stats')
-              .doc('global')
-              .set({
-            'installations': FieldValue.increment(1),
-          }, SetOptions(merge: true));
-          await prefs.setBool('first_run', false);
+          // Fire and forget: a first-run counter is not worth holding the first
+          // frame behind a network round trip.
+          prefs.setBool('first_run', false);
+          unawaited(
+            FirebaseFirestore.instance.collection('stats').doc('global').set({
+              'installations': FieldValue.increment(1),
+            }, SetOptions(merge: true)).catchError((Object e) {
+              if (kDebugMode) {
+                print('Error tracking installation: $e');
+              }
+            }),
+          );
         }
       } catch (e) {
         if (kDebugMode) {
@@ -164,25 +173,15 @@ class _AppBootstrapState extends State<AppBootstrap>
         }
       }
 
-      // Step 5: Final security check (95% -> 100%)
-      // Allow security service to complete its checks
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      if (!mounted) return;
       setState(() {
         _progress = 1.0;
         _currentTask = 'Ready!';
         _animateProgress();
       });
 
-      // Small delay to show completion
-      await Future.delayed(const Duration(milliseconds: 300));
-
       if (mounted) {
-        runApp(
-          Phoenix(
-            child: MyApp(prefs: prefs),
-          ),
-        );
+        _launchApp(prefs);
       }
     } catch (e) {
       if (kDebugMode) {
@@ -190,19 +189,27 @@ class _AppBootstrapState extends State<AppBootstrap>
         print('Initialization summary: ${initProgressTracker.getSummary()}');
       }
 
-      // Try to continue anyway
-      final prefs = await SharedPreferences.getInstance();
-      Get.put<SharedPreferences>(prefs);
+      // A half-wired dependency graph must be a choice, not a silent fallback.
       if (mounted) {
-        runApp(
-          Phoenix(
-            child: MyApp(prefs: prefs),
-          ),
-        );
+        setState(() => _bootError = e.toString());
       }
     } finally {
       await _progressSubscription?.cancel();
     }
+  }
+
+  void _launchApp(SharedPreferences prefs) {
+    runApp(
+      Phoenix(
+        child: MyApp(prefs: prefs),
+      ),
+    );
+  }
+
+  Future<void> _continueAnyway() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!Get.isRegistered<SharedPreferences>()) Get.put<SharedPreferences>(prefs);
+    _launchApp(prefs);
   }
 
   @override
@@ -214,6 +221,56 @@ class _AppBootstrapState extends State<AppBootstrap>
         ? colorController.getDarkTheme()
         : colorController.getLightTheme();
     final colorScheme = theme.colorScheme;
+
+    if (_bootError != null) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: theme,
+        home: Scaffold(
+          body: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isTablet ? 480 : 360),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: AppScale.space24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline_rounded,
+                        size: 48, color: colorScheme.error),
+                    const SizedBox(height: AppScale.space16),
+                    Text(
+                      'Something went wrong while starting the app.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: AppScale.space8),
+                    Text(
+                      _bootError!,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                    const SizedBox(height: AppScale.buttonGap),
+                    FilledButton(
+                      onPressed: () {
+                        setState(() => _bootError = null);
+                        _initialize();
+                      },
+                      child: const Text('Retry'),
+                    ),
+                    const SizedBox(height: AppScale.buttonGap),
+                    TextButton(
+                      onPressed: _continueAnyway,
+                      child: const Text('Continue anyway'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
 
     if (!_servicesInitialized) {
       return MaterialApp(

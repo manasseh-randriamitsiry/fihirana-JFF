@@ -13,15 +13,17 @@ class CombinedHymnService {
   final Map<String, Hymn> _hymnCache = {};
   List<Hymn>? _allHymns;
   bool _isInitialized = false;
-  bool _isInitializing = false;
+  Future<void>? _initialization;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> initialize() async {
-    if (_isInitialized) return;
-    if (_isInitializing) return;
+  Future<void> initialize() {
+    if (_isInitialized) return Future.value();
+    // Concurrent callers must await the same load: returning early while a load
+    // is in flight handed them an empty corpus.
+    return _initialization ??= _loadCorpus();
+  }
 
-    _isInitializing = true;
-
+  Future<void> _loadCorpus() async {
     try {
       await _loadCombinedHymns();
       // Optimization: Don't load all Firebase hymns at startup
@@ -39,7 +41,8 @@ class CombinedHymnService {
       await _loadIndividualHymns();
       _isInitialized = true;
     } finally {
-      _isInitializing = false;
+      // A load that did not finish must not be cached for later callers.
+      if (!_isInitialized) _initialization = null;
     }
   }
 
@@ -167,7 +170,10 @@ class CombinedHymnService {
     if (!_isInitialized) {
       await initialize();
     }
-    return _allHymns ?? [];
+    // Hand out a copy: callers sort and filter the result in place, which would
+    // otherwise rewrite the shared corpus for every other reader.
+    final hymns = _allHymns;
+    return hymns == null ? [] : List<Hymn>.from(hymns);
   }
 
   Future<Hymn?> getHymnById(String id) async {
@@ -299,11 +305,14 @@ class CombinedHymnService {
     );
   }
 
-  void clearCache() {
+  Future<void> clearCache() async {
+    // Await the in-flight load before wiping: dropping the handle would let it
+    // repopulate the cache we just cleared.
+    await _initialization?.catchError((_) {});
+    _initialization = null;
     _hymnCache.clear();
     _allHymns = null;
     _isInitialized = false;
-    _isInitializing = false;
   }
 
   bool get isInitialized => _isInitialized;

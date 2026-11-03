@@ -4,6 +4,7 @@ import 'package:fihirana/core/design_system/app_surfaces.dart';
 import 'package:fihirana/core/design_system/components/app_register_row.dart';
 import 'package:fihirana/core/design_system/components/app_sheet.dart';
 import 'package:fihirana/core/design_system/components/app_state_view.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 
@@ -62,6 +63,15 @@ class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
           ),
         ),
         const AppRule(firm: true),
+        Flexible(
+          child: AudioCueList(
+            trailing: const AppRule(firm: true),
+            onPlayNow: (hymn) {
+              widget.onHymnChange?.call(hymn);
+              Navigator.pop(context);
+            },
+          ),
+        ),
         Flexible(
           child: playlist.isEmpty
               ? AppNotice(

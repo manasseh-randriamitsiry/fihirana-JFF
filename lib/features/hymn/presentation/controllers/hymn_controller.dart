@@ -100,6 +100,10 @@ class HymnController extends GetxController {
       _allHymns.value = sortedHymns;
       _applyFilter();
       isLoading.value = false;
+    }, onError: (Object error, StackTrace stack) {
+      // Without this the list spins forever when the corpus fails to load.
+      debugPrint('Error in hymns stream: $error');
+      isLoading.value = false;
     });
   }
 
@@ -148,21 +152,22 @@ class HymnController extends GetxController {
   }
 
   List<Hymn> filterHymnList(List<Hymn> hymns) {
-    hymns.sort((a, b) {
-      String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
-      String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+    final sorted = List<Hymn>.of(hymns)
+      ..sort((a, b) {
+        String numA = a.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
+        String numB = b.hymnNumber.replaceAll(RegExp(r'[^0-9]'), '');
 
-      if (numA.isNotEmpty && numB.isNotEmpty) {
-        return int.parse(numA).compareTo(int.parse(numB));
-      }
+        if (numA.isNotEmpty && numB.isNotEmpty) {
+          return int.parse(numA).compareTo(int.parse(numB));
+        }
 
-      return a.hymnNumber.compareTo(b.hymnNumber);
-    });
+        return a.hymnNumber.compareTo(b.hymnNumber);
+      });
 
     final searchQuery = searchController.text.toLowerCase();
-    if (searchQuery.isEmpty) return hymns;
+    if (searchQuery.isEmpty) return sorted;
 
-    return hymns
+    return sorted
         .where((hymn) =>
             hymn.hymnNumber.toLowerCase().contains(searchQuery) ||
             hymn.title.toLowerCase().contains(searchQuery) ||

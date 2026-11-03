@@ -47,6 +47,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     super.initState();
     BibleDI.init();
     bibleController = Get.find<BibleController>();
+    // Get keeps the controller alive after the reader is popped, so without
+    // this a second visit opens wherever the first one stopped instead of on
+    // the list of books.
+    bibleController.selectBook('');
     _loadSettings();
 
     // Listen for changes to highlightedVerse to scroll to it
@@ -258,8 +262,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   void _showVerseSelectionSheet(BuildContext context, int chapter) {
     final bookName = bibleController.selectedBook;
-    final totalVerses =
-        bibleController.getVerseCountForChapter(bookName, chapter);
+    final verseNumbers =
+        bibleController.getVerseNumbersForChapter(bookName, chapter);
 
     showModalBottomSheet(
       context: context,
@@ -268,9 +272,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       builder: (context) => BibleVerseSelectionSheet(
         bookName: bookName,
         chapter: chapter,
-        totalVerses: totalVerses,
+        verseNumbers: verseNumbers,
         onReadVerses: (startVerse, endVerse) {
-          if (startVerse == 1 && endVerse == totalVerses) {
+          if (verseNumbers.isEmpty ||
+              (startVerse == verseNumbers.first &&
+                  endVerse == verseNumbers.last)) {
             bibleController.highlightedVerse.value = 0;
             bibleController.selectChapter(chapter);
           } else {
@@ -287,7 +293,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    final verses = bibleController.getCurrentChapterVerses();
+    final verses = bibleController.getCurrentChapterVerseEntries();
     return Stack(
       children: [
         Column(
@@ -316,8 +322,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         onNext: () => _navigateChapter(1),
                       );
                     }
-                    final verseNumber = index + 1;
-                    final verseText = verses[index];
+                    final verseEntry = verses[index];
+                    final verseNumber = verseEntry.key;
+                    final verseText = verseEntry.value;
                     final isSelected = selectedVersesSet.contains(verseNumber);
 
                     return BibleVerseItemWidget(
@@ -432,15 +439,19 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       await Future<void>.delayed(const Duration(milliseconds: 32));
     }
 
-    final verseCount = bibleController.getCurrentChapterVerses().length;
+    final verseEntries = bibleController.getCurrentChapterVerseEntries();
     if (!mounted ||
         bibleController.highlightedVerse.value != highlightedVerse ||
         !_verseScrollController.isAttached ||
-        verseCount == 0) {
+        verseEntries.isEmpty) {
       return;
     }
 
-    final targetIndex = (highlightedVerse - 1).clamp(0, verseCount - 1);
+    // Verse numbers are not contiguous: locate the requested verse instead of
+    // treating its number as a list index.
+    final targetIndex = verseEntries.indexWhere(
+        (entry) => entry.key == highlightedVerse);
+    if (targetIndex == -1) return;
     try {
       await _verseScrollController.scrollTo(
         index: targetIndex,

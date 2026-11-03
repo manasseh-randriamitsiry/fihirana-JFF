@@ -905,6 +905,31 @@ class GoogleDriveService {
     }
   }
 
+  /// True only when Drive answers that the file is gone (missing or trashed).
+  /// Network, permission and initialization failures stay indeterminate so
+  /// callers never delete metadata for a file that may still exist.
+  Future<bool> isFileConfirmedGone(String fileId) async {
+    if (_driveApi == null) await _initializeDriveApi();
+    if (_driveApi == null) return false;
+
+    try {
+      final file = await _driveApi!.files.get(
+        fileId,
+        $fields: 'id, trashed',
+      ) as drive.File;
+      return file.id == null || file.trashed == true;
+    } catch (e) {
+      if (kDebugMode) {
+        print(
+            'GoogleDriveService: Could not confirm removal of $fileId: ${e.runtimeType}');
+      }
+      final message = e.toString();
+      return message.contains('404') ||
+          message.contains('notFound') ||
+          message.contains('Not Found');
+    }
+  }
+
   /// Check if a file can be deleted based on its capabilities
   Future<bool> canDeleteFile(String fileId) async {
     if (_driveApi == null) await _initializeDriveApi();
