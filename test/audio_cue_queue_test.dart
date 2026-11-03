@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/core/design_system/app_theme.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
+import 'package:fihirana/features/audio/presentation/widgets/compact_audio_player_widget.dart';
 import 'package:fihirana/features/audio/presentation/widgets/playlist_bottom_sheet.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -220,6 +221,39 @@ void main() {
 
     expect(handedOver?.id, 'h13');
     expect(service.cue.map((h) => h.id), ['h1']);
+  });
+
+  testWidgets('the player keeps the queue on screen as hymns leave it',
+      (tester) async {
+    final service = AudioService.instance;
+    await service.clearCue();
+    // Nothing is loaded in the test harness, so the transport and the offer to
+    // queue start from an empty player.
+    service.currentPlayingHymnIdRx.value = '';
+    await service.addToCue(_hymn('h13', '13'));
+    await service.addToCue(_hymn('h1', '1'));
+
+    await tester.pumpWidget(MaterialApp(
+      theme: buildFihiranaTheme(
+          ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FED))),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: CompactAudioPlayerWidget(hymn: _hymn('h20', '20')),
+      ),
+    ));
+    await tester.pump();
+
+    // Nothing is loaded in the test harness, so the offer to queue the hymn on
+    // screen is absent - but the hymns still waiting have to be visible.
+    expect(find.text('Add'), findsNothing);
+    expect(find.text('Fihirana 13'), findsOneWidget);
+    expect(find.text('Fihirana 1'), findsOneWidget);
+
+    await service.clearCue();
+    await tester.pump();
+
+    expect(find.text('Next'), findsNothing);
   });
 
   testWidgets('a second hymn is asked about, and cueing confirms the tap',

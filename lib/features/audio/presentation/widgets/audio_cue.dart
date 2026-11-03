@@ -152,32 +152,38 @@ class AudioCueList extends StatelessWidget {
               ],
             ),
           ),
-          ListView.separated(
-            key: const PageStorageKey('audio_cue_list'),
-            shrinkWrap: true,
-            padding: const EdgeInsets.fromLTRB(AppScale.gutter, AppScale.space4,
-                AppScale.gutter, AppScale.space8),
-            itemCount: cue.length,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: AppScale.space4),
-            itemBuilder: (context, index) {
-              final hymn = cue[index];
-              return AppRegisterRow(
-                key: ValueKey('cue_${hymn.id}_$index'),
-                figure: hymn.hymnNumber,
-                title: hymn.title,
-                // Tap plays it now, which also takes it out of the cue.
-                onTap: () {
-                  service.removeCuedAt(index);
-                  onPlayNow?.call(hymn);
-                },
-                trailing: IconButton(
-                  tooltip: l10n.remove,
-                  icon: const Icon(Icons.close_rounded, size: AppScale.iconMd),
-                  onPressed: () => service.removeCuedAt(index),
-                ),
-              );
-            },
+          // Flexible, not merely shrink-wrapped: the host caps this block, and a
+          // queue longer than the cap has to scroll inside it instead of pushing
+          // past the bottom of the sheet.
+          Flexible(
+            child: ListView.separated(
+              key: const PageStorageKey('audio_cue_list'),
+              shrinkWrap: true,
+              padding: const EdgeInsets.fromLTRB(AppScale.gutter,
+                  AppScale.space4, AppScale.gutter, AppScale.space8),
+              itemCount: cue.length,
+              separatorBuilder: (_, __) =>
+                  const SizedBox(height: AppScale.space4),
+              itemBuilder: (context, index) {
+                final hymn = cue[index];
+                return AppRegisterRow(
+                  key: ValueKey('cue_${hymn.id}_$index'),
+                  figure: hymn.hymnNumber,
+                  title: hymn.title,
+                  // Tap plays it now, which also takes it out of the cue.
+                  onTap: () {
+                    service.removeCuedAt(index);
+                    onPlayNow?.call(hymn);
+                  },
+                  trailing: IconButton(
+                    tooltip: l10n.remove,
+                    icon:
+                        const Icon(Icons.close_rounded, size: AppScale.iconMd),
+                    onPressed: () => service.removeCuedAt(index),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       );

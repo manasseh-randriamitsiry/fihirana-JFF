@@ -431,13 +431,15 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     );
   }
 
-  /// The queue this sheet can add to. The hymn offered is the one the page is
-  /// reading, so the block only means something while the player holds a
-  /// different one.
+  /// The queue the player will sing after this one, plus the offer to add the
+  /// hymn on screen to it. The queue stays on screen as hymns are taken from it
+  /// - it is what tells the user the next one is coming - while the offer only
+  /// means something while the player holds a different hymn.
   Widget _buildCueBlock(AppLocalizations l10n) {
     return Obx(() {
       final playingId = _audioService.currentPlayingHymnIdRx.value;
-      if (playingId.isEmpty || playingId == widget.hymn.id) {
+      final canAdd = playingId.isNotEmpty && playingId != widget.hymn.id;
+      if (!canAdd && _audioService.cueRx.isEmpty) {
         return const SizedBox.shrink();
       }
 
@@ -446,13 +448,17 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
         children: [
           const AppRule(),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: AppScale.cuePeek),
+            // Only the screen caps the queue, so the list shows what is waiting
+            // rather than the first three hymns of it.
+            constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.35),
             child: AudioCueList(
               actions: [
-                TextButton(
-                  onPressed: () => cueHymn(context, widget.hymn),
-                  child: Text(l10n.add),
-                ),
+                if (canAdd)
+                  TextButton(
+                    onPressed: () => cueHymn(context, widget.hymn),
+                    child: Text(l10n.add),
+                  ),
                 if (_audioService.cueRx.isNotEmpty)
                   TextButton(
                     onPressed: _audioService.clearCue,
