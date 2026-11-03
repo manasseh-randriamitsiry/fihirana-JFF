@@ -62,11 +62,8 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
   @override
   void initState() {
     super.initState();
-    _currentDisplayedHymn = widget.hymn;
+    _syncToLoadedHymn();
     if (widget.playlist != null) {
-      _currentPlaylistIndex = widget.playlist!.indexWhere(
-        (hymn) => hymn.id == widget.hymn.id,
-      );
       _audioService.setPlaylist(widget.playlist!, _currentPlaylistIndex);
     }
     _initializePlayer();
@@ -77,13 +74,28 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
     super.didUpdateWidget(oldWidget);
     if (widget.hymn.id != oldWidget.hymn.id ||
         widget.playlist != oldWidget.playlist) {
+      _syncToLoadedHymn();
       if (widget.playlist != null) {
-        _currentPlaylistIndex = widget.playlist!.indexWhere(
-          (hymn) => hymn.id == widget.hymn.id,
-        );
         _audioService.setPlaylist(widget.playlist!, _currentPlaylistIndex);
       }
     }
+  }
+
+  /// This sheet is the now-playing window: it shows the hymn the player holds,
+  /// and the page's hymn only while nothing is loaded. Seeding it from the page
+  /// is what left the transport showing a play arrow over a running track.
+  void _syncToLoadedHymn() {
+    final loaded = _audioService.currentHymn;
+    _currentDisplayedHymn = loaded ?? widget.hymn;
+
+    _currentPlaylistIndex =
+        _indexOf(loaded?.id) ?? _indexOf(widget.hymn.id) ?? 0;
+  }
+
+  int? _indexOf(String? id) {
+    if (id == null) return null;
+    final index = widget.playlist?.indexWhere((hymn) => hymn.id == id) ?? -1;
+    return index < 0 ? null : index;
   }
 
   void _initializePlayer() {
@@ -247,7 +259,7 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
           await _audioService.resume();
         }
       } else {
-        // Different hymn, start playing the current one
+        // Nothing is loaded, so this is the first play of the hymn on screen.
         setState(() {
           _isLoading = true;
         });
