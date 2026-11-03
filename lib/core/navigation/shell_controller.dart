@@ -8,9 +8,14 @@ class ShellController extends GetxController {
 
   void setDrawerEnabled(bool enabled) {
     isDrawerEnabled.value = enabled;
+    // Splash, loading and consent screens reach the flag after the phone drawer
+    // is already mounted, so it has to be pulled back in rather than merely
+    // forbidden from opening again.
+    if (!enabled) zoomDrawerController.close?.call();
   }
 
   void toggleDrawer() {
+    if (!isDrawerEnabled.value) return;
     zoomDrawerController.toggle?.call();
   }
 }

@@ -45,6 +45,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Initialize controllers
     _initializeControllers();
 
+    // Seed the shell from the route this launch opens on. This must be one-shot:
+    // recomputing it on every rebuild would read the prefs a sign-out just
+    // cleared and hide the drawer while the user is still on /home.
+    _initializeShellController(_getInitialRoute());
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await VersionCheckService.initializeNotifications();
     });
@@ -133,9 +138,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     // Determine initial route based on user state
     final initialRoute = _getInitialRoute();
-
-    // Set initial drawer state
-    _initializeShellController(initialRoute);
 
     return Obx(() {
       final fontController = Get.find<FontController>();
