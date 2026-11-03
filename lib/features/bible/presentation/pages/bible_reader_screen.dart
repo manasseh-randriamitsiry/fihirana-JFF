@@ -47,6 +47,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     super.initState();
     BibleDI.init();
     bibleController = Get.find<BibleController>();
+    // Get keeps the controller alive after the reader is popped, so without
+    // this a second visit opens wherever the first one stopped instead of on
+    // the list of books.
+    bibleController.selectBook('');
     _loadSettings();
 
     // Listen for changes to highlightedVerse to scroll to it

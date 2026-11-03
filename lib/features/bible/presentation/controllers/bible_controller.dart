@@ -1,5 +1,4 @@
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fihirana/features/bible/domain/usecases/initialize_bible_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_all_books_usecase.dart';
 import 'package:fihirana/features/bible/domain/usecases/get_book_usecase.dart';
@@ -16,8 +15,6 @@ import 'package:fihirana/core/error/error_handler.dart';
 import 'package:fihirana/core/utils/bible_book_order.dart';
 
 class BibleController extends GetxController {
-  static const String _lastBookKey = 'last_bible_book';
-
   final InitializeBibleUseCase _initializeBibleUseCase;
 
   // Sub-controllers for different concerns
@@ -92,7 +89,8 @@ class BibleController extends GetxController {
     searchController.onNavigateToVerse = navigateToVerse;
 
     _initializeBibleService();
-    _loadLastViewedPassage();
+    // The reader always opens on the list of books: a saved position meant the
+    // list could not be reached again without backing out of a book first.
     // The corpus fills in batches, so grouping has to follow bookList instead
     // of a one-shot index split that RangeErrors on a partially loaded list.
     _testamentWorker =
@@ -131,36 +129,11 @@ class BibleController extends GetxController {
     }
   }
 
-  Future<void> _loadLastViewedPassage() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final lastBook = prefs.getString(_lastBookKey);
-
-      // Only load the book, not the chapter
-      // This shows chapter selection instead of auto-opening to verses
-      if (lastBook != null && lastBook.isNotEmpty) {
-        bookController.selectBook(lastBook);
-        // Don't auto-select chapter - let user choose from chapter grid
-      }
-    } catch (e) {
-      ErrorHandler.handleError(e, message: 'errorLoadingLastPassage'.tr);
-    }
-  }
-
   // Delegate methods to sub-controllers
   void selectBook(String bookName) {
     highlightedVerse.value = 0;
     bookController.selectBook(bookName);
     highlightController.clearChapterHighlights();
-    _rememberLastBook(bookName);
-  }
-
-  /// The reader reopens on this book. Without the write the last-viewed
-  /// passage load always found nothing and started on the default book.
-  void _rememberLastBook(String bookName) {
-    if (bookName.isEmpty) return;
-    SharedPreferences.getInstance()
-        .then((prefs) => prefs.setString(_lastBookKey, bookName));
   }
 
   void selectChapter(int chapter) {
