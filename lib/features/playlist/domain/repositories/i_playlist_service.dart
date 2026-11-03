@@ -4,7 +4,7 @@ abstract class IPlaylistService {
   Future<List<Playlist>> getLocalPlaylists();
   Future<void> saveLocalPlaylists(List<Playlist> playlists);
   Future<String?> createPlaylist(String title, DateTime date,
-      {String? description});
+      {String? description, List<String> hymnIds = const []});
   Stream<List<Playlist>> getUserPlaylistsStream();
   void notifyPlaylistsChanged();
   Future<Playlist?> getPlaylistById(String id);
