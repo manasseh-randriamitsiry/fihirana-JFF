@@ -125,9 +125,9 @@ class FirebaseSyncService {
       int maxItemsToSync = 50;
       int itemsSynced = 0;
 
-      for (var i = localHistory.length - 1;
-          i >= 0 && itemsSynced < maxItemsToSync;
-          i--) {
+      // The local list is newest first, so the cap has to walk forward: from the
+      // tail it uploaded the oldest month and then marked the sync done forever.
+      for (var i = 0; i < localHistory.length && itemsSynced < maxItemsToSync; i++) {
         final item = localHistory[i];
         if (item is Map<String, dynamic>) {
           final hymnId = item['hymnId'] as String?;
@@ -138,11 +138,18 @@ class FirebaseSyncService {
                 .collection('history')
                 .doc();
 
+            // Keep the visit time the device recorded; a server timestamp would
+            // collapse the whole backfill into the moment of syncing.
+            final localTimestamp =
+                DateTime.tryParse(item['timestamp'] as String? ?? '');
+
             batch.set(historyRef, {
               'hymnId': hymnId,
               'title': item['title'] as String? ?? '',
               'number': item['number'] as String? ?? '',
-              'timestamp': FieldValue.serverTimestamp(),
+              'timestamp': localTimestamp != null
+                  ? Timestamp.fromDate(localTimestamp)
+                  : FieldValue.serverTimestamp(),
             });
 
             addedCount++;
@@ -374,5 +381,8 @@ class FirebaseSyncService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_favoritesSyncedKey);
     await prefs.remove(_historySyncedKey);
+    // The pending history blob belongs to the account that is leaving: kept
+    // across a sign-out, the next user's first sync uploads it to their cloud.
+    await prefs.remove(_localHistoryKey);
   }
 }
