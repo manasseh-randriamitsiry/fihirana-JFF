@@ -27,7 +27,9 @@ class DailyVerseService implements IDailyVerseService {
   Future<DailyVerse> getVerseOfTheDay() async {
     final prefs = await SharedPreferences.getInstance();
     final today = DateTime.now();
-    final todayString = '${today.year}-${today.month}-${today.day}';
+    // Zero-padded, because DateTime.parse below reads this same string back and
+    // rejects the unpadded form a day like 2026-11-03 produces.
+    final todayString = today.toIso8601String().substring(0, 10);
 
     // Check if we already have a verse for today
     final lastVerseDate = prefs.getString(_lastVerseDateKey);
