@@ -110,8 +110,6 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         return;
       }
 
-      await prefs.setInt('last_announcement_check', now);
-
       final seenAnnouncements = await getSeenAnnouncements();
 
       final querySnapshot = await _firestore
@@ -121,27 +119,30 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
 
       for (var doc in querySnapshot.docs) {
         final id = doc.id;
-        if (!seenAnnouncements.contains(id)) {
-          final data = doc.data();
+        if (seenAnnouncements.contains(id)) continue;
 
-          final expiresAt = data['expiresAt'] as Timestamp?;
-          if (expiresAt != null) {
-            final expirationDate = expiresAt.toDate();
-            if (DateTime.now().isAfter(expirationDate)) {
-              await markAnnouncementAsSeen(id);
-              continue;
-            }
-          }
-
-          await AnnouncementNotificationBuilder.showNewAnnouncement(
-            id: id,
-            title: data['title'],
-            message: data['message'],
-          );
-
+        // The same parse the list uses: a row the console wrote without a title
+        // costs one row. Read straight from the map it would throw, and because
+        // the newest announcement comes first that would silence every
+        // notification from then on.
+        final announcement = Announcement.tryFromFirestore(doc);
+        if (announcement == null || !announcement.isActive()) {
           await markAnnouncementAsSeen(id);
+          continue;
         }
+
+        await AnnouncementNotificationBuilder.showNewAnnouncement(
+          id: id,
+          title: announcement.title,
+          message: announcement.message,
+        );
+
+        await markAnnouncementAsSeen(id);
       }
+
+      // Only a pass that reached the end owns the window, so a query that
+      // failed is retried on the next tick instead of waiting another minute.
+      await prefs.setInt('last_announcement_check', now);
     } catch (e) {
       // Silently handle errors for notification checking
       return;
@@ -166,6 +167,9 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
   Future<void> clearSeenAnnouncements() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lastSeenKey);
+    // Dropping the list is only useful if the announcements come back, and the
+    // check refuses to run inside its own minute window.
+    await prefs.remove('last_announcement_check');
   }
 
   @override

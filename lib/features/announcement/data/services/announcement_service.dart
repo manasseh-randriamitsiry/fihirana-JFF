@@ -34,8 +34,6 @@ class AnnouncementService implements IAnnouncementService {
         return;
       }
 
-      await prefs.setInt('last_announcement_check', now);
-
       final seenAnnouncements = await _getSeenAnnouncements();
 
       final querySnapshot = await _firestore
@@ -45,27 +43,30 @@ class AnnouncementService implements IAnnouncementService {
 
       for (var doc in querySnapshot.docs) {
         final id = doc.id;
-        if (!seenAnnouncements.contains(id)) {
-          final data = doc.data();
+        if (seenAnnouncements.contains(id)) continue;
 
-          final expiresAt = data['expiresAt'] as Timestamp?;
-          if (expiresAt != null) {
-            final expirationDate = expiresAt.toDate();
-            if (DateTime.now().isAfter(expirationDate)) {
-              await _markAnnouncementAsSeen(id);
-              continue;
-            }
-          }
-
-          await AnnouncementNotificationBuilder.showNewAnnouncement(
-            id: id,
-            title: data['title'],
-            message: data['message'],
-          );
-
+        // Read through the same parse the list uses: a row the admin console
+        // wrote with a missing title must cost one row, not the whole run. The
+        // newest announcement is fetched first, so throwing here would silence
+        // every notification from then on.
+        final announcement = Announcement.tryFromFirestore(doc);
+        if (announcement == null || !announcement.isActive()) {
           await _markAnnouncementAsSeen(id);
+          continue;
         }
+
+        await AnnouncementNotificationBuilder.showNewAnnouncement(
+          id: id,
+          title: announcement.title,
+          message: announcement.message,
+        );
+
+        await _markAnnouncementAsSeen(id);
       }
+
+      // Only a pass that reached the end owns the window, so a query that
+      // failed is retried on the next tick instead of waiting another minute.
+      await prefs.setInt('last_announcement_check', now);
     } catch (e) {
       return;
     }
@@ -170,5 +171,8 @@ class AnnouncementService implements IAnnouncementService {
   Future<void> clearSeenAnnouncements() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_lastSeenKey);
+    // Dropping the list is only useful if the announcements come back, and the
+    // check refuses to run inside its own minute window.
+    await prefs.remove('last_announcement_check');
   }
 }
