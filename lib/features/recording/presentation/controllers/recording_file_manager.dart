@@ -65,7 +65,13 @@ class RecordingFileManager extends GetxController {
     if (quota != null && quota.limit != null && quota.usage != null) {
       final limit = int.tryParse(quota.limit!) ?? 0;
       final usage = int.tryParse(quota.usage!) ?? 0;
-      final fileSize = File(recording.filePath).lengthSync();
+      // Sync stat on an empty or missing path throws before the guarded block
+      // below, so the quota check has to tolerate a not-yet-local file.
+      final localFile = File(recording.filePath);
+      final fileSize =
+          recording.filePath.isNotEmpty && await localFile.exists()
+              ? await localFile.length()
+              : 0;
 
       if (usage + fileSize > limit) {
         Get.snackbar(
