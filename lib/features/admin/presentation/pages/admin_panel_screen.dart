@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -30,37 +32,61 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
   List<String> selectedHymns = [];
   bool isLoading = false;
 
+  /// Subscribed once: a new stream instance per build() makes StreamBuilder
+  /// tear down and re-open the Firestore listener on every tab tap, which
+  /// flashes the skeleton list in place of the hymns.
+  late final Stream<List<Hymn>> _hymnsStream;
+
   // Admin controller
-  late final AdminController _adminController;
+  AdminController? _adminController;
+  bool _authorized = false;
+  Worker? _permissionWorker;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _adminController = AdminDI.adminController;
+    _hymnsStream = _hymnService.getFirebaseHymnsStream();
     _checkAdminAccess();
   }
 
   @override
   void dispose() {
+    _permissionWorker?.call();
     _tabController.dispose();
     super.dispose();
   }
 
   Future<void> _checkAdminAccess() async {
-    // Wait a bit for auth controller to initialize if needed
-    await Future.delayed(const Duration(milliseconds: 100));
-    if (!Get.find<AuthController>().isAdmin) {
+    // isAdmin stays false until Firestore answers, so the panel must not be
+    // built - or its controller resolved - before that snapshot arrives.
+    final auth = Get.find<AuthController>();
+    if (!auth.isPermissionResolved) {
+      final resolved = Completer<void>();
+      _permissionWorker = ever<bool>(auth.permissionResolved, (value) {
+        if (value && !resolved.isCompleted) resolved.complete();
+      });
+      await resolved.future
+          .timeout(const Duration(seconds: 5), onTimeout: () {});
       if (!mounted) return;
-      final l10n = AppLocalizations.of(context);
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n.noAdminPermission),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
     }
+
+    if (auth.isAdmin) {
+      setState(() {
+        _authorized = true;
+        _adminController = AdminDI.adminController;
+      });
+      return;
+    }
+
+    final l10n = AppLocalizations.of(context);
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.noAdminPermission),
+        backgroundColor: Theme.of(context).colorScheme.error,
+      ),
+    );
   }
 
   Future<void> _deleteSelectedHymns() async {
@@ -97,7 +123,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
 
   // Get stats stream from admin controller
   Stream<Map<String, dynamic>> _getStats() {
-    return _adminController.adminStats.stream.map((stats) {
+    return _adminController!.adminStats.stream.map((stats) {
       if (stats == null) {
         return {
           'totalUsers': 0,
@@ -117,6 +143,14 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (!_authorized) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context).adminPanel),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Scaffold(
@@ -206,7 +240,7 @@ class _AdminPanelScreenState extends State<AdminPanelScreen>
 
   Widget _buildHymnsList(AppLocalizations l10n) {
     return StreamBuilder<List<Hymn>>(
-      stream: _hymnService.getFirebaseHymnsStream(),
+      stream: _hymnsStream,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text('${l10n.error}: ${snapshot.error}'));

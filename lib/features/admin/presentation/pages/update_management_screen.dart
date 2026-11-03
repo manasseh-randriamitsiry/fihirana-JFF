@@ -36,6 +36,8 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
     setState(() => _isLoading = true);
     try {
       final config = await AdminControlService.fetchAdminConfig();
+      // Leaving this screen while the config is in flight is normal for admins.
+      if (!mounted) return;
       setState(() {
         _currentConfig = config;
         _blockedVersionController.text = config.blockedVersion ?? '';
@@ -46,6 +48,7 @@ class _UpdateManagementScreenState extends State<UpdateManagementScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       if (mounted) {
         Get.snackbar(
