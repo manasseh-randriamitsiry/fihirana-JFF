@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/core/utils/local_storage_service.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'package:fihirana/features/home/presentation/pages/home_screen.dart';
 import 'package:fihirana/core/design_system/app_scale.dart';
 
 class LoadingScreen extends StatefulWidget {
@@ -79,13 +78,15 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
       _updateProgress(1.0, 'Vita!');
 
+      // Named route: the shell derives drawer/tab state from the route name, so
+      // pushing HomeScreen as an unnamed route leaves the shell out of sync.
       if (mounted) {
-        Get.off(() => const HomeScreen());
+        Get.offNamed('/home');
       }
     } catch (e) {
       _updateProgress(1.0, 'Nisy olana, fa mandeha ihany...');
       if (mounted) {
-        Get.off(() => const HomeScreen());
+        Get.offNamed('/home');
       }
     }
   }

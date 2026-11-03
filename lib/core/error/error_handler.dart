@@ -48,18 +48,19 @@ class ErrorHandler {
   }
 
   /// Log error to console and error reporting service
-  static void _logError(dynamic error, String? message) {
+  static void _logError(dynamic error, String? message,
+      [StackTrace? stackTrace]) {
     final errorMessage = message ?? 'An error occurred';
     if (kDebugMode) {
       print('❌ $errorMessage: $error');
-      print('Stack trace: ${StackTrace.current}');
+      print('Stack trace: ${stackTrace ?? StackTrace.current}');
     }
 
     // Send to Firebase Crashlytics
     try {
       FirebaseCrashlytics.instance.recordError(
         error,
-        StackTrace.current,
+        stackTrace ?? StackTrace.current,
         reason: errorMessage,
         fatal: false,
       );
@@ -68,6 +69,25 @@ class ErrorHandler {
         print('Failed to send error to Crashlytics: $e');
       }
     }
+  }
+
+  /// Install the widget-level error boundary.
+  ///
+  /// Flutter sends build failures to [ErrorWidget.builder], which is the only
+  /// hook that can replace them: left alone, a failed subtree shows the red
+  /// box in debug and renders nothing in release. Debug keeps the red box
+  /// because it carries the diagnostic the developer needs.
+  static void installWidgetErrorBoundary() {
+    if (kDebugMode) return;
+
+    ErrorWidget.builder = (FlutterErrorDetails details) {
+      _logError(details.exception, 'Widget build failed', details.stack);
+      return const Material(
+        child: Center(
+          child: Icon(Icons.error_outline, size: 48, color: Colors.red),
+        ),
+      );
+    };
   }
 
   /// Show error snackbar
@@ -168,86 +188,6 @@ class ErrorHandler {
         handleError(e, message: errorMessage);
       }
       return defaultValue;
-    }
-  }
-
-  /// Wrap widget with error boundary
-  static Widget withErrorBoundary(
-    Widget child, {
-    Widget? errorWidget,
-    VoidCallback? onError,
-  }) {
-    return ErrorBoundary(
-      errorWidget: errorWidget,
-      onError: onError,
-      child: child,
-    );
-  }
-}
-
-/// Error boundary widget for catching widget errors
-class ErrorBoundary extends StatefulWidget {
-  final Widget child;
-  final Widget? errorWidget;
-  final VoidCallback? onError;
-
-  const ErrorBoundary({
-    super.key,
-    required this.child,
-    this.errorWidget,
-    this.onError,
-  });
-
-  @override
-  State<ErrorBoundary> createState() => _ErrorBoundaryState();
-}
-
-class _ErrorBoundaryState extends State<ErrorBoundary> {
-  bool _hasError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    // Reset error state when widget is rebuilt
-    _hasError = false;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_hasError) {
-      widget.onError?.call();
-      return widget.errorWidget ??
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(AppLocalizations.of(context).somethingWentWrong),
-              ],
-            ),
-          );
-    }
-
-    return widget.child;
-  }
-
-  void didCatchError(Object error, StackTrace stackTrace) {
-    setState(() => _hasError = true);
-    ErrorHandler._logError(error, 'Widget error boundary caught error');
-
-    // Send to Firebase Crashlytics
-    try {
-      FirebaseCrashlytics.instance.recordError(
-        error,
-        stackTrace,
-        reason: 'Widget error boundary caught error',
-        fatal: false,
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        print('Failed to send error boundary error to Crashlytics: $e');
-      }
     }
   }
 }
