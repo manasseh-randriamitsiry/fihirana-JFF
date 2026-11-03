@@ -34,6 +34,17 @@ class _ContactListScreenState extends State<ContactListScreen> {
   Timer? _searchDebounce;
   String _searchQuery = '';
 
+  /// Subscribed once: building the stream inside build() makes StreamBuilder
+  /// drop and re-open the Firestore listener on every keystroke, which flashes
+  /// the loading spinner in place of the list.
+  late final Stream<List<Contact>> _contactsStream;
+
+  @override
+  void initState() {
+    super.initState();
+    _contactsStream = _contactService.getContactsStream();
+  }
+
   @override
   void dispose() {
     _searchDebounce?.cancel();
@@ -127,7 +138,7 @@ class _ContactListScreenState extends State<ContactListScreen> {
               ),
               Expanded(
                 child: StreamBuilder<List<Contact>>(
-                  stream: _contactService.getContactsStream(),
+                  stream: _contactsStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(
