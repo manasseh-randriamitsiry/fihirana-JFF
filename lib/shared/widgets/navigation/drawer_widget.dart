@@ -149,6 +149,27 @@ class DrawerWidgetState extends State<DrawerWidget>
     }
   }
 
+  /// Sign-out belongs to the auth domain: it releases the Google account too,
+  /// which is what lets the next "Sign in" show the account chooser instead of
+  /// silently reusing this one. The name and email written at sign-in decide
+  /// the opening route, so they go with the session.
+  Future<void> _signOut() async {
+    await Get.find<AuthController>().signOut();
+
+    // setUsername('') is what clears the pref that decides the opening route.
+    await _userController.setUsername('');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('email');
+    _userController.setAuthenticated(false);
+
+    if (mounted) {
+      setState(() {
+        _isAuthenticated = false;
+        _currentUser = null;
+      });
+    }
+  }
+
   Widget _buildSectionHeader(BuildContext context, String title) {
     final AppSurfaces s = AppSurfaces.of(context);
     final TextTheme type = Theme.of(context).textTheme;
@@ -465,14 +486,7 @@ class DrawerWidgetState extends State<DrawerWidget>
                         icon: Icons.logout_rounded,
                         title: l10n.signOut,
                         isDestructive: true,
-                        onTap: () {
-                          FirebaseAuth.instance.signOut();
-                          _userController.setAuthenticated(false);
-                          setState(() {
-                            _isAuthenticated = false;
-                            _currentUser = null;
-                          });
-                        },
+                        onTap: () => unawaited(_signOut()),
                       ),
                   ],
                 );
