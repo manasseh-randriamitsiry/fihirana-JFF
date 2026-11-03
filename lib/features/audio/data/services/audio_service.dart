@@ -189,6 +189,16 @@ class AudioService implements IAudioService {
   }
 
   @override
+  bool isCued(String hymnId) => _cue.any((h) => h.id == hymnId);
+
+  @override
+  Future<void> removeCued(String hymnId) async {
+    final index = _cue.indexWhere((h) => h.id == hymnId);
+    if (index < 0) return;
+    await removeCuedAt(index);
+  }
+
+  @override
   List<Hymn> get cue => List.unmodifiable(_cue);
   @override
   bool get hasCue => _cue.isNotEmpty;

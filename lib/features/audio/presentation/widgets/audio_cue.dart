@@ -30,9 +30,26 @@ Future<CueChoice> askCueOrPlay(BuildContext context,
           Text('${current.hymnNumber} ${current.title}'),
           const SizedBox(height: AppScale.space16),
         ],
-        Text(
-          '${hymn.hymnNumber} ${hymn.title}',
-          style: Theme.of(dialogContext).textTheme.titleSmall,
+        // The queue is not visible from the list, so a hymn already waiting in
+        // it would look like a first tap. Say what is already true before
+        // offering to make it true again.
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                '${hymn.hymnNumber} ${hymn.title}',
+                style: Theme.of(dialogContext).textTheme.titleSmall,
+              ),
+            ),
+            if (AudioService.instance.isCued(hymn.id))
+              Text(
+                l10n.added,
+                style: Theme.of(dialogContext)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: AppSurfaces.of(dialogContext).muted),
+              ),
+          ],
         ),
       ];
       return AlertDialog(

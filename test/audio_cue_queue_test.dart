@@ -106,6 +106,30 @@ void main() {
     expect(service.cue.map((h) => h.id), ['h1']);
   });
 
+  test('a queued hymn is known, and taking it back takes one copy', () async {
+    final service = AudioService.instance;
+    await service.clearCue();
+
+    expect(service.isCued('h13'), isFalse);
+
+    await service.addToCue(_hymn('h13', '13'));
+    expect(service.isCued('h13'), isTrue);
+
+    // A hymn may be sung twice, so the queue can hold two copies - but taking it
+    // back removes the one the control was standing for, not the whole queue.
+    await service.addToCue(_hymn('h13', '13'));
+    await service.removeCued('h13');
+    expect(service.cue.map((h) => h.id), ['h13']);
+
+    await service.removeCued('h13');
+    expect(service.cue, isEmpty);
+    expect(service.isCued('h13'), isFalse);
+
+    // Taking back something that was never queued changes nothing.
+    await service.removeCued('h99');
+    expect(service.cue, isEmpty);
+  });
+
   test('corrupt cue data is ignored instead of blocking the player', () async {
     final service = AudioService.instance;
     await service.clearCue();
@@ -254,6 +278,71 @@ void main() {
     await tester.pump();
 
     expect(find.text('Next'), findsNothing);
+  });
+
+  testWidgets('the player offers to take back a hymn it already queued',
+      (tester) async {
+    final service = AudioService.instance;
+    await service.clearCue();
+    // Another hymn holds the player, so the offer beside the queue means
+    // something, and the hymn on screen is the one already waiting.
+    service.currentPlayingHymnIdRx.value = 'h1';
+    await service.addToCue(_hymn('h20', '20'));
+
+    await tester.pumpWidget(MaterialApp(
+      theme: buildFihiranaTheme(
+          ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FED))),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: CompactAudioPlayerWidget(hymn: _hymn('h20', '20')),
+      ),
+    ));
+    await tester.pump();
+
+    // Queued, so the control no longer offers to queue it a second time.
+    expect(find.text('Add'), findsNothing);
+    expect(find.text('Remove'), findsOneWidget);
+
+    await tester.tap(find.text('Remove'));
+    await tester.pump();
+
+    expect(service.cue, isEmpty);
+    service.currentPlayingHymnIdRx.value = '';
+  });
+
+  testWidgets('the ask says when the hymn is already waiting', (tester) async {
+    final service = AudioService.instance;
+    await service.clearCue();
+    service.currentPlayingHymnIdRx.value = '';
+    await service.addToCue(_hymn('h13', '13'));
+
+    await tester.pumpWidget(GetMaterialApp(
+      theme: buildFihiranaTheme(
+          ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FED))),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => playOrCueHymn(context, _hymn('h13', '13')),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Added'), findsOneWidget);
+
+    // Backing out of the ask leaves the queue exactly as it was.
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(service.cue.map((h) => h.id), ['h13']);
   });
 
   testWidgets('a second hymn is asked about, and cueing confirms the tap',

@@ -31,6 +31,8 @@ abstract class IAudioService {
   Future<void> moveCued(int from, int to);
   Future<void> clearCue();
   Future<void> restoreCue();
+  bool isCued(String hymnId);
+  Future<void> removeCued(String hymnId);
   List<Hymn> get cue;
   bool get hasCue;
 
