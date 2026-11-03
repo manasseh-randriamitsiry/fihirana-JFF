@@ -401,4 +401,33 @@ class RecordingAuthManager extends GetxController {
   // Getters for drive service access
   GoogleDriveService? get driveService => _driveService;
   GoogleSignInAccount? get currentUser => _driveService?.currentUser;
+
+  /// The identity that owns a recording saved right now: Firebase first, then
+  /// the Drive account, then the guest name. Without this stamp, a signed-in
+  /// recording has no owner and fails every later ownership check.
+  ({String? id, String? email, String? name, String? photoUrl}) currentOwner() {
+    final firebaseUser = FirebaseAuth.instance.currentUser;
+    if (firebaseUser != null) {
+      return (
+        id: firebaseUser.uid,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName ?? guestName.value,
+        photoUrl: firebaseUser.photoURL,
+      );
+    }
+
+    if (isDriveSignedIn.value && userEmail.value != null) {
+      final driveUser = currentUser;
+      if (driveUser != null) {
+        return (
+          id: driveUser.id,
+          email: driveUser.email,
+          name: driveUser.displayName ?? guestName.value,
+          photoUrl: driveUser.photoUrl,
+        );
+      }
+    }
+
+    return (id: null, email: null, name: guestName.value, photoUrl: null);
+  }
 }

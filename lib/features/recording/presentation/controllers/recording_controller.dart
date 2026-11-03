@@ -352,10 +352,15 @@ class RecordingController extends GetxController {
     try {
       final recording = await stopRecordingUseCase();
       if (recording != null) {
+        final owner = authManager.currentOwner();
         final updatedRecording = recording.copyWith(
           hymnId: hymnId,
           title: title,
           durationSeconds: duration,
+          userId: owner.id,
+          userEmail: owner.email,
+          userPhotoUrl: owner.photoUrl,
+          userName: owner.name,
         );
         await saveRecordingUseCase(updatedRecording);
         return updatedRecording;
