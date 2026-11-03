@@ -187,11 +187,13 @@ class DailyVerseService implements IDailyVerseService {
   /// Schedule daily notification at specified time
   @override
   Future<void> scheduleDailyNotification(int hour, int minute) async {
+    // Resolve the verse before the alarm is touched. This throws when the
+    // corpus is not ready yet, and a failed re-arm must not leave the user with
+    // no scheduled verse at all.
+    final verse = await getVerseOfTheDay();
+
     // Cancel existing notifications first
     await cancelDailyNotifications();
-
-    // Get today's verse
-    final verse = await getVerseOfTheDay();
 
     // Create notification
     await DailyVerseNotificationBuilder.scheduleDailyVerse(

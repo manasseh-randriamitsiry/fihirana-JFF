@@ -70,6 +70,7 @@ class NotificationLayouts {
     required String body,
     String? payload,
     Map<String, String>? additionalPayload,
+    NotificationCategory? category,
   }) {
     final Map<String, String> fullPayload = {};
     if (payload != null) fullPayload['data'] = payload;
@@ -82,6 +83,7 @@ class NotificationLayouts {
       body: body,
       notificationLayout: NotificationLayout.BigText,
       color: _systemNotificationColor,
+      category: category,
       payload: fullPayload.isNotEmpty ? fullPayload : null,
     );
   }
