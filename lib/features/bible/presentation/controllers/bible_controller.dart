@@ -13,8 +13,11 @@ import 'package:fihirana/features/bible/presentation/controllers/bible_highlight
 import 'package:fihirana/features/bible/presentation/controllers/bible_search_controller.dart';
 import 'package:fihirana/features/bible/presentation/models/bible_share_data.dart';
 import 'package:fihirana/core/error/error_handler.dart';
+import 'package:fihirana/core/utils/bible_book_order.dart';
 
 class BibleController extends GetxController {
+  static const String _lastBookKey = 'last_bible_book';
+
   final InitializeBibleUseCase _initializeBibleUseCase;
 
   // Sub-controllers for different concerns
@@ -78,6 +81,7 @@ class BibleController extends GetxController {
   var oldTestamentBooks = <String>[].obs;
   var newTestamentBooks = <String>[].obs;
   var highlightedVerse = 0.obs;
+  Worker? _testamentWorker;
 
   @override
   void onInit() {
@@ -89,15 +93,31 @@ class BibleController extends GetxController {
 
     _initializeBibleService();
     _loadLastViewedPassage();
-    // Populate books by testament
-    if (bookList.isNotEmpty) {
-      booksByTestament.value = {
-        'Testamenta Taloha': bookList.sublist(0, 39),
-        'Testamenta Vaovao': bookList.sublist(39),
-      };
-      oldTestamentBooks.value = bookList.sublist(0, 39);
-      newTestamentBooks.value = bookList.sublist(39);
-    }
+    // The corpus fills in batches, so grouping has to follow bookList instead
+    // of a one-shot index split that RangeErrors on a partially loaded list.
+    _testamentWorker =
+        ever(bookController.bookList, (_) => _updateBooksByTestament());
+    _updateBooksByTestament();
+  }
+
+  void _updateBooksByTestament() {
+    final books = bookList;
+    final oldBooks = BibleBookOrder.getSortedOldTestamentBooks(
+        books.where(BibleBookOrder.isOldTestamentBook).toList());
+    final newBooks = BibleBookOrder.getSortedNewTestamentBooks(
+        books.where(BibleBookOrder.isNewTestamentBook).toList());
+    oldTestamentBooks.assignAll(oldBooks);
+    newTestamentBooks.assignAll(newBooks);
+    booksByTestament.value = {
+      'Testamenta Taloha': oldBooks,
+      'Testamenta Vaovao': newBooks,
+    };
+  }
+
+  @override
+  void onClose() {
+    _testamentWorker?.call();
+    super.onClose();
   }
 
   Future<void> _initializeBibleService() async {
@@ -114,7 +134,7 @@ class BibleController extends GetxController {
   Future<void> _loadLastViewedPassage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final lastBook = prefs.getString('last_bible_book');
+      final lastBook = prefs.getString(_lastBookKey);
 
       // Only load the book, not the chapter
       // This shows chapter selection instead of auto-opening to verses
@@ -132,6 +152,15 @@ class BibleController extends GetxController {
     highlightedVerse.value = 0;
     bookController.selectBook(bookName);
     highlightController.clearChapterHighlights();
+    _rememberLastBook(bookName);
+  }
+
+  /// The reader reopens on this book. Without the write the last-viewed
+  /// passage load always found nothing and started on the default book.
+  void _rememberLastBook(String bookName) {
+    if (bookName.isEmpty) return;
+    SharedPreferences.getInstance()
+        .then((prefs) => prefs.setString(_lastBookKey, bookName));
   }
 
   void selectChapter(int chapter) {
@@ -166,8 +195,8 @@ class BibleController extends GetxController {
     }
   }
 
-  int getVerseCountForChapter(String bookName, int chapterNumber) =>
-      bookController.getVerseCount(bookName, chapterNumber);
+  List<int> getVerseNumbersForChapter(String bookName, int chapterNumber) =>
+      bookController.getVerseNumbers(bookName, chapterNumber);
 
   void toggleVerseSelection(int verseNumber) {
     bookController.toggleVerseSelection(verseNumber);
@@ -278,4 +307,7 @@ class BibleController extends GetxController {
 
   List<String> getCurrentChapterVerses() =>
       bookController.getCurrentChapterVerses();
+
+  List<MapEntry<int, String>> getCurrentChapterVerseEntries() =>
+      bookController.getCurrentChapterVerseEntries();
 }

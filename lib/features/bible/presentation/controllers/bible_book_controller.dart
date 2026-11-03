@@ -140,12 +140,14 @@ class BibleBookController extends GetxController {
     }
   }
 
-  int getVerseCount(String bookName, int chapterNumber) {
+  /// The chapter's real verse numbers, ascending. Empty verses are never
+  /// stored, so a range picker cannot number its cells by list position.
+  List<int> getVerseNumbers(String bookName, int chapterNumber) {
     final book = _getBookUseCase(bookName);
     if (book != null && book.chapterData.containsKey(chapterNumber)) {
-      return book.chapterData[chapterNumber]?.verses.length ?? 0;
+      return book.chapterData[chapterNumber]!.verses.keys.toList()..sort();
     }
-    return 0;
+    return const [];
   }
 
   void toggleVerseSelection(int verseNumber) {
@@ -314,12 +316,20 @@ class BibleBookController extends GetxController {
 
   dynamic getBook(String bookName) => _getBookUseCase(bookName);
 
-  List<String> getCurrentChapterVerses() {
+  /// Verse number to text for the selected chapter, ordered by verse number.
+  /// The reader has to number verses from the data because empty verses are
+  /// never stored, so a positional list would shift everything after a gap.
+  List<MapEntry<int, String>> getCurrentChapterVerseEntries() {
     final book = _getBookUseCase(selectedBook.value);
     if (book != null && book.chapterData.containsKey(selectedChapter.value)) {
       final chapterData = book.chapterData[selectedChapter.value]!;
-      return chapterData.verses.values.toList();
+      final entries = chapterData.verses.entries.toList()
+        ..sort((a, b) => a.key.compareTo(b.key));
+      return entries;
     }
-    return [];
+    return const [];
   }
+
+  List<String> getCurrentChapterVerses() =>
+      getCurrentChapterVerseEntries().map((entry) => entry.value).toList();
 }
