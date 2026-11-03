@@ -433,18 +433,19 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
 
   /// The queue the player will sing after this one, plus the offer to add the
   /// hymn on screen to it. The queue stays on screen as hymns are taken from it
-  /// - it is what tells the user the next one is coming - while the offer only
-  /// means something while the player holds a different hymn. Once that hymn is
-  /// waiting, the same control takes it back out.
+  /// - it is what tells the user the next one is coming. Taking one back is the
+  /// row's own work, so the offer only appears while the hymn on screen is not
+  /// yet waiting and the player holds a different one.
   Widget _buildCueBlock(AppLocalizations l10n) {
     return Obx(() {
       final playingId = _audioService.currentPlayingHymnIdRx.value;
-      final canAdd = playingId.isNotEmpty && playingId != widget.hymn.id;
+      final isCued =
+          _audioService.cueRx.any((hymn) => hymn.id == widget.hymn.id);
+      final canAdd =
+          playingId.isNotEmpty && playingId != widget.hymn.id && !isCued;
       if (!canAdd && _audioService.cueRx.isEmpty) {
         return const SizedBox.shrink();
       }
-      final isCued =
-          _audioService.cueRx.any((hymn) => hymn.id == widget.hymn.id);
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -459,19 +460,8 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
               actions: [
                 if (canAdd)
                   TextButton(
-                    onPressed: () {
-                      if (isCued) {
-                        _audioService.removeCued(widget.hymn.id);
-                      } else {
-                        cueHymn(context, widget.hymn);
-                      }
-                    },
-                    child: Text(isCued ? l10n.remove : l10n.add),
-                  ),
-                if (_audioService.cueRx.isNotEmpty)
-                  TextButton(
-                    onPressed: _audioService.clearCue,
-                    child: Text(l10n.clear),
+                    onPressed: () => cueHymn(context, widget.hymn),
+                    child: Text(l10n.add),
                   ),
               ],
               onPlayNow: (hymn) {

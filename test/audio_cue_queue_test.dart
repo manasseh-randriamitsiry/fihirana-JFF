@@ -106,7 +106,7 @@ void main() {
     expect(service.cue.map((h) => h.id), ['h1']);
   });
 
-  test('a queued hymn is known, and taking it back takes one copy', () async {
+  test('a hymn already waiting is told as waiting', () async {
     final service = AudioService.instance;
     await service.clearCue();
 
@@ -114,20 +114,13 @@ void main() {
 
     await service.addToCue(_hymn('h13', '13'));
     expect(service.isCued('h13'), isTrue);
+    expect(service.isCued('h1'), isFalse);
 
-    // A hymn may be sung twice, so the queue can hold two copies - but taking it
-    // back removes the one the control was standing for, not the whole queue.
-    await service.addToCue(_hymn('h13', '13'));
-    await service.removeCued('h13');
-    expect(service.cue.map((h) => h.id), ['h13']);
-
-    await service.removeCued('h13');
-    expect(service.cue, isEmpty);
+    // Dropping it back to the row's own X is the only way out of the queue.
+    await service.removeCuedAt(0);
     expect(service.isCued('h13'), isFalse);
 
-    // Taking back something that was never queued changes nothing.
-    await service.removeCued('h99');
-    expect(service.cue, isEmpty);
+    await service.clearCue();
   });
 
   test('corrupt cue data is ignored instead of blocking the player', () async {
@@ -280,12 +273,12 @@ void main() {
     expect(find.text('Next'), findsNothing);
   });
 
-  testWidgets('the player offers to take back a hymn it already queued',
+  testWidgets('the queue is left with its rows and no header buttons',
       (tester) async {
     final service = AudioService.instance;
     await service.clearCue();
-    // Another hymn holds the player, so the offer beside the queue means
-    // something, and the hymn on screen is the one already waiting.
+    // Another hymn holds the player, so the offer to queue the hymn on screen
+    // would normally appear.
     service.currentPlayingHymnIdRx.value = 'h1';
     await service.addToCue(_hymn('h20', '20'));
 
@@ -300,14 +293,25 @@ void main() {
     ));
     await tester.pump();
 
-    // Queued, so the control no longer offers to queue it a second time.
+    // Queued already, so nothing offers it twice and nothing clears the queue
+    // beside it: the row's own X is the only control.
     expect(find.text('Add'), findsNothing);
-    expect(find.text('Remove'), findsOneWidget);
+    expect(find.text('Clear'), findsNothing);
+    expect(find.text('Remove'), findsNothing);
+    expect(find.byKey(const ValueKey('cue_h20_0')), findsOneWidget);
 
-    await tester.tap(find.text('Remove'));
+    await tester.tap(find.byTooltip('Remove'));
     await tester.pump();
 
     expect(service.cue, isEmpty);
+    expect(find.byKey(const ValueKey('cue_h20_0')), findsNothing);
+
+    // With the queue empty again, the offer comes back.
+    await service.addToCue(_hymn('h13', '13'));
+    await tester.pump();
+    expect(find.text('Add'), findsOneWidget);
+
+    await service.clearCue();
     service.currentPlayingHymnIdRx.value = '';
   });
 

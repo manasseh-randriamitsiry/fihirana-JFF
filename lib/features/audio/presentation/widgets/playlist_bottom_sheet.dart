@@ -4,7 +4,6 @@ import 'package:fihirana/core/design_system/app_surfaces.dart';
 import 'package:fihirana/core/design_system/components/app_register_row.dart';
 import 'package:fihirana/core/design_system/components/app_sheet.dart';
 import 'package:fihirana/core/design_system/components/app_state_view.dart';
-import 'package:fihirana/features/audio/data/services/audio_service.dart';
 import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -32,8 +31,6 @@ class PlaylistBottomSheet extends StatefulWidget {
 }
 
 class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
-  final AudioService _audioService = AudioService.instance;
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -68,12 +65,6 @@ class _PlaylistBottomSheetState extends State<PlaylistBottomSheet> {
         const AppRule(firm: true),
         Flexible(
           child: AudioCueList(
-            actions: [
-              TextButton(
-                onPressed: _audioService.clearCue,
-                child: Text(l10n.clear),
-              ),
-            ],
             trailing: const AppRule(firm: true),
             onPlayNow: (hymn) {
               widget.onHymnChange?.call(hymn);
