@@ -19,6 +19,15 @@ abstract class IAudioService {
   // Playlist management
   void setPlaylist(List<Hymn> playlist, int initialIndex);
 
+  // Cue queue: hymns the user asked to play after the current one
+  Future<void> addToCue(Hymn hymn);
+  Future<void> removeCuedAt(int index);
+  Future<void> moveCued(int from, int to);
+  Future<void> clearCue();
+  Future<void> restoreCue();
+  List<Hymn> get cue;
+  bool get hasCue;
+
   // Audio file management
   Future<bool> checkAudioFileExists(String hymnId);
   Future<Map<String, bool>> checkAudioFilesExist(List<String> hymnIds);

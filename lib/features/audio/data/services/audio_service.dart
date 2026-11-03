@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:async';
+import 'dart:convert';
 import 'package:path/path.dart' as path;
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:just_audio/just_audio.dart';
 import 'package:get/get.dart';
@@ -31,6 +33,7 @@ class AudioService implements IAudioService {
   AudioService._internal() {
     _initializePlayerStateListener();
     unawaited(_logPlayerConfiguration());
+    unawaited(restoreCue());
   }
 
   final RxBool _isPlayingRx = false.obs;
@@ -102,6 +105,12 @@ class AudioService implements IAudioService {
   bool _isShuffled = false;
   bool _isRepeatEnabled = false;
 
+  /// Hymns the user chose to play after the current one. Deliberately separate
+  /// from `_playlist`, which is the list the player was opened from.
+  final RxList<Hymn> _cue = <Hymn>[].obs;
+  static const String _cueKey = 'audio_cue_queue';
+  bool _isRestoringCue = false;
+
   final AudioCacheService _cacheService = AudioCacheService();
   final LocalAudioService _localAudioService = LocalAudioService();
   final RxString _currentPlayingHymnId = ''.obs;
@@ -151,7 +160,104 @@ class AudioService implements IAudioService {
   }
 
   @override
+  Future<void> addToCue(Hymn hymn) async {
+    // A hymn may legitimately be sung twice, so duplicates are kept.
+    _cue.add(hymn);
+    await _saveCue();
+  }
+
+  @override
+  Future<void> removeCuedAt(int index) async {
+    if (index < 0 || index >= _cue.length) return;
+    _cue.removeAt(index);
+    await _saveCue();
+  }
+
+  @override
+  Future<void> moveCued(int from, int to) async {
+    if (from < 0 || to < 0 || from >= _cue.length || to >= _cue.length) return;
+    _cue.insert(to, _cue.removeAt(from));
+    await _saveCue();
+  }
+
+  @override
+  Future<void> clearCue() async {
+    _cue.clear();
+    await _saveCue();
+  }
+
+  @override
+  List<Hymn> get cue => List.unmodifiable(_cue);
+  @override
+  bool get hasCue => _cue.isNotEmpty;
+  RxList<Hymn> get cueRx => _cue;
+
+  Future<void> _saveCue() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final shape = _cue
+          .map((h) => {
+                'id': h.id,
+                'number': h.hymnNumber,
+                'title': h.title,
+              })
+          .toList();
+      await prefs.setString(_cueKey, jsonEncode(shape));
+    } catch (e) {
+      if (kDebugMode) {
+        print('AudioService: Error saving cue queue: $e');
+      }
+    }
+  }
+
+  /// The queue is only ever replayed for its id, number and title, so it is
+  /// rebuilt from the saved shape instead of waiting for the hymn corpus, which
+  /// is still loading when the app opens.
+  @override
+  Future<void> restoreCue() async {
+    // Reading prefs awaits, so a second call could arrive before the first
+    // finishes; the flag covers that window, the emptiness check lets a queue
+    // that has since been consumed or cleared load again.
+    if (_cue.isNotEmpty || _isRestoringCue) return;
+    _isRestoringCue = true;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getString(_cueKey);
+      if (saved == null || saved.isEmpty) return;
+
+      final items = (jsonDecode(saved) as List).cast<Map<String, dynamic>>();
+      for (final item in items) {
+        final id = item['id'] as String?;
+        if (id == null) continue;
+        _cue.add(Hymn(
+          id: id,
+          hymnNumber: item['number'] as String? ?? '',
+          title: item['title'] as String? ?? '',
+          verses: const [],
+          createdAt: DateTime.fromMillisecondsSinceEpoch(0),
+          createdBy: '',
+        ));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('AudioService: Error restoring cue queue: $e');
+      }
+    } finally {
+      _isRestoringCue = false;
+    }
+  }
+
+  @override
   Future<void> playNext() async {
+    // A cue is an explicit request to play that hymn next, so it outranks the
+    // order of the list the player was opened from.
+    if (_cue.isNotEmpty) {
+      final next = _cue.removeAt(0);
+      await _saveCue();
+      await playHymn(next);
+      return;
+    }
+
     if (_playlist.isEmpty || _currentPlaylistIndex == -1) return;
 
     if (_currentPlaylistIndex < _playlist.length - 1) {
@@ -649,7 +755,7 @@ class AudioService implements IAudioService {
   @override
   int get playlistLength => _playlist.length;
   bool get canGoNext =>
-      hasPlaylist && _currentPlaylistIndex < _playlist.length - 1;
+      hasCue || (hasPlaylist && _currentPlaylistIndex < _playlist.length - 1);
   bool get canGoPrevious => hasPlaylist && _currentPlaylistIndex > 0;
   RxInt get playlistChangeNotifier => _playlistChangeNotifier;
 
