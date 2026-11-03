@@ -60,7 +60,8 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         .get();
 
     return querySnapshot.docs
-        .map((doc) => Announcement.fromFirestore(doc))
+        .map((doc) => Announcement.tryFromFirestore(doc))
+        .whereType<Announcement>()
         .toList();
   }
 
@@ -79,7 +80,8 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Announcement.fromFirestore(doc))
+            .map((doc) => Announcement.tryFromFirestore(doc))
+            .whereType<Announcement>()
             .toList());
   }
 
@@ -94,7 +96,7 @@ class AnnouncementRepositoryImpl implements AnnouncementRepository {
   Future<Announcement?> getAnnouncementById(String id) async {
     final doc = await _firestore.collection('announcements').doc(id).get();
     if (!doc.exists) return null;
-    return Announcement.fromFirestore(doc);
+    return Announcement.tryFromFirestore(doc);
   }
 
   @override

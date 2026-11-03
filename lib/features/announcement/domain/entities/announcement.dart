@@ -30,18 +30,36 @@ class Announcement {
     };
   }
 
-  factory Announcement.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
-    Timestamp? expiresAtTimestamp = data['expiresAt'];
+  /// Null when the stored document cannot be read as an announcement. Rows can
+  /// be written by the console or by an older build, and one unreadable row
+  /// must not take the whole announcement list down with it.
+  static Announcement? tryFromFirestore(DocumentSnapshot doc) =>
+      tryFromData(doc.data(), id: doc.id);
+
+  /// The parse itself, separated from the Firestore snapshot so a stored map
+  /// can be checked without a live document.
+  static Announcement? tryFromData(Object? data, {required String id}) {
+    if (data is! Map<String, dynamic>) return null;
+
+    final createdAt = data['createdAt'];
+    if (createdAt is! Timestamp) return null;
+
+    final expiresAt = data['expiresAt'];
+    final title = data['title'];
+    final message = data['message'];
+    final createdBy = data['createdBy'];
+    final createdByEmail = data['createdByEmail'];
+
+    if (title is! String || message is! String) return null;
 
     return Announcement(
-      id: doc.id,
-      title: data['title'] ?? '',
-      message: data['message'] ?? '',
-      createdAt: (data['createdAt'] as Timestamp).toDate(),
-      expiresAt: expiresAtTimestamp?.toDate(),
-      createdBy: data['createdBy'] ?? '',
-      createdByEmail: data['createdByEmail'] ?? '',
+      id: id,
+      title: title,
+      message: message,
+      createdAt: createdAt.toDate(),
+      expiresAt: expiresAt is Timestamp ? expiresAt.toDate() : null,
+      createdBy: createdBy is String ? createdBy : '',
+      createdByEmail: createdByEmail is String ? createdByEmail : '',
     );
   }
 
