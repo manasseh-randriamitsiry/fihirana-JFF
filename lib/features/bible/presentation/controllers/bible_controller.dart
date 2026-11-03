@@ -114,7 +114,7 @@ class BibleController extends GetxController {
 
   @override
   void onClose() {
-    _testamentWorker?.call();
+    _testamentWorker?.dispose();
     super.onClose();
   }
 
@@ -123,7 +123,10 @@ class BibleController extends GetxController {
       await _initializeBibleUseCase((message) {
         // Update loading message if needed
       });
-      // Sub-controllers handle their own initialization
+      // The book list is read straight from the corpus cache, so the list the
+      // sub-controller built at construction can be empty when this entry won
+      // the race against the background init. Re-read it now that it is loaded.
+      bookController.loadBooks();
     } catch (e) {
       ErrorHandler.handleError(e, message: 'errorInitializingBible'.tr);
     }
