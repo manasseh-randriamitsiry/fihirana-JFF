@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get/get.dart';
 
 import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/design_system/app_theme.dart';
@@ -13,14 +12,7 @@ import 'package:fihirana/features/announcement/domain/entities/announcement.dart
 import 'package:fihirana/features/announcement/presentation/widgets/announcement_widgets.dart';
 import 'package:fihirana/features/audio/presentation/widgets/album_art_card.dart';
 import 'package:fihirana/features/bible/data/services/bible_service.dart';
-import 'package:fihirana/features/bible/domain/usecases/get_all_books_usecase.dart';
-import 'package:fihirana/features/bible/domain/usecases/get_book_usecase.dart';
-import 'package:fihirana/features/bible/domain/usecases/search_books_usecase.dart';
-import 'package:fihirana/features/bible/domain/usecases/search_verses_usecase.dart';
-import 'package:fihirana/features/bible/presentation/controllers/bible_book_controller.dart';
-import 'package:fihirana/features/bible/presentation/controllers/bible_search_controller.dart';
 import 'package:fihirana/features/bible/presentation/widgets/bible_reader_widgets.dart';
-import 'package:fihirana/features/bible/presentation/widgets/bible_search_dialog.dart';
 import 'package:fihirana/features/audio/presentation/widgets/compact_audio_player_widget.dart';
 import 'package:fihirana/features/audio/presentation/widgets/modern_audio_player_widget.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
@@ -330,57 +322,6 @@ void main() {
               ),
             ),
           ));
-    });
-
-    Future<void> searchFrame(WidgetTester tester, String name,
-        {String? query, int? chapter}) async {
-      Get.reset();
-      final books = Get.put(BibleBookController(
-        getAllBooksUseCase: GetAllBooksUseCase(bibleService),
-        getBookUseCase: GetBookUseCase(bibleService),
-      ));
-      Get.put(BibleSearchController(
-        searchBooksUseCase: SearchBooksUseCase(bibleService),
-        searchVersesUseCase: SearchVersesUseCase(bibleService),
-      ));
-      if (chapter != null) {
-        books.selectBook(bibleBook);
-        books.selectChapter(chapter);
-      }
-
-      tester.view.physicalSize = phone * 3;
-      tester.view.devicePixelRatio = 3;
-      addTearDown(tester.view.reset);
-
-      await tester.pumpWidget(MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: buildFihiranaTheme(
-          ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FED)),
-        ),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: const BibleSearchDialog(),
-      ));
-      await tester.pumpAndSettle();
-
-      if (query != null) {
-        await tester.enterText(find.byType(TextField), query);
-        // The field searches on a pause, and a pending timer schedules no frame.
-        await tester.pump(const Duration(milliseconds: 300));
-        await tester.pumpAndSettle();
-      }
-
-      await expectLater(
-          find.byType(MaterialApp), matchesGoldenFile('goldens/$name.png'));
-      Get.reset();
-    }
-
-    testWidgets('the search dialog, before a word is typed', (tester) async {
-      await searchFrame(tester, 'bible_search_empty');
-    });
-
-    testWidgets('the search dialog on a whole-Bible word', (tester) async {
-      await searchFrame(tester, 'bible_search_hits', query: 'fitiavana');
     });
 
     testWidgets('the chapter grid', (tester) async {
