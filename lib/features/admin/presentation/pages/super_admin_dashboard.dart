@@ -245,7 +245,7 @@ class _SuperAdminDashboardState extends State<SuperAdminDashboard> {
                         }
                       },
                       icon: const Icon(Icons.restart_alt_rounded),
-                      label: Text(l10n.clearCache),
+                      label: Text(l10n.restore),
                       style: TextButton.styleFrom(
                         foregroundColor: colors.onErrorContainer,
                       ),
