@@ -65,6 +65,14 @@ class AppScale {
   static const double figureColumn = 44;
   static const double gutter = 20;
 
+  // A tool screen caps its working measure and lets the gutters grow, so the
+  // object being edited never stretches out of shape on a tablet.
+  static const double workMeasure = 460;
+
+  // A background thumbnail: the 3:4 shape of the share art it stands for.
+  static const double swatch = 72;
+  static const double swatchTall = 96;
+
   // Motion: state only, never decoration.
   static const Duration durMicro = Duration(milliseconds: 120);
   static const Duration durShort = Duration(milliseconds: 220);
