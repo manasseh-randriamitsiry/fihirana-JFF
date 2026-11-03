@@ -529,6 +529,9 @@ class AudioService implements IAudioService {
   Future<void> resume() async {
     final hymn = _currentHymn;
     if (hymn != null && !_player.playing) {
+      // Completion clears the id but keeps the hymn for replay, so a replay has
+      // to re-claim it: without this the audio plays with nothing current.
+      _currentPlayingHymnId.value = hymn.id;
       unawaited(_startPlayback(hymn));
     }
   }
