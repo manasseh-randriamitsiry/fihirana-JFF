@@ -35,31 +35,7 @@ class BibleSearchResult {
     }
   }
 
-  String get subtitle {
-    switch (type) {
-      case BibleSearchResultType.book:
-        return 'Boky iray';
-      case BibleSearchResultType.verse:
-        return preview;
-    }
-  }
-
-  String get highlightedText {
-    if (type == BibleSearchResultType.book) {
-      return bookName;
-    }
-
-    // For verses, we'll implement highlighting in the UI
-    return text;
-  }
-
-  String get preview {
-    if (type == BibleSearchResultType.book) {
-      return 'Boky iray';
-    }
-
-    // Show first 100 characters of verse
-    if (text.length <= 100) return text;
-    return '${text.substring(0, 100)}...';
-  }
+  /// The reference is unique per search, so it is also what identifies a row
+  /// when the corpus repeats a verse text in several places.
+  String get listKey => '${type.name}:$displayText';
 }
