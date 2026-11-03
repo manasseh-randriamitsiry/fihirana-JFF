@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/hymn/presentation/pages/edit_hymn_screen.dart';
 import 'package:fihirana/features/hymn/presentation/pages/hymn_detail_screen.dart';
-import 'package:fihirana/features/favorites/presentation/pages/favorites_screen.dart';
 
 class NavigationUtility {
   static void navigateToEditScreen(BuildContext context, Hymn hymn) {
@@ -48,6 +47,8 @@ class NavigationUtility {
   }
 
   static void navigateToFavorites() {
-    Get.to(() => const FavoritesPage());
+    // Named route: the drawer marks the active item by comparing route names,
+    // so an unnamed push leaves no row highlighted while favorites is open.
+    Get.toNamed('/favorites');
   }
 }

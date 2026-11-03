@@ -216,13 +216,17 @@ class FirebaseSyncService {
       final history = <Map<String, dynamic>>[];
       for (var doc in snapshot.docs) {
         final data = doc.data();
+        final timestamp = data['timestamp'];
         history.add({
           'id': doc.id,
           'hymnId': data['hymnId'] as String? ?? '',
           'title': data['title'] as String? ?? '',
           'number': data['number'] as String? ?? '',
-          'timestamp':
-              (data['timestamp'] as Timestamp).toDate().toIso8601String(),
+          // A just-written entry reads back from the cache before the server
+          // timestamp commits, so the field can be null. Omitting it lets the
+          // item fall back to local time instead of throwing away every row.
+          if (timestamp is Timestamp)
+            'timestamp': timestamp.toDate().toIso8601String(),
         });
       }
 
