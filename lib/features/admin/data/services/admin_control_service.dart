@@ -38,9 +38,7 @@ class AdminConfig {
       recommendedVersion: map['recommendedVersion'],
       adminMessage: map['adminMessage'],
       emergencyMode: map['emergencyMode'] ?? false,
-      configTimestamp: map['timestamp'] != null
-          ? (map['timestamp'] as Timestamp).toDate()
-          : null,
+      configTimestamp: _readTimestamp(map['timestamp']),
       allowedVersions: List<String>.from(map['allowedVersions'] ?? []),
       featureFlags: map['featureFlags'],
     );
@@ -69,6 +67,15 @@ class AdminConfig {
 
   bool isVersionBlocked(String version) {
     return blockedVersion == version;
+  }
+
+  /// The timestamp reaches this model from two places: Firestore hands back a
+  /// `Timestamp`, the offline cache hands back whatever `jsonEncode` could hold.
+  static DateTime? _readTimestamp(Object? value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is String) return DateTime.tryParse(value);
+    if (value is int) return DateTime.fromMillisecondsSinceEpoch(value);
+    return null;
   }
 
   bool shouldForceUpdate(String currentVersion) {
@@ -253,7 +260,14 @@ class AdminControlService {
   static Future<void> _cacheConfigLocally(AdminConfig config) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_cachedConfigKey, jsonEncode(config.toMap()));
+      // The Firestore shape of the config carries a `Timestamp`, which
+      // `jsonEncode` refuses - and the throw was caught, so nothing was ever
+      // written and the offline fallback always read the default config.
+      // Millis, not ISO: it comes back through the same local representation
+      // `Timestamp.toDate()` hands the app.
+      final jsonShape = Map<String, dynamic>.from(config.toMap())
+        ..['timestamp'] = config.configTimestamp?.millisecondsSinceEpoch;
+      await prefs.setString(_cachedConfigKey, jsonEncode(jsonShape));
       await prefs.setString(
           'config_cache_time', DateTime.now().toIso8601String());
     } catch (e) {
