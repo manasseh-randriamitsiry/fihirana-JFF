@@ -73,6 +73,10 @@ class AppScale {
   static const double swatch = 72;
   static const double swatchTall = 96;
 
+  // A queue inside a compact player scrolls on its own: three register rows
+  // deep, so the transport controls above it never leave the screen.
+  static const double cuePeek = 168;
+
   // Motion: state only, never decoration.
   static const Duration durMicro = Duration(milliseconds: 120);
   static const Duration durShort = Duration(milliseconds: 220);

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/design_system/app_surfaces.dart';
@@ -444,9 +446,49 @@ class _CompactAudioPlayerWidgetState extends State<CompactAudioPlayerWidget> {
                 ],
               ),
             ),
+            _buildCueBlock(l10n),
           ],
         ),
       ),
     );
+  }
+
+  /// The queue this sheet can add to. The hymn offered is the one the page is
+  /// reading, so the block only means something while the player holds a
+  /// different one.
+  Widget _buildCueBlock(AppLocalizations l10n) {
+    return Obx(() {
+      final playingId = _audioService.currentPlayingHymnIdRx.value;
+      if (playingId.isEmpty || playingId == widget.hymn.id) {
+        return const SizedBox.shrink();
+      }
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AppRule(),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: AppScale.cuePeek),
+            child: AudioCueList(
+              actions: [
+                TextButton(
+                  onPressed: () => cueHymn(context, widget.hymn),
+                  child: Text(l10n.add),
+                ),
+                if (_audioService.cueRx.isNotEmpty)
+                  TextButton(
+                    onPressed: _audioService.clearCue,
+                    child: Text(l10n.clear),
+                  ),
+              ],
+              onPlayNow: (hymn) {
+                widget.onHymnChange?.call(hymn);
+                _audioService.playHymn(hymn);
+              },
+            ),
+          ),
+        ],
+      );
+    });
   }
 }

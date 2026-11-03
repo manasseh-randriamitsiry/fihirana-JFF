@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fihirana/core/design_system/app_theme.dart';
 import 'package:fihirana/features/audio/data/services/audio_service.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/features/audio/presentation/widgets/playlist_bottom_sheet.dart';
 import 'package:fihirana/features/hymn/domain/entities/hymn.dart';
 import 'package:fihirana/l10n/app_localizations.dart';
@@ -142,5 +144,95 @@ void main() {
 
     expect(service.cue, isEmpty);
     expect(find.text('Fihirana 13'), findsNothing);
+  });
+
+  Future<void> pumpCueList(WidgetTester tester,
+      {List<Widget> actions = const [], void Function(Hymn)? onPlayNow}) async {
+    await tester.pumpWidget(MaterialApp(
+      theme: buildFihiranaTheme(
+          ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FED))),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: AudioCueList(actions: actions, onPlayNow: onPlayNow),
+      ),
+    ));
+    await tester.pump();
+  }
+
+  testWidgets('the cue holds nothing on screen until a hymn is added',
+      (tester) async {
+    final service = AudioService.instance;
+    await service.clearCue();
+
+    await pumpCueList(tester,
+        actions: [const TextButton(onPressed: null, child: Text('Add'))]);
+
+    expect(find.text('Next'), findsNothing);
+    expect(find.text('Add'), findsNothing);
+
+    // The host holds the block unconditionally, so it appears on its own.
+    await service.addToCue(_hymn('h13', '13'));
+    await tester.pump();
+
+    expect(find.text('Next'), findsOneWidget);
+    expect(find.text('Add'), findsOneWidget);
+    expect(find.text('Fihirana 13'), findsOneWidget);
+  });
+
+  testWidgets('tapping a cued hymn leaves the queue to the host',
+      (tester) async {
+    final service = AudioService.instance;
+    await service.clearCue();
+    await service.addToCue(_hymn('h13', '13'));
+    await service.addToCue(_hymn('h1', '1'));
+
+    Hymn? handedOver;
+    await pumpCueList(tester, onPlayNow: (hymn) => handedOver = hymn);
+
+    await tester.tap(find.text('Fihirana 13'));
+    await tester.pump();
+
+    expect(handedOver?.id, 'h13');
+    expect(service.cue.map((h) => h.id), ['h1']);
+  });
+
+  testWidgets('a second hymn is asked about, and cueing confirms the tap',
+      (tester) async {
+    final service = AudioService.instance;
+    await service.clearCue();
+
+    await tester.pumpWidget(GetMaterialApp(
+      theme: buildFihiranaTheme(
+          ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FED))),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: Builder(
+          builder: (context) => TextButton(
+            onPressed: () => playOrCueHymn(context, _hymn('h13', '13')),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+    await tester.pumpAndSettle();
+
+    expect(service.cue.single.id, 'h13');
+    // The confirmation carries the hymn the tap queued.
+    expect(find.text('13 Fihirana 13'), findsOneWidget);
+
+    // The floating confirmation dismisses itself, and its timer has to run out
+    // before the test ends.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+
+    expect(find.text('13 Fihirana 13'), findsNothing);
   });
 }

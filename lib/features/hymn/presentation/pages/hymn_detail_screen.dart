@@ -27,6 +27,7 @@ import 'package:fihirana/features/hymn/presentation/widgets/hymn_detail_widgets.
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_improved_note_section_widget.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_action_widgets.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_detail_skeleton.dart';
+import 'package:fihirana/features/audio/presentation/widgets/audio_cue.dart';
 import 'package:fihirana/features/audio/presentation/widgets/compact_audio_player_widget.dart';
 import 'package:fihirana/features/playlist/presentation/widgets/add_to_playlist_sheet.dart';
 import 'package:fihirana/features/hymn/presentation/widgets/hymn_search_popup_widget.dart';
@@ -640,6 +641,14 @@ class _HymnDetailScreenState extends State<HymnDetailScreen>
         },
       ),
     );
+
+    // The player that opens shows what is loaded, so starting the hymn being
+    // read has to be asked here: queue it behind, or cut over to it.
+    final hymn = _hymn!;
+    if (_audioService.currentPlayingHymnId.isNotEmpty &&
+        _audioService.currentPlayingHymnId != hymn.id) {
+      playOrCueHymn(context, hymn);
+    }
   }
 
   void _navigateToEditScreen(BuildContext context) {
