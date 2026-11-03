@@ -7,9 +7,9 @@ import 'package:fihirana/l10n/app_localizations.dart';
 import 'package:fihirana/core/design_system/app_scale.dart';
 import 'package:fihirana/core/design_system/app_surfaces.dart';
 
-/// Where a word is looked for. The chips show the scope the search actually ran
-/// in, so a row of results can never disagree with the control above it: the
-/// chapter chip only exists while the reader sits on a chapter, and the
+/// Where a word is looked for. Every scope the reader can honour is on screen at
+/// once, so a chosen one can always be left again: the chapter chip exists while
+/// the reader sits on a chapter, whether or not it is the chosen scope, and the
 /// controller falls back to the whole Bible when it does not.
 class BibleSearchContextSelector extends StatelessWidget {
   const BibleSearchContextSelector({super.key});
@@ -18,11 +18,10 @@ class BibleSearchContextSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final search = Get.find<BibleSearchController>();
-    final chapter = Get.find<BibleBookController>().selectedChapter.value;
+    final books = Get.find<BibleBookController>();
 
     return Obx(() {
       final active = search.activeSearchContext;
-      final inChapter = active == BibleSearchContext.currentChapter;
 
       return Padding(
         padding: const EdgeInsets.symmetric(
@@ -37,11 +36,11 @@ class BibleSearchContextSelector extends StatelessWidget {
               selected: active == BibleSearchContext.books,
               onTap: () => _select(BibleSearchContext.books),
             ),
-            if (inChapter)
+            if (search.hasOpenChapter)
               _scopeChip(
                 context: context,
-                label: l10n.searchCurrentChapter(chapter),
-                selected: true,
+                label: l10n.searchCurrentChapter(books.selectedChapter.value),
+                selected: active == BibleSearchContext.currentChapter,
                 onTap: () => _select(BibleSearchContext.currentChapter),
               ),
             _scopeChip(
@@ -59,7 +58,9 @@ class BibleSearchContextSelector extends StatelessWidget {
   void _select(BibleSearchContext searchContext) {
     final search = Get.find<BibleSearchController>();
     search.setSearchContext(searchContext);
-    // The same word in a new scope is a new search, so it runs again.
+    // The same word in a new scope is a new search, so it runs again - and with
+    // nothing in the field the switch still has to land, which it does because
+    // the chips read the chosen scope, not the last one that ran.
     search.performSearch();
   }
 

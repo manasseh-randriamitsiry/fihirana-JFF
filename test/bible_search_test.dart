@@ -139,14 +139,23 @@ void main() {
       expect(search.searchResults, hasLength(2));
     });
 
-    test('a reset keeps the scope the user picked', () async {
+    test('a reset hands the scope back to the passage on screen', () async {
       search.setSearchContext(BibleSearchContext.books);
       search.resetSearch();
 
+      // The dialog is opened again from a new passage, so a scope picked during
+      // the search that was closed must not still be lit - it was the one thing
+      // a user could not switch out of.
+      expect(search.searchContext.value, isNull);
+      expect(search.activeSearchContext, BibleSearchContext.allBible);
+
       search.updateSearchQuery('Jos');
       await search.performSearch();
-      expect(search.searchResults.map((r) => r.type),
-          [BibleSearchResultType.book]);
+      expect(search.searchResults, hasLength(2));
+      expect(
+          search.searchResults.every((r) => r.type == BibleSearchResultType.verse),
+          isTrue,
+          reason: 'the word now searches verses, not the books of the last one');
     });
 
     test('a whitespace query searches nothing', () async {

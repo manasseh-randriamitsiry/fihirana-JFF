@@ -103,6 +103,65 @@ void main() {
     );
   });
 
+  testWidgets('the scope chips switch while the field is still empty',
+      (tester) async {
+    await openDialog(tester);
+
+    await tester.tap(find.text('Search Books'));
+    await tester.pumpAndSettle();
+
+    expect(search.activeSearchContext, BibleSearchContext.books);
+    expect(
+        tester
+            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Search Books'))
+            .selected,
+        isTrue);
+
+    await tester.tap(find.text('Search entire Bible'));
+    await tester.pumpAndSettle();
+
+    expect(search.activeSearchContext, BibleSearchContext.allBible);
+    expect(find.text('Enter word to search'), findsOne);
+  });
+
+  testWidgets('the chapter the reader sits on stays reachable as a scope',
+      (tester) async {
+    books.selectBook('Salamo');
+    books.selectChapter(1);
+    await openDialog(tester);
+
+    await tester.tap(find.text('Search Books'));
+    await tester.pumpAndSettle();
+
+    final chapterChip =
+        find.widgetWithText(ChoiceChip, 'Search in chapter 1');
+    expect(chapterChip, findsOne,
+        reason:
+            'a scope that vanishes the moment it is not chosen cannot be chosen again');
+
+    await tester.tap(chapterChip);
+    await tester.pumpAndSettle();
+
+    expect(search.activeSearchContext, BibleSearchContext.currentChapter);
+    expect(tester.widget<ChoiceChip>(chapterChip).selected, isTrue);
+  });
+
+  testWidgets('a reopened dialog offers the passage in front of the reader',
+      (tester) async {
+    books.selectBook('Salamo');
+    books.selectChapter(1);
+    await openDialog(tester);
+    await tester.tap(find.text('Search entire Bible'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.close_rounded));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(search.activeSearchContext, BibleSearchContext.currentChapter);
+  });
+
   testWidgets(
       'a word absent from the chapter finds nothing until the scope moves',
       (tester) async {

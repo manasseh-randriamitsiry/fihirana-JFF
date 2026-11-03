@@ -53,6 +53,10 @@ class BibleSearchController extends GetxController {
   /// broken search, so both cases mean the whole Bible.
   BibleSearchContext get activeSearchContext => _resolve(searchContext.value);
 
+  /// Whether the reader sits on a chapter, which is the only moment searching
+  /// that chapter can mean anything.
+  bool get hasOpenChapter => _openPassage.isNotEmpty;
+
   BibleSearchContext _resolve(BibleSearchContext? context) {
     final hasOpenChapter = _openPassage.isNotEmpty;
     if (context == null) {
@@ -165,11 +169,13 @@ class BibleSearchController extends GetxController {
     _highlightedVerses = {};
   }
 
-  /// Empty the field and its results, keeping the scope the user picked. The
-  /// controller lives with the reader, not with the dialog, so a dialog that
-  /// reopens without this shows the previous search's hits under an empty field.
+  /// Empty the field, its results and the picked scope. The controller lives
+  /// with the reader, not with the dialog, so a dialog that reopens without
+  /// this shows the previous search's hits under an empty field - and stays on
+  /// a scope chosen during the search that has since been closed.
   void resetSearch() {
     searchQuery.value = '';
+    searchContext.value = null;
     clearSearchResults();
   }
 
